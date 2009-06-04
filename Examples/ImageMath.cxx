@@ -104,7 +104,7 @@
 #include "itkNeighborhoodAlgorithm.h"
 #include "itkNeighborhood.h"
 
-
+#include "itkRGBPixel.h"
 #include "ReadWriteImage.h"
 #include "TensorFunctions.h"
 
@@ -1660,20 +1660,16 @@ template<unsigned int ImageDimension>
 int TensorFunctions(int argc, char *argv[])        
 {
   typedef float  PixelType;
-  typedef itk::Vector<float,ImageDimension>         VectorType;
   typedef itk::Vector<float, 6> TensorType;
-  typedef itk::Image<VectorType,ImageDimension>     FieldType;
-  typedef itk::Image<TensorType,ImageDimension>     TensorFieldType;
+  typedef typename itk::RGBPixel<float> RGBType;
+  typedef itk::Image<TensorType, ImageDimension> TensorImageType;
+  typedef typename TensorImageType::IndexType IndexType;
   typedef itk::Image<PixelType,ImageDimension> ImageType;
+  typedef itk::Image<RGBType,ImageDimension> ColorImageType;
   typedef itk::ImageFileReader<ImageType> readertype;
   typedef itk::ImageFileWriter<ImageType> writertype;
-  typedef  typename ImageType::IndexType IndexType;
-  typedef  typename ImageType::SizeType SizeType;
-  typedef  typename ImageType::SpacingType SpacingType;
-  typedef itk::AffineTransform<double,ImageDimension>   AffineTransformType;
-  typedef itk::LinearInterpolateImageFunction<ImageType,double>  InterpolatorType1;
-  typedef itk::NearestNeighborInterpolateImageFunction<ImageType,double>  InterpolatorType2;
-  typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
+  typedef itk::ImageFileWriter<ColorImageType> ColorWriterType;
+  typedef itk::ImageRegionIteratorWithIndex<TensorImageType> Iterator;
 
   int argct=2;
   std::string outname=std::string(argv[argct]); argct++;
@@ -1683,40 +1679,75 @@ int TensorFunctions(int argc, char *argv[])
   if (argc > argct) { fn2=std::string(argv[argct]);   }
 
             
-  typename TensorFieldType::Pointer image1 = NULL; 
-  typename ImageType::Pointer varimage = NULL; 
+  typename TensorImageType::Pointer timage = NULL; // input tensor image
+  typename ImageType::Pointer       vimage = NULL; // output scalar image
+  typename ColorImageType::Pointer  cimage = NULL; // output color image
 
-//void ReadTensorImage(itk::SmartPointer<TImageType> &target, const char *file, bool takelog=true)
-  ReadTensorImage<TensorFieldType>(image1,fn1.c_str(),false);
-  std::cout << " imagedir " << image1->GetDirection() << std::endl;
-  varimage=ImageType::New();
-  varimage->SetLargestPossibleRegion( image1->GetLargestPossibleRegion() );
-  varimage->SetBufferedRegion( image1->GetLargestPossibleRegion() );
-  varimage->SetLargestPossibleRegion( image1->GetLargestPossibleRegion() );
-  varimage->Allocate(); 
-  varimage->SetSpacing(image1->GetSpacing());
-  varimage->SetOrigin(image1->GetOrigin());
-  varimage->SetDirection(image1->GetDirection());
-  Iterator vfIter2( varimage,  varimage->GetLargestPossibleRegion() );  
-  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+
+  ReadTensorImage<TensorImageType>(timage,fn1.c_str(),false);
+  std::cout << " imagedir " << timage->GetDirection() << std::endl;
+
+  if (strcmp(operation.c_str(), "TensorColor") == 0)
     {
-    IndexType ind=vfIter2.GetIndex();
-    float result=0;
-
-      if (strcmp(operation.c_str(),"TensorFA") == 0) 
-	{
-	result=GetTensorFA<TensorType>(image1->GetPixel(ind)); 
-	}
-      else if (strcmp(operation.c_str(),"TensorMeanDiffusion") == 0) 
-	{
-	result=GetTensorADC<TensorType>(image1->GetPixel(ind),0); 
-	}
-      if (vnl_math_isnan(result)) result=0;
-
-      vfIter2.Set(result);
+      cimage = ColorImageType::New();
+      cimage->SetLargestPossibleRegion( timage->GetLargestPossibleRegion() );
+      cimage->SetBufferedRegion( timage->GetLargestPossibleRegion() );
+      cimage->SetLargestPossibleRegion( timage->GetLargestPossibleRegion() );
+      cimage->Allocate(); 
+      cimage->SetSpacing(timage->GetSpacing());
+      cimage->SetOrigin(timage->GetOrigin());
+      cimage->SetDirection(timage->GetDirection());
+    }
+  else 
+    {
+      vimage=ImageType::New();
+      vimage->SetLargestPossibleRegion( timage->GetLargestPossibleRegion() );
+      vimage->SetBufferedRegion( timage->GetLargestPossibleRegion() );
+      vimage->SetLargestPossibleRegion( timage->GetLargestPossibleRegion() );
+      vimage->Allocate(); 
+      vimage->SetSpacing(timage->GetSpacing());
+      vimage->SetOrigin(timage->GetOrigin());
+      vimage->SetDirection(timage->GetDirection());
     }
 
-  WriteImage<ImageType>(varimage,outname.c_str());
+  Iterator tIter(timage, timage->GetLargestPossibleRegion() );  
+  for(  tIter.GoToBegin(); !tIter.IsAtEnd(); ++tIter )
+    {
+
+    IndexType ind=tIter.GetIndex();
+    float result=0;    
+
+    if (strcmp(operation.c_str(),"TensorFA") == 0) 
+	  {
+    	result=GetTensorFA<TensorType>(tIter.Value()); 
+      if (vnl_math_isnan(result)) result=0;
+      vimage->SetPixel(ind,result);
+  	}
+    else if (strcmp(operation.c_str(),"TensorMeanDiffusion") == 0) 
+	  {
+	    result=GetTensorADC<TensorType>(tIter.Value(),0); 
+      if (vnl_math_isnan(result)) result=0;
+      vimage->SetPixel(ind,result);
+	  }
+    else if (strcmp(operation.c_str(),"TensorColor") == 0)
+	  {
+	    RGBType rgb = GetTensorRGB<TensorType>(tIter.Value());
+      cimage->SetPixel(ind,rgb);
+	  }
+
+    }
+
+    if (strcmp(operation.c_str(), "TensorColor") == 0)
+    {
+      typename ColorWriterType::Pointer cwrite = ColorWriterType::New();
+      cwrite->SetInput(cimage);
+      cwrite->SetFileName(outname.c_str());
+      cwrite->Update();
+    }
+    else
+    {
+      WriteImage<ImageType>(vimage,outname.c_str());
+    }
 
   return 0;
  
