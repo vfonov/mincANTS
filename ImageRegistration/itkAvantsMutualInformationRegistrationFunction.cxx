@@ -396,9 +396,9 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
   //  dpdfinterpolator->SetInputImage(m_JointPDFDerivatives);
   pdfinterpolator2->SetInputImage(m_FixedImageMarginalPDF);
   pdfinterpolator3->SetInputImage(m_MovingImageMarginalPDF);
-  pdfinterpolator->SetSplineOrder(5);
-  pdfinterpolator2->SetSplineOrder(5);
-  pdfinterpolator3->SetSplineOrder(5);
+  pdfinterpolator->SetSplineOrder(3);
+  pdfinterpolator2->SetSplineOrder(3);
+  pdfinterpolator3->SetSplineOrder(3);
 }
 
 
@@ -621,7 +621,7 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
     {
       float temp = jointPDFIterator.Get();
 // we do this to prevent background from over-whelming the computation
-      if (temp > max2) temp=(max2*0.9+max*0.1);
+//      if (temp > max2) temp=(max2*0.9+max*0.1);
       jointPDFIterator.Set(temp);
       jointPDFSum += temp;
       ++jointPDFIterator;
@@ -1033,38 +1033,32 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
         }
 
     typename JointPDFType::PointType pdfind;
- 
-  {
-
     pdfind[1]=fixedImageParzenWindowTerm;
     pdfind[0]=movingImageParzenWindowTerm;
     jointPDFValue=pdfinterpolator->Evaluate(pdfind);
     dJPDF = (1.0)*(pdfinterpolator->EvaluateDerivative( pdfind ))[1];
-
-  }
-  {
     typename MarginalPDFType::PointType mind;
     mind[0]=fixedImageParzenWindowTerm;
     dFmPDF =(1.0)*(pdfinterpolator2->EvaluateDerivative( mind ))[0];
     fixedImagePDFValue = pdfinterpolator2->Evaluate(mind);  
     typename MarginalPDFType::IndexType mind2;
     mind2[0]=fixedIndex;
-  }
+    
 
- double term1=0,term2=0,eps=1.e-12;
- if( jointPDFValue > eps &&  (fixedImagePDFValue) > 0)
-    {
-      term1 = dJPDF/jointPDFValue;
-      term2 = dFmPDF/fixedImagePDFValue;
-      value =  (term1*(-1.0)+term2);
-//      if (fabs(value)>100)value=0;
-//      double vv=10,vv2=vv;
-//      if (value > vv) value=vv2;
-//      if (value < vv*(-1.0)) value=vv2*(-1.0);
-    }  // end if-block to check non-zero bin contribution
-  else value = 0;
-
-  return value;
+    double term1=0,term2=0,eps=1.e-12;
+    if( jointPDFValue > eps &&  (fixedImagePDFValue) > 0)
+      {
+	term1 = dJPDF/jointPDFValue;
+	term2 = dFmPDF/fixedImagePDFValue;
+	value =  (term1*(-1.0)+term2);
+	//      if (fabs(value)>100)value=0;
+	//      double vv=10,vv2=vv;
+	//      if (value > vv) value=vv2;
+	//      if (value < vv*(-1.0)) value=vv2*(-1.0);
+      }  // end if-block to check non-zero bin contribution
+    else value = 0;
+    
+    return value;
 
 
 }
