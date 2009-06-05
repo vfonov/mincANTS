@@ -433,14 +433,14 @@ smoothly minimized or the maximum number of iterations is reached.
 BSpline regularization is also available in ANTS -- see the DMFFD 
 section below.  
 
-\noindent{\bf Warping and Invertibility.}ANTS uses physical space to define mappings. The origin etc is in the
-coordinates of the world in which the picture (e.g. MRI) was
-taken. Then, warping between physical coordinates is relatively
-easy. Differences in bounding boxes etc present no problem -- assuming
-you avoid inconsistent headers i.e. origins, directions, data
-orientation. One may use PrintHeader to check the data and run simple,
-fast tests (few iterations) to perform sanity checks before running
-through loads of data.
+\noindent{\bf Warping and Invertibility.}  ANTS uses physical space to
+define mappings. The origin etc is in the coordinates of the world in
+which the picture (e.g. MRI) was taken. Then, warping between physical
+coordinates is relatively easy. Differences in bounding boxes etc
+present no problem -- assuming you avoid inconsistent headers
+i.e. origins, directions, data orientation. One may use PrintHeader to
+check the data and run simple, fast tests (few iterations) to perform
+sanity checks before running through loads of data.
 An ANTS deformation consists of
 a standard naming prefix plus a standard naming extension. We usually 
 assume nii but other file types may be used. The standard naming
@@ -456,20 +456,20 @@ digital domain -- is only approximate as shown in figure~\ref{fig:inv}.
 \center \includegraphics[width=0.75\textwidth]{Figures/DeformationsInDigitalDomain.pdf} 
 \itkcaption[Digital Invertibility]{Digital invertibility presents some limitations. 
 Here, we see that invertibility is not exact but is gained only by interpolation.  
-Thus, in three-dimensional scenarios, there are fundamental limits to the 
+Thus, in three-dimensional scenarios in particular, there are fundamental limits to the 
 degree of invertibility that may be achieved.  The second and third voxels -- from left -- 
 in image A undergo an expansion by a factor of 2.  That is, under the mapping, 
 2 voxels are mapped to 4.  This gives the definition of the Jacobian -- computed 
 by  ANTSJacobian -- which is a unitless measure defined by the 
-ratio of volumes.  Thus, $\mathcal{J}(\x)=V_1(\phi(\x))/V_2(\x)$ where $V_i$ represents 
-the volume in one domain versus the other.  Thus, if $\phi$ -- the mapping -- 
+ratio of volumes.  Thus, $\mathcal{J}(\x)=V(\phi(\x))/V(\x)$ where $V$ represents 
+the volume operation and $\x$, here, may be a small object.  Thus, if $\phi$ -- the mapping -- 
 causes expansion, then $\mathcal{J}(\x) > 1$. }
 \vspace{-0.1in}
 \end{figure}  
 A few important notes follow. 
 (1) Deformation directionality: Warps/deformations applied to images occur in the opposite direction from warps/deformations applied to points. That is, if we map image B to A using 
 \begin{verbatim}
-ANTS -m PR[A,B,1,2] -o OUTPUT 
+ANTS 2 -m PR[A,B,1,2] -o OUTPUT 
 \end{verbatim}
  then we get a deformation called \verb OUTPUTWarp+extensions ~and an affine transform called \verb OUTPUTAffine.txt . 
 This composite mapping - when applied to B - will transform B into the space of A. 
@@ -521,8 +521,34 @@ Update schemes for diffeomorphic optimization are similar to the elastic case
 and are described elsewhere \cite{Avants2008b,ANTStheory}.   
 
 \subsection{ANTS Similarity Terms}
-From Gang. 
-
+Here is a script that will let you experiment with different similarity term 
+and transformation model combinations.  A few are listed, with parameters 
+that are a reasonable starting point.
+\begin{verbatim}
+II=r16slice.nii # change to your own images 
+JJ=r64slice.nii 
+DIM=2 # two-dimensional images 
+ITS=" -i 100x100x30 " # 3 optimization levels 
+TSYNWITHTIME=" -t SyN[1,2,0.05]  -r Gauss[3,0.5] "
+TGREEDYSYN=" -t SyN[0.25]  -r Gauss[3,0] "
+TELAST=" -t Elast[1] -r Gauss[0,3] " 
+TEXP="  -t Exp[0.5,10] -r Gauss[0,3] " 
+LABELGUIDED=" -m PSE[${II},${JJ},${II},${JJ},0.75,0.1,25,0,10] "
+INTMSQ=" -m MSQ[${II},${JJ},1,0.1] "
+INTMI=" -m MI[${II},${JJ},1,32] "
+INTPR=" -m PR[${II},${JJ},1,4] "
+NAME=TEST
+INT=$INTPR
+TRAN=$TSYN
+ANTS $DIM -o $NAME $ITS  $TRAN  $INT
+INVW=" -i ${NAME}Affine.txt ${NAME}InverseWarp.nii "
+FWDW=" ${NAME}Warp.nii ${NAME}Affine.txt "
+WarpImageMultiTransform  2 ${II} a.nii -R ${JJ} $INVW
+WarpImageMultiTransform  2 ${JJ} b.nii -R ${II} $FWDW
+\end{verbatim}
+Convergence occurs under two conditions: (1) either the maximum number of 
+iterations are reached at a given optimization level or (2) the slope 
+of the change in the optimization objective is negative or very small. 
 {\em Note: ANTS does not like spaces between brackets in the call to the metrics.}
 
 \subsection{Diffusion Tensor Normalization}
@@ -563,7 +589,9 @@ ANTS 3 -m PR[T1template.nii,T1subject.nii,1.25,4]
 \end{verbatim}
 In this case, dense features within white matter are gained by using the DT component  
 in addition to the T1 component.   The T1 PR metric, here, is weighted slightly more 
-than the FA PR metric, 1.25 vs. 1.0.
+than the FA PR metric, 1.25 vs. 1.0.  {\em The convergence criterion for 
+the multivariate scenario is a slave to the {\bf last} metric you 
+pass on the ANTS command line}.
 
 \subsection{Optimal Template Construction with ANTS}
 A useful script for setting up optimal template construction
