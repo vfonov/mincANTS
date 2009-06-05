@@ -732,16 +732,23 @@ images and exported segmentation images may be input to the
 PSE metric below, as labeled data.  The Frown and Smile data is used 
 as example.  This data is available in the 
 ANTS/Examples/Data/ directory.
+\begin{figure}
+\label{fig:frown}
+\includegraphics[width=0.45\textwidth]{Figures/frowntosmile.png}
+\includegraphics[width=0.45\textwidth]{Figures/smiletofrown.png}
+\itkcaption[Frown To Smile]{Expected output for the frown to smile 
+shows a smooth, though large deformation.  The grids are overlaid on 
+the deformed images. }
+\end{figure}
 \begin{verbatim}
-ANTS 2 -o PSEtest  -i 91x70x55x40x30  -r Gauss[3,0.] -t SyN[0.3]  
-   -m  PSE[Frown.nii,Smile.nii,Frown.nii,Smile.nii,1,0.2,11,0,25] 
-    -m  MSQ[Frown.nii,Smile.nii,1,0] 
-     --continue-affine 0  --number-of-affine-iterations 0 
+ANTS 2 -o PSEtest  -i 91x70x55x40x30  -r Gauss[3,0.] -t SyN[0.2]
+   -m  PSE[Frown.nii,Smile.nii,Frown.nii,Smile.nii,0.75,0.1,11,0,10] 
+   -m  MSQ[Frown.nii,Smile.nii,1,0]    --number-of-affine-iterations 0 
 
-WarpImageMultiTransform  2 Frown.nii temp.nii -R Smile.nii
+WarpImageMultiTransform  2 Frown.nii FrownToSmile.nii -R Smile.nii
    -i PSEtestAffine.txt PSEtestInverseWarp.nii 
 
-WarpImageMultiTransform  2 Smile.nii temp2.nii -R Frown.nii 
+WarpImageMultiTransform  2 Smile.nii SmileToFrown.nii -R Frown.nii 
     PSEtestWarp.nii PSEtestAffine.txt 
 
 CreateWarpedGridImage 2 PSEtestInverseWarp.nii grid1.nii
