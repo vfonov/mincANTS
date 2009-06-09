@@ -1,0 +1,121 @@
+ANTS supports both volumetric registration and point set registration. The image / point set similarity metrics in ANTS are unified in the form of a function on the images or the point sets:
+$$\textbf{Simlarity}[\textbf{fixedImage}, \textbf{movingImage}, \textbf{weight}, \textbf{parameters}]$$
+
+The similarity type for the deformation transformation is specified by -m option. This option contains two parts: simarity type and the parameters inside the brackets. (Note: no white spaces exist between parameters.) The possible similarity metrics are: 
+\begin{itemize}
+ \item Intensity based:
+    \begin{itemize}
+        \item Cross correlation
+
+        -m CC/cross-correlation/CrossCorrelation[fixedImage,movingImage,weight,radius]        
+        
+        This metric works well for intra-modality image registration. 
+        
+        Example: \textbf{-m CC[fixed.nii,moving.nii,1,5]} specifies:
+            \begin{itemize}
+             \item the fixed image: fixed.nii
+             \item the moving image: moving.nii             
+             \item weight for this metric is 1 (i.e. only this metric drives the registration).      \item the region radius for computing cross correlation is 5
+            \end{itemize}
+
+        \item Mutual information
+
+        -m MI/mutual-information/MutualInformation[fixedImage,movingImage,weight,number of histogram bins]
+        
+        This metric works both well for intra-modality and inter-modality image registration. 
+        
+        Example: \textbf{-m MI[fixed.nii,moving.nii,1,32]} specifies:
+            \begin{itemize}
+             \item the fixed image: fixed.nii
+             \item the moving image: moving.nii             
+             \item weight for this metric is 1 (i.e. only this metric drives the registration).      \item the number of bins in computing mutual information is 32
+            \end{itemize}
+                     
+        \item PR
+
+        -m PR/probabilistic/Probabilistic[fixedImage,movingImage,weight,radius]
+        
+        TODO: This metric works for intra-modality image registration.
+        
+        Example: \textbf{-m PR[fixed.nii,moving.nii,1,5]} specifies:
+            \begin{itemize}
+             \item the fixed image: fixed.nii
+             \item the moving image: moving.nii             
+             \item weight for this metric is 1 (i.e. only this metric drives the registration).      \item the region radius for computing cross correlation is 5
+            \end{itemize}
+
+        \item Mean square difference
+
+        -m MSQ/mean-squares/MeanSquares[fixedImage,movingImage,weight, 0]
+        
+        This metric works for intra-modality image registration.
+        
+        Example: \textbf{-m MSQ[fixed.nii,moving.nii,1,0]} specifies:
+            \begin{itemize}
+             \item the fixed image: fixed.nii
+             \item the moving image: moving.nii             
+             \item weight for this metric is 1 (i.e. only this metric drives the registration).      \item 0 is a padding value of no real meaning.
+            \end{itemize}
+
+    \end{itemize}
+
+ \item Point set based:
+    \begin{itemize}
+        \item Point set expectation
+
+        -m PSE/point-set-expectation/PointSetExpectation [fixedImage,movingImage,fixedPoints,movingPoints,weight,pointSetPercentage,pointSetSigma, boundaryPointsOnly,kNeighborhood,PartialMatchingIterations=100000]
+
+        the partial matching option assumes the complete labeling is in the first set of label parameters ... more iterations leads to more symmetry in the matching  - 0 iterations means full asymmetry 
+
+        TODO: Example: \textbf{-m JTB[fixed.nii,moving.nii,fixed.nii,moving.nii,?????]} specifies:
+            \begin{itemize}
+             \item the fixed image: fixed.nii
+             \item the moving image: moving.nii             
+             \item the fixed point set: fixed.nii
+             \item the moving point set: moving.nii
+             \item weight for this metric is 1 (i.e. only this metric drives the registration).
+             \item TODO: What are the parameters?
+            \end{itemize}
+
+
+        \item Jensen-Tsallis BSpline
+
+        -m JTB/jensen-tsallis-bspline/JensenTsallisBSpline [fixedImage,movingImage,fixedPoints,movingPoints,weight,pointSetPercentage,pointSetSigma, boundaryPointsOnly,kNeighborhood,alpha,meshResolution,splineOrder,numberOfLevels, useAnisotropicCovariances]
+
+        the partial matching option assumes the complete labeling is in the first set of label parameters ... more iterations leads to more symmetry in the matching  - 0 iterations means full asymmetry 
+
+            TODO: Example: \textbf{-m JTB[fixed.nii,moving.nii,fixed.nii,moving.nii,?????]} specifies:
+            \begin{itemize}
+             \item the fixed image: fixed.nii
+             \item the moving image: moving.nii             
+             \item the fixed point set: fixed.nii
+             \item the moving point set: moving.nii
+             \item weight for this metric is 1 (i.e. only this metric drives the registration).
+             \item TODO: What are the parameters?
+            \end{itemize}
+
+    \end{itemize}
+
+
+ \item For the affine registration, there are two types of similarity metrics, which are specified using \textbf{$--$affine-metric-type}:
+    
+    \begin{itemize}
+     
+    \item Mutual information, specified using \textbf{MI}.
+         Example: \textbf{$--$affine-metric-type MI}. Options can be specified as:         
+           
+         \begin{itemize}
+            \item \textbf{$--$MI-option} specifies the number of bins and samples: MI\_bins x MI\_samples, for example: \textbf{$--$MI-option 32x8000}
+         \end{itemize}
+    
+    \item Mean square difference, specified using \textbf{MSE}.
+         Example: \textbf{$--$affine-metric-type MSE}
+         \begin{itemize}
+            \item \textbf{$--$MI-option} specifies the number of bins and samples: MI\_bins x MI\_samples, for example: \textbf{$--$MI-option 32x8000}
+        \end{itemize}
+
+
+    \end{itemize}
+
+\end{itemize}
+
