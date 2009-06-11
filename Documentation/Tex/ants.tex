@@ -232,8 +232,8 @@ affine transform file and a deformation field, potentially with
 inverse.  Options to ANTS allows the user to navigate the similarity
 and transformation options that are available.  ANTS takes multiple
 similarity and optimization criteria as options.  The program is
-wrapped in \verb ants.sh for normalization with ``out of the box''
-parameters and in \verb buildtemplateparallel.sh for 
+wrapped in \verb ants.sh ~for normalization with ``out of the box''
+parameters and in \verb buildtemplateparallel.sh ~for 
 computationally distributed optimal template construction.
 
 \subsection{The WarpImageMultiTransform Executable}
@@ -244,7 +244,7 @@ may avoid multiple interpolations of a single image.  This program is used inter
 optimization to avoid ever using more than one interpolation.  The use-NN option applies nearest 
 neighbor interpolation, otherwise linear interpolation is used. 
 
-\subsection{The ImageMath Executable} This is a multi-purpose program that has the following syntax:  ``ImageMath ImageDimension outputfilename   Operation  InputFileName  parameters ``.  Most basic scalar image operations -- and some tensor operations -- may be performed with this program.  Some operations output text files, some output images and some output only to the terminal.   ImageMath allows one to multiply images together (m), to negate images (Neg), to take an image to a power (pow), to test the invertibility of transformations (InvId), to compute the fractional anisotropy of an image (TensorFA) and to perform Markov Random Field segmentation with our without priors (Segment).   Many other operations are available.  Like all other ANTS programs, one may call ImageMath from the command line to see all of its options.   ImageMath is used heavily in ANTS scripts.  
+\subsection{The ImageMath Executable} This is a multi-purpose program that has the following syntax:  ``ImageMath ImageDimension outputfilename   Operation  InputFileName  parameters ``.  Most basic scalar image operations -- and some tensor operations -- may be performed with this program.  Some operations output text files, some output images and some output only to the terminal.   ImageMath allows one to multiply images together (m), to negate images (Neg), to take an image to a power (pow), to test the invertibility of transformations (InvId), to compute the fractional anisotropy of an image (TensorFA) and to perform Markov Random Field segmentation with or without priors (Segment).   Many other operations are available.  Like all other ANTS programs, one may call ImageMath from the command line to see all of its options.   ImageMath is used heavily in ANTS scripts.  
 
 \subsection{ANTS Scripts} 
 The ANTS/Scripts directory contains (hopefully) user-friendly wrappings of ANTS tools 
@@ -396,10 +396,11 @@ shortcomings motivate the use of diffeomorphisms.
 \noindent{\bf Elastic/Vector Space Transformations.} If we assume no affine transformation, then 
 an elastic transformation involves computing a mapping from image $I(\x)$ to image $J(\x)$ 
 through a deformation field $\disp( \x )$.  
-\begin{wrapfigure}{r}{0.5\textwidth}
+\begin{figure}
 \label{fig:pull}
-\includegraphics[width=0.45\textwidth]{./Figures/PullBack.pdf} 
-\end{wrapfigure}  
+\center \includegraphics[width=0.75\textwidth]{./Figures/PullBack.pdf} 
+\itkcaption[ANTS Deformation]{A deformation in a digital domain.}
+\end{figure}  
 The deformation is defined in the physical space of the image 
 and dictates the positional difference between corresponding features in the two images.  
 Thus, if a feature defined at $I(\x)$ matches a feature in $J$ at position $\y$ then the deformation 
