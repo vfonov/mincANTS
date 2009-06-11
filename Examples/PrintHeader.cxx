@@ -44,10 +44,10 @@ int PrintHeader(int argc, char *argv[])
   std::cout << " Origin " << reader->GetOutput()->GetOrigin() << std::endl;
   std::cout << " Direction " << std::endl << reader->GetOutput()->GetDirection() << std::endl;
   if ( ImageDimension == 1 ) 
-  std::cout << " Size : " << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[0] << " " <<  << std::endl;
+    std::cout << " Size : " << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[0] << " " <<   std::endl;
   else if ( ImageDimension == 2 )
     std::cout << " Size : " << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[0] << " " << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[1] << " " << std::endl;  
-   else if ( ImageDimension == 2 )
+   else if ( ImageDimension == 3 )
     std::cout << " Size : " << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[0] << " " << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[1] << " " <<  " " << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[2] << std::endl;
    else    std::cout << " Size : " << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
 //  std::cout << " Orientation " << reader->GetOutput()->GetOrientation() << std::endl;
