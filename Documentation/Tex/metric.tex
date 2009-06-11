@@ -91,41 +91,8 @@ ANTS 2 -m MSQ[r16slice.nii,r64slice.nii,1,0] -r Gauss[3,0] -t SyN[0.5] -i 50x50x
     \itkcaption{registration using mean square intensity difference}
 \end{figure}
     %    \end{wrapfigure}
-Here is an example script to register a pair of images using different image metrics:
+Here is also an example script to register a pair of images using mean square intensity difference and computing the metrics of the registration image.
 \begin{verbatim}
-#use cross-correlation with cc region radius 2
-ANTS 2 -m CC[r16slice.nii,r64slice.nii,1,2] -r Gauss[3,0] -t SyN[1] -i 50x50x30
-WarpImageMultiTransform 2 r64slice.nii resCC2.nii Warp.nii Affine.txt
-MeasureImageSimilarity 2 0 r16slice.nii resCC2.nii metricexamplelog.txt
-MeasureImageSimilarity 2 1 r16slice.nii resCC2.nii metricexamplelog.txt
-MeasureImageSimilarity 2 2 r16slice.nii resCC2.nii metricexamplelog.txt
-ConvertToJpg resCC2.nii resCC2.jpg
-
-#use cross-correlation with cc region radius 4
-ANTS 2 -m CC[r16slice.nii,r64slice.nii,1,4] -r Gauss[3,0] -t SyN[1] -i 50x50x30
-WarpImageMultiTransform 2 r64slice.nii resCC4.nii Warp.nii Affine.txt
-MeasureImageSimilarity 2 0 r16slice.nii resCC4.nii metricexamplelog.txt
-MeasureImageSimilarity 2 1 r16slice.nii resCC4.nii metricexamplelog.txt
-MeasureImageSimilarity 2 2 r16slice.nii resCC4.nii metricexamplelog.txt
-ConvertToJpg resCC4.nii resCC4.jpg
-
-#use cross-correlation with cc region radius 2
-ANTS 2 -m PR[r16slice.nii,r64slice.nii,1,2] -r Gauss[3,0] -t SyN[1] -i 50x50x30
-WarpImageMultiTransform 2 r64slice.nii resPR2.nii Warp.nii Affine.txt
-MeasureImageSimilarity 2 0 r16slice.nii resPR2.nii metricexamplelog.txt
-MeasureImageSimilarity 2 1 r16slice.nii resPR2.nii metricexamplelog.txt
-MeasureImageSimilarity 2 2 r16slice.nii resPR2.nii metricexamplelog.txt
-ConvertToJpg resPR2.nii resPR2.jpg
-
-#use cross-correlation with cc region radius 4
-ANTS 2 -m PR[r16slice.nii,r64slice.nii,1,4] -r Gauss[3,0] -t SyN[1] -i 50x50x30
-WarpImageMultiTransform 2 r64slice.nii resPR4.nii Warp.nii Affine.txt
-MeasureImageSimilarity 2 0 r16slice.nii resPR4.nii metricexamplelog.txt
-MeasureImageSimilarity 2 1 r16slice.nii resPR4.nii metricexamplelog.txt
-MeasureImageSimilarity 2 2 r16slice.nii resPR4.nii metricexamplelog.txt
-ConvertToJpg resPR4.nii resPR4.jpg
-
-
 #use intensity difference with radius 0 -- radius no effect on intensity difference
 ANTS 2 -m MSQ[r16slice.nii,r64slice.nii,1,0] -r Gauss[3,0] -t SyN[0.5] -i 50x50x30
 WarpImageMultiTransform 2 r64slice.nii resMSQ.nii Warp.nii Affine.txt
@@ -133,14 +100,4 @@ MeasureImageSimilarity 2 0 r16slice.nii resMSQ.nii metricexamplelog.txt
 MeasureImageSimilarity 2 1 r16slice.nii resMSQ.nii metricexamplelog.txt
 MeasureImageSimilarity 2 2 r16slice.nii resMSQ.nii metricexamplelog.txt
 ConvertToJpg resMSQ.nii resMSQ.jpg
-
-
-# use mutual information with radius 0 and step-size 1.0
-ANTS 2 -m MI[r16slice.nii,r64slice.nii,1,32] -r Gauss[3,0] -t SyN[1] -i 50x50x30
-WarpImageMultiTransform 2 r64slice.nii resMI2.nii Warp.nii Affine.txt
-MeasureImageSimilarity 2 0 r16slice.nii resMI2.nii metricexamplelog.txt
-MeasureImageSimilarity 2 1 r16slice.nii resMI2.nii metricexamplelog.txt
-MeasureImageSimilarity 2 2 r16slice.nii resMI2.nii metricexamplelog.txt
-ConvertToJpg resMI2.nii resMI2.jpg
-
 \end{verbatim}
