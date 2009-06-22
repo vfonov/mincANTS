@@ -3449,7 +3449,11 @@ int PropagateLabelsThroughMask(int argc, char *argv[])
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
   std::string fn2 = "";
+  float stopval=100.0;
   if (  argc > argct) { fn2=std::string(argv[argct]);   argct++; }
+  else { std::cout << " not enough parameters -- need label image " << std::endl;  return 0; }
+  if (  argc > argct) { stopval=atof(argv[argct]);   argct++; }
+  
 
   typename ImageType::Pointer speedimage = NULL; 
   ReadImage<ImageType>(speedimage, fn1.c_str());
@@ -3502,7 +3506,7 @@ int PropagateLabelsThroughMask(int argc, char *argv[])
 	    } 
 	}
       fastMarching->SetTrialPoints(  seeds  );
-      fastMarching->SetStoppingValue(  100.0 );  
+      fastMarching->SetStoppingValue(  stopval );  
       fastMarching->Update();
       for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
 	{
@@ -5565,7 +5569,7 @@ int main(int argc, char *argv[])
     std::cout << "  ConvertImageSetToMatrix  rowcoloption Mask.nii  *images.nii --  each row/column contains image content extracted from mask applied to images in *img.nii " << std::endl;    
     std::cout << "  ConvertVectorToImage   Mask.nii vector.nii  -- the vector contains image content extracted from a mask - here we return the vector to its spatial origins as image content " << std::endl;
     std::cout << "  FillHoles Image parameter : parameter = ratio of edge at object to edge at background = 1 is a definite hole bounded by object only, 0.99 is close -- default of parameter > 1 will fill all holes " << std::endl;
-    std::cout << " PropagateLabelsThroughMask   speed/binaryimagemask.nii.gz   initiallabelimage.nii.gz -- final output is the propagated label image " << std::endl; 
+    std::cout << " PropagateLabelsThroughMask   speed/binaryimagemask.nii.gz   initiallabelimage.nii.gz Optional-Stopping-Value  -- final output is the propagated label image  " << std::endl <<  " optional stopping value -- higher values allow more distant propagation "  << std::endl; 
     return 1;
   }           
 
