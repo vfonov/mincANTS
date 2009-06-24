@@ -3443,7 +3443,7 @@ int PropagateLabelsThroughMask(int argc, char *argv[])
   typedef itk::LinearInterpolateImageFunction<ImageType,double>  InterpolatorType1;
   typedef itk::NearestNeighborInterpolateImageFunction<ImageType,double>  InterpolatorType2;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-
+  float thresh=0.5;
   int argct=2;
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
@@ -3472,7 +3472,7 @@ int PropagateLabelsThroughMask(int argc, char *argv[])
       bool isinside=true;
       double speedval=speedimage->GetPixel(vfIter2.GetIndex());
       double labval=labimage->GetPixel(vfIter2.GetIndex());
-      if ( speedval < 1.e-3 ) isinside=false;
+      if ( speedval < thresh ) isinside=false;
       if (isinside )
 	{
 	  if ( labval > maxlabel ) maxlabel=labval;
@@ -3494,7 +3494,7 @@ int PropagateLabelsThroughMask(int argc, char *argv[])
 	  bool isinside=true;
 	  double speedval=speedimage->GetPixel(vfIter2.GetIndex());
 	  double labval=labimage->GetPixel(vfIter2.GetIndex());
-	  if ( speedval < 1.e-3 ) isinside=false;
+	  if ( speedval < thresh ) isinside=false;
 	  if (isinside && (unsigned int) labval == lab ) 
 	    {
 	      NodeType node;
@@ -3513,7 +3513,7 @@ int PropagateLabelsThroughMask(int argc, char *argv[])
 	  bool isinside=true;
 	  double speedval=speedimage->GetPixel(vfIter2.GetIndex());
 	  double labval=labimage->GetPixel(vfIter2.GetIndex());
-	  if ( speedval < 1.e-3 ) isinside=false;
+	  if ( speedval < thresh ) isinside=false;
 	  if (isinside && labval == 0 ) 
 	    {
 	      double fmarrivaltime=fastMarching->GetOutput()->GetPixel( vfIter2.GetIndex() );
@@ -5684,7 +5684,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"PValueImage") == 0 )  PValueImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertImageSetToMatrix") == 0 )  ConvertImageSetToMatrix<3>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertVectorToImage") == 0 )  ConvertVectorToImage<3>(argc,argv);
-     else if (strcmp(operation.c_str(),"PropagateLabelsThroughMask") == 0 )  PropagateLabelsThroughMask<2>(argc,argv);
+     else if (strcmp(operation.c_str(),"PropagateLabelsThroughMask") == 0 )  PropagateLabelsThroughMask<3>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
    default:
