@@ -2,7 +2,7 @@ ANTS supports both volumetric registration and point set registration. The image
         
 The similarity type for the deformation transformation is specified by \verb -m  option, which contains two parts: simarity type and the parameters inside the brackets. (Note: no white spaces exist between parameters.) The possible similarity metrics for volumetric images are: 
 \begin{itemize}
-    \item Cross correlation:  \verb"-m CC[fixedImage,movingImage,weight,radius]". This metric works well for intra-modality image registration. For exxample, \verb"-m CC[fixed.nii,moving.nii,1,5]" specifies:
+    \item Cross correlation estimate:  \verb"-m CC[fixedImage,movingImage,weight,radius]". This metric works well for intra-modality image registration. For exxample, \verb"-m CC[fixed.nii,moving.nii,1,5]" specifies:
     \begin{itemize}
         \item the fixed image: fixed.nii
         \item the moving image: moving.nii             
@@ -12,7 +12,7 @@ The similarity type for the deformation transformation is specified by \verb -m 
 
     \item Mutual information: \verb"-m MI[fixedImage,movingImage,weight,number-of-histogram-bins]". This metric works both well for intra-modality and inter-modality image registration. For example, the first three parameters in \verb"-m MI[fixed.nii,moving.nii,1,32]" is similar to the example above in cross correlation, except that the last parameter means that the number of bins in computing mutual information is 32.
 
-    \item PR: \verb"-m PR[fixedImage,movingImage,weight,radius]". This metric works for intra-modality image registration. [TODO: what is different with CC???]. The meaning of parameters are similar to cross correlation.
+    \item PR: \verb"-m PR[fixedImage,movingImage,weight,radius]". This metric works for intra-modality image registration and some inter-modality cases. This metric is a strict implementation of correlation whereas CC estimates correlation-like optical flow. The meaning of parameters are similar to cross correlation.
 
     \item Mean square difference: \verb"-m MSQ[fixedImage,movingImage,weight,0]". This metric works for intra-modality image registration. The last parameter \verb"0" is a padding value of no real meaning. For example, \verb"-m MSQ[fixed.nii,moving.nii,1,0]". 
 
@@ -29,12 +29,12 @@ kNeighborhood,PartialMatchingIterations=100000]
     \begin{itemize}
         \item \verb"fixedImage": defines the space domain of the fixed point set.
         \item \verb"movingImage": defines the space domain of the moving point set.
-        \item \verb"fixedPoints": defines the coordinates of the fixed point set. It can be an image with discrete positive labels, a VTK format point set file, or a text file. Details can be found in I/O section (TODO).
-        \item \verb"movingPoints": defines the coordinates of the moving point set.
+        \item \verb"fixedPoints/Image": defines the coordinates of the fixed point set or label image. It can be an image with discrete positive labels, a VTK format point set file, or a text file. Details can be found in I/O section (TODO).
+        \item \verb"movingPoints/Image": defines the coordinates of the moving point set or label image. 
         \item \verb"weight": weight for this metric. \verb"1" means that only this metric drives the registration.
         \item \verb"pointSetPercentage": the percentage of points to be randomly sampled used in the registration.
-        \item \verb"pointSetSigma": the ??? 
-        \item \verb"boundaryPointsOnly": [TODO] \verb"1" (or ``true'') means only the boundary points in the point sets are used to drive registration.
+        \item \verb"pointSetSigma": the standard deviation of the Parzen window used to estimate the expectation. 
+        \item \verb"boundaryPointsOnly":  \verb"1" (or ``true'') means only the boundary points in the label image is used to drive registration.
         \item \verb"kNeighborhood" is a positive discrete number. The first $k$ neighbors are used to compute the deformation during the registration. 
         \item \verb"PartialMatchingIterations" controls the symmtry in the matching. This option assumes the complete labeling is in the first set of label parameters ... more iterations leads to more symmetry in the matching  - 0 iterations means full asymmetry 
     \end{itemize}
@@ -52,7 +52,7 @@ meshResolution,splineOrder,numberOfLevels,useAnisotropicCovariances]
         \item \verb"movingPoints": defines the coordinates of the moving point set.
         \item \verb"weight": weight for this metric. \verb"1" means that only this metric drives the registration.
         \item \verb"pointSetPercentage": the percentage of points to be randomly sampled used in the registration.
-        \item \verb"pointSetSigma": the ??? 
+        \item \verb"pointSetSigma": the sigma for the Parzen window used to estimate probabilities.  
         \item \verb"boundaryPointsOnly": [TODO] \verb"1" (or ``true'') means only the boundary points in the point sets are used to drive registration.
         \item \verb"kNeighborhood" is a positive discrete number. The first $k$ neighbors are used to compute the deformation during the registration. 
         \item \verb"alpha"

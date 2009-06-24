@@ -415,11 +415,11 @@ ExpectationBasedPointSetRegistrationFunction<TFixedImage,TMovingImage,TDeformati
 //     std::cout << " doing label " << label << std::endl;
     this->SetUpKDTrees(label);
     bool dobsp=false;
-//    if (lct ==  this->m_LabelSet.size() && ImageDimension > 2 ) dobsp=true;
+//    if (lct ==  this->m_LabelSet.size()  ) dobsp=true;
     this->FastExpectationLandmarkField(1.0,true,label,dobsp);
     this->FastExpectationLandmarkField(1.0,false,label,dobsp);
     }
-// follow up with BSpline 
+// follow up with BSpline if dospb is true .
 
 
 }

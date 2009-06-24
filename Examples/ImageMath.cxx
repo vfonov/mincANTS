@@ -1574,7 +1574,7 @@ int ImageMath(int argc, char *argv[])
     }
   catch(...)
     {
-      std::cout << " Error reading " << fn2 << std::endl;
+      std::cout << " Error reading " << fn2 << " as a file  -- will treat " <<  argv[argct] << "  as a float value " << std::endl;
       isfloat=true;
     } 
 

@@ -275,7 +275,9 @@ Thus, ANTS enables many operating points from both the transformation and appear
 \label{fig:cmd}
 \includegraphics[width=0.9\textwidth]{Figures/ANTSSyntax.pdf} 
 \itkcaption[ANTS Command Line]{The relationship between the variational 
-form that defines the optimization goals and the ANTS command line.}
+form that defines the optimization goals and the ANTS command line.  The 
+SyN option implements the method in \cite{Avants2008b} and evaluated in 
+\cite{Klein2009}.}
 \vspace{-0.1in}
 \end{figure}
 ANTS may be used to navigate the transformation and similarity metric space. 
@@ -321,7 +323,7 @@ An overview of available models and similarity terms is in Table~\ref{table:char
        {} & Geodesic SyN$^\dagger$ &  CC, PR, MI, MSQ, PSE  &  $~\min~\velocity(\x,t)$ over all time \\
     \bottomrule
     \end{tabular}
-  \caption{Transformations and a subset of the similarity metrics available in ANTS.  Similarity metric acronyms:  CC = fast cross correlation, PR = pure cross correlation (the preferred metric), MSQ = mean squared difference, MI = mutual information, PSE = point-set expectation.  ANTS also provides the inverse of those transformations denoted by the `$\dagger$' symbol.  The brief descriptions of the diffeomorphic algorithms contrast the way in which the velocity field is optimized and used to parameterize $\phi$, the mapping.  All 
+  \caption{Transformations and a subset of the similarity metrics available in ANTS.  Similarity metric acronyms:  CC = fast cross correlation, PR = pure cross correlation (the preferred metric), MSQ = mean squared difference, MI = mutual information, PSE = point-set expectation \cite{Pluta2008}.  ANTS also provides the inverse of those transformations denoted by the `$\dagger$' symbol.  The brief descriptions of the diffeomorphic algorithms contrast the way in which the velocity field is optimized and used to parameterize $\phi$, the mapping.  All 
 ANTS Diff algorithms generate $\phi(\x,t)$ over $t \in [ 0, 1]$ through gradient descent.}
   \label{table:chart}
 \end{table*}    
@@ -508,7 +510,7 @@ to elastic to diffeomorphic normalization.
 \end{figure}
 Figure~\ref{fig:antssyn} shows 
 how one may use ANTS to achieve a state-of-the-art diffeomorphic mapping. 
-The ANTS diffeomorphic model chosen for this example -- symmetric normalization -- 
+The ANTS diffeomorphic model chosen for this example -- symmetric normalization \cite{Avants2008b,Kim2008} -- 
 is invariant to the order of the input images (although the affine mapping is not).  
 An additional advantage of the diffeomorphic model over the elastic model is 
 that both forward and inverse transformations are computed thus allowing one 
@@ -600,7 +602,10 @@ pass on the ANTS command line}.
 
 \subsection{Optimal Template Construction with ANTS}
 A useful script for setting up optimal template construction
- is available in ANTS/Scripts.  Two versions of available : serial and parallel.  
+ is available in ANTS/Scripts.  This method is described in \cite{Avants2004,Avants2006d,Kim2008,Yushkevich2009}, 
+where more recent publications are more descriptive and incorporate 
+more recent features and optimization strategies. 
+Two versions of this algorithm are available : serial and parallel.  
 Data and a script for building an average face template is available 
 the ANTS/Examples/Data directory.  Two key points about optimal templates:
 1. The outcome stabilizes at around ten images, for most populations.
@@ -753,14 +758,21 @@ the more recently developed Diffeomorphic Registration-based Cortical Thickness
 from probability or binary images that define object boundaries.  This tool 
 is mainly of interest in brain mapping and cardiac imaging for morphometric 
 studies.  Cortical thickness, for instance, is known to correlate with language 
-development and IQ in adolescents.  
-  
+development and IQ in adolescents.  The laplacian approach to 
+cortical thickness may be used via the program LaplacianThickness, 
+which implements the method described in ``Three-dimensional mapping of cortical thickness using Laplace's Equation'' by 
+Jones, et al \cite{}.  Super-sampling 
+and controlling segmentation accuracy for input to this program is up 
+to the user.  Otherwise, the Laplacian method may grossly overestimate 
+thickness in closed sulci.  
+
+ 
 \subsection{User/Label-Guided Normalization for Hippocampus Mapping}
 See the link for details on hippocampus labeling:
 \href{http://picsl.upenn.edu/ANTS/hipptutorial.php}{http://picsl.upenn.edu/ANTS/hipptutorial.php}.
 \noindent{\bf Expectation-Based Point-Set Registration.}
 Here, we apply the expectation-based point set registration method 
-for mapping labeled points sets.   ITK-SNAP may be used to label 
+for mapping labeled points sets, as described in \cite{Pluta2008}.   ITK-SNAP may be used to label 
 images and exported segmentation images may be input to the 
 PSE metric below, as labeled data.  The Frown and Smile data is used 
 as example.  This data is available in the 
@@ -895,7 +907,7 @@ images or fractional anisotropy images derived from the diffusion
 tensor modality.  In all these cases, steps similar to those above 
 would be performed.  
 
-\subsection{Statistics with ANTS and ``R''}
+\subsection{Statistics with ANTS and {\bf R}}
 {\bf R} is an open-source, cutting-edge statistical package 
 used by statisticians world-wide.   ANTS is designed to 
 interface with {\bf R} via an ImageMath tool that converts 
