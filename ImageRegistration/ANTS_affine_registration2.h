@@ -831,10 +831,16 @@ bool RegisterImageAffineMutualInformationMultiResolution(RunningAffineCacheType 
             double inner_product_last_current_gradient = 0.0;
             for(int j=0; j<kParaDim; j++) inner_product_last_current_gradient += current_gradient[j]*last_gradient[j];
             if (inner_product_last_current_gradient < 0) current_step_length *= relaxation_factor;
-            if (current_step_length < minimum_step_length) {
+            if (current_step_length < minimum_step_length || gradient_magnitude == 0.0 ) {
             	is_converged = true;
                 break;
             }
+
+//            for(int j = 0; j < kParaDim; j++)  std::cerr<< current_gradient[i] << ", ";
+//            std::cerr<< std::endl;
+
+
+
 
             for(int j = 0; j < kParaDim; j++)  current_para[j] += (-1.0) * current_gradient[j] * current_step_length / gradient_magnitude;
 
@@ -950,6 +956,9 @@ void ComputeSingleAffineTransform2D3D(ImagePointerType fixed_image, ImagePointer
     transform->SetCenter(opt.transform_initial->GetCenter());
 
     double rval_init = TestCostValueMMI(fixed_image, moving_image, opt.transform_initial->GetParameters(), opt.transform_initial->GetCenter(), transform);
+
+    // std::cerr << "ABCDABCD: " << transform << std::endl;
+
     double rval_final = TestCostValueMMI(fixed_image, moving_image, para_final, opt.transform_initial->GetCenter(), transform);
 
     std::cout << "outputput affine center: " << transform->GetCenter() << std::endl;
