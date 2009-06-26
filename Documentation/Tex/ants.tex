@@ -272,13 +272,13 @@ These two components interact in a weighted optimization within a multiple resol
 
 Thus, ANTS enables many operating points from both the transformation and appearance domains such that users may make choices appropriate for their problems. The ANTS command-line syntax, shown in figure~\ref{fig:cmd}, reflects these operating points and the various components that interact in the optimization.
 \begin{figure}
-\label{fig:cmd}
 \includegraphics[width=0.9\textwidth]{Figures/ANTSSyntax.pdf} 
 \itkcaption[ANTS Command Line]{The relationship between the variational 
 form that defines the optimization goals and the ANTS command line.  The 
 SyN option implements the method in \cite{Avants2008b} and evaluated in 
 \cite{Klein2009}.}
 \vspace{-0.1in}
+\label{fig:cmd}
 \end{figure}
 ANTS may be used to navigate the transformation and similarity metric space. 
 \subsection{Use Your Header!} ANTS uses the direction/orientation, spacing
@@ -331,10 +331,10 @@ ANTS Diff algorithms generate $\phi(\x,t)$ over $t \in [ 0, 1]$ through gradient
 
 \subsubsection{Linear Registration}
 \begin{figure}
-\label{fig:aff}
 \includegraphics[width=0.9\textwidth]{./Figures/ANTSanatomy.pdf} 
 \itkcaption[ANTS Introduction]{The anatomy of an ANTS optimization and application of the resulting warping.}
 \vspace{-0.1in}
+\label{fig:aff}
 \end{figure}
 The most basic mapping between images is an affine mapping. The ANTS 
 affine mapping syntax is shown in the affine mapping figure~\ref{fig:aff}. The
@@ -382,10 +382,10 @@ differences and find a good alignment of image features.
 Figure~\ref{fig:antshier} shows how deformable mapping may improve the
 correspondence of the deformed beetle to the ford image.
 \begin{figure}
-\label{fig:antshier}
 \includegraphics[width=0.9\textwidth]{./Figures/ANTSElastToDiff.pdf} 
 \itkcaption[ANTS Transformation Examples]{This example shows the degree to which the beetle (b.img) may be deformed to the ford (a.img) under different transformation models.  Left to right increases the degrees of freedom in the mapping and thus the registration accuracy.}
 \vspace{-0.1in}
+\label{fig:antshier}
 \end{figure}
 Most ANTS-based applications use symmetric diffeomorphic normalization.  However, 
 ANTS also enables a simpler parameterization of a deformable mapping via a regularized 
@@ -399,9 +399,9 @@ shortcomings motivate the use of diffeomorphisms.
 an elastic transformation involves computing a mapping from image $I(\x)$ to image $J(\x)$ 
 through a deformation field $\disp( \x )$.  
 \begin{figure}
-\label{fig:pull}
 \center \includegraphics[width=0.75\textwidth]{./Figures/PullBack.pdf} 
 \itkcaption[ANTS Deformation]{A deformation in a digital domain.}
+\label{fig:pull}
 \end{figure}  
 The deformation is defined in the physical space of the image 
 and dictates the positional difference between corresponding features in the two images.  
@@ -455,7 +455,6 @@ the inverse mapping is stored in InverseWarpxvec.nii and provides the
 mapping in the opposite direction.  Note that an inverse -- in the 
 digital domain -- is only approximate as shown in figure~\ref{fig:inv}.
 \begin{figure}
-\label{fig:inv}
 \center \includegraphics[width=0.75\textwidth]{Figures/DeformationsInDigitalDomain.pdf} 
 \itkcaption[Digital Invertibility]{Digital invertibility presents some limitations. 
 Here, we see that invertibility is not exact but is gained only by interpolation.  
@@ -468,6 +467,7 @@ ratio of volumes.  Thus, $\mathcal{J}(\x)=V(\phi(\x))/V(\x)$ where $V$ represent
 the volume operation and $\x$, here, may be a small object.  Thus, if $\phi$ -- the mapping -- 
 causes expansion, then $\mathcal{J}(\x) > 1$. }
 \vspace{-0.1in}
+\label{fig:inv}
 \end{figure}  
 A few important notes follow. 
 (1) Deformation directionality: Warps/deformations applied to images occur in the opposite direction from warps/deformations applied to points. That is, if we map image B to A using 
@@ -488,13 +488,13 @@ ComposeMultiTransform.  (4) Warping with inverses and concatenations --
 viable when using diffeomorphisms -- are described in
 figure~\ref{fig:warp}.
  \begin{figure}
-\label{fig:warp}
 \includegraphics[width=0.9\textwidth]{Figures/ANTSSyntax2.pdf} 
 \itkcaption[ANTS Warping]{Here, we detail how one applies 
 a deformation and associated inverses.  We also see how 
 WarpImageMultiTransform can be used to concatenate a series 
 of transformations.}
 \vspace{-0.1in}
+\label{fig:warp}
 \end{figure}
 
 \noindent{\bf Diffeomorphic Transformations.}  The elastic 
@@ -503,10 +503,10 @@ for some large deformation mapping scenarios.  Figures~\ref{fig:antshier}
 illustrate the changing performance one may get in switching from affine 
 to elastic to diffeomorphic normalization.  
 \begin{figure}
-\label{fig:antssyn}
 \includegraphics[width=0.9\textwidth]{./Figures/ANTSsyn.pdf} 
 \itkcaption[ANTS Symmetric Normalization]{This example shows the benefit of the symmetric normalization model -- invertibility, symmetry, highly deformable and accurate registration.  The transformation model used here is highlighted in red.}
 \vspace{-0.1in}
+\label{fig:antssyn}
 \end{figure}
 Figure~\ref{fig:antssyn} shows 
 how one may use ANTS to achieve a state-of-the-art diffeomorphic mapping. 
@@ -567,19 +567,19 @@ ready to go example.   Figure~\ref{fig:dterr} shows what might
 happen if your tensor entries are stored in the wrong order. 
 ANTS expects the nifti standard ordering of the DT six vector.
 \begin{wrapfigure}{r}{0.5\textwidth}
-\label{fig:dterr}
 \includegraphics[width=0.5\textwidth]{Figures/dtiordererr.pdf} 
 \itkcaption[DT Entry Error]{The FA and mean diffusion of the tensor may be corrupted, 
 as at right, if the order of the DT entries is wrong.}
 \vspace{-0.1in}
+\label{fig:dterr}
 \end{wrapfigure}  
 \subsection{Multivariate Normalization with ANTS}
 \begin{figure}
-\label{fig:mvnorm}
 \includegraphics[width=0.9\textwidth]{Figures/multivariatenorm.pdf} 
 \itkcaption[Multivariate Normalization]{The current version of ANTS 
 may perform normalization of multiple modalities by combining {\em intrasubject, intermodality} mappings with {\em intersubject, intramodality} maps to a 
 group template.  In brain imaging, the intersubject maps are usually guided by the T1 component.}\vspace{-0.1in}
+\label{fig:mvnorm}
 \end{figure}
 Multivariate normalization may be performed in two ways with ANTS.  
 First, as shown in figure~\ref{fig:mvnorm}, intra-subject mappings may 
@@ -622,11 +622,13 @@ For this example, we will use the data in "ANTS/Examples/Data/B*.tiff."
 The files are B1.tiff, B2.tiff, B3.tiff, B4.tiff and B5.tiff.   They are single slices 
 from a dataset of real MRI brain images -- individuals around 15 years of age. 
 Our goal is to derive a "most representative" single image from this population. 
-The steps are: \begin{figure}
-\label{fig:template}
+The steps are: 
+\begin{figure}
 \center \includegraphics[width=0.7\textwidth]{Figures/templateex.jpg} 
-\itkcaption[ANTS Optimal Template]{This example may be recreated by the user.  The shared anatomy -- 
+\itkcaption[ANTS Optimal Template]{This example may be recreated by the user.  
+The shared anatomy -- 
 across this dataset -- is recovered in the derived optimal template.}
+\label{fig:template}
 \end{figure}
 \begin{enumerate}
 \item   Make a directory for this example.   Copy or link all the B*tiff images into it.
@@ -653,7 +655,6 @@ Major and many minor features are well aligned between
 these images to an extent that is approaching the limits 
 allowable by biological variation.  
 \begin{figure}
-\label{fig:large}
 \includegraphics[width=0.9\textwidth]{Figures/ANTSLargeDef.jpg} 
 \itkcaption[ANTS LargeDeformation]{ANTS succeeds in a challenging 
 normalization scenario.  Comparing the template mapping to the
@@ -664,6 +665,7 @@ whole brain mapping: occipital lobe sulcal variation is highly
 idiosyncratic and extremely difficult to capture, in particular when
 there is such severe atrophy nearby.
 }
+\label{fig:large}
 \end{figure}
 \noindent{\bf Turning "Failures" into Successes:} 
 Below are some pointers to follow if you are unable to recreate such normalization quality.  
@@ -707,7 +709,6 @@ The parameter \verb 4 ~indicates 3 tissues plus background are sought.  The \ver
 that there are no prior images available to guide the segmentation.  Output is shown 
 in figure~\ref{fig:seg} and -- with priors -- in figure~\ref{fig:seg2}.
 \begin{figure}
-\label{fig:seg}
 \includegraphics[width=1\textwidth]{Figures/segmentation.pdf} 
 \itkcaption[ANTS Segmentation]{ANTS provides basic 
 Markov Random Field regularized Gaussian model tissue segmentation. 
@@ -718,6 +719,7 @@ probabilities where a prior on thickness was used to prevent thickness
 overestimation.   Thickness was derived with DiReCT \cite{Das2009}, a software 
 tool available in binary form only -- a future release may provide code.  
 }
+\label{fig:seg}
 \end{figure}
 \subsection{Prior and Template-based Image Segmentation}
 The same algorithm may be augmented 
@@ -735,7 +737,6 @@ and guide the segmentation in a locally varying way, accomodating for both inhom
 and the different imaging signature that different tissues provide.   Prior images should be 
 of the same size and dimension as the input data and should have intensities in the range $[0,1]$.
 \begin{figure}
-\label{fig:seg2}
 \includegraphics[width=1\textwidth]{Figures/segmentation2.pdf}
 \itkcaption[ANTS Segmentation]{ANTS extends basic Markov Random Field
   regularized Gaussian model tissue segmentation to include priors,
@@ -749,6 +750,7 @@ of the same size and dimension as the input data and should have intensities in 
   based on template mapping.  The prior model brings out the caudate 
 and some CSF -- highlighted by arrows -- as their weight increases. 
 }
+\label{fig:seg2}
 \end{figure}
 \subsection{Cortical Thickness}
 Two forms of cortical thickness estimation from probability maps are available 
@@ -778,12 +780,12 @@ PSE metric below, as labeled data.  The Frown and Smile data is used
 as example.  This data is available in the 
 ANTS/Examples/Data/ directory.
 \begin{figure}
-\label{fig:frown}
 \includegraphics[width=0.45\textwidth]{Figures/frowntosmile.png}
 \includegraphics[width=0.45\textwidth]{Figures/smiletofrown.png}
 \itkcaption[Frown To Smile]{Expected output for the frown to smile 
 shows a smooth, though large deformation.  The grids are overlaid on 
 the deformed images. }
+\label{fig:frown}
 \end{figure}
 \begin{verbatim}
 ANTS 2 -o PSEtest  -i 91x70x55x40x30  -r Gauss[3,0.] -t SyN[0.2]
@@ -827,7 +829,6 @@ Mask values above 0.5 are considered non-outlier or non-lesioned regions.
 The labeling may be performed with ITK-SNAP. 
 Figure~\ref{fig:lesion} illustrates the approach.
 \begin{figure}
-\label{fig:lesion}
 \includegraphics[width=1\textwidth]{Figures/lesionstudy.pdf}
 \itkcaption[ANTS Lesions]{Here, we see a semi-automated approach for lesion analysis
 based on diffeomorphic normalization.  The user outlines the lesion
@@ -840,6 +841,7 @@ template.  This approach enables one to compare the subject image
 against prior information stored in the template space such as
 anatomical labels or statistics on the appearance of lesioned and/or
 normal tissue.}
+\label{fig:lesion}
 \end{figure}
 Once the ANTS mapping is solved, 
 one is able to estimate the location of the lesion in the template space by mapping the inverse lesion mask to the template.
@@ -880,9 +882,9 @@ The expected output is in figure~\ref{fig:morph}.
 5.  Repeat for a population and run statistics on log jacobians.
 \end{verbatim}
 \begin{figure}
-\label{fig:morph}
 \includegraphics[width=1\textwidth]{Figures/morphometry.pdf}
 \itkcaption[ANTS Morphometry]{The output from the ANTS morphometry example.}
+\label{fig:morph}
 \end{figure}
 This example uses a standard Jacobian-based approach to morphometry.
 Here, we use the log-Jacobian because it is symmetric about zero and
@@ -891,7 +893,6 @@ cortex.  The Jacobian is discussed in figure~\ref{fig:inv} and visualization of
 the Jacobian is shown in figure~\ref{fig:jac}.  This Jacobian comes
 from the mapping shown in figure~\ref{fig:large}.
 \begin{figure}
-\label{fig:jac}
 \includegraphics[width=1\textwidth]{Figures/Jacobian.pdf}
 \itkcaption[ANTS Jacobian]{The Jacobian: Note that the bright values
   in the template image ventricles (left) indicate that the ventricles
@@ -901,6 +902,7 @@ from the mapping shown in figure~\ref{fig:large}.
   deformation page Large Def. Once one gains the Jacobian (or more
   appropriately, the log-Jacobian), then one may compute statistics
   across the population.}
+\label{fig:jac}
 \end{figure}
 Similar analyses may be performed on thickness images, functional 
 images or fractional anisotropy images derived from the diffusion 
