@@ -890,26 +890,43 @@ There are many avenues for exploration of the various components of ANTS.  Howev
 \footnote{http://www.nirep.org/
 }
 
-As outlined in the introduction, in addition to the transformation, the optimization strategy and similarity metric form the image normalization schematic troika.  Since our optimization strategy is limited to gradient descent, experimental analysis includes an exploration of optimal gradient steps within a sensible window where the steps are scaled according to the voxel spacing.  In terms of similarity metric, we limit exploration to cross-correlation while varying the radius within reasonable values.    Other metrics were not explored since the labeled brain images entail a simple intensity relationship between image pairs obviating the need for similarity metrics for more complex intensity relationships (e.g. MI) in addition to the fact that the consistently top two performers in \cite{Klein2009} used cross-correlation.
+As outlined in the introduction, in addition to the transformation, the optimization strategy and similarity metric form the image normalization scheme.  Since our optimization strategy is limited to gradient descent, experimental analysis includes an exploration of optimal gradient steps within a sensible window where the steps are scaled according to the voxel spacing.  In terms of similarity metric, we limit exploration to cross-correlation while varying the radius within reasonable values.    Other metrics were not explored since the labeled brain images entail a simple intensity relationship between image pairs obviating the need for similarity metrics for more complex intensity relationships (e.g. MI) in addition to the fact that the consistently top two performers in \cite{Klein2009} used cross-correlation.
 
 Briefly, two experiments were performed.  The first experiment consisted of a more extensive parameter search over both the transformation model space and the cross-correlation metric radius using the exhaustive pairwise combination of the eight 2-D images illustrated in Figure \ref{fig:phantoms}.  Based on the results of the first experiment, the parameter space was pruned and subsequently used for the registrations performed during the second experiment involving 10 randomly selected image pairs from the 16 labeled NA0 NIREP brain images.
 
 \subsection{2-D Simulated Image Normalization Evaluation}
 
-
+Eight simulated 2-D images were created to model the types of deformations one would encounter in brain image normalization.  Each image was created with isotropic spacing and of size $102\times95$.  The foreground of each image was comprised of two labels representing the white matter and grey matter.  Since the 2-D simulated image experiments were used to prune the transformation model space (and not the image similarity metric space) the foreground intensities were not created to model the intensity variation normally seen in the grey/white matter.  Note that these images are distributed with the ANTS open source package.
 
 \begin{figure}
 \centering
   \begin{tabular}{c}
       \includegraphics[width=85mm]{Figures/phantomwmgm} 
   \end{tabular}
-\caption{The eight 2-D simulated images used for the initial parameter search.  Each image is of size $[102,95]$ and are available with the ANTS source distribution.}  
+\caption{The eight 2-D simulated images used for the initial parameter search.  These images  are available with the ANTS source distribution.}  
 \label{fig:phantoms}
 \end{figure}
 
 \subsection{3-D NIREP Brain Image Normalization Evaluation}
 
+The Non-Rigid Image Registration Project is a large-scale evaluation resource for deformable registration algorithms headed by Gary Christensen at the University of Iowa.  In addition to the development and distribution of the necessary software tools for algorithmic validation, this project includes the distribution of appropriate image data and corresponding segmentations.   One such database that has been made available is referred to as the ``NA0'' database consisting of 16 MR image volumes of normal adult human volunteers.  A brief demographic sketch of the NA0 database is as follows:  8 males with mean age of 32.5 $\pm$ 8.4 years (range of 25 to 48 years) and  8 females with mean age of 29.8 $\pm$ 5.8 years (range of 24 to 41).  
 
+Following acquisition, each image was resampled and padded to isotropic voxel spacing of $0.7\times0.7\times0.7$ mm$^3$ and total size of $256 \times 300 \times 256$ voxels.
+The cortex of each of the 16 MR image volumes was segmented into 32 regions \cite{Allen2002,Allen2003} using Brainvox which were later refined using manual editing.  
+
+\begin{figure}
+\centering
+  \begin{tabular}{cc}
+      \includegraphics[width=40mm]{Figures/na01x_axial.png} &
+      \includegraphics[width=40mm]{Figures/na01x_axial_labels.png} \\
+      \includegraphics[width=40mm]{Figures/na01x_coronal.png} &
+      \includegraphics[width=40mm]{Figures/na01x_coronal_labels.png} \\
+      \reflectbox{\includegraphics[width=40mm]{Figures/na01x_sagittal.png}} &
+      \reflectbox{\includegraphics[width=40mm]{Figures/na01x_sagittal_labels.png}} \\
+  \end{tabular}
+\caption{Canonical image views of NA01 image from the NIREP data base (left column) and the corresponding segmentations (right column).  }  
+\label{fig:na01x}
+\end{figure}
 
 \section{Discussion}
 
