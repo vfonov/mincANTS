@@ -67,10 +67,14 @@ int main(int argc, char *argv[] )
     return 1;
     }
     else  dim = atoi( argv[1] );
+
+
       
     if ( dim <= 1 || dim > 3 ) 
       {
       std::cout <<" you passed image dimension (first argument) as " << dim << " ANTS does not function with images of this dimension " << std::endl;
+      argv[1]="--help";
+      ANTSex<2>( argc,argv );
       exit(1);
       }
     /**

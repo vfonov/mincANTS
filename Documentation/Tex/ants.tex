@@ -329,7 +329,7 @@ ANTS Diff algorithms generate $\phi(\x,t)$ over $t \in [ 0, 1]$ through gradient
 \end{table*}    
 \vspace{0in}
 
-\subsubsection{Linear Registration}
+\subsubsection{Affine and Rigid Registration}
 \begin{figure}
 \includegraphics[width=0.9\textwidth]{./Figures/ANTSanatomy.pdf} 
 \itkcaption[ANTS Introduction]{The anatomy of an ANTS optimization and application of the resulting warping.}
@@ -373,6 +373,17 @@ The difference between this command
 and a regular ANTS call is the \verb"-x" option, which specifies the mask, defined in the 
 template space (here, AtlasHead.nii).   The mask option also affects the deformable optimization. 
 Other affine registration options include  \verb"--number-of-affine-iterations 5000x5000x5000" which specifies that the affine registration uses a 3 level image pyramid with each level 5000 iterations at most. \verb"--MI-option 48x6000" means to use Mutual Information as similarity metric with 48 bins and 6000 samples. \verb"--affine-gradient-descent-option" defines the options for the gradient descent procedure; the 4 numbers are maximum step length, relaxation factor, minimum step length and translation scale.  
+
+
+\noindent{\bf Rigid Registration: }  ANTS will also perform rigid registration.  
+To force the linear component of registration to be purely rigid (no scaling or shearing), 
+then pass the parameter  \verb"--rigid-affine true " to 
+the ANTS command line.   For example,  
+\begin{verbatim}
+ANTS 3 -m MI[AtlasHead.nii,crAnatomical.nii,1,32] 
+-o TEST -i 0 --rigid-affine true 
+\end{verbatim}
+The jacobian of the resulting affine mapping should be unity. 
 
 \subsubsection{Deformable Registration}
 Affine mapping is adequate when the
