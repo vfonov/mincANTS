@@ -34,7 +34,7 @@
 #include "itkRelabelComponentImageFilter.h"
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkLabelStatisticsImageFilter.h"
-
+#include "itkCastImageFilter.h"
 #include  "ReadWriteImage.h"
 
 
@@ -57,11 +57,13 @@ int  LabelUniquely(int argc, char *argv[])
   // typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
 
   typedef float InternalPixelType;
-  typedef float ULPixelType;
+  typedef int ULPixelType;
   typedef itk::Image<ULPixelType, ImageDimension> labelimagetype;
+  typedef itk::CastImageFilter<ImageType,labelimagetype> CastFilterType;
+
   typedef ImageType InternalImageType;
   typedef ImageType OutputImageType;
-  typedef itk::ConnectedComponentImageFilter< ImageType, labelimagetype > FilterType;
+  typedef itk::ConnectedComponentImageFilter< labelimagetype, labelimagetype > FilterType;
   typedef itk::RelabelComponentImageFilter< labelimagetype, labelimagetype > RelabelType;
 
 
@@ -81,8 +83,10 @@ typename FilterType::Pointer filter = FilterType::New();
 //typename 
 typename RelabelType::Pointer relabel = RelabelType::New();
   
-  
-  filter->SetInput(image1 );
+  typename CastFilterType::Pointer castInput = CastFilterType::New();
+  castInput->SetInput(image1);  
+
+  filter->SetInput( castInput->GetOutput() );
   int fullyConnected = 0;//atoi( argv[5] );
   filter->SetFullyConnected( fullyConnected );
   relabel->SetInput( filter->GetOutput() );
