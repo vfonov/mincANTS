@@ -260,7 +260,7 @@ template<unsigned int TDimension, class TReal>
 void
 ANTSImageRegistrationOptimizer<TDimension, TReal>
 ::SmoothDeformationFieldBSpline( DeformationFieldPointer field, ArrayType meshsize, 
-      unsigned int splineorder, unsigned int numberoflevels, bool useFFD )
+      unsigned int splineorder, unsigned int numberoflevels )
 {
   if (this->m_Debug ) std::cout << " enter bspline smooth " << std::endl;
   if (!field) { std::cout << " No Field in bspline Smoother " << std::endl; return; }
@@ -301,7 +301,6 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   bspliner->SetNumberOfLevels( numberoflevels );
   bspliner->SetSplineOrder( splineorder );
   bspliner->SetNumberOfControlPoints( numberofcontrolpoints );
-  bspliner->SetUseFFDRegularization( useFFD );
   bspliner->SetIgnorePixelValue( zeroVector ); 
   bspliner->Update();
   

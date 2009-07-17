@@ -187,7 +187,7 @@ public:
             }
           }    
         this->SmoothDeformationFieldBSpline( field, meshSize, splineOrder,
-          numberOfLevels, false ); 
+          numberOfLevels ); 
         }
       else
         {
@@ -225,7 +225,7 @@ public:
             }
           } 
         this->SmoothDeformationFieldBSpline( field, meshSize, splineOrder,
-          numberOfLevels, false ); 
+          numberOfLevels ); 
 
         if( maxMagnitude > 0.0 )
           {
@@ -251,7 +251,7 @@ public:
             float sig=0.0, bool useparamimage=false, unsigned int lodim=ImageDimension);
 
     void SmoothDeformationFieldBSpline(DeformationFieldPointer field, ArrayType meshSize, 
-      unsigned int splineorder, unsigned int numberoflevels, bool useFFD = false);
+      unsigned int splineorder, unsigned int numberoflevels );
 
   DeformationFieldPointer ComputeUpdateFieldAlternatingMin(DeformationFieldPointer fixedwarp, DeformationFieldPointer movingwarp,  PointSetPointer  fpoints=NULL,  PointSetPointer wpoints=NULL,DeformationFieldPointer updateFieldInv=NULL, bool updateenergy=true);
 
