@@ -5082,6 +5082,82 @@ int ConvertImageToFile(      int argc, char *argv[])
 }     
 
 
+template <unsigned int ImageDimension>
+int CorrelationUpdate(      int argc, char *argv[])        
+{
+
+  typedef float  PixelType;
+  typedef itk::Vector<float,ImageDimension>         VectorType;
+  typedef itk::Image<VectorType,ImageDimension>     FieldType;
+  typedef itk::Image<PixelType,ImageDimension> ImageType;
+  typedef itk::Image<unsigned char,ImageDimension> ByteImageType;
+  typedef itk::ImageFileReader<ImageType> readertype;
+  typedef itk::ImageFileWriter<ImageType> writertype;
+  typedef  typename ImageType::IndexType IndexType;
+  typedef  typename ImageType::SizeType SizeType;
+  typedef  typename ImageType::SpacingType SpacingType;
+  typedef itk::AffineTransform<double,ImageDimension>   AffineTransformType;
+  typedef itk::LinearInterpolateImageFunction<ImageType,double>  InterpolatorType1;
+  typedef itk::NearestNeighborInterpolateImageFunction<ImageType,double>  InterpolatorType2;
+  typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
+  int argct=2;
+  std::string outname=std::string(argv[argct]); argct++;
+  std::string operation = std::string(argv[argct]);  argct++;
+  std::string fn1 = std::string(argv[argct]);   argct++;
+  std::string fn2 ="";
+  if (argc > argct) { fn2=std::string(argv[argct]); argct++; 
+  }else { std::cout <<" Not enough inputs "<< std::endl;  return 1; } 
+  unsigned int radius=2;
+  if (argc > argct) radius=atoi(argv[argct]); argct++;
+
+  typename ImageType::Pointer image1 = NULL; 
+  ReadImage<ImageType>(image1, fn1.c_str());
+  typename ImageType::Pointer imageout = NULL; 
+  ReadImage<ImageType>(imageout, fn1.c_str());
+  imageout->FillBuffer(0);
+  typename ImageType::Pointer image2 = NULL; 
+  ReadImage<ImageType>(image2, fn2.c_str());
+
+  typedef itk::NeighborhoodIterator<ImageType>  iteratorType; 
+  typename iteratorType::RadiusType rad;
+  for (unsigned int j=0; j<ImageDimension; j++) rad[j]=radius;
+  iteratorType GHood(rad, image1,image1->GetLargestPossibleRegion());  
+  float Gsz=(float)GHood.Size();
+  GHood.GoToBegin();
+  while (!GHood.IsAtEnd())
+    {
+      typename ImageType::IndexType ind = GHood.GetIndex();
+      bool isinside=true;
+      for (unsigned int j=0; j<ImageDimension; j++)
+	{
+	  float shifted=ind[j];
+	  if (shifted < (radius+1) || shifted >  image1->GetLargestPossibleRegion().GetSize()[j]-radius-1  ) isinside=false;
+	}
+      if (isinside) {
+	if ( image1->GetPixel(ind) > 0 || image2->GetPixel(ind) > 0) {
+      typename ImageType::IndexType ind2;
+      // compute mean difference 
+      float diff=0.0;
+      for (unsigned int i = 0; i < GHood.Size(); i++)
+	{ 
+	  ind2=GHood.GetIndex(i);
+	  diff+=(image1->GetPixel(ind2)-image2->GetPixel(ind2));
+	}
+      diff/=Gsz;
+      float upd=(image1->GetPixel(ind)-image2->GetPixel(ind))-diff;
+      imageout->SetPixel(ind,upd);
+      }
+      }
+      ++GHood;
+    }
+
+  WriteImage<ImageType>(imageout,outname.c_str());
+
+  return 0;
+ 
+}     
+
+
 
 template<class TImage> 
 typename TImage::Pointer 
@@ -5579,6 +5655,7 @@ int main(int argc, char *argv[])
     std::cout << "  CompareHeadersAndImages Image1 Image2 --- tries to find and fix header error! output is the repaired image with new header " << std::endl;
     std::cout << "  CountVoxelDifference Image1 Image2 Mask --- the where function from IDL " << std::endl;
     std::cout << "  stack image1 image2  --- stack image2 onto image1  " << std::endl;
+    std::cout << "  CorrelationUpdate Image1 Image2  RegionRadius --- in voxels , Compute update that makes Image2  more like Image1 " << std::endl;
     std::cout << "  ConvertImageToFile  imagevalues.nii {Optional-ImageMask.nii} -- will write voxel values to a file  " << std::endl;
     std::cout << "  PValueImage  TValueImage  dof  " << std::endl;
     std::cout << "  ConvertImageSetToMatrix  rowcoloption Mask.nii  *images.nii --  each row/column contains image content extracted from mask applied to images in *img.nii " << std::endl;    
@@ -5638,6 +5715,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"EnumerateLabelInterfaces") == 0 )  EnumerateLabelInterfaces<2>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertImageToFile") == 0 )  ConvertImageToFile<2>(argc,argv);
      else if (strcmp(operation.c_str(),"PValueImage") == 0 )  PValueImage<2>(argc,argv);
+     else if (strcmp(operation.c_str(),"CorrelationUpdate") == 0 )  CorrelationUpdate<2>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertImageSetToMatrix") == 0 )  ConvertImageSetToMatrix<2>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertVectorToImage") == 0 )  ConvertVectorToImage<2>(argc,argv);
      else if (strcmp(operation.c_str(),"PropagateLabelsThroughMask") == 0 )  PropagateLabelsThroughMask<2>(argc,argv);
@@ -5691,6 +5769,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"CountVoxelDifference") == 0 )  CountVoxelDifference<3>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertImageToFile") == 0 )  ConvertImageToFile<3>(argc,argv);
      else if (strcmp(operation.c_str(),"PValueImage") == 0 )  PValueImage<3>(argc,argv);
+     else if (strcmp(operation.c_str(),"CorrelationUpdate") == 0 )  CorrelationUpdate<3>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertImageSetToMatrix") == 0 )  ConvertImageSetToMatrix<3>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertVectorToImage") == 0 )  ConvertVectorToImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"PropagateLabelsThroughMask") == 0 )  PropagateLabelsThroughMask<3>(argc,argv);
