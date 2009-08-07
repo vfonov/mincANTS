@@ -221,6 +221,7 @@ private:
   std::vector<RealType>                         m_PriorLabelSigmas;
 
   RealType                                      m_PriorProbabilityWeighting;
+  typename RealImageType::Pointer  m_SumProbabilityImage;
 
 };
 
