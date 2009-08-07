@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Insight Segmentation & Registration Toolkit
-  Module:    $RCSfile: itkNASTYSegmentationImageFilter.txx,v $
+  Module:    $RCSfile: itkWASPSegmentationImageFilter.txx,v $
   Language:  C++
   Date:      $Date: $
   Version:   $Revision: $
@@ -14,10 +14,10 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef __itkNASTYSegmentationImageFilter_txx
-#define __itkNASTYSegmentationImageFilter_txx
+#ifndef __itkWASPSegmentationImageFilter_txx
+#define __itkWASPSegmentationImageFilter_txx
 
-#include "itkNASTYSegmentationImageFilter.h"
+#include "itkWASPSegmentationImageFilter.h"
 
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkBSplineControlPointImageFilter.h"
@@ -51,8 +51,8 @@ namespace itk
 {
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
-::NASTYSegmentationImageFilter()
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+::WASPSegmentationImageFilter()
 {
   this->ProcessObject::SetNumberOfRequiredInputs( 1 );
 
@@ -78,23 +78,23 @@ NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 }
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
-::~NASTYSegmentationImageFilter()
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+::~WASPSegmentationImageFilter()
 {
 }
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
 void
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::SetMaskImage( const MaskImageType * mask )
 {
   this->SetNthInput( 1, const_cast<MaskImageType *>( mask ) );
 }
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
-const typename NASTYSegmentationImageFilter
+const typename WASPSegmentationImageFilter
   <TInputImage, TMaskImage, TClassifiedImage>::MaskImageType *
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::GetMaskImage() const
 {
   const MaskImageType * maskImage =
@@ -105,7 +105,7 @@ NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
 void
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::SetPriorLabelImage( const ClassifiedImageType * prior )
 {
   this->m_InitializationStrategy = PriorLabelImage;
@@ -113,9 +113,9 @@ NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 }
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
-const typename NASTYSegmentationImageFilter
+const typename WASPSegmentationImageFilter
   <TInputImage, TMaskImage, TClassifiedImage>::ClassifiedImageType *
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::GetPriorLabelImage() const
 {
   const ClassifiedImageType * prior =
@@ -127,7 +127,7 @@ NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
 void
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::SetPriorProbabilityImage(
   unsigned int whichClass, const RealImageType * prior )
 {
@@ -142,9 +142,9 @@ NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 }
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
-const typename NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+const typename WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::RealImageType *
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::GetPriorProbabilityImage( unsigned int whichClass ) const
 {
   if( whichClass < 1 || whichClass > this->m_NumberOfClasses )
@@ -164,7 +164,7 @@ NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
 void
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::GenerateData()
 {
   this->GenerateInitialClassLabeling();
@@ -206,7 +206,7 @@ NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
 void
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::GenerateInitialClassLabeling()
 {
   this->AllocateOutputs();
@@ -295,7 +295,7 @@ NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
 void
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::NormalizePriorProbabilityImages()
 {
   ImageRegionConstIteratorWithIndex<ImageType> ItI( this->GetInput(),
@@ -347,7 +347,7 @@ NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
 void
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::GenerateInitialClassLabelingWithPriorProbabilityImages()
 {
   this->GetOutput()->FillBuffer( NumericTraits<LabelType>::Zero );
@@ -388,7 +388,7 @@ NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
 void
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::GenerateInitialClassLabelingWithOtsuThresholding()
 {
   RealType maxValue = itk::NumericTraits<RealType>::min();
@@ -478,7 +478,7 @@ NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
 void
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::GenerateInitialClassLabelingWithKMeansClustering()
 {
 			std::cout << " KMeans " << std::endl;
@@ -619,9 +619,9 @@ NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 }
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
-typename NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+typename WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::RealType
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::UpdateClassParametersAndLabeling()
 {
   typename RealImageType::Pointer maxProbabilityImage =
@@ -792,9 +792,9 @@ NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 }
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
-typename NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+typename WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::RealImageType::Pointer
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::CalculatePosteriorProbabilityImage( unsigned int whichClass )
 {
   if( whichClass > this->m_NumberOfClasses )
@@ -990,9 +990,9 @@ NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 }
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
-typename NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+typename WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::RealImageType::Pointer
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::CalculateSmoothIntensityImageFromPriorProbabilityImage( unsigned int whichClass )
 {
   typename ScalarImageType::Pointer bsplineImage;
@@ -1123,7 +1123,7 @@ NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
 void
-NASTYSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
+WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::PrintSelf( std::ostream& os, Indent indent ) const
 {
   Superclass::PrintSelf( os, indent );
