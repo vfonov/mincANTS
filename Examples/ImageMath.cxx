@@ -624,6 +624,7 @@ int TriPlanarView(unsigned int argc, char *argv[])
       typename ImageType::IndexType index=vfIter2.GetIndex();
       index2d[0]=index[0]+xtilesize[0]+ytilesize[0];
       index2d[1]=index[1];
+      index2d[1]=tilesize[1]-index2d[1]-1;
       matimage->SetPixel(index2d,val);
       }
       if ( vfIter2.GetIndex()[1] == (long)yslice) {
@@ -631,6 +632,7 @@ int TriPlanarView(unsigned int argc, char *argv[])
       typename ImageType::IndexType index=vfIter2.GetIndex();
       index2d[0]=index[0]+xtilesize[0];
       index2d[1]=index[2];
+      index2d[1]=tilesize[1]-index2d[1]-1;
       matimage->SetPixel(index2d,val);
       }
       if ( vfIter2.GetIndex()[0] == (long)xslice) {
@@ -638,6 +640,7 @@ int TriPlanarView(unsigned int argc, char *argv[])
       typename ImageType::IndexType index=vfIter2.GetIndex();
       index2d[0]=index[1];
       index2d[1]=index[2];
+      index2d[1]=tilesize[1]-index2d[1]-1;
       matimage->SetPixel(index2d,val);
       }
     }
