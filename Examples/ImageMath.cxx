@@ -894,9 +894,9 @@ int SetOrGetPixel(int argc, char *argv[])
   typename ImageType::IndexType index;
   index.Fill(0);
   if (usephyspace==false) {
-  index[0]=indx;
-  index[1]=indy;
-  if ( ImageDimension == 3) index[2]=indz;
+    index[0]=(long int)indx;
+    index[1]=(long int)indy;
+    if ( ImageDimension == 3) index[2]=(long int)indz;
   }
   else
     {
@@ -3477,7 +3477,9 @@ int PropagateLabelsThroughMask(int argc, char *argv[])
       typedef  itk::FastMarchingImageFilter< ImageType, ImageType >    FastMarchingFilterType;
       typename FastMarchingFilterType::Pointer  fastMarching = FastMarchingFilterType::New();
       fastMarching->SetInput( speedimage );
+
       fastMarching->SetCheckTopology( false );// typename FastMarchingFilterType::Strict );
+
       typedef typename FastMarchingFilterType::NodeContainer           NodeContainer;
       typedef typename FastMarchingFilterType::NodeType                NodeType;
       typename NodeContainer::Pointer seeds = NodeContainer::New();
@@ -4414,6 +4416,8 @@ int DiceAndMinDistSum(      int argc, char *argv[])
   vnl_vector<double> distances(labct,0.0);
   vnl_vector<double> dicevals(labct,0.0);
   vnl_vector<double> rovals(labct,0.0);
+  vnl_vector<double> tpvals(labct,0.0);
+  vnl_vector<double> tpvals2(labct,0.0);
 
   /** now we have the common labels */
   std::ofstream logfile;
@@ -4432,6 +4436,7 @@ int DiceAndMinDistSum(      int argc, char *argv[])
     float counti=0;// count vox intersection in label 1 and label 2
     float countu=0;// count vox union label 1 and label 2
     float surfdist=0,surfct=0;
+    //    float truepos=0;
     if (outdist) 
       {
 	surf=LabelSurface<ImageType>(mask1,mask1);
@@ -4494,6 +4499,8 @@ int DiceAndMinDistSum(      int argc, char *argv[])
 	distances[labct]+=(dist2+dist1)/(count2+count1);
 	dicevals[labct]=2.0*counti/(count2+count1);
 	rovals[labct]=counti/(countu);
+	tpvals[labct]=counti/count1;  
+	tpvals2[labct]=counti/count2;  
       }
     labct++;
     
@@ -4536,7 +4543,7 @@ int DiceAndMinDistSum(      int argc, char *argv[])
 	if (outdist)
 	logfile <<" Label " << *it << " MD " << distances[labct] << " DICE " << dicevals[labct] << std::endl;
 	else 
-	  logfile <<" Label " << *it << " DICE " << dicevals[labct] << "  RO " << rovals[labct] << std::endl;
+	  logfile <<" Label " << *it << " DICE " << dicevals[labct] << "  RO " << rovals[labct] << " TP1 " << tpvals[labct] << " TP2 " << tpvals2[labct] << std::endl;
       }
     sum+=distances[labct];
     sumdice+=dicevals[labct];
@@ -4893,8 +4900,8 @@ int LabelStats(      int argc, char *argv[])
     if (!valimage) 
 	std::cout <<" Volume Of Label " << *it << " is " << totalvolume <<   "  Avg-Location " << myCenterOfMass <<std::endl;
     else if ( totalvolume > 500 &&  totalmass/totalct > 1/500 )  {
-      //      std::cout << " Volume Of Label " << *it << " is " << (unsigned long) totalvolume <<   "  Avg-Location " << myCenterOfMass <<" mass is " << totalmass << " average-val is " << totalmass/totalct << std::endl;
-      std::cout << *it << "  " <<  totalvolume <<  " & " <<  totalmass/totalct   << " \ " << std::endl;
+          std::cout << " Volume Of Label " << *it << " is " << totalvolume <<   "  Avg-Location " << myCenterOfMass <<" mass is " << totalmass << " average-val is " << totalmass/totalct << std::endl;
+      //      std::cout << *it << "  " <<  totalvolume <<  " & " <<  totalmass/totalct   << " \ " << std::endl;
     }
 
 // square image 
