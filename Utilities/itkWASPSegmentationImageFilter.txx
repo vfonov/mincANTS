@@ -881,7 +881,7 @@ WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
          float critval=0.;// the probability at the boundary will be 1.0-critval
 	 float delta=(maxdist-fabs(dist))/maxdist; // in range of zero to one
 	 // below, the value at the boundary (D=0) is 1-critval and reduces away from the boundary 
-         if ( dist >= 0) distancePrior = vcl_exp( -1.0 *ItD.Get()) / vnl_math_sqr( this->m_PriorLabelSigmas[n] ) )*(1.0-critval);
+         if ( dist >= 0) distancePrior = vcl_exp( -1.0*ItD.Get() / vnl_math_sqr( this->m_PriorLabelSigmas[n] ) )*(1.0-critval);
 	 // below, the value inside the object (D>0) increases from 1-crtival to 1
 	 else distancePrior = 1.0-critval*delta;
 	 ItD.Set(distancePrior); 
