@@ -148,6 +148,7 @@ public:
   itkSetClampMacro( PriorProbabilityWeighting, RealType, 0, 1 );
   itkGetConstMacro( PriorProbabilityWeighting, RealType );
 
+  void AmassDistancePriors(); 
   void SetPriorLabelSigmas( std::vector<RealType> s )
     {
     this->m_PriorLabelSigmas = s;
