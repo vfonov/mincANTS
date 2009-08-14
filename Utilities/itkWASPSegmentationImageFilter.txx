@@ -18,7 +18,7 @@
 #define __itkWASPSegmentationImageFilter_txx
 
 #include "itkWASPSegmentationImageFilter.h"
-
+#include "itkSurfaceImageCurvature.h" 
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkBSplineControlPointImageFilter.h"
 #include "itkConstNeighborhoodIterator.h"
@@ -1246,6 +1246,37 @@ typename WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::CalculateSmoothIntensityImageFromPriorProbabilityImage( unsigned int whichClass )
 {
+    typedef BinaryThresholdImageFilter<ClassifiedImageType, RealImageType>
+        ThresholderType;
+      typename ThresholderType::Pointer thresholder = ThresholderType::New();
+      thresholder->SetInput( const_cast<ClassifiedImageType *>(
+      this->GetOutput() ) ); // BA test FIXME//        this->GetPriorLabelImage() ) ); // BA test FIXME
+      thresholder->SetInsideValue( 1 );
+      thresholder->SetOutsideValue( 0 );
+      thresholder->SetLowerThreshold( static_cast<LabelType>( whichClass ) );
+      thresholder->SetUpperThreshold( static_cast<LabelType>( whichClass ) );
+      thresholder->Update();
+
+     typedef itk::SurfaceImageCurvature<RealImageType>  ParamType;
+     typename ParamType::Pointer Parameterizer=ParamType::New(); 
+     float opt = 0;
+     float sig=1.5;
+     unsigned int numrepeats= this->m_SplineOrder;       
+     Parameterizer->SetInput( thresholder->GetOutput() );
+     Parameterizer->SetFunctionImage( const_cast<RealImageType *>(this->GetInput()));
+     Parameterizer->SetNeighborhoodRadius( sig );      
+     Parameterizer->SetSigma(sig);  
+     Parameterizer->SetUseGeodesicNeighborhood(true);
+     Parameterizer->SetUseLabel(true);
+     Parameterizer->SetThreshold(0.5);
+     Parameterizer->IntegrateFunctionOverSurface(true);     
+     for (unsigned int i=0; i<numrepeats; i++) 
+        Parameterizer->IntegrateFunctionOverSurface(true);    
+//    std::cout <<" end integration  " << std::endl;
+    return Parameterizer->GetFunctionImage();
+
+
+/*
   typename ScalarImageType::Pointer bsplineImage;
   std::cout <<" Nulling the BSpline and fitting to current label set " << std::endl; 
   this->m_ControlPointLattices[whichClass-1]=NULL;// BA test FIXME
@@ -1323,7 +1354,7 @@ WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
           bsplinePoint.CastFrom( imagePoint );
 
           ScalarType intensity;
-          intensity[0] = ItI.Get();
+          intensity[0] = ItI.Get() - this->m_CurrentClassParameters[whichClass-1][0];
 
           points->SetPoint( count, bsplinePoint );
           points->SetPointData( count, intensity );
@@ -1379,6 +1410,7 @@ WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
       if( !this->GetMaskImage() ||
         this->GetMaskImage()->GetPixel( ItB.GetIndex() ) == this->m_MaskLabel )
         {
+	  ItB.Set(ItB.Get()+this->m_CurrentClassParameters[whichClass-1][0]);
 	  if ( this->GetOutput()->GetPixel(ItB.GetIndex()) == whichClass  )  {
             bmean+=ItB.Get();
             ct++;
@@ -1398,7 +1430,7 @@ WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
      }
 
      return realimg;
-
+*/
 }
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
