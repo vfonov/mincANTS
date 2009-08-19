@@ -133,6 +133,9 @@ public:
     void SetInverseDeformationField(DeformationFieldPointer A) {this->m_InverseDeformationField=A;}
     void SetMaskImage( ImagePointer m) { this->m_MaskImage=m; }
 
+    void SetFixedImageAffineTransform(AffineTransformPointer A) {this->m_FixedImageAffineTransform=A;}
+    AffineTransformPointer GetFixedImageAffineTransform() {return this->m_FixedImageAffineTransform;}
+
     /** Get functions */
     AffineTransformPointer GetAffineTransform() {return this->m_AffineTransform;}
     DeformationFieldPointer GetDeformationField( ) {return this->m_DeformationField;}
@@ -359,7 +362,7 @@ public:
 
     }
 
-  PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer movingImage, PointSetPointer movingpoints,  AffineTransformPointer aff , DeformationFieldPointer totalField, bool doinverse )
+PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer movingImage, PointSetPointer movingpoints,  AffineTransformPointer aff , DeformationFieldPointer totalField, bool doinverse , AffineTransformPointer  fixedaff  )
   {
     if (!movingpoints) { std::cout << " NULL POINTS " << std::endl;  return NULL; }
 
@@ -368,6 +371,12 @@ public:
       {
       affinverse=AffineTransformType::New();
       aff->GetInverse(affinverse);
+      }
+    AffineTransformPointer fixedaffinverse=NULL;
+    if (fixedaff)
+      {
+      fixedaffinverse=AffineTransformType::New();
+      fixedaff->GetInverse(fixedaffinverse);
       }
        
       typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DeformationFieldType, TransformType> WarperType;
@@ -378,11 +387,13 @@ public:
      if (!doinverse)
 	{
 	if (totalField) warper->PushBackDeformationFieldTransform(totalField);
-	if (aff) warper->PushBackAffineTransform(aff);
+	if (fixedaff) warper->PushBackAffineTransform(fixedaff);
+	else if (aff) warper->PushBackAffineTransform(aff);
 	}
       else
 	{	
 	if (aff) warper->PushBackAffineTransform( affinverse );
+	else if (fixedaff) warper->PushBackAffineTransform(fixedaffinverse);
 	if (totalField) warper->PushBackDeformationFieldTransform(totalField);
 	}
 
@@ -428,37 +439,34 @@ public:
 }
 
 
-  ImagePointer WarpMultiTransform( ImagePointer referenceimage,  ImagePointer movingImage,  AffineTransformPointer aff , DeformationFieldPointer totalField, bool doinverse , float smoothscale=1.0)
+  ImagePointer WarpMultiTransform( ImagePointer referenceimage,  ImagePointer movingImage,  AffineTransformPointer aff , DeformationFieldPointer totalField, bool doinverse , AffineTransformPointer  fixedaff  )
   { 
     typedef typename ImageType::DirectionType DirectionType;
     DirectionType rdirection=referenceimage->GetDirection();
     DirectionType mdirection=movingImage->GetDirection();
 
-/*
-    double min1=0,min2=0,max1=0,max2=0;
-    {
-    typedef itk::MinimumMaximumImageFilter<ImageType> MinMaxFilterType;
-    typename MinMaxFilterType::Pointer minMaxFilter = MinMaxFilterType::New();
-    minMaxFilter->SetInput( movingImage );
-    minMaxFilter->Update();
-    min1 = minMaxFilter->GetMinimum();
-    max1 = minMaxFilter->GetMaximum();
-    }
-*/
+    AffineTransformPointer affinverse=NULL;
+    if (aff)
+      {
+      affinverse=AffineTransformType::New();
+      aff->GetInverse(affinverse);
+      }
+    AffineTransformPointer fixedaffinverse=NULL;
+    if (fixedaff)
+      {
+      fixedaffinverse=AffineTransformType::New();
+      fixedaff->GetInverse(fixedaffinverse);
+      }
+       
     DirectionType iddir;
     iddir.Fill(0);
     for (unsigned int i=0;i<ImageDimension;i++) iddir[i][i]=1;
-    //referenceimage->SetDirection(iddir);
-    //movingImage->SetDirection(iddir);
-    //totalField->SetDirection(iddir);
 
     typedef itk::LinearInterpolateImageFunction<ImageType,double>  InterpolatorType1;
     typedef itk::NearestNeighborInterpolateImageFunction<ImageType,double>  InterpolatorType2;
     typename InterpolatorType1::Pointer interp1 = InterpolatorType1::New();
     typename InterpolatorType2::Pointer interpnn = InterpolatorType2::New();
 
-    //  if (this->m_UseROI) this->m_UseMulti=false;
-//    else
     this->m_UseMulti=true;
 
     if (!this->m_UseMulti){
@@ -477,30 +485,24 @@ public:
     warper->Update(); 
     return warper->GetOutput();
     } 
-    
-    AffineTransformPointer affinverse=NULL;
-    if (aff)
-      {
-      affinverse=AffineTransformType::New();
-      aff->GetInverse(affinverse);
-      }
        
     typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DeformationFieldType, TransformType> WarperType;
     typename WarperType::Pointer  warper = WarperType::New();
     warper->SetInput(movingImage);
     warper->SetEdgePaddingValue( 0); 
-    if (this->m_Debug) std::cout << "got aff " << " smsc " << smoothscale << std::endl;
     warper->SetSmoothScale(1);
     warper->SetInterpolator(interp1);
       if (this->m_UseNN) warper->SetInterpolator(interpnn);
      if (!doinverse)
 	{
 	if (totalField) warper->PushBackDeformationFieldTransform(totalField);
-	if (aff) warper->PushBackAffineTransform(aff);
+	if (fixedaff) warper->PushBackAffineTransform(fixedaff);
+	else if (aff) warper->PushBackAffineTransform(aff);
 	}
       else
 	{	
 	if (aff) warper->PushBackAffineTransform( affinverse );
+	else if (fixedaff) warper->PushBackAffineTransform(fixedaffinverse);
 	if (totalField) warper->PushBackDeformationFieldTransform(totalField);
 	}
 
@@ -515,39 +517,12 @@ public:
      totalField->SetOrigin(referenceimage->GetOrigin() );
      totalField->SetDirection(referenceimage->GetDirection() );
 
-
       warper->Update();
       if (this->m_Debug){
       std::cout << " updated ok -- warped image output size " << warper->GetOutput()->GetLargestPossibleRegion().GetSize() << " requested size " <<  totalField->GetLargestPossibleRegion().GetSize() <<  std::endl;
       }
 
-   /**FIXME -- should not have to do this */
-   //referenceimage->SetDirection(rdirection);
-   //movingImage->SetDirection(mdirection);
-   //totalField->SetDirection(rdirection);
    typename ImageType::Pointer outimg=warper->GetOutput();
-   //outimg->SetDirection(rdirection);
-/*
-    {
-    typedef itk::MinimumMaximumImageFilter<ImageType> MinMaxFilterType;
-    typename MinMaxFilterType::Pointer minMaxFilter = MinMaxFilterType::New();
-    minMaxFilter->SetInput( outimg );
-    minMaxFilter->Update();
-    min2 = minMaxFilter->GetMinimum();
-    max2 = minMaxFilter->GetMaximum();
-    } 
-
-       typedef ImageRegionIteratorWithIndex<ImageType> Iterator;
-        Iterator dIter(outimg,outimg->GetLargestPossibleRegion() );
-        for( dIter.GoToBegin(); !dIter.IsAtEnd(); ++dIter )
-        {
-	if (dIter.Get() < 0) dIter.Set(0);
-        }
-    std::cout << " mn1 " << min1 << " mx1 " << max1 << " mn2 " << min2 <<  " mx2 " << max2 << std::endl;
-
-*/
-
-
 
    return outimg;
 
@@ -555,50 +530,6 @@ public:
       
   }
   
-  DeformationFieldPointer GetFullDeformationField()
-  { 
-    DeformationFieldPointer totalField=this->m_DeformationField;
-    if (!totalField) return NULL;
-    typedef itk::DeformationFieldFromMultiTransformFilter<DeformationFieldType, DeformationFieldType, TransformType> DeformGenType;
-    typename DeformGenType::Pointer deformgen = DeformGenType::New();    
-    deformgen->SetOutputOrigin(totalField->GetOrigin());
-    deformgen->SetOutputSize(totalField->GetLargestPossibleRegion().GetSize());
-    deformgen->SetOutputSpacing(totalField->GetSpacing());
-    deformgen->PushBackDeformationFieldTransform(totalField);
-    if (this->m_AffineTransform) deformgen->PushBackAffineTransform(this->m_AffineTransform);
-    std::cout << " Getting Full Def " << std::endl;
-    std::cout << " Aff " << this->m_AffineTransform << " \n \n " << std::endl;
-    deformgen->DetermineFirstDeformNoInterp();
-    deformgen->Update();
-    return deformgen->GetOutput();
-
-  }
-  
-  DeformationFieldPointer GetFullInverseDeformationField()
-  {
-    if (!this->m_InverseDeformationField) {std::cout <<" No inverse field " << std::endl; return NULL; }
-    AffineTransformPointer affinverse=NULL;
-    if (this->m_AffineTransform)
-      {
-      affinverse=AffineTransformType::New();
-      this->m_AffineTransform->GetInverse(affinverse);
-      }
-    
-    typedef itk::DeformationFieldFromMultiTransformFilter<DeformationFieldType, DeformationFieldType, TransformType> DeformGenType;
-    typename DeformGenType::Pointer deformgen = DeformGenType::New();    
-    deformgen->SetOutputOrigin(this->m_SimilarityMetrics[0]->GetMovingImage()->GetOrigin());
-    deformgen->SetOutputSize(this->m_SimilarityMetrics[0]->GetMovingImage()->GetLargestPossibleRegion().GetSize());
-    deformgen->SetOutputSpacing(this->m_SimilarityMetrics[0]->GetMovingImage()->GetSpacing());
-    deformgen->PushBackDeformationFieldTransform(this->m_InverseDeformationField);
-    if (affinverse) deformgen->PushBackAffineTransform( affinverse );
-    deformgen->DetermineFirstDeformNoInterp();
-    std::cout << " \n \n " <<  " Aff Inv " << affinverse <<  " \n \n " << std::endl;
-//    affinverse->PrintSelf();
-
-    deformgen->Update();
-    return deformgen->GetOutput();
-    
-  }
   
   ImagePointer  SmoothImageToScale(ImagePointer image ,  float scalingFactor )
   {
@@ -1019,6 +950,7 @@ public:
       bool converged=false;
       this->m_CurrentIteration=0;  
 
+      if (this->GetTransformationModel() != std::string("SyN"))  this->m_FixedImageAffineTransform=NULL; 
       while (!converged)
         {
         for (unsigned int metricCount=0;  metricCount <   numberOfMetrics;  metricCount++)
@@ -1585,6 +1517,7 @@ private:
     typename ImageType::SpacingType   m_FullDomainSpacing;
 
     AffineTransformPointer m_AffineTransform;
+    AffineTransformPointer m_FixedImageAffineTransform;
     DeformationFieldPointer m_DeformationField;
     DeformationFieldPointer m_InverseDeformationField;
     DeformationFieldPointer m_StaticVelocityField;
