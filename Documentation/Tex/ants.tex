@@ -247,10 +247,23 @@ neighbor interpolation, otherwise linear interpolation is used.
 \subsection{The ImageMath Executable} This is a multi-purpose program that has the following syntax:  ``ImageMath ImageDimension outputfilename   Operation  InputFileName  parameters ``.  Most basic scalar image operations -- and some tensor operations -- may be performed with this program.  Some operations output text files, some output images and some output only to the terminal.   ImageMath allows one to multiply images together (m), to negate images (Neg), to take an image to a power (pow), to test the invertibility of transformations (InvId), to compute the fractional anisotropy of an image (TensorFA) and to perform Markov Random Field segmentation with or without priors (Segment).   Many other operations are available.  Like all other ANTS programs, one may call ImageMath from the command line to see all of its options.   ImageMath is used heavily in ANTS scripts.  
 
 \subsection{ANTS Scripts} 
-The ANTS/Scripts directory contains (hopefully) user-friendly wrappings of ANTS tools 
-that enable higher-level error checking and combinations of basic ANTS functions. 
-These scripts are called as \verb sh  ~ \verb antsscriptname.sh ~ and provide usage when 
-called from the command line.  For instance, try \verb sh ~ \verb ants.sh .
+The ANTS/Scripts directory contains (hopefully) user-friendly
+wrappings of ANTS tools that enable higher-level error checking and
+combinations of basic ANTS functions.  These scripts are called as
+\verb sh ~ \verb antsscriptname.sh ~ and provide usage when called
+from the command line.  For instance, try \verb sh ~ \verb ants.sh .
+Additionally, if you run ants in tcsh shells, you will need to call it
+as follows:
+\begin{verbatim}
+~/Code/ANTSSourceForgeSVN/bin/ANTS 2 -m PR\[r16slice.nii,r64slice.nii,1,2\]
+\end{verbatim}
+instead of
+\begin{verbatim}
+~/Code/ANTSSourceForgeSVN/bin/ANTS 2 -m PR[r16slice.nii,r64slice.nii,1,2]
+\end{verbatim}
+because tcsh does no interpret the brackets as intended.  Using the
+bash shell script interface also avoids this.  The key change involves using the slash to force tcsh to 
+interpet the bracket literally. 
 
 \section{ImageRegistration with ANTS}
 \begin{wrapfigure}{r}{0.5\textwidth}
