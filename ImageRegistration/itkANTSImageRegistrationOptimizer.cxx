@@ -479,7 +479,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 {
   
   ImagePointer mask=NULL;
-  if ( movingwarp && this->m_MaskImage)
+  if ( movingwarp && this->m_MaskImage && !this->m_ComputeThickness )
     mask= this->WarpMultiTransform( this->m_MaskImage, this->m_MaskImage, NULL, movingwarp, false , this->m_FixedImageAffineTransform );
   else if (this->m_MaskImage) mask=this->SubsampleImage( this->m_MaskImage, this->m_ScaleFactor , this->m_MaskImage->GetOrigin() , this->m_MaskImage->GetDirection() ,  NULL);
   
@@ -1637,11 +1637,10 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   typename JacobianFunctionType::Pointer jfunction = JacobianFunctionType::New();
     float lot=0,hit=0.5;
     float lot2=1.0;
-    float hit2=hit;
 //CopyOrAddToVelocityField( DeformationFieldPointer update,  unsigned int timeindex,  bool CopyIsTrueOtherwiseAdd)
     this->CopyOrAddToVelocityField( this->m_SyNF,  0 , false);
     this->m_SyNFInv = this->IntegrateVelocity(hit,lot);
-    this->m_SyNMInv = this->IntegrateVelocity(hit2,lot2);
+    this->m_SyNMInv = this->IntegrateVelocity(hit,lot2);
     if (aff){
     affinverse=AffineTransformType::New();
     aff->GetInverse(affinverse);
@@ -1654,7 +1653,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 /** NOte, totalUpdateInvField is filled with zeroes! -- we only want
       affine mapping */
       wmpoints = this->WarpMultiTransform(fixedImage,movingImage,  mpoints ,  aff , totalUpdateInvField , true, NULL );
-      DeformationFieldPointer mdiffmap = this->IntegrateLandmarkSetVelocity(lot2,hit2,wmpoints,movingImage);
+      DeformationFieldPointer mdiffmap = this->IntegrateLandmarkSetVelocity(lot2,hit,wmpoints,movingImage);
       wmpoints = this->WarpMultiTransform(fixedImage,movingImage,  wmpoints ,  NULL , mdiffmap , true , NULL );
       }
     if ( fpoints ) 
@@ -1680,6 +1679,108 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     VectorType synfv   =this->m_SyNF->GetPixel( index );
     this->m_SyNM->SetPixel( index, synmv*geowt1-synfv*geowt2);
     this->m_SyNF->SetPixel( index, synfv*geowt1-synmv*geowt2);
+    }
+
+    if (  this->m_TotalSmoothingparam > 0 
+      || this->m_TotalSmoothingMeshSize[0] > 0 )
+      {
+      this->SmoothDeformationField( this->m_SyNF,false);
+      this->SmoothDeformationField( this->m_SyNM,false);
+      }
+
+    return;
+
+}
+
+
+template<unsigned int TDimension, class TReal>
+void
+ANTSImageRegistrationOptimizer<TDimension, TReal>
+::DiReCTUpdate(ImagePointer fixedImage, ImagePointer movingImage, PointSetPointer fpoints, PointSetPointer mpoints)
+{
+  typename ImageType::SpacingType spacing=fixedImage->GetSpacing(); 
+  VectorType zero;  
+  zero.Fill(0);
+  DeformationFieldPointer       totalUpdateField,totalUpdateInvField=DeformationFieldType::New();
+  totalUpdateInvField->SetSpacing( this->m_DeformationField->GetSpacing() );
+  totalUpdateInvField->SetOrigin( this->m_DeformationField->GetOrigin() );
+  totalUpdateInvField->SetDirection( this->m_DeformationField->GetDirection() );
+  totalUpdateInvField->SetLargestPossibleRegion(this->m_DeformationField->GetLargestPossibleRegion()  );
+  totalUpdateInvField->SetRequestedRegion( this->m_DeformationField->GetLargestPossibleRegion()   );
+  totalUpdateInvField->SetBufferedRegion( this->m_DeformationField->GetLargestPossibleRegion()  );
+  totalUpdateInvField->Allocate();
+  totalUpdateInvField->FillBuffer(zero);
+  if (!this->m_SyNF)
+    {
+    std::cout <<" Allocating " << std::endl;
+    this->m_SyNF=this->CopyDeformationField(totalUpdateInvField);
+    this->m_SyNFInv=this->CopyDeformationField(this->m_SyNF);
+    this->m_SyNM=this->CopyDeformationField(totalUpdateInvField);
+    this->m_SyNMInv=this->CopyDeformationField(this->m_SyNF);
+    std::cout <<" Allocating Done " << std::endl;
+    }
+
+  if (!this->m_SyNF) { std::cout<<" F'D UP " << std::endl;}
+  
+    ImagePointer wfimage,wmimage;
+    PointSetPointer wfpoints=NULL,wmpoints=NULL;
+    AffineTransformPointer aff =this->m_AffineTransform;   
+    AffineTransformPointer affinverse=NULL;
+
+    typedef ImageRegionIteratorWithIndex<DeformationFieldType> Iterator;
+    Iterator dIter(this->m_SyNF,this->m_SyNF->GetLargestPossibleRegion() );
+
+//here, SyNF holds the moving velocity field, SyNM holds the fixed
+//velocity field and we integrate both to generate the inv/fwd fields
+  typename JacobianFunctionType::Pointer jfunction = JacobianFunctionType::New();
+    float lot=0, lot2=1.0;
+    for (float hit=0; hit<=1; hit=hit+0.25) {
+      //      std::cout << " hit " << hit << std::endl;
+//CopyOrAddToVelocityField( DeformationFieldPointer update,  unsigned int timeindex,  bool CopyIsTrueOtherwiseAdd)
+    this->CopyOrAddToVelocityField( this->m_SyNF,  0 , false);
+    this->CopyOrAddToVelocityField( this->m_SyNM,  0 , false);
+    this->m_SyNFInv = this->IntegrateVelocity(hit,lot);
+    this->m_SyNMInv = this->IntegrateVelocity(hit,lot2);
+    if (aff){
+    affinverse=AffineTransformType::New();
+    aff->GetInverse(affinverse);
+    }
+    if ( mpoints ) 
+      {
+/**FIXME -- NEED INTEGRATION FOR POINTS ONLY  -- warp landmarks for
+* tv-field */
+//      std::cout <<" aff " << std::endl;
+/** NOte, totalUpdateInvField is filled with zeroes! -- we only want
+      affine mapping */
+      wmpoints = this->WarpMultiTransform(fixedImage,movingImage,  mpoints ,  aff , totalUpdateInvField , true, NULL );
+      DeformationFieldPointer mdiffmap = this->IntegrateLandmarkSetVelocity(lot2,hit,wmpoints,movingImage);
+      wmpoints = this->WarpMultiTransform(fixedImage,movingImage,  wmpoints ,  NULL , mdiffmap , true , NULL );
+      }
+    if ( fpoints ) 
+      {// need full inverse map
+      wfpoints = this->WarpMultiTransform(fixedImage,movingImage,  fpoints , NULL , totalUpdateInvField , true, this->m_FixedImageAffineTransform );
+      DeformationFieldPointer fdiffmap = this->IntegrateLandmarkSetVelocity(lot,hit,wfpoints,fixedImage);
+      wfpoints = this->WarpMultiTransform(fixedImage,fixedImage, wfpoints ,  NULL , fdiffmap , false , NULL );
+      }
+    totalUpdateField=this->ComputeUpdateField( this->m_SyNMInv, this->m_SyNFInv , wfpoints, wmpoints,totalUpdateInvField,true);
+
+    for( dIter.GoToBegin(); !dIter.IsAtEnd(); ++dIter )
+    { 
+    typename ImageType::IndexType index=dIter.GetIndex();
+    VectorType vecf=totalUpdateField->GetPixel(index)*1;
+    VectorType vecm=totalUpdateInvField->GetPixel(index);
+    //    vecm.Fill(0);
+    this->m_SyNF->SetPixel( index, this->m_SyNF->GetPixel( index )+vecf*this->m_GradstepAltered);
+    this->m_SyNM->SetPixel( index, this->m_SyNM->GetPixel( index )+vecm*this->m_GradstepAltered);
+// min field difference => geodesic => DV/dt=0 
+    float geowt1=0.9;
+    float geowt2=1.0-geowt1;
+    VectorType synmv=this->m_SyNM->GetPixel( index );
+    VectorType synfv   =this->m_SyNF->GetPixel( index );
+    this->m_SyNM->SetPixel( index, synmv*geowt1-synfv*geowt2);
+    this->m_SyNF->SetPixel( index, synfv*geowt1-synmv*geowt2);
+    //this->m_SyNF->SetPixel( index, synfv);
+    }
     }
 
     if (  this->m_TotalSmoothingparam > 0 
@@ -1774,7 +1875,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   if (starttimein  >  finishtimein ) timesign= -1.0;
   FieldIterator m_FieldIter(this->GetDeformationField(), this->GetDeformationField()->GetLargestPossibleRegion());
 //  std::cout << " Start Int " << starttimein <<  std::endl;
-  if ( mask ) 
+  if ( mask  && !this->m_ComputeThickness ) 
     {
   for(  m_FieldIter.GoToBegin(); !m_FieldIter.IsAtEnd(); ++m_FieldIter )
     {
@@ -1797,6 +1898,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   if (this->m_ThickImage){
     std::string outname=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("thick.nii.gz");
     //    std::string outname=+std::string("thick.nii.gz");
+    std::cout << " write " << outname << std::endl;
     WriteImage<ImageType>(this->m_ThickImage,outname.c_str());
   }
 
@@ -1804,7 +1906,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   return intfield;
  
 
-}     
+}
 
 
 template<unsigned int TDimension, class TReal>
@@ -2136,6 +2238,9 @@ if (this->m_Debug)       std::cout << " p2 " << pointIn2<< " y1 " <<  Y1x[TDimen
 	  if (itime >= finishtimein ) timedone=true;
 	}
 
+      //        bool isingray=true; 
+      if ( this->m_MaskImage ) {
+	if ( this->m_MaskImage->GetPixel(velind) ) {
         typename ImageType::IndexType thind;
 	for (unsigned int i=0; i<ImageDimension; i++) 
            thind[i]=(unsigned int) pointIn3[i]/this->m_CurrentDomainSpacing[i]-this->m_CurrentDomainOrigin[i];
@@ -2145,6 +2250,8 @@ if (this->m_Debug)       std::cout << " p2 " << pointIn2<< " y1 " <<  Y1x[TDimen
         float newthick=(float)lastct/(float)newct*oldthick+1.0/(float)newct*thislength;
         this->m_HitImage->SetPixel( thind,  newct );
         this->m_ThickImage->SetPixel(thind, newthick );
+	//        this->m_ThickImage->SetPixel(thind, thislength );
+      }}
     }
 
 
