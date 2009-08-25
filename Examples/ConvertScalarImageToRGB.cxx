@@ -23,9 +23,6 @@
 
 #include "itkScalarToRGBColormapImageFilter.h"
 
-#include <fstream.h>
-#include <sstream>
-#include <string>
 
 template <unsigned int ImageDimension>
 int ConvertScalarImageToRGB( int argc, char *argv[] )
