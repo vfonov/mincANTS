@@ -1,3 +1,7 @@
+
+#include <string> 
+#include <fstream> 
+#include <iostream>
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -135,7 +139,7 @@ int ConvertScalarImageToRGB( int argc, char *argv[] )
       typename RGBImageType::PixelType> ColormapType;
     typename ColormapType::Pointer colormap = ColormapType::New();
 
-    ifstream str( argv[6] );
+    std::ifstream str( argv[6] );
     std::string line;
 
     // Get red values
