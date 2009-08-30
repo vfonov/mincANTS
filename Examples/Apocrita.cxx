@@ -220,7 +220,7 @@ int ApocritaSegmentation( itk::WASPCommandLineParser *parser )
     segmenter->SetConvergenceThreshold( parser->Convert<float>(
       convergenceOption->GetValue() ) );
     }
-  std::cout << segmenter->GetConvergenceThreshold() << std::endl;    
+  std::cout << segmenter->GetConvergenceThreshold() << std::endl;
 
   /**
    * Mask image
@@ -577,6 +577,7 @@ void InitializeCommandLineOptions( itk::WASPCommandLineParser *parser )
   OptionType::Pointer option = OptionType::New();
   option->SetLongName( "help" );
   option->SetShortName( 'h' );
+  option->AddValue( std::string( "0" ) );
   option->SetDescription( description );
   parser->AddOption( option );
   }
@@ -588,12 +589,12 @@ int main( int argc, char *argv[] )
   if ( argc < 2 )
     {
    //   std::cout << " WASP : Wieldy Atlas-based Segmentation Protocol -- stinging the segmentation problem in the behind. " << std::endl;
-//	std::cout << " wieldy [weel-dee] " << std::endl; 
+//	std::cout << " wieldy [weel-dee] " << std::endl;
  //     std::cout <<  " –adjective: readily wielded or managed, as in use or action. " << std::endl;
-    std::cout << " Apocrita Segmentation :  A priori classification with registration initialized template assistance " << std::endl; 
+    std::cout << " Apocrita Segmentation :  A priori classification with registration initialized template assistance " << std::endl;
      std::cout << "Usage: " << argv[0] << " imageDimension args" << std::endl;
       std::cout << "call: " << argv[0] << " -h " << std::endl;
-      std::cout << " this program has not been evaluated " << std::endl; 
+      std::cout << " this program has not been evaluated " << std::endl;
       exit( 1 );
     }
 
