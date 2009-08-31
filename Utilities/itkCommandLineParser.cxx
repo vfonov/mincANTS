@@ -181,13 +181,13 @@ CommandLineParser
 
     if( isArgOpen )
       {
-      unsigned int leftDelimiterPosition = a.find( this->m_LeftDelimiter );
+      std::size_t leftDelimiterPosition = a.find( this->m_LeftDelimiter );
       if( leftDelimiterPosition != std::string::npos )
         {
         itkExceptionMacro( "Incorrect command line specification." );
         }
 
-      unsigned int rightDelimiterPosition = a.find( this->m_RightDelimiter );
+      std::size_t rightDelimiterPosition = a.find( this->m_RightDelimiter );
       if( rightDelimiterPosition != std::string::npos )
         {
         if( rightDelimiterPosition < a.length()-1 )
@@ -209,8 +209,8 @@ CommandLineParser
       }
     else
       {
-      unsigned int leftDelimiterPosition = a.find( this->m_LeftDelimiter );
-      unsigned int rightDelimiterPosition = a.find( this->m_RightDelimiter );
+      std::size_t leftDelimiterPosition = a.find( this->m_LeftDelimiter );
+      std::size_t rightDelimiterPosition = a.find( this->m_RightDelimiter );
 
       if( leftDelimiterPosition == std::string::npos )
         {
