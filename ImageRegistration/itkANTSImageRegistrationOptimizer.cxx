@@ -481,7 +481,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   ImagePointer mask=NULL;
   if ( movingwarp && this->m_MaskImage && !this->m_ComputeThickness )
     mask= this->WarpMultiTransform( this->m_MaskImage, this->m_MaskImage, NULL, movingwarp, false , this->m_FixedImageAffineTransform );
-  else if (this->m_MaskImage) mask=this->SubsampleImage( this->m_MaskImage, this->m_ScaleFactor , this->m_MaskImage->GetOrigin() , this->m_MaskImage->GetDirection() ,  NULL);
+  else if (this->m_MaskImage && !this->m_ComputeThickness  ) mask=this->SubsampleImage( this->m_MaskImage, this->m_ScaleFactor , this->m_MaskImage->GetOrigin() , this->m_MaskImage->GetDirection() ,  NULL);
   
   if ( !fixedwarp) {std::cout<< " NO F WARP " << std::endl;  fixedwarp=this->m_DeformationField; }
   //if ( !movingwarp) std::cout<< " NO M WARP " << std::endl;
@@ -1821,7 +1821,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 
   bool dothick=false;
   if (  finishtimein > starttimein  && this->m_ComputeThickness ) dothick=true;
-  if ( dothick ) {
+  if ( dothick && this->m_CurrentIteration  > 2 ) {
     this->m_ThickImage=ImageType::New();
     this->m_ThickImage->SetSpacing( this->m_SyNF->GetSpacing() );
     this->m_ThickImage->SetOrigin( this->m_SyNF->GetOrigin() );
@@ -2037,7 +2037,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   float itime = starttimein;  
   unsigned long ct = 0;
   float inverr=0; 
-  float thislength=0;
+  float thislength=0,euclideandist=0;
   bool timedone = false;
   inverr=1110;
   VectorType disp;
@@ -2118,7 +2118,7 @@ if (this->m_Debug)       std::cout << " p2 " << pointIn2<< " y1 " <<  Y1x[TDimen
       
       for (unsigned int jj=0; jj<TDimension; jj++) 
        pointIn3[jj] = pointIn2[jj] + vecsign*deltaTime/6.0 * ( f1[jj] + 2.0*f2[jj] + 2.0*f3[jj] + f4[jj] );
-
+      pointIn3[TDimension]=itime*(float)(m_NumberOfTimePoints-1);
 
       VectorType out;
       float mag=0, dmag=0;
@@ -2135,6 +2135,7 @@ if (this->m_Debug)       std::cout << " p2 " << pointIn2<< " y1 " <<  Y1x[TDimen
       totalmag+=sqrt(mag);
       ct++;
       thislength += totalmag;
+      euclideandist=dmag;
       itime = itime + deltaTime*timesign;
       if (starttimein > finishtimein) 
 	{
@@ -2149,8 +2150,21 @@ if (this->m_Debug)       std::cout << " p2 " << pointIn2<< " y1 " <<  Y1x[TDimen
     }
 
   // now we have the thickness value stored in thislength 
-      if ( this->m_ThickImage && this->m_HitImage){
+  if ( this->m_ThickImage && this->m_HitImage){
 
+  // set up parameters for start of integration 
+  velo.Fill(0);
+  itime = starttimein;  
+  timedone = false;
+  vind.Fill(0);
+  for (unsigned int jj=0; jj<TDimension; jj++)
+    {
+    vind[jj]=velind[jj];
+    pointIn1[jj]=velind[jj]*spacing[jj];
+    }
+  this->m_TimeVaryingVelocity->TransformIndexToPhysicalPoint( vind, pointIn1);
+// time is in [0,1]
+  pointIn1[TDimension]= starttimein*(m_NumberOfTimePoints-1);
   // set up parameters for start of integration 
   disp.Fill(0.0);
   timedone=false;  
@@ -2210,6 +2224,7 @@ if (this->m_Debug)       std::cout << " p2 " << pointIn2<< " y1 " <<  Y1x[TDimen
       
       for (unsigned int jj=0; jj<TDimension; jj++) 
        pointIn3[jj] = pointIn2[jj] + vecsign*deltaTime/6.0 * ( f1[jj] + 2.0*f2[jj] + 2.0*f3[jj] + f4[jj] );
+      pointIn3[TDimension]=itime*(float)(m_NumberOfTimePoints-1);
 
 
       VectorType out;
@@ -2221,37 +2236,35 @@ if (this->m_Debug)       std::cout << " p2 " << pointIn2<< " y1 " <<  Y1x[TDimen
       dmag+=(pointIn3[jj] - pointIn1[jj])*(pointIn3[jj] - pointIn1[jj]); 
       disp[jj]=out[jj];
       }
-
-//      std::cout << " p3 " << pointIn3 << std::endl;
-      dmag=sqrt(dmag);
-      totalmag+=sqrt(mag);
-      ct++;
-      //      thislength += totalmag;
       itime = itime + deltaTime*timesign;
       if (starttimein > finishtimein) 
 	{
 	  if (itime <= finishtimein  ) timedone=true;
 	}
-      //      else if (thislength ==  0) timedone=true;
       else
 	{
 	  if (itime >= finishtimein ) timedone=true;
 	}
-
+     
       //        bool isingray=true; 
       if ( this->m_MaskImage ) {
 	if ( this->m_MaskImage->GetPixel(velind) ) {
-        typename ImageType::IndexType thind;
-	for (unsigned int i=0; i<ImageDimension; i++) 
-           thind[i]=(unsigned int) pointIn3[i]/this->m_CurrentDomainSpacing[i]-this->m_CurrentDomainOrigin[i];
+	VIndexType thind2;
+	IndexType thind;
+	bool isin=this->m_TimeVaryingVelocity->TransformPhysicalPointToIndex( pointIn3, thind2 );
+	for (unsigned int ij=0; ij<ImageDimension; ij++) thind[ij]=thind2[ij];
+        if (isin){
         unsigned long lastct= this->m_HitImage->GetPixel(thind);
         unsigned long newct=lastct+1;
         float oldthick=this->m_ThickImage->GetPixel(thind); 
-        float newthick=(float)lastct/(float)newct*oldthick+1.0/(float)newct*thislength;
+        float newthick=(float)lastct/(float)newct*oldthick+1.0/(float)newct*euclideandist;
         this->m_HitImage->SetPixel( thind,  newct );
         this->m_ThickImage->SetPixel(thind, newthick );
+	}
+	else std::cout << " thind " << thind << " edist " << euclideandist << " p3 " << pointIn3 << " p1 " << pointIn1 << std::endl;
 	//        this->m_ThickImage->SetPixel(thind, thislength );
-      }}
+      }
+      }
     }
 
 
