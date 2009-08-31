@@ -1,6 +1,6 @@
 
-#include <string> 
-#include <fstream> 
+#include <string>
+#include <fstream>
 #include <iostream>
 #include "itkImage.h"
 #include "itkImageFileReader.h"
@@ -56,9 +56,9 @@ int ConvertScalarImageToRGB( int argc, char *argv[] )
     maskreader->Update();
     maskImage = maskreader->GetOutput();
     }
-  catch(...) 
+  catch(...)
     {
-    maskImage = NULL; 
+    maskImage = NULL;
     };
 
 
@@ -184,9 +184,9 @@ int ConvertScalarImageToRGB( int argc, char *argv[] )
 
   if( maskImage )
     {
-     
-    RealType maskMinimumValue = itk::NumericTraits<RealType>::max();   
-    RealType maskMaximumValue = itk::NumericTraits<RealType>::NonpositiveMin();   
+
+    RealType maskMinimumValue = itk::NumericTraits<RealType>::max();
+    RealType maskMaximumValue = itk::NumericTraits<RealType>::NonpositiveMin();
 
     itk::ImageRegionIterator<MaskImageType> ItM( maskImage,
       maskImage->GetLargestPossibleRegion() );
@@ -206,25 +206,25 @@ int ConvertScalarImageToRGB( int argc, char *argv[] )
           }
         }
       }
-      
+
     rgbfilter->SetUseInputImageExtremaForScaling( false );
-    rgbfilter->GetColormap()->SetMinimumInputValue( maskMinimumValue ); 
-    rgbfilter->GetColormap()->SetMaximumInputValue( maskMaximumValue ); 
+    rgbfilter->GetColormap()->SetMinimumInputValue( maskMinimumValue );
+    rgbfilter->GetColormap()->SetMaximumInputValue( maskMaximumValue );
     }
 
-  rgbfilter->GetColormap()->SetMinimumRGBComponentValue( 
+  rgbfilter->GetColormap()->SetMinimumRGBComponentValue(
     ( argc > 9 ) ? static_cast<
     typename RGBPixelType::ComponentType>( atof( argv[9] ) ) : 0 );
-  rgbfilter->GetColormap()->SetMaximumRGBComponentValue( 
+  rgbfilter->GetColormap()->SetMaximumRGBComponentValue(
     ( argc > 10 ) ? static_cast<
     typename RGBPixelType::ComponentType>( atof( argv[10] ) ) : 255 );
 
   if( argc > 8 )
     {
     rgbfilter->SetUseInputImageExtremaForScaling( false );
-    rgbfilter->GetColormap()->SetMinimumInputValue( 
+    rgbfilter->GetColormap()->SetMinimumInputValue(
       static_cast<RealType>( atof( argv[7] ) ) );
-    rgbfilter->GetColormap()->SetMaximumInputValue( 
+    rgbfilter->GetColormap()->SetMaximumInputValue(
       static_cast<RealType>( atof( argv[8] ) ) );
     }
 
@@ -236,7 +236,7 @@ int ConvertScalarImageToRGB( int argc, char *argv[] )
     {
     return EXIT_FAILURE;
     }
-    
+
   if( maskImage )
     {
     itk::ImageRegionIterator<MaskImageType> ItM( maskImage,
@@ -245,39 +245,39 @@ int ConvertScalarImageToRGB( int argc, char *argv[] )
       rgbfilter->GetOutput()->GetLargestPossibleRegion() );
     itk::ImageRegionIterator<RealImageType> ItS( reader->GetOutput(),
       reader->GetOutput()->GetLargestPossibleRegion() );
-    
+
     ItM.GoToBegin();
     ItC.GoToBegin();
     ItS.GoToBegin();
-    
+
     while( !ItM.IsAtEnd() )
       {
       if( ItM.Get() == 0 )
         {
         RGBPixelType rgbpixel;
-         
-//        RealType minimumValue = rgbfilter->GetColormap()->GetMinimumInputValue(); 
-//        RealType maximumValue = rgbfilter->GetColormap()->GetMaximumInputValue(); 
+
+//        RealType minimumValue = rgbfilter->GetColormap()->GetMinimumInputValue();
+//        RealType maximumValue = rgbfilter->GetColormap()->GetMaximumInputValue();
 //
-//        RealType minimumRGBValue 
-//          = rgbfilter->GetColormap()->GetMinimumRGBComponentValue(); 
-//        RealType maximumRGBValue 
-//          = rgbfilter->GetColormap()->GetMaximumRGBComponentValue(); 
-//        
+//        RealType minimumRGBValue
+//          = rgbfilter->GetColormap()->GetMinimumRGBComponentValue();
+//        RealType maximumRGBValue
+//          = rgbfilter->GetColormap()->GetMaximumRGBComponentValue();
+//
 //        RealType ratio = ( ItS.Get() - minimumValue ) / ( maximumValue - minimumValue );
-//        
+//
 //        rgbpixel.Fill( ratio * ( maximumRGBValue - minimumRGBValue )
 //          + minimumRGBValue );
-        rgbpixel.Fill( 0.0 );
-        
+        rgbpixel.Fill( itk::NumericTraits<typename RGBPixelType::ComponentType>::Zero );
+
         ItC.Set( rgbpixel );
-        } 
+        }
       ++ItM;
       ++ItC;
       ++ItS;
       }
     }
-    
+
   typedef itk::ImageFileWriter<RGBImageType> WriterType;
   typename WriterType::Pointer writer = WriterType::New();
   writer->SetInput( rgbfilter->GetOutput() );
@@ -299,7 +299,7 @@ int main( int argc, char *argv[] )
     exit( 1 );
     }
 
-  switch( atoi( argv[1] ) ) 
+  switch( atoi( argv[1] ) )
    {
    case 2:
      ConvertScalarImageToRGB<2>( argc, argv );
