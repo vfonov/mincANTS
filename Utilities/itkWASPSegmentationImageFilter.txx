@@ -677,10 +677,11 @@ WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
     while( !ItP.IsAtEnd() )
       {
+
       if( !this->GetMaskImage() || this->GetMaskImage()->GetPixel(
         ItO.GetIndex() ) == this->m_MaskLabel )
         {
-/** FIXME - below is useful to prevent probabilities without distance priors from incurring wrath on those with ... */
+/* FIXME - below is useful to prevent probabilities without distance priors from incurring wrath on those with ... */
 // but we need to control when we use it more strongly .... or test it more.
 /*         if ( this->m_DistanceImages.size() == this->m_NumberOfClasses  )
          {
