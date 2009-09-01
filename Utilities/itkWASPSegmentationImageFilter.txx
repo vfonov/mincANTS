@@ -680,7 +680,9 @@ WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
       if( !this->GetMaskImage() || this->GetMaskImage()->GetPixel(
         ItO.GetIndex() ) == this->m_MaskLabel )
         {
-         if ( this->m_DistanceImages.size() == this->m_NumberOfClasses  )
+/** FIXME - below is useful to prevent probabilities without distance priors from incurring wrath on those with ... */
+// but we need to control when we use it more strongly .... or test it more.
+/*         if ( this->m_DistanceImages.size() == this->m_NumberOfClasses  )
          {
 	 float spprob=1.0;
          if ( !  this->m_DistanceImages[n]  )
@@ -692,7 +694,7 @@ WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
   	   ItP.Set(ItP.Get()*spprob);
          }
          }
-
+*/
         if( ItP.Get() >= ItM.Get() )
           {
           ItM.Set( ItP.Get() );
@@ -1224,11 +1226,12 @@ void WASPSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
         {
          float distancePrior=1;
          float dist=ItD.Get();
-	 float boundaryprob=0.75;
+	 float boundaryprob=1;
          float critval=1.0-boundaryprob;// the probability at the boundary will be 1.0-critval
 	 float delta=(maxdist-fabs(dist))/maxdist; // in range of zero to one
 	 // below, the value at the boundary (D=0) is 1-critval and reduces away from the boundary 
-         if ( dist >= 0) distancePrior = vcl_exp( -1.0 *ItD.Get()*ItD.Get() / vnl_math_sqr( this->m_PriorLabelSigmas[whichClass-1] ))*boundaryprob;
+//         if ( dist >= 0) distancePrior = vcl_exp( -1.0 *ItD.Get()*ItD.Get() / vnl_math_sqr( this->m_PriorLabelSigmas[whichClass-1] ))*boundaryprob;
+         if ( dist >= 0) distancePrior = vcl_exp( -1.0*ItD.Get() / vnl_math_sqr( this->m_PriorLabelSigmas[whichClass-1] ) )*boundaryprob; // alternative 
 	 // below, the value inside the object (D>0) increases from 1-crtival to 1
 	 else distancePrior = 1.0-critval*delta;
 	 ItD.Set(distancePrior); 
