@@ -252,6 +252,8 @@ public:
 
   void SmoothDeformationFieldGauss(DeformationFieldPointer field = NULL,
             float sig=0.0, bool useparamimage=false, unsigned int lodim=ImageDimension);
+//  float = smoothingparam, int = maxdim to smooth
+  void SmoothVelocityGauss(TimeVaryingVelocityFieldPointer field,float,unsigned int);
 
     void SmoothDeformationFieldBSpline(DeformationFieldPointer field, ArrayType meshSize, 
       unsigned int splineorder, unsigned int numberoflevels );
@@ -259,6 +261,28 @@ public:
   DeformationFieldPointer ComputeUpdateFieldAlternatingMin(DeformationFieldPointer fixedwarp, DeformationFieldPointer movingwarp,  PointSetPointer  fpoints=NULL,  PointSetPointer wpoints=NULL,DeformationFieldPointer updateFieldInv=NULL, bool updateenergy=true);
 
   DeformationFieldPointer ComputeUpdateField(DeformationFieldPointer fixedwarp, DeformationFieldPointer movingwarp,  PointSetPointer  fpoints=NULL,  PointSetPointer wpoints=NULL,DeformationFieldPointer updateFieldInv=NULL, bool updateenergy=true);
+
+    TimeVaryingVelocityFieldPointer ExpandVelocity(  ) {
+
+    float expandFactors[ImageDimension+1];
+      expandFactors[ImageDimension]=1;
+      m_Debug=false;
+      for( int idim = 0; idim < ImageDimension; idim++ )
+       {
+             expandFactors[idim] = (float)this->m_CurrentDomainSize[idim]/(float) this->m_TimeVaryingVelocity->GetLargestPossibleRegion().GetSize()[idim];
+             if( expandFactors[idim] < 1 ) expandFactors[idim] = 1; 
+	     if (this->m_Debug)  std::cout << " ExpFac " << expandFactors[idim] << " curdsz " << this->m_CurrentDomainSize[idim] << std::endl;
+       }
+        VectorType pad;  pad.Fill(0);
+        typedef VectorExpandImageFilter<TimeVaryingVelocityFieldType, TimeVaryingVelocityFieldType> ExpanderType;
+        typename ExpanderType::Pointer m_FieldExpander = ExpanderType::New();
+        m_FieldExpander->SetInput(this->m_TimeVaryingVelocity);
+        m_FieldExpander->SetExpandFactors( expandFactors );
+        m_FieldExpander->SetEdgePaddingValue( pad );
+        m_FieldExpander->UpdateLargestPossibleRegion();
+	  return m_FieldExpander->GetOutput();
+
+    }
 
     DeformationFieldPointer ExpandField(DeformationFieldPointer field,  typename ImageType::SpacingType targetSpacing)
     {
@@ -268,7 +292,7 @@ public:
        {
              expandFactors[idim] = (float)this->m_CurrentDomainSize[idim]/(float)field->GetLargestPossibleRegion().GetSize()[idim];
              if( expandFactors[idim] < 1 ) expandFactors[idim] = 1; 
-             if (this->m_Debug)  std::cout << " ExpFac " << expandFactors[idim] << " curdsz " << this->m_CurrentDomainSize[idim] << std::endl;
+	     //             if (this->m_Debug)  std::cout << " ExpFac " << expandFactors[idim] << " curdsz " << this->m_CurrentDomainSize[idim] << std::endl;
        }
 
         VectorType pad;
@@ -290,6 +314,8 @@ public:
         return fieldout;
 
     }
+
+
 
     ImagePointer GetVectorComponent(DeformationFieldPointer field, unsigned int index)
     {
@@ -640,8 +666,9 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
 
     typename ParserType::OptionType::Pointer thicknessOption 
       = this->m_Parser->GetOption( "compute-thickness" );  
-    if( thicknessOption->GetValue() == "true" ) this->m_ComputeThickness=true;
-    else this->m_ComputeThickness=false;
+    if( thicknessOption->GetValue() == "true" ||  thicknessOption->GetValue() == "1" ) { this->m_ComputeThickness=1; this->m_SyNFullTime=1; }
+    else if(  thicknessOption->GetValue() == "2" )  { this->m_ComputeThickness=0; this->m_SyNFullTime=2; }
+    else this->m_ComputeThickness=0;
     std::cout <<" compute thickness? " << this->m_ComputeThickness << std::endl;
     /**
      * Get transformation model and associated parameters
@@ -837,6 +864,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
             else
             {
                 this->m_DeformationField=this->ExpandField(this->m_DeformationField,this->m_CurrentDomainSpacing);
+		if ( this->m_TimeVaryingVelocity ) this->ExpandVelocity();
             }
 
   }  
@@ -990,7 +1018,8 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
               this->SyNRegistrationUpdate(fixedImage, movingImage, this->m_SimilarityMetrics[0]->GetFixedPointSet(),  this->m_SimilarityMetrics[0]->GetMovingPointSet() );
             }
           else if (this->m_SyNType)     
-            this->CopyOrAddToVelocityField( this->m_SyNF,  0 , false);
+	    this->UpdateTimeVaryingVelocityFieldWithSyNFandSyNM( );
+	  //            this->CopyOrAddToVelocityField( this->m_SyNF,  0 , false);
 	  
           } 
         else if (this->GetTransformationModel() == std::string("Exp"))
@@ -1188,6 +1217,12 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
       this->m_InverseDeformationField->SetOrigin( this->m_SimilarityMetrics[0]->GetFixedImage()->GetOrigin() );
       this->m_InverseDeformationField->SetDirection( this->m_SimilarityMetrics[0]->GetFixedImage()->GetDirection() );
       }
+
+      if ( this->m_TimeVaryingVelocity  ) {
+        std::string outname=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("velocity.mhd");
+        WriteImage<TimeVaryingVelocityFieldType>( this->m_TimeVaryingVelocity , outname.c_str());
+      }
+
     }
 
     void DiffeomorphicExpRegistrationUpdate(ImagePointer fixedImage, ImagePointer movingImage,PointSetPointer fpoints=NULL, PointSetPointer mpoints=NULL);
@@ -1202,7 +1237,9 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
   /** allows one to copy or add a field to a time index within the velocity
 * field 
 */
-  void CopyOrAddToVelocityField( DeformationFieldPointer update,  unsigned int timeindex,  bool CopyIsTrueOtherwiseAdd);
+  void UpdateTimeVaryingVelocityFieldWithSyNFandSyNM( );
+  void CopyOrAddToVelocityField( TimeVaryingVelocityFieldPointer velocity,  DeformationFieldPointer update1, DeformationFieldPointer update2 , float timept);
+//void CopyOrAddToVelocityField( DeformationFieldPointer update,  unsigned int timeindex,  bool CopyIsTrueOtherwiseAdd);
 
     void ElasticRegistrationUpdate(ImagePointer fixedImage, ImagePointer movingImage)
     {
@@ -1232,7 +1269,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
         return;
 
     
-}
+    }
   void ComposeDiffs(DeformationFieldPointer fieldtowarpby, DeformationFieldPointer field, DeformationFieldPointer fieldout, float sign);
 
   void SetSimilarityMetrics( SimilarityMetricListType S ) {this->m_SimilarityMetrics=S;}
@@ -1587,7 +1624,8 @@ private:
 /** For thickness calculation */
   ImagePointer m_HitImage; 
   ImagePointer m_ThickImage; 
-  bool m_ComputeThickness; 
+  unsigned int m_ComputeThickness; 
+  unsigned int m_SyNFullTime;
 
 };
 
