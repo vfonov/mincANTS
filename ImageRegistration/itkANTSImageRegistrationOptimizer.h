@@ -1220,7 +1220,13 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
 
       if ( this->m_TimeVaryingVelocity  ) {
         std::string outname=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("velocity.mhd");
-        WriteImage<TimeVaryingVelocityFieldType>( this->m_TimeVaryingVelocity , outname.c_str());
+	typename itk::ImageFileWriter<TimeVaryingVelocityFieldType>::Pointer writer = itk::ImageFileWriter<TimeVaryingVelocityFieldType>::New();
+        writer->SetFileName(outname.c_str());
+        writer->SetInput( this->m_TimeVaryingVelocity);
+        writer->UpdateLargestPossibleRegion();
+	//	writer->Write();
+	std::cout << " write tv field " << outname << std::endl;
+	//        WriteImage<TimeVaryingVelocityFieldType>( this->m_TimeVaryingVelocity , outname.c_str());
       }
 
     }
