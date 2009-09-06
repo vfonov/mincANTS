@@ -667,7 +667,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
     typename ParserType::OptionType::Pointer thicknessOption 
       = this->m_Parser->GetOption( "compute-thickness" );  
     if( thicknessOption->GetValue() == "true" ||  thicknessOption->GetValue() == "1" ) { this->m_ComputeThickness=1; this->m_SyNFullTime=1; }
-    else if(  thicknessOption->GetValue() == "2" )  { this->m_ComputeThickness=0; this->m_SyNFullTime=2; }
+    else if(  thicknessOption->GetValue() == "2" )  { this->m_ComputeThickness=1; this->m_SyNFullTime=2; }
     else this->m_ComputeThickness=0;
     std::cout <<" compute thickness? " << this->m_ComputeThickness << std::endl;
     /**
