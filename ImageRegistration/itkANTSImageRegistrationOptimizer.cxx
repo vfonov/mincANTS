@@ -677,12 +677,12 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 	          wfimage= this->WarpMultiTransform( this->m_SmoothFixedImages[metricCount], this->m_SmoothFixedImages[metricCount], NULL, movingwarp, false , this->m_FixedImageAffineTransform );
         else wfimage=this->SubsampleImage( this->m_SmoothFixedImages[metricCount] , this->m_ScaleFactor , this->m_SmoothFixedImages[metricCount]->GetOrigin() , this->m_SmoothFixedImages[metricCount]->GetDirection() ,  NULL);
 
-
-    std::string outname=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("thick.nii.gz");
-    WriteImage<ImageType>(wmimage,outname.c_str());
-    outname=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("thick2.nii.gz");
-    WriteImage<ImageType>(wfimage,outname.c_str());
-
+	if (this->m_TimeVaryingVelocity && ! this->m_MaskImage ) {
+	  std::string outname=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("thick.nii.gz");
+	  WriteImage<ImageType>(wmimage,outname.c_str());
+	  outname=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("thick2.nii.gz");
+	  WriteImage<ImageType>(wfimage,outname.c_str());
+	}
 
 /** MV Loop END -- Would have to collect update fields then add them
 * together somehow -- Would also have to eliminate the similarity
@@ -2114,7 +2114,6 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   }
   if (this->m_ThickImage && this->m_MaskImage ){
     std::string outname=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("thick.nii.gz");
-    //    std::string outname=+std::string("thick.nii.gz");
     std::cout << " write " << outname << std::endl;
     WriteImage<ImageType>(this->m_ThickImage,outname.c_str());
   }
