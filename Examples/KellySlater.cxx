@@ -680,7 +680,9 @@ int LaplacianThicknessExpDiff(int argc, char *argv[])
   unsigned int alltheits=50;
   if (argc > argct) alltheits=atoi(argv[argct]); argct++;
   float thickprior=6.0;
-  if (argc > argct ) thickprior=atof(argv[argct]); argct++;
+  if (argc > argct ) thickprior=atof(argv[argct]); argct++;  
+  bool useCurvaturePrior=false;
+  if (argc > argct) useCurvaturePrior=atoi(argv[argct]); argct++;
   float smoothingsigma=1; 
   if (argc > argct ) smoothingsigma=atof(argv[argct]);  argct++;
   bool useEuclidean=true;
@@ -778,7 +780,8 @@ int LaplacianThicknessExpDiff(int argc, char *argv[])
   float distthresh = 1.1;
   typename ImageType::Pointer wmgrow = Morphological<ImageType>(wmb,1,true);
   typename ImageType::Pointer bsurf = LabelSurface<ImageType>(1,1,wmgrow, distthresh);
-  typename ImageType::Pointer speedprior=NULL; // SpeedPrior<ImageType>(gm,wm,bsurf);
+  typename ImageType::Pointer speedprior=NULL; 
+  if (  useCurvaturePrior ) speedprior=SpeedPrior<ImageType>(gm,wm,bsurf);
   //WriteImage<ImageType>(bsurf,"surf.hdr");
   //	typename DoubleImageType::Pointer distfromboundary = 
   //  typename ImageType::Pointer surf=MaurerDistanceMap<ImageType>(0.5,1.e9,bsurf);
@@ -943,6 +946,7 @@ int LaplacianThicknessExpDiff(int argc, char *argv[])
 		float prval=wpriorim->GetPixel(speedindex);
 		float partialvol=surfdef->GetPixel(speedindex) ;
 		if (prval > 0.5 && partialvol >1.e-3 ) prior = prval/partialvol;//7;//0.5*origthickprior;// prval;
+		if (prior > 1 ) prior=1;
 	      }
 		//else thickprior = origthickprior;		  
 		//} else 
@@ -1506,7 +1510,7 @@ int main(int argc, char *argv[])
   
   if ( argc < 5)     
     { 
-    std::cout << "Useage ex:   " << argv[0] << " ImageDimension WM.nii GM.nii   Out.nii {GradStep-1-2D,2-3D}   {#Its-~50}  {ThickPriorValue-6} {smoothing} {BoolUseEuclidean?}" << std::endl;
+    std::cout << "Useage ex:   " << argv[0] << " ImageDimension WM.nii GM.nii   Out.nii {GradStep-1-2D,2-3D}   {#Its-~50}  {ThickPriorValue-6} {Bool-use-curvature-prior} {smoothing} {BoolUseEuclidean?}" << std::endl;
     std::cout << " this is a kind of binary image registration thing with diffeomorphisms " << std::endl;
     return 1;
     }       
