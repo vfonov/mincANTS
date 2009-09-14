@@ -663,13 +663,11 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
       = this->m_Parser->GetOption( "output-naming" );  
     this->m_OutputNamingConvention=oOption->GetValue();   
 
-
     typename ParserType::OptionType::Pointer thicknessOption 
       = this->m_Parser->GetOption( "compute-thickness" );  
     if( thicknessOption->GetValue() == "true" ||  thicknessOption->GetValue() == "1" ) { this->m_ComputeThickness=1; this->m_SyNFullTime=2; }// asymm forces
     else if(  thicknessOption->GetValue() == "2" )  { this->m_ComputeThickness=1; this->m_SyNFullTime=1; } // symmetric forces 
     else this->m_ComputeThickness=0; // not full time varying stuff 
-    std::cout <<" compute thickness? " << this->m_ComputeThickness << std::endl;
     /**
      * Get transformation model and associated parameters
      */
@@ -817,6 +815,8 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
             /** Compute scale factors */ 
             this->m_FullDomainSpacing = fixedImage->GetSpacing();
             this->m_FullDomainSize = fixedImage->GetRequestedRegion().GetSize();
+            this->m_CurrentDomainSpacing = fixedImage->GetSpacing();
+            this->m_CurrentDomainSize = fixedImage->GetRequestedRegion().GetSize();
             this->m_CurrentDomainDirection=fixedImage->GetDirection();
             this->m_FullDomainOrigin.Fill(0);
             this->m_CurrentDomainOrigin.Fill(0);
@@ -1276,6 +1276,25 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
 
     
     }
+
+  ImagePointer WarpImageBackward( ImagePointer image, DeformationFieldPointer field )
+  {     
+    typedef WarpImageFilter<ImageType,ImageType, DeformationFieldType> WarperType;
+    typename WarperType::Pointer  warper = WarperType::New();
+    typedef NearestNeighborInterpolateImageFunction<ImageType,double>
+       InterpolatorType;
+    warper->SetInput(image);
+    warper->SetDeformationField( field );
+    warper->SetEdgePaddingValue( 0);
+    warper->SetOutputSpacing(field->GetSpacing() );
+    warper->SetOutputOrigin( field->GetOrigin() );
+    warper->Update(); 
+     return     warper->GetOutput();
+
+
+  }
+
+
   void ComposeDiffs(DeformationFieldPointer fieldtowarpby, DeformationFieldPointer field, DeformationFieldPointer fieldout, float sign);
 
   void SetSimilarityMetrics( SimilarityMetricListType S ) {this->m_SimilarityMetrics=S;}
