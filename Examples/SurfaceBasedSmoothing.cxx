@@ -9,10 +9,6 @@
 #include "ReadWriteImage.h"
 #include "itkSurfaceImageCurvature.h"
 
-namespace itk
-{
-  
-using namespace itk;
 int main(int argc, char *argv[])        
   {
 
@@ -83,6 +79,6 @@ int main(int argc, char *argv[])
 
   return 1;
 
-  }
+  
 
 }
