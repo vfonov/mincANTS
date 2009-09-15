@@ -931,7 +931,6 @@ SurfaceImageCurvature<TSurface>
  
   if (!i1 || !i2) return;
 
-  IndexType index;
   
   typename ImageType::RegionType requestedRegion;
   OutputImageIteratorType ti1( i1, i1->GetLargestPossibleRegion() );
