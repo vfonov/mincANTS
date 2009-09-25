@@ -32,8 +32,8 @@ template <unsigned int ImageDimension>
 int ConvertScalarImageToRGB( int argc, char *argv[] )
 {
   typedef unsigned int PixelType;
-//  typedef itk::RGBPixel<unsigned char> RGBPixelType;
-  typedef itk::RGBAPixel<unsigned char> RGBPixelType;
+  typedef itk::RGBPixel<unsigned char> RGBPixelType;
+//  typedef itk::RGBAPixel<unsigned char> RGBPixelType;
 
   typedef float RealType;
 
