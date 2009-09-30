@@ -1179,12 +1179,8 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
         //	 this->m_SyNMInv = this->IntegrateVelocity(1,0.5);
         //	 this->m_SyNM=this->CopyDeformationField(mdiffmap);
         //	 this->m_SyNF=this->CopyDeformationField(fdiffmap);
-      	 this->m_DeltaTime *= 0.1;
-        if (this->m_DeltaTime < 0.01) 
-          this->m_DeltaTime = 0.01;
       	 this->m_DeformationField = this->IntegrateVelocity(0,1);	 
         //	 ImagePointer wmimage= this->WarpMultiTransform(  this->m_SmoothFixedImages[0],this->m_SmoothMovingImages[0], this->m_AffineTransform, this->m_DeformationField, false , this->m_ScaleFactor );
-
       	 this->m_InverseDeformationField=this->IntegrateVelocity(1,0);
         }
       else
