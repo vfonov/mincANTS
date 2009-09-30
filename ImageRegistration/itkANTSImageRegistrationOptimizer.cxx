@@ -31,6 +31,7 @@
 #include "vnl/vnl_math.h"
 #include "ANTS_affine_registration2.h"
 #include "itkWarpImageMultiTransformFilter.h"
+#include "itkVectorImageFileWriter.h"
 
 namespace itk
 {
@@ -1888,7 +1889,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       gorigin[dim]=this->m_CurrentDomainOrigin[dim];
       }
     if ( this->m_NTimeSteps < 2 ) this->m_NTimeSteps=2;
-    gsize[TDimension]=this->m_NTimeSteps;
+    gsize[TDimension]=(unsigned long) this->m_NTimeSteps;
     float hitstep=1.0/((float)this->m_NTimeSteps-1);
     gspace[TDimension]=1;
     gregion.SetSize(gsize);
@@ -1961,7 +1962,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     this->m_SyNMInv = this->IntegrateVelocity(hit,lot2);
 
   if ( false && this->m_CurrentIteration == 1 &&  this->m_SyNFInv  ) {
-   typedef VectorImageFileWriter<DeformationFieldType, ImageType> 
+   typedef itk::VectorImageFileWriter<DeformationFieldType, ImageType> 
     DeformationFieldWriterType;
     typename DeformationFieldWriterType::Pointer writer = DeformationFieldWriterType::New();
     std::ostringstream osstream;
@@ -2489,7 +2490,7 @@ if (this->m_Debug)       std::cout << " p2 " << pointIn2<< " y1 " <<  Y1x[TDimen
 	bool isin=this->m_TimeVaryingVelocity->TransformPhysicalPointToIndex( pointIn3, thind2 );
 	for (unsigned int ij=0; ij<ImageDimension; ij++) thind[ij]=thind2[ij];
         if (isin){
-        unsigned long lastct= this->m_HitImage->GetPixel(thind);
+        unsigned long lastct=(unsigned long) this->m_HitImage->GetPixel(thind);
         unsigned long newct=lastct+1;
         float oldthick=this->m_ThickImage->GetPixel(thind); 
         float newthick=(float)lastct/(float)newct*oldthick+1.0/(float)newct*euclideandist;

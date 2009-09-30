@@ -5062,7 +5062,7 @@ cortroimap[34]=std::string("R. Precuneus");
           {
           myLabelSet.push_back( label );
           }
-	if (label > maxlab) maxlab=label;
+	if (label > maxlab) maxlab=(unsigned long)label;
       }  
     }
   
@@ -5130,8 +5130,8 @@ cortroimap[34]=std::string("R. Precuneus");
 
     for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]/=(float)totalct;
  
-    clusters[*it]=totalvolume;
-    pvals[*it]=1.0-maxoneminuspval;
+    clusters[(unsigned long)*it]=totalvolume;
+    pvals[(unsigned long)*it]=1.0-maxoneminuspval;
 // square image 
     squareimage->GetBufferPointer()[labelcount]=totalmass/totalct;
     labelcount++;
