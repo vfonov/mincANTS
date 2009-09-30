@@ -461,7 +461,8 @@ seminal works of Charles Darwin and D'arcy Thompson.  CA is currently
 applied to study health, disease and epidemiology and uses deformable
 mappings between images as a basic technique.  However, there is a
 lack of standards and reproducibility in the field that is due, in
-part, to the use of proprietary software and private data.  To
+part, to the use of proprietary software and private data that is difficult 
+to openly evaluate.  To
 facilitate reproducibility in CA measurements and advancement of
 imaging sciences, NIH has recently committed significant support to
 open-source data and software resources.  Here, we report a recent
@@ -481,7 +482,7 @@ specific, sensibly selected cortical structures.
 %Computational anatomy is the quantitative study of biological shape and its natural variations which traces its roots to the seminal works of Charles Darwin and D'arcy Thompson.  Integral to this research field is the calculation of deformable mappings between images that serve as invaluable measurement tools.  Technological evolution has spawned much innovation in the computational development of such deformable mapping algorithms.  However, not only is algorithmic development essential for increasing scientific knowledge but the availability of these technologies is equally crucial for facilitating the progress of the scientific community at large.  This is the motivation behind such projects as the Insight Toolkit (ITK) of the National Institutes of Health which serves as a repository for many popular image segmentation and registration routines.  In addition, the ITK library provides a well-structured framework for several stand-alone projects such as Elastix, ITK-SNAP, ManagedITK, the Medical Imaging Toolkit (MITK), WrapITK, and many others.  Our own  contribution to the field of computational anatomy, also built on an ITK foundation, is called Advanced Normalization Tools (ANTS).  The ANTS open-source library consists of an entire suite of state-of-the-art normalization and template-building tools for quantitative morphometric analysis. After highlighting the prominent features of ANTS, we demonstrate its utility by performing a detailed analysis on anatomically labeled brain data from the non-rigid image registration evaluation project (NIREP).  The results from this analysis evidences the high level of accuracy achievable with ANTS using intensity-based registration alone.  In addition, we show the performance gains achieved by coupling intensity-based image metrics and point-set-based metrics from specific, sensibly selected cortical structures.
   
 %In a recent evaluation of 14 non-linear deformation algorithms \cite{Klein2009}, the SyN algorithm of ANTS was consistently one of the top performers.
-
+{\bf FIXME -- make clear what transformations we are comparing with constant similarity ... }
 \end{abstract}
 
 %\IEEEkeywords{
@@ -493,14 +494,36 @@ specific, sensibly selected cortical structures.
 
 \section{Introduction}
 
-The rapid advancement of biological and medical imaging technologies has caused a proliferation in the development of quantitative tools for computational anatomy.  The principal tools of this emerging field are meaningful deformable mappings between images whether they be driven by similarity metrics which are intensity-based,  point-set based, or both.  Several categories of mappings have been proposed in the literature.  Of particular recent interest are diffeomorphic transformations which, by definition, preserve topology.  Topology preservation is fundamental to making comparisons between objects in the natural world as such transformations permit comparisons to be made across time points in an individual's disease process or to study development patterns across a large population.
+The rapid advancement of biological and medical imaging technologies
+has caused a proliferation in the development of quantitative tools
+for computational anatomy.  The principal tools of this emerging field
+are deformable mappings between images whether they be driven by
+similarity metrics which are intensity-based, point-set based, or
+both.  Several categories of mappings have been proposed in the
+literature.  Of particular recent interest are diffeomorphic
+transformations which, by definition, preserve topology.  Topology
+preservation is fundamental to making comparisons between objects in
+the natural world that are thought to change in such a way that local
+neighborhoods are preserved.  Cytoarchitectonic brain mapping studies
+also suggest that the layout of cell types throughout the brain is
+generally preserved \cite{Schleicher2009}, further motivating diffeomorphic mapping
+in the context of the brain.
 
 Despite the number of proposed algorithms, our limited assessment of published research mirrors the experience of many others who prefer a working paradigm of what has been referred to as {\em reproducible research}.  As described by Dr. Kovacevic ``[reproducible research] refers to the idea that, in `computational' sciences, the ultimate product is not a published paper but, rather, the entire environment used to produce the results in the paper (data, software,etc.).''  After an informal survey of 15 published papers, she found ``none had code available'' and ``in only about half the cases were the parameters [of the algorithm] specified'' \cite{Kovacevic2006}.  Recent discussions within the computational sciences research community, particularly among advocates of ``open science,'' have also voiced similar concerns \cite{Yoo2005,Ibanez2006}.   In this paper, we discuss our contribution to the open-source medical image analysis research community which we call ANTS (\underline{A}dvanced \underline{N}ormalization \underline{T}ool\underline{s}).  Built on an ITK framework, this software package comprises a suite of tools for image normalization and template building based on previously published research.  
 
  
 Perhaps the most persuasive evidence motivating the use of our contributions discussed in this paper is the recent outcome of a large-scale comparative image registration algorithm assessment \cite{Klein2009}. In the largest evaluation study to date involving 14 popular non-linear registration algorithms, our Symmetric Normalization (SyN) transformation model \cite{Avants2008} discussed below, was consistently one of the top two performers across all tests.  Overlap and distance measures used for assessment employed three completely independent analysis methods (permutation tests, one-way ANOVA tests, and indifference zone ranking).  Unlike some of the other algorithms used in this brain registration evaluation study, all of our methods (not just SyN) are available as open-source.  
 
-We first provide an overview of the different components included in ANTS, such as the available transformation models and similarity metrics offered.  This is followed by an extensive experimental analysis that builds upon the results from the recent image normalization evaluation of \cite{Klein2009} which was limited to a single configuration of ANTS.  This will provide  a useful benchmark for evaluating other possible ANTS configurations.
+We first provide an overview of the different components included in
+ANTS, such as the available transformation models and similarity
+metrics offered.  This is followed by an extensive experimental
+analysis that builds upon the results from the recent image
+normalization evaluation of \cite{Klein2009} which was limited to a
+single configuration of ANTS.  This will provide a useful benchmark
+for evaluating other possible ANTS configurations.  Importantly, this
+work also suggests---to our knowledge, for the first time---the clear
+practical benefit of time-parameterized diffeomorphic mapping over the
+greedy and exponential mapping approaches.
 
 \section{Theoretical Overview of ANTS}
 A useful classification schema of normalization techniques is based upon the following three principal components \cite{Brown1992,Ibanez2002}:
@@ -547,11 +570,29 @@ In general, image normalization is the process of finding the optimal transforma
 
 
 A variety of transformation models have been proposed in the literature with varying degrees of freedom (illustrated in Figure \ref{fig:hierarchy}).  For deformable transformations, one approach is to optimize within the space of non-topology preserving, yet physically motivated transformations---an approach pioneered by Bajcsy \cite{Bajcsy1989}.  Elastic and related models, such as HAMMER \cite{Shen2002}, statistical parametric mapping (SPM) \cite{Ashburner2000}, free-form deformations (FFD) \cite{Rueckert1999}, and
-Thirion's demons \cite{Thirion1998} operate in the space of vector fields, which does not preserve topology.  In other words, barring ad hoc constraints to prevent otherwise, these algorithms allow the topology to change in an uncontrolled way which makes the deformable mappings difficult to interpret in functional or anatomical studies.   
+Thirion's demons \cite{Thirion1998} operate in the space of vector fields, which does not preserve topology.  In other words, barring ad hoc constraints to prevent otherwise, these algorithms may allow the topology to change in an uncontrolled way which makes the deformable mappings difficult to interpret in functional or anatomical studies.   
 
-These topology concerns have led to current advocation within the computational anatomy research community of diffeomorphic mappings for transformation modeling.   Optimizing directly within this space has shown remarkable success in various computational anatomy studies involving longitudinal \cite{Avants2007b,Fox2001}, functional \cite{Miller2005}, and population data \cite{Avants2007b}.  We include three such diffeomorphic algorithms in the ANTS toolbox based on previously reported research.
+Thus, in addition to shape-based, biological motivation, diffeomorphic
+mapping is motivated by the desire for deformable transformations that
+provide well-behaved solutions with mathematical guarantees about
+distances and regularity.  Furthemore, the diffeomorphic space has
+group structure \cite{Arnold1991}.  Optimizing directly within this
+space has shown remarkable success in various computational anatomy
+studies involving longitudinal \cite{Avants2007b,Fox2001}, functional
+\cite{Miller2005}, and population data \cite{Avants2007b}.  We include
+three such diffeomorphic algorithms in the ANTS toolbox based on
+previously reported research and a new time-parameterized extension to
+the standard symmetric normalization algorithm \cite{Avants2008}.
 
-Regardless of current research trends, however, we recognize that selection of the transformation model is ultimately application-specific, that no single choice is optimal for all scenarios \cite{Wolpert1997}, and, therefore, the transformation model must be chosen in a principled fashion.  In fact, several non-diffeomorphic algorithms performed quite well in Klein's comparative study of nonrigid registration algorithms \cite{Klein2009}.  For this reason, we also include elastic-related methods for a panoply of transformation model options. 
+Regardless of current research trends, however, we recognize that
+selection of the transformation model is ultimately
+application-specific, that no single choice is optimal for all
+scenarios \cite{Wolpert1997}, and, therefore, the transformation model
+must be chosen in a principled fashion.  In fact, several
+non-diffeomorphic algorithms performed quite well in Klein's
+comparative study of nonrigid registration algorithms
+\cite{Klein2009}.  For this reason, we also include elastic-related
+methods for a panoply of transformation model options.
 
 \begin{figure}
   \centering
@@ -570,10 +611,9 @@ Image registration strategies often begin with a linear transformation for initi
 %We have implemented quaternion-based rigid and affine transformations within ANTS.  Not only does this facilitate accessibility of a sound global alignment strategy, but the parameters of the calculated optimal linear transformation can be maintained internally to ANTS to avoid unnecessary image interpolations.  Either a mean-squared difference metric or a mutual information metric can be used for the linear alignment.
 
 \subsubsection{Vector Field Operators for Regularization} Antecedent to discussion of available deformable transformation models, we point out that  deformable normalization strategies typically invoke a deformation regularization step which smooths the displacement field, $\displace$, or velocity field, $\mathbf{v}$,  or both by a linear operator such as the Laplacian or Navier-Stokes operator. One may write this regularization as a variational minimization in terms of its linear operator or in
-terms of a kernel function operating of the field itself, e.g., $
+terms of a kernel function operating on the field itself, e.g., $
 \displace_{smooth}= K \star \displace_{not \,\, smooth}$, where $K \star$ denotes 
 convolution with the Green's kernel, $K$, for the linear operator, $L$.  
-
 
 Regularization models operate on either the
 whole mapping $\phi$ or the gradient of the similarity term or both.
@@ -591,10 +631,21 @@ included in future releases, current B-spline options provide many orders
 of flexibility \cite{Tustison2005}.
 
 \subsubsection{Diffeomorphic Transformations}
+Diffeomorphisms form a group of differentiable maps with
+differentiable inverse \cite{Ebin1970,Mumford1998} that is closed
+under composition.  In contrast, the vector space that most deformable
+image registration methods use is closed under {\em addition}, an
+operation that cannot guarantee topology preservation.  That is, two
+topology-preserving vector fields added together are still a vector
+field but the result may no longer preserve topology.  Furthermore,
+most regularization models for vector spaces use a quadratic penalty,
+thus making large deformations difficult to realize.  Modeling
+transformations with diffeomorphisms, on the other hand, ensures a
+flexible, linear penalty on deformation while guaranteeing topology 
+preservation.  Additionally, distance metrics in the space of diffeomorphisms 
+allow geodesic properties to be explored \cite{Miller2001,Beg2005}.
 
-In contrast to many transformation models which reside in the domain of vector spaces, a diffeomorphism is a differentiable mapping with a differentiable inverse \cite{Ebin1970,Mumford1998}.  Modeling transformations with diffeomorphisms ensures certain desirable topological properties that cannot be guaranteed with other methods.  
-
-ANTS assumes the diffeomorphism, $\phi$, is defined on the image domain, $\Omega$, an maintains an affine transform at the boundary such that $\phi(\partial \Omega) = A(\mathbf{Id})$ where $A(\mathbf{Id})$ is an affine mapping applied to the identity transformation.  $\phi$, over time, parameterizes a family of diffeomorphisms, $\phi(\mathbf{x}, t) : \Omega \times t \rightarrow  \Omega$, which can be generated by integrating a time-dependent, smooth velocity field, $\boldsymbol{v} : \Omega \times t \rightarrow \mathbb{R}^d$,  through the ordinary differential equation (o.d.e.)
+ANTS assumes the diffeomorphism, $\phi$, is defined on the image domain, $\Omega$, and maintains an affine transform at the boundary such that $\phi(\partial \Omega) = A(\mathbf{Id})$ where $A(\mathbf{Id})$ is an affine mapping applied to the identity transformation.  $\phi$, over time, parameterizes a family of diffeomorphisms, $\phi(\mathbf{x}, t) : \Omega \times t \rightarrow  \Omega$, which can be generated by integrating a time-dependent, smooth velocity field, $\boldsymbol{v} : \Omega \times t \rightarrow \mathbb{R}^d$,  through the ordinary differential equation (o.d.e.)
 \begin{align} \label{eq:ode}
 \frac{d \phi(\mathbf{x}, t)}{dt} = \boldsymbol{v}(\phi(\mathbf{x}, t), t), \,\,\, \phi(\mathbf{x}, 0) = \mathbf{x}.
 \end{align}
@@ -602,7 +653,7 @@ The existence and uniqueness theorem for o.d.e.'s implies that integrating Equat
 
 Dupuis et al. \cite{Dupuis1998} motivated the usage of diffeomorphisms for CA  by showing that the variational form
 \begin{align}\label{eq:D}
-  D(\mathcal{I}, \mathcal{J}) =  \int_0^1 ||L\boldsymbol{v}||^2 dt , \,\, \mathcal{I}(\phi(\mathbf{x}, 1)) = \mathcal{J}(\mathbf{z})
+  D(\mathcal{I}, \mathcal{J}) =  \int_0^1 ||L\boldsymbol{v}|| dt , \,\, \mathcal{I}(\phi(\mathbf{x}, 1)) = \mathcal{J}(\mathbf{z})
 \end{align}
 represents a true mathematical metric between anatomical instances $\mathcal{I}$ and $\mathcal{J}$ given an appropriate norm, $L$, on the velocity field, $\boldsymbol{v}$.  An optimal solution, $\boldsymbol{v}^*$, minimizes the metric $D(\mathcal{I}, \mathcal{J})$ with respect to $L$.   Dupuis \cite{Dupuis1998} also showed that such a solution is guaranteed to be well-posed.  Intuitively, Equation (\ref{eq:D}) provides a sense of distance between two anatomical shapes.  It also illustrates that the optimal diffeomorphic solution is analogous to finding the geodesic curve between two points in a curved space.%
 \footnote{
@@ -613,7 +664,7 @@ In most real-world applications, however, a diffeomorphic path connecting the an
 \begin{align} \label{eq:lddmm}
   \boldsymbol{v}^* = \underset{\boldsymbol{v}}{\operatorname{argmin}}  \left\{ \int_0^1  ||L\boldsymbol{v}||^2dt  + \lambda\int_{\Omega} || \mathcal{I} \circ \phi(\mathbf{x},1) - \mathcal{J}  || d\Omega \right\}.
 \end{align}
-The Euler-Lagrange equations characterizing the optimizing time-varying velocity field, $\boldsymbol{v}^*$, were derived in \cite{Miller2002} and later used in formulating the gradient-descent optimization scheme known as {\em large deformation diffeomorphic metric-matching} (LDDMM) \cite{Beg2005} with the similarity metric, or data term, for LDDMM being the squared intensity difference with weight $\lambda$.
+The Euler-Lagrange equations characterizing the optimizing time-varying velocity field, $\boldsymbol{v}^*$, were derived in \cite{Miller2002} and later used in formulating the gradient-descent optimization scheme known as {\em large deformation diffeomorphic metric-matching} (LDDMM) \cite{Beg2005} with the similarity metric, or data term, for LDDMM being the squared intensity difference with weight $\lambda$.  
 
 To accommodate a variety of medical image normalization tasks, one typically encounters more complex intensity transfers between one anatomical instance $\mathcal{J}$ and another instance $\mathcal{I}$.  Thus, 
 ANTS enables not only a variety of similarity metric possibilities beyond the conventional squared difference
@@ -630,15 +681,20 @@ constraints, as described in \cite{Avants2008}.
 %A similar equation for elastic/FFD/DMFFD matching may be minimized in ANTS.
 
 Exploiting the fact that the diffeomorphism, $\phi$, can be decomposed into two components 
-$\phi_1$ and $\phi_2$, \cite{Avants2007b} construct a {\em symmetric} alternative to Equation (\ref{eq:diff}).  This leads to the symmetric variant of Equation (\ref{eq:diff})
+$\phi_1$ and $\phi_2$, one may construct a {\em symmetric} alternative to Equation (\ref{eq:diff}).  
+Now define, in $t \in [0,0.5]$, $\boldsymbol{v}(x,t) = \boldsymbol{v}_1(x,t) $ and 
+$\boldsymbol{v}(x,t) = \boldsymbol{v}_2(x,1-t)$ when $t \in [0.5,1]$. 
+This leads to the symmetric variant of Equation (\ref{eq:diff}), 
 \begin{align}\label{eq:diffs}
-  \{\boldsymbol{v}_1^*,\boldsymbol{v}_2^*\}  = &
-     \underset{\boldsymbol{v_1},\boldsymbol{v_2}}{\operatorname{argmin}}  
+  \{ \boldsymbol{v}^{*}_1 , \boldsymbol{v}^{*}_2 \}= &
+     \underset{\boldsymbol{v}_{1,2}}{\operatorname{argmin}}  
       \Bigg\{ \nonumber \\
-      & \int_0^{0.5} \left( ||L\boldsymbol{v}_1(x,t)||^2 + ||L\boldsymbol{v}_2(x,t)||^2   \right)dt  \nonumber \\
+      & \int_0^{0.5} ||L\boldsymbol{v}_1(x,t)||^2 ~dt +  \int_0^{0.5} ||L\boldsymbol{v}_2(x,t)||^2 ~dt  \nonumber \\
      &+ \lambda\int_{\Omega}\Pi_{\sim}\left( \mathcal{I} \circ \phi_1(\mathbf{x},0.5), \mathcal{J}\circ \phi_2(\mathbf{x},0.5)\right)d\Omega\Bigg\}.
 \end{align}
-The corresponding symmetric Euler-Lagrange equations are similar to \cite{Miller2002}.  Finding $\boldsymbol{v_1}^*$ minimizes the variational energy from $t = 0$ whereas $\boldsymbol{v_2}^*$ minimizes from $t = 1$.  Thus, gradient-based iterative convergence deforms $\mathcal{I}$ and $\mathcal{J}$ along the geodesic diffeomorphism, $\phi$, to a fixed  point midway (intuited by the notion of shape distance) between $\mathcal{I}$ and $\mathcal{J}$ thus motivating the denotation of the solution strategy as Symmetric Normalization (SyN).
+Note that the regularization term, here, is equivalent to that in equation~\ref{eq:lddmm}.  The only change is the splitting of the integral into 
+two time intervals reflecting the underlying optimized components of the velocity field. 
+The corresponding symmetric Euler-Lagrange equations are similar to \cite{Miller2002}.  The difference, here, is that in finding $\boldsymbol{v}^*$, we minimize the variational energy from either end-point towards the mid-point of the transformation, as indicated by the data term.  This strategy ``splits'' the optimization dependence equally between both images.  Thus, gradient-based iterative convergence deforms $\mathcal{I}$ and $\mathcal{J}$ along the geodesic diffeomorphism, $\phi$, to a fixed  point midway (intuited by the notion of shape distance) between $\mathcal{I}$ and $\mathcal{J}$ thus motivating the denotation of the solution strategy as Symmetric Normalization (SyN).
 
 Other diffeomorphic flavors have since been reported in the research literature (e.g. DARTEL \cite{Ashburner2007} and Diffeomorphic Demons \cite{Vercauteren2007,Vercauteren2009}.  We include three diffeomorphic transformation models for parameterizing $\phi(\cdot)$.  These include Geodesic SyN, Greedy SyN, and exponential mapping.  As summarized in Table \ref{table:chart}, each of these transformation models can utilize a host of similarity measures both individually and in mutual combination.
 
@@ -652,28 +708,51 @@ Other diffeomorphic flavors have since been reported in the research literature 
 %to be composed of a summation/weighted combination of available similarity metrics/data terms.
 
 \paragraph{Geodesic SyN}
-Using a gradient-based optimization strategy, minimization implied by Equation (\ref{eq:diffs}), which we denote as $\Pi$, first requires a specified discretization of $t \in [0,1]$.  Calculation of the gradient of $\Pi$ with respect to the diffeomorphisms $\phi_1$ and $\phi_2$ is performed at each of the $t$ values which is given by
+Using a gradient-based optimization strategy for minimizing equation
+(\ref{eq:diffs}) first requires a specified discretization of $t$,
+s.t. $t \in [0,1] \approx \{ 0 , 1/k , 2/k , \cdots , 1 \} $ where integer $k > 1$
+is the desired number of discretized intervals.  Calculation of the
+gradient of $\Pi$ with respect to the diffeomorphisms $\phi_1$ and
+$\phi_2$ is performed at each of these $t$ values, $t_k$, 
 \begin{align}
-  \nabla \Pi(\boldsymbol{x},t) = \frac{\partial}{\partial \phi_i} \Pi_{\sim}( \mathcal{I}(\phi_{1}^{-1}(\boldsymbol{x},t)), \mathcal{J}(\phi_{2}^{-1}(\boldsymbol{x},1-t)) 
+\label{eq:grad}
+  \nabla \Pi_i(\boldsymbol{x},t_k) = \frac{\partial}{\partial \phi_i} \Pi_{\sim}( \mathcal{I}(\phi_{1}^{-1}(\boldsymbol{x},t_k)), \mathcal{J}(\phi_{2}^{-1}(\boldsymbol{x},1-t_k)) 
 \end{align}
-for $i \in \{1,2\}$.   The corresponding velocity fields at each $t$ are then updated from the previous iteration according to 
+for $i \in \{1,2\}$.   The total velocity field is then updated from the previous iteration according to, 
+for each $i$, 
 \begin{align}
-  \boldsymbol{v}(\mathbf{x},t) = \boldsymbol{v}(\mathbf{x},t) + K \star \nabla \Pi(\mathbf{x},t).
+  \boldsymbol{v}(\mathbf{x},t) = \boldsymbol{v}(\mathbf{x},t) + \delta K \star \nabla \Pi_i(\mathbf{x},t),
 \end{align}
-We then integrate Equation (\ref{eq:ode}) using Runge-Kutta methods to yield $\phi_i(\mathbf{x},t)$ for each $t \in [0,1]$ and $i \in \{1,2\}$.  We cycle through these steps until convergence or iterative exhaustion.
+where $\delta$ is the user-specified gradient descent parameter.  We
+then integrate Equation (\ref{eq:ode}) using Runge-Kutta methods to
+yield $\phi_i(\mathbf{x},t)$ for each $t \in [0,1]$ and $i \in
+\{1,2\}$.  We cycle through these steps until convergence or iterative
+exhaustion.
 
 \paragraph{Greedy SyN}
-Although the Geodesic SyN algorithm conforms most closely to the theoretical diffeomorphic foundations culminating with Equation (\ref{eq:diffs}), the computational and memory cost is significant due to the dense-in-time gradient calculations and requisite reintegration of the diffeomorphisms after each iterative update.  As a lower-cost alternative, we offer a greedy variant which performs quite well for most medical image normalization problems we have encountered.  Additionally, this was the strategy used in the large-scale comparative image registration algorithm assessment of \cite{Klein2009}.
+Although the Geodesic SyN algorithm conforms most closely to the
+theoretical diffeomorphic foundations culminating with Equation
+(\ref{eq:diffs}), the computational and memory cost is significant due
+to the dense-in-time gradient calculations and requisite reintegration
+of the diffeomorphisms after each iterative update.  As a lower-cost
+alternative, we offer a greedy variant which performs quite well for
+most medical image normalization problems we have encountered.
+Additionally, this was the strategy used in the large-scale
+comparative image registration algorithm assessment of
+\cite{Klein2009}.
 
-Greedy optimization of Equation (\ref{eq:diffs}) requires calculation of the gradient of the gradient taken at the mid-point of the full diffeomorphism, i.e. at $t = 0.5$
-\begin{align}
-\nabla \Pi =\frac{\partial}{\partial \phi_i} \Pi_{\sim}( \mathcal{I}(\phiinv_1(\x,0.5)) ,  \mathcal{J}(\phiinv_2(\x,0.5)) )
-\end{align}
+Greedy optimization of Equation (\ref{eq:diffs}) calculates the gradient only at the mid-point of the full diffeomorphism, i.e. at $t = 0.5$ 
+in equation~\ref{eq:grad}
+% \begin{align}
+% \nabla \Pi =\frac{\partial}{\partial \phi_i} \Pi_{\sim}( \mathcal{I}(\phiinv_1(\x,0.5)) ,  \mathcal{J}(\phiinv_2(\x,0.5)) )
+% \end{align}
 for $i \in \{1,2\}$.  $\phi_1(\mathbf{x},0.5)$ and $\phi_2(\mathbf{x},0.5)$ are then updated from the previous iteration according to 
 \begin{align}
-  \phi_i(\mathbf{x},0.5) = \phi_i(\mathbf{x},0.5)+\delta  (K \star \nabla \Pi ( \phi_i(\x,0.5) )).
+  \phi_i(\mathbf{x},0.5) = \phi_i(\mathbf{x},0.5)+ (\delta K \star \nabla \Pi_i(\mathbf{x},0.5) ) \circ  \phi_i(\x,0.5).
 \end{align}
-where $\delta$ is a user-specifed step parameter.  The gradient is then mapped back to the origin of each diffeomorphism to update the full mapping by enforcing $\phiinv(\phi(\x,1))=\x$.  
+That is, the gradient at the mid-point is mapped back to the origin of each diffeomorphism.  
+We then update the full mapping by explicitly enforcing $\phiinv(\phi(\x,1))=\x$ in the discrete 
+domain, as described in \cite{Avants2008}.
 
 \paragraph{Exponential Mapping}
 Ashburner introduced DARTEL (Diffeomorphic Anatomical Registration using Exponentiated Lie algebra) as a rapidly computed alternative to time parameterized diffeomorphic schemes \cite{Ashburner2007}.  The key difference between a time-varying diffeomorphism and a diffeomorphism generated by an exponential mapping \cite{Ashburner2007} is that the exponential mapping maintains only a single vector field that is constant in time.   
@@ -851,7 +930,7 @@ These ANTS argument parsing classes provide an intuitive compromise between pars
 The correspondence between the ANTS command line specification and the image normalization formulation with labeled point-sets $X$ and $Y$ illustrates the motivation for our command line interface,
 \begin{align}
   \Pi(&\mathcal{I},\mathcal{J},X,Y,\phi) \nonumber \\ 
-     =& \underbrace{\int_0^1 ||L\boldsymbol{v}||dt}_{\texttt{-t Exp[}\cdot \texttt{]},\texttt{ -r Gauss[}\cdot\texttt{,}\cdot\texttt{]}}  + \underbrace{\lambda_1\int_{\Omega} || \mathcal{I} \circ \phi(\mathbf{x},t) - \mathcal{J}  || d\Omega}_{\texttt{-t Exp[}\cdot \texttt{]},\texttt{ -m MSQ[}\mathcal{J}\texttt{,}\mathcal{I}\texttt{,}\lambda_1\texttt{]}} \nonumber \\
+     =& \underbrace{\int_0^1 ||L\boldsymbol{v}||^2 dt}_{\texttt{-t Exp[}\cdot \texttt{]},\texttt{ -r Gauss[}\cdot\texttt{,}\cdot\texttt{]}}  + \underbrace{\lambda_1\int_{\Omega} || \mathcal{I} \circ \phi(\mathbf{x},t) - \mathcal{J}  || d\Omega}_{\texttt{-t Exp[}\cdot \texttt{]},\texttt{ -m MSQ[}\mathcal{J}\texttt{,}\mathcal{I}\texttt{,}\lambda_1\texttt{]}} \nonumber \\
 &+\underbrace{\frac{\lambda_2 }{|Y|}\sum_{i=1}^{|Y|} \left\|y_i - \frac{1}{|X|} \sum_{j = 1}^{|X|} G(y_i; x_j, \sigma_X) x_j\right\|^2}_{\texttt{-m PSE[}Y\texttt{,}X\texttt{,}\lambda_2\texttt{]}}.
 \end{align}
 
@@ -934,35 +1013,9 @@ The cortex of each of the 16 MR image volumes was segmented into 32 regions \cit
 % use section* for acknowledgement
 \section*{Acknowledgment}
 ANTS is supported by Grant 1R01EB006266-01 from the National Institute Of Biomedical Imaging and Bioengineering and administered through the UCLA Center for Computational Biology.
-% optional entry into table of contents (if used)
-%\addcontentsline{toc}{section}{Acknowledgment}
-%The authors would like to thank...
-
-% trigger a \newpage just before the given reference
-% number - used to balance the columns on the last page
-% adjust value as needed - may need to be readjusted if
-% the document is modified later
-%\IEEEtriggeratref{8}
-% The "triggered" command can be changed if desired:
-%\IEEEtriggercmd{\enlargethispage{-5in}}
-
-% references section
-% NOTE: BibTeX documentation can be easily obtained at:
-% http://www.ctan.org/tex-archive/biblio/bibtex/contrib/doc/
-
-% can use a bibliography generated by BibTeX as a .bbl file
-% standard IEEE bibliography style from:
-% http://www.ctan.org/tex-archive/macros/latex/contrib/supported/IEEEtran/bibtex
-%\bibliographystyle{IEEEtran.bst}
-% argument is your BibTeX string definitions and bibliography database(s)
-%\bibliography{IEEEabrv,../bib/paper}
-%
-% <OR> manually copy in the resultant .bbl file
-% set second argument of \begin to the number of references
-% (used to reserve space for the reference number labels box)
 
 \bibliographystyle{IEEEtran.bst}
-\bibliography{./references.bib}
+\bibliography{./references.bib,ants,avantsAll}
 
 \end{document}
 

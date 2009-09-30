@@ -1,5 +1,6 @@
 
-for FL in ants antstheory ; do 
+for FL in ants # antstheory 
+  do 
 for i in 1 2 3 
 do
 pdflatex $FL 
