@@ -194,9 +194,11 @@ address practical problems in real data.
 \tableofcontents
 
 \section{Introduction}
-The ANTS framework provides open-source, encapsulated,
-software-engineered functionality for deformable normalization and
-segmentation.  Independent evaluation of ANTS normalization tools, 
+The ANTS framework provides open-source functionality for deformable
+normalization with large deformations, as shown in
+figure~\ref{fig:chalf}.  Small deformation mappings and segmentation 
+tools are also available. 
+Independent evaluation of ANTS normalization tools, 
 applied to ``control'' data, 
 placed the toolkit as a top performer amongst 14
 methods \cite{Klein2009}.  Developer evaluation showed stronger differences 
@@ -224,6 +226,18 @@ Additional information is available online -- see
 For compilation details, see: \href{http://picsl.upenn.edu/ANTS/download.php}{Compile and download: http://picsl.upenn.edu/ANTS/download.php}.
 The most important ANTS programs are described below. 
 \footnote{This document is a work in progress. Please check for updates with each release.}
+\begin{figure}
+\includegraphics[width=0.33\textwidth]{Figures/grid1100.pdf} 
+\includegraphics[width=0.33\textwidth]{Figures/grid1110.pdf} 
+\includegraphics[width=0.33\textwidth]{Figures/grid1119.pdf} 
+\itkcaption[ANTS Large Deformation]{The original goal of ANTS was to
+  develop public, open source large deformation image registration.
+  This is a classic example showing the progress of deforming a half
+  C to a full C along a geodesic diffeomorphism.  The deforming 
+  grid accompanies each deformed image.}
+\vspace{-0.1in}
+\label{fig:chalf}
+\end{figure}
 
 \subsection{The ANTS Executable}
 The ANTS program itself is the central program encapsulating
@@ -264,7 +278,7 @@ instead of
 because tcsh does no interpret the brackets as intended.  Using the
 bash shell script interface also avoids this.  The key change involves using the slash to force tcsh to 
 interpet the bracket literally. 
-
+\newpage
 \section{ImageRegistration with ANTS}
 \begin{wrapfigure}{r}{0.5\textwidth}
 \framebox[0.5\textwidth]{
@@ -626,7 +640,7 @@ pass on the ANTS command line}.
 
 \subsection{Optimal Template Construction with ANTS}
 A useful script for setting up optimal template construction
- is available in ANTS/Scripts.  This method is described in \cite{Avants2004,Avants2006d,Kim2008,Yushkevich2009}, 
+ is available in ANTS/Scripts.  This method is described in \cite{Avants2004,Avants2006d,Kim2008,Yushkevich2009,Avants2009c}, 
 where more recent publications are more descriptive and incorporate 
 more recent features and optimization strategies. 
 Two versions of this algorithm are available : serial and parallel.  
@@ -717,8 +731,7 @@ This two coarsets levels of the computation take only about
 but accounts for the large majority of the shape variation.  Note that
 this is a 3D example -- that is why the eyes appear only in the frame
 at left. 
-
-
+\newpage
 \section{Image Segmentation and Labeling}
 ANTS has tools for both tissue based segmentation and prior-based segmentation that 
 leverages spatial priors, usually based on a template mapping.  
@@ -826,11 +839,9 @@ CreateWarpedGridImage 2 PSEtestInverseWarp.nii grid1.nii
 CreateWarpedGridImage 2 PSEtestWarp.nii grid2.nii
 \end{verbatim}
 This example should run on the downloaded ANTS data so you may see the results.
-
-
 %\input{ANTSLabeledDataExample}
 %\input{ANTSMaskedImageRegistrationExample}
-
+\newpage
 \section{Application to Studies}
 \subsection{Brain Mapping in the Presence of Lesions}
 Many cases violate the basic assumption of a one-to-one mapping from a
@@ -962,6 +973,7 @@ ImageMath 3 testresult.nii ConvertVectorToImage mask.nii testresultvec.nii
 \end{verbatim}
 \end{enumerate}
 Most statistical requirements may be met with this setup. 
+\newpage
 \section{Dependencies and Related Software}
 \subsection{Dependencies and Compilation}
 ANTS depends on the most recent version of the Insight ToolKit (ITK)
@@ -997,11 +1009,12 @@ Use PipeDream for automating large-scale processing:\newline
 is integrated with ANTS and automates more complex studies such as
 multivariate diffusion tensor and T1 cortical thickness studies,
 longitudinal mapping and reconstruction of nifti images from Dicom.
-
+\newpage
 \section{Annotated Bibliography}
 The original statement of the symmetric normalization and template
-construction methodology was given in \cite{Avants2004}.  A follow up
-study that used landmark guidance to compare the chimpanzee cortex to
+construction methodology was given in \cite{Avants2004} with a more 
+recent template paper here \cite{Avants2009c}. 
+A follow up study that used landmark guidance to compare the chimpanzee cortex to
 the human cortex was published here \cite{Avants2006} -- this study
 used {\em in vivo} MRI and template-based normalization to confirm
 volumetric numbers derived from an early 20th century post-mortem
