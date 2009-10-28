@@ -1363,7 +1363,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 		float prval=wpriorim->GetPixel(speedindex);
 		float partialvol=surfdef->GetPixel(speedindex) ;
 		if (prval > 0.5 && partialvol >1.e-3 ) prior = prval/partialvol;//7;//0.5*origthickprior;// prval;
-		
+		if (prior > 2 ) prior=2;
 	      }
 		//else thickprior = origthickprior;		  
 		//} else 
@@ -1381,7 +1381,12 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	      if (fabs(gmag) < 1.e-6) gmag=0;
 	      gmag=sqrt(gmag);
 	      wmag=sqrt(wmag);
-	      if ( wmag > maxlapgrad2mag ) maxlapgrad2mag=wmag;
+	      if ( vnl_math_isnan(wmag) || vnl_math_isinf(wmag) )
+		{
+		  wgradval.Fill(0);
+		  lapgrad2->SetPixel(speedindex,wgradval);
+		  wmag=0;
+		}
 	      if (gmag > 0 && wmag > 0)
 		{
 		for (unsigned kq=0;kq<ImageDimension; kq++) dp+= ggradval[kq]/gmag*wgradval[kq]/wmag;
@@ -1413,6 +1418,8 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 //	      dd*=stopval*jwt*thindef->GetPixel(speedindex)*sigmoidf*gradstep*dp*gmd*jwt;
 	      dd*=stopval*sigmoidf*gradstep*jwt*prior;// speed function here IMPORTANT!!
 	      lapjac->SetPixel(speedindex, dd);
+	      //	      std::cout <<" dd " << dd << " prior " << prior << " wmag " << wmag << std::endl;
+	      if ( wmag*dd > maxlapgrad2mag ) maxlapgrad2mag=wmag*dd;
 	      } else lapjac->SetPixel(speedindex, 0);
 	      ++xxIterator;
 	    }
