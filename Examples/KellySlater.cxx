@@ -1363,7 +1363,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 		float prval=wpriorim->GetPixel(speedindex);
 		float partialvol=surfdef->GetPixel(speedindex) ;
 		if (prval > 0.5 && partialvol >1.e-3 ) prior = prval/partialvol;//7;//0.5*origthickprior;// prval;
-		if (prior > 2 ) prior=2;
+		if (prior > 2 ) prior=2;  /** Potential cause of problem 1 -- this line added */
 	      }
 		//else thickprior = origthickprior;		  
 		//} else 
@@ -1493,7 +1493,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	    velofield->SetPixel(Iterator.GetIndex(),velofield->GetPixel(Iterator.GetIndex()) + incrfield->GetPixel(Iterator.GetIndex()) );
 	    float hitval=hitimage->GetPixel(velind);
 	    float thkval=0;
-	    if ( hitval > 1 ) 
+	    if ( hitval > 1 ) /** potential source of problem 2 -- this value could be smaller ... */
 	      thkval=totalimage->GetPixel(velind)/hitval - thickoffset;
 	    if (thkval < 0) thkval=0;
 	    finalthickimage->SetPixel(velind ,thkval);
