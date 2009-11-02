@@ -1274,7 +1274,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   unsigned long thickerrct=0;
   unsigned int badct=0;
   float thickoffset=0;
-
+  bool checknans=false;
 
   while ( its < alltheits &&  badct < 4) 
     {
@@ -1363,7 +1363,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 		float prval=wpriorim->GetPixel(speedindex);
 		float partialvol=surfdef->GetPixel(speedindex) ;
 		if (prval > 0.5 && partialvol >1.e-3 ) prior = prval/partialvol;//7;//0.5*origthickprior;// prval;
-		if (prior > 2 ) prior=2;  /** Potential cause of problem 1 -- this line added */
+		if (prior > 8 ) prior=8;  /** Potential cause of problem 1 -- this line added */
 	      }
 		//else thickprior = origthickprior;		  
 		//} else 
@@ -1381,6 +1381,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	      if (fabs(gmag) < 1.e-6) gmag=0;
 	      gmag=sqrt(gmag);
 	      wmag=sqrt(wmag);
+	      if (checknans) 
 	      if ( vnl_math_isnan(wmag) || vnl_math_isinf(wmag) )
 		{
 		  wgradval.Fill(0);
@@ -1417,7 +1418,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	      if (jwt < 1) jwt=1;  else jwt=1.0/xxIterator.Get();
 //	      dd*=stopval*jwt*thindef->GetPixel(speedindex)*sigmoidf*gradstep*dp*gmd*jwt;
 	      dd*=stopval*sigmoidf*gradstep*jwt*prior;// speed function here IMPORTANT!!
-	      if ( vnl_math_isnan(dd) || vnl_math_isinf(dd) ) dd=0;
+	      if (checknans)  if ( vnl_math_isnan(dd) || vnl_math_isinf(dd) ) dd=0;
 	      lapjac->SetPixel(speedindex, dd);
 	      //	      	      std::cout <<" dd " << dd << " prior " << prior << " wmag " << wmag << std::endl;
 	      if ( wmag*dd > maxlapgrad2mag ) maxlapgrad2mag=wmag*dd;
@@ -1436,6 +1437,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	  //exit(0);
 
 	  /* Now that we have the gradient image, we need to visit each voxel and compute objective function */
+	  std::cout << " maxlapgrad2mag " << maxlapgrad2mag << std::endl;
 	  Iterator.GoToBegin();	
 	  while(  !Iterator.IsAtEnd()  )
 	    {
@@ -1452,8 +1454,10 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 		  disp=corrfield->GetPixel(velind);
 		  for (unsigned int jj=0; jj<ImageDimension; jj++) dmag+=disp[jj]*disp[jj];
 		  float bval=bsurf->GetPixel(velind);
+		  if (checknans)   {
 		  if ( vnl_math_isnan(dmag) || vnl_math_isinf(dmag) ) dmag=0;
 		  if ( vnl_math_isnan(bval) || vnl_math_isinf(bval) ) bval=0;
+		  }
 		  dmag=sqrt(dmag)*bval;
 		  thickimage->SetPixel(velind,dmag);
 		  totalimage->SetPixel(velind,dmag);
@@ -1493,7 +1497,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	    velofield->SetPixel(Iterator.GetIndex(),velofield->GetPixel(Iterator.GetIndex()) + incrfield->GetPixel(Iterator.GetIndex()) );
 	    float hitval=hitimage->GetPixel(velind);
 	    float thkval=0;
-	    if ( hitval > 1 ) /** potential source of problem 2 -- this value could be smaller ... */
+	    if ( hitval >= 0.25 ) /** potential source of problem 2 -- this value could be smaller ... */
 	      thkval=totalimage->GetPixel(velind)/hitval - thickoffset;
 	    if (thkval < 0) thkval=0;
 	    finalthickimage->SetPixel(velind ,thkval);
