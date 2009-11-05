@@ -1095,7 +1095,8 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   std::string outname = std::string(argv[argct]); argct++;
   unsigned int numtimepoints=10;
   float   gradstep=(float)(-1.0)*0.5;//(ImageDimension-1);
-  if (argc > argct) gradstep=atof(argv[argct])*(-1.0)*1.0/(float)numtimepoints;  argct++;
+  if (argc > argct) gradstep=atof(argv[argct])*(-1.0);
+  gradstep*=1.0/(float)numtimepoints*100;  argct++;
   unsigned int alltheits=50;
   if (argc > argct) alltheits=atoi(argv[argct]); argct++;
   float thickprior=6.0;
@@ -1360,10 +1361,10 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	      float thkval=finalthickimage->GetPixel(speedindex);
 	      float prior=1;
 	      if (spatprior){
-		float prval=wpriorim->GetPixel(speedindex);
-		float partialvol=surfdef->GetPixel(speedindex) ;
-		if (prval > 0.5 && partialvol >1.e-3 ) prior = prval/partialvol;//7;//0.5*origthickprior;// prval;
-		if (prior > 100 ) prior=100;  /** Potential cause of problem 1 -- this line added */
+		prior=wpriorim->GetPixel(speedindex);
+		//		float partialvol=surfdef->GetPixel(speedindex) ;
+		//if (prval > 0.5 && partialvol >1.e-3 ) prior = prval/partialvol;//7;//0.5*origthickprior;// prval;
+		//if (prior > 100 ) prior=100;  /** Potential cause of problem 1 -- this line added */
 	      }
 		//else thickprior = origthickprior;		  
 		//} else 
@@ -1419,7 +1420,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 //	      dd*=stopval*jwt*thindef->GetPixel(speedindex)*sigmoidf*gradstep*dp*gmd*jwt;
 	      dd*=stopval*sigmoidf*gradstep*jwt*prior;// speed function here IMPORTANT!!
 	      if (checknans)  if ( vnl_math_isnan(dd) || vnl_math_isinf(dd) ) dd=0;
-	      if ( wmag*dd > 10 ) dd=0;
+	      if ( wmag*dd > 1 ) dd=stopval*(surfdef->GetPixel(speedindex) - gmdef->GetPixel(speedindex))*gradstep;
 	      lapjac->SetPixel(speedindex, dd);
 	      //	      	      std::cout <<" dd " << dd << " prior " << prior << " wmag " << wmag << std::endl;
 	      if ( wmag*dd > maxlapgrad2mag ) maxlapgrad2mag=wmag*dd;
@@ -1476,9 +1477,10 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	      //	      std::cout << "disp " << incrfield->GetPixel(velind) << " hit " << hitimage->GetPixel(velind) << " thk " << totalimage->GetPixel(velind) << std::endl;
 	  ++Iterator;
 	    }
-	  //	  if (ttiter ==0)
-	  // WriteImage<ImageType>(totalimage,"totalimage.hdr");
-	  // WriteImage<ImageType>(hitimage,"hitimage.hdr");
+	  //	  if (ttiter ==0) {
+	  //WriteImage<ImageType>(totalimage,"Ztotalimage.nii.gz");
+	  //WriteImage<ImageType>(hitimage,"Zhitimage.nii.gz");
+	  //WriteImage<ImageType>(lapjac,"Zlapjac.nii.gz"); }
 
 	  Iterator.GoToBegin();	
 	  while(  !Iterator.IsAtEnd()  )
