@@ -1363,7 +1363,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 		float prval=wpriorim->GetPixel(speedindex);
 		float partialvol=surfdef->GetPixel(speedindex) ;
 		if (prval > 0.5 && partialvol >1.e-3 ) prior = prval/partialvol;//7;//0.5*origthickprior;// prval;
-		if (prior > 8 ) prior=8;  /** Potential cause of problem 1 -- this line added */
+		if (prior > 100 ) prior=100;  /** Potential cause of problem 1 -- this line added */
 	      }
 		//else thickprior = origthickprior;		  
 		//} else 
@@ -1437,13 +1437,13 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	  //exit(0);
 
 	  /* Now that we have the gradient image, we need to visit each voxel and compute objective function */
-	  std::cout << " maxlapgrad2mag " << maxlapgrad2mag << std::endl;
+	  //	  std::cout << " maxlapgrad2mag " << maxlapgrad2mag << std::endl;
 	  Iterator.GoToBegin();	
 	  while(  !Iterator.IsAtEnd()  )
 	    {
 	      velind=Iterator.GetIndex();
 	      //	      float currentthickvalue=finalthickimage->GetPixel(velind);
-	      VectorType wgradval=lapgrad2->GetPixel(velind)/(maxlapgrad2mag*(float)numtimepoints);
+	      VectorType wgradval=lapgrad2->GetPixel(velind); ///(maxlapgrad2mag*(float)numtimepoints);
 	      
 	      disp=wgradval*lapjac->GetPixel(velind);
 	      incrfield->SetPixel(velind,incrfield->GetPixel(velind)+disp);
@@ -1497,7 +1497,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	    velofield->SetPixel(Iterator.GetIndex(),velofield->GetPixel(Iterator.GetIndex()) + incrfield->GetPixel(Iterator.GetIndex()) );
 	    float hitval=hitimage->GetPixel(velind);
 	    float thkval=0;
-	    if ( hitval >= 0.25 ) /** potential source of problem 2 -- this value could be smaller ... */
+	    if ( hitval >= 0.001 ) /** potential source of problem 2 -- this value could be smaller ... */
 	      thkval=totalimage->GetPixel(velind)/hitval - thickoffset;
 	    if (thkval < 0) thkval=0;
 	    finalthickimage->SetPixel(velind ,thkval);
@@ -1530,7 +1530,24 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
     
     }
 
-  return 0;
+
+ thickimage->FillBuffer(0);
+ typename ImageType::Pointer thkdef =m_MFR->WarpImageBackward(finalthickimage,invfield);
+ Iterator.GoToBegin();	
+ while(  !Iterator.IsAtEnd()  )
+   {
+   float tt1=finalthickimage->GetPixel(Iterator.GetIndex());
+   float tt=thkdef->GetPixel(Iterator.GetIndex());
+   if (tt1 > tt) tt=tt1; 
+   thickimage->SetPixel(Iterator.GetIndex(),tt);
+   ++Iterator;
+   }
+ std::string thickname = outname;
+ thickimage->SetDirection(omat);
+ WriteImage<ImageType>(thickimage,thickname.c_str());
+ 
+
+ return 0;
 
   
 }     
