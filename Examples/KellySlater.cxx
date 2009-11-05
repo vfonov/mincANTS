@@ -1096,7 +1096,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   unsigned int numtimepoints=10;
   float   gradstep=(float)(-1.0)*0.5;//(ImageDimension-1);
   if (argc > argct) gradstep=atof(argv[argct])*(-1.0);
-  gradstep*=1.0/(float)numtimepoints*100;  argct++;
+  gradstep*=1.0/(float)numtimepoints*10;  argct++;
   unsigned int alltheits=50;
   if (argc > argct) alltheits=atoi(argv[argct]); argct++;
   float thickprior=6.0;
