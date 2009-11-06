@@ -1075,8 +1075,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
           spacing.Fill( 1 );
           
         
-          typename EnergyProfileType::Pointer energyProfileWindow
-            = EnergyProfileType::New();
+          typename EnergyProfileType::Pointer energyProfileWindow = EnergyProfileType::New();
           energyProfileWindow->Initialize();     
           
           unsigned int windowBegin = static_cast<unsigned int>( origin[0] );
@@ -1114,12 +1113,13 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
           bspliner->Update();
 	  
 	  ProfilePointType endPoint;
-	  endPoint[0] = static_cast<float>( this->m_CurrentIteration-1 );
+	  //  endPoint[0] = static_cast<float>( this->m_CurrentIteration-1 );
+          endPoint[0] = 0.9 * static_cast<float>( this->m_CurrentIteration-1 );
 	  typename BSplinerType::GradientType gradient;
 	  bspliner->EvaluateGradientAtPoint( endPoint, gradient ); 
 	  if (  gradient[0][0]  < 0.0001 && this->m_CurrentIteration > 9) converged=true;
 	  std::cout << " E-Slope " << gradient[0][0] ;//<< std::endl;
-         }
+	  }
         for ( unsigned int qq=0; qq < this->m_Energy.size(); qq++ )
           {
           if ( qq==0 ) 
