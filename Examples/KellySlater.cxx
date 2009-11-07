@@ -1361,10 +1361,10 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	      float thkval=finalthickimage->GetPixel(speedindex);
 	      float prior=1;
 	      if (spatprior){
-		prior=wpriorim->GetPixel(speedindex);
-		//		float partialvol=surfdef->GetPixel(speedindex) ;
-		//if (prval > 0.5 && partialvol >1.e-3 ) prior = prval/partialvol;//7;//0.5*origthickprior;// prval;
-		//if (prior > 100 ) prior=100;  /** Potential cause of problem 1 -- this line added */
+		float prval=wpriorim->GetPixel(speedindex);
+		float partialvol=surfdef->GetPixel(speedindex) ;
+		if ( partialvol >= 0.1 ) prior=prval/partialvol;//7;//0.5*origthickprior;// prval;
+		if (prior > 10 ) prior=10;  /** Potential cause of problem 1 -- this line added */
 	      }
 		//else thickprior = origthickprior;		  
 		//} else 
@@ -1532,6 +1532,8 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
     //std::cin.get();
     
     }
+
+  return 0; 
 
 
  thickimage->FillBuffer(0);
