@@ -1275,7 +1275,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   unsigned long thickerrct=0;
   unsigned int badct=0;
   float thickoffset=0;
-  bool checknans=false;
+  bool checknans=true;
 
   while ( its < alltheits &&  badct < 4) 
     {
