@@ -69,7 +69,7 @@ double TProb(double t, int df)
 {
   if (t == 0) return 0;
         double a = 0.36338023;
-        double w = atan(t / sqrt(df));
+        double w = atan(t / sqrt((double)df));
         double s = sin(w);
         double c = cos(w);
         

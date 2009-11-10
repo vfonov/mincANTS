@@ -1280,7 +1280,7 @@ std::cout << " Label Surf " << std::endl;
 template<unsigned int ImageDimension>
 int FitSphere(int argc, char *argv[])        
 {
-  /*
+  
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
   typedef itk::Image<VectorType,ImageDimension>     FieldType;
@@ -1357,7 +1357,7 @@ int FitSphere(int argc, char *argv[])
       typename ImageType::IndexType ind=iter.GetIndex();
 //      float val=surf->GetPixel(ind);//iter.Get();
 //      float minrad=1.e9;
-*/
+
       /*
       if (val > 0.5 && fabs((float)ind[2]-80.) < 6 )
 	{
@@ -1442,7 +1442,7 @@ int FitSphere(int argc, char *argv[])
 
 	}
   */
-  /*
+  
 	  //	  radimage2->SetPixel(ind,gvrat);
       if (image1->GetPixel(ind) >= 0.5)
 	{
@@ -1455,7 +1455,7 @@ int FitSphere(int argc, char *argv[])
 	      typename iteratorType::RadiusType rad,rad2;
 	      rad2.Fill(0);
 	      for (unsigned int j=0; j<ImageDimension; j++) rad[j]=(long unsigned int) dorad;
-	      float tardist=(dorad*sqrt(2));
+	      float tardist=(dorad*sqrt((double)2));
 	      iteratorType GHood(rad, image1,image1->GetLargestPossibleRegion());
 	      GHood.SetLocation(ind);
 	      typename ImageType::PixelType p = GHood.GetCenterPixel();
@@ -1513,8 +1513,8 @@ int FitSphere(int argc, char *argv[])
 	  typedef itk::NeighborhoodIterator<ImageType>  iteratorType; 
 	  typename iteratorType::RadiusType rad;
 	  for (unsigned int j=0; j<ImageDimension; j++) rad[j]= dorad;
-	  float tardist=(dorad*sqrt(2));
-	  float diameter=2.0*(float)dorad*sqrt(2);
+	  float tardist=(dorad*sqrt((double)2));
+	  float diameter=2.0*(float)dorad*sqrt((double)2);
 	  iteratorType GHood(rad, image1,image1->GetLargestPossibleRegion());
 	  GHood.SetLocation(ind);
 	  typename ImageType::PixelType p = GHood.GetCenterPixel();
@@ -1550,7 +1550,7 @@ int FitSphere(int argc, char *argv[])
       dist+=sqrt((float)(ind2[0]-(float)bestind[0])*(float)(ind2[0]-(float)bestind[0])+
 		 (float)(ind2[1]-(float)bestind[1])*(float)(ind2[1]-(float)bestind[1])+
 		 (float)(ind2[2]-(float)bestind[2])*(float)(ind2[2]-(float)bestind[2]));
-      if ( dist <= (globalbestrad*sqrt(2))) 
+      if ( dist <= (globalbestrad*sqrt((double)2))) 
 	{
 	  radimage2->SetPixel(ind2,p);
 	}
@@ -1561,7 +1561,7 @@ int FitSphere(int argc, char *argv[])
   WriteImage<ImageType>(radimage2,outname.c_str());
   //WriteImage<ImageType>(priorimage,(std::string("Prior")+outname).c_str());
   return 0;
-  */
+  
 }  
 
 
