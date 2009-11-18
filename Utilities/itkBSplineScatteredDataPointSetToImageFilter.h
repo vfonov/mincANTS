@@ -3,8 +3,8 @@
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkBSplineScatteredDataPointSetToImageFilter.h,v $
   Language:  C++
-  Date:      $Date: 2009-04-20 14:53:42 $
-  Version:   $Revision: 1.8 $
+  Date:      $Date: 2009-10-11 19:24:30 $
+  Version:   $Revision: 1.10 $
 
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
@@ -192,6 +192,13 @@ protected:
   void ThreadedGenerateData( const RegionType&, int );
   void BeforeThreadedGenerateData();
   void AfterThreadedGenerateData();
+
+  /** Only the points are divided among the threads, so always return
+   * a valid number */
+  int SplitRequestedRegion(int, int, RegionType&)
+    {
+    return this->GetNumberOfThreads();
+    }
 
   void GenerateData();
 
