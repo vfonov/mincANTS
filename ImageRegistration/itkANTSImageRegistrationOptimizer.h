@@ -1056,7 +1056,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
          * the desired window will start at the user-specified origin and 
          * end at the current iteration).
          */  
-	unsigned int domtar=10;
+	unsigned int domtar=6;
 	if( this->m_CurrentIteration > domtar )
           {            
           typedef BSplineScatteredDataPointSetToImageFilter
@@ -1112,11 +1112,11 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
           bspliner->Update();
 	  
 	  ProfilePointType endPoint;
-	  //  endPoint[0] = static_cast<float>( this->m_CurrentIteration-1 );
-          endPoint[0] = 0.9 * static_cast<float>( this->m_CurrentIteration-1 );
+          endPoint[0] = static_cast<float>( this->m_CurrentIteration-domainsize*0.5 );
 	  typename BSplinerType::GradientType gradient;
+	  gradient.Fill(0);
 	  bspliner->EvaluateGradientAtPoint( endPoint, gradient ); 
-	  if (  gradient[0][0]  < 0.0001 && this->m_CurrentIteration > 9) converged=true;
+	  if (  gradient[0][0]  < 0.0001 && this->m_CurrentIteration > domtar) converged=true;
 	  std::cout << " E-Slope " << gradient[0][0] ;//<< std::endl;
 	  }
         for ( unsigned int qq=0; qq < this->m_Energy.size(); qq++ )
