@@ -1360,6 +1360,15 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
         }
  
         DeformationFieldPointer updateField=this->ComputeUpdateField( diffmap, NULL, fpoints, wmpoints);
+	updateField = this->IntegrateConstantVelocity( updateField, nts, timestep);
+	float maxl= this->MeasureDeformation(updateField);
+	if (maxl <= 0) maxl=1;
+	typedef ImageRegionIteratorWithIndex<DeformationFieldType> Iterator;
+	Iterator dIter(updateField,updateField->GetLargestPossibleRegion() );
+	for( dIter.GoToBegin(); !dIter.IsAtEnd(); ++dIter )  dIter.Set( dIter.Get()*this->m_GradstepAltered/maxl );
+	this->ComposeDiffs(updateField,totalField,totalField,1);
+    }
+	/*
         if (!totalUpdateField)
         {  
             if (this->m_Debug) std::cout <<" ALLO Tot Upd F " << std::endl;
@@ -1403,6 +1412,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
             mag2=sqrt(mag2);
             if (mag2 >  max2) max2=mag2;
     }
+	*/
     this->SmoothDeformationField(totalField,false);
 
     return;
