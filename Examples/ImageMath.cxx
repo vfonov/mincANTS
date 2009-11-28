@@ -64,6 +64,7 @@
 #include "itkScalarImageToListAdaptor.h"
 #include "itkConnectedComponentImageFilter.h"
 #include "itkRescaleIntensityImageFilter.h"   
+#include "itkHistogramMatchingImageFilter.h"
  
 #include "itkMRIBiasFieldCorrectionFilter.h"
 #include "itkImage.h"
@@ -973,8 +974,42 @@ int SetOrGetPixel(int argc, char *argv[])
   
 }
 
-
-
+template<unsigned int ImageDimension>
+int HistogramMatching(int argc, char * argv[])
+{
+  
+  typedef float PixelType;
+  typedef itk::Image<PixelType,ImageDimension> ImageType;
+  typedef itk::HistogramMatchingImageFilter<ImageType, ImageType> MatchingFilterType;
+  
+  int argct=2;
+  std::string outname=std::string(argv[argct]); argct++;
+  std::string operation = std::string(argv[argct]);  argct++;
+  std::string fn1 = std::string(argv[argct]);   argct++;
+  std::string fn2 = std::string(argv[argct]);   argct++; 
+  long bins = 255;
+  if (argc > argct) bins =atoi(argv[argct]);   argct++;
+  long points = 64;
+  if (argc > argct) points =atoi(argv[argct]);   argct++;
+  
+  typename ImageType::Pointer source;
+  ReadImage<ImageType>(source,fn1.c_str());
+  
+  typename ImageType::Pointer reference;
+  ReadImage<ImageType>(reference,fn2.c_str());
+  
+  typename MatchingFilterType::Pointer match = MatchingFilterType::New();
+  match->SetSourceImage(source);
+  match->SetReferenceImage(reference);  
+  match->SetNumberOfHistogramLevels(bins);
+  match->SetNumberOfMatchPoints(points);
+  match->Update();  
+    
+  WriteImage<ImageType>(match->GetOutput(), outname.c_str());
+  return 0;
+}
+  
+    
 template<unsigned int ImageDimension>
 int PadImage(int argc, char *argv[])        
 {
@@ -6061,6 +6096,7 @@ int main(int argc, char *argv[])
     std::cout << "  RemoveLabelInterfaces ImageIn " << std::endl;
     std::cout << "  EnumerateLabelInterfaces ImageIn ColoredImageOutname NeighborFractionToIgnore " << std::endl;
     std::cout << "  FitSphere GM-ImageIn {WM-Image} {MaxRad-Default=5}" << std::endl;
+    std::cout << "  HistogramMatch SourceImage ReferenceImage {NumberBins-Default=255} {NumberPoints-Default=64}" << std::endl;
     std::cout << "  PadImage ImageIn Pad-Number ( if Pad-Number is negative, de-Padding occurs ) " << std::endl;
     std::cout << "  Where Image ValueToLookFor maskImage-option tolerance --- the where function from IDL " << std::endl;
     std::cout << "  TensorFA DTImage  " << std::endl;
@@ -6123,6 +6159,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"TileImages") == 0 )  TileImages<2>(argc,argv);
      else if (strcmp(operation.c_str(),"Where") == 0 )  Where<2>(argc,argv);
      else if (strcmp(operation.c_str(),"FillHoles") == 0 )  FillHoles<2>(argc,argv);
+     else if (strcmp(operation.c_str(),"HistogramMatch") == 0) HistogramMatching<2>(argc,argv);
      else if (strcmp(operation.c_str(),"PadImage") == 0 )  PadImage<2>(argc,argv);
      else if (strcmp(operation.c_str(),"SetOrGetPixel") == 0 )  SetOrGetPixel<2>(argc,argv);
      else if (strcmp(operation.c_str(),"MakeImage") == 0 )  MakeImage<2>(argc,argv);
@@ -6181,6 +6218,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"TensorMeanDiffusion") == 0 )  TensorFunctions<3>(argc,argv);
      else if (strcmp(operation.c_str(),"TensorColor") == 0) TensorFunctions<3>(argc,argv);
      else if (strcmp(operation.c_str(),"FillHoles") == 0 )  FillHoles<3>(argc,argv);
+     else if (strcmp(operation.c_str(),"HistogramMatch") == 0) HistogramMatching<3>(argc,argv);
      else if (strcmp(operation.c_str(),"PadImage") == 0 )  PadImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"SetOrGetPixel") == 0 )  SetOrGetPixel<3>(argc,argv);
      else if (strcmp(operation.c_str(),"MakeImage") == 0 )  MakeImage<3>(argc,argv);
