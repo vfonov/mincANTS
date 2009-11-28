@@ -685,6 +685,11 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 	  WriteImage<ImageType>(wfimage,outname.c_str());
 	}
 
+	  std::string outname=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("temp.nii.gz");
+	  WriteImage<ImageType>(wmimage,outname.c_str());
+	  std::string outname2=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("temp2.nii.gz");
+	  WriteImage<ImageType>(wfimage,outname2.c_str());
+
 /** MV Loop END -- Would have to collect update fields then add them
 * together somehow -- Would also have to eliminate the similarity
 * metric loop within ComputeUpdateField */
@@ -1342,28 +1347,31 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 
         diffmap->FillBuffer(zero);
         invdiffmap->FillBuffer(zero);	
-        DeformationFieldPointer diffmap = this->IntegrateConstantVelocity(totalField, nts, timestep);
-        DeformationFieldPointer invdiffmap = this->IntegrateConstantVelocity(totalField,(unsigned int)( this->m_NTimeSteps)-nts, (-1.)*timestep);
+        DeformationFieldPointer diffmap = this->IntegrateConstantVelocity(totalField, nts, 1);
+        DeformationFieldPointer invdiffmap = this->IntegrateConstantVelocity(totalField,(unsigned int)( this->m_NTimeSteps)-nts, (-1.));
 
         ImagePointer wfimage,wmimage;
         PointSetPointer wfpoints=NULL,wmpoints=NULL;
         AffineTransformPointer aff =this->m_AffineTransform;
         if ( mpoints ) 
              {// need full inverse map
-                DeformationFieldPointer tinvdiffmap = this->IntegrateConstantVelocity(totalField, nts, (-1.)*timestep);
+                DeformationFieldPointer tinvdiffmap = this->IntegrateConstantVelocity(totalField, nts, (-1.));
                 wmpoints = this->WarpMultiTransform(fixedImage,movingImage,  mpoints ,  aff , tinvdiffmap , true ,   this->m_FixedImageAffineTransform );
         }
  
         DeformationFieldPointer updateField=this->ComputeUpdateField( diffmap, NULL, fpoints, wmpoints);
-	updateField = this->IntegrateConstantVelocity( updateField,2,0.5); // choose these params for speed. 
+	updateField = this->IntegrateConstantVelocity( updateField, nts, timestep);
 	float maxl= this->MeasureDeformation(updateField);
 	if (maxl <= 0) maxl=1;
 	typedef ImageRegionIteratorWithIndex<DeformationFieldType> Iterator;
 	Iterator dIter(updateField,updateField->GetLargestPossibleRegion() );
-	for( dIter.GoToBegin(); !dIter.IsAtEnd(); ++dIter )  dIter.Set( dIter.Get()*this->m_GradstepAltered/maxl );
-	this->ComposeDiffs(updateField,totalField,totalField,1);
+	for( dIter.GoToBegin(); !dIter.IsAtEnd(); ++dIter ) {
+	  dIter.Set( dIter.Get()*this->m_GradstepAltered/this->m_NTimeSteps );
+	  totalField->SetPixel(dIter.GetIndex(), dIter.Get() +  totalField->GetPixel(dIter.GetIndex()) );
+	}
+	//	this->ComposeDiffs(updateField,totalField,totalField,1);
     }
-	/* below is the old approach .... 
+	/*
         if (!totalUpdateField)
         {  
             if (this->m_Debug) std::cout <<" ALLO Tot Upd F " << std::endl;
