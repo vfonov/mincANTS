@@ -6179,6 +6179,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"Where") == 0 )  Where<3>(argc,argv);
      else if (strcmp(operation.c_str(),"TensorFA") == 0 )  TensorFunctions<3>(argc,argv);
      else if (strcmp(operation.c_str(),"TensorMeanDiffusion") == 0 )  TensorFunctions<3>(argc,argv);
+     else if (strcmp(operation.c_str(),"TensorColor") == 0) TensorFunctions<3>(argc,argv);
      else if (strcmp(operation.c_str(),"FillHoles") == 0 )  FillHoles<3>(argc,argv);
      else if (strcmp(operation.c_str(),"PadImage") == 0 )  PadImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"SetOrGetPixel") == 0 )  SetOrGetPixel<3>(argc,argv);
