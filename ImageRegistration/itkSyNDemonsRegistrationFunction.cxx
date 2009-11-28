@@ -191,6 +191,7 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   // Get fixed image related information
   double fixedValue;
   CovariantVectorType gradient;
+  CovariantVectorType mgradient;
   double gradientSquaredMagnitude = 0;
 
   // Note: no need to check the index is within
@@ -202,12 +203,13 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
  
     gradient = m_FixedImageGradientCalculator->EvaluateAtIndex( index );
  
-    //   gradient = m_MovingImageGradientCalculator->EvaluateAtIndex( index );
+    mgradient = m_MovingImageGradientCalculator->EvaluateAtIndex( index );
    
 
   for( j = 0; j < ImageDimension; j++ )
     {
-    gradientSquaredMagnitude += vnl_math_sqr( gradient[j] );
+      gradient[j]=gradient[j]+mgradient[j];
+      gradientSquaredMagnitude += vnl_math_sqr( gradient[j] );
     } 
 
 
