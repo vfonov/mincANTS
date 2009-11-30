@@ -1028,7 +1028,7 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
     if (true)
     {
         OptionType::Pointer option = OptionType::New();
-        option->SetLongName( "large-deformation" );
+        option->SetLongName( "geodesic" );
         option->SetShortName( 'T' );
         option->SetDescription( " = 0 / 1 / 2, 0 = not time-dependent, 1 = asymmetric , 2 = symmetric  ");
 // compute the Euclidean length of the diffeomorphism and write to an image -- OutputNamethick.nii.gz -- This is a Beta version of thickness computation -- Not Full-Blown DiReCT , Das, 2009, Neuroimage ---  syn with time is the only model that can be used with this option " );

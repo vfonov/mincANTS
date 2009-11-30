@@ -1,5 +1,5 @@
 
-for FL in ants # antstheory 
+for FL in antstheory # ants
   do 
 for i in 1 2 3 
 do

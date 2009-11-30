@@ -956,7 +956,7 @@ SurfaceImageCurvature<TSurface>
 
   unsigned int npts = this->m_PointList.size();
   double curvature=0.0,tw=0;
-//  std::cout << " npts " << npts;
+  std::cout << " npts " << npts;
   for (unsigned int pp =0; pp<npts; pp++){
     IndexType localindex;
     for (unsigned int k=0; k<ImageDimension; k++) 
@@ -966,7 +966,7 @@ SurfaceImageCurvature<TSurface>
     if (wi!=0.0) wi=1./wi;
     tw+=wi;
     RealType func=this->m_FunctionImage->GetPixel( localindex );
-//    std::cout << " pp " << pp << " func " << func << std::endl;
+    std::cout << " pp " << pp << " func " << func << std::endl;
     if (norm) curvature += wi*func;
     else curvature += func;
 //    curvature*=this->ComputeLocalArea(spacing);

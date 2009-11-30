@@ -63,7 +63,6 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     this->m_DeformationField=NULL;
     this->m_InverseDeformationField=NULL;
     this->m_AffineTransform=NULL;
-    this->m_StaticVelocityField=NULL;
     itk::TransformFactory<TransformType>::RegisterTransform();    
     itk::TransformFactory<itk::ANTSAffine3DTransform<double> >::RegisterTransform();
     itk::TransformFactory<itk::ANTSCenteredAffine2DTransform<double> >::RegisterTransform();
@@ -83,6 +82,8 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     this->m_Parser=NULL;
     this->m_GaussianTruncation=256;
     this->m_TimeVaryingVelocity=NULL;
+    this->m_LastTimeVaryingVelocity=NULL;
+    this->m_LastTimeVaryingUpdate=NULL;
     this->m_DeltaTime=0.1;
     this->m_SyNType=0;
     this->m_UseNN=false;    
@@ -1340,15 +1341,15 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     invdiffmap->SetBufferedRegion( totalField->GetLargestPossibleRegion()  );
     invdiffmap->Allocate();
 
-    float timestep=1.0/(float)this->m_NTimeSteps;
-//    for (unsigned int nts=0; nts<=this->m_NTimeSteps; nts+=this->m_NTimeSteps)
-    unsigned int nts=(unsigned int)this->m_NTimeSteps;
+    //    float timestep=1.0/(float)this->m_NTimeSteps;
+    //    for (unsigned int nts=0; nts<=this->m_NTimeSteps; nts+=this->m_NTimeSteps)
+   unsigned int nts=(unsigned int)this->m_NTimeSteps;
     {
 
         diffmap->FillBuffer(zero);
         invdiffmap->FillBuffer(zero);	
         DeformationFieldPointer diffmap = this->IntegrateConstantVelocity(totalField, nts, 1);
-        DeformationFieldPointer invdiffmap = this->IntegrateConstantVelocity(totalField,(unsigned int)( this->m_NTimeSteps)-nts, (-1.));
+	//DeformationFieldPointer invdiffmap = this->IntegrateConstantVelocity(totalField,(unsigned int)( this->m_NTimeSteps)-nts, (-1.));
 
         ImagePointer wfimage,wmimage;
         PointSetPointer wfpoints=NULL,wmpoints=NULL;
@@ -1357,65 +1358,25 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
              {// need full inverse map
                 DeformationFieldPointer tinvdiffmap = this->IntegrateConstantVelocity(totalField, nts, (-1.));
                 wmpoints = this->WarpMultiTransform(fixedImage,movingImage,  mpoints ,  aff , tinvdiffmap , true ,   this->m_FixedImageAffineTransform );
-        }
+        } 
  
         DeformationFieldPointer updateField=this->ComputeUpdateField( diffmap, NULL, fpoints, wmpoints);
-	updateField = this->IntegrateConstantVelocity( updateField, nts, timestep);
-	float maxl= this->MeasureDeformation(updateField);
+	//	updateField = this->IntegrateConstantVelocity( updateField, nts, timestep);
+    float maxl= this->MeasureDeformation(updateField);
+    if (maxl <= 0) maxl=1;
+    typedef ImageRegionIteratorWithIndex<DeformationFieldType> Iterator;
+    Iterator dIter(updateField,updateField->GetLargestPossibleRegion() );
+    for( dIter.GoToBegin(); !dIter.IsAtEnd(); ++dIter )  dIter.Set( dIter.Get()*this->m_GradstepAltered/maxl);
+    this->ComposeDiffs(updateField,totalField,totalField,1);
+    /*	float maxl= this->MeasureDeformation(updateField);
 	if (maxl <= 0) maxl=1;
 	typedef ImageRegionIteratorWithIndex<DeformationFieldType> Iterator;
 	Iterator dIter(updateField,updateField->GetLargestPossibleRegion() );
 	for( dIter.GoToBegin(); !dIter.IsAtEnd(); ++dIter ) {
 	  dIter.Set( dIter.Get()*this->m_GradstepAltered/this->m_NTimeSteps );
-	  totalField->SetPixel(dIter.GetIndex(), dIter.Get() +  totalField->GetPixel(dIter.GetIndex()) );
-	}
-	//	this->ComposeDiffs(updateField,totalField,totalField,1);
+	  totalField->SetPixel(dIter.GetIndex(), dIter.Get() +  totalField->GetPixel(dIter.GetIndex()) ); 
+    	} */
     }
-	/*
-        if (!totalUpdateField)
-        {  
-            if (this->m_Debug) std::cout <<" ALLO Tot Upd F " << std::endl;
-            totalUpdateField=DeformationFieldType::New();
-            totalUpdateField->SetSpacing( totalField->GetSpacing() );
-            totalUpdateField->SetOrigin( totalField->GetOrigin() );
-            totalUpdateField->SetDirection( totalField->GetDirection() );
-            totalUpdateField->SetLargestPossibleRegion(totalField->GetLargestPossibleRegion()  );
-            totalUpdateField->SetRequestedRegion( totalField->GetLargestPossibleRegion()   );
-            totalUpdateField->SetBufferedRegion( totalField->GetLargestPossibleRegion()  );
-            totalUpdateField->Allocate();
-            totalUpdateField->FillBuffer(zero);
-        }
-        if (this->m_Debug) std::cout << " updf " << updateField->GetLargestPossibleRegion().GetSize() << std::endl;
-        if (this->m_Debug)     std::cout << " t updf " << totalUpdateField->GetLargestPossibleRegion().GetSize() << std::endl;
-        if (this->m_Debug)     std::cout << " total field " << totalField->GetLargestPossibleRegion().GetSize() << std::endl;
-        typedef ImageRegionIteratorWithIndex<DeformationFieldType> Iterator;
-        Iterator dIter(totalUpdateField,totalUpdateField->GetLargestPossibleRegion() );
-        for( dIter.GoToBegin(); !dIter.IsAtEnd(); ++dIter )
-        { 
-            typename ImageType::IndexType index=dIter.GetIndex();
-            VectorType vec=updateField->GetPixel(index);
-            dIter.Set(dIter.Get()+vec*timestep);
-        }
-
-    } 
-    typedef ImageRegionIteratorWithIndex<DeformationFieldType> Iterator;
-    Iterator dIter(totalField,totalField->GetLargestPossibleRegion() );
-    float max=0,max2=0;
-    for( dIter.GoToBegin(); !dIter.IsAtEnd(); ++dIter )
-    { 
-        typename ImageType::IndexType index=dIter.GetIndex();
-        VectorType vec=totalUpdateField->GetPixel(index);
-            float mag=0;
-            for (unsigned int jj=0; jj<ImageDimension; jj++) mag+=vec[jj]/totalField->GetSpacing()[jj]*vec[jj]/totalField->GetSpacing()[jj];
-            mag=sqrt(mag);
-            if (mag >  max) max=mag;
-            dIter.Set(dIter.Get()+vec*this->m_GradstepAltered);
-            float mag2=0;
-            for (unsigned int jj=0; jj<ImageDimension; jj++) mag2+=dIter.Get()[jj]/totalField->GetSpacing()[jj]*dIter.Get()[jj]/totalField->GetSpacing()[jj];
-            mag2=sqrt(mag2);
-            if (mag2 >  max2) max2=mag2;
-    }
-	*/
     this->SmoothDeformationField(totalField,false);
 
     return;
@@ -1691,7 +1652,6 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   zero.Fill(0);
   if (generatetvfield)
     {
-    this->m_TimeVaryingVelocity=tvt::New();
     typename tvt::RegionType gregion;
     typename tvt::SizeType gsize;
     typename tvt::SpacingType gspace;
@@ -1706,8 +1666,6 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     gsize[TDimension]=2;//this->m_NTimeSteps;
     gspace[TDimension]=1;
     gregion.SetSize(gsize);
-    this->m_TimeVaryingVelocity->SetSpacing( gspace );
-    this->m_TimeVaryingVelocity->SetOrigin( gorigin );
 
 /** The TV Field has the direction of the sub-image -- the time domain
     has identity transform */
@@ -1720,17 +1678,17 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 	if ( i < ImageDimension && j < ImageDimension)
 	  iddir[i][j]=this->GetDeformationField()->GetDirection()[i][j];
 
+    this->m_TimeVaryingVelocity=tvt::New();
+    this->m_TimeVaryingVelocity->SetSpacing( gspace );
+    this->m_TimeVaryingVelocity->SetOrigin( gorigin );
     this->m_TimeVaryingVelocity->SetDirection( iddir );
     this->m_TimeVaryingVelocity->SetLargestPossibleRegion(gregion);
     this->m_TimeVaryingVelocity->SetRequestedRegion( gregion);
     this->m_TimeVaryingVelocity->SetBufferedRegion( gregion  );
     this->m_TimeVaryingVelocity->Allocate();
     this->m_TimeVaryingVelocity->FillBuffer(zero);
-//    std::cout <<" ALOE TVT! " << std::endl;
     }
 
-//  std::cout <<"  VDir " <<     this->m_TimeVaryingVelocity->GetDirection() << std::endl;
-//  std::cout <<"  FDir " <<     this->GetDeformationField()->GetDirection() << std::endl;
   typedef  tvt TimeVaryingVelocityFieldType;
   typedef itk::ImageRegionIteratorWithIndex<DeformationFieldType>         FieldIterator;
   typedef itk::ImageRegionIteratorWithIndex<tvt>         TVFieldIterator;
@@ -1928,6 +1886,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   totalUpdateInvField->SetBufferedRegion( this->m_DeformationField->GetLargestPossibleRegion()  );
   totalUpdateInvField->Allocate();
   totalUpdateInvField->FillBuffer(zero);
+  unsigned long numpx=this->m_DeformationField->GetBufferedRegion().GetNumberOfPixels();
 
   bool generatetvfield=false;
   bool enlargefield=false;
@@ -1987,12 +1946,47 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     this->m_TimeVaryingVelocity->SetBufferedRegion( gregion  );
     this->m_TimeVaryingVelocity->Allocate();
     this->m_TimeVaryingVelocity->FillBuffer(zero);
+    /*    this->m_LastTimeVaryingVelocity=tvt::New();
+    this->m_LastTimeVaryingVelocity->SetSpacing( gspace );
+    this->m_LastTimeVaryingVelocity->SetOrigin( gorigin );
+    this->m_LastTimeVaryingVelocity->SetDirection( iddir );
+    this->m_LastTimeVaryingVelocity->SetLargestPossibleRegion(gregion);
+    this->m_LastTimeVaryingVelocity->SetRequestedRegion( gregion);
+    this->m_LastTimeVaryingVelocity->SetBufferedRegion( gregion  );
+    this->m_LastTimeVaryingVelocity->Allocate();
+    this->m_LastTimeVaryingVelocity->FillBuffer(zero); */
+    this->m_LastTimeVaryingUpdate=tvt::New();
+    this->m_LastTimeVaryingUpdate->SetSpacing( gspace );
+    this->m_LastTimeVaryingUpdate->SetOrigin( gorigin );
+    this->m_LastTimeVaryingUpdate->SetDirection( iddir );
+    this->m_LastTimeVaryingUpdate->SetLargestPossibleRegion(gregion);
+    this->m_LastTimeVaryingUpdate->SetRequestedRegion( gregion);
+    this->m_LastTimeVaryingUpdate->SetBufferedRegion( gregion  );
+    this->m_LastTimeVaryingUpdate->Allocate();
+    this->m_LastTimeVaryingUpdate->FillBuffer(zero);
     }
    else if ( enlargefield ){
         this->m_TimeVaryingVelocity=this->ExpandVelocity();
         this->m_TimeVaryingVelocity->SetSpacing(gspace);
         this->m_TimeVaryingVelocity->SetOrigin(gorigin);
-	//        if (this->m_Debug)  std::cout << " Field size " << this->m_TimeVaryingVelocity->GetLargestPossibleRegion().GetSize() << std::endl;
+	/*        this->m_LastTimeVaryingVelocity=tvt::New();
+	this->m_LastTimeVaryingVelocity->SetSpacing( gspace );
+	this->m_LastTimeVaryingVelocity->SetOrigin( gorigin );
+	this->m_LastTimeVaryingVelocity->SetDirection( iddir );
+	this->m_LastTimeVaryingVelocity->SetLargestPossibleRegion(gregion);
+	this->m_LastTimeVaryingVelocity->SetRequestedRegion( gregion);
+	this->m_LastTimeVaryingVelocity->SetBufferedRegion( gregion  );
+	this->m_LastTimeVaryingVelocity->Allocate();
+	this->m_LastTimeVaryingVelocity->FillBuffer(zero);*/
+	this->m_LastTimeVaryingUpdate=tvt::New();
+	this->m_LastTimeVaryingUpdate->SetSpacing( gspace );
+	this->m_LastTimeVaryingUpdate->SetOrigin( gorigin );
+	this->m_LastTimeVaryingUpdate->SetDirection( iddir );
+	this->m_LastTimeVaryingUpdate->SetLargestPossibleRegion(gregion);
+	this->m_LastTimeVaryingUpdate->SetRequestedRegion( gregion);
+	this->m_LastTimeVaryingUpdate->SetBufferedRegion( gregion  );
+	this->m_LastTimeVaryingUpdate->Allocate();
+	this->m_LastTimeVaryingUpdate->FillBuffer(zero);
    }
   if (!this->m_SyNF)
     {
@@ -2067,23 +2061,45 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     totalUpdateField=this->ComputeUpdateField( this->m_SyNMInv, this->m_SyNFInv , wfpoints, wmpoints,totalUpdateInvField,true);
     if ( this->m_SyNFullTime == 2 ) totalUpdateInvField=NULL;
       this->CopyOrAddToVelocityField( velocityUpdate, totalUpdateField ,  totalUpdateInvField,  hit );
-      //      std::cout << " t " << hit <<  " F " << this->MeasureDeformation(this->m_SyNFInv ) << " F1 " << this->MeasureDeformation( this->m_SyNMInv ) << std::endl;
     }
+    // http://en.wikipedia.org/wiki/Conjugate_gradient_method
+    // below is r_k+1
     this->SmoothVelocityGauss( velocityUpdate ,  this->m_GradSmoothingparam , ImageDimension );
-
     // update total velocity with v-update 
     float tmag=0;
    typedef itk::ImageRegionIteratorWithIndex<tvt>         TVFieldIterator;
    TVFieldIterator m_FieldIter( this->m_TimeVaryingVelocity,this->m_TimeVaryingVelocity->GetLargestPossibleRegion());
     for(  m_FieldIter.GoToBegin(); !m_FieldIter.IsAtEnd(); ++m_FieldIter )
       { 
-	VectorType vv=m_FieldIter.Get()+ velocityUpdate->GetPixel(m_FieldIter.GetIndex())*this->m_GradstepAltered;
-	m_FieldIter.Set( vv  );
+	float A=1;
+	float alpha=0,alpha1=0,alpha2=0,beta=0,beta1=0,beta2=0;
+	VectorType vec1=velocityUpdate->GetPixel(m_FieldIter.GetIndex()); // r_k+1
+	VectorType vec2=vec1;//this->m_LastTimeVaryingVelocity->GetPixel(m_FieldIter.GetIndex()); // r_k
+	VectorType upd=this->m_LastTimeVaryingUpdate->GetPixel(m_FieldIter.GetIndex()); // p_k 
+	for (unsigned int ii=0; ii<ImageDimension; ii++) { 
+	  alpha1=vec2[ii]*vec2[ii];
+	  alpha2=upd[ii]*upd[ii];
+	  beta1=vec1[ii]*vec1[ii];
+	  beta2=vec2[ii]*vec2[ii];
+	}
+	if (alpha2 > 0 ) alpha=alpha1/(A*alpha2+0.001);
+	if (beta2 > 0 ) beta=beta1/(beta2+0.001);
+	if (beta > 1) beta=1;
+	if (alpha > 1) alpha=1;
+	//		std::cout <<" beta " << beta << " alpha " << alpha << " it " << this->m_CurrentIteration << std::endl;
+	VectorType newupd=(vec1);
+	if ( this->m_CurrentIteration  > 2) { newupd=(vec1+upd)*0.5; }
+	VectorType newsoln=m_FieldIter.Get()+ this->m_GradstepAltered*newupd;
+	m_FieldIter.Set( newsoln );
+	//	VectorType vec2u=vec2 - alpha*A*upd;
+	//	this->m_LastTimeVaryingVelocity->SetPixel(m_FieldIter.GetIndex(), vec1 );
+	this->m_LastTimeVaryingUpdate->SetPixel(m_FieldIter.GetIndex(), newupd);
         float mag=0;
+	VectorType vv=m_FieldIter.Get();
         for (unsigned int jj=0; jj<ImageDimension; jj++) mag+=vv[jj]*vv[jj];
         tmag+=sqrt(mag);
       }
-    tmag/=(float)this->m_NTimeSteps;
+    tmag/=((float)this->m_NTimeSteps*(float)numpx);
     std::cout << " DiffLength " << tmag << std::endl;
     if (  this->m_TotalSmoothingparam > 0 
       || this->m_TotalSmoothingMeshSize[0] > 0 )

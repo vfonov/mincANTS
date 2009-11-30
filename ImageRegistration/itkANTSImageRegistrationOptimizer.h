@@ -669,7 +669,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
     this->m_OutputNamingConvention=oOption->GetValue();   
 
     typename ParserType::OptionType::Pointer thicknessOption 
-      = this->m_Parser->GetOption( "large-deformation" );  
+      = this->m_Parser->GetOption( "geodesic" );  
     if( thicknessOption->GetValue() == "true" ||  thicknessOption->GetValue() == "1" ) { this->m_ComputeThickness=1; this->m_SyNFullTime=2; }// asymm forces
     else if(  thicknessOption->GetValue() == "2" )  { this->m_ComputeThickness=1; this->m_SyNFullTime=1; } // symmetric forces 
     else this->m_ComputeThickness=0; // not full time varying stuff 
@@ -1128,8 +1128,9 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
 	  typename BSplinerType::GradientType gradient;
 	  gradient.Fill(0);
 	  bspliner->EvaluateGradientAtPoint( endPoint, gradient ); 
-	  if (  gradient[0][0]  < 0.0001 && this->m_CurrentIteration > domtar) converged=true;
-	  std::cout << " E-Slope " << gradient[0][0] ;//<< std::endl;
+	  this->m_ESlope=gradient[0][0]  ;
+	  if (  this->m_ESlope < 0.0001 && this->m_CurrentIteration > domtar) converged=true;
+	  std::cout << " E-Slope " <<  this->m_ESlope;//<< std::endl;
 	  }
         for ( unsigned int qq=0; qq < this->m_Energy.size(); qq++ )
           {
@@ -1617,7 +1618,6 @@ private:
     AffineTransformPointer m_FixedImageAffineTransform;
     DeformationFieldPointer m_DeformationField;
     DeformationFieldPointer m_InverseDeformationField;
-    DeformationFieldPointer m_StaticVelocityField;
 
 
     std::vector<float> m_GradientDescentParameters;
@@ -1649,6 +1649,7 @@ private:
   float m_NTimeSteps;
   float m_GaussianTruncation;
   float m_DeltaTime;
+  float m_ESlope; 
 
 /** energy stuff */
   std::vector<float> m_Energy;
@@ -1661,6 +1662,8 @@ private:
   DeformationFieldPointer m_SyNM;
   DeformationFieldPointer m_SyNMInv;
   TimeVaryingVelocityFieldPointer m_TimeVaryingVelocity;  
+  TimeVaryingVelocityFieldPointer m_LastTimeVaryingVelocity;  
+  TimeVaryingVelocityFieldPointer m_LastTimeVaryingUpdate;  
   unsigned int m_SyNType;
 
 /** for BSpline stuff */
