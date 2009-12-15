@@ -15,7 +15,7 @@
   
 =========================================================================*/
 
-            
+#include "itkMedianImageFilter.h"
 #include "itkDiscreteGaussianImageFilter.h"
 #include "ReadWriteImage.h" 
 
@@ -43,21 +43,37 @@ int SmoothImage(int argc, char *argv[])
   ReadImage<ImageType>(image1, argv[2]);
   
   typedef itk::DiscreteGaussianImageFilter<ImageType, ImageType> dgf;
+  typedef itk::MedianImageFilter<ImageType, ImageType> medf;
   typename dgf::Pointer filter = dgf::New();
-  filter->SetVariance(sigma*sigma);
+  typename medf::Pointer filter2 = medf::New();
   bool usespacing=false;
   if (argc  >  5) usespacing=atoi(argv[5]);
+  bool usemedian=false;
+  if (argc  >  6) usemedian=atoi(argv[6]);
   if (!usespacing) filter->SetUseImageSpacingOff();
   else filter->SetUseImageSpacingOn();
+
+
+  if ( !usemedian) {
+  filter->SetVariance(sigma*sigma);
   filter->SetMaximumError(.01f);
   filter->SetInput(image1);
   filter->Update();
   varimage=filter->GetOutput();
+  } else {
+  typename ImageType::SizeType rad;
+  rad.Fill((long unsigned int) sigma);
+  filter2->SetRadius(rad);
+  filter2->SetInput(image1);
+  filter2->Update();
+  varimage=filter2->GetOutput();
+  }
+
   typename writertype::Pointer writer = writertype::New();
   writer->SetFileName(argv[4]);
   writer->SetInput( varimage ); 
   writer->Write();   
-  
+
   return 0;
  
 }     
@@ -74,7 +90,8 @@ int main(int argc, char *argv[])
   if ( argc < 4 )     
   { 
     std::cout << "Useage ex:  "<< std::endl; 
-    std::cout << argv[0] << " ImageDimension image.ext smoothingsigma outimage.ext {sigma-is-in-spacing-coordinates}" << std::endl;
+    std::cout << argv[0] << " ImageDimension image.ext smoothingsigma outimage.ext {sigma-is-in-spacing-coordinates-0/1} {medianfilter-0/1}" << std::endl;
+    std::cout <<" if median, then sigma means radius of filtering " << std::endl;
     return 1;
   }           
 
