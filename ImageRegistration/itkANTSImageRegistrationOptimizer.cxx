@@ -36,25 +36,6 @@
 namespace itk
 {
 
-std::string localANTSGetFilePrefix(const char *str){
-
-    std::string filename = str;
-    std::string::size_type pos = filename.rfind( "." );
-    std::string filepre = std::string( filename, 0, pos );
-    if ( pos != std::string::npos ){
-        std::string extension = std::string( filename, pos, filename.length()-1);
-        if (extension==std::string(".gz")){
-            pos = filepre.rfind( "." );
-            extension = std::string( filepre, pos, filepre.length()-1 );
-        }
-	//      if (extension==".txt") return AFFINE_FILE;
-//        else return DEFORMATION_FILE;
-    }
-//    else{
-    //      return INVALID_FILE;
-    //}
-    return filepre;
-}
 
 template<unsigned int TDimension, class TReal>
 ANTSImageRegistrationOptimizer<TDimension, TReal>
@@ -680,15 +661,15 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
         else wfimage=this->SubsampleImage( this->m_SmoothFixedImages[metricCount] , this->m_ScaleFactor , this->m_SmoothFixedImages[metricCount]->GetOrigin() , this->m_SmoothFixedImages[metricCount]->GetDirection() ,  NULL);
 
 	if (this->m_TimeVaryingVelocity && ! this->m_MaskImage ) {
-	  std::string outname=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("thick.nii.gz");
+	  std::string outname=this->localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("thick.nii.gz");
 	  WriteImage<ImageType>(wmimage,outname.c_str());
-	  outname=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("thick2.nii.gz");
+	  outname=this->localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("thick2.nii.gz");
 	  WriteImage<ImageType>(wfimage,outname.c_str());
 	}
 
-	  std::string outname=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("temp.nii.gz");
+	  std::string outname=this->localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("temp.nii.gz");
 	  WriteImage<ImageType>(wmimage,outname.c_str());
-	  std::string outname2=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("temp2.nii.gz");
+	  std::string outname2=this->localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("temp2.nii.gz");
 	  WriteImage<ImageType>(wfimage,outname2.c_str());
 
 /** MV Loop END -- Would have to collect update fields then add them
@@ -2214,7 +2195,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     }
   }
   if (this->m_ThickImage && this->m_MaskImage ){
-    std::string outname=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("thick.nii.gz");
+    std::string outname=this->localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("thick.nii.gz");
     std::cout << " write " << outname << std::endl;
     WriteImage<ImageType>(this->m_ThickImage,outname.c_str());
   }
