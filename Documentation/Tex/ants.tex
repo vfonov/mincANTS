@@ -258,6 +258,58 @@ may avoid multiple interpolations of a single image.  This program is used inter
 optimization to avoid ever using more than one interpolation.  The use-NN option applies nearest 
 neighbor interpolation, otherwise linear interpolation is used. 
 
+Also, please take a look at 
+\href{http://picsl.upenn.edu/ANTS/ioants.php}{http://picsl.upenn.edu/ANTS/ioants.php} 
+and the section below on I/O.
+
+\subsection{I/O Data Formats In ANTS}
+ANTS support both 2D and 3D images. 
+Since ANTS is implemented in ITK, 
+it is able to read and write the popular data formats supported through ITK. 
+There are four basic types of data for ANTS.
+\subsubsection{Image Volumes}
+ANTS support both 2D and 3D images, including
+\begin{itemize}
+\item Nifti (.nii, .nii.gz)
+\item Analyze (.hdr + .img / .img.gz)
+\item MetaImage (.mha)
+\item Other formats through itk::ImageFileWriter / itk::ImageFileWriter such as jpg, tiff, etc.  See ITK documentation. 
+\end{itemize}
+\subsubsection{Affine Transformation File}
+ANTS uses the itk::TransformFileReader / itk::TransformFileWriter to handle affine transformation files. 
+These are text files recording the matrix and offset for the affine transform {\bf FIXME NEED MORE DETAIL on definition and geometry of affine matrix}.
+\subsubsection{Deformation Field File}
+ANTS writes the deformation field using one file for the deformation in each dimension. 
+For example, if the deformation field is named ABCD.nii.gz and exists in three dimensions, the corresponding files are:
+ABCDxvec.nii.gz, 
+ABCDyvec.nii.gz, 
+ABCDzvec.nii.gz (for 3D).  Note that ANTS programs {\em assume} the $*$vec part of the name will exist.  Thus, 
+one refers to the warp file as  ABCD.nii.gz , dropping the $*$vec from the name. 
+\subsubsection{Labeled Point Sets}
+There are three formats supported
+\begin{itemize}
+\item  VTK format: point + scalar label in a .vtk file. {\bf FIXME NEED MORE DETAIL -- what type of vtk data ?  polydata?}.
+\item  Labeled point sets are saved as an image volume with the intensity = 1,2,3 for label = 1,2,3. For example, 
+figure~\ref{fig:frown} shows 2D images representing a 3-class labeled point set. 
+\item Avants Format. In this simple format, the point sets are saved as a text file. The first and last line is always 0 0 0 0. Each line in between for a point as X Y Z L (L is the label.)
+\end{itemize}
+The names and formats of the output files are both specified by -o option to the ANTS executable. 
+For example, for in 3D with -o RegA2B.nii.gz , the typical output files are:
+Affine transform file: 
+RegA2BAffine.txt 
+Warping deformation field: 
+RegA2BWarpxvec.nii.gz, RegA2BWarpyvec.nii.gz, RegA2BWarpzvec.nii.gz
+Inverse warping deformation field:
+RegA2BInverseWarpxvec.nii.gz, RegA2BInverseWarpyvec.nii.gz, RegA2BInverseWarpzvec.nii.gz.  
+To apply the affine transform and the deformation field to the moving image, use WarpImageMultiTransform. 
+For example: to apply the transform to the moving image:
+
+WarpImageMultiTransform 2 A.nii.gz ADeformed.nii.gz -R B.nii.gz RegA2BWarp.nii.gz RegA2BAffine.txt
+
+to apply the inverse transform to the fixed image:
+
+WarpImageMultiTransform 2 B.nii.gz BDeformed.nii.gz -R A.nii.gz -i RegA2BAffine.txt RegA2BInverseWarp.nii.gz 
+
 \subsection{The ImageMath Executable} This is a multi-purpose program that has the following syntax:  ``ImageMath ImageDimension outputfilename   Operation  InputFileName  parameters ``.  Most basic scalar image operations -- and some tensor operations -- may be performed with this program.  Some operations output text files, some output images and some output only to the terminal.   ImageMath allows one to multiply images together (m), to negate images (Neg), to take an image to a power (pow), to test the invertibility of transformations (InvId), to compute the fractional anisotropy of an image (TensorFA) and to perform Markov Random Field segmentation with or without priors (Segment).   Many other operations are available.  Like all other ANTS programs, one may call ImageMath from the command line to see all of its options.   ImageMath is used heavily in ANTS scripts.  
 
 \subsection{ANTS Scripts} 
