@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -40,7 +40,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
   outputIndex.Fill( 0 );
 
   this->m_OutputRegion.SetSize( outputSize );
-  this->m_OutputRegion.SetIndex( outputIndex ); 
+  this->m_OutputRegion.SetIndex( outputIndex );
 
   this->m_OutputOrigin.Fill( 0.0 );
   this->m_OutputSpacing.Fill( 1.0 );
@@ -69,20 +69,20 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
   Superclass::PrintSelf(os,indent);
-  os << indent << "Alive points: " << this->m_AlivePoints.GetPointer() 
+  os << indent << "Alive points: " << this->m_AlivePoints.GetPointer()
      << std::endl;
-  os << indent << "Trial points: " << this->m_TrialPoints.GetPointer() 
+  os << indent << "Trial points: " << this->m_TrialPoints.GetPointer()
      << std::endl;
   os << indent << "Speed constant: " << this->m_SpeedConstant << std::endl;
   os << indent << "Stopping value: " << this->m_StoppingValue << std::endl;
   os << indent << "Large Value: "
      << static_cast<typename NumericTraits<PixelType>::PrintType>(
         this->m_LargeValue ) << std::endl;
-  os << indent << "Normalization Factor: " << this->m_NormalizationFactor 
+  os << indent << "Normalization Factor: " << this->m_NormalizationFactor
      << std::endl;
-  os << indent << "Check topology: " 
-     << static_cast<typename NumericTraits<bool>::PrintType>( 
-        this->m_CheckTopology ) << std::endl; 
+  os << indent << "Check topology: "
+     << static_cast<typename NumericTraits<bool>::PrintType>(
+        this->m_CheckTopology ) << std::endl;
   os << indent << "Collect points: " << this->m_CollectPoints << std::endl;
   os << indent << "OverrideOutputInformation: ";
   os << this->m_OverrideOutputInformation << std::endl;
@@ -158,19 +158,19 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
   // allocate memory for the PointTypeImage
   this->m_LabelImage->CopyInformation( output );
-  this->m_LabelImage->SetBufferedRegion( 
+  this->m_LabelImage->SetBufferedRegion(
     output->GetBufferedRegion() );
   this->m_LabelImage->Allocate();
 
   // set all output value to infinity
   typedef ImageRegionIterator<LevelSetImageType>
     OutputIterator;
-  
+
   OutputIterator outIt ( output, output->GetBufferedRegion() );
 
   PixelType outputPixel;
   outputPixel = this->m_LargeValue;
-  
+
   for ( outIt.GoToBegin(); !outIt.IsAtEnd(); ++outIt )
     {
     outIt.Set( outputPixel );
@@ -192,7 +192,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
   // process input alive points
   AxisNodeType node;
 
-  if ( this->m_AlivePoints ) 
+  if ( this->m_AlivePoints )
     {
     typename NodeContainer::ConstIterator pointsIter = this->m_AlivePoints->Begin();
     typename NodeContainer::ConstIterator pointsEnd = this->m_AlivePoints->End();
@@ -204,7 +204,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
       node = pointsIter.Value();
 
       // check if node index is within the output level set
-      if ( !this->m_BufferedRegion.IsInside( node.GetIndex() ) ) 
+      if ( !this->m_BufferedRegion.IsInside( node.GetIndex() ) )
         {
         continue;
         }
@@ -234,12 +234,12 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
     for (; pointsIter != pointsEnd; ++pointsIter )
       {
-      
+
       // get node from trial points container
       node = pointsIter.Value();
 
       // check if node index is within the output level set
-      if ( !this->m_BufferedRegion.IsInside( node.GetIndex() ) ) 
+      if ( !this->m_BufferedRegion.IsInside( node.GetIndex() ) )
         {
         continue;
         }
@@ -267,9 +267,9 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
       this->InitializeIndices3D();
       }
     else
-      {  
-      itkExceptionMacro( 
-        "Topology checking is only valid for level set dimensions of 2 and 3" ); 
+      {
+      itkExceptionMacro(
+        "Topology checking is only valid for level set dimensions of 2 and 3" );
       }
     }
 }
@@ -289,7 +289,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
     {
     this->m_ProcessedPoints = NodeContainer::New();
     }
-  
+
   // process points on the heap
   AxisNodeType node;
   double currentValue;
@@ -309,16 +309,16 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
     if ( node.GetValue() != currentValue )
       {
       continue;
-      } 
+      }
 
     // is this node already alive ?
-    if ( this->m_LabelImage->GetPixel( node.GetIndex() ) != TrialPoint ) 
+    if ( this->m_LabelImage->GetPixel( node.GetIndex() ) != TrialPoint )
       {
       continue;
       }
 
     // does the node break topology
-    if( this->m_CheckTopology && 
+    if( this->m_CheckTopology &&
       !this->DoesVoxelChangeMaintainTopology( node.GetIndex() ) )
       {
       output->SetPixel( node.GetIndex(), NumericTraits<PixelType>::max() );
@@ -330,13 +330,13 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
       {
       break;
       }
-      
+
     if ( this->m_CollectPoints )
       {
-      this->m_ProcessedPoints->InsertElement( 
+      this->m_ProcessedPoints->InsertElement(
         this->m_ProcessedPoints->Size(), node );
       }
-    
+
     // set this node as alive
     this->m_LabelImage->SetPixel( node.GetIndex(), AlivePoint );
 
@@ -362,7 +362,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
       }
 
     }
-  
+
 }
 
 template <class TLevelSet, class TSpeedImage>
@@ -382,7 +382,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
       {
       neighIndex[j] = index[j] - 1;
       }
-    if ( this->m_LabelImage->GetPixel( neighIndex ) != AlivePoint )
+    if ( this->m_LabelImage->GetPixel( neighIndex ) == FarPoint )
       {
       this->UpdateValue( neighIndex, speedImage, output );
       }
@@ -392,14 +392,14 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
       {
       neighIndex[j] = index[j] + 1;
       }
-    if ( this->m_LabelImage->GetPixel( neighIndex ) != AlivePoint )
+    if ( this->m_LabelImage->GetPixel( neighIndex ) == FarPoint )
       {
       this->UpdateValue( neighIndex, speedImage, output );
       }
 
     //reset neighIndex
     neighIndex[j] = index[j];
-      
+
     }
 
 }
@@ -417,7 +417,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
   typename TLevelSet::PixelType neighValue;
   PixelType outputPixel;
   AxisNodeType node;
-  
+
   for ( unsigned int j = 0; j < SetDimension; j++ )
     {
     node.SetValue( this->m_LargeValue );
@@ -427,7 +427,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
       {
       neighIndex[j] = index[j] + s;
 
-      if( neighIndex[j] > this->m_LastIndex[j] || 
+      if( neighIndex[j] > this->m_LastIndex[j] ||
           neighIndex[j] < this->m_StartIndex[j] )
         {
         continue;
@@ -450,7 +450,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
     // put the minimum neighbor onto the heap
     this->m_NodesUsed[j] = node;
     this->m_NodesUsed[j].SetAxis(j);
-    
+
     // reset neighIndex
     neighIndex[j] = index[j];
     }
@@ -461,7 +461,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
   // solve quadratic equation
   double aa, bb, cc;
   double solution = this->m_LargeValue;
-  
+
   aa = 0.0;
   bb = 0.0;
   if ( speedImage )
@@ -470,7 +470,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
     cc = (double) speedImage->GetPixel( index ) / this->m_NormalizationFactor;
     cc = -1.0 * vnl_math_sqr( 1.0 / cc );
     }
-  else 
+  else
     {
     cc = this->m_InverseSpeed;
     }
@@ -501,7 +501,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
         err.SetDescription( "Discriminant of quadratic equation is negative" );
         throw err;
         }
-    
+
       solution = ( vcl_sqrt( discrim ) + bb ) / aa;
       }
     else
