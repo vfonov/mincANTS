@@ -88,7 +88,7 @@ ANTSImageTransformation<TDimension, TReal>
       }
     else
       {
-      extension = std::string( ".nii" ); 
+      extension = std::string( ".nii.gz" ); 
       }  
 
     //Added by songgang
