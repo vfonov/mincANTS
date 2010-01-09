@@ -19,6 +19,7 @@
 #include <sstream>
 #include "itkTDistribution.h"
 #include "itkTimeProbe.h"
+#include "itkMedianImageFilter.h"
 #include "itkVariableSizeMatrix.h"
 #include "itkVectorImageFileReader.h"
 #include "itkVector.h"
@@ -1768,6 +1769,11 @@ int TensorFunctions(int argc, char *argv[])
 
 
   ReadTensorImage<TensorImageType>(timage,fn1.c_str(),false);
+  if (strcmp(operation.c_str(), "TensorIOTest") == 0) {
+    std::cout <<" test function for tensor I/O " << std::endl;
+    WriteTensorImage<TensorImageType>(timage, outname.c_str() ,false);
+    return 0; 
+  }
   std::cout << " imagedir " << timage->GetDirection() << std::endl;
 
   if (strcmp(operation.c_str(), "TensorColor") == 0)
@@ -6100,6 +6106,7 @@ int main(int argc, char *argv[])
     std::cout << "  PadImage ImageIn Pad-Number ( if Pad-Number is negative, de-Padding occurs ) " << std::endl;
     std::cout << "  Where Image ValueToLookFor maskImage-option tolerance --- the where function from IDL " << std::endl;
     std::cout << "  TensorFA DTImage  " << std::endl;
+    std::cout << "  TensorIOTest DTImage --- wile write the DT image back out ... " << std::endl;
     std::cout << "  MakeImage  SizeX  SizeY {SizeZ}  " << std::endl;
     std::cout << "  SetOrGetPixel  ImageIn Get/Set-Value  IndexX  IndexY {IndexZ}  -- for example \n  ImageMath 2 outimage.nii SetOrGetPixel Image  Get 24 34 -- gets the value at 24, 34 \n   ImageMath 2 outimage.nii SetOrGetPixel Image 1.e9  24 34  -- this sets 1.e9 as the value at 23 34  " << std::endl << " you can also pass a boolean at the end to force the physical space to be used "  << std::endl;
     std::cout << "  TensorMeanDiffusion DTImage  " << std::endl;
@@ -6215,6 +6222,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"FitSphere") == 0 )  FitSphere<3>(argc,argv);
      else if (strcmp(operation.c_str(),"Where") == 0 )  Where<3>(argc,argv);
      else if (strcmp(operation.c_str(),"TensorFA") == 0 )  TensorFunctions<3>(argc,argv);
+     else if (strcmp(operation.c_str(),"TensorIOTest") == 0 )  TensorFunctions<3>(argc,argv);
      else if (strcmp(operation.c_str(),"TensorMeanDiffusion") == 0 )  TensorFunctions<3>(argc,argv);
      else if (strcmp(operation.c_str(),"TensorColor") == 0) TensorFunctions<3>(argc,argv);
      else if (strcmp(operation.c_str(),"FillHoles") == 0 )  FillHoles<3>(argc,argv);
