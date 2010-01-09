@@ -1745,7 +1745,7 @@ int TensorFunctions(int argc, char *argv[])
   typedef float  PixelType;
   //  typedef itk::Vector<float, 6> TensorType;
   typedef itk::SymmetricSecondRankTensor< double, 3 >  TensorType; 
-  typedef typename itk::RGBPixel<float> RGBType;
+  typedef typename itk::RGBPixel<unsigned char> RGBType;
   typedef itk::Image<TensorType, ImageDimension> TensorImageType;
   typedef typename TensorImageType::IndexType IndexType;
   typedef itk::Image<PixelType,ImageDimension> ImageType;
@@ -1821,7 +1821,7 @@ int TensorFunctions(int argc, char *argv[])
     else if (strcmp(operation.c_str(),"TensorColor") == 0)
 	  {
 	    RGBType rgb = GetTensorRGB<TensorType>(tIter.Value());
-      cimage->SetPixel(ind,rgb);
+	    cimage->SetPixel(ind,rgb);
 	  }
 
     }
@@ -6106,6 +6106,7 @@ int main(int argc, char *argv[])
     std::cout << "  PadImage ImageIn Pad-Number ( if Pad-Number is negative, de-Padding occurs ) " << std::endl;
     std::cout << "  Where Image ValueToLookFor maskImage-option tolerance --- the where function from IDL " << std::endl;
     std::cout << "  TensorFA DTImage  " << std::endl;
+    std::cout << "  TensorColor DTImage --- produces RGB values identifying principal directions " << std::endl;
     std::cout << "  TensorIOTest DTImage --- wile write the DT image back out ... " << std::endl;
     std::cout << "  MakeImage  SizeX  SizeY {SizeZ}  " << std::endl;
     std::cout << "  SetOrGetPixel  ImageIn Get/Set-Value  IndexX  IndexY {IndexZ}  -- for example \n  ImageMath 2 outimage.nii SetOrGetPixel Image  Get 24 34 -- gets the value at 24, 34 \n   ImageMath 2 outimage.nii SetOrGetPixel Image 1.e9  24 34  -- this sets 1.e9 as the value at 23 34  " << std::endl << " you can also pass a boolean at the end to force the physical space to be used "  << std::endl;

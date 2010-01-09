@@ -446,68 +446,69 @@ PreservationOfPrincipalDirectionTensorReorientationImageFilter<TTensorImage,TVec
       
       if (finitestrain)
       {
-	      // Copy tensor to matrix form
-	      //InputPixelType inTensor = inputIt.Value();
-	      InputPixelType inTensor = inputInterp->Evaluate(outputPt);
-	      MatrixType2 tensor;
+	std::cout <<" use finite strain " << std::endl;
+	// Copy tensor to matrix form
+	//InputPixelType inTensor = inputIt.Value();
+	InputPixelType inTensor = input->GetPixel(rindex); //inputInterp->Evaluate(outputPt);
+	MatrixType2 tensor;
         tensor.SetSize(3,3);
-	      tensor[0][0] = inTensor[0];
-	      tensor[0][1] = tensor[1][0] = inTensor[1];
-	      tensor[0][2] = tensor[2][0] = inTensor[2];
-	      tensor[1][1] = inTensor[3];
+	tensor[0][0] = inTensor[0];
+	tensor[0][1] = tensor[1][0] = inTensor[1];
+	tensor[0][2] = tensor[2][0] = inTensor[2];
+	tensor[1][1] = inTensor[3];
       	tensor[1][2] = tensor[2][1] = inTensor[4];
       	tensor[2][2] = inTensor[5];
 
         // replace with Polar Decomposition
       	MatrixType2 rotationMatrix;
       	MatrixType2 rotationMatrixT;
-
-  	    VnlMatrixType M = jMatrix.GetVnlMatrix();
-	      VnlMatrixType PQ = M;   
-	      VnlMatrixType NQ = M;
-	      VnlMatrixType PQNQDiff;
+	
+	VnlMatrixType M = jMatrix.GetVnlMatrix();
+	VnlMatrixType PQ = M;   
+	VnlMatrixType NQ = M;
+	VnlMatrixType PQNQDiff;
         const unsigned int maximumIterations = 100;
         
-	      for(unsigned int ni = 0; ni < maximumIterations; ni++ )
-        {
-	        // Average current Qi with its inverse transpose
-  	      NQ = ( PQ + vnl_inverse_transpose( PQ ) ) / 2.0;    
-	        PQNQDiff = NQ - PQ;
-	        if( PQNQDiff.frobenius_norm() < 1e-4 )	    
-	        {
-	          //std::cout << "Polar decomposition used "      << ni << " iterations " << std::endl;
-	          break;	   
-	        }   
-	        else
-	        {      
-	          PQ = NQ;     
-	        }   
-	      }  
-	      
-	      rotationMatrix = NQ;
-	      rotationMatrixT=rotationMatrix.GetTranspose();
-	      // Rotate tensor
-        MatrixType2 rTensor = rotationMatrixT * tensor * rotationMatrix;
-
-	      // Copy tensor back to vector form and update output image
-	      outTensor[0] = rTensor[0][0];
-	      outTensor[1] = rTensor[1][0];
-    	  outTensor[2] = rTensor[2][0];
-    	  outTensor[3] = rTensor[1][1];
-    	  outTensor[4] = rTensor[1][2];
-    	  outTensor[5] = rTensor[2][2];
-
-        }
-        
-        else if (ppd) 
-        {
-	        //InputPixelType inTensor = inputIt.Value();
-	        InputPixelType inTensor = inputInterp->Evaluate(outputPt);
-	        InputPixelType dtv = inTensor;
+	for(unsigned int ni = 0; ni < maximumIterations; ni++ )
+	  {
+	    // Average current Qi with its inverse transpose
+	    NQ = ( PQ + vnl_inverse_transpose( PQ ) ) / 2.0;    
+	    PQNQDiff = NQ - PQ;
+	    if( PQNQDiff.frobenius_norm() < 1e-4 )	    
+	      {
+		//std::cout << "Polar decomposition used "      << ni << " iterations " << std::endl;
+		break;	   
+	      }   
+	    else
+	      {      
+		PQ = NQ;     
+	      }   
+	  }  
 	
-	        // valid values?
-	        bool docompute=true;
-	        for (unsigned int jj=0; jj<6; jj++) 
+	rotationMatrix = NQ;
+	rotationMatrixT=rotationMatrix.GetTranspose();
+	// Rotate tensor
+        MatrixType2 rTensor = rotationMatrixT * tensor * rotationMatrix;
+	
+	// Copy tensor back to vector form and update output image
+	outTensor[0] = rTensor[0][0];
+	outTensor[1] = rTensor[1][0];
+	outTensor[2] = rTensor[2][0];
+	outTensor[3] = rTensor[1][1];
+	outTensor[4] = rTensor[1][2];
+	outTensor[5] = rTensor[2][2];
+	
+      }
+      else if (ppd) 
+        {
+	  std::cout <<" use ppd reorientation " << std::endl;
+	  //InputPixelType inTensor = inputIt.Value();
+	  InputPixelType inTensor = input->GetPixel(rindex); //inputInterp->Evaluate(outputPt);
+	  InputPixelType dtv = inTensor;
+	
+	  // valid values?
+	  bool docompute=true;
+	  for (unsigned int jj=0; jj<6; jj++) 
 	        {
 	          float ff=dtv[jj];
 	          if ( vnl_math_isnan(ff))
