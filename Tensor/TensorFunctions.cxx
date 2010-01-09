@@ -240,10 +240,10 @@ float  GetTensorADC(  TensorType dtv,  unsigned int opt = 0)
 }
 
 template<class TTensorType>
-itk::RGBPixel< float >   GetTensorRGB( TTensorType dtv )
+itk::RGBPixel< unsigned char >   GetTensorRGB( TTensorType dtv )
 {
 
-  itk::RGBPixel< float > zero;
+  itk::RGBPixel< unsigned char > zero;
   zero.Fill(0);
   float eps=1.e-9,mag=0;
   for (unsigned int jj=0; jj<6; jj++) 
