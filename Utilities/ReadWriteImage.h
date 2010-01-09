@@ -30,6 +30,7 @@ void NiftiDTICheck(itk::SmartPointer<TImageType> &target, const char *file, bool
 {
   typedef typename TImageType::PixelType PixType;
   
+  //  return; 
   
   //typedef itk::ImageFileWriter<TImageType> Writer;
   //typename Writer::Pointer writer = Writer::New();
@@ -328,7 +329,7 @@ void WriteTensorImage(itk::SmartPointer<TImageType> image, const char *file, boo
   }
   
   // convert from upper tri to lower tri
-  NiftiDTICheck<TImageType>(writeImage, file, false);// BA May 30 2009 -- remove b/c ITK fixed NIFTI reader
+  NiftiDTICheck<TImageType>(writeImage, file, true);// BA May 30 2009 -- remove b/c ITK fixed NIFTI reader
   
   writer->SetInput(writeImage);
   writer->Update();

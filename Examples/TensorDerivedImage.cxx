@@ -41,7 +41,8 @@ int main( int argc, char *argv[] )
   typedef itk::Image<PixelType, 3>              ScalarImageType;
   typedef itk::ImageFileWriter<ScalarImageType> WriterType;
 
-  typedef itk::Vector<PixelType, 6>             TensorType;
+  //typedef itk::Vector<PixelType, 6>             TensorType;
+  typedef itk::SymmetricSecondRankTensor< double, 3 >  TensorType; 
   typedef itk::Image<TensorType, 3>             TensorImageType;
   typedef itk::ImageFileReader<TensorImageType> ReaderType;
   typedef itk::RGBPixel< float >                ColorPixelType;

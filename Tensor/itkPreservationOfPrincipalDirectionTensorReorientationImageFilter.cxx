@@ -32,6 +32,7 @@
 
 #include "itkVariableSizeMatrix.h"
 #include "itkDecomposeTensorFunction.h"
+#include "itkSymmetricSecondRankTensor.h" 
 
 #include <vnl/vnl_cross.h>
 #include <vnl/vnl_inverse.h>
@@ -169,9 +170,9 @@ dest[2]=v1[2]-v2[2];}
 
 
 template<typename TTensorImage, typename TVectorImage>
- Vector<float, 6> 
+ itk::SymmetricSecondRankTensor< double, 3 >
 PreservationOfPrincipalDirectionTensorReorientationImageFilter<TTensorImage,TVectorImage>
-::ReorientTensors( Vector<float, 6>  fixedTens, Vector<float, 6> movingTens,  typename TTensorImage::IndexType index)
+::ReorientTensors( itk::SymmetricSecondRankTensor< double, 3 > fixedTens, itk::SymmetricSecondRankTensor< double, 3 > movingTens,  typename TTensorImage::IndexType index)
 {
 // get from and to vectors 
 
@@ -517,7 +518,7 @@ PreservationOfPrincipalDirectionTensorReorientationImageFilter<TTensorImage,TVec
 	        
 	       if (docompute)
 	       {
-	         itk::Vector<float, 6> dtv2;
+	         TensorType dtv2;
 	         bool verbose=false;
 	         VnlMatrixType DT(3,3);
 	         DT.fill(0);
@@ -564,8 +565,8 @@ PreservationOfPrincipalDirectionTensorReorientationImageFilter<TTensorImage,TVec
        
        if (this->m_ReferenceImage)
        {
-  	     typename InputImageType::PixelType refTensor=this->m_ReferenceImage->GetPixel(outputIt.GetIndex());
-	      outTensor=this->ReorientTensors(refTensor, outTensor,outputIt.GetIndex());	
+	 typename InputImageType::PixelType refTensor=this->m_ReferenceImage->GetPixel(outputIt.GetIndex());
+	 outTensor=this->ReorientTensors(refTensor, outTensor,outputIt.GetIndex());	
        }
        outputIt.Set( outTensor );
     

@@ -476,13 +476,15 @@ template<int ImageDimension>
 void ReorientTensorImage(char *moving_image_filename, char *output_image_filename,
         TRAN_OPT_QUEUE &opt_queue, MISC_OPT &misc_opt){
 
-    typedef itk::Vector<float,6> PixelType;
-    typedef itk::Image<PixelType, ImageDimension> TensorImageType;
-    typedef itk::Image<float, ImageDimension> ImageType;
-    typedef itk::Vector<float, ImageDimension>         VectorType;
-    typedef itk::Image<VectorType, ImageDimension>     DeformationFieldType;
-    typedef itk::MatrixOffsetTransformBase< double, ImageDimension, ImageDimension > AffineTransformType;
-    typedef itk::WarpTensorImageMultiTransformFilter<TensorImageType,TensorImageType, DeformationFieldType, AffineTransformType> WarperType;
+
+  typedef itk::SymmetricSecondRankTensor< double, 3 >  TensorType; 
+  typedef itk::SymmetricSecondRankTensor< double, 3 >  PixelType; 
+  typedef itk::Image<PixelType, ImageDimension> TensorImageType;
+  typedef itk::Image<float, ImageDimension> ImageType;
+  typedef itk::Vector<float, ImageDimension>         VectorType;
+  typedef itk::Image<VectorType, ImageDimension>     DeformationFieldType;
+  typedef itk::MatrixOffsetTransformBase< double, ImageDimension, ImageDimension > AffineTransformType;
+  typedef itk::WarpTensorImageMultiTransformFilter<TensorImageType,TensorImageType, DeformationFieldType, AffineTransformType> WarperType;
 
     itk::TransformFactory<AffineTransformType>::RegisterTransform();
 
@@ -704,7 +706,8 @@ int ReorientTensorImageOld(int argc, char *argv[])
   }           
                  
   //  typedef itk::Vector<float, 6> TensorTypeIn;
-  typedef itk::Vector<float, 6> TensorType;
+  //typedef itk::Vector<float, 6> TensorType;
+  typedef itk::SymmetricSecondRankTensor< double, 3 >  TensorType; 
 
   const unsigned int ImageDimension = 3;
   typedef itk::Image<TensorType, ImageDimension> TensorImageType;
