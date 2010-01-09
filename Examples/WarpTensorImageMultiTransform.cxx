@@ -11,7 +11,7 @@
 #include "itkTransformFileReader.h"
 #include "itkVectorNearestNeighborInterpolateImageFunction.h"
 #include "ReadWriteImage.h"
-
+#include "itkWarpImageMultiTransformFilter.h"
 
 typedef enum{INVALID_FILE=1, AFFINE_FILE, DEFORMATION_FILE, IMAGE_AFFINE_HEADER, IDENTITY_TRANSFORM} TRAN_FILE_TYPE;
 typedef struct{
@@ -480,7 +480,7 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
     typedef itk::Vector<float, ImageDimension>         VectorType;
     typedef itk::Image<VectorType, ImageDimension>     DeformationFieldType;
     typedef itk::MatrixOffsetTransformBase< double, ImageDimension, ImageDimension > AffineTransformType;
-    typedef itk::WarpTensorImageMultiTransformFilter<TensorImageType,TensorImageType, DeformationFieldType, AffineTransformType> WarperType;
+    typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DeformationFieldType, AffineTransformType> WarperType;
 
     itk::TransformFactory<AffineTransformType>::RegisterTransform();
 
@@ -501,24 +501,44 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
         reader_img_ref->Update();
         img_ref = reader_img_ref->GetOutput();
     }
-    // else
-        //    img_ref = NULL;
 
-    typename WarperType::Pointer  warper = WarperType::New();
-    warper->SetInput(img_mov);
-    PixelType nullPix;
-    nullPix.Fill(0);
-    warper->SetEdgePaddingValue(nullPix);
+    typename TensorImageType::Pointer img_output = TensorImageType::New();
+    img_output->SetLargestPossibleRegion( img_ref->GetLargestPossibleRegion() );
+    img_output->SetBufferedRegion( img_ref->GetLargestPossibleRegion() );
+    img_output->SetLargestPossibleRegion( img_ref->GetLargestPossibleRegion() );
+    img_output->Allocate(); 
+    img_output->SetSpacing(img_ref->GetSpacing());
+    img_output->SetOrigin(img_ref->GetOrigin());
+    img_output->SetDirection(img_ref->GetDirection());
+    // else
+    //    img_ref = NULL;
+
+    for (unsigned int tensdim=0;  tensdim < 6;  tensdim++) {
+
+      typedef itk::VectorIndexSelectionCastImageFilter<TensorImageType,ImageType> IndexSelectCasterType;
+      typename IndexSelectCasterType::Pointer fieldCaster = IndexSelectCasterType::New();
+      fieldCaster->SetInput( img_mov );
+      fieldCaster->SetIndex( tensdim );  
+      fieldCaster->Update();
+      typename ImageType::Pointer tenscomponent=fieldCaster->GetOutput();
+      tenscomponent->SetSpacing(img_mov->GetSpacing());
+      tenscomponent->SetOrigin(img_mov->GetOrigin());
+      tenscomponent->SetDirection(img_mov->GetDirection());
+
+      typename WarperType::Pointer  warper = WarperType::New();
+      warper->SetInput(tenscomponent);
+      //      PixelType nullPix;
+      // nullPix.Fill(0);
+      warper->SetEdgePaddingValue(0);
 
 
 
     if (misc_opt.use_NN_interpolator){
-        typedef typename itk::VectorNearestNeighborInterpolateImageFunction<TensorImageType, typename WarperType::CoordRepType> NNInterpolateType;
+        typedef typename itk::NearestNeighborInterpolateImageFunction<ImageType, typename WarperType::CoordRepType> NNInterpolateType;
         typename NNInterpolateType::Pointer interpolator_NN = NNInterpolateType::New();
         std::cout << "Haha" << std::endl;
         warper->SetInterpolator(interpolator_NN);
-    }
-
+    } 
 
     typedef itk::TransformFileReader TranReaderType;
     typedef itk::VectorImageFileReader<ImageType, DeformationFieldType> FieldReaderType;
@@ -642,46 +662,30 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
 
     }
 
-    std::cout << "output origin: " << warper->GetOutputOrigin() << std::endl;
-    std::cout << "output size: " << warper->GetOutputSize() << std::endl;
-    std::cout << "output spacing: " << warper->GetOutputSpacing() << std::endl;
-    std::cout << "output direction: " << warper->GetOutputDirection() << std::endl;
+    //std::cout << "output origin: " << warper->GetOutputOrigin() << std::endl;
+    //std::cout << "output size: " << warper->GetOutputSize() << std::endl;
+    //std::cout << "output spacing: " << warper->GetOutputSpacing() << std::endl;
+    //    std::cout << "output direction: " << warper->GetOutputDirection() << std::endl;
 
     // warper->PrintTransformList();
     warper->DetermineFirstDeformNoInterp();
     warper->Update();
 
-    //    {
-    //        typename ImageType::IndexType ind_orig, ind_warped;
-    //        ind_orig[0] = 128;
-    //        ind_orig[1] = 128;
-    //        ind_orig[2] = 16;
-    //        typename ImageType::PointType pt_orig, pt_warped;
-    //        warper->GetOutput()->TransformIndexToPhysicalPoint(ind_orig, pt_orig);
-    //        warper->MultiTransformSinglePoint(pt_orig, pt_warped);
-    //        img_mov->TransformPhysicalPointToIndex(pt_warped, ind_warped);
-    //        std::cout << "Transform output index " << ind_orig << "("<<pt_orig<<")"
-    //        << " from moving image index " << ind_warped << "("<<pt_warped<<")" << std::endl;
-    //    }
 
-    //    typename ImageType::PointType pt_in, pt_out;
-    //    for(unsigned int i=0; i<ImageDimension; i++){
-    //        pt_in[i] = warper->GetOutputSize()[i] * 0.5;
-    //    }
-    //    warper->MultiTransformSinglePoint(pt_in, pt_out);
-    //    std::cout << "pt_in=" << pt_in << " pt_out=" <<pt_out << std::endl;
+    typedef itk::ImageRegionIteratorWithIndex<TensorImageType> Iterator;
+    Iterator vfIter2( img_output, img_output->GetLargestPossibleRegion() );  
+    for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 ) 
+      {
+	PixelType  tens=vfIter2.Get(); 
+	tens[tensdim]=warper->GetOutput()->GetPixel(vfIter2.GetIndex());
+	vfIter2.Set(tens);
+      }
 
+  
 
-
-    typename TensorImageType::Pointer img_output = TensorImageType::New();
-    img_output=warper->GetOutput();
-
-    //typedef itk::ImageFileWriter<ImageType> ImageFileWriterType;
-    //typename ImageFileWriterType::Pointer writer_img = ImageFileWriterType::New();
-    //if (img_ref) img_output->SetDirection(img_ref->GetDirection());
-    //writer_img->SetFileName(output_image_filename);
-    //writer_img->SetInput(img_output);
-    //writer_img->Update();
+    }
+   
+  
     WriteTensorImage<TensorImageType>(img_output, output_image_filename,true);
 }
 
