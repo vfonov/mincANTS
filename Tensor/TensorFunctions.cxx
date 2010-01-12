@@ -5,7 +5,7 @@
 //#include "itkVectorIndexSelectionCastImageFilter.h"
 
 #include "vnl/algo/vnl_matrix_inverse.h"
-
+/*
 template <class TensorType>
 float  GetTensorFA( TensorType dtv)        
 {
@@ -37,33 +37,6 @@ float  GetTensorFA( TensorType dtv)
  
    return 0.0 ;
 
-   /*
-   // Computed as 
-   // FA = vcl_sqrt(1.5 * ( \sum_i ( lambda_i - lambda_mean )^2 ) / \sum_i ( lambda_i^2 ) )
-   // as in http://splweb.bwh.harvard.edu:8000/pages/papers/martha/DTI_Tech354.pdf
-   // [lambda = eig(A)].
-   EigenValuesArrayType eigenValues;
-   ComputeEigenValues( eigenValues );
-   eigenValues[0] = vnl_math_abs(eigenValues[0]);
-   eigenValues[1] = vnl_math_abs(eigenValues[1]);
-   eigenValues[2] = vnl_math_abs(eigenValues[2]);
-   const RealValueType norm_E = vnl_math_sqr(eigenValues[0]) 
-                              + vnl_math_sqr(eigenValues[1]) 
-                              + vnl_math_sqr(eigenValues[2]);
-
-   if( norm_E > 0.0 )
-     {
-     const RealValueType anisotropy = 
-                      vnl_math_sqr(eigenValues[0] - eigenValues[1]) +
-                      vnl_math_sqr(eigenValues[1] - eigenValues[2]) +
-                      vnl_math_sqr(eigenValues[2] - eigenValues[0]);
-     const RealValueType fractionalAnisotropy = vcl_sqrt( 0.5 * anisotropy/norm_E);
-     return fractionalAnisotropy;
-     }
-
-   return 0.0;
-   */                 
-   
 
 
 }
@@ -567,6 +540,6 @@ static float  GetMetricTensorCost(  itk::Vector<float, 3> dpath,  itk::Vector<fl
   return cost;
 
 }
-
+*/
 
 #endif
