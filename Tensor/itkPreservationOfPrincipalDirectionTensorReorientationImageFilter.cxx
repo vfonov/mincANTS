@@ -170,9 +170,9 @@ dest[2]=v1[2]-v2[2];}
 
 
 template<typename TTensorImage, typename TVectorImage>
- itk::SymmetricSecondRankTensor< double, 3 >
+ itk::SymmetricSecondRankTensor< float, 3 >
 PreservationOfPrincipalDirectionTensorReorientationImageFilter<TTensorImage,TVectorImage>
-::ReorientTensors( itk::SymmetricSecondRankTensor< double, 3 > fixedTens, itk::SymmetricSecondRankTensor< double, 3 > movingTens,  typename TTensorImage::IndexType index)
+::ReorientTensors( itk::SymmetricSecondRankTensor< float, 3 > fixedTens, itk::SymmetricSecondRankTensor< float, 3 > movingTens,  typename TTensorImage::IndexType index)
 {
 // get from and to vectors 
 
