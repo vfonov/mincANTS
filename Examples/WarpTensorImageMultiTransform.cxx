@@ -474,13 +474,13 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
         TRAN_OPT_QUEUE &opt_queue, MISC_OPT &misc_opt){
 
   //typedef itk::Vector<float,6> PixelType;
-    typedef itk::SymmetricSecondRankTensor< double, 3 >  PixelType; 
-    typedef itk::Image<PixelType, ImageDimension> TensorImageType;
-    typedef itk::Image<float, ImageDimension> ImageType;
-    typedef itk::Vector<float, ImageDimension>         VectorType;
-    typedef itk::Image<VectorType, ImageDimension>     DeformationFieldType;
-    typedef itk::MatrixOffsetTransformBase< double, ImageDimension, ImageDimension > AffineTransformType;
-    typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DeformationFieldType, AffineTransformType> WarperType;
+  typedef itk::SymmetricSecondRankTensor< float, 3 >  PixelType; 
+  typedef itk::Image<PixelType, ImageDimension> TensorImageType;
+  typedef itk::Image<float, ImageDimension> ImageType;
+  typedef itk::Vector<float, ImageDimension>         VectorType;
+  typedef itk::Image<VectorType, ImageDimension>     DeformationFieldType;
+  typedef itk::MatrixOffsetTransformBase< double, ImageDimension, ImageDimension > AffineTransformType;
+  typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DeformationFieldType, AffineTransformType> WarperType;
 
     itk::TransformFactory<AffineTransformType>::RegisterTransform();
 

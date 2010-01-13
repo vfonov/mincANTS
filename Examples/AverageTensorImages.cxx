@@ -10,7 +10,7 @@ int AverageTensorImages(unsigned int argc, char *argv[])
 {
 
   // typedef itk::Vector<float,6> TensorType;
-  typedef itk::SymmetricSecondRankTensor< double, 3 >  TensorType; 
+  typedef itk::SymmetricSecondRankTensor< float, 3 >  TensorType; 
 
   typedef itk::Image<TensorType, ImageDimension> ImageType;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> IteratorType;

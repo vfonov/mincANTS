@@ -477,8 +477,8 @@ void ReorientTensorImage(char *moving_image_filename, char *output_image_filenam
         TRAN_OPT_QUEUE &opt_queue, MISC_OPT &misc_opt){
 
 
-  typedef itk::SymmetricSecondRankTensor< double, 3 >  TensorType; 
-  typedef itk::SymmetricSecondRankTensor< double, 3 >  PixelType; 
+  typedef itk::SymmetricSecondRankTensor< float, 3 >  TensorType; 
+  typedef itk::SymmetricSecondRankTensor< float, 3 >  PixelType; 
   typedef itk::Image<PixelType, ImageDimension> TensorImageType;
   typedef itk::Image<float, ImageDimension> ImageType;
   typedef itk::Vector<float, ImageDimension>         VectorType;
@@ -707,7 +707,7 @@ int ReorientTensorImageOld(int argc, char *argv[])
                  
   //  typedef itk::Vector<float, 6> TensorTypeIn;
   //typedef itk::Vector<float, 6> TensorType;
-  typedef itk::SymmetricSecondRankTensor< double, 3 >  TensorType; 
+  typedef itk::SymmetricSecondRankTensor< float, 3 >  TensorType; 
 
   const unsigned int ImageDimension = 3;
   typedef itk::Image<TensorType, ImageDimension> TensorImageType;
