@@ -691,14 +691,15 @@ int main(int argc, char **argv){
 	std::cout << "  Inverse affine transformations are invoked by calling   -i MyAffine.txt " << std::endl;
 	std::cout << " InverseWarps are invoked by passing the InverseWarp.nii.gz  filename (see below for a note about this).  " << std::endl; 
 	std::cout << std::endl;
-        std::cout << " Example 1: Moving a warped image into the reference_image domain by applying abcdWarpxvec.nii.gz/abcdWarpyvec.nii.gz/abcdWarpzvec.nii.gz and then abcdAffine.txt\n" << std::endl;
+        std::cout << " Example 1: Mapping a warped image into the reference_image domain by applying abcdWarpxvec.nii.gz/abcdWarpyvec.nii.gz/abcdWarpzvec.nii.gz and then abcdAffine.txt\n" << std::endl;
 
         std::cout << argv[0] <<  " 3 moving_image output_image -R reference_image abcdWarp.nii.gz abcdAffine.txt\n" << std::endl;
 
-        std::cout << " Example 2: To get the reference_image warped into the moving_image domain by applying the inversion of abcdAffine.txt and then abcdInverseWarpxvec.nii.gz/abcdInverseWarpyvec.nii.gz/abcdInverseWarpzvec.nii.gz .\n" << std::endl;
+        std::cout << " Example 2: To map the fixed/reference_image warped into the moving_image domain by applying the inversion of abcdAffine.txt and then abcdInverseWarpxvec.nii.gz/abcdInverseWarpyvec.nii.gz/abcdInverseWarpzvec.nii.gz .\n" << std::endl;
 
         std::cout << argv[0] << " 3 reference_image output_image -R moving_image -i  abcdAffine.txt abcdInverseWarp.nii.gz \n \n" << std::endl;
 	std::cout <<"  Note that the inverse maps (Ex. 2) are passed to this program in the reverse order of the forward maps (Ex. 1). " << std::endl;
+	std::cout <<" This makes sense, geometrically ... see ANTS.pdf for visualization of this syntax." << std::endl;
 	std::cout << std::endl;
 	std::cout << " Compulsory arguments:\n " << std::endl;
 
