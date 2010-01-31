@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -35,15 +35,15 @@ namespace itk
  * \brief Solve an Eikonal equation using Fast Marching
  *
  * Fast marching solves an Eikonal equation where the speed is always
- * non-negative and depends on the position only. Starting from an 
+ * non-negative and depends on the position only. Starting from an
  * initial position on the front, fast marching systematically moves the
  * front forward one grid point at a time.
  *
  * Updates are preformed using an entropy satisfy scheme where only
  * "upwind" neighborhoods are used. This implementation of Fast Marching
  * uses a std::priority_queue to locate the next proper grid position to
- * update. 
- * 
+ * update.
+ *
  * Fast Marching sweeps through N grid points in (N log N) steps to obtain
  * the arrival time value as the front propagates through the grid.
  *
@@ -74,35 +74,35 @@ namespace itk
  * value. The algorithm terminates when the current arrival time being
  * processed is greater than the stopping value.
  *
- * There are two ways to specify the output image information 
+ * There are two ways to specify the output image information
  * ( LargestPossibleRegion, Spacing, Origin): (a) it is copied directly from
  * the input speed image or (b) it is specified by the user. Default values
  * are used if the user does not specify all the information.
  *
  * The output information is computed as follows.
  * If the speed image is NULL or if the OverrideOutputInformation is set to
- * true, the output information is set from user specified parameters. These 
+ * true, the output information is set from user specified parameters. These
  * parameters can be specified using methods SetOutputRegion(), SetOutputSpacing(), SetOutputDirection(),
  * and SetOutputOrigin(). Else if the speed image is not NULL, the output information
  * is copied from the input speed image.
  *
  * Possible Improvements:
- * In the current implemenation, std::priority_queue only allows 
+ * In the current implemenation, std::priority_queue only allows
  * taking nodes out from the front and putting nodes in from the back.
  * To update a value already on the heap, a new node is added to the heap.
  * The defunct old node is left on the heap. When it is removed from the
  * top, it will be recognized as invalid and not used.
  * Future implementations can implement the heap in a different way
- * allowing the values to be updated. This will generally require 
- * some sift-up and sift-down functions and  
+ * allowing the values to be updated. This will generally require
+ * some sift-up and sift-down functions and
  * an image of back-pointers going from the image to heap in order
  * to locate the node which is to be updated.
  *
  * \sa LevelSetTypeDefault
- * \ingroup LevelSetSegmentation 
+ * \ingroup LevelSetSegmentation
  */
 template <
-  class TLevelSet, 
+  class TLevelSet,
   class TSpeedImage = Image<float,::itk::GetImageDimension<TLevelSet>::ImageDimension> >
 class ITK_EXPORT FastMarchingImageFilter :
     public ImageToImageFilter<TSpeedImage,TLevelSet>
@@ -133,7 +133,7 @@ public:
   typedef typename LevelSetImageType::SpacingType     OutputSpacingType;
   typedef typename LevelSetImageType::DirectionType   OutputDirectionType;
   typedef typename LevelSetImageType::PointType       OutputPointType;
-  
+
   class AxisNodeType : public NodeType
     {
     public:
@@ -170,18 +170,27 @@ public:
   enum LabelType { FarPoint, AlivePoint, TrialPoint, TopologyPoint };
 
   /** LabelImage typedef support. */
-  typedef Image<unsigned char, itkGetStaticConstMacro(SetDimension)> LabelImageType;
-  typedef NeighborhoodIterator<LabelImageType>     NeighborhoodIteratorType;
+  typedef Image<unsigned char, itkGetStaticConstMacro( SetDimension )>
+    LabelImageType;
+  typedef NeighborhoodIterator<LabelImageType> NeighborhoodIteratorType;
 
   /** LabelImagePointer typedef support. */
   typedef typename LabelImageType::Pointer LabelImagePointer;
 
+  /** ConnectedComponentImage typedef support. */
+  typedef Image<unsigned int, itkGetStaticConstMacro( SetDimension )>
+    ConnectedComponentImageType;
+
+  /** ConnectedComponentImagePointer typedef support. */
+  typedef typename ConnectedComponentImageType::Pointer
+    ConnectedComponentImagePointer;
+
   /** Set the container of Alive Points representing the initial front.
    * Alive points are represented as a VectorContainer of LevelSetNodes. */
   void SetAlivePoints( NodeContainer * points )
-    { 
-    m_AlivePoints = points; 
-    this->Modified(); 
+    {
+    m_AlivePoints = points;
+    this->Modified();
     }
 
   /** Get the container of Alive Points representing the initial front. */
@@ -193,7 +202,7 @@ public:
   /** Set the container of Trial Points representing the initial front.
    * Trial points are represented as a VectorContainer of LevelSetNodes. */
   void SetTrialPoints( NodeContainer * points )
-    { 
+    {
     m_TrialPoints = points;
     this->Modified();
     }
@@ -208,6 +217,12 @@ public:
   LabelImagePointer GetLabelImage() const
     {
     return m_LabelImage;
+    }
+
+  /** Get the point type label image. */
+  ConnectedComponentImagePointer GetConnectedComponentImage() const
+    {
+    return m_ConnectedComponentImage;
     }
 
   /** Set the Speed Constant. If the Speed Image is NULL,
@@ -240,18 +255,33 @@ public:
 
   /** Set the Collect Points flag. Instrument the algorithm to collect
    * a container of all nodes which it has visited. Useful for
-   * creating Narrowbands for level set algorithms that supports 
+   * creating Narrowbands for level set algorithms that supports
    * narrow banding. */
   itkSetMacro( CollectPoints, bool );
 
   /** Get thConste Collect Points flag. */
   itkGetConstReferenceMacro( CollectPoints, bool );
   itkBooleanMacro( CollectPoints );
-  
+
+  enum TopologyCheckType { None, NoHandles, Strict };
+
   /** Set/Get boolean macro indicating whether the user wants to check topology. */
-  itkSetMacro( CheckTopology, bool );
-  itkGetConstReferenceMacro( CheckTopology, bool );
-  itkBooleanMacro( CheckTopology );
+  itkSetMacro( TopologyCheck, TopologyCheckType );
+  itkGetConstReferenceMacro( TopologyCheck, TopologyCheckType );
+
+  itkSetMacro( UseWellComposedness, bool );
+  itkGetConstMacro( UseWellComposedness, bool );
+  itkBooleanMacro( UseWellComposedness );
+
+  /**
+   * 1. (6, 18)
+   * 2. (18, 6)
+   * 3. (6, 26)
+   * 4. (26, 6)
+   */
+
+  itkSetClampMacro( SimplePointConnectivity, unsigned int, 1, 4 );
+  itkGetConstMacro( SimplePointConnectivity, bool );
 
   /** Get the container of Processed Points. If the CollectPoints flag
    * is set, the algorithm collects a container of all processed nodes.
@@ -263,8 +293,8 @@ public:
     }
 
   /** The output largeset possible, spacing and origin is computed as follows.
-   * If the speed image is NULL or if the OverrideOutputInformation is true, 
-   * the output information is set from user specified parameters. These 
+   * If the speed image is NULL or if the OverrideOutputInformation is true,
+   * the output information is set from user specified parameters. These
    * parameters can be specified using methods SetOutputRegion(), SetOutputSpacing(), SetOutputDirection(),
    * and SetOutputOrigin(). Else if the speed image is not NULL, the output information
    * is copied from the input speed image. */
@@ -303,9 +333,9 @@ protected:
   void PrintSelf( std::ostream& os, Indent indent ) const;
 
   virtual void Initialize( LevelSetImageType * );
-  virtual void UpdateNeighbors( const IndexType& index, 
+  virtual void UpdateNeighbors( const IndexType& index,
                                 const SpeedImageType *, LevelSetImageType * );
-  virtual double UpdateValue( const IndexType& index, 
+  virtual double UpdateValue( const IndexType& index,
                               const SpeedImageType *, LevelSetImageType * );
 
 
@@ -318,9 +348,9 @@ protected:
   virtual void GenerateOutputInformation();
   virtual void EnlargeOutputRequestedRegion(DataObject *output);
 
-  /** Get Large Value. This value is used to 
+  /** Get Large Value. This value is used to
       represent the concept of infinity for the time assigned to pixels that
-      have not been visited. This value is set by default to half the 
+      have not been visited. This value is set by default to half the
       max() of the pixel type used to represent the time-crossing map. */
   itkGetConstReferenceMacro( LargeValue, PixelType );
 
@@ -335,16 +365,17 @@ protected:
 private:
   FastMarchingImageFilter(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
-  
+
   NodeContainerPointer                          m_AlivePoints;
   NodeContainerPointer                          m_TrialPoints;
 
   LabelImagePointer                             m_LabelImage;
-  
+  ConnectedComponentImagePointer                m_ConnectedComponentImage;
+
   double                                        m_SpeedConstant;
   double                                        m_InverseSpeed;
   double                                        m_StoppingValue;
-    
+
   bool                                          m_CollectPoints;
   NodeContainerPointer                          m_ProcessedPoints;
 
@@ -369,12 +400,14 @@ private:
   HeapType    m_TrialHeap;
 
   double    m_NormalizationFactor;
-  
+
   /**
    * Functions and variables to check for topology changes (2D/3D only).
    */
-  bool                                       m_CheckTopology;
-   
+  TopologyCheckType                             m_TopologyCheck;
+  bool                                          m_UseWellComposedness;
+  unsigned int                                  m_SimplePointConnectivity;
+
   // Functions/data for the 2-D case
   void InitializeIndices2D();
   bool IsChangeWellComposed2D( IndexType );
@@ -398,9 +431,9 @@ private:
   Array<unsigned int>                        m_C2Indices[8];
 
   // Functions for both 2D/3D cases
-  bool DoesVoxelChangeMaintainTopology( IndexType );
-  bool IsCriticalTopologicalConfiguration( IndexType );
-  
+  bool DoesVoxelChangeViolateWellComposedness( IndexType );
+  bool DoesVoxelChangeViolateStrictTopology( IndexType );
+
 };
 
 } // namespace itk
