@@ -1,18 +1,18 @@
 /*=========================================================================
-  
+
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RSfile: ImageMath.cxx,v $
-  Language:  C++      
+  Language:  C++
   Date:      $Date: 2009/06/02 21:51:08 $
   Version:   $Revision: 1.103 $
 
   Copyright (c) 2002 Insight Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
-  
+
 =========================================================================*/
 
 #include <iostream>
@@ -56,16 +56,16 @@
 #include "itkKdTree.h"
 #include "itkKdTreeBasedKmeansEstimator.h"
 #include "itkWeightedCentroidKdTreeGenerator.h"
-#include "../Temporary/itkFastMarchingImageFilter.h" 
+#include "../Temporary/itkFastMarchingImageFilter.h"
 #include "itkMinimumDecisionRule.h"
 #include "itkEuclideanDistance.h"
 #include "itkSampleClassifier.h"
 #include "itkCastImageFilter.h"
 #include "itkScalarImageToListAdaptor.h"
 #include "itkConnectedComponentImageFilter.h"
-#include "itkRescaleIntensityImageFilter.h"   
+#include "itkRescaleIntensityImageFilter.h"
 #include "itkHistogramMatchingImageFilter.h"
- 
+
 #include "itkMRIBiasFieldCorrectionFilter.h"
 #include "itkImage.h"
 #include "itkImageRegionIteratorWithIndex.h"
@@ -132,7 +132,7 @@ std::string ANTSGetFilePrefix(const char *str){
 }
 
 template<unsigned int ImageDimension>
-int GetLargestComponent(int argc, char *argv[])        
+int GetLargestComponent(int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -156,24 +156,24 @@ int GetLargestComponent(int argc, char *argv[])
   std::string fn2="";
   unsigned long smallest=50;
   if (argc > argct) { smallest=atoi(argv[argct]); argct++; }
-            
-  typename ImageType::Pointer image1 = NULL; 
+
+  typename ImageType::Pointer image1 = NULL;
   typename readertype::Pointer reader1 = readertype::New();
-  reader1->SetFileName(fn1.c_str()); 
+  reader1->SetFileName(fn1.c_str());
   reader1->UpdateLargestPossibleRegion();
   try
-    {   
-      image1 = reader1->GetOutput(); 
+    {
+      image1 = reader1->GetOutput();
     }
   catch(...)
     {
       std::cout << " read 1 error ";
-    } 
+    }
  // compute the voxel volume
   typename ImageType::SpacingType spacing=image1->GetSpacing();
   float volumeelement=1.0;
   for (unsigned int i=0;  i<spacing.Size(); i++)  volumeelement*=spacing[i];
- 
+
   typedef float InternalPixelType;
   //  typedef unsigned long PixelType;
   //  typedef Image<PixelType,ImageDimension>  labelimagetype;
@@ -183,27 +183,27 @@ int GetLargestComponent(int argc, char *argv[])
   typedef itk::BinaryThresholdImageFilter< InternalImageType, labelimagetype > ThresholdFilterType;
   typedef itk::ConnectedComponentImageFilter< labelimagetype, labelimagetype > FilterType;
   typedef itk::RelabelComponentImageFilter< labelimagetype, ImageType > RelabelType;
-  
+
   typename ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
   typename FilterType::Pointer filter = FilterType::New();
   typename RelabelType::Pointer relabel = RelabelType::New();
-  
+
   //  InternalPixelType threshold_low, threshold_hi;
- 
+
   threshold->SetInput (image1);
   threshold->SetInsideValue(1);
   threshold->SetOutsideValue(0);
   threshold->SetLowerThreshold(0.25);
   threshold->SetUpperThreshold(1.e9);
   threshold->Update();
-  
+
   filter->SetInput (threshold->GetOutput());
   filter->SetFullyConnected( 0 );
   filter->Update();
     relabel->SetInput( filter->GetOutput() );
     relabel->SetMinimumObjectSize( smallest );
     //    relabel->SetUseHistograms(true);
-    
+
   try
     {
     relabel->Update();
@@ -215,20 +215,20 @@ int GetLargestComponent(int argc, char *argv[])
     }
 
 
-  
+
   //  WriteImage<ImageType>(relabel->GetOutput(),outname.c_str());
   //  return 0;
-  typename ImageType::Pointer Clusters=MakeNewImage<ImageType>(relabel->GetOutput(),0);  
-  //typename ImageType::Pointer Clusters=relabel->GetOutput();  
+  typename ImageType::Pointer Clusters=MakeNewImage<ImageType>(relabel->GetOutput(),0);
+  //typename ImageType::Pointer Clusters=relabel->GetOutput();
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-  Iterator vfIter( relabel->GetOutput(),  relabel->GetOutput()->GetLargestPossibleRegion() );  
-  
+  Iterator vfIter( relabel->GetOutput(),  relabel->GetOutput()->GetLargestPossibleRegion() );
+
   float maximum=relabel->GetNumberOfObjects();
   std::cout <<" # ob " << maximum << std::endl;
   float maxtstat=0;
   std::vector<unsigned int> histogram((int)maximum+1);
   std::vector<float> clustersum((int)maximum+1);
-  for (int i=0; i<=maximum; i++) 
+  for (int i=0; i<=maximum; i++)
     {
       histogram[i]=0;
       clustersum[i]=0;
@@ -243,29 +243,29 @@ int GetLargestComponent(int argc, char *argv[])
 	  if (vox > maxtstat) maxtstat=vox;
 	}
     }
-  
+
   for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
     {
-      if (vfIter.Get() > 0 ) 
+      if (vfIter.Get() > 0 )
 	{
-	
+
 	  Clusters->SetPixel( vfIter.GetIndex(), histogram[(unsigned int)vfIter.Get()]  );
-	//  if ( Clusters->GetPixel( vfIter.GetIndex() ) > maximgval ) 
+	//  if ( Clusters->GetPixel( vfIter.GetIndex() ) > maximgval )
         //    maximgval=Clusters->GetPixel( vfIter.GetIndex());
 	}
       else Clusters->SetPixel(vfIter.GetIndex(),0);
-    } 
+    }
 
 
   float maximgval=0;
   for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
-    if ( Clusters->GetPixel( vfIter.GetIndex() ) > maximgval ) 
+    if ( Clusters->GetPixel( vfIter.GetIndex() ) > maximgval )
       maximgval=Clusters->GetPixel( vfIter.GetIndex());
 
   std::cout << " max float size " <<  (maximgval*volumeelement) << " long-size: " << (unsigned long) (maximgval*volumeelement)  << std::endl;
 
  for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
-    if ( Clusters->GetPixel( vfIter.GetIndex() ) >= maximgval )     
+    if ( Clusters->GetPixel( vfIter.GetIndex() ) >= maximgval )
       image1->SetPixel( vfIter.GetIndex(), 1);
     else image1->SetPixel( vfIter.GetIndex(), 0);
 
@@ -273,13 +273,13 @@ int GetLargestComponent(int argc, char *argv[])
    WriteImage<ImageType>(image1,outname.c_str());
 
  return 0;
-  
-}  
+
+}
 
 
 
 template<unsigned int ImageDimension>
-int ThresholdAtMean(int argc, char *argv[])        
+int ThresholdAtMean(int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -302,24 +302,24 @@ int ThresholdAtMean(int argc, char *argv[])
   std::string fn1 = std::string(argv[argct]);   argct++;
   float percentofmean=1.0;
   if (argc > argct) { percentofmean=atof(argv[argct]); argct++; }
-            
-  typename ImageType::Pointer image1 = NULL; 
+
+  typename ImageType::Pointer image1 = NULL;
   typename readertype::Pointer reader1 = readertype::New();
-  reader1->SetFileName(fn1.c_str()); 
+  reader1->SetFileName(fn1.c_str());
   reader1->UpdateLargestPossibleRegion();
   try
-    {   
-      image1 = reader1->GetOutput(); 
+    {
+      image1 = reader1->GetOutput();
     }
   catch(...)
     {
       std::cout << " read 1 error ";
-    } 
+    }
 
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
   double mean=0,max=-1.e9,min=1.e9;
   unsigned long ct = 0;
-  Iterator vfIter2( image1,  image1->GetLargestPossibleRegion() );  
+  Iterator vfIter2( image1,  image1->GetLargestPossibleRegion() );
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       double val=vfIter2.Get();
@@ -329,10 +329,10 @@ int ThresholdAtMean(int argc, char *argv[])
       ct++;
     }
   if (ct > 0) mean/= (float)ct;
-  
+
   typedef itk::BinaryThresholdImageFilter< ImageType, ImageType > ThresholdFilterType;
   typename ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
-  
+
   threshold->SetInput (image1);
   threshold->SetInsideValue(1);
   threshold->SetOutsideValue(0);
@@ -341,13 +341,13 @@ int ThresholdAtMean(int argc, char *argv[])
   threshold->Update();
   WriteImage<ImageType>(threshold->GetOutput(),outname.c_str());
   return 0;
-  
-}  
+
+}
 
 
 
 template<unsigned int ImageDimension>
-int FlattenImage(int argc, char *argv[])        
+int FlattenImage(int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -370,24 +370,24 @@ int FlattenImage(int argc, char *argv[])
   std::string fn1 = std::string(argv[argct]);   argct++;
   float percentofmax=1.0;
   if (argc > argct) { percentofmax=atof(argv[argct]); argct++; }
-            
-  typename ImageType::Pointer image1 = NULL; 
+
+  typename ImageType::Pointer image1 = NULL;
   typename readertype::Pointer reader1 = readertype::New();
-  reader1->SetFileName(fn1.c_str()); 
+  reader1->SetFileName(fn1.c_str());
   reader1->UpdateLargestPossibleRegion();
   try
-    {   
-      image1 = reader1->GetOutput(); 
+    {
+      image1 = reader1->GetOutput();
     }
   catch(...)
     {
       std::cout << " read 1 error ";
-    } 
+    }
 
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
   double mean=0,max=-1.e9,min=1.e9;
   unsigned long ct = 0;
-  Iterator vfIter2( image1,  image1->GetLargestPossibleRegion() );  
+  Iterator vfIter2( image1,  image1->GetLargestPossibleRegion() );
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       double val=vfIter2.Get();
@@ -398,8 +398,8 @@ int FlattenImage(int argc, char *argv[])
     }
   if (ct > 0) mean/= (float)ct;
 
-  
-  typename ImageType::Pointer out=MakeNewImage<ImageType>(image1,0);     
+
+  typename ImageType::Pointer out=MakeNewImage<ImageType>(image1,0);
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       double val=vfIter2.Get();
@@ -407,15 +407,15 @@ int FlattenImage(int argc, char *argv[])
       out->SetPixel(vfIter2.GetIndex(),val);
       ct++;
     }
- 
+
   std::cout << " Flattening to :  " << percentofmax << std::endl;
   WriteImage<ImageType>(out,outname.c_str());
   return 0;
-  
-}  
+
+}
 
 template <unsigned int ImageDimension>
-int TileImages(unsigned int argc, char *argv[])        
+int TileImages(unsigned int argc, char *argv[])
 {
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
@@ -429,7 +429,7 @@ int TileImages(unsigned int argc, char *argv[])
   typedef itk::LinearInterpolateImageFunction<ImageType,double>  InterpolatorType1;
   typedef itk::NearestNeighborInterpolateImageFunction<ImageType,double>  InterpolatorType2;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-   
+
   int argct=2;
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
@@ -437,9 +437,9 @@ int TileImages(unsigned int argc, char *argv[])
 
   unsigned int numberofimages=0;
 
-  typename ImageType::Pointer averageimage = NULL; 
-  typename ImageType::Pointer image2 = NULL; 
-  typename ImageType::SizeType size; 
+  typename ImageType::Pointer averageimage = NULL;
+  typename ImageType::Pointer image2 = NULL;
+  typename ImageType::SizeType size;
   double meanval=1;
   size.Fill(0);
   unsigned int bigimage=0;
@@ -459,7 +459,7 @@ int TileImages(unsigned int argc, char *argv[])
 	size[i]=imageIO->GetDimensions(i);
 	bigimage=j;
 	std::cout << " bigimage " << j << " size " << size << std::endl;
-	}       
+	}
       }
     }
 
@@ -470,7 +470,7 @@ int TileImages(unsigned int argc, char *argv[])
 /** declare the tiled image */
   unsigned int xsize=size[0];
   unsigned int ysize=size[1];
-  typename ImageType::SizeType tilesize; 
+  typename ImageType::SizeType tilesize;
   unsigned int ny=(unsigned int)((float)numberofimages/(float)nx+0.5);
   if ( nx*ny < numberofimages) ny++;
   std::cout  << " nx " << nx << " ny " << ny << std::endl;
@@ -495,12 +495,12 @@ int TileImages(unsigned int argc, char *argv[])
     // Get the image dimension
     std::string fn = std::string(argv[j]);
     ReadImage<ImageType>(image2,fn.c_str());
-    
+
     unsigned long ct = 0;
     if (normalizei)
       {
       meanval = 0.0;
-      Iterator vfIter2( image2,  image2->GetLargestPossibleRegion() );  
+      Iterator vfIter2( image2,  image2->GetLargestPossibleRegion() );
       for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
 	{
 	meanval+=vfIter2.Get();
@@ -511,10 +511,10 @@ int TileImages(unsigned int argc, char *argv[])
       }
 
     imagexct=imagecount % nx;
-    imageyct=imagecount/nx; 
+    imageyct=imagecount/nx;
     std::cout << "doing " << fn << "  " << imagecount << " x " << imagexct <<  " y " << imageyct << std::endl;
     imagecount++;
-    Iterator vfIter( image2,  image2->GetLargestPossibleRegion() );  
+    Iterator vfIter( image2,  image2->GetLargestPossibleRegion() );
     for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
       {
       typename ImageType::IndexType locind=vfIter.GetIndex();
@@ -532,23 +532,23 @@ int TileImages(unsigned int argc, char *argv[])
   typedef itk::RescaleIntensityImageFilter<ImageType,ByteImageType > RescaleFilterType;
   typename RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
   rescaler->SetOutputMinimum(   0 );
-  rescaler->SetOutputMaximum( 255 );  
+  rescaler->SetOutputMaximum( 255 );
    rescaler->SetInput( tiledimage );
-  
+
   std::cout << " writing output ";
   typedef itk::ImageFileWriter<ByteImageType> writertype;
   typename writertype::Pointer writer = writertype::New();
   writer->SetFileName(outname.c_str());
-  writer->SetInput( rescaler->GetOutput() ); 
-  writer->Update();   
+  writer->SetInput( rescaler->GetOutput() );
+  writer->Update();
 
   return 0;
- 
-}     
+
+}
 
 
 template <unsigned int ImageDimension>
-int TriPlanarView(unsigned int argc, char *argv[])        
+int TriPlanarView(unsigned int argc, char *argv[])
 {
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
@@ -563,24 +563,24 @@ int TriPlanarView(unsigned int argc, char *argv[])
   typedef itk::LinearInterpolateImageFunction<ImageType,double>  InterpolatorType1;
   typedef itk::NearestNeighborInterpolateImageFunction<ImageType,double>  InterpolatorType2;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-   
+
   unsigned int argct=2;
   if (argc < 5 ) { std::cout <<" need more args -- see usage   " << std::endl;  exit(0); }
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string maskfn=std::string(argv[argct]); argct++;
-  std::cout << " file name " << maskfn << std::endl; 
-  typename ImageType::Pointer mask = NULL; 
+  std::cout << " file name " << maskfn << std::endl;
+  typename ImageType::Pointer mask = NULL;
   typename readertype::Pointer reader2 = readertype::New();
-  reader2->SetFileName(maskfn.c_str()); 
+  reader2->SetFileName(maskfn.c_str());
   try
-    {   
+    {
       reader2->UpdateLargestPossibleRegion();
     }
   catch(...)
     {
       std::cout << " Error reading " << maskfn << std::endl;
-    } 
+    }
   mask=reader2->GetOutput();
   //ReadImage<ImageType>(mask,maskfn.c_str());
   //  WriteImage<ImageType>(mask,"temp.nii");
@@ -591,23 +591,23 @@ int TriPlanarView(unsigned int argc, char *argv[])
   if (argc > argct) clamppercent2=atof(argv[argct]);   argct++;
   if (clamppercent2 > 1) clamppercent2=1;
 
-  typename ImageType::SizeType size=mask->GetLargestPossibleRegion().GetSize();  
+  typename ImageType::SizeType size=mask->GetLargestPossibleRegion().GetSize();
   unsigned int  xslice = size[0]/2;
   if (argc > argct) xslice=atoi(argv[argct]);   argct++;
   unsigned int  yslice = size[1]/2;
   if (argc > argct) yslice=atoi(argv[argct]);   argct++;
   unsigned int  zslice = size[2]/2;
   if (argc > argct) zslice=atoi(argv[argct]);   argct++;
- 
+
   typedef itk::RescaleIntensityImageFilter<ImageType,ImageType > RescaleFilterType;
   typename RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
   rescaler->SetOutputMinimum(   0 );
-  rescaler->SetOutputMaximum( 255 );  
+  rescaler->SetOutputMaximum( 255 );
   rescaler->SetInput( mask );
   rescaler->Update();
   mask=rescaler->GetOutput();
 
-  
+
   //  typedef itk::IntensityWindowingImageFilter<ImageType,ImageType> wFilterType;
   //  typename wFilterType::Pointer wer = wFilterType::New();
   //wer->SetInput(mask);
@@ -616,16 +616,16 @@ int TriPlanarView(unsigned int argc, char *argv[])
   unsigned long xsize=size[0];
   unsigned long ysize=size[1];
   unsigned long zsize=size[2];
-  typename MatrixImageType::SizeType ztilesize; 
+  typename MatrixImageType::SizeType ztilesize;
   ztilesize[0]=xsize;
   ztilesize[1]=ysize;
-  typename MatrixImageType::SizeType ytilesize; 
+  typename MatrixImageType::SizeType ytilesize;
   ytilesize[0]=xsize;
   ytilesize[1]=zsize;
-  typename MatrixImageType::SizeType xtilesize; 
+  typename MatrixImageType::SizeType xtilesize;
   xtilesize[0]=ysize;
   xtilesize[1]=zsize;
-  typename MatrixImageType::SizeType tilesize; 
+  typename MatrixImageType::SizeType tilesize;
   tilesize[0]=xtilesize[0]+ytilesize[0]+ztilesize[0];
   tilesize[1]=xtilesize[1];
   if ( ytilesize[1] > tilesize[1] ) tilesize[1]=ytilesize[1];
@@ -638,8 +638,8 @@ int TriPlanarView(unsigned int argc, char *argv[])
   matimage->SetLargestPossibleRegion( region );
   matimage->SetBufferedRegion( region );
   typename MatrixImageType::DirectionType mdir;  mdir.Fill(0); mdir[0][0]=1; mdir[1][1]=1;
-  typename MatrixImageType::SpacingType mspc;  mspc.Fill(1);  
-  typename MatrixImageType::PointType morg;  morg.Fill(0);  
+  typename MatrixImageType::SpacingType mspc;  mspc.Fill(1);
+  typename MatrixImageType::PointType morg;  morg.Fill(0);
   matimage->SetSpacing( mspc );
   matimage->SetDirection(mdir);
   matimage->SetOrigin( morg );
@@ -651,13 +651,13 @@ int TriPlanarView(unsigned int argc, char *argv[])
   // now loop over each slice and put the pixels in the right place in matimage
   typename MatrixImageType::IndexType index2d;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-  Iterator vfIter2( mask,  mask->GetLargestPossibleRegion() );  
+  Iterator vfIter2( mask,  mask->GetLargestPossibleRegion() );
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
-      double val1=vfIter2.Get(); 
+      double val1=vfIter2.Get();
       if ( val1 > higetridof ) vfIter2.Set(higetridof );
       if ( val1 < lowgetridof   ) vfIter2.Set(lowgetridof );
-  // first do z-slice 
+  // first do z-slice
       if ( vfIter2.GetIndex()[2] == (long) zslice) {
       double val=vfIter2.Get();
       typename ImageType::IndexType index=vfIter2.GetIndex();
@@ -689,23 +689,23 @@ int TriPlanarView(unsigned int argc, char *argv[])
   typedef itk::RescaleIntensityImageFilter<MatrixImageType,ByteImageType > RescaleFilterType2;
   typename RescaleFilterType2::Pointer rescaler2 = RescaleFilterType2::New();
   rescaler2->SetOutputMinimum(   0 );
-  rescaler2->SetOutputMaximum( 255 );  
+  rescaler2->SetOutputMaximum( 255 );
   rescaler2->SetInput( matimage );
-  rescaler2->Update();  
+  rescaler2->Update();
   std::cout << " writing output ";
   typedef itk::ImageFileWriter<ByteImageType> writertype;
   typename writertype::Pointer writer = writertype::New();
   writer->SetFileName(outname.c_str());
-  writer->SetInput( rescaler2->GetOutput() ); 
-  writer->Update();   
+  writer->SetInput( rescaler2->GetOutput() );
+  writer->Update();
 
   return 0;
- 
-}     
+
+}
 
 
 template <unsigned int ImageDimension>
-int ConvertVectorToImage(unsigned int argc, char *argv[])        
+int ConvertVectorToImage(unsigned int argc, char *argv[])
 {
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
@@ -721,50 +721,50 @@ int ConvertVectorToImage(unsigned int argc, char *argv[])
   typedef itk::NearestNeighborInterpolateImageFunction<ImageType,double>  InterpolatorType2;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
   typedef itk::ImageRegionIteratorWithIndex<MatrixImageType> vIterator;
-   
+
   int argct=2;
   if (argc < 5 ) { std::cout <<" need more args -- see usage   " << std::endl;  exit(0); }
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string maskfn=std::string(argv[argct]); argct++;
   std::string vecfn=std::string(argv[argct]); argct++;
-  typename ImageType::Pointer mask = NULL; 
+  typename ImageType::Pointer mask = NULL;
   ReadImage<ImageType>(mask,maskfn.c_str());
-  typename MatrixImageType::Pointer vecimg = NULL; 
+  typename MatrixImageType::Pointer vecimg = NULL;
   ReadImage<MatrixImageType>(vecimg,vecfn.c_str());
   unsigned long voxct=0,mct=0;
-  Iterator mIter( mask,mask->GetLargestPossibleRegion() );  
+  Iterator mIter( mask,mask->GetLargestPossibleRegion() );
   for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
     if (mIter.Get() >= 0.5) mct++;
-  vIterator vIter(vecimg,vecimg->GetLargestPossibleRegion() );  
+  vIterator vIter(vecimg,vecimg->GetLargestPossibleRegion() );
   for(  vIter.GoToBegin(); !vIter.IsAtEnd(); ++vIter )
     voxct++;
-  
+
   std::cout << " vct " << voxct << " mct " << mct << std::endl;
 
-  typename ImageType::Pointer outimage = NULL; 
+  typename ImageType::Pointer outimage = NULL;
   ReadImage<ImageType>(outimage,maskfn.c_str());
   outimage->FillBuffer(0);
-  
+
   vIter.GoToBegin();
   for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
-    if (mIter.Get() >= 0.5) 
+    if (mIter.Get() >= 0.5)
       {
 	outimage->SetPixel(mIter.GetIndex(),vIter.Get());
 	++vIter;
       }
-  
+
   WriteImage<ImageType>(outimage,outname.c_str());
-  
+
   return 0;
-  
-}     
+
+}
 
 
 
 
 template<unsigned int ImageDimension>
-int CorruptImage(int argc, char *argv[])        
+int CorruptImage(int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -789,28 +789,28 @@ int CorruptImage(int argc, char *argv[])
   if (argc > argct) { noiselevel=atof(argv[argct]); argct++; }
   float smoothlevel=1.0;
   if (argc > argct) { smoothlevel=atof(argv[argct]); argct++; }
-            
-  typename ImageType::Pointer image1 = NULL; 
+
+  typename ImageType::Pointer image1 = NULL;
   typename readertype::Pointer reader1 = readertype::New();
-  reader1->SetFileName(fn1.c_str()); 
+  reader1->SetFileName(fn1.c_str());
   reader1->UpdateLargestPossibleRegion();
   try
-    {   
-      image1 = reader1->GetOutput(); 
+    {
+      image1 = reader1->GetOutput();
     }
   catch(...)
     {
       std::cout << " read 1 error ";
-    } 
+    }
 
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-  Iterator iter( image1,  image1->GetLargestPossibleRegion() );  
+  Iterator iter( image1,  image1->GetLargestPossibleRegion() );
   for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
     {
     double r = (   (double)rand()  / ((double)(RAND_MAX) +(double)(1)) )-0.5;
     iter.Set(iter.Get()+r*noiselevel);
-    } 
-  
+    }
+
   if (smoothlevel >  0)
     {
 	{
@@ -826,12 +826,12 @@ int CorruptImage(int argc, char *argv[])
     }
   WriteImage<ImageType>(image1,outname.c_str());
   return 0;
-  
-}  
+
+}
 
 
 template<unsigned int ImageDimension>
-int Where(int argc, char *argv[])        
+int Where(int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -857,16 +857,16 @@ int Where(int argc, char *argv[])
   if (argc > argct)  {fn2=std::string(argv[argct]);   argct++; }
   float tol=0.0;
   if (argc > argct)   { tol=atof(argv[argct]);   argct++; }
-            
-  typename ImageType::Pointer image1 = NULL; 
-  typename ImageType::Pointer image2 = NULL; 
-  if (fn1.length() > 3)   ReadImage<ImageType>(image1, fn1.c_str()); 
-  if (fn2.length() > 3)   ReadImage<ImageType>(image2, fn2.c_str()); 
+
+  typename ImageType::Pointer image1 = NULL;
+  typename ImageType::Pointer image2 = NULL;
+  if (fn1.length() > 3)   ReadImage<ImageType>(image1, fn1.c_str());
+  if (fn2.length() > 3)   ReadImage<ImageType>(image2, fn2.c_str());
 
 
   unsigned long ct=0;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-  Iterator iter( image1,  image1->GetLargestPossibleRegion() );  
+  Iterator iter( image1,  image1->GetLargestPossibleRegion() );
   for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
     {
       if (!image2)
@@ -882,17 +882,17 @@ int Where(int argc, char *argv[])
 	      std::cout << iter.GetIndex() << std::endl;
 	      ct++;
 	}
-    } 
+    }
   std::cout << ct <<  " voxels have the value " << value << std::endl;
   return 0;
-  
-}  
+
+}
 
 
 
 
 template<unsigned int ImageDimension>
-int SetOrGetPixel(int argc, char *argv[])        
+int SetOrGetPixel(int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -913,7 +913,7 @@ int SetOrGetPixel(int argc, char *argv[])
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
-  float value=atof(argv[argct]); 
+  float value=atof(argv[argct]);
   std::string Get=std::string(argv[argct]); argct++;
   float indx=atof(argv[argct]); argct++;
   float indy=0;
@@ -924,15 +924,15 @@ int SetOrGetPixel(int argc, char *argv[])
   if (argc > argct ) { usephyspace=atoi(argv[argct]); argct++; }
   bool get=false;
   if (strcmp(Get.c_str(),"Get") == 0) get=true;
-  typename ImageType::Pointer image1 = NULL; 
-  typename ImageType::Pointer image2 = NULL; 
-  if (fn1.length() > 3)   
+  typename ImageType::Pointer image1 = NULL;
+  typename ImageType::Pointer image2 = NULL;
+  if (fn1.length() > 3)
     {
-    ReadImage<ImageType>(image1, fn1.c_str()); 
-    ReadImage<ImageType>(image2, fn1.c_str()); 
+    ReadImage<ImageType>(image1, fn1.c_str());
+    ReadImage<ImageType>(image2, fn1.c_str());
     }
   if (!image1) {std::cout <<" no image ! " << std::endl; exit(0);}
-  
+
   typename ImageType::IndexType index;
   index.Fill(0);
   if (usephyspace==false) {
@@ -956,61 +956,61 @@ int SetOrGetPixel(int argc, char *argv[])
     float shifted=index[i];
     if (shifted < 0 || shifted >  image1->GetLargestPossibleRegion().GetSize()[i]-1  ) isinside=false;
     }
-  
+
   if ( isinside == true )
     {
     if ( get ) { std::cout <<" GetValue at " << index << " is " << image1->GetPixel(index) << std::endl; }
-    else 
+    else
       {
-      std::cout <<" SetValue at " << index << " value " << value << " replaces " <<  image1->GetPixel(index) << std::endl; 
+      std::cout <<" SetValue at " << index << " value " << value << " replaces " <<  image1->GetPixel(index) << std::endl;
       image2->SetPixel(index,value);
-      WriteImage<ImageType>(image2,outname.c_str());    
+      WriteImage<ImageType>(image2,outname.c_str());
       }
     }
   else std::cout <<" not in image " << index << std::endl;
- 
+
  return 0;
-  
+
 }
 
 template<unsigned int ImageDimension>
 int HistogramMatching(int argc, char * argv[])
 {
-  
+
   typedef float PixelType;
   typedef itk::Image<PixelType,ImageDimension> ImageType;
   typedef itk::HistogramMatchingImageFilter<ImageType, ImageType> MatchingFilterType;
-  
+
   int argct=2;
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
-  std::string fn2 = std::string(argv[argct]);   argct++; 
+  std::string fn2 = std::string(argv[argct]);   argct++;
   long bins = 255;
   if (argc > argct) bins =atoi(argv[argct]);   argct++;
   long points = 64;
   if (argc > argct) points =atoi(argv[argct]);   argct++;
-  
+
   typename ImageType::Pointer source;
   ReadImage<ImageType>(source,fn1.c_str());
-  
+
   typename ImageType::Pointer reference;
   ReadImage<ImageType>(reference,fn2.c_str());
-  
+
   typename MatchingFilterType::Pointer match = MatchingFilterType::New();
   match->SetSourceImage(source);
-  match->SetReferenceImage(reference);  
+  match->SetReferenceImage(reference);
   match->SetNumberOfHistogramLevels(bins);
   match->SetNumberOfMatchPoints(points);
-  match->Update();  
-    
+  match->Update();
+
   WriteImage<ImageType>(match->GetOutput(), outname.c_str());
   return 0;
 }
-  
-    
+
+
 template<unsigned int ImageDimension>
-int PadImage(int argc, char *argv[])        
+int PadImage(int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -1034,18 +1034,18 @@ int PadImage(int argc, char *argv[])
   float padvalue=atof(argv[argct]); argct++;
   std::string fn2 = "";
   if (argc > argct) fn2=std::string(argv[argct]);   argct++;
-            
-  typename ImageType::Pointer image1 = NULL; 
-  if (fn1.length() > 3)   ReadImage<ImageType>(image1, fn1.c_str()); 
+
+  typename ImageType::Pointer image1 = NULL;
+  if (fn1.length() > 3)   ReadImage<ImageType>(image1, fn1.c_str());
 
   typename ImageType::PointType origin=image1->GetOrigin();
   typename ImageType::PointType origin2=image1->GetOrigin();
-  
+
   typename ImageType::SizeType size=image1->GetLargestPossibleRegion().GetSize();
   typename ImageType::SizeType newsize=image1->GetLargestPossibleRegion().GetSize();
   typename ImageType::RegionType newregion;
-  // determine new image size 
-  for (unsigned int i=0; i<ImageDimension;i++) 
+  // determine new image size
+  for (unsigned int i=0; i<ImageDimension;i++)
     {
       float dimsz=(float)size[i];
       newsize[i]=(unsigned int)(dimsz+padvalue*2);
@@ -1078,20 +1078,20 @@ int PadImage(int argc, char *argv[])
   typename ImageType::PointType point1,pointpad;
   image1->TransformIndexToPhysicalPoint(index, point1);
   padimage->TransformIndexToPhysicalPoint(index2, pointpad);
-  
+
   std::cout << " pre " << point1 << " pad " << pointpad << std::endl;
-  for (unsigned int i=0; i<ImageDimension; i++) 
+  for (unsigned int i=0; i<ImageDimension; i++)
     origin2[i]+=(point1[i]-pointpad[i]);
-  
+
   padimage->SetOrigin(origin2);
 
-  Iterator iter( image1,  image1->GetLargestPossibleRegion() );  
+  Iterator iter( image1,  image1->GetLargestPossibleRegion() );
   for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
     {
 
       typename ImageType::IndexType oindex=iter.GetIndex();
       typename ImageType::IndexType padindex=iter.GetIndex();
-      
+
       bool isinside=true;
       for (unsigned int i=0; i<ImageDimension; i++)
 	{
@@ -1109,20 +1109,20 @@ int PadImage(int argc, char *argv[])
 	    }
 	  padimage->SetPixel(padindex,iter.Get());
 	}
-      
+
     }
-  
-      
+
+
   WriteImage<ImageType>(padimage,outname.c_str());
- 
+
 
   return 0;
-  
-}  
+
+}
 
 
 template<unsigned int ImageDimension>
-int StackImage(int argc, char *argv[])        
+int StackImage(int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -1145,25 +1145,25 @@ int StackImage(int argc, char *argv[])
   std::string fn1 = std::string(argv[argct]);   argct++;
   std::string fn2 = "";
   if (argc > argct) fn2=std::string(argv[argct]);   argct++;
-            
-  typename ImageType::Pointer image1 = NULL; 
-  if (fn1.length() > 3)   ReadImage<ImageType>(image1, fn1.c_str()); 
-  typename ImageType::Pointer image2 = NULL; 
-  if (fn2.length() > 3)   ReadImage<ImageType>(image2, fn2.c_str()); 
+
+  typename ImageType::Pointer image1 = NULL;
+  if (fn1.length() > 3)   ReadImage<ImageType>(image1, fn1.c_str());
+  typename ImageType::Pointer image2 = NULL;
+  if (fn2.length() > 3)   ReadImage<ImageType>(image2, fn2.c_str());
 
   typename ImageType::PointType origin=image1->GetOrigin();
   typename ImageType::PointType origin2=image1->GetOrigin();
-  
+
   typename ImageType::SizeType size=image1->GetLargestPossibleRegion().GetSize();
   typename ImageType::SizeType newsize=image1->GetLargestPossibleRegion().GetSize();
   typename ImageType::RegionType newregion;
-  // determine new image size 
-  
+  // determine new image size
+
   newsize[2]=(unsigned int)newsize[2]+image2->GetLargestPossibleRegion().GetSize()[2];
   std::cout << " oldsize " << size <<  " newsize " << newsize << std::endl;
   newregion.SetSize(newsize);
   newregion.SetIndex(image1->GetLargestPossibleRegion().GetIndex());
-  
+
   typename ImageType::Pointer padimage = ImageType::New();
   padimage->SetSpacing(image1->GetSpacing());
   padimage->SetOrigin(origin2);
@@ -1177,38 +1177,38 @@ int StackImage(int argc, char *argv[])
   image1->TransformIndexToPhysicalPoint(index, point1);
   padimage->TransformIndexToPhysicalPoint(index2, pointpad);
   //  std::cout << " pre " << point1 << " pad " << pointpad << std::endl;
-  for (unsigned int i=0; i<ImageDimension; i++) 
+  for (unsigned int i=0; i<ImageDimension; i++)
     origin2[i]+=(point1[i]-pointpad[i]);
   padimage->SetOrigin(origin2);
   float padvalue=image1->GetLargestPossibleRegion().GetSize()[2];
-  Iterator iter( padimage,  padimage->GetLargestPossibleRegion() );  
+  Iterator iter( padimage,  padimage->GetLargestPossibleRegion() );
   for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
     {
       typename ImageType::IndexType oindex=iter.GetIndex();
-      typename ImageType::IndexType padindex=iter.GetIndex(); 
+      typename ImageType::IndexType padindex=iter.GetIndex();
       bool isinside=false;
       if ( oindex[2]  >= padvalue ) isinside=true;
       if (isinside)
-	{	      
+	{
 	  float shifted=((float)oindex[2]-padvalue);
-	  padindex[2]=(unsigned int)shifted;  
+	  padindex[2]=(unsigned int)shifted;
 	  padimage->SetPixel(oindex,image2->GetPixel(padindex));
 	}
       else padimage->SetPixel(oindex,image1->GetPixel(oindex));
-      
+
     }
-  
-      
+
+
   WriteImage<ImageType>(padimage,outname.c_str());
- 
+
 
   return 0;
-  
-}  
+
+}
 
 
 template<unsigned int ImageDimension>
-int MakeImage(int argc, char *argv[])        
+int MakeImage(int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -1233,7 +1233,7 @@ int MakeImage(int argc, char *argv[])
   if (argc >argct) { sizevaly=atoi(argv[argct]); argct++; }
    unsigned int sizevalz=0;
    if (argc >argct && ImageDimension == 3) { sizevalz=atoi(argv[argct]); argct++; }
-  
+
   typename ImageType::SizeType size;
   size[0]=sizevalx;
   size[1]=sizevaly;
@@ -1252,17 +1252,17 @@ int MakeImage(int argc, char *argv[])
   padimage->SetRegions(newregion );
   padimage->Allocate();
   padimage->FillBuffer( 0 );
-        
+
   WriteImage<ImageType>(padimage,outname.c_str());
- 
+
   return 0;
-  
-}  
+
+}
 
 
 
 template <class TImage>
-typename TImage::Pointer  
+typename TImage::Pointer
 LabelSurface(typename TImage::Pointer input, typename TImage::Pointer input2  )
 {
 std::cout << " Label Surf " << std::endl;
@@ -1271,13 +1271,13 @@ std::cout << " Label Surf " << std::endl;
   typename   ImageType::Pointer     Image = ImageType::New();
   Image->SetLargestPossibleRegion(input->GetLargestPossibleRegion()  );
   Image->SetBufferedRegion(input->GetLargestPossibleRegion());
-  Image->Allocate(); 
+  Image->Allocate();
   Image->SetSpacing(input->GetSpacing());
   Image->SetOrigin(input->GetOrigin());
-  typedef itk::NeighborhoodIterator<ImageType>  iteratorType; 
+  typedef itk::NeighborhoodIterator<ImageType>  iteratorType;
   typename iteratorType::RadiusType rad;
   for (int j=0; j<ImageDimension; j++) rad[j]=1;
-  iteratorType GHood(rad, input,input->GetLargestPossibleRegion());  
+  iteratorType GHood(rad, input,input->GetLargestPossibleRegion());
   GHood.GoToBegin();
   while (!GHood.IsAtEnd())
   {
@@ -1289,21 +1289,21 @@ std::cout << " Label Surf " << std::endl;
       bool atedge=false;
 
       for (unsigned int i = 0; i < GHood.Size(); i++)
-      { 
+      {
         ind2=GHood.GetIndex(i);
         float dist=0.0;
-        for (int j=0; j<ImageDimension; j++) 
+        for (int j=0; j<ImageDimension; j++)
           dist+=(float)(ind[j]-ind2[j])*(float)(ind[j]-ind2[j]);
         dist=sqrt(dist);
 	bool secondval=true;
 	if (input2) if (input2->GetPixel(ind2) >= 0.5 ) secondval=true;
-	if (GHood.GetPixel(i) < 0.5 && dist <  2. && secondval  ) 
+	if (GHood.GetPixel(i) < 0.5 && dist <  2. && secondval  )
         {
           atedge=true;
         }
       }
-      if (atedge && p >=  0.5) Image->SetPixel(ind,1); 
-      else  Image->SetPixel(ind,0); 
+      if (atedge && p >=  0.5) Image->SetPixel(ind,1);
+      else  Image->SetPixel(ind,0);
     }
     ++GHood;
   }
@@ -1312,9 +1312,9 @@ std::cout << " Label Surf " << std::endl;
 
 
 template<unsigned int ImageDimension>
-int FitSphere(int argc, char *argv[])        
+int FitSphere(int argc, char *argv[])
 {
-  
+
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
   typedef itk::Image<VectorType,ImageDimension>     FieldType;
@@ -1337,15 +1337,15 @@ int FitSphere(int argc, char *argv[])
   if (argc > argct) fn2=std::string(argv[argct]);   argct++;
   float MaxRad=5;
   if (argc > argct) MaxRad = atof(argv[argct]);   argct++;
-            
-  typename ImageType::Pointer image1 = NULL; 
-  typename ImageType::Pointer radimage = NULL; 
-  typename ImageType::Pointer radimage2 = NULL; 
-  typename ImageType::Pointer priorimage = NULL; 
-  typename ImageType::Pointer wmimage = NULL; 
-  if (fn2.length() > 3)   ReadImage<ImageType>(wmimage, fn2.c_str()); 
+
+  typename ImageType::Pointer image1 = NULL;
+  typename ImageType::Pointer radimage = NULL;
+  typename ImageType::Pointer radimage2 = NULL;
+  typename ImageType::Pointer priorimage = NULL;
+  typename ImageType::Pointer wmimage = NULL;
+  if (fn2.length() > 3)   ReadImage<ImageType>(wmimage, fn2.c_str());
   std::cout <<"  read " << fn1 << " MXR " << MaxRad << std::endl;
-  ReadImage<ImageType>(image1, fn1.c_str()); 
+  ReadImage<ImageType>(image1, fn1.c_str());
   ReadImage<ImageType>(radimage, fn1.c_str());
   ReadImage<ImageType>(radimage2, fn1.c_str());
   ReadImage<ImageType>(priorimage, fn1.c_str());
@@ -1359,8 +1359,8 @@ int FitSphere(int argc, char *argv[])
   typedef itk::LinearInterpolateImageFunction<ImageType,float> ScalarInterpolatorType;
   typename ScalarInterpolatorType::Pointer ginterp =  ScalarInterpolatorType::New();
   ginterp->SetInputImage(image1);
-  typename ScalarInterpolatorType::ContinuousIndexType  Y1; 
-  typename ScalarInterpolatorType::ContinuousIndexType  Y2; 
+  typename ScalarInterpolatorType::ContinuousIndexType  Y1;
+  typename ScalarInterpolatorType::ContinuousIndexType  Y2;
   typename ScalarInterpolatorType::ContinuousIndexType  GMx;
   typename ScalarInterpolatorType::ContinuousIndexType  WMx;
   typename ScalarInterpolatorType::Pointer winterp=NULL;
@@ -1377,13 +1377,13 @@ int FitSphere(int argc, char *argv[])
   typename ImageType::IndexType ind2;
   ind2.Fill(0);
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-  Iterator iter( image1,  image1->GetLargestPossibleRegion() );  
+  Iterator iter( image1,  image1->GetLargestPossibleRegion() );
   std::cout <<"  Begin " << std::endl;
-  unsigned long npx=0; 
-//  float pi=3.141; 
+  unsigned long npx=0;
+//  float pi=3.141;
  unsigned long numpx=image1->GetBufferedRegion().GetNumberOfPixels();
   //unsigned int prog=0;
- 
+
 //  float gmtotal,wmtotal,gvol,wvol,warea,garea;
   for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
     {
@@ -1396,7 +1396,7 @@ int FitSphere(int argc, char *argv[])
       if (val > 0.5 && fabs((float)ind[2]-80.) < 6 )
 	{
 	  //float  bestrad=0;
-	  //parameterize sphere at this index 
+	  //parameterize sphere at this index
 	  float epspi=pi*0.1;
 	  float epsrad=0.2;
 	  gvol=0;wvol=0;warea=0;garea=0;
@@ -1418,7 +1418,7 @@ int FitSphere(int argc, char *argv[])
 	      glength=0;wlength=0;
 	      float rr=0;
 	      bool raddone=false;
-	      GMx.Fill(0);  WMx.Fill(0); 
+	      GMx.Fill(0);  WMx.Fill(0);
 	      while ( rr <= MaxRad && !raddone)
 		{
 		  // integrate the wm/gm probability along this radius, at these angles
@@ -1437,14 +1437,14 @@ int FitSphere(int argc, char *argv[])
 		  wlength+=(wval2+wval2)*epsrad*2;
 		  gmtotal+=(gval1+gval2);
 		  wmtotal+=(wval1+wval2);
-		  for (unsigned int dd=0; dd<ImageDimension; dd++) 
-		    { 
+		  for (unsigned int dd=0; dd<ImageDimension; dd++)
+		    {
 		      GMx[dd]+=(Y1[dd]*gval1+Y2[dd]*gval2);
 		      WMx[dd]+=(Y1[dd]*wval1+Y2[dd]*wval2);
 		    }
 		  rr+=epsrad;
 		}//update rr
-	    
+
 	      garea+=glength*epspi/pi;
 	      warea+=wlength*epspi/pi;
 	      psi+=epspi;
@@ -1455,14 +1455,14 @@ int FitSphere(int argc, char *argv[])
 	  theta+=epspi;
 	    }//update theta
 
-		  for (unsigned int dd=0; dd<ImageDimension; dd++) 
-		    { 
+		  for (unsigned int dd=0; dd<ImageDimension; dd++)
+		    {
 		      GMx[dd]/=gmtotal;
 		      WMx[dd]/=wmtotal;
 		    }
 		  float cmdist=0;
-		  for (unsigned int dd=0; dd<ImageDimension; dd++) 
-		    { 
+		  for (unsigned int dd=0; dd<ImageDimension; dd++)
+		    {
 		      cmdist+=(GMx[dd]-WMx[dd])*(GMx[dd]-WMx[dd]);
 		    }
 		  cmdist=sqrt(cmdist);
@@ -1476,7 +1476,7 @@ int FitSphere(int argc, char *argv[])
 
 	}
   */
-  
+
 	  //	  radimage2->SetPixel(ind,gvrat);
       if (image1->GetPixel(ind) >= 0.5)
 	{
@@ -1485,7 +1485,7 @@ int FitSphere(int argc, char *argv[])
       float bestrad=1;
       while (okfit && dorad <= MaxRad )
 	    {
-	      typedef itk::NeighborhoodIterator<ImageType>  iteratorType; 
+	      typedef itk::NeighborhoodIterator<ImageType>  iteratorType;
 	      typename iteratorType::RadiusType rad,rad2;
 	      rad2.Fill(0);
 	      for (unsigned int j=0; j<ImageDimension; j++) rad[j]=(long unsigned int) dorad;
@@ -1498,12 +1498,12 @@ int FitSphere(int argc, char *argv[])
 	      if ( p > 0 && radimage->GetPixel(ind) <= 0  )
 		{
 		  for (unsigned int i = 0; i < GHood.Size(); i++)
-		    { 
+		    {
 		      ind2=GHood.GetIndex(i);
 		      float dist=sqrt(((float)ind2[0]-(float)ind[0])*((float)ind2[0]-(float)ind[0])+
 				      ((float)ind2[1]-(float)ind[1])*((float)ind2[1]-(float)ind[1])+
 				      ((float)ind2[2]-(float)ind[2])*((float)ind2[2]-(float)ind[2]));
-		      if ( GHood.GetPixel(i) == p && dist <= tardist) 
+		      if ( GHood.GetPixel(i) == p && dist <= tardist)
 			{
 			  goodct++;
 			  possct++;
@@ -1512,20 +1512,20 @@ int FitSphere(int argc, char *argv[])
 		      //		  std::cout << " Ind " <<  ind << " : " <<  bestrad << " tardist " << tardist << " gct " << goodct <<" pos " << possct << " dist " << dist << " ind2 " << ind2 << std::endl;
 		    }
 		  if (goodct==possct)
-		    { 
-		      bestrad=dorad; radimage->SetPixel(ind,bestrad*(-1.0)); 
+		    {
+		      bestrad=dorad; radimage->SetPixel(ind,bestrad*(-1.0));
 		    }
 		  else { okfit=false; radimage->SetPixel(ind,radimage->GetPixel(ind)*(-1.0)); }
 		}
 	      dorad=dorad+1;
 	    }
-	  if (bestrad >= globalbestrad) 
-	    { 
-	      globalbestrad=bestrad;  
-	      bestind=ind; 
+	  if (bestrad >= globalbestrad)
+	    {
+	      globalbestrad=bestrad;
+	      bestind=ind;
 	    }
-	  
-	  if (npx % 10000 == 0) 
+
+	  if (npx % 10000 == 0)
 	    {
 	      std::cout <<" prog " << (float)npx/(float)numpx << std::endl;
 	      //	      WriteImage<ImageType>(radimage,outname.c_str());
@@ -1535,7 +1535,7 @@ int FitSphere(int argc, char *argv[])
 	}
 
     }
-    
+
 
   for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
     {
@@ -1544,7 +1544,7 @@ int FitSphere(int argc, char *argv[])
       if (val > 0)
 	{
 	  unsigned int dorad=(unsigned int)fabs(radimage->GetPixel(ind));
-	  typedef itk::NeighborhoodIterator<ImageType>  iteratorType; 
+	  typedef itk::NeighborhoodIterator<ImageType>  iteratorType;
 	  typename iteratorType::RadiusType rad;
 	  for (unsigned int j=0; j<ImageDimension; j++) rad[j]= dorad;
 	  float tardist=(dorad*sqrt((double)2));
@@ -1553,38 +1553,38 @@ int FitSphere(int argc, char *argv[])
 	  GHood.SetLocation(ind);
 	  typename ImageType::PixelType p = GHood.GetCenterPixel();
 	  for (unsigned int i = 0; i < GHood.Size(); i++)
-	    { 
+	    {
 	      ind2=GHood.GetIndex(i);
 	      float dist=sqrt(((float)ind2[0]-(float)ind[0])*((float)ind2[0]-(float)ind[0])+
 			      ((float)ind2[1]-(float)ind[1])*((float)ind2[1]-(float)ind[1])+
 			      ((float)ind2[2]-(float)ind[2])*((float)ind2[2]-(float)ind[2]));
-	      if ( GHood.GetPixel(i) == p && dist <= tardist && diameter > priorimage->GetPixel(ind2)) 
+	      if ( GHood.GetPixel(i) == p && dist <= tardist && diameter > priorimage->GetPixel(ind2))
 		{
 		  priorimage->SetPixel(ind2,diameter);
 		}
 	    }
 	}
     }
-	
-     
-	
 
-  // now, make rad image 
+
+
+
+  // now, make rad image
   std::cout << " Best " << bestind << " gbr " << globalbestrad << std::endl;
-  typedef itk::NeighborhoodIterator<ImageType>  iteratorType; 
+  typedef itk::NeighborhoodIterator<ImageType>  iteratorType;
   typename iteratorType::RadiusType rad;
   for (unsigned int j=0; j<ImageDimension; j++) rad[j]= (long unsigned int)globalbestrad;
   iteratorType GHood(rad, image1,image1->GetLargestPossibleRegion());
   GHood.SetLocation(bestind);
   typename ImageType::PixelType p = GHood.GetCenterPixel();
   for (unsigned int i = 0; i < GHood.Size(); i++)
-    { 
+    {
       ind2=GHood.GetIndex(i);
       float dist=0;
       dist+=sqrt((float)(ind2[0]-(float)bestind[0])*(float)(ind2[0]-(float)bestind[0])+
 		 (float)(ind2[1]-(float)bestind[1])*(float)(ind2[1]-(float)bestind[1])+
 		 (float)(ind2[2]-(float)bestind[2])*(float)(ind2[2]-(float)bestind[2]));
-      if ( dist <= (globalbestrad*sqrt((double)2))) 
+      if ( dist <= (globalbestrad*sqrt((double)2)))
 	{
 	  radimage2->SetPixel(ind2,p);
 	}
@@ -1595,14 +1595,14 @@ int FitSphere(int argc, char *argv[])
   WriteImage<ImageType>(radimage2,outname.c_str());
   //WriteImage<ImageType>(priorimage,(std::string("Prior")+outname).c_str());
   return 0;
-  
-}  
+
+}
 
 
 
 
 template<unsigned int ImageDimension>
-int ImageMath(int argc, char *argv[])        
+int ImageMath(int argc, char *argv[])
 {
   typedef float  PixelType;
   //  const unsigned int ImageDimension = AvantsImageDimension;
@@ -1626,50 +1626,50 @@ int ImageMath(int argc, char *argv[])
   std::string fn2="";
   if (argc > argct) { fn2=std::string(argv[argct]);   }
 
-            
-  typename ImageType::Pointer image1 = NULL; 
-  typename ImageType::Pointer image2 = NULL; 
-  typename ImageType::Pointer varimage = NULL; 
-  
+
+  typename ImageType::Pointer image1 = NULL;
+  typename ImageType::Pointer image2 = NULL;
+  typename ImageType::Pointer varimage = NULL;
+
   typename readertype::Pointer reader2 = readertype::New();
   typename readertype::Pointer reader1 = readertype::New();
-  reader2->SetFileName(fn2.c_str()); 
+  reader2->SetFileName(fn2.c_str());
 
   bool isfloat=false;
   try
-    {   
+    {
       reader2->UpdateLargestPossibleRegion();
     }
   catch(...)
     {
       std::cout << " Error reading " << fn2 << " as a file  -- will treat " <<  argv[argct] << "  as a float value " << std::endl;
       isfloat=true;
-    } 
+    }
 
   float floatval=1.0;
   if (isfloat) floatval=atof(argv[argct]);
-  else  image2 = reader2->GetOutput(); 
+  else  image2 = reader2->GetOutput();
 
-  reader1->SetFileName(fn1.c_str()); 
+  reader1->SetFileName(fn1.c_str());
   try
-    {   
+    {
       reader1->UpdateLargestPossibleRegion();
-      image1 = reader1->GetOutput(); 
+      image1 = reader1->GetOutput();
     }
   catch(...)
     {
       std::cout << " read 1 error ";
-    } 
+    }
 
   varimage=ImageType::New();
   varimage->SetLargestPossibleRegion( image1->GetLargestPossibleRegion() );
   varimage->SetBufferedRegion( image1->GetLargestPossibleRegion() );
   varimage->SetLargestPossibleRegion( image1->GetLargestPossibleRegion() );
-  varimage->Allocate(); 
+  varimage->Allocate();
   varimage->SetSpacing(image1->GetSpacing());
   varimage->SetOrigin(image1->GetOrigin());
   varimage->SetDirection(image1->GetDirection());
- 
+
 
   if (strcmp(operation.c_str(),"mresample") == 0 && !isfloat )
     {
@@ -1693,7 +1693,7 @@ int ImageMath(int argc, char *argv[])
       resample->SetInput( image2 );
       resample->SetSize( image1->GetLargestPossibleRegion().GetSize() );
       resample->SetOutputOrigin(  image1->GetOrigin() );
-      resample->SetOutputSpacing( image1->GetSpacing() ); 
+      resample->SetOutputSpacing( image1->GetSpacing() );
       typename ImageType::IndexType zeroind;  zeroind.Fill(0);
       resample->SetDefaultPixelValue( image1->GetPixel(zeroind) );
       resample->UpdateLargestPossibleRegion();
@@ -1702,9 +1702,9 @@ int ImageMath(int argc, char *argv[])
       WriteImage<ImageType>(image2,outname.c_str());
       return 0;
     }
- 
 
-  Iterator vfIter2( varimage,  varimage->GetLargestPossibleRegion() );  
+
+  Iterator vfIter2( varimage,  varimage->GetLargestPossibleRegion() );
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       IndexType ind=vfIter2.GetIndex();
@@ -1735,15 +1735,15 @@ int ImageMath(int argc, char *argv[])
 
 
   return 0;
- 
-}     
+
+}
 
 template<unsigned int ImageDimension>
-int TensorFunctions(int argc, char *argv[])        
+int TensorFunctions(int argc, char *argv[])
 {
   typedef float  PixelType;
   //  typedef itk::Vector<float, 6> TensorType;
-  typedef itk::SymmetricSecondRankTensor< float, 3 >  TensorType; 
+  typedef itk::SymmetricSecondRankTensor< float, 3 >  TensorType;
   typedef typename itk::RGBPixel<unsigned char> RGBType;
   typedef itk::Image<TensorType, ImageDimension> TensorImageType;
   typedef typename TensorImageType::IndexType IndexType;
@@ -1762,7 +1762,7 @@ int TensorFunctions(int argc, char *argv[])
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
-  unsigned int whichvec=ImageDimension-1; 
+  unsigned int whichvec=ImageDimension-1;
   if (argc > argct) { whichvec=atoi(argv[argct]);   } argct++;
   std::cout << " whichvec " << whichvec << std::endl;
   typename TensorImageType::Pointer timage = NULL; // input tensor image
@@ -1775,7 +1775,7 @@ int TensorFunctions(int argc, char *argv[])
   if (strcmp(operation.c_str(), "TensorIOTest") == 0) {
     std::cout <<" test function for tensor I/O " << std::endl;
     WriteTensorImage<TensorImageType>(timage, outname.c_str() ,false);
-    return 0; 
+    return 0;
   }
   std::cout << " imagedir " << timage->GetDirection() << std::endl;
 
@@ -1785,7 +1785,7 @@ int TensorFunctions(int argc, char *argv[])
       cimage->SetLargestPossibleRegion( timage->GetLargestPossibleRegion() );
       cimage->SetBufferedRegion( timage->GetLargestPossibleRegion() );
       cimage->SetLargestPossibleRegion( timage->GetLargestPossibleRegion() );
-      cimage->Allocate(); 
+      cimage->Allocate();
       cimage->SetSpacing(timage->GetSpacing());
       cimage->SetOrigin(timage->GetOrigin());
       cimage->SetDirection(timage->GetDirection());
@@ -1796,41 +1796,41 @@ int TensorFunctions(int argc, char *argv[])
       vecimage->SetLargestPossibleRegion( timage->GetLargestPossibleRegion() );
       vecimage->SetBufferedRegion( timage->GetLargestPossibleRegion() );
       vecimage->SetLargestPossibleRegion( timage->GetLargestPossibleRegion() );
-      vecimage->Allocate(); 
+      vecimage->Allocate();
       vecimage->SetSpacing(timage->GetSpacing());
       vecimage->SetOrigin(timage->GetOrigin());
       vecimage->SetDirection(timage->GetDirection());
       VectorType zero;  zero.Fill(0);
       vecimage->FillBuffer(zero);
     }
-  else 
+  else
     {
       vimage=ImageType::New();
       vimage->SetLargestPossibleRegion( timage->GetLargestPossibleRegion() );
       vimage->SetBufferedRegion( timage->GetLargestPossibleRegion() );
       vimage->SetLargestPossibleRegion( timage->GetLargestPossibleRegion() );
-      vimage->Allocate(); 
+      vimage->Allocate();
       vimage->SetSpacing(timage->GetSpacing());
       vimage->SetOrigin(timage->GetOrigin());
       vimage->SetDirection(timage->GetDirection());
     }
 
-  Iterator tIter(timage, timage->GetLargestPossibleRegion() );  
+  Iterator tIter(timage, timage->GetLargestPossibleRegion() );
   for(  tIter.GoToBegin(); !tIter.IsAtEnd(); ++tIter )
     {
 
     IndexType ind=tIter.GetIndex();
-    float result=0;    
+    float result=0;
 
-    if (strcmp(operation.c_str(),"TensorFA") == 0) 
+    if (strcmp(operation.c_str(),"TensorFA") == 0)
 	  {
-    	result=GetTensorFA<TensorType>(tIter.Value()); 
+    	result=GetTensorFA<TensorType>(tIter.Value());
       if (vnl_math_isnan(result)) result=0;
       vimage->SetPixel(ind,result);
   	}
-    else if (strcmp(operation.c_str(),"TensorMeanDiffusion") == 0) 
+    else if (strcmp(operation.c_str(),"TensorMeanDiffusion") == 0)
 	  {
-	    result=GetTensorADC<TensorType>(tIter.Value(),0); 
+	    result=GetTensorADC<TensorType>(tIter.Value(),0);
       if (vnl_math_isnan(result)) result=0;
       vimage->SetPixel(ind,result);
 	  }
@@ -1864,8 +1864,8 @@ int TensorFunctions(int argc, char *argv[])
     }
 
   return 0;
- 
-}     
+
+}
 
 
 
@@ -1874,9 +1874,9 @@ int TensorFunctions(int argc, char *argv[])
 
 
 template<unsigned int ImageDimension>
-int CompareHeadersAndImages(int argc, char *argv[])        
+int CompareHeadersAndImages(int argc, char *argv[])
 {
- 
+
   typedef float  PixelType;
   //  const unsigned int ImageDimension = AvantsImageDimension;
   typedef itk::Vector<float,ImageDimension>         VectorType;
@@ -1899,41 +1899,41 @@ int CompareHeadersAndImages(int argc, char *argv[])
   std::string fn2="";
   if (argc > argct) { fn2=std::string(argv[argct]);   }
 
-            
-  typename ImageType::Pointer image1 = NULL; 
-  typename ImageType::Pointer image2 = NULL; 
-  
+
+  typename ImageType::Pointer image1 = NULL;
+  typename ImageType::Pointer image2 = NULL;
+
   typename readertype::Pointer reader2 = readertype::New();
   typename readertype::Pointer reader1 = readertype::New();
-  reader2->SetFileName(fn2.c_str()); 
+  reader2->SetFileName(fn2.c_str());
 
   bool isfloat=false;
   try
-    {   
+    {
       reader2->UpdateLargestPossibleRegion();
     }
   catch(...)
     {
       std::cout << " Error reading " << fn2 << std::endl;
       isfloat=true;
-    } 
+    }
 
   float floatval=1.0;
   if (isfloat) floatval=atof(argv[argct]);
-  else  image2 = reader2->GetOutput(); 
+  else  image2 = reader2->GetOutput();
 
-  reader1->SetFileName(fn1.c_str()); 
+  reader1->SetFileName(fn1.c_str());
   try
-    {   
+    {
       reader1->UpdateLargestPossibleRegion();
-      image1 = reader1->GetOutput(); 
+      image1 = reader1->GetOutput();
     }
   catch(...)
     {
       std::cout << " read 1 error ";
-    } 
+    }
 
-  // compute error in spacing, in orientation and in offset 
+  // compute error in spacing, in orientation and in offset
   unsigned int failure=0;
   float sperr=0,merr=0,operr=0,orsignerr=0;
 
@@ -1959,7 +1959,7 @@ int CompareHeadersAndImages(int argc, char *argv[])
     }
   std::cout << " OriginError: " << sqrt(operr) << std::endl;
   std::cout << " OriginSignError: " << orsignerr << std::endl;
-  
+
   for (unsigned int i=0;i<ImageDimension;i++)
   for (unsigned int j=0;j<ImageDimension;j++)
     {
@@ -1969,14 +1969,14 @@ int CompareHeadersAndImages(int argc, char *argv[])
   std::cout << " OrientError: " << sqrt(merr) << std::endl;
 
   bool samesize=true;
-  for (unsigned int i=0; i<ImageDimension; i++) 
-    if ( image1->GetLargestPossibleRegion().GetSize()[i] != image2->GetLargestPossibleRegion().GetSize()[i] ) 
+  for (unsigned int i=0; i<ImageDimension; i++)
+    if ( image1->GetLargestPossibleRegion().GetSize()[i] != image2->GetLargestPossibleRegion().GetSize()[i] )
       samesize=false;
 
-  if (samesize ) 
+  if (samesize )
     {
 
-  // run a quick registration 
+  // run a quick registration
       if (false){
     typedef typename itk::ImageMomentsCalculator< ImageType >   ImageCalculatorType;
     typename ImageCalculatorType::Pointer calculator = ImageCalculatorType::New();
@@ -1987,12 +1987,12 @@ int CompareHeadersAndImages(int argc, char *argv[])
     typename ImageCalculatorType::VectorType moving_center;
     moving_center.Fill(0);
     try
-      {   
+      {
       calculator->Compute();
       fixed_center = calculator->GetCenterOfGravity();
       calculator->SetImage(  image2 );
       try
-	{   
+	{
 	  calculator->Compute();
 	  moving_center = calculator->GetCenterOfGravity();
 	}
@@ -2000,13 +2000,13 @@ int CompareHeadersAndImages(int argc, char *argv[])
 	{
 	  std::cout << " zero image2 error ";
 	  fixed_center.Fill(0);
-	}     
+	}
     }
     catch(...)
       {
 	std::cout << " zero image1 error ";
-      }     
-    
+      }
+
     typedef itk::TranslationTransform< double, ImageDimension> TransformType0;
     typename TransformType0::Pointer             m_Transform0=TransformType0::New();
     typename TransformType0::ParametersType trans=m_Transform0->GetParameters();
@@ -2022,7 +2022,7 @@ int CompareHeadersAndImages(int argc, char *argv[])
   resample->SetInput( image2 );
   resample->SetSize( image1->GetLargestPossibleRegion().GetSize() );
   resample->SetOutputOrigin(  image1->GetOrigin() );
-  resample->SetOutputSpacing( image1->GetSpacing() ); 
+  resample->SetOutputSpacing( image1->GetSpacing() );
   typename ImageType::IndexType zeroind;  zeroind.Fill(0);
   resample->SetDefaultPixelValue( image1->GetPixel(zeroind) );
   resample->UpdateLargestPossibleRegion();
@@ -2030,7 +2030,7 @@ int CompareHeadersAndImages(int argc, char *argv[])
       }
   float i1norm=0,i2norm=0,i1i2norm=0; //i3norm=0,i1i3norm=0;
   unsigned long ct1=1,ct2=1,ct12=1; //ct3=1,ct13=1;
-  Iterator vfIter2( image1,  image1->GetLargestPossibleRegion() );  
+  Iterator vfIter2( image1,  image1->GetLargestPossibleRegion() );
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       IndexType ind=vfIter2.GetIndex();
@@ -2043,7 +2043,7 @@ int CompareHeadersAndImages(int argc, char *argv[])
       if (pix1 > 0  )  {  i1norm+=fabs(pix1); ct1++; }
       if (pix2 > 0  )  {  i2norm+=fabs(pix2); ct2++; }
       //if (pix3 > 0  )  {  i3norm+=fabs(pix3); ct3++; }
-    } 
+    }
   float mean1=i1norm/ct1;
   if (mean1 == 0) mean1=1;
   float mean2=i2norm/ct2;
@@ -2057,12 +2057,12 @@ int CompareHeadersAndImages(int argc, char *argv[])
       //      float pix3=vfIter2.Get()/mean2;
       float pix1 = image1->GetPixel(ind)/mean1;
 
-      if ( pix1 > 0 || pix2 > 0) 
+      if ( pix1 > 0 || pix2 > 0)
 	{
 	  i1i2norm+=fabs(pix1-pix2);
 	  ct12++;
 	}
-      //      if ( pix1 > 0 || pix3 > 0) 
+      //      if ( pix1 > 0 || pix3 > 0)
       //{
       //  i1i3norm+=fabs(pix1-pix3);
       //  ct13++;
@@ -2075,10 +2075,10 @@ int CompareHeadersAndImages(int argc, char *argv[])
     }
 
   typename ImageType::PointType fixedorig=image2->GetOrigin();
-  if ( orsignerr > 0 ) 
+  if ( orsignerr > 0 )
     {
       failure=1;
-      // now fix the error 
+      // now fix the error
       for (unsigned int i=0;i<ImageDimension;i++)
 	{
 	  if ( (op1[i] > 0 && op2[i] < 0 ) || (op1[i] < 0 && op2[i] > 0) )
@@ -2098,12 +2098,12 @@ int CompareHeadersAndImages(int argc, char *argv[])
   // write repaired images
   typename writertype::Pointer writer = writertype::New();
   writer->SetFileName(outname.c_str());
-  writer->SetInput( image2 ); 
-  writer->Write();   
+  writer->SetInput( image2 );
+  writer->Write();
   std::cout << "  FailureState: " << failure << " for " << fn2  << std::endl;
   return failure;
- 
-}     
+
+}
 
 
 
@@ -2111,29 +2111,29 @@ template <class TImage>
 typename TImage::Pointer BinaryThreshold(typename TImage::PixelType low, typename TImage::PixelType high,typename TImage::PixelType replaceval, typename TImage::Pointer input)
 {
 	//std::cout << " Binary Thresh " << std::endl;
-	
+
 	typedef typename TImage::PixelType PixelType;
 	// Begin Threshold Image
 	typedef itk::BinaryThresholdImageFilter<TImage,TImage>  InputThresholderType;
-	typename InputThresholderType::Pointer inputThresholder = 
+	typename InputThresholderType::Pointer inputThresholder =
 		InputThresholderType::New();
-	
+
 	inputThresholder->SetInput( input );
 	inputThresholder->SetInsideValue(  replaceval );
 	int outval=0;
 	if ((float) replaceval == (float) -1) outval=1;
 	inputThresholder->SetOutsideValue( outval );
-	
+
 	if (high < low) high=255;
 	inputThresholder->SetLowerThreshold((PixelType) low );
 	inputThresholder->SetUpperThreshold((PixelType) high);
 	inputThresholder->Update();
-	
+
 	return inputThresholder->GetOutput();
 }
 
-template<class TImage> 
-typename TImage::Pointer 
+template<class TImage>
+typename TImage::Pointer
 SegmentKMeans(typename TImage::Pointer image , unsigned int nclasses)
 {
 
@@ -2152,8 +2152,8 @@ SegmentKMeans(typename TImage::Pointer image , unsigned int nclasses)
   typedef typename AdaptorType::MeasurementVectorType  MeasurementVectorType;
 
   // Create the K-d tree structure
-  typedef itk::Statistics::WeightedCentroidKdTreeGenerator< 
-                                                      AdaptorType > 
+  typedef itk::Statistics::WeightedCentroidKdTreeGenerator<
+                                                      AdaptorType >
                                                               TreeGeneratorType;
 
   typename TreeGeneratorType::Pointer treeGenerator = TreeGeneratorType::New();
@@ -2169,16 +2169,16 @@ SegmentKMeans(typename TImage::Pointer image , unsigned int nclasses)
 
   typename EstimatorType::ParametersType initialMeans( nclasses );
 
-  Iterator vfIter2( image,  image->GetLargestPossibleRegion() );  
+  Iterator vfIter2( image,  image->GetLargestPossibleRegion() );
   double mx =-1.e12, mn=1.e12;
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       double px = vfIter2.Get();
-      if (px > mx) mx=px; 
+      if (px > mx) mx=px;
       else if (px < mn) mn=px;
     }
   float range=(mx-mn);
-  
+
   float bins=1.0/((float)nclasses+1.);
   for (unsigned int i=0;  i<nclasses; i++)
     {
@@ -2187,7 +2187,7 @@ SegmentKMeans(typename TImage::Pointer image , unsigned int nclasses)
     }
   std::cout << std::endl;
   estimator->SetParameters( initialMeans );
-  
+
   estimator->SetKdTree( treeGenerator->GetOutput() );
   estimator->SetMaximumIteration( 200 );
   estimator->SetCentroidPositionChangesThreshold(0.0);
@@ -2200,7 +2200,7 @@ SegmentKMeans(typename TImage::Pointer image , unsigned int nclasses)
   varimage->SetLargestPossibleRegion( image->GetLargestPossibleRegion() );
   varimage->SetBufferedRegion( image->GetLargestPossibleRegion() );
   varimage->SetLargestPossibleRegion( image->GetLargestPossibleRegion() );
-  varimage->Allocate(); 
+  varimage->Allocate();
   varimage->SetSpacing(image->GetSpacing());
   varimage->SetOrigin(image->GetOrigin());
   varimage->SetDirection(image->GetDirection());
@@ -2241,7 +2241,7 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input,float ra
   else if (option == 4) std::cout << " grayscale eroding the image " << std::endl;
   else if (option == 5) std::cout << " grayscale dilating the image " << std::endl;
   else if (option == 6) std::cout << " grayscale opening the image " << std::endl;
-  else if (option == 7) std::cout << " grayscale closing the image " << std::endl; 
+  else if (option == 7) std::cout << " grayscale closing the image " << std::endl;
 
   typedef itk::BinaryBallStructuringElement<
                       PixelType,
@@ -2257,17 +2257,17 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input,float ra
                             TImage,
                             TImage,
                             StructuringElementType >  DilateFilterType;
-  
+
   //typedef itk::BinaryMorphologicalOpeningImageFilter<
   //                          TImage,
   //                          TImage,
   //                          StructuringElementType >  OpeningFilterType;
-                            
+
   //typedef itk::BinaryMorphologicalClosingImageFilter<
   //                          TImage,
   //                          TImage,
-  //                          StructuringElementType >  ClosingFilterType;                        
-                            
+  //                          StructuringElementType >  ClosingFilterType;
+
   typedef itk::GrayscaleErodeImageFilter<
                             TImage,
                             TImage,
@@ -2297,7 +2297,7 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input,float ra
   //binaryClose->SetKernel( structuringElement );
   grayscaleErode->SetKernel( structuringElement );
   grayscaleDilate->SetKernel( structuringElement );
-  
+
   //  It is necessary to define what could be considered objects on the binary
   //  images. This is specified with the methods \code{SetErodeValue()} and
   //  \code{SetDilateValue()}. The value passed to these methods will be
@@ -2372,7 +2372,7 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input,float ra
     grayscaleErode->SetInput( grayscaleDilate->GetOutput() );
     grayscaleErode->Update();
     temp = grayscaleErode->GetOutput();
-    }  
+    }
 
   if (option == 0 )
   {
@@ -2388,16 +2388,16 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input,float ra
       ++o_iter;
     }
   }
-  
+
   return temp;
-             
+
 }
 
 
 
 
-template<class TImage> 
-typename TImage::Pointer 
+template<class TImage>
+typename TImage::Pointer
 BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  std::string priorfn ,  unsigned int nsmooth = 2 )
 {
 
@@ -2427,8 +2427,8 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
   // Define the Measurement vector type from the AdaptorType
   typedef typename AdaptorType::MeasurementVectorType  MeasurementVectorType;
   // Create the K-d tree structure
-  typedef itk::Statistics::WeightedCentroidKdTreeGenerator< 
-                                                      AdaptorType > 
+  typedef itk::Statistics::WeightedCentroidKdTreeGenerator<
+                                                      AdaptorType >
                                                               TreeGeneratorType;
   typename TreeGeneratorType::Pointer treeGenerator = TreeGeneratorType::New();
   treeGenerator->SetSample( adaptor );
@@ -2438,12 +2438,12 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
   typedef itk::Statistics::KdTreeBasedKmeansEstimator<TreeType> EstimatorType;
   typename EstimatorType::Pointer estimator = EstimatorType::New();
   typename EstimatorType::ParametersType initialMeans( nclasses );
-  Iterator vfIter2( image,  image->GetLargestPossibleRegion() );  
+  Iterator vfIter2( image,  image->GetLargestPossibleRegion() );
   double mx =-1.e12, mn=1.e12;
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       double px = vfIter2.Get();
-      if (px > mx) mx=px; 
+      if (px > mx) mx=px;
       else if (px < mn) mn=px;
     }
   float range=(mx-mn);
@@ -2452,13 +2452,13 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
     {
     initialMeans[i]=mn+(0+i*bins)*range;
     }
-  estimator->SetParameters( initialMeans );  
+  estimator->SetParameters( initialMeans );
   estimator->SetKdTree( treeGenerator->GetOutput() );
   estimator->SetMaximumIteration( 200 );
   estimator->SetCentroidPositionChangesThreshold(0.0);
   estimator->StartOptimization();
   typename EstimatorType::ParametersType estimatedMeans = estimator->GetParameters();
- 
+
   typename ImageType::Pointer varimage=ImageType::New();
   varimage->SetLargestPossibleRegion( image->GetLargestPossibleRegion() );
   varimage->SetBufferedRegion( image->GetLargestPossibleRegion() );
@@ -2466,7 +2466,7 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
   varimage->SetSpacing(image->GetSpacing());
   varimage->SetOrigin(image->GetOrigin());
   varimage->SetDirection(image->GetDirection());
-  varimage->Allocate(); 
+  varimage->Allocate();
 
   std::vector<double>  estimatedVar(nclasses,0);
   std::vector<double>  estimatedCounts(nclasses,0);
@@ -2494,11 +2494,11 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
     estimatedVar[i]+=dist*dist;
     }
 
-  for (unsigned int i=0; i<nclasses; i++)  
-    { 
-    float   ct= estimatedCounts[i]; 
-    if (ct > 0) estimatedVar[i]=(estimatedVar[i])/ct; 
-    else estimatedVar[i]=0; 
+  for (unsigned int i=0; i<nclasses; i++)
+    {
+    float   ct= estimatedCounts[i];
+    if (ct > 0) estimatedVar[i]=(estimatedVar[i])/ct;
+    else estimatedVar[i]=0;
     std::cout << " Sample SD Ests " << sqrt(estimatedVar[i]) << " Mean " << estimatedMeans[i] <<  std::endl;
     }
 
@@ -2507,7 +2507,7 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
   typedef  float  LabelType;
   typedef float          PriorType;
   typedef float          PosteriorType;
-  typedef itk::BayesianClassifierImageFilter< 
+  typedef itk::BayesianClassifierImageFilter<
                               InputImageType,LabelType,
                               PosteriorType,PriorType >   ClassifierFilterType;
 
@@ -2526,13 +2526,13 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
      double px = vfIter2.Get();
      VecPixelType  probs(nclasses);
      float total=0;
-     for (unsigned int i=0; i<nclasses; i++)  
-       { 
+     for (unsigned int i=0; i<nclasses; i++)
+       {
        probs[i]=exp(-1.0*(estimatedMeans[i]-px)*(estimatedMeans[i]-px)/(2.0*estimatedVar[i]));
        total+=probs[i];
        }
-     for (unsigned int i=0; i<nclasses; i++)  
-       { 
+     for (unsigned int i=0; i<nclasses; i++)
+       {
        if (total>0) probs[i]/=total;
        }
      vecImage->SetPixel( vfIter2.GetIndex(), probs);
@@ -2545,7 +2545,7 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
   typename ReaderType::Pointer reader =  ReaderType::New();
   typename InputImageType::Pointer priors=NULL;
 
-  if (priorfn.length()  > 3 ) 
+  if (priorfn.length()  > 3 )
     {
     std::cout << " Setting Priors " << priorfn << std::endl;
     bool geometric=false;
@@ -2580,10 +2580,10 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
       typedef itk::RescaleIntensityImageFilter<ImageType,ImageType > RescaleFilterType;
       typename RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
       rescaler->SetOutputMinimum(   0 );
-      rescaler->SetOutputMaximum( 1 );  
+      rescaler->SetOutputMaximum( 1 );
       rescaler->SetInput( image2 );
       rescaler->Update();
-      typename ImageType::Pointer sulci=  rescaler->GetOutput(); 
+      typename ImageType::Pointer sulci=  rescaler->GetOutput();
 
       priors= InputImageType::New();
       typedef typename InputImageType::PixelType VecPixelType;
@@ -2594,10 +2594,10 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
       priors->SetVectorLength(nclasses);
       priors->Allocate();
       std::cout <<" Allocated " << std::endl;
-      
+
       for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
 	{
-//	std::cout <<" ind " <<vfIter2.GetIndex() << std::endl;    
+//	std::cout <<" ind " <<vfIter2.GetIndex() << std::endl;
 //	float outbrain = outbrainmask->GetPixel( vfIter2.GetIndex());
 //	float inw = inwmask->GetPixel( vfIter2.GetIndex());
 	float distance = distcortex->GetPixel( vfIter2.GetIndex());
@@ -2613,14 +2613,14 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
 //	if (distmag > 0) distmag=0;
 	distmag*=distmag;
 	float gdistprob=1.0-exp(-1.0*distmag/dvar);
-	
+
 	float wdistprob=1.0/(1.0+exp(-1.0*distance/5));
 
 	float wdistmag=basedist-wdistance;
 	if (wdistmag > 0) wdistmag=0;
 	wdistmag*=wdistmag;
 	float gdistprob2=exp(-1.0*wdistmag/dvar);
- 
+
 	float sulcprob=sulci->GetPixel( vfIter2.GetIndex());
 	float sdiff=(0.25-sulcprob);
 	if (sdiff > 0) sdiff=0;
@@ -2628,13 +2628,13 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
 	sulcprob=exp(-1.0*sdiff/0.5);
 //	std::cout << " Sulc " << sulcprob << std::endl;
 //	bool test = (outbrain < 1 && inw > 1);
-	if (  true  ) 
+	if (  true  )
 	  {
 	  for (unsigned int i=0; i<nclasses; i++)
-	    { 
+	    {
 	    if ( i == (nclasses-2)) probs[i]=gdistprob*(gdistprob2);
 	    else if ( i == (nclasses-1)) probs[i]=wdistprob*wdistprob;
-	    //else 
+	    //else
 	      if ( i == (nclasses-3)) probs[i]=sulcprob;
 //	    else if (i > 0)  probs[i]=sulcprob;
 	    }
@@ -2643,14 +2643,14 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
 	  {
 	  for (unsigned int i=0; i<nclasses; i++) probs[i]=posteriors[i];//1.0/(float)nclasses;
 	  }
-	for (unsigned int i=0; i<nclasses; i++) posteriors[i]*=probs[i]; 
+	for (unsigned int i=0; i<nclasses; i++) posteriors[i]*=probs[i];
 	}
       float prtotal=0;
       float pototal=0;
       for (unsigned int i=0; i<nclasses; i++) {  prtotal+=probs[i];  pototal+=posteriors[i]; }
-	
-      for (unsigned int i=0; i<nclasses; i++)  
-	{ 
+
+      for (unsigned int i=0; i<nclasses; i++)
+	{
 	if (prtotal>0) probs[i]/=prtotal; else probs[i]=1.0/(float)nclasses;
 	if (pototal>0) posteriors[i]/=pototal; else posteriors[i]=1.0/(float)nclasses;
 	}
@@ -2659,7 +2659,7 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
       }
       std::cout << " ok " << std::endl;
 
-      
+
       }
     else
       {
@@ -2671,14 +2671,14 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
 	{
 	VecPixelType  posteriors=vecImage->GetPixel(vfIter2.GetIndex());
 	VecPixelType  probs=priors->GetPixel(vfIter2.GetIndex());
-	for (unsigned int i=0; i<nclasses; i++) posteriors[i]*=probs[i]; 
-	
+	for (unsigned int i=0; i<nclasses; i++) posteriors[i]*=probs[i];
+
 	float prtotal=0;
 	float pototal=0;
 	for (unsigned int i=0; i<nclasses; i++) {  prtotal+=probs[i];  pototal+=posteriors[i]; }
-	
-	for (unsigned int i=0; i<nclasses; i++)  
-	  { 
+
+	for (unsigned int i=0; i<nclasses; i++)
+	  {
 	  if (prtotal>0) probs[i]/=prtotal; else probs[i]=1.0/(float)nclasses;
 	  if (pototal>0) posteriors[i]/=pototal; else posteriors[i]=1.0/(float)nclasses;
 	  }
@@ -2686,11 +2686,11 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
 	}
       }
 //    if (priors) filter->SetInput( 1,  priors ); // Bug --
-//    classification filter does not actually use priors 
+//    classification filter does not actually use priors
     } else std::cout << " No Priors " << std::endl;
 
   filter->SetInput(  vecImage );
-  
+
 
   if( nsmooth >= 1  )
     {
@@ -2714,8 +2714,8 @@ BayesianSegmentation(typename TImage::Pointer image , unsigned int nclasses,  st
   // otherwise set the priors to some user provided values
 
   //
-  // Setup writer.. Rescale the label map to the dynamic range of the 
-  // datatype and write it 
+  // Setup writer.. Rescale the label map to the dynamic range of the
+  // datatype and write it
   //
   filter->Update();
 
@@ -2725,7 +2725,7 @@ return  filter->GetOutput();
 
 
 template<unsigned int ImageDimension>
-int NegativeImage(int argc, char *argv[])        
+int NegativeImage(int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -2748,26 +2748,26 @@ int NegativeImage(int argc, char *argv[])
   std::string fn1 = std::string(argv[argct]);   argct++;
   std::string fn2="";
   if (argc > argct) { fn2=std::string(argv[argct]);  }
-            
-  typename ImageType::Pointer image1 = NULL; 
+
+  typename ImageType::Pointer image1 = NULL;
   typename readertype::Pointer reader1 = readertype::New();
-  reader1->SetFileName(fn1.c_str()); 
+  reader1->SetFileName(fn1.c_str());
   reader1->UpdateLargestPossibleRegion();
   try
-    {   
-      image1 = reader1->GetOutput(); 
+    {
+      image1 = reader1->GetOutput();
     }
   catch(...)
     {
       std::cout << " read 1 error ";
-    } 
+    }
 
-  Iterator vfIter2( image1,  image1->GetLargestPossibleRegion() );  
+  Iterator vfIter2( image1,  image1->GetLargestPossibleRegion() );
   double mx =-1.e12, mn=1.e12;
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       double px = vfIter2.Get();
-      if (px > mx) mx=px; 
+      if (px > mx) mx=px;
       else if (px < mn) mn=px;
     }
   if (mx == mn) { mx=1; mn=0; }
@@ -2784,20 +2784,20 @@ int NegativeImage(int argc, char *argv[])
 
   typename writertype::Pointer writer = writertype::New();
     writer->SetFileName(outname.c_str());
-    writer->SetInput( image1 ); 
-    writer->Write();   
-  
+    writer->SetInput( image1 );
+    writer->Write();
+
 
   return 0;
- 
+
 }
-      
 
 
 
 
-template<class TImage> 
-typename TImage::Pointer 
+
+template<class TImage>
+typename TImage::Pointer
 //void
 SegmentMRF(typename TImage::Pointer image ,
 	   typename TImage::Pointer labelimage, unsigned int nclasses, float smf, unsigned int maxits)
@@ -2810,7 +2810,7 @@ SegmentMRF(typename TImage::Pointer image ,
 
 
   //  const unsigned int NUMBANDS=1;
-  typedef itk::Image<itk::Vector<double,1>,ImageDimension> VecImageType; 
+  typedef itk::Image<itk::Vector<double,1>,ImageDimension> VecImageType;
   typedef typename VecImageType::PixelType  VecPixelType;
 
   /** copy the input image into this vector image.  stupid.  */
@@ -2839,22 +2839,22 @@ SegmentMRF(typename TImage::Pointer image ,
     }
 
 
-  namespace stat = itk::Statistics;  
-  typedef itk::Image<PixelType,ImageDimension> ClassImageType; 
-  typedef stat::MahalanobisDistanceMembershipFunction< VecPixelType > 
+  namespace stat = itk::Statistics;
+  typedef itk::Image<PixelType,ImageDimension> ClassImageType;
+  typedef stat::MahalanobisDistanceMembershipFunction< VecPixelType >
     MembershipFunctionType ;
   typedef typename MembershipFunctionType::Pointer MembershipFunctionPointer ;
   typedef std::vector< MembershipFunctionPointer >   MembershipFunctionPointerVector;
 
   typedef itk::ImageGaussianModelEstimator<VecImageType,
-    MembershipFunctionType, ClassImageType> 
+    MembershipFunctionType, ClassImageType>
     ImageGaussianModelEstimatorType;
-  
-  typename ImageGaussianModelEstimatorType::Pointer  applyEstimateModel = 
-    ImageGaussianModelEstimatorType::New();  
-  /*  
-  typedef itk::Statistics::WeightedCentroidKdTreeGenerator< 
-                                                      AdaptorType > 
+
+  typename ImageGaussianModelEstimatorType::Pointer  applyEstimateModel =
+    ImageGaussianModelEstimatorType::New();
+  /*
+  typedef itk::Statistics::WeightedCentroidKdTreeGenerator<
+                                                      AdaptorType >
                                                               TreeGeneratorType;
   typedef typename TreeGeneratorType::KdTreeType TreeType;
   typedef itk::Statistics::KdTreeBasedKmeansEstimator<TreeType> EstimatorType;
@@ -2862,27 +2862,27 @@ SegmentMRF(typename TImage::Pointer image ,
   */
   applyEstimateModel->SetNumberOfModels(nclasses);
   applyEstimateModel->SetInputImage(vecImage);
-  applyEstimateModel->SetTrainingImage(labelimage);  
-  
+  applyEstimateModel->SetTrainingImage(labelimage);
+
   //Run the gaussian classifier algorithm
   applyEstimateModel->Update();
-  applyEstimateModel->Print(std::cout); 
+  applyEstimateModel->Print(std::cout);
 
-  MembershipFunctionPointerVector membershipFunctions = 
-    applyEstimateModel->GetMembershipFunctions();  
+  MembershipFunctionPointerVector membershipFunctions =
+    applyEstimateModel->GetMembershipFunctions();
 
   //----------------------------------------------------------------------
-  //Set the decision rule 
-  //----------------------------------------------------------------------  
+  //Set the decision rule
+  //----------------------------------------------------------------------
   typedef typename itk::DecisionRuleBase::Pointer DecisionRuleBasePointer;
 
   typedef itk::MinimumDecisionRule DecisionRuleType;
-  typename DecisionRuleType::Pointer  
+  typename DecisionRuleType::Pointer
     myDecisionRule = DecisionRuleType::New();
 
   //----------------------------------------------------------------------
-  // Set the classifier to be used and assigne the parameters for the 
-  // supervised classifier algorithm except the input image which is 
+  // Set the classifier to be used and assigne the parameters for the
+  // supervised classifier algorithm except the input image which is
   // grabbed from the MRF application pipeline.
   //----------------------------------------------------------------------
   //---------------------------------------------------------------------
@@ -2891,7 +2891,7 @@ SegmentMRF(typename TImage::Pointer image ,
   typedef itk::ImageClassifierBase< VecImageType,
     ClassImageType > ClassifierType;
 
-  typedef typename itk::ClassifierBase<VecImageType>::Pointer 
+  typedef typename itk::ClassifierBase<VecImageType>::Pointer
     ClassifierBasePointer;
 
   typedef typename ClassifierType::Pointer ClassifierPointer;
@@ -2899,7 +2899,7 @@ SegmentMRF(typename TImage::Pointer image ,
   // Set the Classifier parameters
   myClassifier->SetNumberOfClasses(nclasses);
 
-  // Set the decison rule 
+  // Set the decison rule
   myClassifier->
     SetDecisionRule((DecisionRuleBasePointer) myDecisionRule );
 
@@ -2928,21 +2928,21 @@ SegmentMRF(typename TImage::Pointer image ,
   applyMRFImageFilter->SetErrorTolerance( 1.e-4 );
   applyMRFImageFilter->SetSmoothingFactor( smf );
   applyMRFImageFilter->SetInput(vecImage);
-  applyMRFImageFilter->SetClassifier( myClassifier ); 
-  
+  applyMRFImageFilter->SetClassifier( myClassifier );
+
   //For setting up a square/cubic or hypercubic neighborhood
   applyMRFImageFilter->SetNeighborhoodRadius( 1 );
-  std::vector<double> weights = 
+  std::vector<double> weights =
     applyMRFImageFilter->GetMRFNeighborhoodWeight();
   std::vector<double> testNewNeighborhoodWeight( weights.size(), 1);
   double totalWeight = 0;
-  for(std::vector< double >::const_iterator wcIt = weights.begin(); 
+  for(std::vector< double >::const_iterator wcIt = weights.begin();
       wcIt != weights.end(); ++wcIt )
     {
     totalWeight += *wcIt;
     }
   unsigned int jj = 0;
-  for(std::vector< double >::iterator wIt = weights.begin(); 
+  for(std::vector< double >::iterator wIt = weights.begin();
       wIt != weights.end(); wIt++ )
     {
      testNewNeighborhoodWeight[jj] = static_cast< double > ( (*wIt) * meanDistance / (2 * totalWeight));
@@ -2956,50 +2956,50 @@ SegmentMRF(typename TImage::Pointer image ,
   //Kick off the MRF labeller function
   applyMRFImageFilter->Update();
 
-  applyMRFImageFilter->Print(std::cout); 
-  std::cout << "Number of Iterations : " << applyMRFImageFilter->GetNumberOfIterations() 
+  applyMRFImageFilter->Print(std::cout);
+  std::cout << "Number of Iterations : " << applyMRFImageFilter->GetNumberOfIterations()
     << std::endl;
-  std::cout << "Stop condition: (1) Maximum number of iterations (2) Error tolerance:  " 
+  std::cout << "Stop condition: (1) Maximum number of iterations (2) Error tolerance:  "
     << applyMRFImageFilter->GetStopCondition() << std::endl;
-  
+
   typename ClassImageType::Pointer  outClassImage = applyMRFImageFilter->GetOutput();
 
   //Testing of different parameter access functions in the filter
   std::cout << "The number of classes labelled was: " <<
     applyMRFImageFilter->GetNumberOfClasses() << std::endl;
   std::cout << "The maximum number of iterations were: " <<
-    applyMRFImageFilter->GetMaximumNumberOfIterations() << std::endl; 
+    applyMRFImageFilter->GetMaximumNumberOfIterations() << std::endl;
   std::cout << "The error tolerace threshold was: " <<
-    applyMRFImageFilter->GetErrorTolerance() << std::endl; 
+    applyMRFImageFilter->GetErrorTolerance() << std::endl;
   std::cout << "The smoothing MRF parameter used was: " <<
     applyMRFImageFilter->GetSmoothingFactor() << std::endl;
   std::cout << "The MRF neighborhood weights are: " << std::endl;
 
-     
+
   return  outClassImage;
 
 }
 
 
 
-template<class TImage> 
-typename TImage::Pointer 
+template<class TImage>
+typename TImage::Pointer
 //void
 itkMRIBiasFieldCorrectionFilter(typename TImage::Pointer image ,
 								typename TImage::Pointer labelimage, unsigned int sd=2)
 {
-	
+
 	std::cout << "doing Bias corr " << std::endl;
 	typedef TImage ImageType;
 	enum { ImageDimension = ImageType::ImageDimension };
 	typedef itk::ImageRegionIteratorWithIndex< ImageType > ImageIteratorType ;
-	
+
 //	bool SaveImages = false;
-	
+
 	//  WriteImage<ImageType>(image,"temp1.nii");
 	//  WriteImage<ImageType>(labelimage,"temp2.nii");
-	
-	// class statistics for two classes: a bright sphere and background 
+
+	// class statistics for two classes: a bright sphere and background
 	// 3 or 1 classes ? SD
 	//unsigned int numclasses=1;
 	unsigned int numclasses=4;
@@ -3009,18 +3009,18 @@ itkMRIBiasFieldCorrectionFilter(typename TImage::Pointer image ,
 	classMeans.Fill(0.0);
 	classSigmas.Fill(0.0);
 	classCounts.Fill(0);
-	
-	
+
+
 	//******** get output mask from image SD
 	typename ImageType::Pointer outputmask = BinaryThreshold<TImage>(0.1,1.e9,1,image);
 	//******** get output mask from image SD
-	
+
 	//  WriteImage<TImage>(mask,"outMK1.nii");
 	// SD play with mask to see if we can move the artifact line
 	//  mask=MorphologicalErosion<TImage>(1.5, mask);
 	//mask=MorphologicalErosion<TImage>(3.5, mask);
 	//WriteImage<TImage>(mask,"outMK2.nii");
-	
+
 	ImageIteratorType o_iter( labelimage,labelimage->GetLargestPossibleRegion() );
 	o_iter.GoToBegin() ;
 	while ( !o_iter.IsAtEnd() )
@@ -3029,7 +3029,7 @@ itkMRIBiasFieldCorrectionFilter(typename TImage::Pointer image ,
 		float pix = image->GetPixel(o_iter.GetIndex());
 		// uncomment for using one tissue class only for input mask SD
 		/*
-			if ( mask->GetPixel(o_iter.GetIndex()) == 1 ) 
+			if ( mask->GetPixel(o_iter.GetIndex()) == 1 )
 		 {
 				label=label-1;
 				unsigned int ind=0;
@@ -3037,12 +3037,12 @@ itkMRIBiasFieldCorrectionFilter(typename TImage::Pointer image ,
 				float n = classCounts[ind];
 				classMeans[ind] = (n-1.0)/( n )*  classMeans[ind] + 1.0 / n * pix;
 				double sqrdf =  ( pix -  classMeans[ind])*( pix -  classMeans[ind]);
-				if (n > 1)classSigmas[ind]=  (n-1)/n * classSigmas[ind] +  1.0 / (n-1) * sqrdf; 
+				if (n > 1)classSigmas[ind]=  (n-1)/n * classSigmas[ind] +  1.0 / (n-1) * sqrdf;
 		 }
 		 */
-		
+
 		// uncomment for using 3 tissue classes SD
-		if ( outputmask->GetPixel(o_iter.GetIndex()) == 1 ) 
+		if ( outputmask->GetPixel(o_iter.GetIndex()) == 1 )
 		{
 			//label=label-1;
 			classCounts[label] +=1;
@@ -3051,58 +3051,58 @@ itkMRIBiasFieldCorrectionFilter(typename TImage::Pointer image ,
 			double sqrdf =  ( pix -  classMeans[label])*( pix -  classMeans[label]);
 			if (n > 1)classSigmas[label]=  (n-1)/n * classSigmas[label] +  1.0 / (n-1) * sqrdf;
 		}
-		
+
 		++o_iter ;
     }
-	
-	for (unsigned int k=0; k < numclasses; k++) 
+
+	for (unsigned int k=0; k < numclasses; k++)
     {
 		classSigmas[k]=sqrt(classSigmas[k]);
 		std::cout << " Initial Means pre-bias " << classMeans[k] << " sig " <<  classSigmas[k] << std::endl;
     }
-	
+
 	// creats a normal random variate generator
 	//itk::Statistics::NormalVariateGenerator::Pointer randomGenerator =
 	//  itk::Statistics::NormalVariateGenerator::New() ;
-	
-	
+
+
 	// creates a bias correction filter and run it.
 	typedef itk::MRIBiasFieldCorrectionFilter<ImageType, ImageType, ImageType>  FilterType;
-	
+
 	std::cout << "before new filter" << std::endl;
 	typename FilterType::Pointer filter = FilterType::New() ;
 	std::cout << "after new filter" << std::endl;
-	
-	//  typename FilterType::BiasFieldType::CoefficientArrayType 
-	
+
+	//  typename FilterType::BiasFieldType::CoefficientArrayType
+
 	filter->SetInput( image.GetPointer() ) ;
 	//filter->SetInput( image ) ;
-	filter->IsBiasFieldMultiplicative( true ) ; // correct with multiplicative bias 
+	filter->IsBiasFieldMultiplicative( true ) ; // correct with multiplicative bias
 	unsigned int biasDegree=4;
 	filter->SetBiasFieldDegree( biasDegree ) ; // default value = 3
 	filter->SetTissueClassStatistics( classMeans, classSigmas ) ;
 	//filter->SetOptimizerGrowthFactor( 1.01 ) ; // default value
 	//filter->SetOptimizerInitialRadius( 0.02 ) ; // default value
-	
+
 	// SD debug don't do interslice correction
 	//filter->SetUsingInterSliceIntensityCorrection( true ) ; // default value
 	filter->SetUsingInterSliceIntensityCorrection( false ) ; // default value
-	
-	
-	
-	
+
+
+
+
 	filter->SetVolumeCorrectionMaximumIteration( 200) ; // default value = 100
 	filter->SetInterSliceCorrectionMaximumIteration( 100 ) ; // default value = 100
 	filter->SetUsingSlabIdentification( false ) ; // default value = false
 												  //filter->SetSlabBackgroundMinimumThreshold( 0 ) ; // default value
-												  //filter->SetSlabNumberOfSamples( 10 ) ; // default value 
+												  //filter->SetSlabNumberOfSamples( 10 ) ; // default value
 												  //filter->SetSlabTolerance(0.0) ; // default value
 	filter->SetSlicingDirection(sd) ; // default value
 	filter->SetUsingBiasFieldCorrection( true ) ; // default value
 	filter->SetGeneratingOutput( true ) ; // default value
-	
+
 	filter->SetInputMask( outputmask ) ;
-	
+
 	//******** Try different output mask SD
 	//  filter->SetOutputMask( labelimage ) ;
 	filter->SetOutputMask( outputmask ) ;
@@ -3112,7 +3112,7 @@ itkMRIBiasFieldCorrectionFilter(typename TImage::Pointer image ,
 	//    WriteImage<ImageType>(image,"image.nii");
 	//    WriteImage<ImageType>(labelimage,"labelimage.nii");
 	//******** Try different output mask SD
-	
+
 	// default schedule is 2 2 2 - 1 1 1, let's change this
 	bool setnewsched=false;
 	if (setnewsched)
@@ -3126,7 +3126,7 @@ itkMRIBiasFieldCorrectionFilter(typename TImage::Pointer image ,
 		filter->SetNumberOfLevels( nlev ) ; // Important to set this first, otherwise the filter rejects the new schedule
 		filter->SetSchedule( schedule ) ;
     }
-	//  filter->SetInitialBiasFieldCoefficients(initCoefficients); 
+	//  filter->SetInitialBiasFieldCoefficients(initCoefficients);
 	filter->SetVolumeCorrectionMaximumIteration( 200 ) ; // default value = 100
 	filter->SetInterSliceCorrectionMaximumIteration( 100 ) ; // default value = 100
 															 //filter->SetOptimizerInitialRadius( 0.02 ) ; // default value
@@ -3135,15 +3135,15 @@ itkMRIBiasFieldCorrectionFilter(typename TImage::Pointer image ,
 	filter->Update() ;
 	long int t2 = time(NULL);
 	std::cout << "Run time (in s)" << t2-t1  << std::endl ;
-	
+
 	return filter->GetOutput();
 }
 
 
 
 
-template<class TImage> 
-typename TImage::Pointer 
+template<class TImage>
+typename TImage::Pointer
 //void
 SegmentMRFKM(typename TImage::Pointer image ,
 	     typename TImage::Pointer labelimage, unsigned int nclasses, float smf, unsigned int maxit)
@@ -3156,7 +3156,7 @@ SegmentMRFKM(typename TImage::Pointer image ,
 
 
   //  const unsigned int NUMBANDS=1;
-  typedef itk::Image<itk::Vector<double,1>,ImageDimension> VecImageType; 
+  typedef itk::Image<itk::Vector<double,1>,ImageDimension> VecImageType;
   typedef typename VecImageType::PixelType  VecPixelType;
 
   /** copy the input image into this vector image.  stupid.  */
@@ -3185,30 +3185,30 @@ SegmentMRFKM(typename TImage::Pointer image ,
     }
 
 
-  namespace stat = itk::Statistics;  
+  namespace stat = itk::Statistics;
 
-  typedef itk::Image<PixelType,ImageDimension> ClassImageType; 
+  typedef itk::Image<PixelType,ImageDimension> ClassImageType;
 
 
   //----------------------------------------------------------------------
   //Set membership function (Using the statistics objects)
   //----------------------------------------------------------------------
 
-  typedef itk::Statistics::DistanceToCentroidMembershipFunction< VecPixelType > 
+  typedef itk::Statistics::DistanceToCentroidMembershipFunction< VecPixelType >
     MembershipFunctionType ;
 
   typedef typename MembershipFunctionType::Pointer MembershipFunctionPointer ;
 
-  typedef std::vector< MembershipFunctionPointer > 
+  typedef std::vector< MembershipFunctionPointer >
     MembershipFunctionPointerVector;
 
   //----------------------------------------------------------------------
   //Set the image model estimator
   //----------------------------------------------------------------------
-  typedef itk::ImageKmeansModelEstimator< VecImageType, 
+  typedef itk::ImageKmeansModelEstimator< VecImageType,
     MembershipFunctionType> ImageKmeansModelEstimatorType;
 
-  typename ImageKmeansModelEstimatorType::Pointer 
+  typename ImageKmeansModelEstimatorType::Pointer
     applyKmeansModelEstimator = ImageKmeansModelEstimatorType::New();
 
   //----------------------------------------------------------------------
@@ -3222,23 +3222,23 @@ SegmentMRFKM(typename TImage::Pointer image ,
   applyKmeansModelEstimator->SetThreshold(0.0001);
   applyKmeansModelEstimator->Update();
 
-  MembershipFunctionPointerVector membershipFunctions = 
-    applyKmeansModelEstimator->GetMembershipFunctions(); 
+  MembershipFunctionPointerVector membershipFunctions =
+    applyKmeansModelEstimator->GetMembershipFunctions();
 
   typedef std::vector<double> TempVectorType;
   typedef TempVectorType::iterator TempVectorIterator;
   TempVectorIterator  start, end;
 
   std::vector<double> kmeansResultForClass(membershipFunctions.size());
-  
-  
+
+
   std::cout << "Result of K-Means clustering" << std::endl;
 
   double meanDistance=0;
-  for(unsigned int classIndex=0; classIndex < membershipFunctions.size(); 
+  for(unsigned int classIndex=0; classIndex < membershipFunctions.size();
     classIndex++ )
     {
-    kmeansResultForClass[classIndex] = 
+    kmeansResultForClass[classIndex] =
       (double) (membershipFunctions[classIndex]->GetCentroid())[0];
     meanDistance+=kmeansResultForClass[classIndex];//membershipFunctions[i]->GetMean()[0];
     }
@@ -3248,54 +3248,54 @@ SegmentMRFKM(typename TImage::Pointer image ,
 
   start = kmeansResultForClass.begin();
   end   = kmeansResultForClass.end();
-  
+
   std::sort( start, end );
 
   vnl_vector<double> temp =  membershipFunctions[0]->GetCentroid();
-  for(unsigned int classIndex=0; classIndex < membershipFunctions.size(); 
+  for(unsigned int classIndex=0; classIndex < membershipFunctions.size();
     classIndex++ )
     {
     temp[0] = (double) kmeansResultForClass[classIndex];
     membershipFunctions[classIndex]->SetCentroid(temp);
-    }  
+    }
 
-  for(unsigned int classIndex=0; classIndex < membershipFunctions.size(); 
+  for(unsigned int classIndex=0; classIndex < membershipFunctions.size();
     classIndex++ )
     {
     std::cout <<  (membershipFunctions[classIndex]->GetCentroid())[0] << std::endl;
     }
 
   //----------------------------------------------------------------------
-  //Set the decision rule 
-  //----------------------------------------------------------------------  
+  //Set the decision rule
+  //----------------------------------------------------------------------
   typedef itk::DecisionRuleBase::Pointer DecisionRuleBasePointer;
 
   typedef itk::MinimumDecisionRule DecisionRuleType;
-  DecisionRuleType::Pointer  
+  DecisionRuleType::Pointer
     classifierDecisionRule = DecisionRuleType::New();
 
   //------------------------------------------------------
   //Instantiate the classifier model (as the input image is in right format)
-  //------------------------------------------------------  
+  //------------------------------------------------------
 
   //Assign a class label image type
 
-  typedef itk::Image<PixelType,ImageDimension> ClassImageType; 
+  typedef itk::Image<PixelType,ImageDimension> ClassImageType;
 
-  typedef itk::ImageClassifierBase< VecImageType,ClassImageType > 
+  typedef itk::ImageClassifierBase< VecImageType,ClassImageType >
     SupervisedClassifierType;
 
-  typename SupervisedClassifierType::Pointer 
+  typename SupervisedClassifierType::Pointer
     classifierPointer = SupervisedClassifierType::New();
 
 
-  //------------------------------------------------------  
+  //------------------------------------------------------
   // Set the Classifier parameters
-  //------------------------------------------------------  
+  //------------------------------------------------------
   classifierPointer->SetNumberOfClasses( nclasses );
   classifierPointer->SetInputImage( vecImage );
 
-  // Set the decison rule 
+  // Set the decison rule
   classifierPointer->
     SetDecisionRule( (DecisionRuleBasePointer) classifierDecisionRule );
 
@@ -3307,14 +3307,14 @@ SegmentMRFKM(typename TImage::Pointer image ,
     {
     classifierPointer->AddMembershipFunction( membershipFunctions[i] );
     }
-  
+
   //Do the classification
   //Run the kmeans classifier algorithm
   classifierPointer->Update();
 
   //Get the classified image
   typedef typename ClassImageType::Pointer ClassifiedImagePointer;
-  ClassifiedImagePointer outClassImage = 
+  ClassifiedImagePointer outClassImage =
     classifierPointer->GetClassifiedImage();
 
   //------------------------------------------------------
@@ -3322,7 +3322,7 @@ SegmentMRFKM(typename TImage::Pointer image ,
   //------------------------------------------------------
 
   // Declare the type for the MaskInput filter
- 
+
   typedef itk::MaskImageFilter< ClassImageType,
                            ClassImageType,
                            ClassImageType  >   MaskFilterType;
@@ -3330,17 +3330,17 @@ SegmentMRFKM(typename TImage::Pointer image ,
   typedef typename ClassImageType::Pointer   MaskedOutputImagePointer;
   typedef typename MaskFilterType::Pointer        MaskFilterTypePointer;
 
-  // Create an ADD Filter                                
+  // Create an ADD Filter
   MaskFilterTypePointer maskfilter = MaskFilterType::New();
 
   // Connect the input images
-  maskfilter->SetInput1( outClassImage ); 
+  maskfilter->SetInput1( outClassImage );
   maskfilter->SetInput2( labelimage );
 
   // Execute the filter
   maskfilter->Update();
 
-  // Get the Smart Pointer to the Filter Output 
+  // Get the Smart Pointer to the Filter Output
   MaskedOutputImagePointer maskedOutputImage = maskfilter->GetOutput();
 
   //  this->SetClassifiedImage( maskedOutputImage );
@@ -3349,7 +3349,7 @@ SegmentMRFKM(typename TImage::Pointer image ,
   //Set the MRF labeller and populate the parameters
   //------------------------------------------------------
   //Set the MRF labeller
-  typedef itk::MRFImageFilter<VecImageType,ClassImageType> 
+  typedef itk::MRFImageFilter<VecImageType,ClassImageType>
     MRFFilterType;
 
   typename MRFFilterType::Pointer applyMRFFilter = MRFFilterType::New();
@@ -3365,17 +3365,17 @@ SegmentMRFKM(typename TImage::Pointer image ,
 
   //For setting up a square/cubic or hypercubic neighborhood
   applyMRFFilter->SetNeighborhoodRadius( 1 );
-  std::vector<double> weights = 
+  std::vector<double> weights =
     applyMRFFilter->GetMRFNeighborhoodWeight();
   std::vector<double> testNewNeighborhoodWeight( weights.size(), 1);
   double totalWeight = 0;
-  for(std::vector< double >::const_iterator wcIt = weights.begin(); 
+  for(std::vector< double >::const_iterator wcIt = weights.begin();
       wcIt != weights.end(); ++wcIt )
     {
     totalWeight += *wcIt;
     }
   unsigned int jj = 0;
-  for(std::vector< double >::iterator wIt = weights.begin(); 
+  for(std::vector< double >::iterator wIt = weights.begin();
       wIt != weights.end(); wIt++ )
     {
      testNewNeighborhoodWeight[jj] = static_cast< double > ( (*wIt) * meanDistance / (2 * totalWeight));
@@ -3386,31 +3386,31 @@ SegmentMRFKM(typename TImage::Pointer image ,
   applyMRFFilter->SetMRFNeighborhoodWeight( testNewNeighborhoodWeight );
 
   applyMRFFilter->SetInput(vecImage);
-  applyMRFFilter->SetClassifier( classifierPointer ); 
-  
+  applyMRFFilter->SetClassifier( classifierPointer );
+
   //Kick off the MRF labeller function
   applyMRFFilter->Update();
 
   applyMRFFilter->Print(std::cout);
   outClassImage = applyMRFFilter->GetOutput();
-  
+
   //------------------------------------------------------
   //Mask the output of the classifier
   //------------------------------------------------------
 
   // Declare the type for the MaskInput filter
 
-  // Create an ADD Filter                                
+  // Create an ADD Filter
   MaskFilterTypePointer maskfilter2 = MaskFilterType::New();
 
   // Connect the input images
-  maskfilter2->SetInput1( outClassImage ); 
+  maskfilter2->SetInput1( outClassImage );
   maskfilter2->SetInput2( labelimage );
 
   // Execute the filter
   maskfilter2->Update();
 
-  // Get the Smart Pointer to the Filter Output 
+  // Get the Smart Pointer to the Filter Output
   maskedOutputImage = maskfilter2->GetOutput();
 
   //  this->SetClassifiedImage( maskedOutputImage );
@@ -3421,9 +3421,9 @@ SegmentMRFKM(typename TImage::Pointer image ,
 
 
 
-       
+
 template<unsigned int ImageDimension>
-int SmoothImage(int argc, char *argv[])        
+int SmoothImage(int argc, char *argv[])
 {
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
@@ -3443,13 +3443,13 @@ int SmoothImage(int argc, char *argv[])
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
-  float sigma = 1.0; 
+  float sigma = 1.0;
   if (argc > argct) sigma=atof(argv[argct]);
 
-  typename ImageType::Pointer image1 = NULL; 
-  typename ImageType::Pointer varimage = NULL; 
+  typename ImageType::Pointer image1 = NULL;
+  typename ImageType::Pointer varimage = NULL;
   ReadImage<ImageType>(image1, fn1.c_str());
-  
+
   typedef itk::DiscreteGaussianImageFilter<ImageType, ImageType> dgf;
   typename dgf::Pointer filter = dgf::New();
   filter->SetVariance(sigma*sigma);
@@ -3462,18 +3462,18 @@ int SmoothImage(int argc, char *argv[])
   varimage=filter->GetOutput();
   typename writertype::Pointer writer = writertype::New();
   writer->SetFileName(outname.c_str());
-  writer->SetInput( varimage ); 
-  writer->Write();   
-  
+  writer->SetInput( varimage );
+  writer->Write();
+
   return 0;
- 
-}     
+
+}
 
 
-      
+
 
 template<unsigned int ImageDimension>
-int MorphImage(int argc, char *argv[])        
+int MorphImage(int argc, char *argv[])
 {
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
@@ -3493,41 +3493,41 @@ int MorphImage(int argc, char *argv[])
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
-  float sigma = 1.0; 
+  float sigma = 1.0;
   if (argc > argct) sigma=atof(argv[argct]);
 
-  unsigned int morphopt=1; 
-  if ( strcmp(operation.c_str(),"ME") == 0) morphopt=0; 
+  unsigned int morphopt=1;
+  if ( strcmp(operation.c_str(),"ME") == 0) morphopt=0;
   else if ( strcmp(operation.c_str(),"MO") == 0) morphopt=2;
-  else if ( strcmp(operation.c_str(),"MC") == 0) morphopt=3;  
+  else if ( strcmp(operation.c_str(),"MC") == 0) morphopt=3;
   else if ( strcmp(operation.c_str(),"GE") == 0) morphopt=4;
   else if ( strcmp(operation.c_str(),"GD") == 0) morphopt=5;
 	else if ( strcmp(operation.c_str(),"GO") == 0) morphopt=6;
 	else if ( strcmp(operation.c_str(),"GC") == 0) morphopt=7;
-	
-  typename ImageType::Pointer image1 = NULL; 
+
+  typename ImageType::Pointer image1 = NULL;
   ReadImage<ImageType>(image1, fn1.c_str());
-  
+
   // SRD set dilatevalue
   float dilateval = 1.0;
   //  if (argc > argct + 1) dilateval=atof(argv[argct+1]);
-	  
+
 
   image1=Morphological<ImageType>(image1, sigma, morphopt , dilateval);
-  
+
  typename writertype::Pointer writer = writertype::New();
   writer->SetFileName(outname.c_str());
-  writer->SetInput( image1 ); 
-  writer->Write();   
+  writer->SetInput( image1 );
+  writer->Write();
 
   return 0;
 
 }
-       
+
 
 
 template<unsigned int ImageDimension>
-int PropagateLabelsThroughMask(int argc, char *argv[])        
+int PropagateLabelsThroughMask(int argc, char *argv[])
 {
 
  typedef float  PixelType;
@@ -3553,20 +3553,20 @@ int PropagateLabelsThroughMask(int argc, char *argv[])
   if (  argc > argct) { fn2=std::string(argv[argct]);   argct++; }
   else { std::cout << " not enough parameters -- need label image " << std::endl;  return 0; }
   if (  argc > argct) { stopval=atof(argv[argct]);   argct++; }
-  
 
-  typename ImageType::Pointer speedimage = NULL; 
+
+  typename ImageType::Pointer speedimage = NULL;
   ReadImage<ImageType>(speedimage, fn1.c_str());
-  typename ImageType::Pointer labimage = NULL; 
+  typename ImageType::Pointer labimage = NULL;
   ReadImage<ImageType>(labimage, fn2.c_str());
-  typename ImageType::Pointer fastimage = NULL; 
+  typename ImageType::Pointer fastimage = NULL;
   ReadImage<ImageType>(fastimage, fn1.c_str());
-  typename ImageType::Pointer outlabimage = NULL; 
+  typename ImageType::Pointer outlabimage = NULL;
   ReadImage<ImageType>(outlabimage, fn2.c_str());
   fastimage->FillBuffer(1.e9);
   // compute max label
   double maxlabel=0;
-  Iterator vfIter2( labimage,  labimage->GetLargestPossibleRegion() );  
+  Iterator vfIter2( labimage,  labimage->GetLargestPossibleRegion() );
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       bool isinside=true;
@@ -3576,16 +3576,16 @@ int PropagateLabelsThroughMask(int argc, char *argv[])
       if (isinside )
 	{
 	  if ( labval > maxlabel ) maxlabel=labval;
-	} 
+	}
     }
-  
-  for (unsigned int lab=1; lab<=(unsigned int)maxlabel; lab++) 
+
+  for (unsigned int lab=1; lab<=(unsigned int)maxlabel; lab++)
     {
       typedef  itk::FastMarchingImageFilter< ImageType, ImageType >    FastMarchingFilterType;
       typename FastMarchingFilterType::Pointer  fastMarching = FastMarchingFilterType::New();
       fastMarching->SetInput( speedimage );
 
-      fastMarching->SetCheckTopology( false );// typename FastMarchingFilterType::Strict );
+      fastMarching->SetTopologyCheck( FastMarchingFilterType::None );
 
       typedef typename FastMarchingFilterType::NodeContainer           NodeContainer;
       typedef typename FastMarchingFilterType::NodeType                NodeType;
@@ -3598,7 +3598,7 @@ int PropagateLabelsThroughMask(int argc, char *argv[])
 	  double speedval=speedimage->GetPixel(vfIter2.GetIndex());
 	  double labval=labimage->GetPixel(vfIter2.GetIndex());
 	  if ( speedval < thresh ) isinside=false;
-	  if (isinside && (unsigned int) labval == lab ) 
+	  if (isinside && (unsigned int) labval == lab )
 	    {
 	      NodeType node;
 	      const double seedValue = 0.0;
@@ -3606,10 +3606,10 @@ int PropagateLabelsThroughMask(int argc, char *argv[])
 	      node.SetIndex( vfIter2.GetIndex() );
 	      seeds->InsertElement( ct, node );
 	      ct++;
-	    } 
+	    }
 	}
       fastMarching->SetTrialPoints(  seeds  );
-      fastMarching->SetStoppingValue(  stopval );  
+      fastMarching->SetStoppingValue(  stopval );
       fastMarching->Update();
       for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
 	{
@@ -3617,11 +3617,11 @@ int PropagateLabelsThroughMask(int argc, char *argv[])
 	  double speedval=speedimage->GetPixel(vfIter2.GetIndex());
 	  double labval=labimage->GetPixel(vfIter2.GetIndex());
 	  if ( speedval < thresh ) isinside=false;
-	  if (isinside && labval == 0 ) 
+	  if (isinside && labval == 0 )
 	    {
 	      double fmarrivaltime=fastMarching->GetOutput()->GetPixel( vfIter2.GetIndex() );
-	      double mmm= fastimage->GetPixel(vfIter2.GetIndex()); 
-	      if ( fmarrivaltime < mmm ) 
+	      double mmm= fastimage->GetPixel(vfIter2.GetIndex());
+	      if ( fmarrivaltime < mmm )
 		{
 		  fastimage->SetPixel(vfIter2.GetIndex() ,  fmarrivaltime );
 		  outlabimage->SetPixel(vfIter2.GetIndex() , lab );
@@ -3642,7 +3642,7 @@ int PropagateLabelsThroughMask(int argc, char *argv[])
 }
 
 template<unsigned int ImageDimension>
-int DistanceMap(int argc, char *argv[])        
+int DistanceMap(int argc, char *argv[])
 {
 
  typedef float  PixelType;
@@ -3663,12 +3663,12 @@ int DistanceMap(int argc, char *argv[])
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
-  float sigma = 1.0; 
+  float sigma = 1.0;
   if (argc > argct) sigma=atof(argv[argct]);
 
-  typename ImageType::Pointer image1 = NULL; 
+  typename ImageType::Pointer image1 = NULL;
   ReadImage<ImageType>(image1, fn1.c_str());
-  
+
   typedef itk::DanielssonDistanceMapImageFilter<ImageType, ImageType >  FilterType;
 
   typename  FilterType::Pointer filter = FilterType::New();
@@ -3679,17 +3679,17 @@ int DistanceMap(int argc, char *argv[])
 
   typename writertype::Pointer writer = writertype::New();
   writer->SetFileName(outname.c_str());
-  writer->SetInput( filter->GetOutput() ); 
-  writer->Write();   
+  writer->SetInput( filter->GetOutput() );
+  writer->Write();
 
   return 0;
- 
-}     
+
+}
 
 
 
 template<unsigned int ImageDimension>
-int FillHoles(int argc, char *argv[])        
+int FillHoles(int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -3712,16 +3712,16 @@ int FillHoles(int argc, char *argv[])
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
-  float holeparam = 2.0; 
+  float holeparam = 2.0;
   if (argc > argct) holeparam=atof(argv[argct]);
 
-  typename ImageType::Pointer image1 = NULL; 
+  typename ImageType::Pointer image1 = NULL;
   ReadImage<ImageType>(image1, fn1.c_str());
-  typename ImageType::Pointer imageout = NULL; 
+  typename ImageType::Pointer imageout = NULL;
   ReadImage<ImageType>(imageout, fn1.c_str());
   image1 = BinaryThreshold<ImageType>(0.5,1.e9,1,image1);
-  
-  
+
+
   typedef itk::DanielssonDistanceMapImageFilter<ImageType, ImageType >  FilterType;
   typename  FilterType::Pointer filter = FilterType::New();
   filter->InputIsBinaryOff();
@@ -3729,12 +3729,12 @@ int FillHoles(int argc, char *argv[])
   filter->SetInput(image1);
   filter->Update();
   // algorithm :
-  // 1. get distance map of object 
-  // 2. threshold 
-  // 3. label connected components 
-  // 4. label surface 
+  // 1. get distance map of object
+  // 2. threshold
+  // 3. label connected components
+  // 4. label surface
   // 5. if everywhere on surface is next to object then it's a hole
-  // 6. make sure it's not the background 
+  // 6. make sure it's not the background
   typedef itk::Image<int, ImageDimension> labelimagetype;
   typename ImageType::Pointer dist = filter->GetOutput();
   typename ImageType::Pointer regions = BinaryThreshold<ImageType>(0.001,1.e9,1,dist);
@@ -3753,7 +3753,7 @@ int FillHoles(int argc, char *argv[])
   relabel->SetInput( ccfilter->GetOutput() );
 
   relabel->SetMinimumObjectSize( 0 );
-  //    relabel->SetUseHistograms(true);    
+  //    relabel->SetUseHistograms(true);
   try
     {
     relabel->Update();
@@ -3771,27 +3771,27 @@ int FillHoles(int argc, char *argv[])
     {
       std::cout <<" Filling all holes "<<  std::endl;
       typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-      Iterator vfIter( relabel->GetOutput(),  relabel->GetOutput()->GetLargestPossibleRegion() );  
-      
+      Iterator vfIter( relabel->GetOutput(),  relabel->GetOutput()->GetLargestPossibleRegion() );
+
       for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
 	{
 	  if (vfIter.Get() > 1 ) imageout->SetPixel(vfIter.GetIndex(),1);
 	}
-      
+
       WriteImage<ImageType>(imageout,outname.c_str());
 
       return 0;
     }
 
 
-  typedef itk::NeighborhoodIterator<ImageType>  iteratorType; 
+  typedef itk::NeighborhoodIterator<ImageType>  iteratorType;
   typename iteratorType::RadiusType rad;
   for (unsigned int j=0; j<ImageDimension; j++) rad[j]=1;
   iteratorType GHood(rad, relabel->GetOutput(),relabel->GetOutput()->GetLargestPossibleRegion());
-  
+
   float maximum=relabel->GetNumberOfObjects();
-  //now we have the exact number of objects labeled independently 
-  for (unsigned int lab=2; lab<=maximum; lab++) 
+  //now we have the exact number of objects labeled independently
+  for (unsigned int lab=2; lab<=maximum; lab++)
     {
       float erat=2;
       if (holeparam  <= 1 )
@@ -3802,7 +3802,7 @@ int FillHoles(int argc, char *argv[])
       unsigned long backgroundedge=0;
       unsigned long totaledge=0;
       unsigned long volume=0;
-     
+
       while (!GHood.IsAtEnd())
 	{
 	  typename ImageType::PixelType p = GHood.GetCenterPixel();
@@ -3812,18 +3812,18 @@ int FillHoles(int argc, char *argv[])
 	    {
 	      volume++;
 	      for (unsigned int i = 0; i < GHood.Size(); i++)
-		{ 
+		{
 		  ind2=GHood.GetIndex(i);
 		  float dist=0.0;
-		  for (unsigned int j=0; j<ImageDimension; j++) 
+		  for (unsigned int j=0; j<ImageDimension; j++)
 		    dist+=(float)(ind[j]-ind2[j])*(float)(ind[j]-ind2[j]);
 		  dist=sqrt(dist);
 		  float val2=image1->GetPixel(ind2);
-		  if (val2 >= 0.5 && GHood.GetPixel(i) != lab ) 
+		  if (val2 >= 0.5 && GHood.GetPixel(i) != lab )
 		    {
 		      objectedge++;
 		      totaledge++;
-		    } 
+		    }
 		  else if (val2 < 0.5 && GHood.GetPixel(i) != lab )
 		    {
 		      backgroundedge++;
@@ -3838,34 +3838,34 @@ int FillHoles(int argc, char *argv[])
       std::cout <<" Lab " << lab << " volume " << volume << " v-rat " << vrat << " edge " << erat << std::endl;
 	}
 
-      if (erat > holeparam)// fill the hole 
+      if (erat > holeparam)// fill the hole
 	{
 	  std::cout <<" Filling " << lab << " of " << maximum <<  std::endl;
 	  typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-	  Iterator vfIter( relabel->GetOutput(),  relabel->GetOutput()->GetLargestPossibleRegion() );  
-	  
+	  Iterator vfIter( relabel->GetOutput(),  relabel->GetOutput()->GetLargestPossibleRegion() );
+
 	  for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
 	    {
 	      if (vfIter.Get() == lab ) imageout->SetPixel(vfIter.GetIndex(),1);
 	    }
-	  
-	} 
+
+	}
 
     }
-       
-  
+
+
   WriteImage<ImageType>(imageout,outname.c_str());
 
 
   return 0;
- 
-}     
+
+}
 
 
 
 
 template<unsigned int ImageDimension>
-int NormalizeImage(int argc, char *argv[])        
+int NormalizeImage(int argc, char *argv[])
 {
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
@@ -3885,10 +3885,10 @@ int NormalizeImage(int argc, char *argv[])
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
-  float option = 0; 
+  float option = 0;
   if (argc > argct) option=atof(argv[argct]);
 
-  typename ImageType::Pointer image = NULL; 
+  typename ImageType::Pointer image = NULL;
   ReadImage<ImageType>(image, fn1.c_str());
 
   float max=0;
@@ -3896,18 +3896,18 @@ int NormalizeImage(int argc, char *argv[])
   float mean = 0.0;
   unsigned long ct = 0;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-  Iterator iter( image,  image->GetLargestPossibleRegion() ); 
-  for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter ) 
+  Iterator iter( image,  image->GetLargestPossibleRegion() );
+  for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
     {
       float pix=iter.Get();
       //      if (option == 0) if (pix < 0) pix=0;
       mean+=pix;
       ct++;
-      if (pix > max ) max=pix; 
+      if (pix > max ) max=pix;
       if (pix < min)  min=pix;
     }
   mean/=(float)ct;
-  for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter ) 
+  for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
     {
       float pix=iter.Get();
       if (option == 0)
@@ -3920,20 +3920,20 @@ int NormalizeImage(int argc, char *argv[])
 
   typename writertype::Pointer writer = writertype::New();
   writer->SetFileName(outname.c_str());
-  writer->SetInput( image ); 
-  writer->Write();   
+  writer->SetInput( image );
+  writer->Write();
 
   return 0;
 
 
 
 }
-      
+
 
 template <unsigned int ImageDimension>
-int PrintHeader(int argc, char *argv[])        
+int PrintHeader(int argc, char *argv[])
 {
-   
+
   typedef  float  outPixelType;
   typedef  float floatPixelType;
   typedef  float inPixelType;
@@ -3949,22 +3949,22 @@ int PrintHeader(int argc, char *argv[])
   std::string fn1 = std::string(argv[argct]);   argct++;
 
   typename readertype::Pointer reader = readertype::New();
-  reader->SetFileName(fn1.c_str()); 
-  reader->Update();   
+  reader->SetFileName(fn1.c_str());
+  reader->Update();
   std::cout << " Spacing " << reader->GetOutput()->GetSpacing() << std::endl;
   std::cout << " Origin " << reader->GetOutput()->GetOrigin() << std::endl;
   std::cout << " Direction " << std::endl << reader->GetOutput()->GetDirection() << std::endl;
   std::cout << " Size " << std::endl << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
-  
+
   return 1;
- 
-}     
+
+}
 
 
 
 
 template <unsigned int ImageDimension>
-int GradientImage(      int argc, char *argv[])        
+int GradientImage(      int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -3985,14 +3985,14 @@ int GradientImage(      int argc, char *argv[])
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
-  float sig = 1; 
+  float sig = 1;
   if (argc > argct) sig=atof(argv[argct]); argct++;
   if (sig <= 0) sig=0.5;
   bool normalize=false;
-  if (argc > argct) normalize=atoi(argv[argct]); 
+  if (argc > argct) normalize=atoi(argv[argct]);
 
-  typename ImageType::Pointer image = NULL; 
-  typename ImageType::Pointer image2 = NULL; 
+  typename ImageType::Pointer image = NULL;
+  typename ImageType::Pointer image2 = NULL;
   ReadImage<ImageType>(image, fn1.c_str());
 
   typedef itk::GradientMagnitudeRecursiveGaussianImageFilter<ImageType, ImageType> dgf;
@@ -4001,25 +4001,25 @@ int GradientImage(      int argc, char *argv[])
   filter->SetInput(image);
   filter->Update();
   image2=filter->GetOutput();
-  
-  if ( !normalize ) 
+
+  if ( !normalize )
     {
-    WriteImage<ImageType>( image2,outname.c_str());    
+    WriteImage<ImageType>( image2,outname.c_str());
     return 0;
     }
-  
+
   typedef itk::RescaleIntensityImageFilter<ImageType,ImageType > RescaleFilterType;
   typename RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
   rescaler->SetOutputMinimum(   0 );
-  rescaler->SetOutputMaximum( 1 );  
-  rescaler->SetInput( image2 );	
-  WriteImage<ImageType>( rescaler->GetOutput() ,outname.c_str());    
+  rescaler->SetOutputMaximum( 1 );
+  rescaler->SetInput( image2 );
+  WriteImage<ImageType>( rescaler->GetOutput() ,outname.c_str());
   return 0;
- 
-}     
+
+}
 
 template <unsigned int ImageDimension>
-int LaplacianImage(      int argc, char *argv[])        
+int LaplacianImage(      int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -4040,14 +4040,14 @@ int LaplacianImage(      int argc, char *argv[])
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
-  float sig = 1; 
+  float sig = 1;
   if (argc > argct) sig=atof(argv[argct]);
   if (sig <= 0) sig=0.5;
   bool normalize=false;
-  if (argc > argct) normalize=atoi(argv[argct]); 
+  if (argc > argct) normalize=atoi(argv[argct]);
 
-  typename ImageType::Pointer image = NULL; 
-  typename ImageType::Pointer image2 = NULL; 
+  typename ImageType::Pointer image = NULL;
+  typename ImageType::Pointer image2 = NULL;
   ReadImage<ImageType>(image, fn1.c_str());
 
 
@@ -4057,28 +4057,28 @@ int LaplacianImage(      int argc, char *argv[])
   filter->SetInput(image);
   filter->Update();
   image2=filter->GetOutput();
-  if ( !normalize ) 
+  if ( !normalize )
     {
-    WriteImage<ImageType>( image2,outname.c_str());    
+    WriteImage<ImageType>( image2,outname.c_str());
     return 0;
     }
-  
+
   typedef itk::RescaleIntensityImageFilter<ImageType,ImageType > RescaleFilterType;
   typename RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
   rescaler->SetOutputMinimum(   0 );
-  rescaler->SetOutputMaximum( 1 );  
-  rescaler->SetInput( image2 );	
-  WriteImage<ImageType>( rescaler->GetOutput() ,outname.c_str());    
+  rescaler->SetOutputMaximum( 1 );
+  rescaler->SetInput( image2 );
+  WriteImage<ImageType>( rescaler->GetOutput() ,outname.c_str());
   return 0;
 
-}     
+}
 
 
 
 
 template <unsigned int ImageDimension>
-void 
-RemoveLabelInterfaces(int argc, char *argv[])     
+void
+RemoveLabelInterfaces(int argc, char *argv[])
 {
 
  typedef float  PixelType;
@@ -4101,15 +4101,15 @@ RemoveLabelInterfaces(int argc, char *argv[])
   std::string fn1 = std::string(argv[argct]);   argct++;
 
 
-  typename ImageType::Pointer input = NULL; 
+  typename ImageType::Pointer input = NULL;
   ReadImage<ImageType>(input , fn1.c_str());
 
 
-  typedef itk::NeighborhoodIterator<ImageType>  iteratorType; 
+  typedef itk::NeighborhoodIterator<ImageType>  iteratorType;
   typename iteratorType::RadiusType rad;
   for (unsigned int j=0; j<ImageDimension; j++) rad[j]= 1;
   iteratorType GHood(rad, input,input->GetLargestPossibleRegion());
-  
+
   GHood.GoToBegin();
 
 //  std::cout << " foreg " << (int) foreground;
@@ -4123,14 +4123,14 @@ RemoveLabelInterfaces(int argc, char *argv[])
       bool atedge=false;
 
       for (unsigned int i = 0; i < GHood.Size(); i++)
-      { 
+      {
         ind2=GHood.GetIndex(i);
-	if (GHood.GetPixel(i) > 0 && GHood.GetPixel(i)  != p ) 
+	if (GHood.GetPixel(i) > 0 && GHood.GetPixel(i)  != p )
         {
           atedge=true;
         }
       }
-      if (atedge) input->SetPixel(ind,0); 
+      if (atedge) input->SetPixel(ind,0);
     }
     ++GHood;
   }
@@ -4143,8 +4143,8 @@ RemoveLabelInterfaces(int argc, char *argv[])
 
 
 template <unsigned int ImageDimension>
-void 
-EnumerateLabelInterfaces(int argc, char *argv[])     
+void
+EnumerateLabelInterfaces(int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -4169,13 +4169,13 @@ EnumerateLabelInterfaces(int argc, char *argv[])
   if (argc  > argct) outname2=std::string(argv[argct]);   argct++;
   float nfrac = 0.1;
   if (argc  > argct) nfrac=atof(argv[argct]);   argct++;
-  
-  typename ImageType::Pointer input = NULL; 
+
+  typename ImageType::Pointer input = NULL;
   ReadImage<ImageType>(input , fn1.c_str());
-  typename ImageType::Pointer output = NULL; 
+  typename ImageType::Pointer output = NULL;
   ReadImage<ImageType>(output , fn1.c_str());
   output->FillBuffer(0);
-  typename ImageType::Pointer colored = NULL; 
+  typename ImageType::Pointer colored = NULL;
   ReadImage<ImageType>(colored , fn1.c_str());
   colored->FillBuffer(0);
 
@@ -4205,7 +4205,7 @@ EnumerateLabelInterfaces(int argc, char *argv[])
   faceimage->SetRegions(region );
   faceimage->Allocate();
   faceimage->FillBuffer( 0 );
-  
+
 typename myInterfaceImageType::Pointer colorimage = myInterfaceImageType::New();
   colorimage->SetSpacing(spacing);
   colorimage->SetOrigin(origin);
@@ -4214,13 +4214,13 @@ typename myInterfaceImageType::Pointer colorimage = myInterfaceImageType::New();
   colorimage->FillBuffer( 0 );
   typedef itk::ImageRegionIteratorWithIndex<myInterfaceImageType> FIterator;
 
-// we can use this to compute a 4-coloring of the brain 
+// we can use this to compute a 4-coloring of the brain
 
-  typedef itk::NeighborhoodIterator<ImageType>  iteratorType; 
+  typedef itk::NeighborhoodIterator<ImageType>  iteratorType;
   typename iteratorType::RadiusType rad;
   for (unsigned int j=0; j<ImageDimension; j++) rad[j]= 1;
   iteratorType GHood(rad, input,input->GetLargestPossibleRegion());
-  
+
   GHood.GoToBegin();
 
 //  std::cout << " foreg " << (int) foreground;
@@ -4232,12 +4232,12 @@ typename myInterfaceImageType::Pointer colorimage = myInterfaceImageType::New();
     if ( p > 0  )
     {
     bool atedge=false;
- 
+
     unsigned long linearinda=0,linearindb=0,linearind=0;
     for (unsigned int i = 0; i < GHood.Size(); i++)
-      { 
+      {
       ind2=GHood.GetIndex(i);
-      if (GHood.GetPixel(i) > 0 && GHood.GetPixel(i)  != p ) 
+      if (GHood.GetPixel(i) > 0 && GHood.GetPixel(i)  != p )
         {
 	atedge=true;
 	typename myInterfaceImageType::IndexType inda,indb;
@@ -4257,19 +4257,19 @@ typename myInterfaceImageType::Pointer colorimage = myInterfaceImageType::New();
   }
 
 
-// first normalize the interfaces 
+// first normalize the interfaces
   typename myInterfaceImageType::IndexType find;
   typename myInterfaceImageType::IndexType find2;
   find2.Fill(0);
   for (unsigned int j=0; j<=max; j++)
     {
-    find[0]=j; 
+    find[0]=j;
     float total=0;
     for (unsigned int i=0; i<=max; i++)
       {
       find[1]=i;
       total+= faceimage->GetPixel(find) ;
-//      if ( faceimage->GetPixel(find) > 50 ) 
+//      if ( faceimage->GetPixel(find) > 50 )
       //std::cout << i <<"  :: " << faceimage->GetPixel(find)  << std::endl;
       }
     std::cout  << " total interfaces for label :  " << j << " are " << total << std::endl;
@@ -4277,12 +4277,12 @@ typename myInterfaceImageType::Pointer colorimage = myInterfaceImageType::New();
       {
       find[1]=i;
       if (total > 0) faceimage->SetPixel(find,faceimage->GetPixel(find)/total);
-      if ( faceimage->GetPixel(find) >  0.01 ) 
+      if ( faceimage->GetPixel(find) >  0.01 )
 	std::cout << i <<"  :: " << faceimage->GetPixel(find)  << std::endl;
       }
     }
-  
-    
+
+
 
 // colors 1 , 2 , 3 , 4
 // set all to color 1.
@@ -4296,48 +4296,48 @@ typename myInterfaceImageType::Pointer colorimage = myInterfaceImageType::New();
     ColorSetType myColorSet3;
     ColorSetType myColorSet4;
     ColorSetType myColorSet5;
-    find[0]=j; 
+    find[0]=j;
 // list all indices that have an interface with j
 //    for (unsigned int i=1; i<=max; i++)
    for (unsigned int i=max; i>=1; i--)
       {
       if ( i !=  j)
-	{ 
+	{
 	find[1]=i;
 	find2[0]=i;
 	unsigned int color=(unsigned int) colorimage->GetPixel(find2);
-	if ( faceimage->GetPixel(find) >  nfrac ) // then color 
+	if ( faceimage->GetPixel(find) >  nfrac ) // then color
 	  {
-	  if ( color == 1) 
+	  if ( color == 1)
 	    myColorSet1.push_back( (unsigned int) i );
-	  if ( color == 2) 
+	  if ( color == 2)
 	    myColorSet2.push_back( (unsigned int) i );
-	  if ( color == 3) 
+	  if ( color == 3)
 	    myColorSet3.push_back( (unsigned int) i );
-	  if ( color == 4) 
+	  if ( color == 4)
 	    myColorSet4.push_back( (unsigned int) i );
-	  if ( color == 5) 
+	  if ( color == 5)
 	    myColorSet5.push_back( (unsigned int) i );
-// now you know all of j's neighbors and their colors 
+// now you know all of j's neighbors and their colors
 	  }
 	}
       }
 
-//we have to recolor j so that his color is different 
-//than any in the label set 
+//we have to recolor j so that his color is different
+//than any in the label set
     unsigned int okcolor=6;
     find[0]=j;
     find[1]=0;
     if( myColorSet1.empty()  )
-      okcolor=1; 
+      okcolor=1;
     else if( myColorSet2.empty()  )
-      okcolor=2; 
+      okcolor=2;
     else if( myColorSet3.empty()  )
-      okcolor=3; 
+      okcolor=3;
     else if( myColorSet4.empty()  )
-      okcolor=4; 
+      okcolor=4;
     else if( myColorSet5.empty()  )
-      okcolor=5; 
+      okcolor=5;
 
     colorimage->SetPixel(find,okcolor);
 		std::cout <<" Label " << j << " color " << okcolor << std::endl;
@@ -4371,7 +4371,7 @@ typename myInterfaceImageType::Pointer colorimage = myInterfaceImageType::New();
 
 
 template <unsigned int ImageDimension>
-int CountVoxelDifference(      int argc, char *argv[])        
+int CountVoxelDifference(      int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -4399,9 +4399,9 @@ int CountVoxelDifference(      int argc, char *argv[])
   if (  argc > argct) { maskfn=std::string(argv[argct]);   argct++; }
 
 
-  typename ImageType::Pointer image1 = NULL; 
-  typename ImageType::Pointer image2 = NULL; 
-  typename ImageType::Pointer mask = NULL; 
+  typename ImageType::Pointer image1 = NULL;
+  typename ImageType::Pointer image2 = NULL;
+  typename ImageType::Pointer mask = NULL;
   ReadImage<ImageType>(image1, fn1.c_str());
   ReadImage<ImageType>(image2, fn2.c_str());
   ReadImage<ImageType>(mask, maskfn.c_str());
@@ -4423,14 +4423,14 @@ int CountVoxelDifference(      int argc, char *argv[])
 	  maskct++;
 	}
     }
-  
-  
+
+
   if (maskct ==0) maskct=1;
   std::ofstream logfile;
-  logfile.open(outname.c_str() );  
+  logfile.open(outname.c_str() );
   if (logfile.good()  )
     {
-      
+
       logfile << " Err " <<  " : " << err << " %ER " <<  " : " << err/(maskct)*100. << " NER " <<  " : " << negerr/maskct*100.0 <<std::endl;
     }
   return 0;
@@ -4438,7 +4438,7 @@ int CountVoxelDifference(      int argc, char *argv[])
 
 
 template <unsigned int ImageDimension>
-int DiceAndMinDistSum(      int argc, char *argv[])        
+int DiceAndMinDistSum(      int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -4466,20 +4466,20 @@ int DiceAndMinDistSum(      int argc, char *argv[])
   if (  argc > argct) { outdistfn=std::string(argv[argct]);   argct++; }
   std::string diceimagename=ANTSGetFilePrefix(outname.c_str())+std::string("dice.nii.gz");
   std::string mdsimagename=ANTSGetFilePrefix(outname.c_str())+std::string("mds.nii.gz");
-  
-  typename ImageType::Pointer image1 = NULL; 
-  typename ImageType::Pointer image2 = NULL; 
-  typename ImageType::Pointer outdist = NULL; 
+
+  typename ImageType::Pointer image1 = NULL;
+  typename ImageType::Pointer image2 = NULL;
+  typename ImageType::Pointer outdist = NULL;
   ReadImage<ImageType>(image1, fn1.c_str());
   if ( fn2.length() > 3) ReadImage<ImageType>(image2, fn2.c_str());
-  if ( outdistfn.length() > 3) 
-    { 
+  if ( outdistfn.length() > 3)
+    {
       ReadImage<ImageType>(outdist, fn1.c_str());
       outdist->FillBuffer(0);
     }
-  // 1: for each label, and each image, compute the distance map  
-  // 2: sum min-dist(i) over every point in each image 
-  // 3: take average over all points 
+  // 1: for each label, and each image, compute the distance map
+  // 2: sum min-dist(i) over every point in each image
+  // 3: take average over all points
   typedef float PixelType;
   typedef std::vector<PixelType>                  LabelSetType;
   LabelSetType myLabelSet1;
@@ -4496,7 +4496,7 @@ int DiceAndMinDistSum(      int argc, char *argv[])
 	{
 	myLabelSet1.push_back( label );
 	}
-      }  
+      }
     }}
 
   LabelSetType myLabelSet2;
@@ -4508,16 +4508,16 @@ int DiceAndMinDistSum(      int argc, char *argv[])
     if( fabs(label) > 0 )
       {
       if( find( myLabelSet2.begin(), myLabelSet2.end(), label )
-	  == myLabelSet2.end()   &&  
+	  == myLabelSet2.end()   &&
 	  find( myLabelSet1.begin(), myLabelSet1.end(), label )
 	  != myLabelSet1.end() )
 	{
 	myLabelSet2.push_back( label );
 	labct++;
 	}
-      }  
+      }
     }}
-  
+
 
 
   vnl_vector<double> distances(labct,0.0);
@@ -4528,7 +4528,7 @@ int DiceAndMinDistSum(      int argc, char *argv[])
 
   /** now we have the common labels */
   std::ofstream logfile;
-  logfile.open(outname.c_str() );  
+  logfile.open(outname.c_str() );
   labct=0;
   typename LabelSetType::const_iterator it;
   for( it = myLabelSet2.begin(); it != myLabelSet2.end(); ++it )
@@ -4544,7 +4544,7 @@ int DiceAndMinDistSum(      int argc, char *argv[])
     float countu=0;// count vox union label 1 and label 2
     float surfdist=0,surfct=0;
     //    float truepos=0;
-    if (outdist) 
+    if (outdist)
       {
 	surf=LabelSurface<ImageType>(mask1,mask1);
 	//	WriteImage<ImageType>(surf,outdistfn.c_str());
@@ -4563,7 +4563,7 @@ int DiceAndMinDistSum(      int argc, char *argv[])
 
 	dfilter1->Update();
 	d1=dfilter1->GetOutput();
-	
+
 	dfilter2->Update();
 	d2=dfilter2->GetOutput();
       }
@@ -4577,42 +4577,42 @@ int DiceAndMinDistSum(      int argc, char *argv[])
 	if (It2.Get() == *it || image1->GetPixel(It2.GetIndex()) == *it) countu++;
 	if (It2.Get() == *it && image1->GetPixel(It2.GetIndex()) == *it) counti++;
 
-      if (It2.Get() == *it) 
+      if (It2.Get() == *it)
 	{
 	count2++;
 	if (d1) dist2+=d1->GetPixel(It2.GetIndex());
 	}
-      if ( image1->GetPixel(It2.GetIndex()) == *it) 
+      if ( image1->GetPixel(It2.GetIndex()) == *it)
 	{
 	count1++;
 	if (d2)	dist1+=d2->GetPixel(It2.GetIndex());
 	}
-      if (outdist) 
-	if ( surf->GetPixel(It2.GetIndex()) > 0 ) 
+      if (outdist)
+	if ( surf->GetPixel(It2.GetIndex()) > 0 )
 	  {
 	    float sdist=d2->GetPixel(It2.GetIndex());
 	    outdist->SetPixel(It2.GetIndex(),sdist);
 	    surfdist+=sdist;
 	    surfct+=1;
 	  }
-      
+
       }
     //    std::cout << " sdist " << surfdist << " sct " << surfct << std::endl
-  
+
     if (outdist) WriteImage<ImageType>(outdist,outdistfn.c_str());
-  
+
     if (count2+count1 > 0)
       {
 	distances[labct]+=(dist2+dist1)/(count2+count1);
 	dicevals[labct]=2.0*counti/(count2+count1);
 	rovals[labct]=counti/(countu);
-	tpvals[labct]=counti/count1;  
-	tpvals2[labct]=counti/count2;  
+	tpvals[labct]=counti/count1;
+	tpvals2[labct]=counti/count2;
       }
     labct++;
-    
+
     }
-  
+
   labct=0;
   float sum=0,sumdice=0,sumro=0;
   //  std::sort(myLabelSet2.begin(),myLabelSet2.end());
@@ -4621,7 +4621,7 @@ int DiceAndMinDistSum(      int argc, char *argv[])
   float temp=sqrt((float)labelcount);
   unsigned int squareimagesize=(unsigned int)(temp+1);
   typedef itk::Image<float,2>  TwoDImageType;
-  typename TwoDImageType::RegionType newregion; 
+  typename TwoDImageType::RegionType newregion;
   typename TwoDImageType::SizeType size;
   size[0]=size[1]=squareimagesize;
   newregion.SetSize(size);
@@ -4649,22 +4649,22 @@ int DiceAndMinDistSum(      int argc, char *argv[])
       {
 	if (outdist)
 	logfile <<" Label " << *it << " MD " << distances[labct] << " DICE " << dicevals[labct] << std::endl;
-	else 
+	else
 	  logfile <<" Label " << *it << " DICE " << dicevals[labct] << "  RO " << rovals[labct] << " TP1 " << tpvals[labct] << " TP2 " << tpvals2[labct] << std::endl;
       }
     sum+=distances[labct];
     sumdice+=dicevals[labct];
     sumro+=rovals[labct];
-// square image 
+// square image
     squareimage->GetBufferPointer()[labct]=distances[labct];
     squareimage2->GetBufferPointer()[labct]= dicevals[labct];
     labct++;
     }
-    
+
   if (labct ==0) labct=1;
   if (logfile.good()  )
     {
-      if (outdist)  
+      if (outdist)
 	logfile <<" AvgMinDist " <<  " : " << sum/(float)labct << " AvgDice " <<  " : " << sumdice/(float)labct << " AvgRO " << " : " << sumro/(float)labct << std::endl;
       else
 	logfile << " AvgDice " <<  " : " << sumdice/(float)labct << std::endl;
@@ -4678,7 +4678,7 @@ int DiceAndMinDistSum(      int argc, char *argv[])
 }
 
 template <unsigned int ImageDimension>
-int Lipschitz( int argc, char *argv[] )        
+int Lipschitz( int argc, char *argv[] )
 {
   std::cout << " Compute Lipschitz continuity of the mapping " << std::endl;
 
@@ -4706,7 +4706,7 @@ int Lipschitz( int argc, char *argv[] )
 
   typename RealImageType::Pointer lipcon = RealImageType::New();
   lipcon->SetOrigin( vecimage->GetOrigin() );
-  lipcon->SetSpacing( vecimage->GetSpacing() ); 
+  lipcon->SetSpacing( vecimage->GetSpacing() );
   lipcon->SetRegions( vecimage->GetLargestPossibleRegion() );
   lipcon->SetDirection(  vecimage->GetDirection());
   lipcon->Allocate();
@@ -4748,7 +4748,7 @@ int Lipschitz( int argc, char *argv[] )
       typename VectorImageType::PointType yt;
       vecimage->TransformIndexToPhysicalPoint( It2.GetIndex(), y);
       typename VectorImageType::PixelType vecy=It2.Get();
-      
+
       float numer=0;
       float denom=0;
       for (unsigned int i=0; i<ImageDimension;i++)
@@ -4760,7 +4760,7 @@ int Lipschitz( int argc, char *argv[] )
       numer=sqrt(numer);
       denom=sqrt(denom);
       float localval=numer/denom;
-      if (localval > localmaxval) 
+      if (localval > localmaxval)
 	{
 	lx=x;
 	ly=y;
@@ -4770,7 +4770,7 @@ int Lipschitz( int argc, char *argv[] )
 	}
       }
       }
-      if (localmaxval > globalmaxval) 
+      if (localmaxval > globalmaxval)
 	{
 	gx=lx;
 	gy=ly;
@@ -4783,23 +4783,23 @@ int Lipschitz( int argc, char *argv[] )
       }
 
     std::cout << " Lipschitz continuity related to: " << globalmaxval << std::endl;
-    std::cout << " Tx :  " << gxt << "  Ty: " << gyt << std::endl; 
-    std::cout << " x :  " << gx << "  y: " << gy << std::endl; 
+    std::cout << " Tx :  " << gxt << "  Ty: " << gyt << std::endl;
+    std::cout << " x :  " << gx << "  y: " << gy << std::endl;
     timer.Stop();
 //    std::cout << "Elapsed time: " << timer.GetMeanTime()  << std::endl;
-  
+
     typedef itk::ImageFileWriter<RealImageType> RealImageWriterType;
     typename RealImageWriterType::Pointer realwriter = RealImageWriterType::New();
-    realwriter->SetFileName( outname.c_str() ); 
+    realwriter->SetFileName( outname.c_str() );
     realwriter->SetInput( lipcon );
-    realwriter->Update(); 
+    realwriter->Update();
 
     return 0;
 
 }
 
 template <unsigned int ImageDimension>
-int InvId( int argc, char *argv[] )        
+int InvId( int argc, char *argv[] )
 {
   std::cout << " Compute  phi(  phi^{-1}(x)) " << std::endl;
 
@@ -4833,7 +4833,7 @@ int InvId( int argc, char *argv[] )
 
   typename RealImageType::Pointer invid = RealImageType::New();
   invid->SetOrigin( vecimage1->GetOrigin() );
-  invid->SetSpacing( vecimage1->GetSpacing() ); 
+  invid->SetSpacing( vecimage1->GetSpacing() );
   invid->SetRegions( vecimage1->GetLargestPossibleRegion() );
   invid->SetDirection(  vecimage1->GetDirection());
   invid->Allocate();
@@ -4859,7 +4859,7 @@ int InvId( int argc, char *argv[] )
     typename VectorImageType::PixelType vecx=It1.Get();
     for (unsigned int i=0; i<ImageDimension;i++) xt[i]=x[i]+vecx[i];
 //above, we warped the point -- now we index the other field with this
-//point 
+//point
 
     typename VectorImageType::PixelType disp;
     if (vinterp->IsInsideBuffer(xt)) disp = vinterp->Evaluate(xt);
@@ -4875,19 +4875,19 @@ int InvId( int argc, char *argv[] )
   std::cout << " Max error " << globalmaxval << " at " << gx << std::endl;
     timer.Stop();
 //    std::cout << "Elapsed time: " << timer.GetMeanTime()  << std::endl;
-  
+
     typedef itk::ImageFileWriter<RealImageType> RealImageWriterType;
     typename RealImageWriterType::Pointer realwriter = RealImageWriterType::New();
-    realwriter->SetFileName( outname.c_str() ); 
+    realwriter->SetFileName( outname.c_str() );
     realwriter->SetInput( invid );
-    realwriter->Update(); 
+    realwriter->Update();
 
     return 0;
 
 }
 
 template <unsigned int ImageDimension>
-int LabelStats(      int argc, char *argv[])        
+int LabelStats(      int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -4913,8 +4913,8 @@ int LabelStats(      int argc, char *argv[])
   std::string fn2 = "";
   if (  argc > argct) { fn2=std::string(argv[argct]);   argct++; }
 
-  typename ImageType::Pointer image = NULL; 
-  typename ImageType::Pointer valimage = NULL; 
+  typename ImageType::Pointer image = NULL;
+  typename ImageType::Pointer valimage = NULL;
   ReadImage<ImageType>(image, fn1.c_str());
   if ( fn2.length() > 3) ReadImage<ImageType>(valimage, fn2.c_str());
 
@@ -4933,27 +4933,27 @@ int LabelStats(      int argc, char *argv[])
           {
           myLabelSet.push_back( label );
           }
-      }  
+      }
     }
-  
+
   // compute the voxel volume
   typename ImageType::SpacingType spacing=image->GetSpacing();
   float volumeelement=1.0;
   for (unsigned int i=0;  i<spacing.Size(); i++)  volumeelement*=spacing[i];
-  
+
   std::ofstream logfile;
-  logfile.open(outname.c_str() );  
+  logfile.open(outname.c_str() );
 
   std::sort(myLabelSet.begin(),myLabelSet.end());
   typename LabelSetType::const_iterator it;
   unsigned long labelcount=0;
   for( it = myLabelSet.begin(); it != myLabelSet.end(); ++it ) labelcount++;
-  
+
   float temp=sqrt((float)labelcount);
   unsigned int squareimagesize=(unsigned int)(temp+1);
 
   typedef itk::Image<float,2>  TwoDImageType;
-  typename TwoDImageType::RegionType newregion; 
+  typename TwoDImageType::RegionType newregion;
   typename TwoDImageType::SizeType size;
   size[0]=size[1]=squareimagesize;
   newregion.SetSize(size);
@@ -4985,16 +4985,16 @@ int LabelStats(      int argc, char *argv[])
 	totalvolume+=volumeelement;
 	totalct+=1;
 	if ( valimage) totalmass+=valimage->GetPixel(It.GetIndex());
-	
-	// compute center of mass 
+
+	// compute center of mass
 	typename ImageType::PointType point;
 	image->TransformIndexToPhysicalPoint(It.GetIndex(), point);
 	for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]+=point[i];
-	}  
+	}
       }
 
     for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]/=(float)totalct;
-    
+
 
     if (logfile.good() && !valimage )
       {
@@ -5004,7 +5004,7 @@ int LabelStats(      int argc, char *argv[])
       {
       logfile <<" Volume Of Label " << *it << " is " <<(unsigned long)  totalvolume <<   "  Avg-Location " << myCenterOfMass << "   Value Sum Is " << totalmass << " average-val is " << totalmass/totalct << std::endl;
       }
-    if (!valimage) 
+    if (!valimage)
 	std::cout <<" Volume Of Label " << *it << " is " << totalvolume <<   "  Avg-Location " << myCenterOfMass <<std::endl;
     else // if ( totalvolume > 500 &&  totalmass/totalct > 1/500 )  {
       {
@@ -5012,24 +5012,24 @@ int LabelStats(      int argc, char *argv[])
       //      std::cout << *it << "  " <<  totalvolume <<  " & " <<  totalmass/totalct   << " \ " << std::endl;
     }
 
-// square image 
+// square image
     squareimage->GetBufferPointer()[labelcount]=totalmass/totalct;
     labelcount++;
     }
-  
+
   logfile.close();
-    
+
   WriteImage<TwoDImageType>(squareimage,imagename.c_str());
-  
+
   return 0;
-  
+
 }
 
 
 
 
 template <unsigned int ImageDimension>
-int ROIStatistics(      int argc, char *argv[])        
+int ROIStatistics(      int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -5047,7 +5047,7 @@ int ROIStatistics(      int argc, char *argv[])
   typedef itk::NearestNeighborInterpolateImageFunction<ImageType,double>  InterpolatorType2;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
 
-  // first create a label image => ROI value map 
+  // first create a label image => ROI value map
   std::map <unsigned int,std::string> cortroimap;
 cortroimap[3]=std::string("L. Cingulate Gyrus");
 cortroimap[4]=std::string("R. Cingulate Gyrus");
@@ -5124,11 +5124,11 @@ cortroimap[45]=std::string("White Matter");
   std::string fn5 = "";
   if (  argc > argct) { fn5=std::string(argv[argct]);   argct++; }
 
-  typename ImageType::Pointer image = NULL; 
-  typename ImageType::Pointer valimage = NULL; 
-  typename ImageType::Pointer valimage3 = NULL; 
-  typename ImageType::Pointer valimage4 = NULL; 
-  typename ImageType::Pointer valimage5 = NULL; 
+  typename ImageType::Pointer image = NULL;
+  typename ImageType::Pointer valimage = NULL;
+  typename ImageType::Pointer valimage3 = NULL;
+  typename ImageType::Pointer valimage4 = NULL;
+  typename ImageType::Pointer valimage5 = NULL;
   ReadImage<ImageType>(image, fn1.c_str());
   if ( fn2.length() > 3) ReadImage<ImageType>(valimage, fn2.c_str());
   if ( fn3.length() > 3) ReadImage<ImageType>(valimage3, fn3.c_str());
@@ -5152,14 +5152,14 @@ cortroimap[45]=std::string("White Matter");
           myLabelSet.push_back( label );
           }
 	if (label > maxlab) maxlab=(unsigned long)label;
-      }  
+      }
     }
-  
+
   // compute the voxel volume
   typename ImageType::SpacingType spacing=image->GetSpacing();
   float volumeelement=1.0;
   for (unsigned int i=0;  i<spacing.Size(); i++)  volumeelement*=spacing[i];
-  
+
   vnl_vector<double> pvals(maxlab+1,1.0);
   vnl_vector<double> pvals3(maxlab+1,1.0);
   vnl_vector<double> pvals4(maxlab+1,1.0);
@@ -5167,18 +5167,18 @@ cortroimap[45]=std::string("White Matter");
   vnl_vector<double> clusters(maxlab+1,0.0);
 
   std::ofstream logfile;
-  logfile.open(outname.c_str() );  
+  logfile.open(outname.c_str() );
 
   std::sort(myLabelSet.begin(),myLabelSet.end());
   typename LabelSetType::const_iterator it;
   unsigned long labelcount=0;
   for( it = myLabelSet.begin(); it != myLabelSet.end(); ++it ) labelcount++;
-  
+
   float temp=sqrt((float)labelcount);
   unsigned int squareimagesize=(unsigned int)(temp+1);
 
   typedef itk::Image<float,2>  TwoDImageType;
-  typename TwoDImageType::RegionType newregion; 
+  typename TwoDImageType::RegionType newregion;
   typename TwoDImageType::SizeType size;
   size[0]=size[1]=squareimagesize;
   newregion.SetSize(size);
@@ -5218,62 +5218,62 @@ cortroimap[45]=std::string("White Matter");
 	if (  vv > maxoneminuspval) maxoneminuspval=vv;
 	if ( valimage3 ){
 	vv=valimage3->GetPixel(It.GetIndex());
-	if (  fabs(vv) > fabs(maxoneminuspval3)) maxoneminuspval3=vv;	  
+	if (  fabs(vv) > fabs(maxoneminuspval3)) maxoneminuspval3=vv;
 	}
 	if ( valimage4 ){
 	vv=valimage4->GetPixel(It.GetIndex());
-	if (  vv > maxoneminuspval4) maxoneminuspval4=vv;	  
+	if (  vv > maxoneminuspval4) maxoneminuspval4=vv;
 	}
 	if ( valimage5 ){
 	vv=valimage5->GetPixel(It.GetIndex());
-	if (  vv > maxoneminuspval5) maxoneminuspval5=vv;	  
+	if (  vv > maxoneminuspval5) maxoneminuspval5=vv;
 	}
 
-	// compute center of mass 
+	// compute center of mass
 	typename ImageType::PointType point;
 	image->TransformIndexToPhysicalPoint(It.GetIndex(), point);
 	for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]+=point[i];
-	}  
+	}
       }
 
     for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]/=(float)totalct;
- 
+
     clusters[(unsigned long)*it]=totalvolume;
     pvals[(unsigned long)*it]=1.0-maxoneminuspval;
     pvals3[(unsigned long)*it]=maxoneminuspval3;
     pvals4[(unsigned long)*it]=1.0-maxoneminuspval4;
     pvals5[(unsigned long)*it]=1.0-maxoneminuspval5;
-// square image 
+// square image
     squareimage->GetBufferPointer()[labelcount]=totalmass/totalct;
     labelcount++;
     }
    bool iswm=true;
     if (maxlab > 13 ) iswm=false;
     //    unsigned int roi=(unsigned int) *it;
-    for (unsigned int roi=1; roi <=maxlab ; roi++) 
+    for (unsigned int roi=1; roi <=maxlab ; roi++)
       {
 	//unsigned int resol=5000;
 	//unsigned int intpvalue=resol*totalmass/totalct;
 	//	float pvalue=1.0-(float)intpvalue/(float)resol;// average pvalue
-	if( wmroimap.find(roi) != wmroimap.end() && iswm ) 
+	if( wmroimap.find(roi) != wmroimap.end() && iswm )
  	  std::cout << wmroimap.find(roi)->second << " & " << clusters[roi] << " , "  << pvals[roi] << "  & xy & yz  \\ " << std::endl;
-	else if( cortroimap.find(roi) != cortroimap.end() && ! iswm ) 
+	else if( cortroimap.find(roi) != cortroimap.end() && ! iswm )
  	  std::cout << cortroimap.find(roi)->second << " & " << clusters[roi] << " , "  << pvals[roi] << "  & " <<  pvals3[roi]  << " &  " << pvals4[roi]   << "   \\ " << std::endl;
-	//	else  std::cout << wmroimap.find(roi)->second << " &  - , -   & xy & yz  \\ " << std::endl;	
+	//	else  std::cout << wmroimap.find(roi)->second << " &  - , -   & xy & yz  \\ " << std::endl;
 	//          std::cout << " Volume Of Label " << *it << " is " << totalvolume <<   "  Avg-Location " << myCenterOfMass <<" mass is " << totalmass << " average-val is " << totalmass/totalct << std::endl;
       //      std::cout << *it << "  " <<  totalvolume <<  " & " <<  totalmass/totalct   << " \ " << std::endl;
-    }  
+    }
   logfile.close();
-    
+
   WriteImage<TwoDImageType>(squareimage,imagename.c_str());
-  
+
   return 0;
-  
+
 }
 
 
 template <unsigned int ImageDimension>
-int ByteImage(      int argc, char *argv[])        
+int ByteImage(      int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -5295,33 +5295,33 @@ int ByteImage(      int argc, char *argv[])
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
-  float sig = 1; 
+  float sig = 1;
   if (argc > argct) sig=atof(argv[argct]);
   if (sig <= 0) sig=0.5;
 
-  typename ImageType::Pointer image = NULL; 
-  typename ByteImageType::Pointer image2 = NULL; 
+  typename ImageType::Pointer image = NULL;
+  typename ByteImageType::Pointer image2 = NULL;
   ReadImage<ImageType>(image, fn1.c_str());
 
   typedef itk::RescaleIntensityImageFilter<ImageType,ByteImageType > RescaleFilterType;
   typename RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
   rescaler->SetOutputMinimum(   0 );
-  rescaler->SetOutputMaximum( 255 );  
+  rescaler->SetOutputMaximum( 255 );
   rescaler->SetInput( image );
-	
+
   typename writertype::Pointer writer = writertype::New();
   writer->SetFileName(outname.c_str());
-  writer->SetInput( rescaler->GetOutput() ); 
-  writer->Update();   
-  
+  writer->SetInput( rescaler->GetOutput() );
+  writer->Update();
+
   return 0;
- 
-}     
+
+}
 
 
-  
+
 template <unsigned int ImageDimension>
-int PValueImage(      int argc, char *argv[])        
+int PValueImage(      int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -5343,10 +5343,10 @@ int PValueImage(      int argc, char *argv[])
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
-  unsigned int dof = 1; 
+  unsigned int dof = 1;
   if (argc > argct) dof=atoi(argv[argct]); argct++;
 
-  typename ImageType::Pointer image = NULL; 
+  typename ImageType::Pointer image = NULL;
   ReadImage<ImageType>(image, fn1.c_str());
 
 
@@ -5355,8 +5355,8 @@ int PValueImage(      int argc, char *argv[])
   typename DistributionType::Pointer distributionFunction = DistributionType::New();
   distributionFunction->SetDegreesOfFreedom(  dof );
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-  Iterator vfIter( image,  image->GetLargestPossibleRegion() );  
-    
+  Iterator vfIter( image,  image->GetLargestPossibleRegion() );
+
   for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
     {
       float val=image->GetPixel(vfIter.GetIndex());
@@ -5372,17 +5372,17 @@ int PValueImage(      int argc, char *argv[])
 	}
       else image->SetPixel(vfIter.GetIndex() , 0);
     }
-  
-  WriteImage<ImageType>(image,outname.c_str());
-  
-  return 0;
- 
-}     
 
-  
+  WriteImage<ImageType>(image,outname.c_str());
+
+  return 0;
+
+}
+
+
 
 template <unsigned int ImageDimension>
-int ConvertImageSetToMatrix(unsigned int argc, char *argv[])        
+int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
 {
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
@@ -5397,7 +5397,7 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
   typedef itk::LinearInterpolateImageFunction<ImageType,double>  InterpolatorType1;
   typedef itk::NearestNeighborInterpolateImageFunction<ImageType,double>  InterpolatorType2;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-   
+
   int argct=2;
   if (argc < 5 ) { std::cout <<" need more args -- see usage   " << std::endl;  exit(0); }
   std::string outname=std::string(argv[argct]); argct++;
@@ -5405,15 +5405,15 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
   unsigned int  rowcoloption = atoi(argv[argct]);   argct++;
   std::string maskfn=std::string(argv[argct]); argct++;
   unsigned int numberofimages=0;
-  typename ImageType::Pointer mask = NULL; 
+  typename ImageType::Pointer mask = NULL;
   ReadImage<ImageType>(mask,maskfn.c_str());
   unsigned long voxct=0;
-  Iterator mIter( mask,mask->GetLargestPossibleRegion() );  
+  Iterator mIter( mask,mask->GetLargestPossibleRegion() );
   for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
     if (mIter.Get() >= 0.5) voxct++;
-  
-  typename ImageType::Pointer image2 = NULL; 
-  typename ImageType::SizeType size; 
+
+  typename ImageType::Pointer image2 = NULL;
+  typename ImageType::SizeType size;
   size.Fill(0);
   unsigned int bigimage=0;
   for (unsigned int j=argct; j< argc; j++)
@@ -5432,7 +5432,7 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
 	size[i]=imageIO->GetDimensions(i);
 	bigimage=j;
 	std::cout << " bigimage " << j << " size " << size << std::endl;
-	}       
+	}
       }
     }
 
@@ -5441,12 +5441,12 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
 /** declare the tiled image */
   unsigned long xx=0,yy=0;
   if (rowcoloption==0)
-    {  std::cout << " row option " << std::endl;  xx=voxct;  yy=numberofimages; } 
+    {  std::cout << " row option " << std::endl;  xx=voxct;  yy=numberofimages; }
   if (rowcoloption==1)
-    {  std::cout << " col option " << std::endl;  yy=voxct;  xx=numberofimages; } 
+    {  std::cout << " col option " << std::endl;  yy=voxct;  xx=numberofimages; }
   unsigned long xsize=xx;
   unsigned long ysize=yy;
-  typename MatrixImageType::SizeType tilesize; 
+  typename MatrixImageType::SizeType tilesize;
   tilesize[0]=xsize;
   tilesize[1]=ysize;
   std::cout << " allocate matrix " << tilesize << std::endl;
@@ -5457,32 +5457,32 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
   matimage->SetLargestPossibleRegion( region );
   matimage->SetBufferedRegion( region );
   typename MatrixImageType::DirectionType mdir;  mdir.Fill(0); mdir[0][0]=1; mdir[1][1]=1;
-  typename MatrixImageType::SpacingType mspc;  mspc.Fill(1);  
-  typename MatrixImageType::PointType morg;  morg.Fill(0);  
+  typename MatrixImageType::SpacingType mspc;  mspc.Fill(1);
+  typename MatrixImageType::PointType morg;  morg.Fill(0);
   matimage->SetSpacing( mspc );
   matimage->SetDirection(mdir);
   matimage->SetOrigin( morg );
   matimage->Allocate();
-  
+
   unsigned int imagecount=0;
 
   for (unsigned int j=argct; j< argc; j++)
     {
       std::string fn = std::string(argv[j]);
-      ReadImage<ImageType>(image2,fn.c_str());  
+      ReadImage<ImageType>(image2,fn.c_str());
       std::cout << " image " << j << " is "  << fn << std::endl;
       unsigned long xx=0,yy=0,tvoxct=0;
       if (rowcoloption==0)
-	{    yy=imagecount; } 
+	{    yy=imagecount; }
       if (rowcoloption==1)
-	{  xx=imagecount; } 
+	{  xx=imagecount; }
       typename MatrixImageType::IndexType mind;
       for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
 	{
 	  if (mIter.Get() >= 0.5)
 	    {
 	      if (rowcoloption==0)
-		{   xx=tvoxct;  } 
+		{   xx=tvoxct;  }
 	      if (rowcoloption==1)
 		{  yy=tvoxct; }
 	      mind[0]=xx;
@@ -5499,13 +5499,13 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
   WriteImage<MatrixImageType>(matimage,outname.c_str());
 
   return 0;
- 
-}     
+
+}
 
 
-  
+
 template <unsigned int ImageDimension>
-int ConvertImageToFile(      int argc, char *argv[])        
+int ConvertImageToFile(      int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -5529,18 +5529,18 @@ int ConvertImageToFile(      int argc, char *argv[])
   std::string fn2="";
   if (argc > argct) fn2=std::string(argv[argct]); argct++;
 
-  typename ImageType::Pointer image = NULL; 
+  typename ImageType::Pointer image = NULL;
   ReadImage<ImageType>(image, fn1.c_str());
-  typename ImageType::Pointer mask = NULL; 
+  typename ImageType::Pointer mask = NULL;
   if (fn2.length() > 3) ReadImage<ImageType>(mask, fn2.c_str());
 
   std::cout <<" read Image" << fn1 << " mask? " << fn2 << std::endl;
   std::ofstream logfile;
-  logfile.open(outname.c_str() );  
+  logfile.open(outname.c_str() );
   if (logfile.good())
     {
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-  Iterator vfIter( image,  image->GetLargestPossibleRegion() );  
+  Iterator vfIter( image,  image->GetLargestPossibleRegion() );
   for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
     {
       bool getval=true;
@@ -5554,15 +5554,15 @@ int ConvertImageToFile(      int argc, char *argv[])
   logfile << std::endl;
     }
   logfile.close();
-    
+
 
   return 0;
- 
-}     
+
+}
 
 
 template <unsigned int ImageDimension>
-int CorrelationUpdate(      int argc, char *argv[])        
+int CorrelationUpdate(      int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -5584,23 +5584,23 @@ int CorrelationUpdate(      int argc, char *argv[])
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
   std::string fn2 ="";
-  if (argc > argct) { fn2=std::string(argv[argct]); argct++; 
-  }else { std::cout <<" Not enough inputs "<< std::endl;  return 1; } 
+  if (argc > argct) { fn2=std::string(argv[argct]); argct++;
+  }else { std::cout <<" Not enough inputs "<< std::endl;  return 1; }
   unsigned int radius=2;
   if (argc > argct) radius=atoi(argv[argct]); argct++;
 
-  typename ImageType::Pointer image1 = NULL; 
+  typename ImageType::Pointer image1 = NULL;
   ReadImage<ImageType>(image1, fn1.c_str());
-  typename ImageType::Pointer imageout = NULL; 
+  typename ImageType::Pointer imageout = NULL;
   ReadImage<ImageType>(imageout, fn1.c_str());
   imageout->FillBuffer(0);
-  typename ImageType::Pointer image2 = NULL; 
+  typename ImageType::Pointer image2 = NULL;
   ReadImage<ImageType>(image2, fn2.c_str());
 
-  typedef itk::NeighborhoodIterator<ImageType>  iteratorType; 
+  typedef itk::NeighborhoodIterator<ImageType>  iteratorType;
   typename iteratorType::RadiusType rad;
   for (unsigned int j=0; j<ImageDimension; j++) rad[j]=radius;
-  iteratorType GHood(rad, image1,image1->GetLargestPossibleRegion());  
+  iteratorType GHood(rad, image1,image1->GetLargestPossibleRegion());
   float Gsz=(float)GHood.Size();
   GHood.GoToBegin();
   while (!GHood.IsAtEnd())
@@ -5615,10 +5615,10 @@ int CorrelationUpdate(      int argc, char *argv[])
       if (isinside) {
 	if ( image1->GetPixel(ind) > 0 || image2->GetPixel(ind) > 0) {
       typename ImageType::IndexType ind2;
-      // compute mean difference 
+      // compute mean difference
       float diff=0.0;
       for (unsigned int i = 0; i < GHood.Size(); i++)
-	{ 
+	{
 	  ind2=GHood.GetIndex(i);
 	  diff+=(image1->GetPixel(ind2)-image2->GetPixel(ind2));
 	}
@@ -5633,26 +5633,26 @@ int CorrelationUpdate(      int argc, char *argv[])
   WriteImage<ImageType>(imageout,outname.c_str());
 
   return 0;
- 
-}     
+
+}
 
 
 
-  
 
-int main(int argc, char *argv[])        
+
+int main(int argc, char *argv[])
 {
 
-      
-  if ( argc < 5 )     
-  { 
-    std::cout << "Useage ex:  "<< std::endl; 
+
+  if ( argc < 5 )
+  {
+    std::cout << "Useage ex:  "<< std::endl;
     std::cout << argv[0] << " ImageDimension  OutputImage.ext   Operator   Image1.ext   Image2.extOrFloat  " << std::endl;
     std::cout <<"  some options output text files " << std::endl;
     std::cout << " The last two arguments can be an image or float value " << std::endl;
-    std::cout << " Valid Operators :   \n m (multiply)  , \n   +  (add)  , \n   - (subtract)  , \n   / (divide)  , \n   ^ (power)  , \n exp -- take exponent exp(imagevalue*value) \n addtozero \n overadd \n abs  \n Decision -- computes  result=1./(1.+exp(-1.0*( pix1-0.25)/pix2))  " << std::endl; 
-    std::cout <<  "   Neg (Produce Image Negative ) , \n   G Image1.ext s  (Smooth with Gaussian of sigma = s )  " << std::endl; 
-    std::cout << " MD Image1.ext  s ( Morphological Dilation with radius s ) , \n  \n ME Image1.ext s ( Morphological Erosion with radius s ) , \n \n MO Image1.ext s ( Morphological Opening with radius s ) \n \n MC Image1.ext ( Morphological Closing with radius s ) \n \n  GD Image1.ext  s ( Grayscale Dilation with radius s ) , \n  \n GE Image1.ext s ( Grayscale Erosion with radius s ) , \n \n GO Image1.ext s ( Grayscale Opening with radius s ) \n \n GC Image1.ext ( Grayscale Closing with radius s ) \n" << std::endl; 
+    std::cout << " Valid Operators :   \n m (multiply)  , \n   +  (add)  , \n   - (subtract)  , \n   / (divide)  , \n   ^ (power)  , \n exp -- take exponent exp(imagevalue*value) \n addtozero \n overadd \n abs  \n Decision -- computes  result=1./(1.+exp(-1.0*( pix1-0.25)/pix2))  " << std::endl;
+    std::cout <<  "   Neg (Produce Image Negative ) , \n   G Image1.ext s  (Smooth with Gaussian of sigma = s )  " << std::endl;
+    std::cout << " MD Image1.ext  s ( Morphological Dilation with radius s ) , \n  \n ME Image1.ext s ( Morphological Erosion with radius s ) , \n \n MO Image1.ext s ( Morphological Opening with radius s ) \n \n MC Image1.ext ( Morphological Closing with radius s ) \n \n  GD Image1.ext  s ( Grayscale Dilation with radius s ) , \n  \n GE Image1.ext s ( Grayscale Erosion with radius s ) , \n \n GO Image1.ext s ( Grayscale Opening with radius s ) \n \n GC Image1.ext ( Grayscale Closing with radius s ) \n" << std::endl;
     std::cout << " D (DistanceTransform) , \n   \n Segment Image1.ext N-Classes LocalityVsGlobalityWeight-In-ZeroToOneRange  OptionalPriorImages  ( Segment an Image  with option of Priors ,  weight 1 => maximally local/prior-based )  \n " << std::endl;
     std::cout << " Grad Image.ext S ( Gradient magnitude with sigma s -- if normalize, then output in range [0, 1] ) , \n    " << std::endl;    std::cout << " Laplacian Image.ext S normalize? ( laplacian computed with sigma s --  if normalize, then output in range [0, 1] ) , \n    " << std::endl;
     std::cout << " Normalize image.ext opt ( Normalize to [0,1] option instead divides by average value ) \n  " << std::endl;
@@ -5687,13 +5687,13 @@ int main(int argc, char *argv[])
     std::cout << "  ConvertImageToFile  imagevalues.nii {Optional-ImageMask.nii} -- will write voxel values to a file  " << std::endl;
     std::cout << "  PValueImage  TValueImage  dof  " << std::endl;
     std::cout << "  ConvertToGaussian  TValueImage  sigma-float  " << std::endl;
-    std::cout << "  ConvertImageSetToMatrix  rowcoloption Mask.nii  *images.nii --  each row/column contains image content extracted from mask applied to images in *img.nii " << std::endl;    
+    std::cout << "  ConvertImageSetToMatrix  rowcoloption Mask.nii  *images.nii --  each row/column contains image content extracted from mask applied to images in *img.nii " << std::endl;
     std::cout << "  ConvertVectorToImage   Mask.nii vector.nii  -- the vector contains image content extracted from a mask - here we return the vector to its spatial origins as image content " << std::endl;
     std::cout << "  TriPlanarView  ImageIn.nii.gz PercentageToClampLowIntensity  PercentageToClampHiIntensity x-slice y-slice z-slice  " << std::endl;
     std::cout << "  FillHoles Image parameter : parameter = ratio of edge at object to edge at background = 1 is a definite hole bounded by object only, 0.99 is close -- default of parameter > 1 will fill all holes " << std::endl;
-    std::cout << " PropagateLabelsThroughMask   speed/binaryimagemask.nii.gz   initiallabelimage.nii.gz Optional-Stopping-Value  -- final output is the propagated label image  " << std::endl <<  " optional stopping value -- higher values allow more distant propagation "  << std::endl; 
+    std::cout << " PropagateLabelsThroughMask   speed/binaryimagemask.nii.gz   initiallabelimage.nii.gz Optional-Stopping-Value  -- final output is the propagated label image  " << std::endl <<  " optional stopping value -- higher values allow more distant propagation "  << std::endl;
     return 1;
-  }           
+  }
 
   std::string operation=std::string(argv[3]);
 
@@ -5716,7 +5716,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"MD") == 0 || strcmp(operation.c_str(),"ME") == 0)  MorphImage<2>(argc,argv);
      else if (strcmp(operation.c_str(),"MO") == 0 || strcmp(operation.c_str(),"MC") == 0)  MorphImage<2>(argc,argv);
      else if (strcmp(operation.c_str(),"GD") == 0 || strcmp(operation.c_str(),"GE") == 0)  MorphImage<2>(argc,argv);
-     else if (strcmp(operation.c_str(),"GO") == 0 || strcmp(operation.c_str(),"GC") == 0)  MorphImage<2>(argc,argv); 
+     else if (strcmp(operation.c_str(),"GO") == 0 || strcmp(operation.c_str(),"GC") == 0)  MorphImage<2>(argc,argv);
      else if (strcmp(operation.c_str(),"D") == 0 )  DistanceMap<2>(argc,argv);
      else if (strcmp(operation.c_str(),"Normalize") == 0 )  NormalizeImage<2>(argc,argv);
      else if (strcmp(operation.c_str(),"Grad") == 0 )  GradientImage<2>(argc,argv);
@@ -5761,7 +5761,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"^") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"exp") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"abs") == 0)  ImageMath<3>(argc,argv);
-     else if (strcmp(operation.c_str(),"addtozero") == 0)  ImageMath<3>(argc,argv); 
+     else if (strcmp(operation.c_str(),"addtozero") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"overadd") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"Decision") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"Neg") == 0)  NegativeImage<3>(argc,argv);
@@ -5769,7 +5769,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"MD") == 0 || strcmp(operation.c_str(),"ME") == 0)  MorphImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"MO") == 0 || strcmp(operation.c_str(),"MC") == 0)  MorphImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"GD") == 0 || strcmp(operation.c_str(),"GE") == 0)  MorphImage<3>(argc,argv);
-     else if (strcmp(operation.c_str(),"GO") == 0 || strcmp(operation.c_str(),"GC") == 0)  MorphImage<3>(argc,argv);   
+     else if (strcmp(operation.c_str(),"GO") == 0 || strcmp(operation.c_str(),"GC") == 0)  MorphImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"D") == 0 )  DistanceMap<3>(argc,argv);
      else if (strcmp(operation.c_str(),"Normalize") == 0 )  NormalizeImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"Grad") == 0 )  GradientImage<3>(argc,argv);
@@ -5785,8 +5785,8 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"ThresholdAtMean") == 0 )  ThresholdAtMean<3>(argc,argv);
      else if (strcmp(operation.c_str(),"FlattenImage") == 0 )  FlattenImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"CorruptImage") == 0 )  CorruptImage<3>(argc,argv);
-     else if (strcmp(operation.c_str(),"RemoveLabelInterfaces") == 0 )  RemoveLabelInterfaces<3>(argc,argv);  
-     else if (strcmp(operation.c_str(),"EnumerateLabelInterfaces") == 0 )  EnumerateLabelInterfaces<3>(argc,argv);  
+     else if (strcmp(operation.c_str(),"RemoveLabelInterfaces") == 0 )  RemoveLabelInterfaces<3>(argc,argv);
+     else if (strcmp(operation.c_str(),"EnumerateLabelInterfaces") == 0 )  EnumerateLabelInterfaces<3>(argc,argv);
      else if (strcmp(operation.c_str(),"FitSphere") == 0 )  FitSphere<3>(argc,argv);
      else if (strcmp(operation.c_str(),"Where") == 0 )  Where<3>(argc,argv);
      else if (strcmp(operation.c_str(),"TensorFA") == 0 )  TensorFunctions<3>(argc,argv);
