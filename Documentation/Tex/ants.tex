@@ -281,29 +281,31 @@ These are text files recording the matrix and offset for the affine transform {\
 The interpretation depends on the header but generally it breaks down like this:   
 
 
-#Insight Transform File V1.0 
+\#Insight Transform File V1.0 
 
-# Transform 0 
+\# Transform 0 
 
-Transform: MatrixOffsetTransformBase_double_3_3 
+Transform: MatrixOffsetTransformBase\_double\_3\_3 
 
-Parameters:  $ a  b c  d e f g h i j k l $ 
+Parameters:  $ a~b~c~d~e~f~g~h~i~j~k~l $ 
 
-FixedParameters: $ M N O $
-$M =
-\begin{array}{cc}
+FixedParameters: $ M~N~O $
+
+The meaning of these different terms: 
+
+The matrix component (rotation, scaling, shearing all composed together): 
+
+$ \begin{matrix}
 a & b & c \\
 d & e & f  \\
 g & h & i \\ 
-\end{array}$
+\end{matrix} $
 
-this is the matrix part of the transform  where  
+is followed by  $~j~k~l~$ --- this is the translation. 
 
-$j k l$ --- this is the translation. 
+$L~M~N$  is the center of rotation . 
 
-$L M N$  is the center of rotation . 
-
-you can use the --initial-affine  and    --continue-affine  options to control how this is used in registration. 
+You can use the --initial-affine  and    --continue-affine  options to control how this is used in registration. 
 
 \subsubsection{Deformation Field File}
 ANTS writes the deformation field using one file for the deformation in each dimension. 
