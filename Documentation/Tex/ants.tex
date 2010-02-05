@@ -278,6 +278,33 @@ ANTS support both 2D and 3D images, including
 \subsubsection{Affine Transformation File}
 ANTS uses the itk::TransformFileReader / itk::TransformFileWriter to handle affine transformation files. 
 These are text files recording the matrix and offset for the affine transform {\bf FIXME NEED MORE DETAIL on definition and geometry of affine matrix}.
+The interpretation depends on the header but generally it breaks down like this:   
+
+
+#Insight Transform File V1.0 
+
+# Transform 0 
+
+Transform: MatrixOffsetTransformBase_double_3_3 
+
+Parameters:  $ a  b c  d e f g h i j k l $ 
+
+FixedParameters: $ M N O $
+$M =
+\begin{array}{cc}
+a & b & c \\
+d & e & f  \\
+g & h & i \\ 
+\end{array}$
+
+this is the matrix part of the transform  where  
+
+$j k l$ --- this is the translation. 
+
+$L M N$  is the center of rotation . 
+
+you can use the --initial-affine  and    --continue-affine  options to control how this is used in registration. 
+
 \subsubsection{Deformation Field File}
 ANTS writes the deformation field using one file for the deformation in each dimension. 
 For example, if the deformation field is named ABCD.nii.gz and exists in three dimensions, the corresponding files are:
