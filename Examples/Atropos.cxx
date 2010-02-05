@@ -664,7 +664,7 @@ int main( int argc, char *argv[] )
   itk::CommandLineParser::Pointer parser = itk::CommandLineParser::New();
   parser->SetCommand( argv[0] );
 
-  parser->SetCommandDescription( "Apocrita Segmentation :  A priori classification with registration initialized template assistance." );
+  parser->SetCommandDescription( "Atropos Segmentation :  A priori classification with registration initialized template assistance." );
   InitializeCommandLineOptions( parser );
 
   parser->Parse( argc, argv );
