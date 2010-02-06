@@ -1504,11 +1504,12 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 	this->SmoothDeformationField( this->m_SyNF,false);
 	this->SmoothDeformationField( this->m_SyNM,false);
 	}
+     
       this->InvertField(this->m_SyNF,this->m_SyNFInv);
       this->InvertField(this->m_SyNM,this->m_SyNMInv);
       this->InvertField(this->m_SyNFInv,this->m_SyNF);
-      this->InvertField(this->m_SyNMInv,this->m_SyNM);
-      
+      this->InvertField(this->m_SyNMInv,this->m_SyNM); 
+
 //      std::cout <<  " F " << this->MeasureDeformation(this->m_SyNF) << " F1 " << this->MeasureDeformation(this->m_SyNFInv) << std::endl;
 //      std::cout <<  " M " << this->MeasureDeformation(this->m_SyNM) << " M1 " << this->MeasureDeformation(this->m_SyNMInv) << std::endl;
     return;
