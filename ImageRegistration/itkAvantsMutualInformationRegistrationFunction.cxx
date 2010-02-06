@@ -160,12 +160,13 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
   m_DerivativeCalculator = DerivativeFunctionType::New();
 
 //  this->ComputeMetricImage();
-/*
-    bool makenewimage=false;
+
+//    bool makenewimage=false;
     typedef ImageRegionIteratorWithIndex<TFixedImage> ittype;
     TFixedImage* img =const_cast<TFixedImage *>(this->m_FixedImage.GetPointer()); 
     typename TFixedImage::SizeType imagesize=img->GetLargestPossibleRegion().GetSize();
-    
+
+    /*    
     if (!this->m_MetricImage )makenewimage=true;
     else if (imagesize[0] != this->m_MetricImage->GetLargestPossibleRegion().GetSize()[0]) 
       makenewimage = true;
@@ -181,7 +182,7 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
       ittype it(this->m_MetricImage,this->m_MetricImage->GetLargestPossibleRegion().GetSize());
       for( it.GoToBegin(); !it.IsAtEnd(); ++it ) it.Set(0);
     }
-*/
+    */
   m_FixedImageGradientCalculator->SetInputImage( this->m_FixedImage );
   m_MovingImageGradientCalculator->SetInputImage( this->m_MovingImage );
   m_FixedImageInterpolator->SetInputImage( this->m_FixedImage );
@@ -400,6 +401,7 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
   pdfinterpolator->SetSplineOrder(3);
   pdfinterpolator2->SetSplineOrder(3);
   pdfinterpolator3->SetSplineOrder(3);
+
 }
 
 
@@ -1001,8 +1003,6 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
 
   double fixedImageValue = (double)this->m_FixedImage->GetPixel(oindex);
   double movingImageValue = this->GetMovingImageValue(oindex,zero);  
-  unsigned int fixedIndex = this->GetFixedValueIndex(fixedImageValue);
-//  unsigned int movingIndex =this->GetMovingValueIndex(movingImageValue);
 
   double dJPDF=0,dFmPDF=0,jointPDFValue=0,fixedImagePDFValue=0;
     
@@ -1011,40 +1011,40 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
         movingImageValue / m_MovingImageBinSize - m_MovingImageNormalizedMin;
       double fixedImageParzenWindowTerm =
         fixedImageValue / m_FixedImageBinSize - m_FixedImageNormalizedMin;
-//      unsigned int fixedImageParzenWindowIndex = 
-//        static_cast<unsigned int>( floor( fixedImageParzenWindowTerm ) );
 
 
       if ( movingImageParzenWindowTerm < this->m_Padding  )
         {
         movingImageParzenWindowTerm = this->m_Padding ;
         }
-      else if ( movingImageParzenWindowTerm > (m_NumberOfHistogramBins - this->m_Padding -1) )
+      else if ( movingImageParzenWindowTerm > (m_NumberOfHistogramBins - this->m_Padding ) )
         {
-        movingImageParzenWindowTerm = m_NumberOfHistogramBins - this->m_Padding -1;
+        movingImageParzenWindowTerm = m_NumberOfHistogramBins - this->m_Padding ;
         }
       // Make sure the extreme values are in valid bins
       if ( fixedImageParzenWindowTerm < this->m_Padding )
         {
         fixedImageParzenWindowTerm = this->m_Padding;
         }
-      else if ( fixedImageParzenWindowTerm > (m_NumberOfHistogramBins - this->m_Padding-1) )
+      else if ( fixedImageParzenWindowTerm > (m_NumberOfHistogramBins - this->m_Padding) )
         {
-        fixedImageParzenWindowTerm = m_NumberOfHistogramBins - this->m_Padding-1;
+        fixedImageParzenWindowTerm = m_NumberOfHistogramBins - this->m_Padding;
         }
 
+  {
     typename JointPDFType::PointType pdfind;
     pdfind[1]=fixedImageParzenWindowTerm;
     pdfind[0]=movingImageParzenWindowTerm;
     jointPDFValue=pdfinterpolator->Evaluate(pdfind);
     dJPDF = (1.0)*(pdfinterpolator->EvaluateDerivative( pdfind ))[1];
+  }
+  
+ {
     typename MarginalPDFType::PointType mind;
     mind[0]=fixedImageParzenWindowTerm;
-    dFmPDF =(1.0)*(pdfinterpolator2->EvaluateDerivative( mind ))[0];
-    fixedImagePDFValue = pdfinterpolator2->Evaluate(mind);  
-    typename MarginalPDFType::IndexType mind2;
-    mind2[0]=fixedIndex;
-    
+    fixedImagePDFValue = pdfinterpolator2->Evaluate(mind);      
+    dFmPDF = (pdfinterpolator2->EvaluateDerivative(mind))[0];
+  }
 
     double term1=0,term2=0,eps=1.e-12;
     if( jointPDFValue > eps &&  (fixedImagePDFValue) > 0)
@@ -1052,10 +1052,6 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
 	term1 = dJPDF/jointPDFValue;
 	term2 = dFmPDF/fixedImagePDFValue;
 	value =  (term1*(-1.0)+term2);
-	//      if (fabs(value)>100)value=0;
-	//      double vv=10,vv2=vv;
-	//      if (value > vv) value=vv2;
-	//      if (value < vv*(-1.0)) value=vv2*(-1.0);
       }  // end if-block to check non-zero bin contribution
     else value = 0;
     
@@ -1078,8 +1074,7 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
 
   double fixedImageValue = (double)this->m_FixedImage->GetPixel(oindex);
   double movingImageValue = (double)this->m_MovingImage->GetPixel(oindex);
-  unsigned int fixedIndex = this->GetFixedValueIndex(fixedImageValue);
-  unsigned int movingIndex =this->GetMovingValueIndex(movingImageValue);
+  //  unsigned int movingIndex =this->GetMovingValueIndex(movingImageValue);
 
   double dJPDF=0,dMmPDF=0,jointPDFValue=0,movingImagePDFValue=0;
     
@@ -1089,14 +1084,13 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
       double fixedImageParzenWindowTerm =
         fixedImageValue / m_FixedImageBinSize - m_FixedImageNormalizedMin;
 
-
       if ( movingImageParzenWindowTerm < this->m_Padding )
         {
         movingImageParzenWindowTerm = this->m_Padding;
         }
-      else if ( movingImageParzenWindowTerm > (m_NumberOfHistogramBins - this->m_Padding -1 ) )
+      else if ( movingImageParzenWindowTerm > (m_NumberOfHistogramBins - this->m_Padding ) )
         {
-        movingImageParzenWindowTerm = m_NumberOfHistogramBins - this->m_Padding -1;
+        movingImageParzenWindowTerm = m_NumberOfHistogramBins - this->m_Padding ;
         }
       
       // Make sure the extreme values are in valid bins
@@ -1104,17 +1098,13 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
         {
         fixedImageParzenWindowTerm = this->m_Padding;
         }
-      else if ( fixedImageParzenWindowTerm > (m_NumberOfHistogramBins - this->m_Padding-1) )
+      else if ( fixedImageParzenWindowTerm > (m_NumberOfHistogramBins - this->m_Padding) )
         {
-        fixedImageParzenWindowTerm = m_NumberOfHistogramBins - this->m_Padding-1;
+        fixedImageParzenWindowTerm = m_NumberOfHistogramBins - this->m_Padding;
         }
 
  
   {
-    typename JointPDFType::IndexType pdfind2;
-    pdfind2[1]=fixedIndex;
-    pdfind2[0]=movingIndex;
-
     typename JointPDFType::PointType pdfind;
     pdfind[1]=fixedImageParzenWindowTerm;
     pdfind[0]=movingImageParzenWindowTerm;
@@ -1136,10 +1126,6 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
       term1 = dJPDF/jointPDFValue;
       term2 = dMmPDF/movingImagePDFValue;
       value =  (term1*(-1.0)+term2);
-//      if (fabs(value)>100)value=0;
-      //double vv=10,vv2=vv;
-      //if (value > vv) value=vv2;
-      //if (value < vv*(-1.0)) value=vv2*(-1.0);
    }  // end if-block to check non-zero bin contribution
  else value = 0;
  
