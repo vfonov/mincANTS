@@ -665,9 +665,9 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
    }  // end if-block to check non-zero bin contribution
  else value = 0;
  
- double pmr=jointPDFValue;
- double pmt=jointPDFValue;
- double Fx=log( ( pmr / pr )  /  ( pmt / pt  ) );
+ // double pmr=jointPDFValue;
+ // double pmt=jointPDFValue;
+ // double Fx=log( ( pmr / pr )  /  ( pmt / pt  ) );
 
  return value;
 
