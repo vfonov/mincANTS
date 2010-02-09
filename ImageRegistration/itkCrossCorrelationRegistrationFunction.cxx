@@ -293,13 +293,11 @@ CrossCorrelationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   sfm=finitediffimages[2]->GetPixel(oindex);
   sff=finitediffimages[3]->GetPixel(oindex);
   smm=finitediffimages[4]->GetPixel(oindex);
+  if ( sff == 0.0 || smm == 0.0) return deriv; 
   
   float localCrossCorrelation=0;
   if (sff*smm > 1.e-5) localCrossCorrelation = sfm*sfm / ( sff * smm );
       IndexType index=oindex;//hoodIt.GetIndex(indct);
-//      bool inimage=true;
-      if (sff == 0.0) sff=1.0;
-      if (smm == 0.0) smm=1.0;
       gradI = m_FixedImageGradientCalculator->EvaluateAtIndex( index ); 
       //	gradJ = m_MovingImageGradientCalculator->EvaluateAtIndex( index ); 
       
