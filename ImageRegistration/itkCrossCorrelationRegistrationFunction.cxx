@@ -294,6 +294,8 @@ CrossCorrelationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   sff=finitediffimages[3]->GetPixel(oindex);
   smm=finitediffimages[4]->GetPixel(oindex);
   
+  float localCrossCorrelation=0;
+  if (sff*smm > 1.e-5) localCrossCorrelation = sfm*sfm / ( sff * smm );
       IndexType index=oindex;//hoodIt.GetIndex(indct);
 //      bool inimage=true;
       if (sff == 0.0) sff=1.0;
@@ -311,13 +313,10 @@ CrossCorrelationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 	  //	    derivinv[qq]-=2.0*sfm/(sff*smm)*( Ii - sfm/smm*Ji )*gradJ[qq];
 	}
 	
-  float localCrossCorrelation=0;
-  if (sff*smm > 1.e-5) localCrossCorrelation = sfm*sfm / ( sff * smm );
   //  if ( localCrossCorrelation*(-1.0) < this->m_RobustnessParameter) deriv.Fill(0);
 //  if ( localCrossCorrelation*(-1.0) < this->m_RobustnessParameter) {
 //  std::cout << " localC " << localCrossCorrelation << std::endl; }
-
-  this->m_Energy-=localCrossCorrelation;
+  if ( localCrossCorrelation < 1 ) this->m_Energy-=localCrossCorrelation;
   return deriv;//localCrossCorrelation;
 
 }
