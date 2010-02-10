@@ -1047,7 +1047,8 @@ SurfaceCurvatureBase<TSurface,TDimension>
   unsigned int npts = m_PointList.size()-1;
   unsigned int dim = SurfaceDimension;
  
-  float error=0.0,toterror=0.0;
+//  float error=0.0;
+    float toterror=0.0;
 
   double qpt=0.0;  double qpnkpt=0.0;
   double costheta;
@@ -1085,8 +1086,8 @@ SurfaceCurvatureBase<TSurface,TDimension>
     vnl_vector<double> f2(4);    
     f2(0) = 0.5*kp*kp;  f2(1) = 0.0;  f2(2) = 1. - qpnkpt;  f2(3) = -1.* qpt;  
 
+/** commenting out until we can get vnl_rpoly_roots working 
     vnl_rpoly_roots roots(f2);
-
     // Evaluate results
     //vnl_real_polynomial p(f2);
     //for(unsigned int i = 0; i < p.degree(); i++)
@@ -1109,11 +1110,12 @@ SurfaceCurvatureBase<TSurface,TDimension>
         mins=s;
       }
     }
-    if (m_Debug){
+  if (m_Debug){
       std::cout << " single point error " << minrel << " mins " << s<< std::endl;
       std::cout << " est pt " << est << " pt " << qp << std::endl << std::endl;
     }
     toterror+=minrel;
+*/  
     }
 
     }
