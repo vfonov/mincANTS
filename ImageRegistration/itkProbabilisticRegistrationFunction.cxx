@@ -184,6 +184,8 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   // The following change was made to speed up the correlation calculation.
   //
 
+  // first round 
+  {
   typedef std::deque<float> SumQueueType;
 
   SumQueueType Qsuma2;
@@ -193,6 +195,7 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   SumQueueType Qsumab;
   SumQueueType Qcount;
 
+
   ImageLinearConstIteratorWithIndex<MetricImageType> outIter( this->finitediffimages[0],
     this->finitediffimages[0]->GetLargestPossibleRegion() );
   outIter.SetDirection( 0 );
@@ -201,8 +204,11 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
     {
     // Push the zeros onto the stack that are outsized the image boundary at
     // the beginning of the line.
+    Qsuma2 = SumQueueType( r[0], 0.0 );
+    Qsumb2 = SumQueueType( r[0], 0.0 );
     Qsuma = SumQueueType( r[0], 0.0 );
     Qsumb = SumQueueType( r[0], 0.0 );
+    Qsumab = SumQueueType( r[0], 0.0 );
     Qcount = SumQueueType( r[0], 0.0 );
 
     NeighborhoodIterator<MetricImageType> hoodIt( this->GetRadius(),
@@ -215,8 +221,11 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 
     for( unsigned int i = r[0]; i < ( 2*r[0] + 1 ); i++ )
       {
+      float suma2 = 0.0;
+      float sumb2 = 0.0;
       float suma = 0.0;
       float sumb = 0.0;
+      float sumab = 0.0;
       float count = 0.0;
 
       for( unsigned int indct = i; indct < hoodlen; indct += ( 2*r[0] + 1 ) )
@@ -234,13 +243,19 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
         float a = this->GetFixedImage()->GetPixel( index );
         float b = this->GetMovingImage()->GetPixel( index );
 
+        suma2 += a*a;
+        sumb2 += b*b;
         suma += a;
         sumb += b;
+        sumab += a*b;
         count += 1.0;
         }
 
+      Qsuma2.push_back( suma2 );
+      Qsumb2.push_back( sumb2 );
       Qsuma.push_back( suma );
       Qsumb.push_back( sumb );
+      Qsumab.push_back( sumab );
       Qcount.push_back( count );
       }
 
@@ -249,8 +264,11 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
       // Test to see if there are any voxels we need to handle in the current
       // window.
 
+      float suma2 = 0.0;
+      float sumb2 = 0.0;
       float suma = 0.0;
       float sumb = 0.0;
+      float sumab = 0.0;
       float count = 0.0;
 
       typename SumQueueType::iterator itcount = Qcount.begin();
@@ -264,20 +282,33 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
       if( count > 0 )
         {
 
+        typename SumQueueType::iterator ita2 = Qsuma2.begin();
+        typename SumQueueType::iterator itb2 = Qsumb2.begin();
         typename SumQueueType::iterator ita = Qsuma.begin();
         typename SumQueueType::iterator itb = Qsumb.begin();
+        typename SumQueueType::iterator itab = Qsumab.begin();
 
-        while( ita != Qsuma.end() )
+        while( ita2 != Qsuma2.end() )
           {
+          suma2 += *ita2;
+          sumb2 += *itb2;
           suma += *ita;
           sumb += *itb;
+          sumab += *itab;
 
+          ++ita2;
+          ++itb2;
           ++ita;
           ++itb;
+          ++itab;
           }
 
         float fixedMean = suma / count;
         float movingMean = sumb / count;
+
+        float sff = suma2 - fixedMean*suma - fixedMean*suma + count*fixedMean*fixedMean;
+        float smm = sumb2 - movingMean*sumb - movingMean*sumb + count*movingMean*movingMean;
+        float sfm = sumab - movingMean*suma - fixedMean*sumb + count*movingMean*fixedMean;
 
         IndexType oindex = outIter.GetIndex();
 
@@ -285,6 +316,9 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
         this->finitediffimages[0]->SetPixel( oindex, val );
         val = this->GetMovingImage()->GetPixel( oindex ) - movingMean;
         this->finitediffimages[1]->SetPixel( oindex, val );
+        this->finitediffimages[2]->SetPixel( oindex, sfm );//A
+        this->finitediffimages[3]->SetPixel( oindex, sff );//B
+        this->finitediffimages[4]->SetPixel( oindex, smm );//C
         }
 
       // Increment the iterator and check to see if we're at the end of the
@@ -296,8 +330,11 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
         {
         hoodIt.SetLocation( outIter.GetIndex() );
 
+        suma2 = 0.0;
+        sumb2 = 0.0;
         suma = 0.0;
         sumb = 0.0;
+        sumab = 0.0;
         count = 0.0;
 
         for( unsigned int indct = 2*r[0]; indct < hoodlen; indct += ( 2*r[0] + 1 ) )
@@ -315,25 +352,50 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
           float a = this->GetFixedImage()->GetPixel( index );
           float b = this->GetMovingImage()->GetPixel( index );
 
+          suma2 += a*a;
+          sumb2 += b*b;
           suma += a;
           sumb += b;
+          sumab += a*b;
           count += 1.0;
           }
 
+        Qsuma2.push_back( suma2 );
+        Qsumb2.push_back( sumb2 );
         Qsuma.push_back( suma );
         Qsumb.push_back( sumb );
+        Qsumab.push_back( sumab );
         Qcount.push_back( count );
         }
 
+      Qsuma2.pop_front();
+      Qsumb2.pop_front();
       Qsuma.pop_front();
       Qsumb.pop_front();
+      Qsumab.pop_front();
       Qcount.pop_front();
       }
 
     outIter.NextLine();
     }
+  }
 
-  // we just computed the means, now do the rest .... 
+
+
+  // second round 
+  {
+  typedef std::deque<float> SumQueueType;
+
+  SumQueueType Qsuma2;
+  SumQueueType Qsumb2;
+  SumQueueType Qsuma;
+  SumQueueType Qsumb;
+  SumQueueType Qsumab;
+  SumQueueType Qcount;
+
+
+  ImageLinearConstIteratorWithIndex<MetricImageType> outIter( this->finitediffimages[0],
+    this->finitediffimages[0]->GetLargestPossibleRegion() );
   outIter.SetDirection( 0 );
   outIter.GoToBegin();
   while( !outIter.IsAtEnd() )
@@ -342,6 +404,8 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
     // the beginning of the line.
     Qsuma2 = SumQueueType( r[0], 0.0 );
     Qsumb2 = SumQueueType( r[0], 0.0 );
+    Qsuma = SumQueueType( r[0], 0.0 );
+    Qsumb = SumQueueType( r[0], 0.0 );
     Qsumab = SumQueueType( r[0], 0.0 );
     Qcount = SumQueueType( r[0], 0.0 );
 
@@ -357,6 +421,8 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
       {
       float suma2 = 0.0;
       float sumb2 = 0.0;
+      float suma = 0.0;
+      float sumb = 0.0;
       float sumab = 0.0;
       float count = 0.0;
 
@@ -372,17 +438,21 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
           continue;
           }
 
-        float a =  this->finitediffimages[0]->GetPixel( index );
-        float b =  this->finitediffimages[1]->GetPixel( index );
+        float a = this->finitediffimages[0]->GetPixel( index );
+        float b = this->finitediffimages[1]->GetPixel( index );
 
         suma2 += a*a;
         sumb2 += b*b;
+        suma += a;
+        sumb += b;
         sumab += a*b;
         count += 1.0;
         }
 
       Qsuma2.push_back( suma2 );
       Qsumb2.push_back( sumb2 );
+      Qsuma.push_back( suma );
+      Qsumb.push_back( sumb );
       Qsumab.push_back( sumab );
       Qcount.push_back( count );
       }
@@ -394,6 +464,8 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 
       float suma2 = 0.0;
       float sumb2 = 0.0;
+      float suma = 0.0;
+      float sumb = 0.0;
       float sumab = 0.0;
       float count = 0.0;
 
@@ -410,29 +482,38 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 
         typename SumQueueType::iterator ita2 = Qsuma2.begin();
         typename SumQueueType::iterator itb2 = Qsumb2.begin();
+        typename SumQueueType::iterator ita = Qsuma.begin();
+        typename SumQueueType::iterator itb = Qsumb.begin();
         typename SumQueueType::iterator itab = Qsumab.begin();
 
         while( ita2 != Qsuma2.end() )
           {
           suma2 += *ita2;
           sumb2 += *itb2;
+          suma += *ita;
+          sumb += *itb;
           sumab += *itab;
 
           ++ita2;
           ++itb2;
+          ++ita;
+          ++itb;
           ++itab;
           }
 
-        float fixedMean = this->finitediffimages[0]->GetPixel( oindex );
-        float movingMean = this->finitediffimages[1]->GetPixel( oindex );
-	float suma=fixedMean*(float) count;
-	float sumb=movingMean*(float) count;
+        float fixedMean = suma / count;
+        float movingMean = sumb / count;
+
         float sff = suma2 - fixedMean*suma - fixedMean*suma + count*fixedMean*fixedMean;
         float smm = sumb2 - movingMean*sumb - movingMean*sumb + count*movingMean*movingMean;
         float sfm = sumab - movingMean*suma - fixedMean*sumb + count*movingMean*fixedMean;
 
         IndexType oindex = outIter.GetIndex();
 
+        // float val = this->GetFixedImage()->GetPixel( oindex ) - fixedMean;
+	//        this->finitediffimages[0]->SetPixel( oindex, val );
+	// val = this->GetMovingImage()->GetPixel( oindex ) - movingMean;
+        // this->finitediffimages[1]->SetPixel( oindex, val );
         this->finitediffimages[2]->SetPixel( oindex, sfm );//A
         this->finitediffimages[3]->SetPixel( oindex, sff );//B
         this->finitediffimages[4]->SetPixel( oindex, smm );//C
@@ -449,6 +530,8 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 
         suma2 = 0.0;
         sumb2 = 0.0;
+        suma = 0.0;
+        sumb = 0.0;
         sumab = 0.0;
         count = 0.0;
 
@@ -464,32 +547,36 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
             continue;
             }
 
-	  float a =  this->finitediffimages[0]->GetPixel( index );
-	  float b =  this->finitediffimages[1]->GetPixel( index );
+          float a = this->finitediffimages[0]->GetPixel( index );
+          float b = this->finitediffimages[1]->GetPixel( index );
 
           suma2 += a*a;
           sumb2 += b*b;
+          suma += a;
+          sumb += b;
           sumab += a*b;
           count += 1.0;
           }
 
         Qsuma2.push_back( suma2 );
         Qsumb2.push_back( sumb2 );
+        Qsuma.push_back( suma );
+        Qsumb.push_back( sumb );
         Qsumab.push_back( sumab );
         Qcount.push_back( count );
         }
 
       Qsuma2.pop_front();
       Qsumb2.pop_front();
+      Qsuma.pop_front();
+      Qsumb.pop_front();
       Qsumab.pop_front();
       Qcount.pop_front();
       }
 
     outIter.NextLine();
     }
-
-
-  //m_FixedImageGradientCalculator->SetInputImage(finitediffimages[0]);
+  }
 
   m_MaxMag=0.0;
   m_MinMag=9.e9;
