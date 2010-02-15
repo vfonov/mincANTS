@@ -100,6 +100,7 @@ public:
     typedef itk::Image<VectorType,ImageDimension+1>  TimeVaryingVelocityFieldType;
     typedef typename TimeVaryingVelocityFieldType::Pointer TimeVaryingVelocityFieldPointer;
     typedef itk::VectorLinearInterpolateImageFunction<TimeVaryingVelocityFieldType,float> VelocityFieldInterpolatorType;
+    typedef itk::VectorGaussianInterpolateImageFunction<TimeVaryingVelocityFieldType,float> VelocityFieldInterpolatorType2;
     typedef typename DeformationFieldType::IndexType IndexType;
 
     typedef CommandLineParser ParserType;
@@ -1428,7 +1429,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
 //  int num=10;
 //  for (int its=0; its<num; its++)
     float difmag=10.0;
-    int ct=0;
+  unsigned int ct=0;
     float denergy=10;
     float denergy2=10;
     float laste=1.e9;
