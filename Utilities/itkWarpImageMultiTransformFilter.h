@@ -21,6 +21,7 @@
 #include "itkInterpolateImageFunction.h"
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkVectorLinearInterpolateImageFunction.h"
+#include "itkVectorGaussianInterpolateImageFunction.h"
 #include "itkPoint.h"
 #include "itkFixedArray.h"
 #include "itkRecursiveGaussianImageFilter.h"
@@ -147,6 +148,7 @@ public:
     typedef typename InterpolatorType::Pointer   InterpolatorPointer;
     typedef LinearInterpolateImageFunction<InputImageType,CoordRepType> DefaultInterpolatorType;
     typedef VectorLinearInterpolateImageFunction<DeformationFieldType,CoordRepType> DefaultVectorInterpolatorType;
+    typedef VectorGaussianInterpolateImageFunction<DeformationFieldType,CoordRepType> DefaultVectorInterpolatorType2;
     typedef typename DefaultVectorInterpolatorType::Pointer VectorInterpolatorPointer;
 
 
