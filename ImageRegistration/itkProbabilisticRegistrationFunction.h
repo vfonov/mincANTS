@@ -160,6 +160,9 @@ public:
   /** Set the object's state before each iteration. */
   virtual void InitializeIteration();
 
+  /** Set the object's state before each iteration. */
+  void InitializeIterationOld();
+
   double ComputeCrossCorrelation()
   {
     if (finitediffimages[0])
