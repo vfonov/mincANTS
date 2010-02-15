@@ -121,7 +121,7 @@ int AtroposSegmentation( itk::CommandLineParser *parser )
 
       if( initializationOption->GetNumberOfParameters() > 3 )
         {
-        segmenter->SetPriorProbabilityWeighting( parser->Convert<float>(
+        segmenter->SetAdaptiveSmoothingWeight( 0, parser->Convert<float>(
           initializationOption->GetParameter( 3 ) ) );
         }
       if( initializationOption->GetNumberOfParameters() > 2 )
@@ -183,7 +183,7 @@ int AtroposSegmentation( itk::CommandLineParser *parser )
 
       if( initializationOption->GetNumberOfParameters() > 3 )
         {
-        segmenter->SetPriorProbabilityWeighting( parser->Convert<float>(
+        segmenter->SetAdaptiveSmoothingWeight( 0, parser->Convert<float>(
           initializationOption->GetParameter( 3 ) ) );
         }
       if( initializationOption->GetNumberOfParameters() > 2 )
@@ -347,6 +347,28 @@ int AtroposSegmentation( itk::CommandLineParser *parser )
     segmenter->SetPriorLabelParameterMap( labelMap );
     }
 
+  /**
+   * auxiliary images
+   */
+  typename itk::CommandLineParser::OptionType::Pointer auxOption =
+    parser->GetOption( "auxiliary-image" );
+  if( auxOption && auxOption->GetNumberOfValues() > 0 )
+    {
+    for( unsigned int n = 0; n < auxOption->GetNumberOfValues(); n++ )
+      {
+      typedef itk::ImageFileReader<InputImageType> ReaderType;
+      typename ReaderType::Pointer reader = ReaderType::New();
+      reader->SetFileName( auxOption->GetParameter( n, 0 ) );
+      reader->Update();
+
+      segmenter->SetAuxiliaryImage( n + 1, reader->GetOutput() );
+      if( initializationOption->GetNumberOfParameters( n ) > 1 )
+        {
+        segmenter->SetAdaptiveSmoothingWeight( n + 1, parser->Convert<float>(
+          initializationOption->GetParameter( n, 1 ) ) );
+        }
+      }
+    }
 
   /**
    * MRF options
@@ -355,7 +377,6 @@ int AtroposSegmentation( itk::CommandLineParser *parser )
     parser->GetOption( "mrf" );
   if( mrfOption && mrfOption->GetNumberOfValues() )
     {
-
     if( mrfOption->GetNumberOfParameters() > 0 )
       {
       segmenter->SetMRFSmoothingFactor( parser->Convert<float>(
@@ -376,6 +397,12 @@ int AtroposSegmentation( itk::CommandLineParser *parser )
           {
           radius[d] = array[d];
           }
+        }
+      else
+        {
+        std::cerr << "MRF radius size needs to be equal to the image dimension."
+          << std::endl;
+        return EXIT_FAILURE;
         }
       segmenter->SetMRFRadius( radius );
       }
@@ -417,9 +444,9 @@ int AtroposSegmentation( itk::CommandLineParser *parser )
     {
     segmenter->Update();
     }
-  catch(...)
+  catch( itk::ExceptionObject exp )
     {
-    std::cerr << "Exception thrown." << std::endl;
+    std::cerr << exp << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -448,11 +475,10 @@ int AtroposSegmentation( itk::CommandLineParser *parser )
       }
     if( outputOption->GetNumberOfParameters() > 1 )
       {
-
       std::string filename = outputOption->GetParameter( 1 );
 
       itk::NumericSeriesFileNames::Pointer fileNamesCreator =
-              itk::NumericSeriesFileNames::New();
+        itk::NumericSeriesFileNames::New();
       fileNamesCreator->SetStartIndex( 1 );
       fileNamesCreator->SetEndIndex( segmenter->GetNumberOfClasses() );
       fileNamesCreator->SetSeriesFormat( filename.c_str() );
@@ -502,7 +528,7 @@ int AtroposSegmentation( itk::CommandLineParser *parser )
           std::cout << "Writing B-spline image (class " << i + 1 << ")" << std::endl;
 
           typename InputImageType::Pointer bsplineImage =
-            segmenter->CalculateSmoothIntensityImageFromPriorProbabilityImage( i + 1 );
+            segmenter->CalculateSmoothIntensityImageFromPriorProbabilityImage( 0, i + 1 );
 
           typedef  itk::ImageFileWriter<InputImageType> WriterType;
           typename WriterType::Pointer writer = WriterType::New();
@@ -554,16 +580,36 @@ void InitializeCommandLineOptions( itk::CommandLineParser *parser )
 
   {
   std::string description =
-    std::string( "\tOption 1:  Random[inputImage,numberOfClasses]\n" ) +
-    std::string( "\tOption 2:  Kmeans[inputImage,numberOfClasses]\n" ) +
-    std::string( "\tOption 3:  Otsu[inputImage,numberOfClasses]\n" ) +
-    std::string( "\tOption 4:  PriorProbabilityImages[inputImage,numberOfClasses," ) +
+    std::string( "Option 1:  Random[inputImage,numberOfClasses]\n" ) +
+    std::string( "\t  Option 2:  Kmeans[inputImage,numberOfClasses]\n" ) +
+    std::string( "\t  Option 3:  Otsu[inputImage,numberOfClasses]\n" ) +
+    std::string( "\t  Option 4:  PriorProbabilityImages[inputImage,numberOfClasses," ) +
       std::string( "fileSeriesFormat(index=1 to numberOfClasses-1) or vectorImage,priorWeighting]\n" ) +
-    std::string( "\tOption 5:  PriorLabelImage[inputImage,numberOfClasses,labelImage,priorWeighting]" );
+    std::string( "\t  Option 5:  PriorLabelImage[inputImage,numberOfClasses,labelImage,priorWeighting]" );
 
   OptionType::Pointer option = OptionType::New();
   option->SetLongName( "initialization" );
   option->SetShortName( 'i' );
+  option->SetDescription( description );
+  parser->AddOption( option );
+  }
+
+  {
+  std::string description = std::string( "maskImage" );
+
+  OptionType::Pointer option = OptionType::New();
+  option->SetLongName( "mask-image" );
+  option->SetShortName( 'x' );
+  option->SetDescription( description );
+  parser->AddOption( option );
+  }
+
+  {
+  std::string description = std::string( "[image,priorWeighting]" );
+
+  OptionType::Pointer option = OptionType::New();
+  option->SetLongName( "auxiliary-image" );
+  option->SetShortName( 'a' );
   option->SetDescription( description );
   parser->AddOption( option );
   }
@@ -584,16 +630,6 @@ void InitializeCommandLineOptions( itk::CommandLineParser *parser )
   OptionType::Pointer option = OptionType::New();
   option->SetLongName( "convergence-threshold" );
   option->SetShortName( 'c' );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
-
-  {
-  std::string description = std::string( "maskImage" );
-
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "mask-image" );
-  option->SetShortName( 'x' );
   option->SetDescription( description );
   parser->AddOption( option );
   }
@@ -691,7 +727,7 @@ int main( int argc, char *argv[] )
   itk::CommandLineParser::Pointer parser = itk::CommandLineParser::New();
   parser->SetCommand( argv[0] );
 
-  parser->SetCommandDescription( "Atropos Segmentation :  A priori classification with registration initialized template assistance." );
+  parser->SetCommandDescription( "Atropos:  A priori classification with registration initialized template assistance." );
   InitializeCommandLineOptions( parser );
 
   parser->Parse( argc, argv );
@@ -716,4 +752,3 @@ int main( int argc, char *argv[] )
       exit( EXIT_FAILURE );
    }
 }
-
