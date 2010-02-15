@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
      PrintHeader<3>(argc,argv);
       break;
    default:
-      std::cerr << "Unsupported dimension" << std::endl;
+      std::cerr << "Unsupported dimension " <<  imageIO->GetNumberOfDimensions() << std::endl;
       exit( EXIT_FAILURE );
    }
 	
