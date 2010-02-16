@@ -63,8 +63,9 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
   this->m_MaskLabel = NumericTraits<LabelType>::One;
 
-  this->m_InitializationStrategy = Otsu;
+  this->m_InitializationStrategy = KMeans;
 
+  this->m_PriorProbabilityWeight = 1.0;
   this->m_AdaptiveSmoothingWeights.clear();
   this->m_PriorLabelParameterMap.clear();
 
@@ -1212,6 +1213,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
           if( !this->GetMaskImage() || this->GetMaskImage()->GetPixel(
             ItO.GetIndex() ) == this->m_MaskLabel )
             {
+
             RealType mrfPrior = 1.0;
             if( this->m_MRFSmoothingFactor > 0.0 && neighborhoodSize > 1 )
               {
@@ -1293,10 +1295,11 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
                   this->GetAuxiliaryImage( i )->GetPixel( ItO.GetIndex() );
                 }
               }
-
             RealType likelihood =
               this->m_GaussianMixtureModel[c]->Evaluate( measurement );
-            RealType posteriorProbability = likelihood * mrfPrior * prior;
+            RealType posteriorProbability =
+              this->m_PriorProbabilityWeight * likelihood * mrfPrior * prior +
+              ( 1.0 - this->m_PriorProbabilityWeight ) * likelihood * mrfPrior;
 
             this->m_GaussianMixtureModel[c]->SetMean( oldMean );
 
@@ -1504,7 +1507,9 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
             }
           RealType likelihood =
             this->m_GaussianMixtureModel[whichClass-1]->Evaluate( measurement );
-          RealType posteriorProbability = likelihood * mrfPrior * prior;
+          RealType posteriorProbability =
+            this->m_PriorProbabilityWeight * likelihood * mrfPrior * prior +
+            ( 1.0 - this->m_PriorProbabilityWeight ) * likelihood * mrfPrior;
 
           this->m_GaussianMixtureModel[whichClass-1]->SetMean( oldMean );
 
