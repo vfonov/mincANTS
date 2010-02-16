@@ -483,8 +483,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
       {
       typedef Statistics::MersenneTwisterRandomVariateGenerator GeneratorType;
       typename GeneratorType::Pointer generator = GeneratorType::New();
-      whichArgIsMax = generator->GetIntegerVariate(
-        argMax.size() - 1 ) + 1;
+      whichArgIsMax = generator->GetIntegerVariate( argMax.size() - 1 );
       }
     priorProbabilities[argMax[whichArgIsMax]] += 1e-6;
     priorProbabilities /= priorProbabilities.sum();
