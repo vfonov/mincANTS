@@ -44,6 +44,8 @@
 #include "itkVectorIndexSelectionCastImageFilter.h"
 #include "itkWeightedCentroidKdTreeGenerator.h"
 
+#include "itkImageFileWriter.h"
+
 #include "itkTimeProbe.h"
 
 #include "vnl/vnl_vector.h"
@@ -463,6 +465,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
         priorProbabilities[n] =
           this->GetPriorProbabilityImage( n + 1 )->GetPixel( ItI.GetIndex() );
         }
+
       RealType maxValue = priorProbabilities.max_value();
       if( maxValue > 1e-5 )
         {
@@ -481,15 +484,18 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
           typename GeneratorType::Pointer generator = GeneratorType::New();
           whichArgIsMax = generator->GetIntegerVariate( argMax.size() - 1 );
           }
-        priorProbabilities[argMax[whichArgIsMax]] += 1e-6;
-        priorProbabilities /= priorProbabilities.sum();
-
-        for( unsigned int n = 0; n < this->m_NumberOfClasses; n++ )
-          {
-          typename RealImageType::Pointer priorProbabilityImage
-            = const_cast<RealImageType *>( this->GetPriorProbabilityImage( n + 1 ) );
-          priorProbabilityImage->SetPixel( ItI.GetIndex(), priorProbabilities[n] );
-          }
+        priorProbabilities[argMax[whichArgIsMax]] += 1e-5;
+        }
+      else
+        {
+        priorProbabilities.fill( 1.0 );
+        }
+      priorProbabilities /= priorProbabilities.sum();
+      for( unsigned int n = 0; n < this->m_NumberOfClasses; n++ )
+        {
+        typename RealImageType::Pointer priorProbabilityImage
+          = const_cast<RealImageType *>( this->GetPriorProbabilityImage( n + 1 ) );
+        priorProbabilityImage->SetPixel( ItI.GetIndex(), priorProbabilities[n] );
         }
       }
     else
@@ -516,8 +522,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
   for( ItO.GoToBegin(); !ItO.IsAtEnd(); ++ItO )
     {
     if( !this->GetMaskImage() ||
-      this->GetMaskImage()->GetPixel( ItO.GetIndex() )
-      == this->m_MaskLabel )
+      this->GetMaskImage()->GetPixel( ItO.GetIndex() ) == this->m_MaskLabel )
       {
       vnl_vector<RealType> priorProbabilities( this->m_NumberOfClasses );
       for( unsigned int n = 0; n < this->m_NumberOfClasses; n++ )
@@ -526,7 +531,8 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
           this->GetPriorProbabilityImage( n + 1 )->GetPixel( ItO.GetIndex() );
         }
       RealType maxValue = priorProbabilities.max_value();
-      if( maxValue <= 1e-5 )
+      if( vnl_math_abs( maxValue - 1.0 /
+        static_cast<RealType>( this->m_NumberOfClasses ) <= 1e-5 ) )
         {
         ItO.Set( NumericTraits<LabelType>::Zero );
         }
@@ -869,6 +875,17 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
     typename RealImageType::Pointer posteriorProbabilityImage
       = this->GetPosteriorProbabilityImage( n + 1 );
 
+    typedef ImageFileWriter<RealImageType> WriterType;
+    typename WriterType::Pointer writer = WriterType::New();
+    writer->SetInput( posteriorProbabilityImage );
+    writer->SetFileName( "posterior.nii.gz" );
+    writer->Update();
+
+    std::cout << "Class " << n+1 << std::endl;
+    int q;
+    std::cin >> q;
+
+
     ImageRegionIteratorWithIndex<ClassifiedImageType> ItO( maxLabels,
       maxLabels->GetRequestedRegion() );
     ImageRegionConstIterator<RealImageType> ItP( posteriorProbabilityImage,
@@ -1202,7 +1219,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
           priorProbabilityImage = const_cast<RealImageType *>(
             this->GetPriorProbabilityImage( c + 1 ) );
           }
-        else if( this->m_InitializationStrategy == PriorLabelImage )
+       	if ( this->m_PriorLabelParameterMap.size() > 0 )
           {
           distancePriorProbabilityImage
             = this->GetDistancePriorProbabilityImageFromPriorLabelImage( c + 1 );
@@ -1276,9 +1293,9 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
               {
               prior = priorProbabilityImage->GetPixel( ItO.GetIndex() );
               }
-            else if( distancePriorProbabilityImage )
+            if( distancePriorProbabilityImage )
               {
-              prior = distancePriorProbabilityImage->GetPixel( ItO.GetIndex() );
+              prior *= distancePriorProbabilityImage->GetPixel( ItO.GetIndex() );
               }
 
             typename GaussianType::MeanType oldMean =
@@ -1418,7 +1435,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
         priorProbabilityImage = const_cast<RealImageType *>(
           this->GetPriorProbabilityImage( whichClass ) );
         }
-      else if( this->m_InitializationStrategy == PriorLabelImage )
+      if ( this->m_PriorLabelParameterMap.size() > 0 )
         {
         distancePriorProbabilityImage =
           this->GetDistancePriorProbabilityImageFromPriorLabelImage( whichClass );
@@ -1487,9 +1504,9 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
             {
             prior = priorProbabilityImage->GetPixel( ItO.GetIndex() );
             }
-          else if( distancePriorProbabilityImage )
+          if( distancePriorProbabilityImage )
             {
-            prior = distancePriorProbabilityImage->GetPixel( ItO.GetIndex() );
+            prior *= distancePriorProbabilityImage->GetPixel( ItO.GetIndex() );
             }
 
           typename GaussianType::MeanType oldMean =
@@ -1672,8 +1689,21 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
           typedef CastImageFilter<MaskImageType, RealImageType> CasterType;
           typename CasterType::Pointer caster = CasterType::New();
-          caster->SetInput( const_cast<MaskImageType *>( this->GetMaskImage() ) );
-          caster->Update();
+          if( this->GetMaskImage() )
+            {
+            caster->SetInput( const_cast<MaskImageType *>( this->GetMaskImage() ) );
+            caster->Update();
+            fastMarching->SetInput( caster->GetOutput() );
+            }
+          else
+            {
+            fastMarching->SetSpeedConstant( 1.0 );
+            fastMarching->SetOverrideOutputInformation( true );
+            fastMarching->SetOutputOrigin( this->GetOutput()->GetOrigin() );
+            fastMarching->SetOutputSpacing( this->GetOutput()->GetSpacing() );
+            fastMarching->SetOutputRegion( this->GetOutput()->GetRequestedRegion() );
+            fastMarching->SetOutputDirection( this->GetOutput()->GetDirection() );
+            }
 
           typedef typename FastMarchingFilterType::NodeContainer NodeContainer;
           typedef typename FastMarchingFilterType::NodeType NodeType;
@@ -1695,7 +1725,6 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
               }
             }
           fastMarching->SetTrialPoints( trialPoints );
-          fastMarching->SetInput( caster->GetOutput() );
           fastMarching->SetStoppingValue( NumericTraits<RealType>::max() );
 //           fastMarching->SetTopologyCheck( FastMarchingFilterType::None );
           fastMarching->Update();
@@ -1714,6 +1743,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
           distanceImage = fastMarching->GetOutput();
           }
+
         RealType maximumInteriorDistance = 0.0;
 
         ImageRegionIterator<RealImageType> ItD( distanceImage,
@@ -1873,9 +1903,47 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
           FastMarchingFilterType;
         typename FastMarchingFilterType::Pointer fastMarching
           = FastMarchingFilterType::New();
-        fastMarching->SetInput( contour->GetOutput() );
+
+        typedef CastImageFilter<MaskImageType, RealImageType> CasterType;
+        typename CasterType::Pointer caster = CasterType::New();
+        if( this->GetMaskImage() )
+          {
+          caster->SetInput( const_cast<MaskImageType *>( this->GetMaskImage() ) );
+          caster->Update();
+          fastMarching->SetInput( caster->GetOutput() );
+          }
+        else
+          {
+          fastMarching->SetSpeedConstant( 1.0 );
+          fastMarching->SetOverrideOutputInformation( true );
+          fastMarching->SetOutputOrigin( this->GetOutput()->GetOrigin() );
+          fastMarching->SetOutputSpacing( this->GetOutput()->GetSpacing() );
+          fastMarching->SetOutputRegion( this->GetOutput()->GetRequestedRegion() );
+          fastMarching->SetOutputDirection( this->GetOutput()->GetDirection() );
+          }
+
+        typedef typename FastMarchingFilterType::NodeContainer NodeContainer;
+        typedef typename FastMarchingFilterType::NodeType NodeType;
+        typename NodeContainer::Pointer trialPoints = NodeContainer::New();
+        trialPoints->Initialize();
+
+        unsigned long trialCount = 0;
+
+        ImageRegionIteratorWithIndex<RealImageType> ItC(
+          contour->GetOutput(), contour->GetOutput()->GetRequestedRegion() );
+        for( ItC.GoToBegin(); !ItC.IsAtEnd(); ++ItC )
+          {
+          if( ItC.Get() == contour->GetForegroundValue() )
+            {
+            NodeType node;
+            node.SetValue( 0.0 );
+            node.SetIndex( ItC.GetIndex() );
+            trialPoints->InsertElement( trialCount++, node );
+            }
+          }
+        fastMarching->SetTrialPoints( trialPoints );
         fastMarching->SetStoppingValue( NumericTraits<RealType>::max() );
-        // fastMarching->SetTopologyCheck( FastMarchingFilterType::None );
+//           fastMarching->SetTopologyCheck( FastMarchingFilterType::None );
         fastMarching->Update();
 
         ImageRegionIterator<RealImageType> ItT( thresholder->GetOutput(),
@@ -2186,6 +2254,21 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
     case PriorProbabilityImages:
       {
       os << "Prior probability images" << std::endl;
+      if( this->m_PriorLabelParameterMap.size() > 0 )
+        {
+        os << indent << "  Specified prior label parameters:" << std::endl;
+        typename LabelParameterMapType::const_iterator it;
+        for( it = this->m_PriorLabelParameterMap.begin(); it !=
+          this->m_PriorLabelParameterMap.end(); ++it )
+          {
+          RealType label = it->first;
+          RealType sigma = ( it->second ).first;
+          RealType boundaryProbability = ( it->second ).second;
+          os << indent << "    Class " << label
+             << ": sigma = " << sigma
+             << ", boundary probability = " << boundaryProbability << std::endl;
+          }
+        }
       break;
       }
     case PriorLabelImage:
