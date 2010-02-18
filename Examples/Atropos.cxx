@@ -220,7 +220,7 @@ int AtroposSegmentation( itk::CommandLineParser *parser )
    */
   typename itk::CommandLineParser::OptionType::Pointer iterationsOption =
     parser->GetOption( "number-of-iterations" );
-  if( iterationsOption )
+  if( iterationsOption && iterationsOption->GetNumberOfValues() > 0 )
     {
     segmenter->SetMaximumNumberOfIterations( parser->Convert<unsigned int>(
       iterationsOption->GetValue() ) );
@@ -231,7 +231,7 @@ int AtroposSegmentation( itk::CommandLineParser *parser )
    */
   typename itk::CommandLineParser::OptionType::Pointer convergenceOption =
     parser->GetOption( "convergence-threshold" );
-  if( convergenceOption )
+  if( convergenceOption && convergenceOption->GetNumberOfValues() > 0 )
     {
     segmenter->SetConvergenceThreshold( parser->Convert<float>(
       convergenceOption->GetValue() ) );
@@ -242,7 +242,7 @@ int AtroposSegmentation( itk::CommandLineParser *parser )
    */
   typename itk::CommandLineParser::OptionType::Pointer maskOption =
     parser->GetOption( "mask-image" );
-  if( maskOption && maskOption->GetNumberOfValues() )
+  if( maskOption && maskOption->GetNumberOfValues() > 0 )
     {
     try
       {
@@ -385,7 +385,7 @@ int AtroposSegmentation( itk::CommandLineParser *parser )
    */
   typename itk::CommandLineParser::OptionType::Pointer mrfOption =
     parser->GetOption( "mrf" );
-  if( mrfOption && mrfOption->GetNumberOfValues() )
+  if( mrfOption && mrfOption->GetNumberOfValues() > 0 )
     {
     if( mrfOption->GetNumberOfParameters() > 0 )
       {
@@ -433,7 +433,7 @@ int AtroposSegmentation( itk::CommandLineParser *parser )
    */
   typename itk::CommandLineParser::OptionType::Pointer distanceOption =
     parser->GetOption( "use-euclidean-distance" );
-  if( distanceOption )
+  if( distanceOption && distanceOption->GetNumberOfValues() > 0 )
     {
     segmenter->SetUseEuclideanDistanceForPriorLabels(
       parser->Convert<bool>( distanceOption->GetValue() ) );
@@ -445,7 +445,7 @@ int AtroposSegmentation( itk::CommandLineParser *parser )
    */
   typename itk::CommandLineParser::OptionType::Pointer memoryOption =
     parser->GetOption( "minimize-memory-usage" );
-  if( memoryOption )
+  if( memoryOption && memoryOption->GetNumberOfValues() > 0 )
     {
     segmenter->SetMinimizeMemoryUsage( parser->Convert<bool>(
       memoryOption->GetValue() ) );
@@ -466,7 +466,7 @@ int AtroposSegmentation( itk::CommandLineParser *parser )
    */
   typename itk::CommandLineParser::OptionType::Pointer outputOption =
     parser->GetOption( "output" );
-  if( outputOption )
+  if( outputOption && outputOption->GetNumberOfValues() > 0 )
     {
     if( outputOption->GetNumberOfParameters() == 0 )
       {
