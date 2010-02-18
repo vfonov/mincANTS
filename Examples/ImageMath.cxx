@@ -421,10 +421,10 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
   typedef int PixelType;
   typedef float RealType;
 
-  unsigned int numberOfBins = 200;
-  if ( argc > 10 )
+  unsigned int numberOfBins = 64;
+  if ( argc > 9 )
     {
-    numberOfBins = atoi( argv[10] );
+    numberOfBins = atoi( argv[9] );
     }
 
   typedef itk::Image<PixelType, ImageDimension> ImageType;
@@ -529,19 +529,17 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
   std::cout << "Lower quantile: " << lowerQuantile << std::endl;
   std::cout << "Upper quantile: " << upperQuantile << std::endl;
 
-
-  PixelType replacementValue = 0;
-  if( argc > 9 )
-    {
-    replacementValue = static_cast<PixelType>( atof( argv[9] ) );
-    }
-
   for ( ItI.GoToBegin(); !ItI.IsAtEnd(); ++ItI )
     {
-    if ( ItI.Get() < lowerValue || ItI.Get() > upperQuantile )
+    if ( ItI.Get() <  lowerQuantile )
       {
-      ItI.Set( replacementValue );
+      ItI.Set(  lowerQuantile );
       }
+    if ( ItI.Get() > upperQuantile )
+      {
+      ItI.Set(  upperQuantile  );
+      }
+
     }
 
   typedef itk::ImageFileWriter<RealImageType> WriterType;
@@ -5829,7 +5827,7 @@ int main(int argc, char *argv[])
     std::cout << "  ConvertImageSetToMatrix  rowcoloption Mask.nii  *images.nii --  each row/column contains image content extracted from mask applied to images in *img.nii " << std::endl;
     std::cout << "  ConvertVectorToImage   Mask.nii vector.nii  -- the vector contains image content extracted from a mask - here we return the vector to its spatial origins as image content " << std::endl;
     std::cout << "  TriPlanarView  ImageIn.nii.gz PercentageToClampLowIntensity  PercentageToClampHiIntensity x-slice y-slice z-slice  " << std::endl;
-    std::cout << "  TruncateImageIntensity inputImage {maskImage} {maskLabel=1} {lowerQuantile=0.05} {upperQuantile=0.95} {replacePixelValue=0} {numberOfBins=200}" << std::endl;
+    std::cout << "  TruncateImageIntensity inputImage {maskImage} {maskLabel=1} {lowerQuantile=0.05} {upperQuantile=0.95}  {numberOfBins=200}" << std::endl;
     std::cout << "  FillHoles Image parameter : parameter = ratio of edge at object to edge at background = 1 is a definite hole bounded by object only, 0.99 is close -- default of parameter > 1 will fill all holes " << std::endl;
     std::cout << " PropagateLabelsThroughMask   speed/binaryimagemask.nii.gz   initiallabelimage.nii.gz Optional-Stopping-Value  -- final output is the propagated label image  " << std::endl <<  " optional stopping value -- higher values allow more distant propagation "  << std::endl;
     return 1;
