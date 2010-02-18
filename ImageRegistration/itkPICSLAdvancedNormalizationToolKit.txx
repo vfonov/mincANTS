@@ -879,8 +879,8 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
         option->SetLongName( "Restrict-Deformation" );
         option->SetDescription( "restrict the gradient that drives the deformation by scalar factors along specified dimensions -- a float 'vector' of length ImageDimension to multiply against the similarity metric's gradient values ---  e.g. in 3D : 0.1x1x0 --- will set the z gradient to zero and scale the x gradient by 0.1 and y by 1 (no change). Thus, you get a 2.5-Dimensional registration as there is still 3D continuity in the mapping. " );
         std::string nitdefault;
-	if (TDimension == 2) nitdefault=std::string("0x0");
-	if (TDimension == 3) nitdefault=std::string("0x0x0");
+	if (TDimension == 2) nitdefault=std::string("1x1");
+	if (TDimension == 3) nitdefault=std::string("1x1x1");
         /** set up a default parameter */
         option->AddValue(nitdefault);
         this->m_Parser->AddOption( option );
