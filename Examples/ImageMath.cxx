@@ -65,6 +65,7 @@
 #include "itkConnectedComponentImageFilter.h"
 #include "itkRescaleIntensityImageFilter.h"
 #include "itkHistogramMatchingImageFilter.h"
+#include "itkLabelStatisticsImageFilter.h"
 
 #include "itkMRIBiasFieldCorrectionFilter.h"
 #include "itkImage.h"
@@ -412,6 +413,144 @@ int FlattenImage(int argc, char *argv[])
   WriteImage<ImageType>(out,outname.c_str());
   return 0;
 
+}
+
+template <unsigned int ImageDimension>
+int TruncateImageIntensity( unsigned int argc, char *argv[] )
+{
+  typedef int PixelType;
+  typedef float RealType;
+
+  unsigned int numberOfBins = 200;
+  if ( argc > 10 )
+    {
+    numberOfBins = atoi( argv[10] );
+    }
+
+  typedef itk::Image<PixelType, ImageDimension> ImageType;
+  typedef itk::Image<RealType, ImageDimension> RealImageType;
+
+  typedef itk::ImageFileReader<RealImageType> ReaderType;
+  typename ReaderType::Pointer imageReader = ReaderType::New();
+  imageReader->SetFileName( argv[4] );
+  imageReader->Update();
+
+  typename ImageType::Pointer mask = ImageType::New();
+  if ( argc > 5 )
+    {
+    try
+      {
+      typedef itk::ImageFileReader<ImageType> ReaderType;
+      typename ReaderType::Pointer labelImageReader = ReaderType::New();
+      labelImageReader->SetFileName( argv[5] );
+      labelImageReader->Update();
+      mask = labelImageReader->GetOutput();
+      }
+    catch(...)
+      {
+      mask->SetOrigin( imageReader->GetOutput()->GetOrigin() );
+      mask->SetSpacing( imageReader->GetOutput()->GetSpacing() );
+      mask->SetRegions( imageReader->GetOutput()->GetLargestPossibleRegion() );
+      mask->SetDirection( imageReader->GetOutput()->GetDirection() );
+      mask->Allocate();
+      mask->FillBuffer( itk::NumericTraits<PixelType>::One );
+      };
+    }
+  if( !mask )
+    {
+    mask->SetOrigin( imageReader->GetOutput()->GetOrigin() );
+    mask->SetSpacing( imageReader->GetOutput()->GetSpacing() );
+    mask->SetRegions( imageReader->GetOutput()->GetLargestPossibleRegion() );
+    mask->SetDirection( imageReader->GetOutput()->GetDirection() );
+    mask->Allocate();
+    mask->FillBuffer( itk::NumericTraits<PixelType>::One );
+    }
+  PixelType label = itk::NumericTraits<PixelType>::One;
+  if ( argc > 6 )
+    {
+    label = static_cast<PixelType>( atoi( argv[6] ) );
+    }
+
+  itk::ImageRegionIterator<RealImageType> ItI( imageReader->GetOutput(),
+    imageReader->GetOutput()->GetLargestPossibleRegion() );
+  itk::ImageRegionIterator<ImageType> ItM( mask,
+    mask->GetLargestPossibleRegion() );
+
+  RealType maxValue = itk::NumericTraits<RealType>::NonpositiveMin();
+  RealType minValue = itk::NumericTraits<RealType>::max();
+
+  for ( ItM.GoToBegin(), ItI.GoToBegin(); !ItI.IsAtEnd(); ++ItM, ++ItI )
+    {
+    if ( ItM.Get() == label )
+      {
+      if ( ItI.Get() < minValue )
+        {
+        minValue = ItI.Get();
+        }
+      else if ( ItI.Get() > maxValue )
+        {
+        maxValue = ItI.Get();
+        }
+      ItM.Set( itk::NumericTraits<PixelType>::One );
+      }
+    else
+      {
+      ItM.Set( itk::NumericTraits<PixelType>::Zero );
+      }
+    if( std::isnan( ItI.Get() ) || std::isinf( ItI.Get() ) )
+      {
+      ItM.Set( itk::NumericTraits<PixelType>::Zero );
+      }
+    }
+
+  typedef itk::LabelStatisticsImageFilter<RealImageType, ImageType> HistogramGeneratorType;
+  typename HistogramGeneratorType::Pointer stats = HistogramGeneratorType::New();
+  stats->SetInput( imageReader->GetOutput() );
+  stats->SetLabelInput( mask );
+  stats->SetUseHistograms( true );
+  stats->SetHistogramParameters( numberOfBins, minValue, maxValue );
+  stats->Update();
+  typedef typename HistogramGeneratorType::HistogramType  HistogramType;
+  const HistogramType *histogram = stats->GetHistogram( 1 );
+
+  double lowerValue = 0.05;
+  if( argc > 7 )
+    {
+    lowerValue = atof( argv[7] );
+    }
+		double lowerQuantile = histogram->Quantile( 0, lowerValue );
+  double upperValue = 0.95;
+  if( argc > 8 )
+    {
+    upperValue = atof( argv[8] );
+    }
+		double	upperQuantile = histogram->Quantile( 0, upperValue );
+
+  std::cout << "Lower quantile: " << lowerQuantile << std::endl;
+  std::cout << "Upper quantile: " << upperQuantile << std::endl;
+
+
+  PixelType replacementValue = 0;
+  if( argc > 9 )
+    {
+    replacementValue = static_cast<PixelType>( atof( argv[9] ) );
+    }
+
+  for ( ItI.GoToBegin(); !ItI.IsAtEnd(); ++ItI )
+    {
+    if ( ItI.Get() < lowerValue || ItI.Get() > upperQuantile )
+      {
+      ItI.Set( replacementValue );
+      }
+    }
+
+  typedef itk::ImageFileWriter<RealImageType> WriterType;
+  typename WriterType::Pointer writer = WriterType::New();
+  writer->SetFileName( argv[2] );
+  writer->SetInput( imageReader->GetOutput() );
+  writer->Update();
+
+  return EXIT_SUCCESS;
 }
 
 template <unsigned int ImageDimension>
@@ -5690,6 +5829,7 @@ int main(int argc, char *argv[])
     std::cout << "  ConvertImageSetToMatrix  rowcoloption Mask.nii  *images.nii --  each row/column contains image content extracted from mask applied to images in *img.nii " << std::endl;
     std::cout << "  ConvertVectorToImage   Mask.nii vector.nii  -- the vector contains image content extracted from a mask - here we return the vector to its spatial origins as image content " << std::endl;
     std::cout << "  TriPlanarView  ImageIn.nii.gz PercentageToClampLowIntensity  PercentageToClampHiIntensity x-slice y-slice z-slice  " << std::endl;
+    std::cout << "  TruncateImageIntensity inputImage {maskImage} {maskLabel=1} {lowerQuantile=0.05} {upperQuantile=0.95} {replacePixelValue=0} {numberOfBins=200}" << std::endl;
     std::cout << "  FillHoles Image parameter : parameter = ratio of edge at object to edge at background = 1 is a definite hole bounded by object only, 0.99 is close -- default of parameter > 1 will fill all holes " << std::endl;
     std::cout << " PropagateLabelsThroughMask   speed/binaryimagemask.nii.gz   initiallabelimage.nii.gz Optional-Stopping-Value  -- final output is the propagated label image  " << std::endl <<  " optional stopping value -- higher values allow more distant propagation "  << std::endl;
     return 1;
@@ -5750,6 +5890,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"ConvertImageSetToMatrix") == 0 )  ConvertImageSetToMatrix<2>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertVectorToImage") == 0 )  ConvertVectorToImage<2>(argc,argv);
      else if (strcmp(operation.c_str(),"PropagateLabelsThroughMask") == 0 )  PropagateLabelsThroughMask<2>(argc,argv);
+     else if (strcmp(operation.c_str(),"TruncateImageIntensity") == 0 ) TruncateImageIntensity<2>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
      break;
    case 3:
@@ -5809,6 +5950,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"ConvertVectorToImage") == 0 )  ConvertVectorToImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"PropagateLabelsThroughMask") == 0 )  PropagateLabelsThroughMask<3>(argc,argv);
      else if (strcmp(operation.c_str(),"TriPlanarView") == 0 )  TriPlanarView<3>(argc,argv);
+     else if (strcmp(operation.c_str(),"TruncateImageIntensity") == 0 ) TruncateImageIntensity<3>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
    default:
