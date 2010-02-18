@@ -1722,6 +1722,8 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
             fastMarching->GetOutput()->GetRequestedRegion() );
           for( ItT.GoToBegin(), ItF.GoToBegin(); !ItT.IsAtEnd(); ++ItT, ++ItF )
             {
+            RealType distance = ItF.Get();
+            ItF.Set( distance * distance );
             if( ItT.Get() == 1 )
               {
               ItF.Set( -ItF.Get() );
@@ -1939,6 +1941,8 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
           fastMarching->GetOutput()->GetRequestedRegion() );
         for( ItT.GoToBegin(), ItF.GoToBegin(); !ItT.IsAtEnd(); ++ItT, ++ItF )
           {
+          RealType distance = ItF.Get();
+          ItF.Set( distance * distance );
           if( ItT.Get() == 1 )
             {
             ItF.Set( -ItF.Get() );
@@ -2241,6 +2245,15 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
     case PriorProbabilityImages:
       {
       os << "Prior probability images" << std::endl;
+      os << indent << "  Use Euclidean distance for prior labels:";
+      if( this->m_UseEuclideanDistanceForPriorLabels )
+        {
+        os << " true" << std::endl;
+        }
+      else
+        {
+        os << " false" << std::endl;
+        }
       if( this->m_PriorLabelParameterMap.size() > 0 )
         {
         os << indent << "  Specified prior label parameters:" << std::endl;
