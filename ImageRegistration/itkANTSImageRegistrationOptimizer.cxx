@@ -16,7 +16,7 @@
 =========================================================================*/
 #ifndef _itkANTSImageRegistrationOptimizer_txx_ 
 #define _itkANTSImageRegistrationOptimizer_txx_
-
+ 
 // disable debug warnings in MS compiler
 #ifdef _MSC_VER
 #pragma warning(disable: 4786)
@@ -737,8 +737,8 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 	bool restrict=false;
 	for (unsigned int jj=0; jj<this->m_RestrictDeformation.size();  jj++ )
 	  {
-	    unsigned int temp=this->m_RestrictDeformation[jj];
-	    if ( temp == 1  ) restrict=true;
+	    float temp=this->m_RestrictDeformation[jj];
+	    if ( fabs( temp - 0 ) > 1.e-5 || fabs( temp - 1 ) > 1.e-5   ) restrict=true;
 	  }
 	if (restrict && this->m_RestrictDeformation.size() == ImageDimension )
 	  {
@@ -747,19 +747,16 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 	      {
 		for (unsigned int jj=0; jj<this->m_RestrictDeformation.size();  jj++ )
 		  {
-		    if ( this->m_RestrictDeformation[jj] == 1  ) 
-		      {
 			typename ImageType::IndexType index=nU.GetIndex();
 			VectorType temp = updateField->GetPixel(index);
-			temp[jj]=0;
+			temp[jj]*=this->m_RestrictDeformation[jj];
 			updateField->SetPixel(index,temp);
 			if (updateFieldInv )
 			  {
 			    temp = updateFieldInv->GetPixel(index);
-			    temp[jj]=0;
+			    temp[jj]*=this->m_RestrictDeformation[jj];
 			    updateFieldInv->SetPixel(index,temp);
 			  }
-		      }
 		  }
 		++nU;
 	      }
