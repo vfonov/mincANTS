@@ -421,9 +421,8 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
   typedef int PixelType;
   typedef float RealType;
 
-  std::cout << "  TruncateImageIntensity inputImage  {lowerQuantile=0.025} {upperQuantile=0.975}  {numberOfBins=65}  {binary-maskImage} " << std::endl;
   // usage  ImageMath 3 out.nii.gz  TrunateImageIntensity InImage.nii.gz FractionLo(e.g.0.025) FractionHi(e.g.0.975) Bins Mask 
-  if (argc < 4 ) { std::cout <<" need more args -- see usage   " << std::endl;  exit(0); }
+  if (argc < 4 ) { std::cout <<" need more args -- see usage   " << std::endl  <<   " ImageMath 3 outimage.nii.gz  TruncateImageIntensity inputImage  {lowerQuantile=0.025} {upperQuantile=0.975}  {numberOfBins=65}  {binary-maskImage} " << std::endl;  exit(0); }
 
   unsigned int argct=2;
   std::string outname=std::string(argv[argct]); argct++;
@@ -431,12 +430,12 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
   std::string fn1=std::string(argv[argct]);   argct++;
   float  lo = 0.025; 
   if ( argc > argct ) lo=atof(argv[argct]);   argct++;
-  float  hi = 0.0975; 
+  float  hi = 0.975; 
   if ( argc > argct )  hi=atof(argv[argct]);  else hi=1.0-lo ;   argct++; 
   unsigned int numberOfBins = 64;
   if ( argc > argct )  numberOfBins=atoi(argv[argct]);   argct++;
 
-  std::cout << " bin " << numberOfBins << " lo " << lo << " Hi " << hi << std::endl;
+  //  std::cout << " bin " << numberOfBins << " lo " << lo << " Hi " << hi << std::endl;
 
   typedef itk::Image<PixelType, ImageDimension> ImageType;
   typedef itk::Image<RealType, ImageDimension> RealImageType;
@@ -446,10 +445,11 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
   imageReader->SetFileName( fn1.c_str() );
   imageReader->Update();
 
-  typename ImageType::Pointer mask = NULL;
+  typename ImageType::Pointer mask=NULL;
+  /*
   if ( argc > argct )
     {
-      mask = ImageType::New();
+    mask = ImageType::New(); 
     try
       {
       typedef itk::ImageFileReader<ImageType> ReaderType;
@@ -464,9 +464,11 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
 	mask=NULL;
      };
     }
-
+  */
+  //  std::cout << " Mask " << std::endl;
   if( !mask )
     {
+    mask = ImageType::New(); 
     mask->SetOrigin( imageReader->GetOutput()->GetOrigin() );
     mask->SetSpacing( imageReader->GetOutput()->GetSpacing() );
     mask->SetRegions( imageReader->GetOutput()->GetLargestPossibleRegion() );
@@ -475,6 +477,9 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
     mask->FillBuffer( itk::NumericTraits<PixelType>::One );
     }
 
+
+  //  std::cout << " iterate " << std::endl;
+
   itk::ImageRegionIterator<RealImageType> ItI( imageReader->GetOutput(),
     imageReader->GetOutput()->GetLargestPossibleRegion() );
   itk::ImageRegionIterator<ImageType> ItM( mask,
@@ -482,9 +487,10 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
 
   RealType maxValue = itk::NumericTraits<RealType>::NonpositiveMin();
   RealType minValue = itk::NumericTraits<RealType>::max();
-
-  for ( ItM.GoToBegin(), ItI.GoToBegin(); !ItI.IsAtEnd(); ++ItM, ++ItI )
+  ItM.GoToBegin(); 
+  for (ItI.GoToBegin(); !ItI.IsAtEnd();  ++ItI )
     {
+      //  std::cout << " ind " << ItI.GetIndex() << std::endl;
       if ( ItI.Get() >  0 && ItM.Get() >= 0.5 )
       {
       if ( ItI.Get() < minValue )
@@ -505,8 +511,9 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
       {
       ItM.Set( itk::NumericTraits<PixelType>::Zero );
       }
+    ++ItM;
     }
-
+  //  std::cout << " label " << std::endl;
   typedef itk::LabelStatisticsImageFilter<RealImageType, ImageType> HistogramGeneratorType;
   typename HistogramGeneratorType::Pointer stats = HistogramGeneratorType::New();
   stats->SetInput( imageReader->GetOutput() );
@@ -514,6 +521,7 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
   stats->SetUseHistograms( true );
   stats->SetHistogramParameters( numberOfBins, minValue, maxValue );
   stats->Update();
+  //  std::cout << " labeld " << std::endl;
   typedef typename HistogramGeneratorType::HistogramType  HistogramType;
   const HistogramType *histogram = stats->GetHistogram( 1 );
 
