@@ -421,41 +421,50 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
   typedef int PixelType;
   typedef float RealType;
 
+  std::cout << "  TruncateImageIntensity inputImage  {lowerQuantile=0.025} {upperQuantile=0.975}  {numberOfBins=65}  {binary-maskImage} " << std::endl;
+  // usage  ImageMath 3 out.nii.gz  TrunateImageIntensity InImage.nii.gz FractionLo(e.g.0.025) FractionHi(e.g.0.975) Bins Mask 
+  if (argc < 4 ) { std::cout <<" need more args -- see usage   " << std::endl;  exit(0); }
+
+  unsigned int argct=2;
+  std::string outname=std::string(argv[argct]); argct++;
+  std::string operation = std::string(argv[argct]);  argct++;
+  std::string fn1=std::string(argv[argct]);   argct++;
+  float  lo = 0.025; 
+  if ( argc > argct ) lo=atof(argv[argct]);   argct++;
+  float  hi = 0.0975; 
+  if ( argc > argct )  hi=atof(argv[argct]);  else hi=1.0-lo ;   argct++; 
   unsigned int numberOfBins = 64;
-  if ( argc > 9 )
-    {
-    numberOfBins = atoi( argv[9] );
-    }
+  if ( argc > argct )  numberOfBins=atoi(argv[argct]);   argct++;
+
+  std::cout << " bin " << numberOfBins << " lo " << lo << " Hi " << hi << std::endl;
 
   typedef itk::Image<PixelType, ImageDimension> ImageType;
   typedef itk::Image<RealType, ImageDimension> RealImageType;
 
   typedef itk::ImageFileReader<RealImageType> ReaderType;
   typename ReaderType::Pointer imageReader = ReaderType::New();
-  imageReader->SetFileName( argv[4] );
+  imageReader->SetFileName( fn1.c_str() );
   imageReader->Update();
 
-  typename ImageType::Pointer mask = ImageType::New();
-  if ( argc > 5 )
+  typename ImageType::Pointer mask = NULL;
+  if ( argc > argct )
     {
+      mask = ImageType::New();
     try
       {
       typedef itk::ImageFileReader<ImageType> ReaderType;
       typename ReaderType::Pointer labelImageReader = ReaderType::New();
-      labelImageReader->SetFileName( argv[5] );
+      labelImageReader->SetFileName( argv[argct] );
       labelImageReader->Update();
       mask = labelImageReader->GetOutput();
       }
     catch(...)
       {
-      mask->SetOrigin( imageReader->GetOutput()->GetOrigin() );
-      mask->SetSpacing( imageReader->GetOutput()->GetSpacing() );
-      mask->SetRegions( imageReader->GetOutput()->GetLargestPossibleRegion() );
-      mask->SetDirection( imageReader->GetOutput()->GetDirection() );
-      mask->Allocate();
-      mask->FillBuffer( itk::NumericTraits<PixelType>::One );
-      };
+	std::cout << " can't read mask " << std::endl;
+	mask=NULL;
+     };
     }
+
   if( !mask )
     {
     mask->SetOrigin( imageReader->GetOutput()->GetOrigin() );
@@ -464,11 +473,6 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
     mask->SetDirection( imageReader->GetOutput()->GetDirection() );
     mask->Allocate();
     mask->FillBuffer( itk::NumericTraits<PixelType>::One );
-    }
-  PixelType label = itk::NumericTraits<PixelType>::One;
-  if ( argc > 6 )
-    {
-    label = static_cast<PixelType>( atoi( argv[6] ) );
     }
 
   itk::ImageRegionIterator<RealImageType> ItI( imageReader->GetOutput(),
@@ -481,7 +485,7 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
 
   for ( ItM.GoToBegin(), ItI.GoToBegin(); !ItI.IsAtEnd(); ++ItM, ++ItI )
     {
-    if ( ItM.Get() == label )
+      if ( ItI.Get() >  0 && ItM.Get() >= 0.5 )
       {
       if ( ItI.Get() < minValue )
         {
@@ -513,18 +517,8 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
   typedef typename HistogramGeneratorType::HistogramType  HistogramType;
   const HistogramType *histogram = stats->GetHistogram( 1 );
 
-  double lowerValue = 0.05;
-  if( argc > 7 )
-    {
-    lowerValue = atof( argv[7] );
-    }
-		double lowerQuantile = histogram->Quantile( 0, lowerValue );
-  double upperValue = 0.95;
-  if( argc > 8 )
-    {
-    upperValue = atof( argv[8] );
-    }
-		double	upperQuantile = histogram->Quantile( 0, upperValue );
+  double lowerQuantile = histogram->Quantile( 0, lo );
+  double	upperQuantile = histogram->Quantile( 0, hi );
 
   std::cout << "Lower quantile: " << lowerQuantile << std::endl;
   std::cout << "Upper quantile: " << upperQuantile << std::endl;
@@ -5827,7 +5821,7 @@ int main(int argc, char *argv[])
     std::cout << "  ConvertImageSetToMatrix  rowcoloption Mask.nii  *images.nii --  each row/column contains image content extracted from mask applied to images in *img.nii " << std::endl;
     std::cout << "  ConvertVectorToImage   Mask.nii vector.nii  -- the vector contains image content extracted from a mask - here we return the vector to its spatial origins as image content " << std::endl;
     std::cout << "  TriPlanarView  ImageIn.nii.gz PercentageToClampLowIntensity  PercentageToClampHiIntensity x-slice y-slice z-slice  " << std::endl;
-    std::cout << "  TruncateImageIntensity inputImage {maskImage} {maskLabel=1} {lowerQuantile=0.05} {upperQuantile=0.95}  {numberOfBins=200}" << std::endl;
+    std::cout << "  TruncateImageIntensity inputImage  {lowerQuantile=0.05} {upperQuantile=0.95}  {numberOfBins=65}  {binary-maskImage} " << std::endl;
     std::cout << "  FillHoles Image parameter : parameter = ratio of edge at object to edge at background = 1 is a definite hole bounded by object only, 0.99 is close -- default of parameter > 1 will fill all holes " << std::endl;
     std::cout << " PropagateLabelsThroughMask   speed/binaryimagemask.nii.gz   initiallabelimage.nii.gz Optional-Stopping-Value  -- final output is the propagated label image  " << std::endl <<  " optional stopping value -- higher values allow more distant propagation "  << std::endl;
     return 1;
