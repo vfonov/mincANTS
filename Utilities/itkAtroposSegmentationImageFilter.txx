@@ -550,6 +550,21 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
         }
       }
     }
+  // set this result to the PriorLabelImage 
+  typename ClassifiedImageType::Pointer  pli = ClassifiedImageType::New();
+  pli->SetOrigin( this->GetOutput()->GetOrigin() );
+  pli->SetSpacing( this->GetOutput()->GetSpacing() );
+  pli->SetDirection(
+		    this->GetOutput()->GetDirection() );
+  pli->SetRegions(
+		  this->GetOutput()->GetRequestedRegion() );
+  pli->Allocate();
+  for( ItO.GoToBegin(); !ItO.IsAtEnd(); ++ItO )
+    {
+      pli->SetPixel(ItO.GetIndex() , ItO.Get()  );
+    }
+  this->SetNthInput( 2,  pli  );
+
 }
 
 template <class TInputImage, class TMaskImage, class TClassifiedImage>
@@ -1122,6 +1137,8 @@ typename AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImag
 AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::GetPosteriorProbabilityImage( unsigned int whichClass )
 {
+  bool  m_UseNewPosteriorEquation=false;
+
   if( whichClass > this->m_NumberOfClasses )
     {
     itkExceptionMacro(
@@ -1315,10 +1332,17 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
               }
             RealType likelihood =
               this->m_GaussianMixtureModel[c]->Evaluate( measurement );
-            RealType posteriorProbability = this->m_PriorProbabilityWeight *
-              this->m_GaussianMixtureModelProportions[c] * likelihood *
-              mrfPrior * prior + ( 1.0 - this->m_PriorProbabilityWeight ) *
-              this->m_GaussianMixtureModelProportions[c] * likelihood * mrfPrior;
+
+          RealType posteriorProbability = 1;
+	  if ( m_UseNewPosteriorEquation) {
+	  posteriorProbability=this->m_PriorProbabilityWeight *
+            this->m_GaussianMixtureModelProportions[c] * prior 
+	    + ( 1.0 - this->m_PriorProbabilityWeight ) *
+            this->m_GaussianMixtureModelProportions[c] * likelihood * mrfPrior;
+	  }  // original pwt combo 
+	  else {  
+	  posteriorProbability = this->m_PriorProbabilityWeight *              this->m_GaussianMixtureModelProportions[c] * likelihood *              mrfPrior * prior + ( 1.0 - this->m_PriorProbabilityWeight ) *              this->m_GaussianMixtureModelProportions[c] * likelihood * mrfPrior;
+	  }
 
             this->m_GaussianMixtureModel[c]->SetMean( oldMean );
 
@@ -1526,12 +1550,16 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
             }
           RealType likelihood =
             this->m_GaussianMixtureModel[whichClass-1]->Evaluate( measurement );
-          RealType posteriorProbability = this->m_PriorProbabilityWeight *
-            this->m_GaussianMixtureModelProportions[whichClass-1] * likelihood *
-            mrfPrior * prior + ( 1.0 - this->m_PriorProbabilityWeight ) *
-            this->m_GaussianMixtureModelProportions[whichClass-1] * likelihood *
-            mrfPrior;
-
+          RealType posteriorProbability = 1;
+	  if ( m_UseNewPosteriorEquation ) {
+	  posteriorProbability=this->m_PriorProbabilityWeight *
+            this->m_GaussianMixtureModelProportions[whichClass-1] * prior 
+	    + ( 1.0 - this->m_PriorProbabilityWeight ) *
+            this->m_GaussianMixtureModelProportions[whichClass-1] * likelihood * mrfPrior;
+	  }  // original pwt combo 
+	  else {  
+	  posteriorProbability = this->m_PriorProbabilityWeight *              this->m_GaussianMixtureModelProportions[whichClass-1] * likelihood *              mrfPrior * prior + ( 1.0 - this->m_PriorProbabilityWeight ) *              this->m_GaussianMixtureModelProportions[whichClass-1] * likelihood * mrfPrior;
+	  }
           this->m_GaussianMixtureModel[whichClass-1]->SetMean( oldMean );
 
           if( this->m_MRFSigmoidAlpha > 0.0 )
@@ -1628,15 +1656,8 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
         typedef BinaryThresholdImageFilter<ClassifiedImageType, RealImageType>
           ThresholderType;
         typename ThresholderType::Pointer thresholder = ThresholderType::New();
-        if( this->m_InitializationStrategy == PriorLabelImage )
-          {
           thresholder->SetInput( const_cast<ClassifiedImageType *>(
             this->GetPriorLabelImage() ) );
-          }
-        else
-          {
-          thresholder->SetInput( this->GetOutput() );
-          }
         thresholder->SetInsideValue( 1 );
         thresholder->SetOutsideValue( 0 );
         thresholder->SetLowerThreshold( static_cast<LabelType>( c + 1 ) );
@@ -1708,7 +1729,8 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
                 }
               RealType likelihood =
                 this->m_GaussianMixtureModel[c]->Evaluate( measurement );
-              ItL.Set( likelihood );
+	      likelihood=0;
+              ItL.Set( 1 + likelihood );
               }
             }
           fastMarching->SetInput( likelihoodImage );
@@ -1744,7 +1766,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
           for( ItT.GoToBegin(), ItF.GoToBegin(); !ItT.IsAtEnd(); ++ItT, ++ItF )
             {
             RealType distance = ItF.Get();
-            ItF.Set( distance  );
+            ItF.Set( distance*distance  );
             if( ItT.Get() == 1 )
               {
               ItF.Set( -ItF.Get() );
@@ -1753,10 +1775,6 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
           distanceImage = fastMarching->GetOutput();
           }
-	if (whichClass == 1 ) 
-	  WriteImage<RealImageType>(distanceImage,"temp1.nii.gz");
-	if (whichClass == 2 ) 
-	  WriteImage<RealImageType>(distanceImage,"temp2.nii.gz");
         RealType maximumInteriorDistance = 0.0;
 
         ImageRegionIterator<RealImageType> ItD( distanceImage,
@@ -1871,15 +1889,9 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
       typedef BinaryThresholdImageFilter<ClassifiedImageType, RealImageType>
         ThresholderType;
       typename ThresholderType::Pointer thresholder = ThresholderType::New();
-      if( this->m_InitializationStrategy == PriorLabelImage )
-        {
         thresholder->SetInput( const_cast<ClassifiedImageType *>(
           this->GetPriorLabelImage() ) );
-        }
-      else
-        {
         thresholder->SetInput( this->GetOutput() );
-        }
       thresholder->SetInsideValue( 1 );
       thresholder->SetOutsideValue( 0 );
       thresholder->SetLowerThreshold( static_cast<LabelType>( whichClass ) );
@@ -1951,7 +1963,8 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
               }
             RealType likelihood =
               this->m_GaussianMixtureModel[whichClass-1]->Evaluate( measurement );
-            ItL.Set( likelihood );
+	    likelihood=0;
+            ItL.Set( 1 + likelihood );
             }
           }
         fastMarching->SetInput( likelihoodImage );
@@ -1995,13 +2008,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
           }
         distanceImage = fastMarching->GetOutput();
         }
-      if (whichClass == 1 ) 
-	WriteImage<RealImageType>(distanceImage,"temp1.nii.gz");
-      if (whichClass == 2 ) 
-	WriteImage<RealImageType>(distanceImage,"temp2.nii.gz");
-
       distancePriorProbabilityImage = distanceImage;
-
       RealType maximumInteriorDistance = 0.0;
 
       ImageRegionIterator<RealImageType> ItD( distancePriorProbabilityImage,

@@ -404,7 +404,7 @@ WarpImageMultiTransformFilter<TInputImage,TOutputImage,TDeformationField, TTrans
         t1.dex.field = const_cast<DeformationFieldType *> (t);
         t1.dex.vinterp = DefaultVectorInterpolatorType::New();
         t1.dex.vinterp->SetInputImage(t1.dex.field);
-
+//	t1.dex.vinterp->SetParameters(NULL,1);
         m_TransformList.push_back(SingleTransformItemType(EnumDeformationFieldType, t1));
     }
 
