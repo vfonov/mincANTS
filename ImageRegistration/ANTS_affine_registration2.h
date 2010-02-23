@@ -804,7 +804,6 @@ bool RegisterImageAffineMutualInformationMultiResolution(RunningAffineCacheType 
         for(used_iterations=0; used_iterations < number_of_iteration_current_level; used_iterations++){
 
 
-
             ParaType original_gradient(kParaDim);
             ParaType current_gradient(kParaDim);
 
@@ -822,25 +821,29 @@ bool RegisterImageAffineMutualInformationMultiResolution(RunningAffineCacheType 
             // use the similar routine as RegularStepGradientDescentBaseOptimizer::AdvanceOneStep
             // to use oscillation as the minimization convergence
             // notice this is always a minimization procedure
-            if (is_rigid) original_gradient = NormalizeGradientForRigidTransform(original_gradient, kImageDim);
-
+            if (is_rigid) {
+	      original_gradient = NormalizeGradientForRigidTransform(original_gradient, kImageDim);
+	    }
             for(int j=0; j<kParaDim; j++) current_gradient[j] = original_gradient[j] / gradient_scales[j];
             double gradient_magnitude=0.0;
             for(int j=0; j<kParaDim; j++) gradient_magnitude += current_gradient[j]*current_gradient[j];
             gradient_magnitude = sqrt(gradient_magnitude);
             double inner_product_last_current_gradient = 0.0;
             for(int j=0; j<kParaDim; j++) inner_product_last_current_gradient += current_gradient[j]*last_gradient[j];
-            if (inner_product_last_current_gradient < 0) current_step_length *= relaxation_factor;
+	    unsigned int count_oscillations= 0;
+            for(int j=0; j<kParaDim; j++) 
+	      if (  current_gradient[j] > 0 && last_gradient[j] < 0 ||  current_gradient[j] < 0 && last_gradient[j] > 0 ) 
+		count_oscillations++;
+            if (inner_product_last_current_gradient < 0 && !is_rigid ) current_step_length *= relaxation_factor;
+            else if ( count_oscillations > 0 ) current_step_length *= relaxation_factor;
             if (current_step_length < minimum_step_length || gradient_magnitude == 0.0 ) {
             	is_converged = true;
                 break;
             }
 
-//            for(int j = 0; j < kParaDim; j++)  std::cerr<< current_gradient[i] << ", ";
-//            std::cerr<< std::endl;
-
-
-
+	    //            for(int j = 0; j < kParaDim; j++)  std::cerr<< current_gradient[j] << ", ";
+	    //  std::cerr<< std::endl;
+	    // std::cout << " ip " <<  inner_product_last_current_gradient  << " step " << current_step_length  <<  std::endl;
 
             for(int j = 0; j < kParaDim; j++)  current_para[j] += (-1.0) * current_gradient[j] * current_step_length / gradient_magnitude;
 
