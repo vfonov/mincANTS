@@ -834,8 +834,8 @@ bool RegisterImageAffineMutualInformationMultiResolution(RunningAffineCacheType 
             for(int j=0; j<kParaDim; j++) 
 	      if (  current_gradient[j] > 0 && last_gradient[j] < 0 ||  current_gradient[j] < 0 && last_gradient[j] > 0 ) 
 		count_oscillations++;
-            if (inner_product_last_current_gradient < 0 && !is_rigid ) current_step_length *= relaxation_factor;
-            else if ( count_oscillations > kParaDim/2 ) current_step_length *= relaxation_factor;
+            if (inner_product_last_current_gradient < 0 /* && !is_rigid */ ) current_step_length *= relaxation_factor;
+	    //            else if ( count_oscillations > kParamDim/2 ) current_step_length *= relaxation_factor;
             if (current_step_length < minimum_step_length || gradient_magnitude == 0.0 ) {
             	is_converged = true;
                 break;
