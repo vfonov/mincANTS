@@ -1439,7 +1439,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	  //exit(0);
 
 	  /* Now that we have the gradient image, we need to visit each voxel and compute objective function */
-	  std::cout << " maxlapgrad2mag " << maxlapgrad2mag << std::endl;
+	  //	  std::cout << " maxlapgrad2mag " << maxlapgrad2mag << std::endl;
 	  Iterator.GoToBegin();	
 	  while(  !Iterator.IsAtEnd()  )
 	    {
@@ -1460,7 +1460,8 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 		  if ( vnl_math_isnan(dmag) || vnl_math_isinf(dmag) ) dmag=0;
 		  if ( vnl_math_isnan(bval) || vnl_math_isinf(bval) ) bval=0;
 		  }
-		  dmag=sqrt(dmag)*bval;
+		  /** Change 2-26-2010 = incoporate gm prob in length ... */
+		  dmag=sqrt(dmag)*bval*gm->GetPixel(velind);
 		  thickimage->SetPixel(velind,dmag);
 		  totalimage->SetPixel(velind,dmag);
 		  hitimage->SetPixel(velind,bval);
