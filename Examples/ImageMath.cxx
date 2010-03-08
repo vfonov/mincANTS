@@ -5202,7 +5202,7 @@ cortroimap[3]=std::string("L. Cingulate Gyrus");
 cortroimap[4]=std::string("R. Cingulate Gyrus");
 cortroimap[5]=std::string("L. Insula");
 cortroimap[6]=std::string("R. Insula");
-cortroimap[7]=std::string("L. Temporal Lobe");
+cortroimap[7]=std::string("L. Temporal Pole");
 cortroimap[8]=std::string("R. Temporal Pole");
 cortroimap[9]=std::string("L. Sup. Temp. Gyrus");
 cortroimap[10]=std::string("R. Sup. Temp. Gyrus ");
@@ -5303,7 +5303,7 @@ cortroimap[45]=std::string("White Matter");
 	if (label > maxlab) maxlab=(unsigned long)label;
       }
     }
-
+  maxlab=32; // for cortical analysis
   // compute the voxel volume
   typename ImageType::SpacingType spacing=image->GetSpacing();
   float volumeelement=1.0;
@@ -5314,6 +5314,7 @@ cortroimap[45]=std::string("White Matter");
   vnl_vector<double> pvals4(maxlab+1,1.0);
   vnl_vector<double> pvals5(maxlab+1,1.0);
   vnl_vector<double> clusters(maxlab+1,0.0);
+  typename ImageType::PointType mycomlist[33];
 
   std::ofstream logfile;
   logfile.open(outname.c_str() );
@@ -5343,6 +5344,7 @@ cortroimap[45]=std::string("White Matter");
   squareimage->FillBuffer( 0 );
 
   labelcount=0;
+  typename ImageType::PointType myCenterOfMass;
   for( it = myLabelSet.begin(); it != myLabelSet.end(); ++it )
     {
     float currentlabel= *it ;
@@ -5353,7 +5355,6 @@ cortroimap[45]=std::string("White Matter");
     float maxoneminuspval3=0.0;
     float maxoneminuspval4=0.0;
     float maxoneminuspval5=0.0;
-    typename ImageType::PointType myCenterOfMass;
     myCenterOfMass.Fill(0);
     for( It.GoToBegin(); !It.IsAtEnd(); ++It )
       {
@@ -5392,6 +5393,7 @@ cortroimap[45]=std::string("White Matter");
     pvals3[(unsigned long)*it]=maxoneminuspval3;
     pvals4[(unsigned long)*it]=1.0-maxoneminuspval4;
     pvals5[(unsigned long)*it]=1.0-maxoneminuspval5;
+    mycomlist[(unsigned long)*it]=myCenterOfMass;
 // square image
     squareimage->GetBufferPointer()[labelcount]=totalmass/totalct;
     labelcount++;
@@ -5404,10 +5406,13 @@ cortroimap[45]=std::string("White Matter");
 	//unsigned int resol=5000;
 	//unsigned int intpvalue=resol*totalmass/totalct;
 	//	float pvalue=1.0-(float)intpvalue/(float)resol;// average pvalue
+	myCenterOfMass=mycomlist[roi];
 	if( wmroimap.find(roi) != wmroimap.end() && iswm )
  	  std::cout << wmroimap.find(roi)->second << " & " << clusters[roi] << " , "  << pvals[roi] << "  & xy & yz  \\ " << std::endl;
 	else if( cortroimap.find(roi) != cortroimap.end() && ! iswm )
- 	  std::cout << cortroimap.find(roi)->second << " & " << clusters[roi] << " , "  << pvals[roi] << "  & " <<  pvals3[roi]  << " &  " << pvals4[roi]   << "   \\ " << std::endl;
+ 	  std::cout << cortroimap.find(roi)->second << " & " << clusters[roi] << " , "  << pvals[roi] << "  & " <<  pvals3[roi]  << " &  " << pvals4[roi]   << " &  " << (float)((int)(myCenterOfMass[0]*10))/10. << " " << (float)((int)(myCenterOfMass[1]*10))/10.  << " " <<  (float)((int)(myCenterOfMass[2]*10))/10.  << "   \\ " << std::endl;
+	//	else 
+ 	//  std::cout << cortroimap.find(roi)->second << " &  NA  &  NA  & NA & NA  &  NA  \\ " << std::endl;
 	//	else  std::cout << wmroimap.find(roi)->second << " &  - , -   & xy & yz  \\ " << std::endl;
 	//          std::cout << " Volume Of Label " << *it << " is " << totalvolume <<   "  Avg-Location " << myCenterOfMass <<" mass is " << totalmass << " average-val is " << totalmass/totalct << std::endl;
       //      std::cout << *it << "  " <<  totalvolume <<  " & " <<  totalmass/totalct   << " \ " << std::endl;
