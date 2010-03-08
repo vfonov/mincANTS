@@ -5345,6 +5345,8 @@ cortroimap[45]=std::string("White Matter");
 
   labelcount=0;
   typename ImageType::PointType myCenterOfMass;
+  myCenterOfMass.Fill(0);
+  for (unsigned int i=0; i<33; i++) mycomlist[i]=myCenterOfMass;
   for( it = myLabelSet.begin(); it != myLabelSet.end(); ++it )
     {
     float currentlabel= *it ;
