@@ -1107,9 +1107,6 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
     if (thickerrct == 0) thickerrct=1;
     std::cout << " error " << totalerr << " at it " << its  << " th-err " << thicknesserror/(float)thickerrct << " max thick " << maxth << std::endl;
 //    std::string sulcthickname =outname + "sulcthick.nii";
-    finalthickimage->SetDirection(omat);
-    WriteImage<ImageType>(finalthickimage,outname.c_str());
-    finalthickimage->SetDirection(fmat);
     //    if (ImageDimension==2) WriteJpg<ImageType>(finalthickimage,"thick.jpg");
     //    std::string velofieldname = outname + "velofield";
     //WriteDisplacementField<DeformationFieldType>(velofield,velofieldname.c_str()); 
@@ -1117,6 +1114,11 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
     //std::cin.get();
     
     }
+
+
+    finalthickimage->SetDirection(omat);
+    WriteImage<ImageType>(finalthickimage,outname.c_str());
+    finalthickimage->SetDirection(fmat);
 
   return 0; 
 
