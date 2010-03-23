@@ -52,6 +52,8 @@ GaussianListSampleFunction<TListSample, TOutput, TCoordRep>
       WeightedMeanCalculator<InputListSampleType> MeanCalculatorType;
     typename MeanCalculatorType::Pointer meanCalculator =
       MeanCalculatorType::New();
+    meanCalculator->SetMeasurementVectorSize(
+      this->GetInputListSample()->GetMeasurementVectorSize() );
     meanCalculator->SetWeights( &this->m_Weights );
     meanCalculator->SetInputSample( this->GetInputListSample() );
     meanCalculator->Update();
@@ -60,6 +62,8 @@ GaussianListSampleFunction<TListSample, TOutput, TCoordRep>
       WeightedCovarianceCalculator<InputListSampleType> CovarianceCalculatorType;
     typename CovarianceCalculatorType::Pointer covarianceCalculator =
       CovarianceCalculatorType::New();
+    covarianceCalculator->SetMeasurementVectorSize(
+      this->GetInputListSample()->GetMeasurementVectorSize() );
     covarianceCalculator->SetWeights( &this->m_Weights );
     covarianceCalculator->SetMean( meanCalculator->GetOutput() );
     covarianceCalculator->SetInputSample( this->GetInputListSample() );
@@ -73,6 +77,8 @@ GaussianListSampleFunction<TListSample, TOutput, TCoordRep>
     typedef Statistics::MeanCalculator<InputListSampleType> MeanCalculatorType;
     typename MeanCalculatorType::Pointer meanCalculator =
       MeanCalculatorType::New();
+    meanCalculator->SetMeasurementVectorSize(
+      this->GetInputListSample()->GetMeasurementVectorSize() );
     meanCalculator->SetInputSample( this->GetInputListSample() );
     meanCalculator->Update();
 
@@ -80,6 +86,8 @@ GaussianListSampleFunction<TListSample, TOutput, TCoordRep>
       CovarianceCalculatorType;
     typename CovarianceCalculatorType::Pointer covarianceCalculator =
       CovarianceCalculatorType::New();
+    covarianceCalculator->SetMeasurementVectorSize(
+      this->GetInputListSample()->GetMeasurementVectorSize() );
     covarianceCalculator->SetMean( meanCalculator->GetOutput() );
     covarianceCalculator->SetInputSample( this->GetInputListSample() );
     covarianceCalculator->Update();
