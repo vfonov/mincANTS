@@ -1918,19 +1918,12 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
             }
           }
 
-        RealType labelSigma = 2.5;
-        RealType labelBoundaryProbability = 0.75;
+        RealType labelSigma = 0.0;
+        RealType labelBoundaryProbability = 1.0;
 
         typename LabelParameterMapType::iterator it =
           this->m_PriorLabelParameterMap.find( c + 1 );
-        if( it == this->m_PriorLabelParameterMap.end() )
-          {
-//           itkWarningMacro( "The parameters for label \'" << c + 1 <<
-//             "\' are not specified.  Using the default values of " <<
-//             "sigma = " << labelSigma << ", boundary probability = " <<
-//             labelBoundaryProbability );
-          }
-        else
+        if( it != this->m_PriorLabelParameterMap.end() )
           {
           labelSigma = ( it->second ).first;
           labelBoundaryProbability = ( it->second ).second;
@@ -1940,7 +1933,14 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
           {
           if( labelSigma == 0 )
             {
-            ItD.Set( 0.0 );
+            if( ItD.Get() <= 0 )
+              {
+              ItD.Set( labelBoundaryProbability );
+              }
+            else
+              {
+              ItD.Set( 0.0 );
+              }
             }
           else if( ItD.Get() >= 0 )
             {
@@ -1954,7 +1954,6 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
               ( maximumInteriorDistance ) );
             }
           }
-
 
         typedef AddImageFilter<RealImageType, RealImageType, RealImageType>
           AdderType;
@@ -2139,19 +2138,12 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
           }
         }
 
-      RealType labelSigma = 0.1;
-      RealType labelBoundaryProbability = 0.75;
+      RealType labelSigma = 0.0;
+      RealType labelBoundaryProbability = 1.0;
 
       typename LabelParameterMapType::iterator it =
         this->m_PriorLabelParameterMap.find( whichClass );
-      if( it == this->m_PriorLabelParameterMap.end() )
-        {
-//         itkWarningMacro( "The parameters for label \'" << whichClass <<
-//           "\' are not specified.  Using the default values of " <<
-//           "sigma = " << labelSigma << ", boundary probability = " <<
-//           labelBoundaryProbability );
-        }
-      else
+      if( it != this->m_PriorLabelParameterMap.end() )
         {
         labelSigma = ( it->second ).first;
         labelBoundaryProbability = ( it->second ).second;
@@ -2161,7 +2153,14 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
         {
         if( labelSigma == 0 )
           {
-          ItD.Set( 0.0 );
+          if( ItD.Get() <= 0 )
+            {
+            ItD.Set( labelBoundaryProbability );
+            }
+          else
+            {
+            ItD.Set( 0.0 );
+            }
           }
         else if( ItD.Get() >= 0 )
           {
