@@ -303,7 +303,7 @@ g & h & i \\
 
 is followed by  $~j~k~l~$ --- this is the translation. 
 
-$L~M~N$  is the center of rotation . 
+$M~N~O$  is the center of rotation . 
 
 You can use the --initial-affine  and    --continue-affine  options to control how this is used in registration. 
 
@@ -314,6 +314,12 @@ ABCDxvec.nii.gz,
 ABCDyvec.nii.gz, 
 ABCDzvec.nii.gz (for 3D).  Note that ANTS programs {\em assume} the $*$vec part of the name will exist.  Thus, 
 one refers to the warp file as  ABCD.nii.gz , dropping the $*$vec from the name. 
+The displacement for each voxel is defined in physical image space.  If you want to 
+see the details of how a warp is achieved, look at the code in itkWarpImageMultiTransform.txx. 
+One issue to be aware of is that if you are directly indexing a vector component image in 
+voxel coordinates, then you need to apply the image's direction matrix to the vector.  
+An example of this is in ANTSJacobian.cxx, the TransformVector function. 
+
 \subsubsection{Labeled Point Sets}
 There are three formats supported
 \begin{itemize}
