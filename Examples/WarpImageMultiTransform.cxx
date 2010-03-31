@@ -9,7 +9,7 @@
 #include "itkWarpImageMultiTransformFilter.h"
 #include "itkTransformFileReader.h"
 #include "itkNearestNeighborInterpolateImageFunction.h"
-
+#include "itkBSplineInterpolateImageFunction.h"
 
 typedef enum{INVALID_FILE=1, AFFINE_FILE, DEFORMATION_FILE, IMAGE_AFFINE_HEADER, IDENTITY_TRANSFORM} TRAN_FILE_TYPE;
 typedef struct{
@@ -30,6 +30,7 @@ typedef std::vector<TRAN_OPT> TRAN_OPT_QUEUE;
 
 typedef struct{
     bool use_NN_interpolator;
+    bool use_BSpline_interpolator;
     bool use_TightestBoundingBox;
     char * reference_image_filename;
     bool use_RotationHeader;
@@ -144,6 +145,9 @@ bool ParseInput(int argc, char **argv, char *&moving_image_filename,
 
         if (strcmp(argv[ind], "--use-NN")==0) {
             misc_opt.use_NN_interpolator = true;
+        }
+        else if (strcmp(argv[ind], "--use-BSpline")==0) {
+            misc_opt.use_BSpline_interpolator = true;
         }
         else if (strcmp(argv[ind], "-R")==0) {
             ind++; if(ind >= argc) return false;
@@ -517,6 +521,13 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
         std::cout << "User nearest neighbor interpolation (was Haha) " << std::endl;
         warper->SetInterpolator(interpolator_NN);
     }
+    else if (misc_opt.use_BSpline_interpolator){
+        typedef typename itk::BSplineInterpolateImageFunction<ImageType, typename WarperType::CoordRepType> BSInterpolateType;
+        typename BSInterpolateType::Pointer interpolator_BS = BSInterpolateType::New();
+        interpolator_BS->SetSplineOrder(3);
+        std::cout << "User B-spline interpolation " << std::endl;
+        warper->SetInterpolator(interpolator_BS);
+    }
 
 
     typedef itk::TransformFileReader TranReaderType;
@@ -756,6 +767,7 @@ int main(int argc, char **argv){
 	std::cout << "	   It can be used together with -R. This is typically not used together with any other transforms.\n " << std::endl;
 
 	std::cout << " --use-NN: Use Nearest Neighbor Interpolation. \n " << std::endl;
+	std::cout << " --use-BSpline: Use 3rd order B-Spline Interpolation. \n " << std::endl;
 
 	//	std::cout << " --ANTS-prefix prefix-name: followed by a deformation field filename. \n " << std::endl;
 
