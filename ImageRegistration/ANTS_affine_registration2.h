@@ -965,6 +965,7 @@ void ComputeSingleAffineTransform2D3D(ImagePointerType fixed_image, ImagePointer
         InitializeRunningAffineCache(fixed_image, moving_image, opt, running_cache);
         RegisterImageAffineMutualInformationMultiResolution(running_cache, opt, para_final);
     }
+      break; 
     case AffineWithGradientDifference:{
 
         typedef itk::GradientDifferenceImageToImageMetric<ImageType, ImageType> MetricType;
