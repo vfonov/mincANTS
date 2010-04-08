@@ -1453,7 +1453,7 @@ std::cout << " Label Surf " << std::endl;
 template<unsigned int ImageDimension>
 int FitSphere(int argc, char *argv[])
 {
-
+/*
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
   typedef itk::Image<VectorType,ImageDimension>     FieldType;
@@ -1530,7 +1530,7 @@ int FitSphere(int argc, char *argv[])
       typename ImageType::IndexType ind=iter.GetIndex();
 //      float val=surf->GetPixel(ind);//iter.Get();
 //      float minrad=1.e9;
-
+*/
       /*
       if (val > 0.5 && fabs((float)ind[2]-80.) < 6 )
 	{
@@ -1615,7 +1615,7 @@ int FitSphere(int argc, char *argv[])
 
 	}
   */
-
+/*
 	  //	  radimage2->SetPixel(ind,gvrat);
       if (image1->GetPixel(ind) >= 0.5)
 	{
@@ -1733,6 +1733,7 @@ int FitSphere(int argc, char *argv[])
   //  WriteImage<ImageType>(radimage,outname.c_str());
   WriteImage<ImageType>(radimage2,outname.c_str());
   //WriteImage<ImageType>(priorimage,(std::string("Prior")+outname).c_str());
+ */
   return 0;
 
 }
