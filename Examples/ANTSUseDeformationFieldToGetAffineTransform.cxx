@@ -33,23 +33,28 @@ void GetRigidTransformFromTwoPointSets3D(PointContainerType &fixedLandmarks, Poi
 
 
 template<class StringType, class PointContainerType>
-void FetchLandmarkMappingFromDeformationField(const StringType &deformation_field_file_name, float load_ratio, PointContainerType &fixedLandmarks, PointContainerType &movingLandmarks);
+void FetchLandmarkMappingFromDeformationField(const StringType &deformation_field_file_name, float load_ratio, PointContainerType &fixedLandmarks, PointContainerType &movingLandmarks, itk::Image<float,3>::Pointer maskimg);
 
 //
 // The test specifies a bunch of fixed and moving landmarks and test if the
 // fixed landmarks after transform by the computed transform coincides
 // with the moving landmarks....
 
-int DeformationFieldBasedTransformInitializer3D(int, char * argv[])
+int DeformationFieldBasedTransformInitializer3D(int argc, char * argv[])
 {
 
     const unsigned int Dim = 3;
     typedef itk::Point<double, Dim> PointType;
+    typedef itk::Image<float, Dim> ImageType;
     typedef std::vector<PointType> PointContainerType;
     const char *deformation_field_file_name = argv[1];
     float load_ratio = atof(argv[2]);
     bool bRigid = (strcmp(argv[3], "rigid")==0);
     std::string ANTS_prefix(argv[4]);
+    std::string maskfn=std::string("");
+    if (argc > 5 ) maskfn=std::string(argv[5]); 
+    std::cout << " mask " << maskfn << std::endl;
+    
 
     // input
     PointContainerType fixedLandmarks, movingLandmarks;
@@ -57,8 +62,10 @@ int DeformationFieldBasedTransformInitializer3D(int, char * argv[])
     typedef itk::MatrixOffsetTransformBase< double, 3, 3> AffineTransformType;
     AffineTransformType::Pointer aff = AffineTransformType::New();
 
+    ImageType::Pointer maskimg=NULL;
+    if ( maskfn.length() > 4 ) ReadImage<ImageType>(maskimg,maskfn.c_str());
 
-    FetchLandmarkMappingFromDeformationField(deformation_field_file_name, load_ratio, fixedLandmarks, movingLandmarks);
+    FetchLandmarkMappingFromDeformationField(deformation_field_file_name, load_ratio, fixedLandmarks, movingLandmarks, maskimg);
 
     if (bRigid)
         GetRigidTransformFromTwoPointSets3D(fixedLandmarks, movingLandmarks, aff);
@@ -322,7 +329,7 @@ int DeformationFieldBasedTransformInitializer2D(int, char * [])
 
 
 template<class StringType, class PointContainerType>
-void FetchLandmarkMappingFromDeformationField(const StringType &deformation_field_file_name, float load_ratio, PointContainerType &fixedLandmarks, PointContainerType &movingLandmarks){
+void FetchLandmarkMappingFromDeformationField(const StringType &deformation_field_file_name, float load_ratio, PointContainerType &fixedLandmarks, PointContainerType &movingLandmarks,itk::Image<float,3>::Pointer maskimg){
 
     const unsigned int ImageDimension = 3;
 
@@ -349,7 +356,7 @@ void FetchLandmarkMappingFromDeformationField(const StringType &deformation_fiel
 
 
     // float load_ratio = 0.01;
-    unsigned int nb_try_to_load = nb_voxels * load_ratio;
+    unsigned int nb_try_to_load = (unsigned int) ((float) nb_voxels * load_ratio);
 
     std::cout << "trying to load " << nb_try_to_load << " from " <<  nb_voxels << " points." << std::endl;
 
@@ -370,7 +377,11 @@ void FetchLandmarkMappingFromDeformationField(const StringType &deformation_fiel
     for(; (!it.IsAtEnd()) & (cnt < nb_try_to_load); ++it, ++cnt){
 
         if (rand() % 32767 > load_ratio * 32767) continue;
+	bool getpoint=true; 
+	if (maskimg) 
+	  if ( maskimg->GetPixel( it.GetIndex() ) < 0.5 ) getpoint=false;
 
+	if (getpoint) {
         PointType point1, point2;
         // get the output image index
         typename DeformationFieldType::IndexType index = it.GetIndex();
@@ -380,6 +391,7 @@ void FetchLandmarkMappingFromDeformationField(const StringType &deformation_fiel
 
         fixedLandmarks.push_back(point1);
         movingLandmarks.push_back(point2);
+	}
     }
 
     std::cout << "total " << cnt << " points loaded from " << deformation_field_file_name << "." << std::endl;
@@ -396,9 +408,10 @@ int main(int argc, char *argv[])
 
     if ( argc < 3 )
     {
-        std::cout << "Useage ex:   " << argv[0] << " zzzWarp.nii.gz load_ratio(ex: 0.01) [rigid | affine] OutAffine.txt " << std::endl;
+        std::cout << "Useage ex:   " << argv[0] << " zzzWarp.nii.gz load_ratio(ex: 0.01) [rigid | affine] OutAffine.txt [mask.nii.gz]" << std::endl;
         std::cout << " we expect the input deformation field in the same physical space as the images you want to " << std::endl;
         std::cout << "load_ratio: ratio of points to be loaded from deformation field (to save memory) " << std::endl;
+	std::cout << " the mask gives the region from which points will be selected ... " << std::endl;
         return 1;
     }
 
