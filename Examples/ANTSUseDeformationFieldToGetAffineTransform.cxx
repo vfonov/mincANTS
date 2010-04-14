@@ -54,7 +54,7 @@ int DeformationFieldBasedTransformInitializer3D(int argc, char * argv[])
     std::string maskfn=std::string("");
     if (argc > 5 ) maskfn=std::string(argv[5]); 
     std::cout << " mask " << maskfn << std::endl;
-    
+
 
     // input
     PointContainerType fixedLandmarks, movingLandmarks;
@@ -120,7 +120,7 @@ void GetRigidTransformFromTwoPointSets3D(PointContainerType &fixedLandmarks, Poi
     typedef itk::Image< PixelType, Dimension >  ImageType;
 
     typedef itk::LandmarkBasedTransformInitializer< TransformType,
-        FixedImageType, MovingImageType > TransformInitializerType;
+    FixedImageType, MovingImageType > TransformInitializerType;
     TransformInitializerType::Pointer initializer = TransformInitializerType::New();
 
 
@@ -204,11 +204,11 @@ void GetAffineTransformFromTwoPointSets3D(PointContainerType &fixedLandmarks, Po
     vnl_matrix<double> A(Dim,Dim);
     A = A11.extract(Dim, Dim, 0, 0);
 
-//    std::cout << "y=" << y << std::endl;
-//    std::cout << "x=" << x << std::endl;
-//
-//    std::cout << "y1=" << y1 << std::endl;
-//    std::cout << "x11=" << x11 << std::endl;
+    //    std::cout << "y=" << y << std::endl;
+    //    std::cout << "x=" << x << std::endl;
+    //
+    //    std::cout << "y1=" << y1 << std::endl;
+    //    std::cout << "x11=" << x11 << std::endl;
     std::cout << "A11=" << A11 << std::endl;
 
     vnl_vector<double> t = A11.get_column(Dim);
@@ -374,24 +374,28 @@ void FetchLandmarkMappingFromDeformationField(const StringType &deformation_fiel
 
     it.GoToBegin();
     unsigned int cnt = 0;
-    for(; (!it.IsAtEnd()) & (cnt < nb_try_to_load); ++it, ++cnt){
+    for(; (!it.IsAtEnd()) & (cnt < nb_try_to_load); ++it){
 
-        if (rand() % 32767 > load_ratio * 32767) continue;
-	bool getpoint=true; 
-	if (maskimg) 
-	  if ( maskimg->GetPixel( it.GetIndex() ) < 0.5 ) getpoint=false;
+        bool getpoint=true;
+        if (maskimg)
+            if ( maskimg->GetPixel( it.GetIndex() ) < 0.5 ) getpoint=false;
 
-	if (getpoint) {
-        PointType point1, point2;
-        // get the output image index
-        typename DeformationFieldType::IndexType index = it.GetIndex();
-        field->TransformIndexToPhysicalPoint(index, point1 );
-        VectorType displacement = field->GetPixel(index);
-        for(unsigned int j = 0; j<ImageDimension; j++) point2[j] = point1[j] + displacement[j];
+        if (getpoint) {
 
-        fixedLandmarks.push_back(point1);
-        movingLandmarks.push_back(point2);
-	}
+            if (rand() % 32767 > load_ratio * 32767) continue;
+
+            PointType point1, point2;
+            // get the output image index
+            typename DeformationFieldType::IndexType index = it.GetIndex();
+            field->TransformIndexToPhysicalPoint(index, point1 );
+            VectorType displacement = field->GetPixel(index);
+            for(unsigned int j = 0; j<ImageDimension; j++) point2[j] = point1[j] + displacement[j];
+
+            fixedLandmarks.push_back(point1);
+            movingLandmarks.push_back(point2);
+
+            ++cnt;
+        }
     }
 
     std::cout << "total " << cnt << " points loaded from " << deformation_field_file_name << "." << std::endl;
@@ -411,7 +415,7 @@ int main(int argc, char *argv[])
         std::cout << "Useage ex:   " << argv[0] << " zzzWarp.nii.gz load_ratio(ex: 0.01) [rigid | affine] OutAffine.txt [mask.nii.gz]" << std::endl;
         std::cout << " we expect the input deformation field in the same physical space as the images you want to " << std::endl;
         std::cout << "load_ratio: ratio of points to be loaded from deformation field (to save memory) " << std::endl;
-	std::cout << " the mask gives the region from which points will be selected ... " << std::endl;
+        std::cout << " the mask gives the region from which points will be selected ... " << std::endl;
         return 1;
     }
 
@@ -422,9 +426,9 @@ int main(int argc, char *argv[])
     // imageIO->SetFileName(fn.c_str());
     // imageIO->ReadImageInformation();
 
-     int dim = 3;
+    int dim = 3;
     // switch ( imageIO->GetNumberOfDimensions() )
-     switch ( dim )
+    switch ( dim )
     {
     case 2:
         DeformationFieldBasedTransformInitializer2D(argc,argv);
