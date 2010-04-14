@@ -5838,7 +5838,7 @@ int main(int argc, char *argv[])
     std::cout << "  MakeImage  SizeX  SizeY {SizeZ}  " << std::endl;
     std::cout << "  SetOrGetPixel  ImageIn Get/Set-Value  IndexX  IndexY {IndexZ}  -- for example \n  ImageMath 2 outimage.nii SetOrGetPixel Image  Get 24 34 -- gets the value at 24, 34 \n   ImageMath 2 outimage.nii SetOrGetPixel Image 1.e9  24 34  -- this sets 1.e9 as the value at 23 34  " << std::endl << " you can also pass a boolean at the end to force the physical space to be used "  << std::endl;
     std::cout << "  TensorMeanDiffusion DTImage  " << std::endl;
-    std::cout << "  CompareHeadersAndImages Image1 Image2 --- tries to find and fix header error! output is the repaired image with new header " << std::endl;
+    std::cout << "  CompareHeadersAndImages Image1 Image2 --- tries to find and fix header error! output is the repaired image with new header.  never use this if you trust your header information. " << std::endl;
     std::cout << "  CountVoxelDifference Image1 Image2 Mask --- the where function from IDL " << std::endl;
     std::cout << "  stack image1 image2  --- stack image2 onto image1  " << std::endl;
     std::cout << "  CorrelationUpdate Image1 Image2  RegionRadius --- in voxels , Compute update that makes Image2  more like Image1 " << std::endl;
