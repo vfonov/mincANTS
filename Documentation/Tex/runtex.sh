@@ -1,3 +1,4 @@
+#!/bin/sh
 
 for FL in ants # antstheory # ants
   do 
