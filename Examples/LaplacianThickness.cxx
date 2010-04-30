@@ -774,7 +774,7 @@ int main(int argc, char *argv[])
   
   if ( argc < 4)     
   { 
-    std::cout << "Useage ex:   " << argv[0] << " WM.nii GM.nii   Out.nii  {smoothparam=3} {priorthickval=5}  {dT=0.01}  use-sulcus-prior optional-laplacian-tolerance=0.001" << std::endl;
+    std::cout << "Usage:   " << argv[0] << " WM.nii GM.nii   Out.nii  {smoothparam=3} {priorthickval=5}  {dT=0.01}  use-sulcus-prior optional-laplacian-tolerance=0.001" << std::endl;
     std::cout << " a good value for use sulcus prior is 0.15 -- in a function :  1/(1.+exp(-0.1*(laplacian-img-value-sulcprob)/0.01)) " << std::endl;
     return 1;
   }       

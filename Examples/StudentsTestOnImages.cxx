@@ -524,7 +524,7 @@ std::cout << " 100	1.98 	2.63 	3.39  " << std::endl;
 
 if ( argc < 6 )     
   {
-  std::cout << "Useage ex: " << argv[0] <<  " ImageDimension  OutName NGroup1 NGroup2 ControlV1*   SubjectV1*   " << std::endl;
+  std::cout << "Usage: " << argv[0] <<  " ImageDimension  OutName NGroup1 NGroup2 ControlV1*   SubjectV1*   " << std::endl;
   std::cout << " Assume all images the same size " << std::endl;
   std::cout <<" Writes out an F-Statistic image " << std::endl;
   std::cout <<  " \n example call \n  \n ";

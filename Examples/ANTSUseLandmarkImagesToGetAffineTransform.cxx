@@ -397,7 +397,7 @@ int main(int argc, char *argv[])
 
     if ( argc < 3 )
     { 
-        std::cout << "Useage ex:   " << argv[0] << " FixedImageWithLabeledLandmarks.nii.gz  MovingImageWithLabeledLandmarks.nii.gz [rigid | affine] OutAffine.txt " << std::endl;
+        std::cout << "Usage:   " << argv[0] << " FixedImageWithLabeledLandmarks.nii.gz  MovingImageWithLabeledLandmarks.nii.gz [rigid | affine] OutAffine.txt " << std::endl;
         std::cout << " we expect the input images to be (1) N-ary  (2) in the same physical space as the images you want to " << std::endl;
         std::cout << " register and (3 ) to have the same landmark points defined within them ... " << std::endl;
         std::cout << " landmarks will be defined from the center of mass of the labels in the input images . " << std::endl;

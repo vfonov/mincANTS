@@ -739,7 +739,7 @@ int main( int argc, char * argv[] )
    
   if ( argc < 4 )     
   { 
-    std::cout << "Useage ex:  "<< std::endl; 
+    std::cout << "Usage:  "<< std::endl; 
     std::cout << argv[0] << " ImageDimension controlslist.txt outimage.nii whichstat {roi.nii}  {parzen var} {matchiters} {localmeanrad}" << std::endl; 
     std::cout << " whichstat = 0:  median,  1:  max prob appearance  , 2: weighted mean appearance ,  3: trimmed mean , 4 : max value , else median " << std::endl;
     std::cout << " example:   ImageSetStatistics  3   imagelist.txt  maxvalueimage.nii.gz 4 " << std::endl;

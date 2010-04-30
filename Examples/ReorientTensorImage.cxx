@@ -555,7 +555,7 @@ int main(int argc, char *argv[])
    std::cout << " this is a bug we need to fix."  << std::endl;
    std::cout << " ... "   << std::endl;
  if ( argc < 4 )     
-    { std::cout << "Useage ex: " << argv[0] << " dimension infile.nii outfile.nii warp.nii " << std::endl;
+    { std::cout << "Usage: " << argv[0] << " dimension infile.nii outfile.nii warp.nii " << std::endl;
     return 1;
   }    
 

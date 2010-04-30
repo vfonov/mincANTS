@@ -383,7 +383,7 @@ int main(int argc, char *argv[])
   
   if ( argc < 4)     
     { 
-      std::cout << "Useage ex:   " << argv[0] << "  VecImageIN.nii.gz ROIMaskIN.nii.gz FibersOUT.vtk  LengthImageOUT.nii.gz   " << std::endl;
+      std::cout << "Usage:   " << argv[0] << "  VecImageIN.nii.gz ROIMaskIN.nii.gz FibersOUT.vtk  LengthImageOUT.nii.gz   " << std::endl;
       std::cout << " The vector field should have vectors as voxels , the ROI is an integer image, fibers out will be vtk text files .... " << std::endl;
       std::cout << "  ROI-Mask controls where the integration is performed and the start point region ... " << std::endl; 
       std::cout << " e.g. the brain will have value 1 , the ROI has value 2 , then all starting seed points " << std::endl;

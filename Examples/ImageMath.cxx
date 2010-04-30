@@ -5803,7 +5803,7 @@ int main(int argc, char *argv[])
 
   if ( argc < 5 )
   {
-    std::cout << "Useage ex:  "<< std::endl;
+    std::cout << "Usage:  "<< std::endl;
     std::cout << argv[0] << " ImageDimension  OutputImage.ext   Operator   Image1.ext   Image2.extOrFloat  " << std::endl;
     std::cout <<"  some options output text files " << std::endl;
     std::cout << " The last two arguments can be an image or float value " << std::endl;

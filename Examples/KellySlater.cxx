@@ -1151,7 +1151,7 @@ int main(int argc, char *argv[])
   
   if ( argc < 6)     
     { 
-    std::cout << "Useage ex:   " << argv[0] << " ImageDimension Segmentation.nii.gz WMProb.nii.gz GMProb.nii.gz   Out.nii {GradStep-1-2D,2-3D}   {#Its-~50}  {ThickPriorValue-6} {Bool-use-curvature-prior} {smoothing} {BoolUseEuclidean?}" << std::endl;
+    std::cout << "Usage:   " << argv[0] << " ImageDimension Segmentation.nii.gz WMProb.nii.gz GMProb.nii.gz   Out.nii {GradStep-1-2D,2-3D}   {#Its-~50}  {ThickPriorValue-6} {Bool-use-curvature-prior} {smoothing} {BoolUseEuclidean?}" << std::endl;
     std::cout << " this is a kind of binary image registration thing with diffeomorphisms " << std::endl;
     std::cout << " Segmentation.nii.gz -- should contain the value 3 where WM exists and the value 2 where GM exists " << std::endl;
     return 1;

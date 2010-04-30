@@ -412,7 +412,7 @@ int main(int argc, char *argv[])
 
     if ( argc < 3 )
     {
-        std::cout << "Useage ex:   " << argv[0] << " zzzWarp.nii.gz load_ratio(ex: 0.01) [rigid | affine] OutAffine.txt [mask.nii.gz]" << std::endl;
+        std::cout << "Usage:   " << argv[0] << " zzzWarp.nii.gz load_ratio(ex: 0.01) [rigid | affine] OutAffine.txt [mask.nii.gz]" << std::endl;
         std::cout << " we expect the input deformation field in the same physical space as the images you want to " << std::endl;
         std::cout << "load_ratio: ratio of points to be loaded from deformation field (to save memory) " << std::endl;
         std::cout << " the mask gives the region from which points will be selected ... " << std::endl;
