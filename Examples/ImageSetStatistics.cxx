@@ -522,6 +522,21 @@ float npdf(std::vector<float> vec, bool opt,  float www) {
 		return max;      
  	}
 
+      float myantssimilaritymaxlabel(std::vector<float> labelvec, std::vector<float> similarityvec) {
+		typedef  std::vector<float>::size_type vec_sz;
+		vec_sz size = labelvec.size();
+		if (size == 0) return 0;
+		
+		unsigned int max=0;
+		float maxsim=-1.e9;
+		for (unsigned int i=0; i<size; i++)
+		  {
+		    float val = similarityvec[i];
+		    if (val > maxsim) max=i;
+		  }
+		return labelvec[max];      
+ 	}
+
 
 
 template <unsigned int ImageDimension>
@@ -540,19 +555,21 @@ int ImageSetStatistics(int argc, char *argv[])
   typedef itk::LinearInterpolateImageFunction<ImageType,double>  InterpolatorType1;
   typedef itk::NearestNeighborInterpolateImageFunction<ImageType,double>  InterpolatorType2;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-
+  unsigned int mch=0;
   int argct=2;
   std::string fn1 = std::string(argv[argct]); argct++;
   std::string outfn = std::string(argv[argct]);argct++;
   unsigned int whichstat = atoi(argv[argct]);argct++;
   std::string roifn="";
   if (argc > argct){ roifn=std::string(argv[argct]); argct++; }
+  std::string simimagelist=std::string("");
+  if (argc > argct){ simimagelist=std::string(argv[argct]); argct++; }
   float www = 0;
-  if (argc > argct) { www=atof(argv[argct]);argct++;}
-  unsigned int mchmax= 1; 
-  if (argc > argct) { mchmax=atoi(argv[argct]); argct++;}
+  // if (argc > argct) { www=atof(argv[argct]);argct++;}
+  //  unsigned int mchmax= 0; 
+  // if (argc > argct) { mchmax=atoi(argv[argct]); argct++;}
   unsigned int localmeanrad= 0;
-  if (argc > argct) { localmeanrad=atoi(argv[argct]);argct++;}
+  // if (argc > argct) { localmeanrad=atoi(argv[argct]);argct++;}
 
   //  std::cout <<" roifn " << roifn << " fn1 " << fn1 << " whichstat " << whichstat << std::endl;
 
@@ -611,6 +628,41 @@ int ImageSetStatistics(int argc, char *argv[])
   }
   std::cout << " NFiles1 " << filecount1 << std::endl;
 
+
+  unsigned int filecount2=0;
+  if ( simimagelist.length() > 2 && whichstat == 5 ) 
+  {
+  std::ifstream inputStreamA( simimagelist.c_str(), std::ios::in );
+  if ( !inputStreamA.is_open() )
+    {
+      std::cout << "Can't open parameter file: " << fn1 << std::endl;  
+      return -1;
+    }
+  while ( !inputStreamA.eof() )
+    {
+
+      inputStreamA.getline( lineBuffer, maxChar, '\n' ); 
+      
+      if ( sscanf( lineBuffer, "%s ",filenm) != 1 )
+	{
+	  //	  std::cout << "Done.  read " << lineBuffer << " n " << ct1 << " files " << std::endl;
+	  //std::cout << std::endl;
+	  continue;
+	}
+      else
+	{
+	  filecount2++;
+	}
+    }
+  inputStreamA.close();  
+  if ( filecount1 != filecount2 ) 
+    {
+      std::cout << " the number of similarity images does not match the number of label images --- thus, we have to get out of here !! i.e. something's wrong. " << std::endl;
+      return 1; 
+    }
+  } // fi simimagelist 
+  std::cout << " NFiles2 " << filecount2 << std::endl;
+
   typename ImageType::Pointer meanimage;
   std::vector<typename ImageType::Pointer>  imagestack;
   imagestack.resize(filecount1);
@@ -646,32 +698,42 @@ int ImageSetStatistics(int argc, char *argv[])
 	}
     }
   inputStreamA.close(); 
-  ReadImage<ImageType>( StatImage , filenames[0].c_str() , false);
-  
-      for (unsigned int mch=0; mch<mchmax; mch++)
-      {
-  
-	if (mch > 0)
-	  {
 
-	  for (unsigned int j=0; j<filecount1; j++)
-	    {
-	      ReadImage<ImageType>(imagestack[j] , filenames[j].c_str()  , true);
-	      HistogramMatch<ImageType>( StatImage, imagestack[j] );
-	    }
-	  if (localmeanrad > 0) 
-	    { 
-	      meanimage->FillBuffer(0);
-	      for (unsigned int j=0; j<filecount1; j++)
-		{
-		  LocalMean<ImageType>(imagestack[j],localmeanrad,meanimage);
-		}
-	    }
-
+  // read similarity images, if needed
+  std::vector<typename ImageType::Pointer>  simimagestack;
+  simimagestack.resize(filecount2);
+  std::vector<std::string> simfilenames(filecount2);
+  ct = 0;
+  if ( simimagelist.length() > 2 && whichstat == 5 ) 
+  {
+  std::ifstream inputStreamA( simimagelist.c_str(), std::ios::in );
+  if ( !inputStreamA.is_open() )
+    {
+      std::cout << "Can't open parameter file: " << fn1 << std::endl;  
+      return -1;
     }
+  while ( !inputStreamA.eof() )
+    {
+      inputStreamA.getline( lineBuffer, maxChar, '\n' );  
+      if ( sscanf( lineBuffer, "%s ",filenm) != 1 )
+	{
+	  continue;
+	}
+      else
+	{
+	  simfilenames[ct]=std::string(filenm);
+	  ReadImage<ImageType>(simimagestack[ct] , filenm ,false);
+	  ct++;
+	}
+    }
+  inputStreamA.close(); 
+  } // fi read similarity images
 
+
+  ReadImage<ImageType>( StatImage , filenames[0].c_str() , false);
   Iterator vfIter(StatImage , StatImage->GetLargestPossibleRegion() ); 
   std::vector<float> voxels(filecount1); 
+  std::vector<float> similarities(filecount2); 
   unsigned long nvox=1;
   for (unsigned int i=0; i<ImageDimension; i++) nvox*=StatImage->GetLargestPossibleRegion().GetSize()[i];
      
@@ -687,6 +749,10 @@ int ImageSetStatistics(int argc, char *argv[])
 	  for (unsigned int j=0; j<filecount1; j++)
 	    {
 	      voxels[j]=imagestack[j]->GetPixel(ind);
+	    }
+	  for (unsigned int j=0; j<filecount2; j++)
+	    {
+	      similarities[j]=simimagestack[j]->GetPixel(ind);
 	    }
 	  float stat = 0;
 	  switch( whichstat ) 
@@ -708,7 +774,11 @@ int ImageSetStatistics(int argc, char *argv[])
 
 	       case 4:
 		  stat=myantsmax(voxels);	
-		  if (ct == 1)	std::cout << "the trimmed mean appearance \n";
+		  if (ct == 1)	std::cout << "the maximum appearance \n";
+			break;
+	       case 5:
+		  stat=myantssimilaritymaxlabel(voxels,similarities);	
+		  if (ct == 1)	std::cout << "the maximum similarity-based label \n";
 			break;
 
 	       default:
@@ -723,12 +793,9 @@ int ImageSetStatistics(int argc, char *argv[])
       WriteImage<ImageType>(StatImage, outfn.c_str() );
        if ( localmeanrad > 0 )  WriteImage<ImageType>(meanimage, "localmean.nii" );
 
-      }
       std::cout << " Done " << std::endl;
       return 0;
  
-  
-
 }
       
 
@@ -740,9 +807,10 @@ int main( int argc, char * argv[] )
   if ( argc < 4 )     
   { 
     std::cout << "Usage:  "<< std::endl; 
-    std::cout << argv[0] << " ImageDimension controlslist.txt outimage.nii whichstat {roi.nii}  {parzen var} {matchiters} {localmeanrad}" << std::endl; 
-    std::cout << " whichstat = 0:  median,  1:  max prob appearance  , 2: weighted mean appearance ,  3: trimmed mean , 4 : max value , else median " << std::endl;
+    std::cout << argv[0] << " ImageDimension controlslist.txt outimage.nii whichstat {roi.nii} {imagelist2forsimilarityweightedstats.txt}" << std::endl; 
+    std::cout << " whichstat = 0:  median,  1:  max prob appearance  , 2: weighted mean appearance ,  3: trimmed mean , 4 : max value , 5 : similarity-weighted (must pass imagelist2 as well) else median " << std::endl;
     std::cout << " example:   ImageSetStatistics  3   imagelist.txt  maxvalueimage.nii.gz 4 " << std::endl;
+    std::cout << " similarity weighted --- pass in a list of similarity images here which will be used to select the best label --- thus, number of similarity images must match the number of label images . " << std::endl;
     return 1;
   }           
 
