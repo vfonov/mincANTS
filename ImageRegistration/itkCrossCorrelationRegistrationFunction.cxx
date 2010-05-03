@@ -419,8 +419,8 @@ CrossCorrelationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   smm=finitediffimages[4]->GetPixel(oindex);
   if ( sff == 0.0 || smm == 0.0) return deriv;
 
-  float localCrossCorrelation=0;
-  if (sff*smm > 1.e-5) localCrossCorrelation = sfm*sfm / ( sff * smm );
+  this->localCrossCorrelation=0;
+  if (sff*smm > 1.e-5) this->localCrossCorrelation = sfm*sfm / ( sff * smm );
       IndexType index=oindex;//hoodIt.GetIndex(indct);
       gradI = m_FixedImageGradientCalculator->EvaluateAtIndex( index );
       //	gradJ = m_MovingImageGradientCalculator->EvaluateAtIndex( index );
@@ -435,10 +435,10 @@ CrossCorrelationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 	  //	    derivinv[qq]-=2.0*sfm/(sff*smm)*( Ii - sfm/smm*Ji )*gradJ[qq];
 	}
 
-  //  if ( localCrossCorrelation*(-1.0) < this->m_RobustnessParameter) deriv.Fill(0);
-//  if ( localCrossCorrelation*(-1.0) < this->m_RobustnessParameter) {
-//  std::cout << " localC " << localCrossCorrelation << std::endl; }
-  if ( localCrossCorrelation < 1 ) this->m_Energy-=localCrossCorrelation;
+  //  if ( this->localCrossCorrelation*(-1.0) < this->m_RobustnessParameter) deriv.Fill(0);
+//  if ( this->localCrossCorrelation*(-1.0) < this->m_RobustnessParameter) {
+//  std::cout << " localC " << this->localCrossCorrelation << std::endl; }
+  if ( this->localCrossCorrelation < 1 ) this->m_Energy-=this->localCrossCorrelation;
   return deriv;//localCrossCorrelation;
 
 }
@@ -492,10 +492,10 @@ CrossCorrelationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
     }
 
 
-  if (sff*smm !=0.0) localCrossCorrelation = sfm*sfm / ( sff * smm );
-  else if (sff == 0.0 && smm == 0) localCrossCorrelation = 1.0;
-  else localCrossCorrelation = 1.0;
-  if ( localCrossCorrelation*(-1.0) < this->m_RobustnessParameter) deriv.Fill(0);
+  if (sff*smm !=0.0) this->localCrossCorrelation = sfm*sfm / ( sff * smm );
+  else if (sff == 0.0 && smm == 0) this->localCrossCorrelation = 1.0;
+  else this->localCrossCorrelation = 1.0;
+  //  if ( this->localCrossCorrelation*(-1.0) < this->m_RobustnessParameter) deriv.Fill(0);
 
   return deriv;//localCrossCorrelation;
 
