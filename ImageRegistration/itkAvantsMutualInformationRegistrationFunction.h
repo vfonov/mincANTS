@@ -298,21 +298,19 @@ public:
 
   double ComputeMutualInformation()
     {
-
-      //      typedef ImageRegionIterator<JointPDFType> JointPDFIteratorType;
-      //      JointPDFIteratorType jointPDFIterator ( m_JointPDF, m_JointPDF->GetBufferedRegion() );
      
       float px,py,pxy;
       double mival = 0;
       double mi;
       unsigned long ct = 0;
       typename JointPDFType::IndexType index;
-      for (unsigned int ii=this->m_Padding+1; ii<m_NumberOfHistogramBins-this->m_Padding-2; ii++)
-	{
+    
+	  for (unsigned int ii=0; ii<m_NumberOfHistogramBins; ii++)
+	  {
 	  MarginalPDFIndexType mind;
 	  mind[0]=ii;
 	  px = m_FixedImageMarginalPDF->GetPixel(mind);
-	  for (unsigned int jj=this->m_Padding+1; jj<m_NumberOfHistogramBins-this->m_Padding-2; jj++)
+	  for (unsigned int jj=0; jj<m_NumberOfHistogramBins; jj++)
 	    {
 	      mind[0]=jj;	      
 	      py = m_MovingImageMarginalPDF->GetPixel(mind);
@@ -339,14 +337,16 @@ public:
 		      //mi = 1.0 + log(pxy/denom);
 		      ct++;
 		    }
-		  //  std::cout << " II " << ii << " JJ " << jj << " mi " << mi << " mival " << mival << std::endl;
+		    
 		}
 	      
 	      mival += mi;
 	    }
+	//	  std::cout << " II " << ii << " JJ " << ii << " pxy " << pxy << " px " << px << std::endl;  
+
 	}
-      this->m_Energy = mival/((float)ct)*(-1.0);
-      return this->m_Energy;
+	this->m_Energy = -1.0*mival/log(2);
+	return this->m_Energy;
     }
 
 
@@ -390,38 +390,41 @@ public:
   }
 
 
-
+  /*   Normalizing the image to the range of [0 1] */
   double GetMovingParzenTerm( double intensity )
   {
     double windowTerm = static_cast<double>( intensity ) -  this->m_MovingImageTrueMin;
-    windowTerm=windowTerm / ( this->m_MovingImageTrueMax - this->m_MovingImageTrueMin   )  ;
+    windowTerm = windowTerm / ( this->m_MovingImageTrueMax - this->m_MovingImageTrueMin   )  ;
     return windowTerm ; 
   }
 
   double GetFixedParzenTerm( double intensity )
   {
     double windowTerm = static_cast<double>( intensity ) -  this->m_FixedImageTrueMin;
-    windowTerm=windowTerm / ( this->m_FixedImageTrueMax - this->m_FixedImageTrueMin   )  ;
+    windowTerm = windowTerm / ( this->m_FixedImageTrueMax - this->m_FixedImageTrueMin   )  ;
     return  windowTerm ; 
   }
 
-  unsigned int FitIndexInBins( double windowTerm ) {
-  
-    unsigned int movingImageParzenWindowIndex  
-      = static_cast<unsigned int>( this->m_Padding
-				   +floor( windowTerm*(float)(this->m_NumberOfHistogramBins-this->m_Padding))) ;
+	
+	
+  /* find the image index in the number of histogram bins */	
+	unsigned int FitIndexInBins( double windowTerm ) 
+	{
+		unsigned int movingImageParzenWindowIndex  = 
+			static_cast<unsigned int>( this->m_Padding + round( windowTerm * (float)(this->m_NumberOfHistogramBins - 1 - this->m_Padding))) ;
 
-    // Make sure the extreme values are in valid bins
-      if ( movingImageParzenWindowIndex < this->m_Padding - 1 )
+		// Make sure the extreme values are in valid bins
+		if ( movingImageParzenWindowIndex < this->m_Padding )
         {
-        movingImageParzenWindowIndex = this->m_Padding - 1 ;
+			movingImageParzenWindowIndex = this->m_Padding -1 ;
         }
-      else if ( movingImageParzenWindowIndex > (m_NumberOfHistogramBins - this->m_Padding  + 1 ) )
+		else if ( movingImageParzenWindowIndex > (m_NumberOfHistogramBins - this->m_Padding ) )
         {
-        movingImageParzenWindowIndex = m_NumberOfHistogramBins - this->m_Padding  + 1;
+			movingImageParzenWindowIndex = m_NumberOfHistogramBins - this->m_Padding  - 1;
         }
-      return movingImageParzenWindowIndex;
-  }
+
+		return movingImageParzenWindowIndex;
+	}
 
 
   double FitContIndexInBins( double windowTerm ) {

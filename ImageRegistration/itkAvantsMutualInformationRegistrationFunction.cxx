@@ -42,7 +42,7 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
 {
 
   this-> Superclass::m_NormalizeGradient=true;
-  this->m_NumberOfSpatialSamples = 500;
+  this->m_NumberOfSpatialSamples = 5000;
   this->m_NumberOfHistogramBins = 50;
 
   //  this->SetComputeGradient(false); // don't use the default gradient for now
@@ -82,7 +82,7 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
 
   m_FixedImageGradientCalculator = GradientCalculatorType::New();
   m_MovingImageGradientCalculator = GradientCalculatorType::New();
-  this->m_Padding=4;
+  this->m_Padding=2;
 
 
   typename DefaultInterpolatorType::Pointer interp =  DefaultInterpolatorType::New();
@@ -438,22 +438,22 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
       // Get sampled index
 	FixedImageIndexType index = iter.GetIndex();
 	typename FixedImageType::SizeType imagesize=this->m_FixedImage->GetLargestPossibleRegion().GetSize();
-	bool inimage=true;	
+/*	bool inimage=true;	
 	for (unsigned int dd=0; dd<ImageDimension; dd++)
 	  {
 	    if ( index[dd] < 1 ||    index[dd] >= static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) ) 
 	      inimage=false;
 	  }    
-
+*/
 	double movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( index )  );
 	double fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( index )  );
+
 	unsigned int movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue ); 
 	unsigned int fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  ); 
   
 	//	std::cout << " fiv " << fixedImageValue << " fip " << fixedImageParzenWindowIndex << " miv " << movingImageValue << " mip " << movingImageParzenWindowIndex << std::endl;
 
-      JointPDFValueType *pdfPtr = m_JointPDF->GetBufferPointer() +
-	( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
+      JointPDFValueType *pdfPtr = m_JointPDF->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
       int pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
       pdfPtr += pdfMovingIndex;
             *(pdfPtr) += static_cast<PDFValueType>( 1 );
@@ -496,6 +496,9 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
       jointPDFSum += temp;
       ++jointPDFIterator;
     }
+	
+	 //std::cout << " Joint PDF Summation? " << jointPDFSum << std::endl;
+	
 // of derivatives
   if ( jointPDFSum == 0.0 )
     {
