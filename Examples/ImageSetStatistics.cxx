@@ -130,8 +130,7 @@ SmoothImage(typename TImage::Pointer image, float sig)
 template <class TInputImage>
 //typename TInputImage::Pointer 
 void
-HistogramMatch(  
-	       typename TInputImage::Pointer m_InputFixedImage,  typename TInputImage::Pointer m_InputMovingImage)//  typename TInputImage::Pointer m_OutputMovingImage )
+HistogramMatch(typename TInputImage::Pointer m_InputFixedImage,  typename TInputImage::Pointer m_InputMovingImage)//  typename TInputImage::Pointer m_OutputMovingImage )
 {
   std::cout << " MATCHING INTENSITIES " << std::endl;
 
@@ -522,7 +521,7 @@ float npdf(std::vector<float> vec, bool opt,  float www) {
 		return max;      
  	}
 
-      float myantssimilaritymaxlabel(std::vector<float> labelvec, std::vector<float> similarityvec) {
+float myantssimilaritymaxlabel(std::vector<float> labelvec, std::vector<float> similarityvec, bool opt) {
 		typedef  std::vector<float>::size_type vec_sz;
 		vec_sz size = labelvec.size();
 		if (size == 0) return 0;
@@ -532,7 +531,7 @@ float npdf(std::vector<float> vec, bool opt,  float www) {
 		float totalsim=0;
 		float estapp=0;
 		for (unsigned int i=0; i<size; i++) totalsim+=similarityvec[i];
-		if ( fabs(totalsim) < 1.e-9 ) return 0; 
+		if ( fabs(totalsim) <= 0 ) return 0; 
 		for (unsigned int i=0; i<size; i++)
 		  {
 		    float simval = similarityvec[i];
@@ -543,7 +542,10 @@ float npdf(std::vector<float> vec, bool opt,  float www) {
 		  }
 		//		std::cout <<"  estapp " << estapp << " max " << max << std::endl;
 		//return estapp; 
+		if ( opt == true )
 		return labelvec[max];      
+		else 
+		  return max;
  	}
 
 
@@ -639,7 +641,7 @@ int ImageSetStatistics(int argc, char *argv[])
 
 
   unsigned int filecount2=0;
-  if ( simimagelist.length() > 2 && whichstat == 5 ) 
+  if ( simimagelist.length() > 2 && ( whichstat == 5 || whichstat == 6 ) ) 
   {
   std::ifstream inputStreamA( simimagelist.c_str(), std::ios::in );
   if ( !inputStreamA.is_open() )
@@ -713,7 +715,7 @@ int ImageSetStatistics(int argc, char *argv[])
   simimagestack.resize(filecount2);
   std::vector<std::string> simfilenames(filecount2);
   ct = 0;
-  if ( simimagelist.length() > 2 && whichstat == 5 ) 
+  if ( simimagelist.length() > 2 && ( whichstat == 5 || whichstat == 6 ) ) 
   {
   std::ifstream inputStreamA( simimagelist.c_str(), std::ios::in );
   if ( !inputStreamA.is_open() )
@@ -753,7 +755,14 @@ int ImageSetStatistics(int argc, char *argv[])
 	  if (ct % prog == 0) std::cout << " % " << (float) ct / (float) nvox << std::endl;
 	  ct++;
 	  IndexType ind=vfIter.GetIndex();
-
+	  unsigned int maxval=0;
+	  bool takesample=true;
+	  if ( ROIimg ) 
+	    {
+ 	      if ( ROIimg->GetPixel(ind) < 0.5 )  takesample=false;
+	      else maxval=(unsigned int)(ROIimg->GetPixel(ind)-1);
+	    }
+	  if ( takesample ) {
 	  if (mch == 0) meanimage->SetPixel(ind, meanimage->GetPixel(ind)/filecount1 );
 	  for (unsigned int j=0; j<filecount1; j++)
 	    {
@@ -786,8 +795,16 @@ int ImageSetStatistics(int argc, char *argv[])
 		  if (ct == 1)	std::cout << "the maximum appearance \n";
 			break;
 	       case 5:
-		  stat=myantssimilaritymaxlabel(voxels,similarities);	
+		 stat=myantssimilaritymaxlabel(voxels,similarities,true);	
 		  if (ct == 1)	std::cout << "the maximum similarity-based label \n";
+			break;
+	       case 6:
+		 stat=myantssimilaritymaxlabel(voxels,similarities,false);	
+		  if (ct == 1)	std::cout << "which image provides the maximum similarity-based label \n";
+			break;
+	       case 7:
+		 stat=voxels[maxval]; 	
+		  if (ct == 1)	std::cout << "which image provides the maximum similarity-based label \n";
 			break;
 
 	       default:
@@ -798,9 +815,10 @@ int ImageSetStatistics(int argc, char *argv[])
 	  float sval=stat;
 	  if ( localmeanrad > 0 ) sval+= meanimage->GetPixel(ind);
 	  StatImage->SetPixel(ind, sval);
+	  }
+	  else StatImage->SetPixel(ind, 0);
 	}
       WriteImage<ImageType>(StatImage, outfn.c_str() );
-       if ( localmeanrad > 0 )  WriteImage<ImageType>(meanimage, "localmean.nii" );
 
       std::cout << " Done " << std::endl;
       return 0;
@@ -817,7 +835,7 @@ int main( int argc, char * argv[] )
   { 
     std::cout << "Usage:  "<< std::endl; 
     std::cout << argv[0] << " ImageDimension controlslist.txt outimage.nii whichstat {roi.nii} {imagelist2forsimilarityweightedstats.txt}" << std::endl; 
-    std::cout << " whichstat = 0:  median,  1:  max prob appearance  , 2: weighted mean appearance ,  3: trimmed mean , 4 : max value , 5 : similarity-weighted (must pass imagelist2 as well) else median " << std::endl;
+    std::cout << " whichstat = 0:  median,  1:  max prob appearance  , 2: weighted mean appearance ,  3: trimmed mean , 4 : max value , option 5 : similarity-weighted (must pass imagelist2 as well) else median , option 6 : same as similarity-weighted option 5 but the label corresponds to the image that provides the best local match ... useful if you want to MRF smooth these indices  , option 7 : similar to 5 but expects the max-value to be stored in the ROI image and uses it to get the intensity ... "  << std::endl;
     std::cout << " example:   ImageSetStatistics  3   imagelist.txt  maxvalueimage.nii.gz 4 " << std::endl;
     std::cout << " similarity weighted --- pass in a list of similarity images here which will be used to select the best label --- thus, number of similarity images must match the number of label images . " << std::endl;
     return 1;
