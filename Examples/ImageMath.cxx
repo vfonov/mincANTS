@@ -1920,6 +1920,8 @@ int ImageMath(int argc, char *argv[])
     }
 
 
+
+  float result=0;
   Iterator vfIter2( varimage,  varimage->GetLargestPossibleRegion() );
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
@@ -1928,8 +1930,7 @@ int ImageMath(int argc, char *argv[])
       if (isfloat) pix2= floatval;
       else pix2=image2->GetPixel(ind);
       float pix1 = image1->GetPixel(ind);
-      float result=0;
-
+      
       if (strcmp(operation.c_str(),"m") == 0) result=pix1*pix2;
      else if (strcmp(operation.c_str(),"+") == 0)  result=pix1+pix2;
      else if (strcmp(operation.c_str(),"-") == 0)  result=pix1-pix2;
@@ -1942,12 +1943,14 @@ int ImageMath(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"overadd") == 0 && pix2 != 0) {  result=pix2; }
      else if (strcmp(operation.c_str(),"overadd") == 0 ) {  result=pix1; }
      else if (strcmp(operation.c_str(),"Decision") == 0 ) {  result=1./(1.+exp(-1.0*( pix1-0.25)/pix2));}
+     else if (strcmp(operation.c_str(),"total") == 0 ) {  result+=pix1;}
 
       vfIter2.Set(result);
     }
-
-  std::cout << "operation " << operation << std::endl;
-  WriteImage<ImageType>(varimage,outname.c_str());
+  if (strcmp(operation.c_str(),"total") == 0 ) std::cout << "total: " << result << std::endl;
+  else std::cout << "operation " << operation << std::endl;
+  if ( outname.length() > 3 ) 
+    WriteImage<ImageType>(varimage,outname.c_str());
 
 
   return 0;
@@ -5883,7 +5886,7 @@ int main(int argc, char *argv[])
     std::cout << argv[0] << " ImageDimension  OutputImage.ext   Operator   Image1.ext   Image2.extOrFloat  " << std::endl;
     std::cout <<"  some options output text files " << std::endl;
     std::cout << " The last two arguments can be an image or float value " << std::endl;
-    std::cout << " Valid Operators :   \n m (multiply)  , \n   +  (add)  , \n   - (subtract)  , \n   / (divide)  , \n   ^ (power)  , \n exp -- take exponent exp(imagevalue*value) \n addtozero \n overadd \n abs  \n Decision -- computes  result=1./(1.+exp(-1.0*( pix1-0.25)/pix2))  " << std::endl;
+    std::cout << " Valid Operators :   \n m (multiply)  , \n   +  (add)  , \n   - (subtract)  , \n   / (divide)  , \n   ^ (power)  , \n exp -- take exponent exp(imagevalue*value) \n addtozero \n overadd \n abs  \n total \n Decision -- computes  result=1./(1.+exp(-1.0*( pix1-0.25)/pix2))  " << std::endl;
     std::cout <<  "   Neg (Produce Image Negative ) , \n   G Image1.ext s  (Smooth with Gaussian of sigma = s )  " << std::endl;
     std::cout << " MD Image1.ext  s ( Morphological Dilation with radius s ) , \n  \n ME Image1.ext s ( Morphological Erosion with radius s ) , \n \n MO Image1.ext s ( Morphological Opening with radius s ) \n \n MC Image1.ext ( Morphological Closing with radius s ) \n \n  GD Image1.ext  s ( Grayscale Dilation with radius s ) , \n  \n GE Image1.ext s ( Grayscale Erosion with radius s ) , \n \n GO Image1.ext s ( Grayscale Opening with radius s ) \n \n GC Image1.ext ( Grayscale Closing with radius s ) \n" << std::endl;
     std::cout << " D (DistanceTransform) , \n   \n Segment Image1.ext N-Classes LocalityVsGlobalityWeight-In-ZeroToOneRange  OptionalPriorImages  ( Segment an Image  with option of Priors ,  weight 1 => maximally local/prior-based )  \n " << std::endl;
@@ -5946,6 +5949,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"abs") == 0)  ImageMath<2>(argc,argv);
      else if (strcmp(operation.c_str(),"addtozero") == 0)  ImageMath<2>(argc,argv);
      else if (strcmp(operation.c_str(),"overadd") == 0)  ImageMath<2>(argc,argv);
+     else if (strcmp(operation.c_str(),"total") == 0)  ImageMath<2>(argc,argv);
      else if (strcmp(operation.c_str(),"Decision") == 0)  ImageMath<2>(argc,argv);
      else if (strcmp(operation.c_str(),"Neg") == 0)  NegativeImage<2>(argc,argv);
      else if (strcmp(operation.c_str(),"G") == 0)  SmoothImage<2>(argc,argv);
@@ -6001,6 +6005,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"abs") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"addtozero") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"overadd") == 0)  ImageMath<3>(argc,argv);
+     else if (strcmp(operation.c_str(),"total") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"Decision") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"Neg") == 0)  NegativeImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"G") == 0)  SmoothImage<3>(argc,argv);
@@ -6063,6 +6068,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"abs") == 0)  ImageMath<4>(argc,argv);
      else if (strcmp(operation.c_str(),"addtozero") == 0)  ImageMath<4>(argc,argv);
      else if (strcmp(operation.c_str(),"overadd") == 0)  ImageMath<4>(argc,argv);
+     else if (strcmp(operation.c_str(),"total") == 0)  ImageMath<4>(argc,argv);
      else if (strcmp(operation.c_str(),"Decision") == 0)  ImageMath<4>(argc,argv);
      else if (strcmp(operation.c_str(),"Neg") == 0)  NegativeImage<4>(argc,argv);
      else if (strcmp(operation.c_str(),"G") == 0)  SmoothImage<4>(argc,argv);
