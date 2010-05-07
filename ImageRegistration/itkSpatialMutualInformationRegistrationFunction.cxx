@@ -755,6 +755,7 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformati
   double dJPDF=0,dFmPDF=0,jointPDFValue=0,fixedImagePDFValue=0;
     
   {
+    /** take derivative of joint pdf with respect to the b-spline */
     typename  pdfintType::ContinuousIndexType pdfind;
     pdfind[1]= fixedImageParzenWindowContIndex;
     pdfind[0]= movingImageParzenWindowContIndex;
