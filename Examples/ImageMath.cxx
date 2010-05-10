@@ -1374,7 +1374,7 @@ int StackImage(int argc, char *argv[])
   typename ImageType::RegionType newregion;
   // determine new image size
 
-  newsize[2]=(unsigned int)newsize[2]+image2->GetLargestPossibleRegion().GetSize()[2];
+  newsize[ImageDimension-1]=(unsigned int)newsize[ImageDimension-1]+image2->GetLargestPossibleRegion().GetSize()[ImageDimension-1];
   std::cout << " oldsize " << size <<  " newsize " << newsize << std::endl;
   newregion.SetSize(newsize);
   newregion.SetIndex(image1->GetLargestPossibleRegion().GetIndex());
@@ -1395,18 +1395,18 @@ int StackImage(int argc, char *argv[])
   for (unsigned int i=0; i<ImageDimension; i++)
     origin2[i]+=(point1[i]-pointpad[i]);
   padimage->SetOrigin(origin2);
-  float padvalue=image1->GetLargestPossibleRegion().GetSize()[2];
+  float padvalue=image1->GetLargestPossibleRegion().GetSize()[ImageDimension-1];
   Iterator iter( padimage,  padimage->GetLargestPossibleRegion() );
   for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
     {
       typename ImageType::IndexType oindex=iter.GetIndex();
       typename ImageType::IndexType padindex=iter.GetIndex();
       bool isinside=false;
-      if ( oindex[2]  >= padvalue ) isinside=true;
+      if ( oindex[ImageDimension-1]  >= padvalue ) isinside=true;
       if (isinside)
 	{
-	  float shifted=((float)oindex[2]-padvalue);
-	  padindex[2]=(unsigned int)shifted;
+	  float shifted=((float)oindex[ImageDimension-1]-padvalue);
+	  padindex[ImageDimension-1]=(unsigned int)shifted;
 	  padimage->SetPixel(oindex,image2->GetPixel(padindex));
 	}
       else padimage->SetPixel(oindex,image1->GetPixel(oindex));
@@ -5903,6 +5903,7 @@ int main(int argc, char *argv[])
     std::cout << "  GetLargestComponent InputImage {MinObjectSize}  -- get largest object in image \n " << std::endl;
     std::cout << "  ThresholdAtMean  Image  %ofMean \n " << std::endl;
     std::cout << "  FlattenImage  Image  %ofMax -- replaces values greater than %ofMax*Max to the value %ofMax*Max \n " << std::endl;
+    std::cout << "  stack Image1.nii.gz Image2.nii.gz --- will put these 2 images in the same volume " << std::endl;
     std::cout << "  CorruptImage Image  NoiseLevel Smoothing " << std::endl;
     std::cout << "  TileImages NumColumns  ImageList* " << std::endl;
     std::cout << "  RemoveLabelInterfaces ImageIn " << std::endl;
@@ -5981,6 +5982,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"PadImage") == 0 )  PadImage<2>(argc,argv);
      else if (strcmp(operation.c_str(),"SetOrGetPixel") == 0 )  SetOrGetPixel<2>(argc,argv);
      else if (strcmp(operation.c_str(),"MakeImage") == 0 )  MakeImage<2>(argc,argv);
+     else if (strcmp(operation.c_str(),"stack") == 0 )  StackImage<2>(argc,argv);
      else if (strcmp(operation.c_str(),"CompareHeadersAndImages") == 0 )  CompareHeadersAndImages<2>(argc,argv);
      else if (strcmp(operation.c_str(),"CountVoxelDifference") == 0 )  CountVoxelDifference<2>(argc,argv);
      //     else if (strcmp(operation.c_str(),"AddToZero") == 0 )  AddToZero<2>(argc,argv);
