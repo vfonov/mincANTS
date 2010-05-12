@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for FL in ants # antstheory # ants
+for FL in $1  # antstheory # ants
   do 
 for i in 1 2 3 
 do

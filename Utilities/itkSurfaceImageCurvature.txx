@@ -1058,6 +1058,7 @@ void  SurfaceImageCurvature<TSurface>
   this->m_ImageSize=image->GetLargestPossibleRegion().GetSize();
   ImageIteratorType ti( image, image->GetLargestPossibleRegion() );
 
+  // exit(1);
 // Get Normals First!
   this->EstimateNormalsFromGradient();
 
@@ -1085,7 +1086,7 @@ void  SurfaceImageCurvature<TSurface>
      index[2] < this->m_ImageSize[2]-2*this->m_NeighborhoodRadius && 
      index[2] >  2*this->m_NeighborhoodRadius ) //
     {
-//    std::cout << " val " << (RealType) pix << std::endl;
+      // std::cout << " val " << (RealType) ti.Get() << std::endl;
       PointType p;
       for (unsigned int k=0; k<ImageDimension; k++) 
       {
@@ -1108,10 +1109,8 @@ void  SurfaceImageCurvature<TSurface>
           break;
     default:     this->WeingartenMap();
     }
-         
-
-
-//      this->PrintFrame();
+        
+    //      this->PrintFrame();
 
       bool geterror=false;
       if (geterror){

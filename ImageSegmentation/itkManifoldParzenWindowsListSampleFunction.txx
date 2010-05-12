@@ -249,3 +249,5 @@ ManifoldParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
 } // end of namespace itk
 
 #endif
+
+
