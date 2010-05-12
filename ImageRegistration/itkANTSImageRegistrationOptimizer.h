@@ -49,6 +49,7 @@
 #include "itkGeneralToBSplineDeformationFieldFilter.h"
 #include "ANTS_affine_registration2.h"
 #include "itkVectorFieldGradientImageFunction.h"
+#include "itkBSplineInterpolateImageFunction.h"
  
 
 
@@ -510,8 +511,10 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
 
     typedef itk::LinearInterpolateImageFunction<ImageType,double>  InterpolatorType1;
     typedef itk::NearestNeighborInterpolateImageFunction<ImageType,double>  InterpolatorType2;
+    typedef itk::BSplineInterpolateImageFunction<ImageType,double>  InterpolatorType3;
     typename InterpolatorType1::Pointer interp1 = InterpolatorType1::New();
     typename InterpolatorType2::Pointer interpnn = InterpolatorType2::New();
+    typename InterpolatorType3::Pointer interpcu = InterpolatorType3::New();
 
     this->m_UseMulti=true;
 
@@ -526,6 +529,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
     warper->SetOutputOrigin(totalField->GetOrigin());
     warper->SetInterpolator(interp1);
     if (this->m_UseNN) warper->SetInterpolator(interpnn);
+    if (this->m_UseBSplineInterpolation) warper->SetInterpolator(interpcu);
 //    warper->SetOutputSize(this->m_CurrentDomainSize);
 //    warper->SetEdgePaddingValue( 0 );
     warper->Update(); 
@@ -1486,6 +1490,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
 }
 
   void SetUseNearestNeighborInterpolation( bool useNN) {  this->m_UseNN=useNN; }
+  void SetUseBSplineInterpolation( bool useNN) {  this->m_UseBSplineInterpolation=useNN; }
 
 protected:
 
@@ -1652,6 +1657,7 @@ private:
     bool m_UseMulti;
   bool m_UseROI;
   bool m_UseNN;
+  bool m_UseBSplineInterpolation;
   unsigned int m_CurrentIteration;
   unsigned int m_CurrentLevel;
   std::string m_TransformationModel;
