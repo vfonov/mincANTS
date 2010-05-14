@@ -641,7 +641,7 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
 	if ( opt1.file_type == AFFINE_FILE  && opt2.file_type == DEFORMATION_FILE   ) {
 	  bool defisinv=IsInverseDeformation(opt2.filename.c_str()); 
 	  if ( ! takeaffinv ) {
-	    std::cout << " Your 1st parameter should be an inverse affine map and the 2nd an InverseWarp  --- exiting without applying warp.  " << std::endl;
+	    std::cout << " Your 1st parameter should be an inverse affine map and the 2nd an InverseWarp  --- exiting without applying warp.  Check that , if using an inverse affine map, you pass the -i option before the Affine.txt." << std::endl;
 	    return ; 
 	  }
 	  if ( ! defisinv ) {
