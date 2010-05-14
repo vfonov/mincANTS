@@ -18,6 +18,7 @@
 #include "ReadWriteImage.h" 
 #include "itkDiscreteGaussianImageFilter.h"  
 #include "itkAvantsMutualInformationRegistrationFunction.h" 
+#include "itkSpatialMutualInformationRegistrationFunction.h" 
 #include "itkProbabilisticRegistrationFunction.h" 
 #include "itkCrossCorrelationRegistrationFunction.h" 
 // #include "itkLandmarkCrossCorrelationRegistrationFunction.h"
@@ -94,10 +95,12 @@ int MeasureImageSimilarity(unsigned int argc, char *argv[])
 
   // Choose the similarity metric 
   typedef itk::AvantsMutualInformationRegistrationFunction<FixedImageType,MovingImageType,DeformationFieldType> MIMetricType; 
+  typedef itk::SpatialMutualInformationRegistrationFunction<FixedImageType,MovingImageType,DeformationFieldType> SMIMetricType; 
   typedef itk::CrossCorrelationRegistrationFunction<FixedImageType,MovingImageType,DeformationFieldType> CCMetricType; 
   //typedef itk::LandmarkCrossCorrelationRegistrationFunction<FixedImageType,MovingImageType,DeformationFieldType> MetricType; 
   //typename  
   typename MIMetricType::Pointer mimet=MIMetricType::New(); 
+  typename SMIMetricType::Pointer smimet=SMIMetricType::New(); 
   typename CCMetricType::Pointer ccmet=CCMetricType::New(); 
    
 //  int nbins=32; 
@@ -149,12 +152,19 @@ int MeasureImageSimilarity(unsigned int argc, char *argv[])
     metricimg=ccmet->MakeImage(); 
     metricvalue=ccmet->ComputeCrossCorrelation()*(1.0);
     }
-  else 
+  else if (whichmetric == 2 )
     {
     hradius=miradius;
     mimet->InitializeIteration();
     metricvalue=mimet->ComputeMutualInformation();
     metricname="MI ";
+     }
+  else if (whichmetric == 3 )
+    {
+    hradius=miradius;
+    smimet->InitializeIteration();
+    metricvalue=smimet->ComputeSpatialMutualInformation();
+    metricname="SMI ";
      }
   std::cout << fn1 << " : " << fn2 << " => " <<  metricname << metricvalue << std::endl;
   if (logfilename.length() > 3 ){ 
@@ -225,7 +235,7 @@ int main(int argc, char *argv[])
     std::cout << argv[0] << " ImageDimension whichmetric image1.ext image2.ext {logfile} {outimage.ext}  {target-value}   {epsilon-tolerance}" << std::endl;
     std::cout << "  outimage (Not Implemented for MI yet)  and logfile are optional  " << std::endl;
     std::cout <<" target-value and epsilon-tolerance set goals for the metric value -- if the metric value is within epsilon-tolerance of the target-value, then the test succeeds " << std::endl;
-    std::cout << "  Metric 0 - MeanSquareDifference, 1 - Cross-Correlation, 2-Mutual Information  " << std::endl;
+    std::cout << "  Metric 0 - MeanSquareDifference, 1 - Cross-Correlation, 2-Mutual Information , 3-SMI " << std::endl;
     return 1;
   }           
 
