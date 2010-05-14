@@ -125,7 +125,7 @@ TransformVector(TDeformationField* field, typename TImage::IndexType index )
 
 template <class TImage, class TDeformationField>
 void
-ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=false, bool norm=false)
+ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=false, bool norm=false, bool use2ndorder=false)
 {
   typedef TImage ImageType;
   typedef TDeformationField FieldType;
@@ -270,7 +270,7 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
 		ddlindex[row]=rindex[row]-2;
 	      }
 	    
-	    float h=0.5;
+	    float h=1;
 	    space=1.0; // should use image spacing here?
 	    
 	    rpix = TransformVector<ImageType,FieldType>(field,difIndex[row][1]);
@@ -284,7 +284,7 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
       llpix = TransformVector<ImageType,FieldType>(field,ddlindex);
       llpix = llpix*h+lpix*(1.-h);
       dPix=( lpix*(-8.0) + rpix*8.0 - rrpix + llpix )*(-1.0)*space/(12.0); //4th order centered difference
-      //dPix=( lpix - rpix )*(1.0)*space/(2.0*h); //4th order centered difference
+      if ( use2ndorder) dPix=( lpix - rpix )*(1.0)*space/(2.0*h); //4th order centered difference
 
 	    for(unsigned int col=0; col< ImageDimension;col++){
 	      float val;
@@ -426,8 +426,10 @@ int Jacobian(int argc, char *argv[])
   if (argc > 3) uselog=(bool)atoi(argv[3]);
   bool norm=false;
   if (argc > 5) norm=(bool)atoi(argv[5]);
+  bool use2ndorder=false;
+  if (argc > 6) use2ndorder=(bool)atoi(argv[6]);
   //  std::cout << " name "<< argv[2] <<  " mask " << argv[4] << " norm " << norm << " Log " << uselog << std::endl;
-  ComputeJacobian<ImageType,FieldType>(gWarp,argv[2],argv[4],uselog,norm);
+  ComputeJacobian<ImageType,FieldType>(gWarp,argv[2],argv[4],uselog,norm,use2ndorder);
 //  DiffeomorphicJacobian<ImageType,ImageType,FieldType>(gWarp,1,argv[2]);  
   //  if (argc > 3) DiffeomorphicMetric<ImageType,ImageType,FieldType>(gWarp,argv[2]);
 
@@ -443,7 +445,7 @@ int main(int argc, char *argv[])
 
   if ( argc < 3 )     
   { 
-    std::cout << "Usage: " << argv[0] << " ImageDim gWarp outfile uselog maskfn normbytotalbool  " << std::endl;
+    std::cout << "Usage: " << argv[0] << " ImageDim gWarp outfile uselog maskfn normbytotalbool use-2nd-order-central-difference-boolean " << std::endl;
     std::cout <<" for example " << std::endl << " ANTSJacobian 3  myWarp.nii   Output  1   templatebrainmask.nii   1  " << std::endl;
     std::cout << " the last 1 normalizes the jacobian by the total in the mask.  use this to adjust for head size.  " << std::endl;
     return 1;
