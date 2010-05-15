@@ -916,7 +916,7 @@ int main(int argc, char *argv[])
   PixelType loth=1;
   PixelType hith=256;
   int fixdir=1;
-  float e=2.e-4;
+  float param=2.e-4;
   std::string outfn;
 
   std::cout << "to get mesh: ConformalMapping   image.nii 1 255 1.e-3 0 outname " << std::endl;
@@ -925,13 +925,13 @@ int main(int argc, char *argv[])
   std::cout << "to get image topology: ConformalMapping   image.nii 1 255 1.e-3 5 outname " << std::endl;
   std::cout << "to convert flattened mesh to image : ConformalMapping   mesh.vtk 1 2 3 6 outname " << std::endl;
   std::cout << "to interpolate data in flattened image domain to original mesh: ConformalMapping   image.nii 1 2 3 7 outname originalflatmesh.vtk" << std::endl;
-  std::cout << " to smooth a mesh --- ConformalMapping mesh.vtk 1 2 3 8 outname " <<std::endl;
+  std::cout << " to smooth a mesh --- ConformalMapping mesh.vtk 1 2 NumSmoothIts 8 outname " <<std::endl;
   if (argc>=2)
   {
     filename=argv[1];
     loth=atof(argv[2]);
     hith=atof(argv[3]);
-    e=atof(argv[4]);
+    param=atof(argv[4]);
     fixdir=atoi(argv[5]);
     outfn=std::string(argv[6]);
     
@@ -968,7 +968,7 @@ int main(int argc, char *argv[])
   ImageType::Pointer thresh=BinaryThreshold<ImageType>(loth,hith,hith,image );
 
   // Save the mesh
-  GetMeshAndCurvature<ImageType>(thresh,e,filename);
+  GetMeshAndCurvature<ImageType>(thresh,param,filename);
   //  MapToSphere<ImageType>(thresh,fixdir,e);
   }
   else if (fixdir == 5 )
@@ -996,7 +996,7 @@ int main(int argc, char *argv[])
   ImageType::Pointer thresh=BinaryThreshold<ImageType>(loth,hith,hith,image );
 
   // Save the mesh
-  GetImageTopology<ImageType>(thresh,e,filename);
+  GetImageTopology<ImageType>(thresh,param,filename);
   //  MapToSphere<ImageType>(thresh,fixdir,e);
   }
   /*************** flat mesh to image ****************/
@@ -1036,13 +1036,13 @@ int main(int argc, char *argv[])
 	vtkSmartPointer<vtkWindowedSincPolyDataFilter> smoother =
 	  vtkSmartPointer<vtkWindowedSincPolyDataFilter>::New();
 	smoother->SetInput(fltReader->GetOutput());
-	smoother->SetNumberOfIterations(250);
+	smoother->SetNumberOfIterations( (int) param );
 	smoother->BoundarySmoothingOn();
 	smoother->FeatureEdgeSmoothingOn();
 	smoother->SetFeatureAngle(180.0);
 	smoother->SetEdgeAngle(180.0);
 	smoother->SetPassBand(1.e-6); // smaller values increase smoothing 
-	smoother->NonManifoldSmoothingOn();
+	smoother->NonManifoldSmoothingOff();
 	smoother->NormalizeCoordinatesOn();
 	smoother->Update();
 
@@ -1061,8 +1061,8 @@ int main(int argc, char *argv[])
     fltReader->SetFileName(filename);
     fltReader->Update();
     if ( fixdir == 1 )  Display((vtkUnstructuredGrid*)fltReader->GetOutput());
-    std::cout << " m_Smooth " << e << std::endl;
-    MapToDisc<ImageType>(fltReader->GetOutput(),e,outfn);
+    std::cout << " m_Smooth " << param << std::endl;
+    MapToDisc<ImageType>(fltReader->GetOutput(),param,outfn);
   }
    return 0;
   
