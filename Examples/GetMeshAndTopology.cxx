@@ -152,8 +152,9 @@ float vtkComputeTopology(vtkPolyData* pd)
 
   
 template <class TImage>
-void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image2,  std::string outfn, char* paramname, float scaledata, float aaParm )
+void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image2,  std::string outfn, const char* paramname, float scaledata, float aaParm )
 {
+  //  std::cout << " parname " << std::string(paramname) << std::endl;
   typedef TImage ImageType;
   typedef ImageType itype;
   typedef vtkPolyData MeshType;
@@ -161,8 +162,8 @@ void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image
   typedef BinaryImageToMeshFilter<ImageType> FilterType;
   typename  FilterType::Pointer fltMesh = FilterType::New();
   fltMesh->SetInput(image);
-      fltMesh->SetAntiAliasMaxRMSError( aaParm ); // to do nothing, set negative
-      fltMesh->SetSmoothingIterations( 0 );
+  fltMesh->SetAntiAliasMaxRMSError( aaParm ); // to do nothing, set negative
+  fltMesh->SetSmoothingIterations( 0 );
   fltMesh->Update();
   vtkPolyData* vtkmesh =fltMesh->GetMesh();
 // assign scalars to the original surface mesh
@@ -178,9 +179,10 @@ void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image
   for(int i =0; i < numPoints; i++)
   {
     typename ImageType::IndexType index;
-	for (int j=0;j<3;j++) index[j]=(int)(vtkpoints->GetPoint(i)[j]/spacing[j]+0.5);
-	float temp=image2->GetPixel(index); 
-//	float temp=image->GetPixel(index);
+    typename ImageType::PointType point;
+    for (int j=0;j<3;j++) point[j]=(vtkpoints->GetPoint(i)[j]);
+    image2->TransformPhysicalPointToIndex(point,index); 
+    float temp=image2->GetPixel(index);
 	if (fabs(temp)>mx) mx=fabs(temp);
 	if (fabs(temp)<mn && mn > 0) mn=fabs(temp);
   meank+=fabs(temp);
@@ -203,7 +205,9 @@ void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image
   for(int i =0; i < numPoints; i++)
   {
     typename ImageType::IndexType index;
-    for (int j=0;j<3;j++) index[j]=(int)(vtkpoints->GetPoint(i)[j]/spacing[j]+0.5);
+    typename ImageType::PointType point;
+    for (int j=0;j<3;j++) point[j]=(vtkpoints->GetPoint(i)[j]);
+    image2->TransformPhysicalPointToIndex(point,index); 
     float temp=image2->GetPixel(index);
     //	float temp=surfk->CurvatureAtIndex(index);
     if (i % 1000 == 0) std::cout << " kappa " << temp << std::endl;
@@ -314,52 +318,21 @@ int main(int argc, char *argv[])
 
   // Declare the type of the Mesh
   
-  char* filename; 
-  char* filename2; 
-  std::string outfn;
-
-    filename=argv[1];
-    filename2=(argv[2]);
-    outfn=std::string(argv[3]);
+  std::string outfn=std::string(argv[3]);
     
-  typedef itk::ImageFileReader< ImageType >      FileSourceType;
-  typedef ImageType::PixelType PixType;
-  FileSourceType::Pointer readfilter = FileSourceType::New();
-  readfilter->SetFileName( filename );
-  try
-  {
-    readfilter->Update();
-  }
-  catch( itk::ExceptionObject & e )
-  {
-    std::cerr << "Exception caught during reference file reading " << std::endl;
-    std::cerr << e << std::endl;
-    return -1;
-  }                    
-  
+  ImageType::Pointer image2;
+  ImageType::Pointer image;
+  ReadImage<ImageType>(image,argv[1]);
+  ReadImage<ImageType>(image2,argv[2]);
 
-  FileSourceType::Pointer readfilter2 = FileSourceType::New();
-  readfilter2->SetFileName( filename2 );
-  try
-  {
-    readfilter2->Update();
-  }
-  catch( itk::ExceptionObject & e )
-  {
-    std::cerr << "Exception caught during reference file reading " << std::endl;
-    std::cerr << e << std::endl;
-    return -1;
-  }                    
-
-  ImageType::Pointer image2 = readfilter2->GetOutput();
-  
-
-  ImageType::Pointer image   = readfilter->GetOutput();
-  //  ImageType::Pointer image2=BinaryThreshold<ImageType>(1.e-,1.e9,1,image );
+   ImageType::DirectionType fmat=image->GetDirection();
+  fmat.SetIdentity();
+  image->SetDirection(fmat);
+  image2->SetDirection(fmat);
 
   // Save the mesh
   float aaParm = 0.001;
-  char* paramname="f(x)";
+  const char* paramname=std::string("f(x)").c_str();
   if (argc > 4) paramname =(argv[4]);
   float scaledata=0.5;
   if (argc > 5) scaledata=atof(argv[5]);
