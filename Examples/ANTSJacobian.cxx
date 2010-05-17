@@ -426,7 +426,7 @@ int Jacobian(int argc, char *argv[])
   if (argc > 3) uselog=(bool)atoi(argv[3]);
   bool norm=false;
   if (argc > 5) norm=(bool)atoi(argv[5]);
-  bool use2ndorder=false;
+  bool use2ndorder=true;
   if (argc > 6) use2ndorder=(bool)atoi(argv[6]);
   //  std::cout << " name "<< argv[2] <<  " mask " << argv[4] << " norm " << norm << " Log " << uselog << std::endl;
   ComputeJacobian<ImageType,FieldType>(gWarp,argv[2],argv[4],uselog,norm,use2ndorder);
