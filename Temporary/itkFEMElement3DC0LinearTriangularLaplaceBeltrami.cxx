@@ -231,7 +231,7 @@ void Element3DC0LinearTriangularLaplaceBeltrami::GetStiffnessMatrix(MatrixType& 
   std::cout << " cot " << std::endl;
   std::cout <<  cot <<std::endl;
   }
-  /*
+  
   Ke.set_size(9,9);
   Ke.fill(0.0);
 
