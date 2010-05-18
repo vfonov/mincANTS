@@ -177,8 +177,11 @@ public:
        double smm=finitediffimages[4]->GetPixel(oindex);
        double cc=0;
        if ( fabs(sff*smm) > 0) { cc+=sfm*sfm/(sff*smm); ct++; }
-       if ( this->m_MetricImage) 
+       if ( this->m_MetricImage) {
 	 this->m_MetricImage->SetPixel(oindex,cc);	 
+	 //if ( fabs(cc) > 0) 
+	   //	 std::cout << " set cc " << cc << std::endl;
+       }
        totalcc+=cc;
        }
       this->m_Energy=totalcc/(float)ct*(-1.0);
@@ -298,6 +301,7 @@ public:
       this->m_MetricImage->SetBufferedRegion(img->GetLargestPossibleRegion());
       this->m_MetricImage->SetSpacing(img->GetSpacing());
       this->m_MetricImage->SetOrigin(img->GetOrigin());
+      this->m_MetricImage->SetDirection(img->GetDirection());
       this->m_MetricImage->Allocate();   
       this->m_MetricImage->FillBuffer(0);   
     
