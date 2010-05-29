@@ -32,6 +32,9 @@
 #include "itkDanielssonDistanceMapImageFilter.h"
 #include "itkBinaryErodeImageFilter.h"
 #include "itkBinaryDilateImageFilter.h"
+#include "itkLabeledPointSetFileReader.h"
+#include "itkLabeledPointSetFileWriter.h"
+
 //#include "itkBinaryMorphologicalClosingImageFilter.h"
 //#include "itkBinaryMorphologicalOpeningImageFilter.h"
 #include "itkGrayscaleErodeImageFilter.h"
@@ -83,7 +86,7 @@
 #include "itkDecisionRuleBase.h"
 #include "itkMinimumDecisionRule.h"
 #include "itkImageClassifierBase.h"
-
+#include "itkWellComposedImageFilter.h"
 #include "itkBinaryErodeImageFilter.h"
 #include "itkBinaryDilateImageFilter.h"
 #include "itkBinaryBallStructuringElement.h"
@@ -761,6 +764,49 @@ int TileImages(unsigned int argc, char *argv[])
   return 0;
 
 }
+
+
+
+template <unsigned int ImageDimension>
+int ConvertLandmarkFile(unsigned int argc, char *argv[])
+{
+
+  unsigned int argct=2;
+  if (argc < 5 ) { std::cout <<" need more args -- see usage   " << std::endl;  exit(0); }
+  std::string outname=std::string(argv[argct]); argct++;
+  std::string operation = std::string(argv[argct]);  argct++;
+  std::string infn=std::string(argv[argct]); argct++;
+  float pointp=1;
+  
+
+  typedef itk::PointSet<long,ImageDimension> PointSetType;
+  typedef itk::LabeledPointSetFileReader<PointSetType> ReaderType;
+  typename ReaderType::Pointer reader = ReaderType::New();
+  reader->SetFileName( infn.c_str() );
+  reader->SetRandomPercentage( 1 ); 
+   if ( pointp > 0 && pointp < 1  )
+    {
+    reader->SetRandomPercentage( pointp ); 
+    }
+  reader->Update();
+  
+  std::cout << "Number of labels: " << reader->GetNumberOfLabels() << std::endl;
+  std::cout << "Labels: ";
+  for ( unsigned int i = 0; i < reader->GetNumberOfLabels(); i++ )
+    {
+    std::cout << reader->GetLabelSet()->operator[](i) << " "; 
+    }  
+  std::cout << std::endl; 
+  
+  typedef itk::LabeledPointSetFileWriter<PointSetType> WriterType;
+  typename WriterType::Pointer writer = WriterType::New();
+  writer->SetFileName( outname.c_str() );
+  writer->SetInput( reader->GetOutput() );
+  writer->Update();
+
+  return 0;
+}
+
 
 
 template <unsigned int ImageDimension>
@@ -3786,6 +3832,14 @@ int FastMarchingSegmentation( unsigned int argc, char *argv[] )
   typename ImageType::Pointer outlabimage = NULL;
   ReadImage<ImageType>(outlabimage, fn2.c_str());
   
+  /* 
+  typedef itk::WellComposedImageFilter<ImageType> WCFilterType;
+  typename WCFilterType::Pointer filter3D = WCFilterType::New();
+  filter3D->SetInput( labimage );
+  filter3D->SetTotalNumberOfLabels( 1 );
+  filter3D->Update();
+  labimage=filter3D->GetOutput();
+  */
 
   typedef  itk::FastMarchingImageFilter
     <InternalImageType, InternalImageType> FastMarchingFilterType;
@@ -3800,8 +3854,8 @@ int FastMarchingSegmentation( unsigned int argc, char *argv[] )
 
   typedef itk::LabelContourImageFilter<ImageType, LabelImageType> ContourFilterType;
   typename ContourFilterType::Pointer contour = ContourFilterType::New();
-  contour->SetInput( labimage );
-  contour->FullyConnectedOff();
+  contour->SetInput(   labimage  );
+  contour->FullyConnectedOn();
   contour->SetBackgroundValue( itk::NumericTraits<typename LabelImageType::PixelType>::Zero );
   contour->Update();
 
@@ -3812,8 +3866,8 @@ int FastMarchingSegmentation( unsigned int argc, char *argv[] )
   trialPoints->Initialize();
   unsigned long trialCount = 0;
 
-  itk::ImageRegionIteratorWithIndex<ImageType> ItL( labimage,
-    labimage->GetLargestPossibleRegion() );
+  itk::ImageRegionIteratorWithIndex<ImageType> ItL(   labimage ,
+      labimage->GetLargestPossibleRegion() );
   itk::ImageRegionIteratorWithIndex<LabelImageType> ItC( contour->GetOutput(),
     contour->GetOutput()->GetLargestPossibleRegion() );
   for( ItL.GoToBegin(), ItC.GoToBegin(); !ItL.IsAtEnd(); ++ItL, ++ItC )
@@ -6066,6 +6120,7 @@ int main(int argc, char *argv[])
     std::cout << " PropagateLabelsThroughMask   speed/binaryimagemask.nii.gz   initiallabelimage.nii.gz Optional-Stopping-Value  -- final output is the propagated label image  " << std::endl <<  " optional stopping value -- higher values allow more distant propagation "  << std::endl;
     std::cout << " FastMarchingSegmentation   speed/binaryimagemask.nii.gz   initiallabelimage.nii.gz Optional-Stopping-Value  -- final output is the propagated label image  " << std::endl <<  " optional stopping value -- higher values allow more distant propagation "  << std::endl;
     std::cout << " ExtractSlice  volume.nii.gz slicetoextract --- will extract slice number from last dimension of volume (2,3,4) dimensions "  << std::endl;
+   std::cout << " ConvertLandmarkFile  InFile.txt ---- will convert landmark file between formats.  see ants.pdf for description of formats.  e.g. ImageMath 3  outfile.vtk  ConvertLandmarkFile  infile.txt "  << std::endl;
     return 1;
   }
 
@@ -6129,6 +6184,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"FastMarchingSegmentation") == 0 )  FastMarchingSegmentation<2>(argc,argv);
      else if (strcmp(operation.c_str(),"TruncateImageIntensity") == 0 ) TruncateImageIntensity<2>(argc,argv);
      else if (strcmp(operation.c_str(),"ExtractSlice") == 0)  ExtractSlice<2>(argc,argv);
+     //     else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<2>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
      break;
    case 3:
@@ -6193,6 +6249,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"TriPlanarView") == 0 )  TriPlanarView<3>(argc,argv);
      else if (strcmp(operation.c_str(),"TruncateImageIntensity") == 0 ) TruncateImageIntensity<3>(argc,argv);
      else if (strcmp(operation.c_str(),"ExtractSlice") == 0)  ExtractSlice<3>(argc,argv);
+     else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<3>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
  case 4:
@@ -6242,7 +6299,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"FillHoles") == 0 )  FillHoles<4>(argc,argv);
      else if (strcmp(operation.c_str(),"HistogramMatch") == 0) HistogramMatching<4>(argc,argv);
      else if (strcmp(operation.c_str(),"PadImage") == 0 )  PadImage<4>(argc,argv);
-     else if (strcmp(operation.c_str(),"SetOrGetPixel") == 0 )  SetOrGetPixel<4>(argc,argv);
+   //  else if (strcmp(operation.c_str(),"SetOrGetPixel") == 0 )  SetOrGetPixel<4>(argc,argv);
      else if (strcmp(operation.c_str(),"MakeImage") == 0 )  MakeImage<4>(argc,argv);
      else if (strcmp(operation.c_str(),"stack") == 0 )  StackImage<4>(argc,argv);
      else if (strcmp(operation.c_str(),"CompareHeadersAndImages") == 0 )  CompareHeadersAndImages<4>(argc,argv);
@@ -6257,6 +6314,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"TriPlanarView") == 0 )  TriPlanarView<4>(argc,argv);
      else if (strcmp(operation.c_str(),"TruncateImageIntensity") == 0 ) TruncateImageIntensity<4>(argc,argv);
      else if (strcmp(operation.c_str(),"ExtractSlice") == 0)  ExtractSlice<4>(argc,argv);
+     else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<4>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
    default:
