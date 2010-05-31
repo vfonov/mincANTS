@@ -3832,13 +3832,14 @@ int FastMarchingSegmentation( unsigned int argc, char *argv[] )
   typename ImageType::Pointer outlabimage = NULL;
   ReadImage<ImageType>(outlabimage, fn2.c_str());
   
-  /* 
+  /*  
   typedef itk::WellComposedImageFilter<ImageType> WCFilterType;
   typename WCFilterType::Pointer filter3D = WCFilterType::New();
   filter3D->SetInput( labimage );
   filter3D->SetTotalNumberOfLabels( 1 );
   filter3D->Update();
   labimage=filter3D->GetOutput();
+  WriteImage<ImageType>(labimage,"temp.nii.gz");
   */
 
   typedef  itk::FastMarchingImageFilter
@@ -3855,10 +3856,11 @@ int FastMarchingSegmentation( unsigned int argc, char *argv[] )
   typedef itk::LabelContourImageFilter<ImageType, LabelImageType> ContourFilterType;
   typename ContourFilterType::Pointer contour = ContourFilterType::New();
   contour->SetInput(   labimage  );
-  contour->FullyConnectedOn();
+  contour->FullyConnectedOff();
   contour->SetBackgroundValue( itk::NumericTraits<typename LabelImageType::PixelType>::Zero );
   contour->Update();
-
+  //  WriteImage<ImageType>(contour->GetOutput(),"temp2.nii.gz");
+ 
   typename NodeContainer::Pointer alivePoints = NodeContainer::New();
   alivePoints->Initialize();
   unsigned long aliveCount = 0;
@@ -6128,6 +6130,7 @@ int main(int argc, char *argv[])
 
   switch ( atoi(argv[1]) )
    {
+     
    case 2:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<2>(argc,argv);
      else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<2>(argc,argv);
@@ -6187,6 +6190,7 @@ int main(int argc, char *argv[])
      //     else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<2>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
      break;
+     
    case 3:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<3>(argc,argv);
@@ -6252,6 +6256,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<3>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
+      
  case 4:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<4>(argc,argv);
      else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<4>(argc,argv);
@@ -6317,6 +6322,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<4>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
+      
    default:
      std::cerr << " Dimension Not supported " << atoi(argv[1]) << std::endl;
      exit( 1 );
