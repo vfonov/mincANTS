@@ -4183,7 +4183,7 @@ int FillHoles(int argc, char *argv[])
     }
 
 
-    WriteImage<ImageType>(relabel->GetOutput(),"test.nii");
+    // WriteImage<ImageType>(relabel->GetOutput(),"test.nii");
 
   if (holeparam == 2)
     {
