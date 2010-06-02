@@ -7,7 +7,7 @@
   Version:   $Revision: 1.22 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -158,7 +158,7 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
     bool useNN = this->m_Parser->template Convert<bool>( this->m_Parser->GetOption( "use-NN" )->GetValue() );
     if ( useNN)   this->m_RegistrationOptimizer->SetUseNearestNeighborInterpolation(true);
     else this->m_RegistrationOptimizer->SetUseNearestNeighborInterpolation(false);
-    
+
     typename OptionType::ValueType continue_affine = this->m_Parser->GetOption( "continue-affine" )->GetValue();
     if  ( fixed_initial_affine_filename != "" ) continue_affine=std::string("false");
     if ( continue_affine == "true" ){
@@ -643,7 +643,7 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
 //  filter->ThresholdAtMeanIntensityOff();
   if (useHistMatch){
   filter->Update();   std::cout <<  " use Histogram Matching " << std::endl;
-  movingImage=filter->GetOutput(); 
+  movingImage=filter->GetOutput();
   movingImage = this->PreprocessImage(movingImage);
   similarityMetric->SetMovingImage( movingImage );}
                   typedef SyNDemonsRegistrationFunction
@@ -715,7 +715,7 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
 //  filter->ThresholdAtMeanIntensityOff();
   if (useHistMatch){
   filter->Update();   std::cout <<  " use Histogram Matching " << std::endl;
-  movingImage=filter->GetOutput(); 
+  movingImage=filter->GetOutput();
   movingImage = this->PreprocessImage(movingImage);
   similarityMetric->SetMovingImage( movingImage );}
 
@@ -743,7 +743,7 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
 //  filter->ThresholdAtMeanIntensityOff();
   if (useHistMatch){
   filter->Update();   std::cout <<  " use Histogram Matching " << std::endl;
-  movingImage=filter->GetOutput(); 
+  movingImage=filter->GetOutput();
   movingImage = this->PreprocessImage(movingImage);
   similarityMetric->SetMovingImage( movingImage );}
                   typedef itk::ProbabilisticRegistrationFunction
@@ -793,10 +793,19 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
 
     if (true)
     {
+      std::string description =
+      std::string( "this mask -- defined in the 'fixed' image space defines " ) +
+      std::string( "the region of interest over which the registration is " ) +
+      std::string( "computed ==> above 0.1 means inside mask ==> continuous " ) +
+      std::string( "values in range [0.1,1.0] effect optimization like a " ) +
+      std::string( "probability.  ==> values > 1 are treated as = 1.0 " );
+
         OptionType::Pointer option = OptionType::New();
         option->SetLongName( "mask-image" );
         option->SetShortName( 'x' );
-        option->SetDescription( "this mask -- defined in the 'fixed' image space defines the region of interest over which the registration is computed \n\t\t==> above 0.1 means inside mask \n\t\t==> continuous values in range [0.1 , 1.0] effect optimization like a probability.  \n\t\t==> values > 1 are treated as = 1.0 " );
+//         option->SetDescription( "this mask -- defined in the 'fixed' image space defines the region of interest over which the registration is computed ==> above 0.1 means inside mask \n\t\t==> continuous values in range [0.1 , 1.0] effect optimization like a probability.  \n\t\t==> values > 1 are treated as = 1.0 " );
+        option->SetDescription( description );
+        option->SetUsageOption( 0, "maskFileName" );
         this->m_Parser->AddOption( option );
     }
 
