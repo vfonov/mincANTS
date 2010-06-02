@@ -26,6 +26,7 @@ CommandLineOption
                         m_Description( "" )
 {
   this->m_Values.clear();
+  this->m_UsageOptions.clear();
 }
 
 void
@@ -73,5 +74,18 @@ CommandLineOption
 		this->m_Values[i] = value;
 		this->Modified();
 }
+
+void
+CommandLineOption
+::SetUsageOption( unsigned int i, std::string usage )
+{
+  if( i >= this->m_UsageOptions.size() )
+    {
+    this->m_UsageOptions.resize( i + 1 );
+    }
+		this->m_UsageOptions[i] = usage;
+		this->Modified();
+}
+
 
 } // end namespace itk

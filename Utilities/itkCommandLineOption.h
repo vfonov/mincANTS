@@ -80,6 +80,25 @@ public:
         }
       }
 
+    ValueStackType GetUsageOptions()
+      { return this->m_UsageOptions; }
+
+    unsigned int GetNumberOfUsageOptions()
+      { return this->m_UsageOptions.size(); }
+
+    std::string GetUsageOption( unsigned int i = 0 )
+      {
+      if( i < this->m_UsageOptions.size() )
+        {
+        return this->m_UsageOptions[i];
+        }
+      else
+        {
+        return std::string( "" );
+        }
+      }
+
+
     ValueStackType GetParameters( unsigned int i = 0 )
       {
       if( i < this->m_Parameters.size() )
@@ -136,8 +155,9 @@ public:
       {
       this->AddValue( s, '[', ']' );
       }
-
     void SetValue( unsigned int, std::string );
+
+    void SetUsageOption( unsigned int, std::string );
 
 protected:
     CommandLineOption();
@@ -147,6 +167,7 @@ private:
     char                                                     m_ShortName;
     std::string                                              m_LongName;
     std::string                                              m_Description;
+    ValueStackType                                           m_UsageOptions;
     ValueStackType                                           m_Values;
     ParameterStackType                                       m_Parameters;
 };
