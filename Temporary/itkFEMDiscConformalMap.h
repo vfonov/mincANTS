@@ -125,11 +125,11 @@ public:
   
   typedef  Image<float,2>   FlatImageType;
   typedef  typename FlatImageType::Pointer FlatImageTypePointer;
-  typedef  GraphSearchNode<float,float,3>        GraphSearchNode;
-  typedef  typename GraphSearchNode::Pointer        GraphSearchNodePointer;
-  typedef  typename GraphSearchNode::NodeLocationType        NodeLocationType;
-  typedef  ManifoldIntegrationAlgorithm<GraphSearchNode>  ManifoldIntegratorType;
-//  typedef  TriangulatedDijkstrasAlgorithm<GraphSearchNode>  ManifoldIntegratorType;
+  typedef  GraphSearchNode<float,float,3>        GraphSearchNodeType;
+  typedef  typename GraphSearchNodeType::Pointer        GraphSearchNodePointer;
+  typedef  typename GraphSearchNodeType::NodeLocationType        NodeLocationType;
+  typedef  ManifoldIntegrationAlgorithm<GraphSearchNodeType>  ManifoldIntegratorType;
+//  typedef  TriangulatedDijkstrasAlgorithm<GraphSearchNodeType>  ManifoldIntegratorType;
   typedef  typename ManifoldIntegratorType::Pointer  ManifoldIntegratorTypePointer;
 
   /** FEM types */
