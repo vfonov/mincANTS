@@ -7,11 +7,11 @@
   Version:   $Revision: 1.12 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -25,14 +25,14 @@ namespace itk
 {
 
 /** \class SurfaceMeshCurvature
- * 
+ *
  * This class takes a surface as input and creates a local
- * geometric frame for each surface point.  
+ * geometric frame for each surface point.
  *
  *
  */
 template < typename TSurface , typename TSurfacePatch >
-           class SurfaceMeshCurvature : 
+           class SurfaceMeshCurvature :
            public SurfaceCurvatureBase < TSurface ,  3 >
 {
 public:
@@ -61,8 +61,8 @@ public:
   typedef typename TSurfacePatch::PixelType FunctionValueType;
   typedef TSurface* SurfacePointer; //probably vtkmesh
 
-  /** Find all points within some distance of the origin. 
-    * The argument gives the number of times to apply the 
+  /** Find all points within some distance of the origin.
+    * The argument gives the number of times to apply the
     * mean shift algorithm to find the best neighborhood.
     */
   virtual void FindNeighborhood(unsigned int numMeanShifts=0)
@@ -76,7 +76,7 @@ public:
     this->m_PointList.insert(this->m_PointList.begin(),pt);
 	this->m_FunctionValueList.insert(this->m_FunctionValueList.begin(),m_SurfacePatch->GetValue());
 
-	for (int i=0; i<m_SurfacePatch->m_Neighbors.size(); i++)
+	for (unsigned int i=0; i<m_SurfacePatch->m_Neighbors.size(); i++)
 	{
     VertexType neigh=m_SurfacePatch->m_Neighbors[i]->GetLocation();
     PointType pt;
@@ -90,8 +90,8 @@ public:
   void SetSurfacePatch( SurfacePatchPointer s) { m_SurfacePatch=s; }
 
 
-  SurfaceMeshCurvature() 
-  { 
+  SurfaceMeshCurvature()
+  {
   this->m_Origin.fill(0.0);
   this->m_ArbitraryTangent.fill(0.);
   this->m_Normal.fill(0.);
@@ -121,11 +121,11 @@ public:
 
   ~SurfaceMeshCurvature(){};
 protected:
-  
+
 
 private:
 
-  
+
   SurfacePointer m_Surface;
   SurfacePatchPointer m_SurfacePatch;
 
