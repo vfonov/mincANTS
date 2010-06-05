@@ -36,6 +36,7 @@
 #include "itkIterationReporter.h"
 #include "itkKdTreeBasedKmeansEstimator.h"
 #include "itkLabelStatisticsImageFilter.h"
+#include "itkLabelGeometryImageFilter.h"
 #include "itkEuclideanDistance.h"
 #include "itkMersenneTwisterRandomVariateGenerator.h"
 #include "itkMinimumDecisionRule.h"
@@ -1493,7 +1494,9 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
               measurement[i] =
                 this->GetIntensityImage( i )->GetPixel( ItO.GetIndex() );
 
-              if( smoothImages[i] )
+             if( ( this->m_InitializationStrategy == PriorProbabilityImages ||
+               this->m_InitializationStrategy == PriorLabelImage ) &&
+               smoothImages[i] )
                 {
                 measurement[i] = ( 1.0 - this->m_AdaptiveSmoothingWeights[i] ) *
                   measurement[i] + this->m_AdaptiveSmoothingWeights[i] *
@@ -1703,7 +1706,9 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
             measurement[i] =
               this->GetIntensityImage( i )->GetPixel( ItO.GetIndex() );
 
-            if( smoothImages[i] )
+            if( ( this->m_InitializationStrategy == PriorProbabilityImages ||
+              this->m_InitializationStrategy == PriorLabelImage ) &&
+              smoothImages[i] )
               {
               measurement[i] = ( 1.0 - this->m_AdaptiveSmoothingWeights[i] ) *
                 measurement[i] + this->m_AdaptiveSmoothingWeights[i] *
