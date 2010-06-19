@@ -178,13 +178,20 @@ public:
   void SetSmooth(float i){ m_Smooth=i;}
 
   void MeasureLengthDistortion();
+  void SetParamWhileSearching( bool b ) { this->m_ParamWhileSearching=b; }
   
   void FindSource(IndexType);
   void FindMeanSourceInLabel(unsigned int); 
   void MakeFlatImage();
   FlatImageTypePointer          m_FlatImage;
 
-  void MapToSquare();
+  inline void SetLabelToFlatten( unsigned int b ) {  this->m_Label_to_Flatten=b;  }
+  inline void SetMapToSquare(  ) { this->m_MapToSquare=true;  this->m_MapToCircle=false;  }
+  inline void SetMapToCircle(  ) { this->m_MapToSquare=false;  this->m_MapToCircle=true;  }
+  inline void SetDiscBoundaryList( std::vector<GraphSearchNodePointer> b  ) 
+    {
+      this->m_DiscBoundaryList.assign(b.begin(),b.end());
+    };
 
 protected:
 
@@ -214,7 +221,9 @@ private:
   bool                          m_ReadFromFile;
   bool                          m_Debug;
   bool                          m_FindingRealSolution;
-
+  bool                          m_MapToCircle;
+  bool                          m_MapToSquare;
+  bool                          m_ParamWhileSearching;
   VectorType                    m_RealSolution;
   VectorType                    m_ImagSolution;
   VectorType                    m_Radius;
