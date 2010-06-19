@@ -256,7 +256,7 @@ public:
   // sanity check to see if mesh to graph conversion is ok
   // see if genus is the same
   void ConvertGraphBackToMesh();
-  
+  void SetParamWhileSearching( bool b ) { this->m_ParamWhileSearching=b; }
   bool                      m_PureDist;
   unsigned int                      m_LabelCost;
 
@@ -280,6 +280,7 @@ protected:
   unsigned long             m_NumberSearched;
 
   TriangulationTypePointer  m_SurfaceMesh;
+  bool m_ParamWhileSearching;
 
   ManifoldIntegrationAlgorithm(); 
   ~ManifoldIntegrationAlgorithm(){};
