@@ -57,7 +57,7 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::InitializeGraph3()
   cout << "   converting mesh to triangles " << endl;
   fltTriangle->Update();
 
-  // Clean the data
+  /* Clean the data
   vtkCleanPolyData* fltCleaner = vtkCleanPolyData::New();
   fltCleaner->SetInput(fltTriangle->GetOutput());
   fltCleaner->SetTolerance(0);
@@ -75,7 +75,8 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::InitializeGraph3()
       clean->DeleteCell(i-1);
     }
   clean->BuildCells();
-  m_SurfaceMesh=clean;
+  m_SurfaceMesh=clean;*/
+  m_SurfaceMesh=fltTriangle->GetOutput();
 
   vtkPoints* vtkpoints = m_SurfaceMesh->GetPoints();
   vtkPointData *pd=m_SurfaceMesh->GetPointData();
@@ -514,34 +515,18 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::SearchEdgeSet()
 template<class TGraphSearchNode >
 void ManifoldIntegrationAlgorithm<TGraphSearchNode>::GetSearchBoundary()
 {
-  if ( m_LabelCost > 0 ) {
-
   unsigned int gsz=this->GetGraphSize();
   for ( unsigned int j=0; j<gsz ; j++) { 
-    float inb=0;
-    float cost=0,ncost=0;
+    float cost=0;
     this->m_CurrentNode=this->m_GraphX[j];
     if ( this->m_CurrentNode ) {
       cost=m_CurrentNode->GetTotalCost();
-      if (  fabs( m_CurrentNode->GetValue(3) - m_LabelCost ) < 0.5 && this->m_CurrentNode->GetTotalCost() < this->m_MaxCost ) {
-	for (unsigned int i = 0; i < m_CurrentNode->m_NumberOfNeighbors; i++)
-	  {
-	    this->m_NeighborNode=m_CurrentNode->m_Neighbors[i];
-	    //	    if (  this->m_NeighborNode->GetTotalCost() > 1000  ) { 
-	    if (  fabs( m_NeighborNode->GetValue(3) - m_LabelCost ) > 0.5 ) {
-	      // CurrentNode is in the boundary 	  
-	      inb=m_NeighborNode->GetValue(3) ;	
-	      ncost=m_NeighborNode->GetTotalCost();
-	    }
-	  } // neighborhood 
-	if ( inb > 0 )  std::cout <<  " Node is in boundary " << m_CurrentNode->GetValue(3)  << " neigh-label " <<  inb << " loc " << m_CurrentNode->GetLocation()  << " cost " <<  cost  <<  " ncost " << ncost  << std::endl;
-      } // less than max cost 
-    } // if node exists 
-  } // gsz
-
-
+      if (  cost <= this->m_MaxCost &&  (cost >= this->m_MaxCost-4) ) {
+	this->m_BoundaryList.push_back(this->m_CurrentNode);
+      }
+    }
   }
-  
+
 }
 
 
@@ -593,43 +578,44 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::CheckNodeStatus()
     }
   
 }
-  
- template<class TGraphSearchNode >
+
+
+template<class TGraphSearchNode >
 void ManifoldIntegrationAlgorithm<TGraphSearchNode>::FindPath()
-  {
-    if (m_QS->m_SourceNodes.empty())
-      {
-    std::cout << "ERROR !! DID NOT SET SOURCE!!\n";
-	return;
-  }
+{
+  if (m_QS->m_SourceNodes.empty())
+    {
+      std::cout << "ERROR !! DID NOT SET SOURCE!!\n";
+      return;
+    }
 
-    //  std::cout << "MI start find path " << " Q size " << m_QS->m_Q.size() << " \n";
-
+  //  std::cout << "MI start find path " << " Q size " << m_QS->m_Q.size() << " \n";
+  
   while ( !m_SearchFinished && !m_QS->m_Q.empty()  )
-  {
-    m_CurrentNode=m_QS->m_Q.top();
-    m_CurrentCost=m_CurrentNode->GetTotalCost();
-    if ( m_CurrentCost / m_MaxCost > 0.5 ) 
-      this->ParameterizeBoundary( this->m_CurrentNode );  
-    m_QS->m_Q.pop();
-    if (!m_CurrentNode->GetDelivered()) {
-	  m_QS->IncrementTimer();
-	  ///std::cout << " searching " << m_CurrentNode->GetLocation()   << " \n";
-	  this->SearchEdgeSet();
+    {
+      m_CurrentNode=m_QS->m_Q.top();
+      m_CurrentCost=m_CurrentNode->GetTotalCost();
+      //    if ( m_CurrentCost / m_MaxCost > 0.5 ) 
+       this->ParameterizeBoundary( this->m_CurrentNode );  
+      m_QS->m_Q.pop();
+      if (!m_CurrentNode->GetDelivered()) {
+	m_QS->IncrementTimer();
+	///std::cout << " searching " << m_CurrentNode->GetLocation()   << " \n";
+	this->SearchEdgeSet();
 	  //if ( (m_CurrentNode->GetTimer() % 1.e5 ) == 0)
-		// std::cout << " searched  " << m_CurrentNode->GetTimer()   << " \n";
-	}
-    m_CurrentNode->SetDelivered();
-    
-  }  // end of while
-
-	m_NumberSearched = (unsigned long) m_QS->GetTimer();
-	//  std::cout << "Done with find path " << " Q size " << m_QS->m_Q.size() <<
-	//" num searched " << m_NumberSearched << " \n";
-
+	// std::cout << " searched  " << m_CurrentNode->GetTimer()   << " \n";
+      }
+      m_CurrentNode->SetDelivered();
+      
+    }  // end of while
+  
+  m_NumberSearched = (unsigned long) m_QS->GetTimer();
+  //  std::cout << "Done with find path " << " Q size " << m_QS->m_Q.size() <<
+  //" num searched " << m_NumberSearched << " \n";
+  
   //  std::cout << " Max Distance " << m_CurrentCost << std::endl;
-  //  this->GetSearchBoundary(); 
-
+  // this->GetSearchBoundary(); 
+  
   return;
 
 }

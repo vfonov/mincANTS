@@ -166,6 +166,7 @@ public:
 
   void FindPoles(int dim);
   void FixPoles(int dim);
+  void ConformalParameterize();
   void ConformalMap();
   void ComputeStereographicCoordinates();
   void MapStereographicCoordinatesToImage(int dim);
