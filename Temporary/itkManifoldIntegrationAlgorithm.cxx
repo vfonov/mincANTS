@@ -596,7 +596,7 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::FindPath()
       m_CurrentNode=m_QS->m_Q.top();
       m_CurrentCost=m_CurrentNode->GetTotalCost();
       //    if ( m_CurrentCost / m_MaxCost > 0.5 ) 
-       this->ParameterizeBoundary( this->m_CurrentNode );  
+      //       this->ParameterizeBoundary( this->m_CurrentNode );  
       m_QS->m_Q.pop();
       if (!m_CurrentNode->GetDelivered()) {
 	m_QS->IncrementTimer();
@@ -614,7 +614,7 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::FindPath()
   //" num searched " << m_NumberSearched << " \n";
   
   //  std::cout << " Max Distance " << m_CurrentCost << std::endl;
-  // this->GetSearchBoundary(); 
+   this->GetSearchBoundary(); 
   
   return;
 
