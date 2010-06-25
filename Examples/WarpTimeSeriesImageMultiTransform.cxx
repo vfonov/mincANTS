@@ -659,8 +659,8 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
     else {
         if (misc_opt.use_TightestBoundingBox == true){
             // compute the desired spacking after inputting all the transform files using the
-	  std::cout << " not implemented " << std::endl;
-	  /*
+          std::cout << " not implemented " << std::endl;
+          /*
             typename ImageType::SizeType largest_size;
             typename ImageType::PointType origin_warped;
             GetLaregstSizeAfterWarp(warper, warpthisimage , largest_size, origin_warped);
@@ -712,11 +712,11 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
     Iterator vfIter2(  warper->GetOutput(), warper->GetOutput()->GetLargestPossibleRegion() );  
     for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 ) 
       {
-	typename ImageType::PixelType  fval=vfIter2.Get(); 
-	typename VectorImageType::IndexType ind;
-	for (unsigned int xx=0; xx<ImageDimension-1; xx++) ind[xx]=vfIter2.GetIndex()[xx]; 
-	ind[ImageDimension-1]=timedim;
-	transformedvecimage->SetPixel(ind,fval); 
+        typename ImageType::PixelType  fval=vfIter2.Get(); 
+        typename VectorImageType::IndexType ind;
+        for (unsigned int xx=0; xx<ImageDimension-1; xx++) ind[xx]=vfIter2.GetIndex()[xx]; 
+        ind[ImageDimension-1]=timedim;
+        transformedvecimage->SetPixel(ind,fval); 
       }
 
     if (timedim == 0) std::cout << warper->GetOutput()->GetDirection() << std::endl;
@@ -940,9 +940,9 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
     Iterator vfIter2( img_output, img_output->GetLargestPossibleRegion() );  
     for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 ) 
       {
-	typename VectorImageType::PixelType  tens=vfIter2.Get(); 
-	tens[tensdim]=warper->GetOutput()->GetPixel(vfIter2.GetIndex());
-	vfIter2.Set(tens);
+        typename VectorImageType::PixelType  tens=vfIter2.Get(); 
+        tens[tensdim]=warper->GetOutput()->GetPixel(vfIter2.GetIndex());
+        vfIter2.Set(tens);
       }
 
   
