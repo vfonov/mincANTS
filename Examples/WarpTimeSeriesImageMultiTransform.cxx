@@ -543,35 +543,8 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
   std::cout << " 4D-Out-Size " <<  transformedvecimage->GetLargestPossibleRegion().GetSize() << std::endl;
   std::cout << " 4D-Out-Dir " << transformedvecimage->GetDirection() << std::endl;
 
-  unsigned int timedims=img_mov->GetLargestPossibleRegion().GetSize()[ImageDimension-1];
-  for (unsigned int timedim=0;  timedim < timedims ;  timedim++ ) {
-      if ( timedim % vnl_math_max(timedims / 10, static_cast<unsigned int>(1)) == 0 ) std::cout << (float) timedim/(float)timedims*100 << " % done ... " << std::flush; // << std::endl;
-    typename VectorImageType::RegionType extractRegion = img_mov->GetLargestPossibleRegion();
-    extractRegion.SetSize(ImageDimension-1, 0);
-    extractRegion.SetIndex(ImageDimension-1, timedim );
-    
-    typename ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
-    extractFilter->SetInput( img_mov );
-    extractFilter->SetExtractionRegion( extractRegion );
-    extractFilter->Update();
-    typename ImageType::Pointer warpthisimage=extractFilter->GetOutput(); 
-    typename ImageType::SpacingType qspc=warpthisimage->GetSpacing();
-    typename ImageType::PointType qorg=warpthisimage->GetOrigin();
-    typename ImageType::DirectionType qdir=warpthisimage->GetDirection();
-    qdir.Fill(0);
-    for (unsigned int qq=0; qq<ImageDimension-1; qq++) {
-    for (unsigned int pp=0; pp<ImageDimension-1;pp++) {
-      qdir[qq][pp]=img_mov->GetDirection()[qq][pp];
-    }
-      qspc[qq]=img_mov->GetSpacing()[qq];
-      qorg[qq]=img_mov->GetOrigin()[qq];
-    }
-    warpthisimage->SetSpacing(qspc);
-    warpthisimage->SetOrigin(qorg);
-    warpthisimage->SetDirection(qdir);
 
     typename WarperType::Pointer  warper = WarperType::New();
-    warper->SetInput( warpthisimage );
     warper->SetEdgePaddingValue(0);
    
     if (misc_opt.use_NN_interpolator){
@@ -686,7 +659,8 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
     else {
         if (misc_opt.use_TightestBoundingBox == true){
             // compute the desired spacking after inputting all the transform files using the
-
+	  std::cout << " not implemented " << std::endl;
+	  /*
             typename ImageType::SizeType largest_size;
             typename ImageType::PointType origin_warped;
             GetLaregstSizeAfterWarp(warper, warpthisimage , largest_size, origin_warped);
@@ -696,11 +670,41 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
 
             typename ImageType::DirectionType d;
             d.SetIdentity();
-            warper->SetOutputDirection(d);
+            warper->SetOutputDirection(d);*/
         }
 
     }
 
+
+
+
+  unsigned int timedims=img_mov->GetLargestPossibleRegion().GetSize()[ImageDimension-1];
+  for (unsigned int timedim=0;  timedim < timedims ;  timedim++ ) {
+    if ( timedim % vnl_math_max(timedims / 10, static_cast<unsigned int>(1)) == 0 ) std::cout << (float) timedim/(float)timedims*100 << " % done ... " << std::flush; // << std::endl;
+    typename VectorImageType::RegionType extractRegion = img_mov->GetLargestPossibleRegion();
+    extractRegion.SetSize(ImageDimension-1, 0);
+    extractRegion.SetIndex(ImageDimension-1, timedim );    
+    typename ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
+    extractFilter->SetInput( img_mov );
+    extractFilter->SetExtractionRegion( extractRegion );
+    extractFilter->Update();
+    typename ImageType::Pointer warpthisimage=extractFilter->GetOutput(); 
+    typename ImageType::SpacingType qspc=warpthisimage->GetSpacing();
+    typename ImageType::PointType qorg=warpthisimage->GetOrigin();
+    typename ImageType::DirectionType qdir=warpthisimage->GetDirection();
+    qdir.Fill(0);
+    for (unsigned int qq=0; qq<ImageDimension-1; qq++) {
+    for (unsigned int pp=0; pp<ImageDimension-1;pp++) {
+      qdir[qq][pp]=img_mov->GetDirection()[qq][pp];
+    }
+      qspc[qq]=img_mov->GetSpacing()[qq];
+      qorg[qq]=img_mov->GetOrigin()[qq];
+    }
+    warpthisimage->SetSpacing(qspc);
+    warpthisimage->SetOrigin(qorg);
+    warpthisimage->SetDirection(qdir);
+
+    warper->SetInput( warpthisimage );
     warper->DetermineFirstDeformNoInterp();
     warper->Update();
 
