@@ -7,11 +7,11 @@
   Version:   $Revision: 1.16 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -29,14 +29,14 @@ namespace itk
 {
 
 /** \brief Base exception class for IO conflicts. */
-class VectorImageFileReaderException : public ExceptionObject 
+class VectorImageFileReaderException : public ExceptionObject
 {
 public:
   /** Run-time information. */
   itkTypeMacro( VectorImageFileReaderException, ExceptionObject );
 
   /** Constructor. */
-  VectorImageFileReaderException(const char *file, unsigned int line, 
+  VectorImageFileReaderException(const char *file, unsigned int line,
                            const char* message = "Error in IO",
                            const char* loc = "Unknown") :
     ExceptionObject(file, line, message, loc)
@@ -44,9 +44,9 @@ public:
   }
 
   /** Constructor. */
-  VectorImageFileReaderException(const std::string &file, unsigned int line, 
+  VectorImageFileReaderException(const std::string &file, unsigned int line,
                            const char* message = "Error in IO",
-                           const char* loc = "Unknown") : 
+                           const char* loc = "Unknown") :
     ExceptionObject(file, line, message, loc)
   {
   }
@@ -65,8 +65,8 @@ public:
  *
  * TImage is the type expected by the external users of the
  * filter. If data stored in the file is stored in a different format
- * then specified by TImage, than this filter converts data 
- * between the file type and the external expected type.  The 
+ * then specified by TImage, than this filter converts data
+ * between the file type and the external expected type.  The
  * ConvertTraits template argument is used to do the conversion.
  *
  * A Pluggable factory pattern is used this allows different kinds of readers
@@ -84,7 +84,7 @@ public:
  *
  */
 template <class TImage, class TVectorImage,
-          class ConvertPixelTraits=DefaultConvertPixelTraits< 
+          class ConvertPixelTraits=DefaultConvertPixelTraits<
                    ITK_TYPENAME TImage::IOPixelType > >
 class ITK_EXPORT VectorImageFileReader : public ImageSource<TVectorImage>
 {
@@ -93,7 +93,7 @@ public:
   typedef VectorImageFileReader         Self;
   typedef ImageSource<TVectorImage>  Superclass;
   typedef SmartPointer<Self>  Pointer;
-  
+
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
@@ -103,12 +103,12 @@ public:
   /** Image types */
   typedef typename TImage::RegionType  ImageRegionType;
   typedef typename TImage::InternalPixelType ImagePixelType;
-  
+
   /** Deformation field types */
   typedef typename TVectorImage::RegionType  VectorImageRegionType;
   typedef typename TVectorImage::InternalPixelType VectorImagePixelType;
 
-  
+
   /** Specify the file to read. This is forwarded to the IO instance. */
   itkSetStringMacro(FileName);
   itkGetStringMacro(FileName);
@@ -117,16 +117,16 @@ public:
   itkSetMacro(UseAvantsNamingConvention,bool);
   itkGetConstReferenceMacro(UseAvantsNamingConvention,bool);
   itkBooleanMacro(UseAvantsNamingConvention);
-  
+
   /** Set/Get the ImageIO helper class. Often this is created via the object
    * factory mechanism that determines whether a particular ImageIO can
-   * read a certain file. This method provides a way to get the ImageIO 
+   * read a certain file. This method provides a way to get the ImageIO
    * instance that is created. Or you can directly specify the ImageIO
    * to use to read a particular file in case the factory mechanism will
    * not work properly (e.g., unknown or unusual extension). */
   void  SetImageIO( ImageIOBase * imageIO );
   itkGetObjectMacro(ImageIO,ImageIOBase);
-  
+
   /** Prepare the allocation of the output image during the first back
    * propagation of the pipeline. */
   virtual void GenerateOutputInformation(void);
@@ -144,12 +144,12 @@ protected:
   VectorImageFileReader();
   ~VectorImageFileReader();
   void PrintSelf(std::ostream& os, Indent indent) const;
-  
+
   /** Convert a block of pixels from one type to another. */
   void DoConvertBuffer(void* buffer, unsigned long numberOfPixels);
 
   /** Test whether the given filename exist and it is readable,
-      this is intended to be called before attempting to use 
+      this is intended to be called before attempting to use
       ImageIO classes for actually reading the file. If the file
       doesn't exist or it is not readable, and exception with an
       approriate message will be thrown. */
@@ -163,11 +163,12 @@ protected:
 
   /** The file to be read. */
   std::string m_FileName;
-  
+
 private:
   VectorImageFileReader(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
-  
+  std::string m_ExceptionMessage;
+
   typename TImage::Pointer m_Image;
   bool     m_UseAvantsNamingConvention;
 
