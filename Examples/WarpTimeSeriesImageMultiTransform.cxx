@@ -543,6 +543,8 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
   std::cout << " 4D-Out-Size " <<  transformedvecimage->GetLargestPossibleRegion().GetSize() << std::endl;
   std::cout << " 4D-Out-Dir " << transformedvecimage->GetDirection() << std::endl;
 
+  unsigned int timedims=img_mov->GetLargestPossibleRegion().GetSize()[ImageDimension-1];
+  for (unsigned int timedim=0;  timedim < timedims ;  timedim++ ) {
 
     typename WarperType::Pointer  warper = WarperType::New();
     warper->SetEdgePaddingValue(0);
@@ -678,8 +680,6 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
 
 
 
-  unsigned int timedims=img_mov->GetLargestPossibleRegion().GetSize()[ImageDimension-1];
-  for (unsigned int timedim=0;  timedim < timedims ;  timedim++ ) {
     if ( timedim % vnl_math_max(timedims / 10, static_cast<unsigned int>(1)) == 0 ) std::cout << (float) timedim/(float)timedims*100 << " % done ... " << std::flush; // << std::endl;
     typename VectorImageType::RegionType extractRegion = img_mov->GetLargestPossibleRegion();
     extractRegion.SetSize(ImageDimension-1, 0);
@@ -717,6 +717,7 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
         for (unsigned int xx=0; xx<ImageDimension-1; xx++) ind[xx]=vfIter2.GetIndex()[xx]; 
         ind[ImageDimension-1]=timedim;
         transformedvecimage->SetPixel(ind,fval); 
+	if ( ind[0] == 53 && ind[1] == 19 && ind[2] == 30 ) std::cout << " fval " << fval << " td " << timedim << std::endl;
       }
 
     if (timedim == 0) std::cout << warper->GetOutput()->GetDirection() << std::endl;
