@@ -1,6 +1,6 @@
 //#include "DoSomethingToImage.cxx"
-#include "itkVectorIndexSelectionCastImageFilter.h"    
-#include "itkImageRegionIteratorWithIndex.h" 
+#include "itkVectorIndexSelectionCastImageFilter.h"
+#include "itkImageRegionIteratorWithIndex.h"
 #include "vnl/algo/vnl_determinant.h"
 
 #include "itkWarpImageFilter.h"
@@ -9,8 +9,6 @@
 
 #include "itkImageFileWriter.h"
 
-#include "itkScalarImageToHistogramGenerator.h"
-#include "itkImageToHistogramGenerator.h"
 #include "itkANTSImageRegistrationOptimizer.h"
 #include "vnl/algo/vnl_determinant.h"
 #include "itkDiscreteGaussianImageFilter.h"
@@ -44,17 +42,17 @@ GetVectorComponent(typename TField::Pointer field, unsigned int index)
   sfield->SetSpacing( field->GetSpacing() );
   sfield->SetOrigin( field->GetOrigin() );
   sfield->SetDirection( field->GetDirection() );
-  sfield->SetLargestPossibleRegion(field->GetLargestPossibleRegion() );      
+  sfield->SetLargestPossibleRegion(field->GetLargestPossibleRegion() );
   sfield->SetRequestedRegion(field->GetRequestedRegion() );
   sfield->SetBufferedRegion( field->GetBufferedRegion() );
   sfield->Allocate();
 
 
-  typedef itk::ImageRegionIteratorWithIndex<TField> Iterator;    
-  Iterator vfIter( field,  field->GetLargestPossibleRegion() );    
-  for( vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter)    
-  {      
-    typename TField::PixelType v1=vfIter.Get();   
+  typedef itk::ImageRegionIteratorWithIndex<TField> Iterator;
+  Iterator vfIter( field,  field->GetLargestPossibleRegion() );
+  for( vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter)
+  {
+    typename TField::PixelType v1=vfIter.Get();
     sfield->SetPixel(vfIter.GetIndex(),v1[index]);
   }
 
@@ -63,46 +61,46 @@ GetVectorComponent(typename TField::Pointer field, unsigned int index)
 }
 template <class TImage>
 typename TImage::Pointer BinaryThreshold(
-										 typename TImage::PixelType low, 
+										 typename TImage::PixelType low,
 										 typename TImage::PixelType high,
 										 typename TImage::PixelType replaceval, typename TImage::Pointer input)
 {
 	//std::cout << " Binary Thresh " << std::endl;
-	
+
 	typedef typename TImage::PixelType PixelType;
 	// Begin Threshold Image
 	typedef itk::BinaryThresholdImageFilter<TImage,TImage>  InputThresholderType;
-	typename InputThresholderType::Pointer inputThresholder = 
+	typename InputThresholderType::Pointer inputThresholder =
 		InputThresholderType::New();
-	
+
 	inputThresholder->SetInput( input );
 	inputThresholder->SetInsideValue(  replaceval );
 	int outval=0;
 	if ((float) replaceval == (float) -1) outval=1;
 	inputThresholder->SetOutsideValue( outval );
-	
+
 	if (high < low) high=255;
 	inputThresholder->SetLowerThreshold((PixelType) low );
 	inputThresholder->SetUpperThreshold((PixelType) high);
 	inputThresholder->Update();
-	
+
 	return inputThresholder->GetOutput();
 }
 
 template <class TImage>
-typename TImage::Pointer   
+typename TImage::Pointer
 MaurerDistanceMap(
 				  typename TImage::PixelType pixlo,
 				  typename TImage::PixelType pixhi,
 				  typename TImage::Pointer input)
 {
 	//std::cout << " DDMap " << std::endl;
-	
+
 	typedef TImage ImageType;
-	
+
 	typedef itk::SignedMaurerDistanceMapImageFilter<
 		ImageType, ImageType >  FilterType;
-	
+
 	typename  FilterType::Pointer filter = FilterType::New();
 	filter->SetSquaredDistance(false);
 	//  filter->InputIsBinaryOn();
@@ -110,10 +108,10 @@ MaurerDistanceMap(
 	filter->SetBackgroundValue(0);
 	filter->SetInput(BinaryThreshold<TImage>(pixlo,pixhi,pixhi,input));
 	filter->Update();
-	
+
 	//  WriteImage<ImageType>(filter->GetOutput(),"temp1.nii");
 	return filter->GetOutput();
-	
+
 }
 
 
@@ -121,7 +119,7 @@ template <class TImage>
 typename TImage::Pointer
 SmoothImage(typename TImage::Pointer image, float sig)
 {
-// find min value 
+// find min value
   typedef itk::ImageRegionIteratorWithIndex<TImage> Iterator;
   Iterator vfIter(image,image->GetLargestPossibleRegion() );
   for( vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter)
@@ -159,7 +157,7 @@ SmoothDeformation(typename TImage::Pointer vectorimage, float sig)
 
   typedef itk::ImageRegionIteratorWithIndex<TImage> IteratorType;
   IteratorType Iterator( vectorimage, vectorimage->GetLargestPossibleRegion().GetSize() );
-  Iterator.GoToBegin();	
+  Iterator.GoToBegin();
   while(  !Iterator.IsAtEnd()  )
   {
     VectorType vec;
@@ -167,7 +165,7 @@ SmoothDeformation(typename TImage::Pointer vectorimage, float sig)
     vec[1]=subimgy->GetPixel(Iterator.GetIndex());
     vec[2]=subimgz->GetPixel(Iterator.GetIndex());
     Iterator.Set(vec);
-    ++Iterator; 
+    ++Iterator;
   }
 
 
@@ -177,19 +175,19 @@ SmoothDeformation(typename TImage::Pointer vectorimage, float sig)
 
 
 template <class TImage, class TDeformationField>
-typename TImage::Pointer 
+typename TImage::Pointer
 ComputeJacobian(TDeformationField* field )
 {
   typedef TImage ImageType;
   enum { ImageDimension = TImage::ImageDimension };
-  //  unsigned int row=0; 
+  //  unsigned int row=0;
   //unsigned int col=0;
   typedef itk::Image<float,ImageDimension> FloatImageType;
   typename FloatImageType::RegionType m_JacobianRegion;
-  
+
   typename TImage::SizeType s= field->GetLargestPossibleRegion().GetSize();
   typename TImage::SpacingType sp= field->GetSpacing();
-   
+
   typename FloatImageType::Pointer m_FloatImage=NULL;
   m_FloatImage = FloatImageType::New();
   m_FloatImage->SetLargestPossibleRegion( field->GetLargestPossibleRegion() );
@@ -197,17 +195,17 @@ ComputeJacobian(TDeformationField* field )
   m_FloatImage->SetSpacing(field->GetSpacing());
   m_FloatImage->SetDirection( field->GetDirection() );
   m_FloatImage->SetOrigin(field->GetOrigin());
-  m_FloatImage->Allocate(); 
+  m_FloatImage->Allocate();
   m_FloatImage->FillBuffer(0);
-  
+
   typename FloatImageType::SizeType m_FieldSize = field->GetLargestPossibleRegion().GetSize();
-  
-  typedef itk::ImageRegionIteratorWithIndex<FloatImageType>        Iterator; 
+
+  typedef itk::ImageRegionIteratorWithIndex<FloatImageType>        Iterator;
   Iterator wimIter( m_FloatImage, m_FloatImage->GetLargestPossibleRegion()  );
-  wimIter.GoToBegin();  
+  wimIter.GoToBegin();
   for( ; !wimIter.IsAtEnd(); ++wimIter ) wimIter.Set(1.0);
-  
- 
+
+
   typedef  vnl_matrix<double> MatrixType;
   MatrixType jMatrix,idMatrix,avgMatrix;
   jMatrix.set_size(ImageDimension,ImageDimension);
@@ -220,7 +218,7 @@ ComputeJacobian(TDeformationField* field )
   typename TImage::IndexType ddlindex;
 
   typename TImage::IndexType difIndex[ImageDimension][2];
-  
+
   double det=0.0;
   unsigned int posoff=1;
   float difspace=1.0;
@@ -229,7 +227,7 @@ ComputeJacobian(TDeformationField* field )
 
     typedef itk::Vector<float,ImageDimension>         VectorType;
     typedef itk::Image<VectorType,ImageDimension>     FieldType;
-  
+
   typename FieldType::PixelType dPix;
   typename FieldType::PixelType lpix;
   typename FieldType::PixelType llpix;
@@ -256,7 +254,7 @@ ComputeJacobian(TDeformationField* field )
   if (total == 0.0) total = 1.0;
 
   unsigned long ct =0;
-  
+
 
  for(  m_FieldIter.GoToBegin() ; !m_FieldIter.IsAtEnd(); ++m_FieldIter )
   {
@@ -266,7 +264,7 @@ ComputeJacobian(TDeformationField* field )
     float dist=100.0;
     for (unsigned int row=0; row<ImageDimension; row++)
     {
-      dist=fabs((float)rindex[row]);      
+      dist=fabs((float)rindex[row]);
       if (dist < mindist) oktosample=false;
       dist = fabs((float)s[row]-(float)rindex[row]);
       if (dist < mindist) oktosample=false;
@@ -292,16 +290,16 @@ ComputeJacobian(TDeformationField* field )
 		difIndex[row][1][row]=rindex[row]-1;
 		ddlindex[row]=rindex[row]-2;
 	      }
-	    
+
 	    float h=0.5;
 	    space=1.0; // should use image spacing here?
-	    
+
 	    rpix = field->GetPixel(difIndex[row][1]);
 	    rpix = rpix*h+cpix*(1.-h);
 	    lpix = field->GetPixel(difIndex[row][0]);
 	    lpix = lpix*h+cpix*(1.-h);
 	    //    dPix = ( rpix - lpix)*(1.0)/(2.0);
-	    
+
       rrpix = field->GetPixel(ddrindex);
       rrpix = rrpix*h+rpix*(1.-h);
       llpix = field->GetPixel(ddlindex);
@@ -318,7 +316,7 @@ ComputeJacobian(TDeformationField* field )
 	      avgMatrix.put(col,row,avgMatrix.get(col,row)+val);
 	    }
 	  }
-	
+
 	//the determinant of the jacobian matrix
 	// std::cout << " get det " << std::endl;
 	det = vnl_determinant(jMatrix);
@@ -327,18 +325,18 @@ ComputeJacobian(TDeformationField* field )
 
 
 	m_FloatImage->SetPixel(rindex,  det );
-	
+
       //totaljac+=det;
       }//oktosample if
   }
-  
+
   return m_FloatImage;
 
 }
 
 
 template <class TImage>
-typename TImage::Pointer  
+typename TImage::Pointer
   LabelSurface(typename TImage::PixelType foreground,
 	       typename TImage::PixelType newval, typename TImage::Pointer input, float distthresh )
 {
@@ -348,15 +346,15 @@ std::cout << " Label Surf " << std::endl;
   typename   ImageType::Pointer     Image = ImageType::New();
   Image->SetLargestPossibleRegion(input->GetLargestPossibleRegion()  );
   Image->SetBufferedRegion(input->GetLargestPossibleRegion());
-  Image->Allocate(); 
+  Image->Allocate();
   Image->SetSpacing(input->GetSpacing());
   Image->SetOrigin(input->GetOrigin());
-  typedef itk::NeighborhoodIterator<ImageType>  iteratorType; 
+  typedef itk::NeighborhoodIterator<ImageType>  iteratorType;
 
   typename iteratorType::RadiusType rad;
   for (int j=0; j<ImageDimension; j++) rad[j]=(unsigned int)(distthresh+0.5);
   iteratorType GHood(rad, input,input->GetLargestPossibleRegion());
-  
+
   GHood.GoToBegin();
 
 //  std::cout << " foreg " << (int) foreground;
@@ -370,19 +368,19 @@ std::cout << " Label Surf " << std::endl;
       bool atedge=false;
 
       for (unsigned int i = 0; i < GHood.Size(); i++)
-      { 
+      {
         ind2=GHood.GetIndex(i);
         float dist=0.0;
-        for (int j=0; j<ImageDimension; j++) 
+        for (int j=0; j<ImageDimension; j++)
           dist+=(float)(ind[j]-ind2[j])*(float)(ind[j]-ind2[j]);
         dist=sqrt(dist);
-  	    if (GHood.GetPixel(i) != foreground && dist <  distthresh  ) 
+  	    if (GHood.GetPixel(i) != foreground && dist <  distthresh  )
         {
           atedge=true;
         }
       }
-      if (atedge && p == foreground) Image->SetPixel(ind,newval); 
-      else  Image->SetPixel(ind,0); 
+      if (atedge && p == foreground) Image->SetPixel(ind,newval);
+      else  Image->SetPixel(ind,0);
     }
     ++GHood;
   }
@@ -393,7 +391,7 @@ std::cout << " Label Surf " << std::endl;
 
 
 template <class TImage>
-typename TImage::Pointer  
+typename TImage::Pointer
 SpeedPrior(typename TImage::Pointer image1 , typename TImage::Pointer  wmimage,  typename TImage::Pointer surf )
 {
 
@@ -401,21 +399,21 @@ SpeedPrior(typename TImage::Pointer image1 , typename TImage::Pointer  wmimage, 
   enum { ImageDimension = ImageType::ImageDimension };
 
   typedef itk::SurfaceImageCurvature<ImageType>  ParamType;
-  typename ParamType::Pointer Parameterizer=ParamType::New(); 
+  typename ParamType::Pointer Parameterizer=ParamType::New();
 
 
   float sig=1.5;
 
   Parameterizer->SetInput(wmimage);
-  Parameterizer->SetNeighborhoodRadius( 1. );  
-  Parameterizer->SetSigma(sig);  
-    
+  Parameterizer->SetNeighborhoodRadius( 1. );
+  Parameterizer->SetSigma(sig);
+
   Parameterizer->SetUseLabel(false);
   Parameterizer->SetUseGeodesicNeighborhood(false);
   float sign=1.0;
   Parameterizer->SetkSign(sign);
   Parameterizer->SetThreshold(0);
-  Parameterizer->ComputeFrameOverDomain( 3 );    
+  Parameterizer->ComputeFrameOverDomain( 3 );
 
   typename ImageType::Pointer outimage=Parameterizer->GetFunctionImage();
 
@@ -425,27 +423,27 @@ SpeedPrior(typename TImage::Pointer image1 , typename TImage::Pointer  wmimage, 
   float mean = 0.0;
   unsigned long ct = 0;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-  Iterator iter( outimage,  outimage->GetLargestPossibleRegion() ); 
-  for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter ) 
+  Iterator iter( outimage,  outimage->GetLargestPossibleRegion() );
+  for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
     {
       float pix=iter.Get();
       mean+=pix;
       ct++;
-      if (pix > max ) max=pix; 
+      if (pix > max ) max=pix;
       if (pix < min)  min=pix;
     }
   mean/=(float)ct;
-  for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter ) 
+  for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
     {
       float pix=iter.Get();
       pix= (pix - min)/(max-min);
       iter.Set(pix);
     }
-  
+
 
   return outimage;
 
-  
+
 }
 
 
@@ -517,11 +515,11 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input,float ra
       else o_iter.Set(0);
       ++o_iter;
     }
-  
+
     }
 
   return temp;
-             
+
 }
 
 
@@ -533,15 +531,15 @@ LaplacianGrad(typename TImage::Pointer wm,typename TImage::Pointer gm, float sig
   IndexType ind;
   typedef TImage ImageType;
   typedef TField GradientImageType;
-  typedef itk::GradientRecursiveGaussianImageFilter< ImageType,GradientImageType > 
-          GradientImageFilterType;  
+  typedef itk::GradientRecursiveGaussianImageFilter< ImageType,GradientImageType >
+          GradientImageFilterType;
   typedef typename GradientImageFilterType::Pointer GradientImageFilterPointer;
 
   typename TField::Pointer sfield=TField::New();
   sfield->SetSpacing( wm->GetSpacing() );
   sfield->SetOrigin( wm->GetOrigin() );
   sfield->SetDirection( wm->GetDirection() );
-  sfield->SetLargestPossibleRegion(wm->GetLargestPossibleRegion() );      
+  sfield->SetLargestPossibleRegion(wm->GetLargestPossibleRegion() );
   sfield->SetRequestedRegion(wm->GetRequestedRegion() );
   sfield->SetBufferedRegion( wm->GetBufferedRegion() );
   sfield->Allocate();
@@ -550,36 +548,36 @@ LaplacianGrad(typename TImage::Pointer wm,typename TImage::Pointer gm, float sig
   laplacian->FillBuffer(0);
   typedef itk::ImageRegionIteratorWithIndex<TImage> IteratorType;
   IteratorType Iterator( wm, wm->GetLargestPossibleRegion().GetSize() );
-  Iterator.GoToBegin();	
+  Iterator.GoToBegin();
 
-  //initialize L(wm)=1, L(gm)=0.5, else 0 
+  //initialize L(wm)=1, L(gm)=0.5, else 0
   while(  !Iterator.IsAtEnd()  )
   {
     ind=Iterator.GetIndex();
     if (wm->GetPixel(ind) ) laplacian->SetPixel(ind,1);
     else if (gm->GetPixel(ind) && wm->GetPixel(ind) == 0 ) laplacian->SetPixel(ind,0.);
     else laplacian->SetPixel(ind,0.);
-    ++Iterator; 
+    ++Iterator;
   }
 
-  //smooth and then reset the values 
+  //smooth and then reset the values
   for(unsigned int iterations=0; iterations<100; iterations++)
   {
     laplacian=SmoothImage<TImage>(laplacian,sqrt(sig));
-    Iterator.GoToBegin();	
+    Iterator.GoToBegin();
     while(  !Iterator.IsAtEnd()  )
       {
 	ind=Iterator.GetIndex();
 	if (wm->GetPixel(ind) ) laplacian->SetPixel(ind,1);
 	else if (gm->GetPixel(ind) ==0 && wm->GetPixel(ind) == 0 ) laplacian->SetPixel(ind,0.);
-	++Iterator; 
+	++Iterator;
       }
   }
 
-  
+
   GradientImageFilterPointer filter=GradientImageFilterType::New();
-  filter->SetInput(  laplacian ); 
-  filter->SetSigma(sig); 
+  filter->SetInput(  laplacian );
+  filter->SetSigma(sig);
   filter->Update();
   return filter->GetOutput();
 
@@ -589,21 +587,21 @@ LaplacianGrad(typename TImage::Pointer wm,typename TImage::Pointer gm, float sig
 
 
 template <class TImage,class TField>
-typename TField::Pointer 
+typename TField::Pointer
 ExpDiffMap(typename TField::Pointer velofield,  typename TImage::Pointer wm,  float sign, unsigned int numtimepoints )
 {
   typedef TImage ImageType;
   typedef TField DeformationFieldType;
   typename TField::PixelType zero,disp;
   enum { ImageDimension = TImage::ImageDimension };
-  disp.Fill(0); 
+  disp.Fill(0);
   zero.Fill(0);
- 
+
   typename DeformationFieldType::Pointer incrfield=DeformationFieldType::New();
   incrfield->SetSpacing( velofield->GetSpacing() );
   incrfield->SetOrigin( velofield->GetOrigin() );
   incrfield->SetDirection( velofield->GetDirection() );
-  incrfield->SetLargestPossibleRegion(velofield->GetLargestPossibleRegion() );      
+  incrfield->SetLargestPossibleRegion(velofield->GetLargestPossibleRegion() );
   incrfield->SetRequestedRegion(velofield->GetRequestedRegion() );
   incrfield->SetBufferedRegion( velofield->GetBufferedRegion() );
   incrfield->Allocate();
@@ -611,13 +609,13 @@ ExpDiffMap(typename TField::Pointer velofield,  typename TImage::Pointer wm,  fl
 
   typedef itk::ImageRegionIteratorWithIndex<ImageType> IteratorType;
   IteratorType Iterator( wm, wm->GetLargestPossibleRegion().GetSize() );
-  Iterator.GoToBegin();	
+  Iterator.GoToBegin();
   while(  !Iterator.IsAtEnd()  )
     {
       incrfield->SetPixel(Iterator.GetIndex(),velofield->GetPixel(Iterator.GetIndex())*sign);
       ++Iterator;
-    }	  
-      // generate phi 
+    }
+      // generate phi
     typedef itk::MatrixOffsetTransformBase<double, ImageDimension,ImageDimension> AffineTransformType;
     typedef itk::DeformationFieldFromMultiTransformFilter<TField,TField,AffineTransformType> WarperType;
     typename WarperType::Pointer warper = WarperType::New();
@@ -628,7 +626,7 @@ ExpDiffMap(typename TField::Pointer velofield,  typename TImage::Pointer wm,  fl
     warper->DetermineFirstDeformNoInterp();
 
       unsigned int ttiter=0;
-      while( ttiter < numtimepoints )  // 10 time integration points 
+      while( ttiter < numtimepoints )  // 10 time integration points
 	{
 	  ttiter++;
 	  warper->PushBackDeformationFieldTransform(incrfield);
@@ -638,16 +636,16 @@ ExpDiffMap(typename TField::Pointer velofield,  typename TImage::Pointer wm,  fl
 }
 
 template <class TImage,class TField>
-typename TField::Pointer 
+typename TField::Pointer
 DiReCTCompose(typename TField::Pointer velofield, typename TField::Pointer diffmap )
 {
   typedef TImage ImageType;
   typedef TField DeformationFieldType;
   typename TField::PixelType zero,disp;
   enum { ImageDimension = TImage::ImageDimension };
-  disp.Fill(0); 
+  disp.Fill(0);
   zero.Fill(0);
- 
+
     typedef itk::MatrixOffsetTransformBase<double, ImageDimension,ImageDimension> AffineTransformType;
     typedef itk::DeformationFieldFromMultiTransformFilter<TField,TField,AffineTransformType> WarperType;
     typename WarperType::Pointer warper = WarperType::New();
@@ -665,7 +663,7 @@ DiReCTCompose(typename TField::Pointer velofield, typename TField::Pointer diffm
 
 
 template <unsigned int ImageDimension>
-int LaplacianThicknessExpDiff2(int argc, char *argv[])        
+int LaplacianThicknessExpDiff2(int argc, char *argv[])
 {
 
   int argct=2;
@@ -680,10 +678,10 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   unsigned int alltheits=50;
   if (argc > argct) alltheits=atoi(argv[argct]); argct++;
   float thickprior=6.0;
-  if (argc > argct ) thickprior=atof(argv[argct]); argct++;  
+  if (argc > argct ) thickprior=atof(argv[argct]); argct++;
   bool useCurvaturePrior=false;
   if (argc > argct) useCurvaturePrior=atoi(argv[argct]); argct++;
-  float smoothingsigma=1.5; 
+  float smoothingsigma=1.5;
   if (argc > argct ) smoothingsigma=atof(argv[argct]);  argct++;
   bool useEuclidean=true;
   if (argc > argct) useEuclidean=atoi(argv[argct]); argct++;
@@ -732,28 +730,28 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   corrfield->SetSpacing( wm->GetSpacing() );
   corrfield->SetOrigin( wm->GetOrigin() );
   corrfield->SetDirection( wm->GetDirection() );
-  corrfield->SetLargestPossibleRegion(wm->GetLargestPossibleRegion() );      
+  corrfield->SetLargestPossibleRegion(wm->GetLargestPossibleRegion() );
   corrfield->SetRequestedRegion(wm->GetRequestedRegion() );
   corrfield->SetBufferedRegion( wm->GetBufferedRegion() );
   corrfield->Allocate();
-    VectorType zero; 
+    VectorType zero;
     zero.Fill(0);
   corrfield->FillBuffer(zero);
   typename DeformationFieldType::Pointer incrfield=DeformationFieldType::New();
   incrfield->SetSpacing( wm->GetSpacing() );
   incrfield->SetOrigin( wm->GetOrigin() );
   incrfield->SetDirection( wm->GetDirection() );
-  incrfield->SetLargestPossibleRegion(wm->GetLargestPossibleRegion() );      
+  incrfield->SetLargestPossibleRegion(wm->GetLargestPossibleRegion() );
   incrfield->SetRequestedRegion(wm->GetRequestedRegion() );
   incrfield->SetBufferedRegion( wm->GetBufferedRegion() );
   incrfield->Allocate();
   incrfield->FillBuffer(zero);
-  
+
   typename DeformationFieldType::Pointer invfield=DeformationFieldType::New();
   invfield->SetSpacing( wm->GetSpacing() );
   invfield->SetOrigin( wm->GetOrigin() );
   invfield->SetDirection( wm->GetDirection() );
-  invfield->SetLargestPossibleRegion(wm->GetLargestPossibleRegion() );      
+  invfield->SetLargestPossibleRegion(wm->GetLargestPossibleRegion() );
   invfield->SetRequestedRegion(wm->GetRequestedRegion() );
   invfield->SetBufferedRegion( wm->GetBufferedRegion() );
   invfield->Allocate();
@@ -763,34 +761,34 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   incrinvfield->SetSpacing( wm->GetSpacing() );
   incrinvfield->SetOrigin( wm->GetOrigin() );
   incrinvfield->SetDirection( wm->GetDirection() );
-  incrinvfield->SetLargestPossibleRegion(wm->GetLargestPossibleRegion() );      
+  incrinvfield->SetLargestPossibleRegion(wm->GetLargestPossibleRegion() );
   incrinvfield->SetRequestedRegion(wm->GetRequestedRegion() );
   incrinvfield->SetBufferedRegion( wm->GetBufferedRegion() );
   incrinvfield->Allocate();
   incrinvfield->FillBuffer(zero);
-  
+
   typename DeformationFieldType::Pointer velofield=DeformationFieldType::New();
   velofield->SetSpacing( wm->GetSpacing() );
   velofield->SetOrigin( wm->GetOrigin() );
   velofield->SetDirection( wm->GetDirection() );
-  velofield->SetLargestPossibleRegion(wm->GetLargestPossibleRegion() );      
+  velofield->SetLargestPossibleRegion(wm->GetLargestPossibleRegion() );
   velofield->SetRequestedRegion(wm->GetRequestedRegion() );
   velofield->SetBufferedRegion( wm->GetBufferedRegion() );
   velofield->Allocate();
   velofield->FillBuffer(zero);
 
   //  LabelSurface(typename TImage::PixelType foreground,
-  //       typename TImage::PixelType newval, typename TImage::Pointer input, float distthresh ) 
+  //       typename TImage::PixelType newval, typename TImage::Pointer input, float distthresh )
   float distthresh = 1.1;
   typename ImageType::Pointer wmgrow = Morphological<ImageType>(wmb,1,true);
   typename ImageType::Pointer bsurf = LabelSurface<ImageType>(1,1,wmgrow , distthresh); // or wmb ?
-  typename ImageType::Pointer speedprior=NULL; 
+  typename ImageType::Pointer speedprior=NULL;
   if (  useCurvaturePrior ) speedprior=SpeedPrior<ImageType>(gm,wm,bsurf);
   //WriteImage<ImageType>(bsurf,"surf.hdr");
-  //	typename DoubleImageType::Pointer distfromboundary = 
+  //	typename DoubleImageType::Pointer distfromboundary =
   //  typename ImageType::Pointer surf=MaurerDistanceMap<ImageType>(0.5,1.e9,bsurf);
   //surf= SmoothImage<ImageType>(surf,3);
-  typename ImageType::Pointer finalthickimage=BinaryThreshold<ImageType>(3,3,1,segmentationimage); // fixme 
+  typename ImageType::Pointer finalthickimage=BinaryThreshold<ImageType>(3,3,1,segmentationimage); // fixme
 
   //typename ImageType::Pointer gmsurf = LabelSurface<ImageType>(1,1,gmb, distthresh);
   //  gmsurf=MaurerDistanceMap<ImageType>(0.5,1.e9,gmsurf);
@@ -816,7 +814,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 
   DPointType pointIn1;
   DPointType pointIn2;
-  typename DefaultInterpolatorType::ContinuousIndexType  vcontind; 
+  typename DefaultInterpolatorType::ContinuousIndexType  vcontind;
   DPointType pointIn3;
 
 
@@ -824,7 +822,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   typedef itk::ImageRegionIteratorWithIndex<ImageType> IteratorType;
   typedef itk::ImageRegionIteratorWithIndex<DeformationFieldType> VIteratorType;
   VIteratorType VIterator( lapgrad, lapgrad->GetLargestPossibleRegion().GetSize() );
-  VIterator.GoToBegin();	
+  VIterator.GoToBegin();
   while(  !VIterator.IsAtEnd()  )
     {
       VectorType vec=VIterator.Get();
@@ -843,13 +841,13 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   //  float thislength=0;
   unsigned long ct = 1;
   bool timedone = false;
-  
+
   typename ImageType::Pointer thickimage=laplacian;
   VectorType disp;
   VectorType incdisp;
   disp.Fill(0.0);
   incdisp.Fill(0.0);
-  IteratorType Iterator( wm, wm->GetLargestPossibleRegion().GetSize() ); 
+  IteratorType Iterator( wm, wm->GetLargestPossibleRegion().GetSize() );
   timedone=false;
   float totalerr=1.e8, lasterr=1.e10;
   unsigned its=0;
@@ -861,7 +859,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   float thickoffset=0;
   bool checknans=true;
 
-  while ( its < alltheits &&  badct < 4) 
+  while ( its < alltheits &&  badct < 4)
     {
       its++;
       if (totalerr > lasterr) { badct++; std::cout << " badct " << badct << std::endl; }
@@ -873,12 +871,12 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
       incrfield->FillBuffer(zero);
       incrfield->FillBuffer(zero);
       incrinvfield->FillBuffer(zero);
-      
-      // generate phi 
+
+      // generate phi
       corrfield->FillBuffer(zero);
       invfield->FillBuffer(zero);
       unsigned int ttiter=0;
-      
+
       thickimage->FillBuffer(0);
       hitimage->FillBuffer(0);
       totalimage->FillBuffer(0);
@@ -894,7 +892,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
       typename ImageType::Pointer wpriorim=NULL;
       float origthickprior=thickprior;
 
-      while( ttiter < numtimepoints )  // N time integration points 
+      while( ttiter < numtimepoints )  // N time integration points
 	{
 	  //	  m_MFR->Compose(incrinvfield,invfield,NULL);
 	  m_MFR->ComposeDiffs(invfield,incrinvfield,invfield,1);
@@ -908,7 +906,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	  if (debug) std::cout <<" gmdef " << std::endl;
 	  typename ImageType::Pointer gmdef =m_MFR->WarpImageBackward(gm,corrfield);
 	  totalerr=0;
-	     
+
 	  typename ImageType::Pointer surfdef=m_MFR->WarpImageBackward(wm,invfield);
 	  if (debug) std::cout <<" thkdef " << std::endl;
 	  typename ImageType::Pointer thkdef =m_MFR->WarpImageBackward(thickimage,invfield);
@@ -917,29 +915,29 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	  if (spatprior) wpriorim=m_MFR->WarpImageBackward(priorim,invfield);
 
 	  typedef DeformationFieldType GradientImageType;
-	  typedef itk::GradientRecursiveGaussianImageFilter< ImageType,GradientImageType > 
+	  typedef itk::GradientRecursiveGaussianImageFilter< ImageType,GradientImageType >
 	    GradientImageFilterType;
   	  typedef typename GradientImageFilterType::Pointer GradientImageFilterPointer;
 	  GradientImageFilterPointer gfilter=GradientImageFilterType::New();
-	  gfilter->SetInput(  surfdef ); 
-	  gfilter->SetSigma( smoothingsigma ); 
+	  gfilter->SetInput(  surfdef );
+	  gfilter->SetSigma( smoothingsigma );
 	  gfilter->Update();
 	  typename DeformationFieldType::Pointer   lapgrad2=gfilter->GetOutput();
 
 	  GradientImageFilterPointer gfilter2=GradientImageFilterType::New();
-	  gfilter2->SetInput(  gm ); 
-	  gfilter2->SetSigma( smoothingsigma ); 
+	  gfilter2->SetInput(  gm );
+	  gfilter2->SetSigma( smoothingsigma );
 	  gfilter2->Update();
 	  typename DeformationFieldType::Pointer   lapgrad3=gfilter2->GetOutput();
 
 	  typename ImageType::Pointer lapjac=ComputeJacobian<ImageType,DeformationFieldType>(invfield);
-	  IteratorType xxIterator( lapjac, lapjac->GetLargestPossibleRegion().GetSize() ); 
-	  xxIterator.GoToBegin();	
+	  IteratorType xxIterator( lapjac, lapjac->GetLargestPossibleRegion().GetSize() );
+	  xxIterator.GoToBegin();
 	  float maxlapgrad2mag=0;
 	  while(  !xxIterator.IsAtEnd()  )
 	    {
 	    typename ImageType::IndexType speedindex=xxIterator.GetIndex();
-	    if ( segmentationimage->GetPixel(speedindex) == 2 ) // fixme 
+	    if ( segmentationimage->GetPixel(speedindex) == 2 ) // fixme
 	      {
 //	      float thkval=thkdef->GetPixel(speedindex);
 	      float thkval=finalthickimage->GetPixel(speedindex);
@@ -950,10 +948,10 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 		if ( partialvol >= 0.1 ) prior=prval/partialvol;//7;//0.5*origthickprior;// prval;
 		if (prior > 10 ) prior=10;  /** Potential cause of problem 1 -- this line added */
 	      }
-		//else thickprior = origthickprior;		  
-		//} else 
-		thickprior=origthickprior;		      
-	      
+		//else thickprior = origthickprior;
+		//} else
+		thickprior=origthickprior;
+
 	      VectorType wgradval=lapgrad2->GetPixel(speedindex);//velofield->GetPixel(speedindex);//
 	      //	      VectorType ggradval=lapgrad3->GetPixel(speedindex);
 	      double dp=0;
@@ -962,11 +960,11 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 		//	      gmag+= ggradval[kq]*ggradval[kq];
 	      wmag+= wgradval[kq]*wgradval[kq];
 	      }
-	      if (fabs(wmag) < 1.e-6) wmag=0; 
+	      if (fabs(wmag) < 1.e-6) wmag=0;
 	      if (fabs(gmag) < 1.e-6) gmag=0;
 	      gmag=sqrt(gmag);
 	      wmag=sqrt(wmag);
-	      if (checknans) 
+	      if (checknans)
 	      if ( vnl_math_isnan(wmag) || vnl_math_isinf(wmag) )
 		{
 		  wgradval.Fill(0);
@@ -991,12 +989,12 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	      float thkscale=thickprior/thkval;
 	      if (thkscale < 0.99) thkscale=0.99;//*+thkscale*0.1;
 	      if (fval < 0 )  velofield->SetPixel(speedindex,velofield->GetPixel(speedindex)*thkscale);
-	     
+
 
 	      float dd=surfdef->GetPixel(speedindex) - gmdef->GetPixel(speedindex);
 	      //	      float gmd=gmdef->GetPixel(speedindex);
 	      totalerr+=fabs(dd);
-	      if ( segmentationimage->GetPixel(speedindex) != 2 /* && bsurf->GetPixel(speedindex) < 0.5 */ ) dd=0;  // fixme 
+	      if ( segmentationimage->GetPixel(speedindex) != 2 /* && bsurf->GetPixel(speedindex) < 0.5 */ ) dd=0;  // fixme
 	      float stopval=gm->GetPixel(speedindex);
 //	      if (wm->GetPixel(speedindex) > stopval) stopval=1;
 	      float jwt=xxIterator.Get();
@@ -1024,17 +1022,17 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 
 	  /* Now that we have the gradient image, we need to visit each voxel and compute objective function */
 	  //	  std::cout << " maxlapgrad2mag " << maxlapgrad2mag << std::endl;
-	  Iterator.GoToBegin();	
+	  Iterator.GoToBegin();
 	  while(  !Iterator.IsAtEnd()  )
 	    {
 	      velind=Iterator.GetIndex();
 	      //	      float currentthickvalue=finalthickimage->GetPixel(velind);
 	      VectorType wgradval=lapgrad2->GetPixel(velind); //*5.0/(maxlapgrad2mag*(float)numtimepoints);
-	      
+
 	      disp=wgradval*lapjac->GetPixel(velind);
 	      incrfield->SetPixel(velind,incrfield->GetPixel(velind)+disp);
 
-	      if (ttiter == 0)// make euclidean distance image 
+	      if (ttiter == 0)// make euclidean distance image
 		{
 		  dmag=0;
 		  disp=corrfield->GetPixel(velind);
@@ -1050,7 +1048,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 		  totalimage->SetPixel(velind,dmag);
 		  hitimage->SetPixel(velind,bval);
 		}
-	      else if ( segmentationimage->GetPixel(velind) == 2 )  // fixme 
+	      else if ( segmentationimage->GetPixel(velind) == 2 )  // fixme
 		{
 		  float thkval=thkdef->GetPixel(velind);
 		  float putval=thindef->GetPixel(velind);
@@ -1058,7 +1056,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 		      hitimage->SetPixel(velind,hitimage->GetPixel(velind)+putval);
 		      totalimage->SetPixel(velind,totalimage->GetPixel(velind)+thkval);
 		}
-	  
+
 	      //	      std::cout << "disp " << incrfield->GetPixel(velind) << " hit " << hitimage->GetPixel(velind) << " thk " << totalimage->GetPixel(velind) << std::endl;
 	  ++Iterator;
 	    }
@@ -1067,16 +1065,16 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	  //WriteImage<ImageType>(hitimage,"Zhitimage.nii.gz");
 	  //WriteImage<ImageType>(lapjac,"Zlapjac.nii.gz"); }
 
-	  Iterator.GoToBegin();	
+	  Iterator.GoToBegin();
 	  while(  !Iterator.IsAtEnd()  )
 	    {
 	      incrinvfield->SetPixel(Iterator.GetIndex(),velofield->GetPixel(Iterator.GetIndex()));
 	      ++Iterator;
 	    }
-	  ttiter++;	  
+	  ttiter++;
 	}
 
-	Iterator.GoToBegin();	
+	Iterator.GoToBegin();
 	float maxth=0;
 	while(  !Iterator.IsAtEnd()  )
 	  {
@@ -1090,14 +1088,14 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	    if (thkval < 0) thkval=0;
 	    finalthickimage->SetPixel(velind ,thkval);
 	    if (thkval > maxth) maxth=thkval;
-	    ++Iterator;	  
+	    ++Iterator;
 	}
       if (debug)  std::cout << " now smooth " << std::endl;
-    m_MFR->SmoothDeformationFieldGauss(velofield,smoothingsigma);     
+    m_MFR->SmoothDeformationFieldGauss(velofield,smoothingsigma);
     //    std::string velofieldname = outname + "velofield";
-    //WriteDisplacementField<DeformationFieldType>(velofield,velofieldname.c_str()); 
+    //WriteDisplacementField<DeformationFieldType>(velofield,velofieldname.c_str());
     //std::string incrfieldname = outname + "incrfield";
-    //WriteDisplacementField<DeformationFieldType>(incrfield,incrfieldname.c_str()); 
+    //WriteDisplacementField<DeformationFieldType>(incrfield,incrfieldname.c_str());
 
 
     //std::string tname = outname + "dork1.nii.gz";
@@ -1109,10 +1107,10 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 //    std::string sulcthickname =outname + "sulcthick.nii";
     //    if (ImageDimension==2) WriteJpg<ImageType>(finalthickimage,"thick.jpg");
     //    std::string velofieldname = outname + "velofield";
-    //WriteDisplacementField<DeformationFieldType>(velofield,velofieldname.c_str()); 
+    //WriteDisplacementField<DeformationFieldType>(velofield,velofieldname.c_str());
     if (debug)std::cout << "outside it " << its << std::endl;
     //std::cin.get();
-    
+
     }
 
 
@@ -1120,43 +1118,43 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
     WriteImage<ImageType>(finalthickimage,outname.c_str());
     finalthickimage->SetDirection(fmat);
 
-  return 0; 
+  return 0;
 
 
  thickimage->FillBuffer(0);
  typename ImageType::Pointer thkdef =m_MFR->WarpImageBackward(finalthickimage,invfield);
- Iterator.GoToBegin();	
+ Iterator.GoToBegin();
  while(  !Iterator.IsAtEnd()  )
    {
    float tt1=finalthickimage->GetPixel(Iterator.GetIndex());
    float tt=thkdef->GetPixel(Iterator.GetIndex());
-   if (tt1 > tt) tt=tt1; 
+   if (tt1 > tt) tt=tt1;
    thickimage->SetPixel(Iterator.GetIndex(),tt);
    ++Iterator;
    }
  std::string thickname = outname;
  thickimage->SetDirection(omat);
  WriteImage<ImageType>(thickimage,thickname.c_str());
- 
+
 
  return 0;
 
-  
-}     
+
+}
 
 
 
-int main(int argc, char *argv[])        
+int main(int argc, char *argv[])
 {
-  
-  if ( argc < 6)     
-    { 
+
+  if ( argc < 6)
+    {
     std::cout << "Usage:   " << argv[0] << " ImageDimension Segmentation.nii.gz WMProb.nii.gz GMProb.nii.gz   Out.nii {GradStep-1-2D,2-3D}   {#Its-~50}  {ThickPriorValue-6} {Bool-use-curvature-prior} {smoothing} {BoolUseEuclidean?}" << std::endl;
     std::cout << " this is a kind of binary image registration thing with diffeomorphisms " << std::endl;
     std::cout << " Segmentation.nii.gz -- should contain the value 3 where WM exists and the value 2 where GM exists " << std::endl;
     return 1;
-    }       
-  
+    }
+
   unsigned int dim = atoi(argv[1]);
   std::cout << " dim " << dim << std::endl;
   switch ( dim )
@@ -1171,14 +1169,14 @@ int main(int argc, char *argv[])
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
    }
-	
+
   return EXIT_SUCCESS;
 
 
   return 1;
- 
-}     
-       
+
+}
+
 
 
 
