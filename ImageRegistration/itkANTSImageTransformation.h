@@ -21,7 +21,7 @@
 #include "itkObject.h"
 #include "itkObjectFactory.h"
 
-#include "itkCommandLineParser.h"
+#include "antsCommandLineParser.h"
 #include "itkImage.h"
 #include "itkMacro.h"
 
@@ -33,7 +33,6 @@
 #include "itkCenteredTransformInitializer.h"
 #include  "itkTransformFileReader.h"
 #include "itkTransformFileWriter.h"
-
 namespace itk
 {
 
@@ -71,7 +70,7 @@ class ITK_EXPORT ANTSImageTransformation
   typedef typename DeformationFieldType::SizeType DeformationRegionOfInterestSizeType;
   typedef typename DeformationFieldType::PointType DeformationRegionOfInterestCenterType;
   
-  typedef CommandLineParser                                ParserType;
+  typedef typename ants::CommandLineParser                                ParserType;
   typedef typename ParserType::OptionType                  OptionType;
 
   /** Set functions */
