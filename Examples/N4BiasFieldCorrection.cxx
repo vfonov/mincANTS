@@ -1,6 +1,5 @@
 #include "itkBSplineControlPointImageFilter.h"
-#include "itkCommandLineOption.h"
-#include "itkCommandLineParser.h"
+#include "antsCommandLineParser.h"
 #include "itkConstantPadImageFilter.h"
 #include "itkExpImageFilter.h"
 #include "itkExtractImageFilter.h"
@@ -59,7 +58,7 @@ public:
 };
 
 template <unsigned int ImageDimension>
-int InhomogeneityCorrectImage( itk::CommandLineParser *parser )
+int InhomogeneityCorrectImage( itk::ants::CommandLineParser *parser )
 {
   typedef float RealType;
 
@@ -76,7 +75,7 @@ int InhomogeneityCorrectImage( itk::CommandLineParser *parser )
   typedef itk::ImageFileReader<ImageType> ReaderType;
   typename ReaderType::Pointer reader = ReaderType::New();
 
-		typename itk::CommandLineParser::OptionType::Pointer inputImageOption =
+		typename itk::ants::CommandLineParser::OptionType::Pointer inputImageOption =
 				parser->GetOption( "input-image" );
 		if( inputImageOption )
 				{
@@ -96,7 +95,7 @@ int InhomogeneityCorrectImage( itk::CommandLineParser *parser )
    * handle the mask image
    */
 
-		typename itk::CommandLineParser::OptionType::Pointer maskImageOption =
+		typename itk::ants::CommandLineParser::OptionType::Pointer maskImageOption =
 				parser->GetOption( "mask-image" );
 		if( maskImageOption && maskImageOption->GetNumberOfValues() )
 				{
@@ -128,7 +127,7 @@ int InhomogeneityCorrectImage( itk::CommandLineParser *parser )
 
   typename ImageType::Pointer weightImage = NULL;
 
-		typename itk::CommandLineParser::OptionType::Pointer weightImageOption =
+		typename itk::ants::CommandLineParser::OptionType::Pointer weightImageOption =
 				parser->GetOption( "weight-image" );
 		if( weightImageOption  && weightImageOption->GetNumberOfValues() )
 				{
@@ -143,7 +142,7 @@ int InhomogeneityCorrectImage( itk::CommandLineParser *parser )
   /**
    * convergence options
    */
-  typename itk::CommandLineParser::OptionType::Pointer convergenceOption =
+  typename itk::ants::CommandLineParser::OptionType::Pointer convergenceOption =
     parser->GetOption( "convergence" );
   if( convergenceOption )
     {
@@ -187,7 +186,7 @@ int InhomogeneityCorrectImage( itk::CommandLineParser *parser )
 
   typename ImageType::PointType newOrigin = inputImage->GetOrigin();
 
-  typename itk::CommandLineParser::OptionType::Pointer bsplineOption =
+  typename itk::ants::CommandLineParser::OptionType::Pointer bsplineOption =
     parser->GetOption( "bspline-fitting" );
   if( bsplineOption )
     {
@@ -294,7 +293,7 @@ int InhomogeneityCorrectImage( itk::CommandLineParser *parser )
   maskshrinker->SetInput( maskImage );
   maskshrinker->SetShrinkFactors( 1 );
 
-		typename itk::CommandLineParser::OptionType::Pointer shrinkFactorOption =
+		typename itk::ants::CommandLineParser::OptionType::Pointer shrinkFactorOption =
 				parser->GetOption( "shrink-factor" );
   int shrinkFactor = 4;
 		if( shrinkFactorOption )
@@ -333,7 +332,7 @@ int InhomogeneityCorrectImage( itk::CommandLineParser *parser )
   /**
    * histogram sharpening options
    */
-  typename itk::CommandLineParser::OptionType::Pointer histOption =
+  typename itk::ants::CommandLineParser::OptionType::Pointer histOption =
     parser->GetOption( "histogram-sharpening" );
   if( histOption )
     {
@@ -373,7 +372,7 @@ int InhomogeneityCorrectImage( itk::CommandLineParser *parser )
   /**
    * output
    */
-  typename itk::CommandLineParser::OptionType::Pointer outputOption =
+  typename itk::ants::CommandLineParser::OptionType::Pointer outputOption =
     parser->GetOption( "output" );
   if( outputOption )
     {
@@ -480,9 +479,9 @@ int InhomogeneityCorrectImage( itk::CommandLineParser *parser )
   return EXIT_SUCCESS;
 }
 
-void InitializeCommandLineOptions( itk::CommandLineParser *parser )
+void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
 {
-  typedef itk::CommandLineParser::OptionType OptionType;
+  typedef itk::ants::CommandLineParser::OptionType OptionType;
 
   {
   std::string description = std::string( "inputImage" );
@@ -590,7 +589,7 @@ int main( int argc, char *argv[] )
     exit( 1 );
     }
 
-  itk::CommandLineParser::Pointer parser = itk::CommandLineParser::New();
+  itk::ants::CommandLineParser::Pointer parser = itk::ants::CommandLineParser::New();
   parser->SetCommand( argv[0] );
 
   parser->SetCommandDescription( "N4 bias correction." );
