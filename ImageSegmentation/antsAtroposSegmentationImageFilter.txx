@@ -1262,6 +1262,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
    * converting vector/tensor auxiliary images to scalar data for
    * modeling.
    */
+
   for( unsigned int i = 0; i < this->m_NumberOfIntensityImages; i++ )
     {
     typename SampleType::Pointer sample = SampleType::New();
@@ -1279,6 +1280,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
        for( unsigned int i = 0; i < this->m_NumberOfIntensityImages; i++ )
          {
          typename SampleType::MeasurementVectorType measurement;
+					 			::itk::Statistics::MeasurementVectorTraits::SetLength( measurement, 1 );
          measurement.SetSize( 1 );
          measurement[0] =
            this->GetIntensityImage( i )->GetPixel( ItO.GetIndex() );
@@ -1291,10 +1293,12 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
     * Simultaneously filter the samples and accumulate for return.
     */
    typename SampleType::Pointer scalarSamples = SampleType::New();
+   scalarSamples->SetMeasurementVectorSize( this->m_NumberOfIntensityImages );
 
    for( unsigned int i = 0; i < this->m_NumberOfIntensityImages; i++ )
      {
      typename SampleType::Pointer univariateSamples = SampleType::New();
+     univariateSamples->SetMeasurementVectorSize( 1 );
      if( this->m_OutlierHandlingFilter )
        {
        this->m_OutlierHandlingFilter->SetInput( samples[i] );
@@ -1313,6 +1317,8 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
          {
          typename SampleType::MeasurementVectorType measurement;
          measurement.SetSize( this->m_NumberOfIntensityImages );
+					 			::itk::Statistics::MeasurementVectorTraits::SetLength( measurement,
+           this->m_NumberOfIntensityImages );
          measurement[0] = It.GetMeasurementVector()[0];
          scalarSamples->PushBack( measurement );
          ++It;
