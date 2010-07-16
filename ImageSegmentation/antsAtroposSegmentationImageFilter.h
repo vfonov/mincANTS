@@ -99,6 +99,7 @@ public:
     itkGetStaticConstMacro( ImageDimension )>         RealImageType;
   typedef FixedArray<unsigned,
     itkGetStaticConstMacro( ImageDimension )>         ArrayType;
+  typedef PointSet<RealType, 1>                       SparseImageType;
 
   /** Mixture model component typedefs */
   typedef Array<RealType>                             MeasurementVectorType;
@@ -179,6 +180,9 @@ public:
 
   itkSetClampMacro( PriorProbabilityWeight, RealType, 0.0, 1.0 );
   itkGetConstMacro( PriorProbabilityWeight, RealType );
+
+  itkSetClampMacro( PriorProbabilityThreshold, RealType, 0.0, 1.0 );
+  itkGetConstMacro( PriorProbabilityThreshold, RealType );
 
   void SetAdaptiveSmoothingWeight( unsigned int idx, RealType weight )
     {
@@ -311,14 +315,12 @@ private:
   AtroposSegmentationImageFilter(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
 
-  void NormalizePriorProbabilityImages();
-
   void GenerateInitialClassLabeling();
   void GenerateInitialClassLabelingWithOtsuThresholding();
   void GenerateInitialClassLabelingWithKMeansClustering();
   void GenerateInitialClassLabelingWithPriorProbabilityImages();
 
-  RealType UpdateClassParametersAndLabeling();
+  RealType UpdateClassLabeling();
 
   unsigned int                                   m_NumberOfClasses;
   unsigned int                                   m_NumberOfIntensityImages;
@@ -341,6 +343,7 @@ private:
   std::vector<RealType>                          m_AdaptiveSmoothingWeights;
   RealType                                       m_PriorProbabilityWeight;
   LabelParameterMapType                          m_PriorLabelParameterMap;
+  RealType                                       m_PriorProbabilityThreshold;
 
   unsigned int                                   m_SplineOrder;
   ArrayType                                      m_NumberOfLevels;
@@ -355,6 +358,37 @@ private:
   std::vector<typename RealImageType::Pointer>   m_DistancePriorProbabilityImages;
   std::vector<typename RealImageType::Pointer>   m_PosteriorProbabilityImages;
 
+  inline typename RealImageType::IndexType NumberToIndex(
+    unsigned long number, const typename RealImageType::SizeType size ) const
+    {
+    typename RealImageType::IndexType k;
+    k[0] = 1;
+
+    for ( unsigned int i = 1; i < ImageDimension; i++ )
+      {
+      k[i] = size[ImageDimension-i-1]*k[i-1];
+      }
+    typename RealImageType::IndexType index;
+    for ( unsigned int i = 0; i < ImageDimension; i++ )
+      {
+      index[ImageDimension-i-1]
+        = static_cast<unsigned long>( number/k[ImageDimension-i-1] );
+      number %= k[ImageDimension-i-1];
+      }
+    return index;
+    }
+
+  inline unsigned long IndexToNumber( typename RealImageType::IndexType k,
+    const typename RealImageType::SizeType size ) const
+    {
+    unsigned long number = 1;
+    for ( unsigned int i = 1; i < ImageDimension; i++ )
+      {
+      number *= size[ImageDimension-i-1]*k[ImageDimension-i];
+      }
+    number += k[0];
+    return number;
+    }
 };
 
 } // namespace ants
