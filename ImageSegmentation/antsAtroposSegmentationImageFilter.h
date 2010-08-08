@@ -230,8 +230,8 @@ public:
    * Prior probability images (numbered between 1,...,numberOfClasses)
    */
   void SetPriorProbabilityImage(
-    unsigned int whichClass, const RealImageType * prior );
-  const RealImageType *
+    unsigned int whichClass, RealImageType * prior );
+  typename RealImageType::Pointer
     GetPriorProbabilityImage( unsigned int whichClass ) const;
 
   void SetPriorLabelImage( const ClassifiedImageType * prior );
@@ -344,6 +344,8 @@ private:
   RealType                                       m_PriorProbabilityWeight;
   LabelParameterMapType                          m_PriorLabelParameterMap;
   RealType                                       m_PriorProbabilityThreshold;
+  std::vector<typename RealImageType::Pointer>   m_PriorProbabilityImages;
+  std::vector<typename SparseImageType::Pointer> m_PriorProbabilitySparseImages;
 
   unsigned int                                   m_SplineOrder;
   ArrayType                                      m_NumberOfLevels;
