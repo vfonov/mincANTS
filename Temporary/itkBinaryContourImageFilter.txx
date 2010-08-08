@@ -7,11 +7,11 @@
   Version:   $Revision: 1.1 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -23,8 +23,8 @@
 
 // don't think we need the indexed version as we only compute the
 // index at the start of each run, but there isn't a choice
-#include "itkImageLinearConstIteratorWithIndex.h"  
-#include "itkImageLinearIteratorWithIndex.h"  
+#include "itkImageLinearConstIteratorWithIndex.h"
+#include "itkImageLinearIteratorWithIndex.h"
 #include "itkConstShapedNeighborhoodIterator.h"
 #include "itkImageRegionIterator.h"
 #include "itkMaskImageFilter.h"
@@ -39,7 +39,7 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
 {
   // call the superclass' implementation of this method
   Superclass::GenerateInputRequestedRegion();
-  
+
   // We need all the input.
   InputImagePointer input = const_cast<InputImageType *>(this->GetInput());
   if( !input )
@@ -51,7 +51,7 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
 }
 
 template< class TInputImage, class TOutputImage>
-void 
+void
 BinaryContourImageFilter< TInputImage, TOutputImage>
 ::EnlargeOutputRequestedRegion(DataObject *)
 {
@@ -96,7 +96,7 @@ template< class TInputImage, class TOutputImage>
 void
 BinaryContourImageFilter< TInputImage, TOutputImage>
 ::ThreadedGenerateData(const RegionType& outputRegionForThread,
-         int threadId) 
+         int threadId)
 {
   typename TOutputImage::Pointer output = this->GetOutput();
   typename TInputImage::ConstPointer input = this->GetInput();
@@ -121,8 +121,8 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
   // find the split axis
   IndexType outputRegionIdx = output->GetRequestedRegion().GetIndex();
   IndexType outputRegionForThreadIdx = outputRegionForThread.GetIndex();
-  int splitAxis = 0;
-  for( int i=0; i<ImageDimension; i++ )
+  unsigned int splitAxis = 0;
+  for( unsigned int i=0; i<ImageDimension; i++ )
     {
     if( outputRegionIdx[i] != outputRegionForThreadIdx[i] )
       {
@@ -178,7 +178,7 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
         fgLine.push_back(thisRun);
 //         std::cout << "fg " << thisIndex << " " << length << std::endl;
         }
-      else 
+      else
         {
         // We've hit the start of a run
         runLength thisRun;
@@ -238,7 +238,7 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
         {
         long NeighIdx = ThisIdx + (*I);
         // check if the neighbor is in the map
-        if ( NeighIdx >= 0 && NeighIdx < linecount && !m_BackgroundLineMap[NeighIdx].empty() ) 
+        if ( NeighIdx >= 0 && NeighIdx < linecount && !m_BackgroundLineMap[NeighIdx].empty() )
           {
           // Now check whether they are really neighbors
           bool areNeighbors
@@ -253,7 +253,7 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
       }
     progress.CompletedPixel();
     }
-  
+
 }
 
 template< class TInputImage, class TOutputImage>
@@ -310,7 +310,7 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
   ActiveIndexes = lnit.GetActiveIndexList();
 
   typename LineNeighborhoodType::IndexListType::const_iterator LI;
-  
+
   PretendIndexType idx = LineRegion.GetIndex();
   long offset = fakeImage->ComputeOffset( idx );
 
@@ -327,7 +327,7 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
 template< class TInputImage, class TOutputImage>
 bool
 BinaryContourImageFilter< TInputImage, TOutputImage>
-::CheckNeighbors(const OutputIndexType &A, 
+::CheckNeighbors(const OutputIndexType &A,
                  const OutputIndexType &B)
 {
   // this checks whether the line encodings are really neighbors. The
@@ -366,7 +366,7 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
     offset = 1;
     }
 //   std::cout << "offset: " << offset << std::endl;
-  
+
   typename TOutputImage::Pointer output = this->GetOutput();
 
   typename lineEncoding::const_iterator nIt, mIt;
@@ -413,7 +413,7 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
         eq = true;
         oStart = ss1;
         oLast = ee2;
-        } 
+        }
       else if ((ss1 <= cStart) && (ee2 >= cLast))
         {
         // case 4
@@ -432,14 +432,14 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
         }
       else if ((ss1 <= cStart) && (ee2 >= cStart))
         {
-        // case 3 
+        // case 3
 //         std::cout << "case 3" << std::endl;
         eq = true;
         oStart = cStart;
         oLast = ee2;
         }
 
-      if (eq) 
+      if (eq)
         {
 //         std::cout << oStart << " " << oLast << std::endl;
         assert( oStart <= oLast );
@@ -454,7 +454,7 @@ BinaryContourImageFilter< TInputImage, TOutputImage>
           {
           lineCompleted = true;
           }
-        } 
+        }
 
       }
     }
