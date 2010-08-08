@@ -7,7 +7,7 @@
   Version:   $Revision: 1.20 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -98,7 +98,7 @@ BSplineScatteredDataPointSetToImageFilter<TInputPointSet, TOutputImage>
   itkDebugMacro( "Setting m_SplineOrder to " << order );
 
   this->m_SplineOrder = order;
-  for( int i = 0; i < ImageDimension; i++ )
+  for( unsigned int i = 0; i < ImageDimension; i++ )
     {
     if( this->m_SplineOrder[i] == 0 )
       {
