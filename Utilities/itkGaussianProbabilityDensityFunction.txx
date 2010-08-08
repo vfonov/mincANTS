@@ -7,7 +7,7 @@
   Version:   $Revision: 1.17 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -39,7 +39,7 @@ GaussianProbabilityDensityFunction<TMeasurementVector>
   this->m_GenerateRandomSamples = false;
 
   this->m_Randomizer = GeneratorType::New();
-  this->m_Randomizer->SetSeed( static_cast <ITK_UINT32>( 0 ) );
+  this->m_Randomizer->SetSeed();
 }
 
 template <class TMeasurementVector>
