@@ -82,6 +82,10 @@ public:
   const InputListSampleType * GetInputListSample() const
     { return m_ListSample.GetPointer(); }
 
+  /** Clear the input list sample to free memory */
+  virtual void ClearInputListSample()
+    { this->SetInputListSample( NULL ); }
+
   /** Sets the weights using an array */
   virtual void SetWeights( WeightArrayType* array );
 

@@ -233,7 +233,6 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
   if( this->m_MinimizeMemoryUsage )
     {
-
     // To make matters simpler, we forced the prior probability images
     //   to all have indices of zeros.
     typename RealImageType::RegionType region;
@@ -270,7 +269,6 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
       ++It;
       ++ItD;
       }
-
     return priorImage;
     }
   else
@@ -322,6 +320,7 @@ void
 AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::GenerateData()
 {
+
   /**
    * Assign Gaussian likelihood functions if mixture model components are absent
    */
@@ -418,28 +417,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
       }
     case PriorProbabilityImages:
       {
-      /**
-       * Check for proper setting of prior probability images.
-       */
-      bool isOkay = true;
-      for( unsigned int n = 0; n < this->m_NumberOfClasses; n++ )
-        {
-        if( !this->GetPriorProbabilityImage( n + 1 ) )
-          {
-          isOkay = false;
-          break;
-          }
-        }
-      if( isOkay )
-        {
-        this->GenerateInitialClassLabelingWithPriorProbabilityImages();
-        }
-      else
-        {
-        itkWarningMacro( "The prior probability images were not set correctly."
-          << "Initializing with kmeans instead." );
-        this->GenerateInitialClassLabelingWithKMeansClustering();
-        }
+      this->GenerateInitialClassLabelingWithPriorProbabilityImages();
       break;
       }
     case PriorLabelImage:
@@ -529,6 +507,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
     this->m_MixtureModelProportions[n] =
       static_cast<RealType>( samples[n]->Size() ) /
       static_cast<RealType>( totalSampleSize );
+    this->m_MixtureModelComponents[n]->ClearInputListSample();
     }
 
   for( unsigned int i = 0; i < this->m_NumberOfIntensityImages; i++ )
@@ -1152,29 +1131,10 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
   weightedPriorProbabilityImage->Allocate();
   weightedPriorProbabilityImage->FillBuffer( NumericTraits<RealType>::Zero );
 
-  /**
-   * Accumulate the sample array for all labels.
-   */
-  std::vector<typename SampleType::Pointer> samples;
-  for( unsigned int n = 0; n < this->m_NumberOfClasses; n++ )
-    {
-    typename SampleType::Pointer sample = SampleType::New();
-    samples.push_back( this->GetScalarSamples( n + 1 ) );
-    }
-  unsigned int totalSampleSize = samples[0]->Size();
-
-  Array<unsigned int> count( this->m_NumberOfClasses );
-  count.Fill( 0 );
-  std::vector<WeightArrayType> weights;
-  for( unsigned int n = 0; n < this->m_NumberOfClasses; n++ )
-    {
-    WeightArrayType weightArray( samples[n]->Size() );
-    weightArray.Fill( 1.0 );
-    weights.push_back( weightArray );
-    }
-
   Array<RealType> sumPosteriors( this->m_NumberOfClasses );
   sumPosteriors.Fill( 0.0 );
+
+  unsigned long totalSampleSize = 0;
 
   for( unsigned int n = 0; n < this->m_NumberOfClasses; n++ )
     {
@@ -1188,6 +1148,16 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
     ImageRegionIterator<RealImageType> ItM( maxPosteriorProbabilityImage,
       maxPosteriorProbabilityImage->GetRequestedRegion() );
 
+    typename SampleType::Pointer sample = SampleType::New();
+    sample = this->GetScalarSamples( n + 1 );
+    if( n == 0 )
+      {
+      totalSampleSize = sample->Size();
+      }
+    WeightArrayType weights( sample->Size() );
+
+    unsigned long count = 0;
+
     ItP.GoToBegin();
     ItM.GoToBegin();
     ItO.GoToBegin();
@@ -1197,7 +1167,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
         this->GetMaskImage()->GetPixel( ItO.GetIndex() ) == this->m_MaskLabel )
         {
         RealType posteriorProbability = ItP.Get();
-        weights[n].SetElement( count[n]++, posteriorProbability );
+        weights.SetElement( count++, posteriorProbability );
 
         if( posteriorProbability > 0.0 && posteriorProbability >= ItM.Get() )
           {
@@ -1210,6 +1180,10 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
       ++ItM;
       ++ItO;
       }
+
+    this->m_MixtureModelComponents[n]->SetWeights( &weights );
+    this->m_MixtureModelComponents[n]->SetInputListSample( sample );
+    this->m_MixtureModelComponents[n]->ClearInputListSample();
 
     /**
      * Perform the following calculation as a preprocessing step to update the
@@ -1306,15 +1280,6 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
       {
       this->m_MixtureModelProportions[n] = 0.0;
       }
-    }
-
-  /**
-   * Calculate the parameters of the mixture model.
-   */
-  for( unsigned int n = 0; n < this->m_NumberOfClasses; n++ )
-    {
-    this->m_MixtureModelComponents[n]->SetWeights( &weights[n] );
-    this->m_MixtureModelComponents[n]->SetInputListSample( samples[n] );
     }
 
   /**
