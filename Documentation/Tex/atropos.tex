@@ -1,0 +1,246 @@
+% pdflatex !!!  pdf2ps !!! a2ps
+
+%\documentclass[12pt]{article}
+\documentclass[preprint,authoryear,12pt]{elsarticle}
+%\documentclass[10pt,twocolumn]{article}
+\usepackage{times,verbatim}
+\pagestyle{empty}
+
+% Set dimensions of columns, gap between columns, and paragraph indent 
+\setlength{\textheight}{9in}
+\setlength{\textwidth}{7in}
+\setlength{\topmargin}{0in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\parindent}{1pc}
+\setlength{\oddsidemargin}{-.1875in}  % Centers text.
+\setlength{\evensidemargin}{-.1875in}
+
+\newcommand{\FIGUREDIR}{/data/Avants/}
+\newcommand{\FTDNUM}{25~}
+\newcommand{\ADNUM}{24~}
+\newcommand{\ELDNUM}{23~}
+\newcommand{\x}{{\bf x}}
+\newcommand{\y}{{\bf y}}
+\newcommand{\I}{{\bar I}}
+\newcommand {\alg}{{\em Atropos}}
+\usepackage{amsmath, amsthm, amssymb}
+\usepackage{epsfig}
+\usepackage{graphics}
+\usepackage{soul}
+\usepackage{rotating}
+\usepackage{multirow,booktabs,ctable,array}
+\usepackage{listing}						
+\usepackage{listings}					
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\begin{document}
+
+\date{}
+\begin{frontmatter}
+%\title{Evaluation of a Prior-Constrained Registration Initialized Template Assisted Segmentation Algorithm for $N$-Classes}
+\title{NIREP and LPBA Evaluation of an Open-Source Framework for Cortical Parcellation}
+\author{Nick Tustison, Brian Avants\footnote{First two authors equal co-authorship}, Philip A. Cook and James C. Gee\\  
+  Penn Image Computing and Science Laboratory 
+	\\ University of Pennsylvania \\ Philadelphia, PA~~19104-6389
+	}
+
+\begin{abstract} 
+Neuroanatomical coordinate systems are essential for the
+interpretation of structural and functional imaging studies.  This
+work proposes a fully image-based, open-source approach to label-based
+cortical parcellation that uses existing training data to identify the
+same structures in new datasets.  The driving engine underlying this
+system is a new N-class EM-MRF algorithm, \alg (distributed with the
+Advanced Normalization Tools (ANTs) software), that incorporates
+spatial priors to guide the segmentation.  \alg efficiently implements
+a variety of regularization and statistical models for segmentation
+and uses an [ EM or ICA ] energy minimization approach.  \alg's
+efficient implementation allows one to solve {\em many class}
+segmentation problems (here up to 56 classes are used) while using
+both spatial probability maps and either geodesic or Euclidean
+distance priors to constrain the segmentation.  This work evaluates
+\alg performance on the parcellation problem given two different
+training datasets, the LPBA40 dataset from UCLA and the NIREP dataset
+from University of Iowa.  We evaluate three aspects of the problem: (1) the quality
+of automatic cortical extraction from raw data; (2) the quality of
+parcellation, given a ground truth cortical extraction; (3) the
+quality of automated cortical extraction followed by automated
+cortical parcellation.  Component (3) corresponds to the most
+realistic clinical case, while component (2) eliminates the confound
+of defining the cortex itself and focuses only on the parcellation
+problem.  We also quantify the effect of using either a parametric or
+non-parametric appearance model in the segmentation.  Finally, we
+distribute all of the scripts and code from this evaluation.
+\end{abstract}
+\begin{keyword}
+segmentation \sep expectation maximization \sep spatial prior \sep brain 
+\end{keyword}
+\end{frontmatter}
+
+\section{Introduction}
+Review segmentation methods , in particular Warfield 2009, FAST and
+other methods that use spatial priors.  Review evaluation of
+segmentation.
+
+The expectation maximization and markov random field framework
+(EM-MRF) for segmentation is reliable and efficient for large-scale
+neuroimage processing in a variety of conditions.  However, EM-MRF
+methods are sensitive to initial conditions which may lead to
+performance instability across clinical subjects and in longitudinal
+studies.  This paper proposes an open-source $N$-class extension to
+the EM-MRF model, \alg, that includes strong use of template-based
+information in both the initialization and as spatial priors in order
+to guide the method into a consistent local minimum.
+
+\begin{comment}{
+  We evaluate this
+method on BrainWeb 20 data and show that by relying upon accurate,
+high-resolution diffeomorphic image registration, \alg~is capable of
+reliably segmenting the BW20 whole head data into separate tissue
+classes for muscle, skin, skull and bone marrow as well as the
+standard three tissues, cerebrospinal fluid and gray and white matter.
+\alg's three-tissue performance compares favorably with the standard
+EM-MRF algorithm, FAST.  We also use the OASIS dataset to show that
+\alg~increases segmentation repeatability relative to FAST.  The
+evaluation data, the data-derived templates, the code and application
+itself are publicly available.
+}
+\end{comment}
+
+One advantage of the ANTS-Atropos pipeline is that we parcellate
+cortex entirely in the image space, thus avoiding the difficulty of
+transferring labels from the mesh space back to the image space---a
+problem that is a confound of surface-based methods\cite{Klein2010}.
+
+
+\section{Methods} \alg~encodes a family of segmentation techniques
+that may be instantiated for different applications.  We describe the
+general theory, algorithm and implementation that form \alg~and then
+specify the particular parameters used for the applications of
+interest to this research.
+
+\subsection{Notation} An image, $I$, maps a domain, $\Omega$ into the
+positive real numbers, such that $I \colon \Omega \rightarrow
+\mathbb{R}^+$.  The goal of segmentation, in general, is to define the
+spatial distribution of a finite set of labels over this domain.  We
+denote the segmentation itself as $\eta \colon \Omega \rightarrow L$
+where $L = \{ L_1 = 1 , \cdots , L_N=N \}$, a set of integer indexed
+segmentation labels.  Note that $\eta$ may be formed as $\eta =
+\sum_{i=1}^{i=N} L_i \eta_i $ where $\eta_i$ is the binary
+segmentation for label $L_i$.  A prior estimate for the label image
+$\eta_i$ is here denoted $\eta^s_i$ with a complete set of priors
+denoted $\eta^s$.  The boundary of the binary segmentation -- where a
+$0/1$ transition edge exists -- is denoted $\partial \eta^s_i$, for
+the prior, and $\partial \eta_i$ for the label image.
+
+\subsection{Apocrita Theory} A general maximum a posteriori criterion
+for segmentation seeks,
+\begin{equation} {\hat \eta} = \argmax _{\eta} \Pr( \eta | I )(\x) =
+\Pr( I | \eta )(\x) \Pr(\eta)(\x),
+\end{equation} where $I$ is the input image, ${\eta}$ represents the
+label set configuration taken from the set $L$, $\Pr$ is the
+probability, $\x$ is the spatial index and the optimal solution is
+$\hat \eta$.  The input image $I$, here, is an unlabeled T1 MRI
+indexed by the value $\x \in \Omega$ where $\Omega$ is the image's
+spatial domain.  This probability is composed of the likelihood (first
+term) and the prior (second term).  \alg~ uses a spatially varying
+likelihood term and a two-component prior term that takes into account
+both spatial distribution and label smoothness, the latter via a
+standard MRF prior.
+
+The likelihood term for a single label value $L_i \in L$ is,
+\begin{eqnarray} \Pr( I | \eta_i )(\x)=\frac{1}{Z_i} \exp(- \| I(\x) -
+\mu_i(\x) \|^2 / \sigma_i^2 ),
+\end{eqnarray} where $Z_i$ is a normalizing constant, $\mu(\x)$ is a
+spatially varying estimate of the tissue mean and $\sigma$ is a
+standard deviation.  The prior term is given by,
+\begin{eqnarray} \Pr(\eta_i)(\x) = \frac{1}{Z^\prime_i} \exp( -f( \x -
+\y_{\partial \eta^s_i} ) / \sigma_{\eta^s_i}^2 ) p(\eta_i |
+\eta^\aleph_i), \\ \notag f( \x - \y_{\partial \eta^s_i} ) = (1 -
+\eta^s_i (\x) ) \| \x - \y_{\partial \eta^s_i} \|,
+\end{eqnarray} where $p(\eta_i | \eta^N_i)$ is the MRF smoothness
+probability based on the local neighborhood $\aleph$, the $Z$ is a
+normalizing constant and $\y_{\partial \eta^s_i}$ is the nearest point
+to $\x$ on the boundary of this labeling. \alg~requires a user or
+template-defined $\eta^s_i$ and the standard deviation
+$\sigma_{\eta^s_i}$ if a non-unity spatial prior component is desired
+for that label.  The free parameters, that must be estimated
+iteratively, are therefore $\mu_i, \sigma_i$ and the label set itself
+$\hat \eta$, which defines the (locally) optimal spatial distribution
+of $L$ through $\Omega$.  Figure~\ref{fig:spatp} shows the
+distribution of the spatial prior as a function of the distance from
+prior-defined object boundary.  Note that $f$ may easily be varied for
+other applications or that fixed probability images may also be
+substituted here.  This choice of $f$ is motivated by the fact that it
+allows compressed storage of the priors in a single image, $\eta^s$,
+while also maintaining the ability to manipulate -- for each
+$\eta^s_i$ -- the spatial influence of the prior via
+$\sigma_{\eta^s_i}$.  Practically, this is especially valuable when,
+$N$, the number of labels, is large.
+
+\subsection{Apocrita EM Algorithm}
+The EM approach. 
+
+\subsection{Apocrita Implementation}
+The command line and practical example, ITK, etc. 
+Template-based initialization.  
+
+
+
+\subsection{The LPBA40 Dataset}  
+\label{sec:lpba}
+The LPBA40 dataset \cite{Shattuck2008} was collected at the North Shore Long
+Island Jewish Health System imaging center and is maintained at UCLA.
+LPBA40 contains 40 images (20 male $+$ 20 female) from normal, healthy
+ethnically diverse volunteers with average age of 29.2 $\pm$ 6.3
+years.  Each subject underwent 3D SPGR MRI on a 1.5T GE system
+resulting in $0.86 \times 0.86 \times 1.5 mm^3$ images.  Each MRI in
+the LPBA40 dataset was manually labeled with 56 independent structures
+at the UCLA Laboratory of Neuro Imaging (LONI).  The test-retest
+reliability of the labeling, across raters, was reported as a minimum
+Jaccard ratio of $0.697$ in the supramarginal gyrus to a maximum of
+$0.966$ in the gyrus rectus.  A single labeling of each image is made
+available to the public and used, here, as silver-standard data 
+for both training and testing in our cross-validation scheme. 
+
+\subsection{The NIREP Dataset}  
+The non-rigid image registration evaluation project (NIREP
+http://www.nirep.org/) is a resource of 16 high quality labeled brain
+images at 1$mm^3$.  Each brain was labeled with 32 cortical regions
+(16 on each hemisphere) and an additional class of other gray matter
+tissue.  Regions vary in size from large (inferior temporal region) to
+small (temporal pole, insula gyrus, frontal pole).  The main drawback
+is a lack of inter-rater reliability numbers -- in particular because
+visual inspection and comparison of labelings reveals a degree of
+inconsistency in labeling of particular regions across subjects.
+Nevertheless, the NIREP dataset is perhaps the highest quality
+evaluation dataset currently available for the cortex. 
+
+\begin{figure}
+%\center{ \includegraphics[width=3in]{figures/spatialprior.pdf} }
+\caption{The spatial prior.
+\label{fig:spatp} }
+\vspace{-0.1in}
+\end{figure}
+
+
+\section{Results}
+% \subsection{BWeb 20 Results} $N$-class segmentation and compare to FAST. 
+
+% \subsection{Oasis Results} Review stability across repeat images vs. FAST.  
+
+\section{Discussion}
+
+\section{Conclusion}
+To our knowledge, this is the first demonstration of a consistent and
+
+\paragraph{Acknowledgments}
+{This work was supported in part by NIH ... }
+
+\bibliographystyle{elsarticle-harv.bst}
+\bibliography{avantsAll,references} 
+
+\end{document}
+
