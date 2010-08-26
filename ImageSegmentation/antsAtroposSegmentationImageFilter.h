@@ -283,8 +283,13 @@ public:
       }
     }
 
-  typename RealImageType::Pointer
-    GetPosteriorProbabilityImage( unsigned int );
+  /**
+   * Function to facilitate looking at the likelihood image.
+   *   Not used internally.
+   */
+  typename RealImageType::Pointer GetLikelihoodImage( unsigned int );
+
+  typename RealImageType::Pointer GetPosteriorProbabilityImage( unsigned int );
   typename RealImageType::Pointer
     CalculateSmoothIntensityImageFromPriorProbabilityImage(
     unsigned int, unsigned int );
