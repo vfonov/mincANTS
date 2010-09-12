@@ -1,0 +1,2186 @@
+% This file was created with JabRef 2.6.
+% Encoding: UTF8
+
+@ARTICLE{Ashburner2005,
+  author = {John Ashburner and Karl J Friston},
+  title = {Unified segmentation.},
+  journal = {Neuroimage},
+  year = {2005},
+  volume = {26},
+  pages = {839--851},
+  number = {3},
+  month = {Jul},
+  abstract = {A probabilistic framework is presented that enables image registration,
+	tissue classification, and bias correction to be combined within
+	the same generative model. A derivation of a log-likelihood objective
+	function for the unified model is provided. The model is based on
+	a mixture of Gaussians and is extended to incorporate a smooth intensity
+	variation and nonlinear registration with tissue probability maps.
+	A strategy for optimising the model parameters is described, along
+	with the requisite partial derivatives of the objective function.},
+  doi = {10.1016/j.neuroimage.2005.02.018},
+  institution = {Wellcome Department of Imaging Neuroscience, 12 Queen Square, London,
+	WC1N 3BG, UK. john@fil.ion.ucl.ac.uk},
+  keywords = {Algorithms; Brain Mapping; Data Interpretation, Statistical; Fuzzy
+	Logic; Image Processing, Computer-Assisted, statistics /&/ numerical
+	data; Likelihood Functions; Magnetic Resonance Imaging; Models, Neurological;
+	Models, Statistical; Nonlinear Dynamics; Normal Distribution; Probability
+	Theory},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1053-8119(05)00110-2},
+  pmid = {15955494},
+  timestamp = {2010.08.29},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2005.02.018}
+}
+
+@INPROCEEDINGS{Avants2010a,
+  author = {Brian Avants and Arno Klein and Nicholas Tustison and Jue Woo and
+	and James C. Gee},
+  title = {Evaluation of open-access, automated brain extraction methods on
+	multi-site multi-disorder data},
+  booktitle = {16th Annual Meeting for the Organization of Human Brain Mapping},
+  year = {2010},
+  owner = {ntustison},
+  timestamp = {2010.08.29}
+}
+
+@ARTICLE{Avants2010b,
+  author = {Brian B. Avants and Nicholas J. Tustison and Gang Song and Philip
+	A. Cook and Arno Klein and James C. Gee.},
+  title = {A reproducible evaluation of {ANTs} similarity metric performance
+	in brain image registration},
+  journal = {Neuroimage},
+  year = {2010},
+  note = {accepted for publication},
+  owner = {ntustison},
+  timestamp = {2010.09.08}
+}
+
+@ARTICLE{Avants2010,
+  author = {Brian B Avants and Paul Yushkevich and John Pluta and David Minkoff
+	and Marc Korczykowski and John Detre and James C Gee},
+  title = {The optimal template effect in hippocampus studies of diseased populations.},
+  journal = {Neuroimage},
+  year = {2010},
+  volume = {49},
+  pages = {2457--2466},
+  number = {3},
+  month = {Feb},
+  abstract = {We evaluate the impact of template choice on template-based segmentation
+	of the hippocampus in epilepsy. Four dataset-specific strategies
+	are quantitatively contrasted: the "closest to average" individual
+	template, the average shape version of the closest to average template,
+	a best appearance template and the best appearance and shape template
+	proposed here and implemented in the open source toolkit Advanced
+	Normalization Tools (ANTS). The cross-correlation similarity metric
+	drives the correspondence model and is used consistently to determine
+	the optimal appearance. Minimum shape distance in the diffeomorphic
+	space determines optimal shape. Our evaluation results show that,
+	with respect to gold-standard manual labeling of hippocampi in epilepsy,
+	optimal shape and appearance template construction outperforms the
+	other strategies for gaining data-derived templates. Our results
+	also show the improvement is most significant on the diseased side
+	and insignificant on the healthy side. Thus, the importance of the
+	template increases when used to study pathology and may be less critical
+	for normal control studies. Furthermore, explicit geometric optimization
+	of the shape component of the unbiased template positively impacts
+	the study of diseased hippocampi.},
+  doi = {10.1016/j.neuroimage.2009.09.062},
+  institution = {Department of Radiology, University of Pennsylvania, Philadelphia,
+	PA 19104, USA. avants@grasp.cis.upenn.edu},
+  keywords = {Algorithms; Atlases as Topic; Epilepsy, pathology; Hippocampus, pathology;
+	Humans; Image Interpretation, Computer-Assisted},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1053-8119(09)01061-1},
+  pmid = {19818860},
+  timestamp = {2010.08.27},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2009.09.062}
+}
+
+@ARTICLE{Balafar2010,
+  author = {M. A. Balafar and A. R. Ramli and M. I. Saripan and S. Mashohor},
+  title = {Review of brain {MRI} image segmentation methods},
+  journal = {Artif. Intell. Rev.},
+  year = {2010},
+  volume = {33},
+  pages = {261--274},
+  owner = {ntustison},
+  timestamp = {2010.08.19}
+}
+
+@ARTICLE{Ballester2002,
+  author = {Miguel Angel González Ballester and Andrew P Zisserman and Michael
+	Brady},
+  title = {Estimation of the partial volume effect in {MRI}.},
+  journal = {Med Image Anal},
+  year = {2002},
+  volume = {6},
+  pages = {389--405},
+  number = {4},
+  month = {Dec},
+  abstract = {The partial volume effect (PVE) arises in volumetric images when more
+	than one tissue type occurs in a voxel. In such cases, the voxel
+	intensity depends not only on the imaging sequence and tissue properties,
+	but also on the proportions of each tissue type present in the voxel.
+	We have demonstrated in previous work that ignoring this effect by
+	establishing binary voxel-based segmentations introduces significant
+	errors in quantitative measurements, such as estimations of the volumes
+	of brain structures. In this paper, we provide a statistical estimation
+	framework to quantify PVE and to propagate voxel-based estimates
+	in order to compute global magnitudes, such as volume, with associated
+	estimates of uncertainty. Validation is performed on ground truth
+	synthetic images and MRI phantoms, and a clinical study is reported.
+	Results show that the method allows for robust morphometric studies
+	and provides resolution unattainable to date.},
+  institution = {Robotics Research Group, Department of Engineering Science, University
+	of Oxford, UK. Miguel.Gonzalez@sophia.inria.fr},
+  keywords = {Brain, pathology; Humans; Image Processing, Computer-Assisted, methods;
+	Magnetic Resonance Imaging; Models, Neurological; Models, Statistical;
+	Monte Carlo Method; Phantoms, Imaging; Schizophrenia, pathology},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {12494949},
+  timestamp = {2010.09.07}
+}
+
+@ARTICLE{Besag1986,
+  author = {Julian Besag},
+  title = {On the statistical analysis of dirty pictures},
+  journal = {Journal of the Royal Royal Statistical Society, Series B},
+  year = {1986},
+  volume = {48},
+  pages = {259--302},
+  owner = {ntustison},
+  timestamp = {2010.09.11}
+}
+
+@ARTICLE{Besag1974,
+  author = {Julian Besag},
+  title = {Spatial Interaction and the Statistical Analysis of Lattice Systems},
+  journal = {Journal of the Royal Royal Statistical Society},
+  year = {1974},
+  volume = {B-36},
+  pages = {192-236},
+  number = {2},
+  owner = {ntustison},
+  timestamp = {2010.09.10}
+}
+
+@ARTICLE{Bezdek1993,
+  author = {J. C. Bezdek and L. O. Hall and L. P. Clarke},
+  title = {Review of {MR} image segmentation techniques using pattern recognition.},
+  journal = {Med. Phys.},
+  year = {1993},
+  volume = {20},
+  pages = {1033--1048},
+  number = {4},
+  abstract = {This paper has reviewed, with somewhat variable coverage, the nine
+	MR image segmentation techniques itemized in Table II. A wide array
+	of approaches have been discussed; each has its merits and drawbacks.
+	We have also given pointers to other approaches not discussed in
+	depth in this review. The methods reviewed fall roughly into four
+	model groups: c-means, maximum likelihood, neural networks, and k-nearest
+	neighbor rules. Both supervised and unsupervised schemes require
+	human intervention to obtain clinically useful results in MR segmentation.
+	Unsupervised techniques require somewhat less interaction on a per
+	patient/image basis. Maximum likelihood techniques have had some
+	success, but are very susceptible to the choice of training region,
+	which may need to be chosen slice by slice for even one patient.
+	Generally, techniques that must assume an underlying statistical
+	distribution of the data (such as LML and UML) do not appear promising,
+	since tissue regions of interest do not usually obey the distributional
+	tendencies of probability density functions. The most promising supervised
+	techniques reviewed seem to be FF/NN methods that allow hidden layers
+	to be configured as examples are presented to the system. An example
+	of a self-configuring network, FF/CC, was also discussed. The relatively
+	simple k-nearest neighbor rule algorithms (hard and fuzzy) have also
+	shown promise in the supervised category. Unsupervised techniques
+	based upon fuzzy c-means clustering algorithms have also shown great
+	promise in MR image segmentation. Several unsupervised connectionist
+	techniques have recently been experimented with on MR images of the
+	brain and have provided promising initial results. A pixel-intensity-based
+	edge detection algorithm has recently been used to provide promising
+	segmentations of the brain. This is also an unsupervised technique,
+	older versions of which have been susceptible to oversegmenting the
+	image because of the lack of clear boundaries between tissue types
+	or finding uninteresting boundaries between slightly different types
+	of the same tissue. To conclude, we offer some remarks about improving
+	MR segmentation techniques. The better unsupervised techniques are
+	too slow. Improving speed via parallelization and optimization will
+	improve their competitiveness with, e.g., the k-nn rule, which is
+	the fastest technique covered in this review. Another area for development
+	is dynamic cluster validity. Unsupervised methods need better ways
+	to specify and adjust c, the number of tissue classes found by the
+	algorithm. Initialization is a third important area of research.
+	Many of the schemes listed in Table II are sensitive to good initialization,
+	both in terms of the parameters of the design, as well as operator
+	selection of training data.(ABSTRACT TRUNCATED AT 400 WORDS)},
+  institution = {Division of Computer Science, University of West Florida, Pensacola
+	32514.},
+  keywords = {Algorithms; Bayes Theorem; Biophysical Phenomena; Biophysics; Cluster
+	Analysis; Humans; Image Interpretation, Computer-Assisted, methods;
+	Magnetic Resonance Imaging, methods/statistics /&/ numerical data;
+	Models, Statistical; Neural Networks (Computer); Pattern Recognition,
+	Automated},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {8413011},
+  timestamp = {2010.08.19}
+}
+
+@ARTICLE{Boer2010,
+  author = {Renske de Boer and Henri A Vrooman and M. Arfan Ikram and Meike W
+	Vernooij and Monique M B Breteler and Aad van der Lugt and Wiro J
+	Niessen},
+  title = {Accuracy and reproducibility study of automatic {MRI} brain tissue
+	segmentation methods.},
+  journal = {Neuroimage},
+  year = {2010},
+  volume = {51},
+  pages = {1047--1056},
+  number = {3},
+  month = {Jul},
+  __markedentry = {[ntustison]},
+  abstract = {The ability to study changes in brain morphometry in longitudinal
+	studies majorly depends on the accuracy and reproducibility of the
+	brain tissue quantification. We evaluate the accuracy and reproducibility
+	of four previously proposed automatic brain tissue segmentation methods:
+	FAST, SPM5, an automatically trained k-nearest neighbor (kNN) classifier,
+	and a conventional kNN classifier based on a prior training set.
+	The intensity nonuniformity correction and skull-stripping mask were
+	the same for all methods. Evaluations were performed on MRI scans
+	of elderly subjects derived from the general population. Accuracy
+	was evaluated by comparison to two manual segmentations of MRI scans
+	of six subjects (mean age 65.9+/-4.4 years). Reproducibility was
+	assessed by comparing the automatic segmentations of 30 subjects
+	(mean age 57.0+/-3.7 years) who were scanned twice within a short
+	time interval. All methods showed good accuracy and reproducibility,
+	with only small differences between methods. The conventional kNN
+	classifier was the most accurate method with similarity indices of
+	0.82/0.90/0.94 for cerebrospinal fluid/gray matter/white matter,
+	but it showed the lowest reproducibility. FAST yielded the most reproducible
+	segmentation volumes with volume difference standard deviations of
+	0.55/0.49/0.38 (percentage of intracranial volume) respectively.
+	The results of the reproducibility experiment can be used to calculate
+	the required number of subjects in the design of a longitudinal study
+	with sufficient power to detect changes over time in brain (tissue)
+	volume. Example sample size calculations demonstrate a rather large
+	effect of the choice of segmentation method on the required number
+	of subjects.},
+  doi = {10.1016/j.neuroimage.2010.03.012},
+  institution = { Medical Informatics, Erasmus MC, Rotterdam, The Netherlands. renske.deboer@erasmusmc.nl},
+  keywords = {Algorithms; Brain, anatomy /&/ histology; Female; Humans; Image Enhancement,
+	methods; Image Interpretation, Computer-Assisted, methods; Magnetic
+	Resonance Imaging, methods; Male; Middle Aged; Observer Variation;
+	Pattern Recognition, Automated, methods; Reproducibility of Results;
+	Sensitivity and Specificity},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1053-8119(10)00282-X},
+  pmid = {20226258},
+  timestamp = {2010.09.08},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2010.03.012}
+}
+
+@ARTICLE{Boyes2008,
+  author = {Richard G Boyes and Jeff L Gunter and Chris Frost and Andrew L Janke
+	and Thomas Yeatman and Derek L G Hill and Matt A Bernstein and Paul
+	M Thompson and Michael W Weiner and Norbert Schuff and Gene E Alexander
+	and Ronald J Killiany and Charles DeCarli and Clifford R Jack and
+	Nick C Fox and A. D. N. I. Study},
+  title = {Intensity non-uniformity correction using {N3} on 3-{T} scanners
+	with multichannel phased array coils.},
+  journal = {Neuroimage},
+  year = {2008},
+  volume = {39},
+  pages = {1752--1762},
+  number = {4},
+  month = {Feb},
+  abstract = {Measures of structural brain change based on longitudinal MR imaging
+	are increasingly important but can be degraded by intensity non-uniformity.
+	This non-uniformity can be more pronounced at higher field strengths,
+	or when using multichannel receiver coils. We assessed the ability
+	of the non-parametric non-uniform intensity normalization (N3) technique
+	to correct non-uniformity in 72 volumetric brain MR scans from the
+	preparatory phase of the Alzheimer's Disease Neuroimaging Initiative
+	(ADNI). Normal elderly subjects (n=18) were scanned on different
+	3-T scanners with a multichannel phased array receiver coil at baseline,
+	using magnetization prepared rapid gradient echo (MP-RAGE) and spoiled
+	gradient echo (SPGR) pulse sequences, and again 2 weeks later. When
+	applying N3, we used five brain masks of varying accuracy and four
+	spline smoothing distances (d=50, 100, 150 and 200 mm) to ascertain
+	which combination of parameters optimally reduces the non-uniformity.
+	We used the normalized white matter intensity variance (standard
+	deviation/mean) to ascertain quantitatively the correction for a
+	single scan; we used the variance of the normalized difference image
+	to assess quantitatively the consistency of the correction over time
+	from registered scan pairs. Our results showed statistically significant
+	(p<0.01) improvement in uniformity for individual scans and reduction
+	in the normalized difference image variance when using masks that
+	identified distinct brain tissue classes, and when using smaller
+	spline smoothing distances (e.g., 50-100 mm) for both MP-RAGE and
+	SPGR pulse sequences. These optimized settings may assist future
+	large-scale studies where 3-T scanners and phased array receiver
+	coils are used, such as ADNI, so that intensity non-uniformity does
+	not influence the power of MR imaging to detect disease progression
+	and the factors that influence it.},
+  institution = {Dementia Research Centre, Institute of Neurology, Box 16, University
+	College London, Queen Square, London, UK. r.boyes@ucl.ac.uk},
+  keywords = {Aged; Algorithms; Alzheimer Disease, pathology; Brain, pathology;
+	Calibration; Cognition Disorders, pathology; Data Interpretation,
+	Statistical; Humans; Image Processing, Computer-Assisted; Magnetic
+	Resonance Imaging, instrumentation; Reproducibility of Results},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {18063391},
+  timestamp = {2010.08.28}
+}
+
+@ARTICLE{Clarke1995,
+  author = {L. P. Clarke and R. P. Velthuizen and M. A. Camacho and J. J. Heine
+	and M. Vaidyanathan and L. O. Hall and R. W. Thatcher and M. L. Silbiger},
+  title = {{MRI} segmentation: methods and applications.},
+  journal = {Magn. Reson. Imaging},
+  year = {1995},
+  volume = {13},
+  pages = {343--368},
+  number = {3},
+  abstract = {The current literature on MRI segmentation methods is reviewed. Particular
+	emphasis is placed on the relative merits of single image versus
+	multispectral segmentation, and supervised versus unsupervised segmentation
+	methods. Image pre-processing and registration are discussed, as
+	well as methods of validation. The application of MRI segmentation
+	for tumor volume measurements during the course of therapy is presented
+	here as an example, illustrating problems associated with inter-
+	and intra-observer variations inherent to supervised methods.},
+  institution = {H. Lee Moffitt Cancer Center and Research Institute, Tampa, FL, USA.},
+  keywords = {Head, anatomy /&/ histology; Humans; Image Processing, Computer-Assisted;
+	Magnetic Resonance Imaging, methods},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {0730-725X(94)00124-L},
+  pmid = {7791545},
+  timestamp = {2010.08.19}
+}
+
+@ARTICLE{Cline1990,
+  author = {H. E. Cline and W. E. Lorensen and R. Kikinis and F. Jolesz},
+  title = {Three-dimensional segmentation of {MR} images of the head using probability
+	and connectivity.},
+  journal = {J Comput Assist Tomogr},
+  year = {1990},
+  volume = {14},
+  pages = {1037--1045},
+  number = {6},
+  abstract = {We describe a three-dimensional (3D) segmentation method that comprises
+	(a) user interactive identification of tissue classes; (b) calculation
+	of a probability distribution for each tissue; (c) creation of a
+	feature map of the most probable tissues; (d) 3D segmentation of
+	the magnetic resonance (MR) data; (e) smoothing of the segmented
+	data; (f) extraction of surfaces of interest with connectivity; (g)
+	generation of surfaces; and (h) rendering of multiple surfaces to
+	plan surgery. Patients with normal head anatomy and with abnormalities
+	such as multiple sclerosis lesions and brain tumors were scanned
+	with a 1.5 T MR system using a two echo contiguous (interleaved),
+	multislice pulse sequence that provides both proton density and T2-weighted
+	contrast. After the user identified the tissues, the 3D data were
+	automatically segmented into background, facial tissue, brain matter,
+	CSF, and lesions. Surfaces of the face, brain, lateral ventricles,
+	tumors, and multiple sclerosis lesions are displayed using color
+	coding and gradient shading. Color improves the visualization of
+	segmented tissues, while gradient shading enhances the perception
+	of depth. Manipulation of the 3D model on a workstation aids surgical
+	planning. Sulci and gyri stand out, thus aiding functional mapping
+	of the brain surface.},
+  institution = {GE Corporate Research and Development Center, Schenectady, NY 12301.},
+  keywords = {Algorithms; Brain Neoplasms, diagnosis; Brain, pathology; Computer
+	Graphics; Humans; Image Processing, Computer-Assisted; Magnetic Resonance
+	Imaging, methods; Multiple Sclerosis, diagnosis},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {2229557},
+  timestamp = {2010.08.23}
+}
+
+@ARTICLE{Cuadra2005,
+  author = {Meritxell Bach Cuadra and Leila Cammoun and Torsten Butz and Olivier
+	Cuisenaire and Jean-Philippe Thiran},
+  title = {Comparison and validation of tissue modelization and statistical
+	classification methods in {T1}-weighted {MR} brain images.},
+  journal = {IEEE Trans. Med. Imaging.},
+  year = {2005},
+  volume = {24},
+  pages = {1548--1565},
+  number = {12},
+  month = {Dec},
+  abstract = {This paper presents a validation study on statistical nonsupervised
+	brain tissue classification techniques in magnetic resonance (MR)
+	images. Several image models assuming different hypotheses regarding
+	the intensity distribution model, the spatial model and the number
+	of classes are assessed. The methods are tested on simulated data
+	for which the classification ground truth is known. Different noise
+	and intensity nonuniformities are added to simulate real imaging
+	conditions. No enhancement of the image quality is considered either
+	before or during the classification process. This way, the accuracy
+	of the methods and their robustness against image artifacts are tested.
+	Classification is also performed on real data where a quantitative
+	validation compares the methods' results with an estimated ground
+	truth from manual segmentations by experts. Validity of the various
+	classification methods in the labeling of the image as well as in
+	the tissue volume is estimated with different local and global measures.
+	Results demonstrate that methods relying on both intensity and spatial
+	information are more robust to noise and field inhomogeneities. We
+	also demonstrate that partial volume is not perfectly modeled, even
+	though methods that account for mixture classes outperform methods
+	that only consider pure Gaussian classes. Finally, we show that simulated
+	data results can also be extended to real data.},
+  doi = {10.1109/TMI.2005.857652},
+  institution = {Signal Processing Institute, Ecole Polytechnique Fédérale Lausanne,
+	CH-1015 Lausanne, Switzerland. Meritxell.Bach@epfl.ch},
+  keywords = {Adult; Algorithms; Artificial Intelligence; Brain, anatomy /&/ histology;
+	Computer Simulation; Female; Humans; Image Enhancement, methods;
+	Image Interpretation, Computer-Assisted, methods; Imaging, Three-Dimensional,
+	methods; Magnetic Resonance Imaging, methods; Models, Biological;
+	Models, Statistical; Pattern Recognition, Automated, methods; Reproducibility
+	of Results; Sensitivity and Specificity},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {16350916},
+  timestamp = {2010.08.19},
+  url = {http://dx.doi.org/10.1109/TMI.2005.857652}
+}
+
+@ARTICLE{Dale1999,
+  author = {A. M. Dale and B. Fischl and M. I. Sereno},
+  title = {Cortical surface-based analysis. I. Segmentation and surface reconstruction.},
+  journal = {Neuroimage},
+  year = {1999},
+  volume = {9},
+  pages = {179--194},
+  number = {2},
+  month = {Feb},
+  abstract = {Several properties of the cerebral cortex, including its columnar
+	and laminar organization, as well as the topographic organization
+	of cortical areas, can only be properly understood in the context
+	of the intrinsic two-dimensional structure of the cortical surface.
+	In order to study such cortical properties in humans, it is necessary
+	to obtain an accurate and explicit representation of the cortical
+	surface in individual subjects. Here we describe a set of automated
+	procedures for obtaining accurate reconstructions of the cortical
+	surface, which have been applied to data from more than 100 subjects,
+	requiring little or no manual intervention. Automated routines for
+	unfolding and flattening the cortical surface are described in a
+	companion paper. These procedures allow for the routine use of cortical
+	surface-based analysis and visualization methods in functional brain
+	imaging.},
+  doi = {10.1006/nimg.1998.0395},
+  institution = {Massachusetts General Hosp/Harvard Medical School, Building 149,
+	Charlestown, Massachusetts, 02129, USA. dale@nmr.mgh.harvard.edu},
+  keywords = {Brain Mapping, instrumentation; Cerebral Cortex, anatomy /&/ histology;
+	Humans; Image Processing, Computer-Assisted, instrumentation; Magnetic
+	Resonance Imaging, instrumentation; Reference Values; Software},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1053-8119(98)90395-0},
+  pmid = {9931268},
+  timestamp = {2010.09.08},
+  url = {http://dx.doi.org/10.1006/nimg.1998.0395}
+}
+
+@ARTICLE{Dempster1977,
+  author = {A. Dempster and N. Laird and D. Rubin},
+  title = {Maximum likelihood estimation from incomplete data using the {EM}
+	algorithms},
+  journal = {J. Royal Stat. Soc.},
+  year = {1977},
+  volume = {39},
+  pages = {1--38},
+  owner = {ntustison},
+  timestamp = {2010.08.29}
+}
+
+@ARTICLE{Destrieux2010,
+  author = {Christophe Destrieux and Bruce Fischl and Anders Dale and Eric Halgren},
+  title = {Automatic parcellation of human cortical gyri and sulci using standard
+	anatomical nomenclature.},
+  journal = {Neuroimage},
+  year = {2010},
+  volume = {53},
+  pages = {1--15},
+  number = {1},
+  month = {Oct},
+  abstract = {Precise localization of sulco-gyral structures of the human cerebral
+	cortex is important for the interpretation of morpho-functional data,
+	but requires anatomical expertise and is time consuming because of
+	the brain's geometric complexity. Software developed to automatically
+	identify sulco-gyral structures has improved substantially as a result
+	of techniques providing topologically correct reconstructions permitting
+	inflated views of the human brain. Here we describe a complete parcellation
+	of the cortical surface using standard internationally accepted nomenclature
+	and criteria. This parcellation is available in the FreeSurfer package.
+	First, a computer-assisted hand parcellation classified each vertex
+	as sulcal or gyral, and these were then subparcellated into 74 labels
+	per hemisphere. Twelve datasets were used to develop rules and algorithms
+	(reported here) that produced labels consistent with anatomical rules
+	as well as automated computational parcellation. The final parcellation
+	was used to build an atlas for automatically labeling the whole cerebral
+	cortex. This atlas was used to label an additional 12 datasets, which
+	were found to have good concordance with manual labels. This paper
+	presents a precisely defined method for automatically labeling the
+	cortical surface in standard terminology.},
+  doi = {10.1016/j.neuroimage.2010.06.010},
+  institution = {Inserm U930, Tours, France; Université François Rabelais de Tours,
+	Faculté de Médecine, IFR 135 Imagerie fonctionnelle , Tours, France.
+	destrieux@med.univ-tours.fr},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1053-8119(10)00854-2},
+  pmid = {20547229},
+  timestamp = {2010.08.27},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2010.06.010}
+}
+
+@ARTICLE{Duncan2004,
+  author = {James S Duncan and Xenophon Papademetris and Jing Yang and Marcel
+	Jackowski and Xiaolan Zeng and Lawrence H Staib},
+  title = {Geometric strategies for neuroanatomic analysis from {MRI}.},
+  journal = {Neuroimage},
+  year = {2004},
+  volume = {23 Suppl 1},
+  pages = {S34--S45},
+  abstract = {In this paper, we describe ongoing work in the Image Processing and
+	Analysis Group (IPAG) at Yale University specifically aimed at the
+	analysis of structural information as represented within magnetic
+	resonance images (MRI) of the human brain. Specifically, we will
+	describe our applied mathematical approaches to the segmentation
+	of cortical and subcortical structure, the analysis of white matter
+	fiber tracks using diffusion tensor imaging (DTI), and the intersubject
+	registration of neuroanatomical (aMRI) data sets. Many of our methods
+	rally around the use of geometric constraints, statistical (MAP)
+	estimation, and the use of level set evolution strategies. The analysis
+	of gray matter structure and connecting white matter paths combined
+	with the ability to bring all information into a common space via
+	intersubject registration should provide us with a rich set of data
+	to investigate structure and variation in the human brain in neuropsychiatric
+	disorders, as well as provide a basis for current work in the development
+	of integrated brain function-structure analysis.},
+  doi = {10.1016/j.neuroimage.2004.07.027},
+  institution = {Department of Diagnostic Radiology, Yale University, New Haven, CT
+	06520, USA. james.duncan@yale.edu},
+  keywords = {Algorithms; Brain Mapping; Brain, anatomy /&/ histology/cytology;
+	Cerebral Cortex, anatomy /&/ histology/cytology; Computer Simulation;
+	Diffusion Magnetic Resonance Imaging, statistics /&/ numerical data;
+	Humans; Image Processing, Computer-Assisted, statistics /&/ numerical
+	data; Models, Statistical; Nerve Fibers, physiology; Neural Pathways,
+	anatomy /&/ histology/cytology},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1053-8119(04)00392-1},
+  pmid = {15501099},
+  timestamp = {2010.08.19},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2004.07.027}
+}
+
+@ARTICLE{Fischl2004,
+  author = {Bruce Fischl and André van der Kouwe and Christophe Destrieux and
+	Eric Halgren and Florent Ségonne and David H Salat and Evelina Busa
+	and Larry J Seidman and Jill Goldstein and David Kennedy and Verne
+	Caviness and Nikos Makris and Bruce Rosen and Anders M Dale},
+  title = {Automatically parcellating the human cerebral cortex.},
+  journal = {Cereb Cortex},
+  year = {2004},
+  volume = {14},
+  pages = {11--22},
+  number = {1},
+  month = {Jan},
+  abstract = {We present a technique for automatically assigning a neuroanatomical
+	label to each location on a cortical surface model based on probabilistic
+	information estimated from a manually labeled training set. This
+	procedure incorporates both geometric information derived from the
+	cortical model, and neuroanatomical convention, as found in the training
+	set. The result is a complete labeling of cortical sulci and gyri.
+	Examples are given from two different training sets generated using
+	different neuroanatomical conventions, illustrating the flexibility
+	of the algorithm. The technique is shown to be comparable in accuracy
+	to manual labeling.},
+  institution = {Athinoula A. Martinos Center for Biomedical Imaging, Department of
+	Radiology, MGH/MIT/Harvard Medical School, Massachusetts General
+	Hospital, 13th Street, Charlestown, MA 02129, USA. fischl@nmr.mgh.harvard.edu},
+  keywords = {Algorithms; Anisotropy; Artificial Intelligence; Bayes Theorem; Brain
+	Mapping, methods; Cerebral Cortex, anatomy /&/ histology/physiology;
+	Functional Laterality; Humans; Image Processing, Computer-Assisted,
+	methods; Markov Chains; Models, Neurological; Models, Statistical;
+	Schizophrenia, pathology},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {14654453},
+  timestamp = {2010.09.08}
+}
+
+@ARTICLE{Fischl1999,
+  author = {B. Fischl and M. I. Sereno and A. M. Dale},
+  title = {Cortical surface-based analysis. II: Inflation, flattening, and a
+	surface-based coordinate system.},
+  journal = {Neuroimage},
+  year = {1999},
+  volume = {9},
+  pages = {195--207},
+  number = {2},
+  month = {Feb},
+  abstract = {The surface of the human cerebral cortex is a highly folded sheet
+	with the majority of its surface area buried within folds. As such,
+	it is a difficult domain for computational as well as visualization
+	purposes. We have therefore designed a set of procedures for modifying
+	the representation of the cortical surface to (i) inflate it so that
+	activity buried inside sulci may be visualized, (ii) cut and flatten
+	an entire hemisphere, and (iii) transform a hemisphere into a simple
+	parameterizable surface such as a sphere for the purpose of establishing
+	a surface-based coordinate system.},
+  doi = {10.1006/nimg.1998.0396},
+  institution = {Nuclear Magnetic Resonance Center, Massachusetts General Hosp/Harvard
+	Medical School, Building 149, 13th Street, Charlestown, Massachusetts,
+	02129, USA.},
+  keywords = {Artifacts; Brain Mapping, instrumentation; Cerebral Cortex, anatomy
+	/&/ histology; Dominance, Cerebral, physiology; Humans; Image Processing,
+	Computer-Assisted, instrumentation; Magnetic Resonance Imaging, instrumentation;
+	Software},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1053-8119(98)90396-2},
+  pmid = {9931269},
+  timestamp = {2010.09.08},
+  url = {http://dx.doi.org/10.1006/nimg.1998.0396}
+}
+
+@ARTICLE{Friston1990,
+  author = {K. J. Friston and C. D. Frith and P. F. Liddle and R. J. Dolan and
+	A. A. Lammertsma and R. S. Frackowiak},
+  title = {The relationship between global and local changes in {PET} scans.},
+  journal = {J Cereb Blood Flow Metab},
+  year = {1990},
+  volume = {10},
+  pages = {458--466},
+  number = {4},
+  month = {Jul},
+  abstract = {In order to localize cerebral cognitive or sensorimotor function,
+	activation paradigms are being used in conjunction with PET measures
+	of cerebral activity (e.g., rCBF). The changes in local cerebral
+	activity have two components: a global, region independent change
+	and a local or regional change. As the first step in localizing the
+	regional effects of an activation, global variance must be removed
+	by a normalization procedure. A simple normalization procedure is
+	division of regional values by the whole brain mean. This requires
+	the dependence of local activity on global activity to be one of
+	simple proportionality. This is shown not to be the case. Furthermore,
+	a systematic deviation from a proportional relationship across brain
+	regions is demonstrated. Consequently, any normalization must be
+	approached on a pixel-by-pixel basis by measuring the change in local
+	activity and change in global activity. The changes associated with
+	an activation can be partitioned into global and local effects according
+	to two models: one assumes that the increase in local activity depends
+	on global values and the other assumes independence. It is shown
+	that the increase in activity due to a cognitive activation is independent
+	of global activity. This independence of the (activation) condition
+	effect and the confounding linear effect of global activity on observed
+	local activity meet the requirements for an analysis of covariance,
+	with the "nuisance" variable as global activity and the activation
+	condition as the categorical independent variable. These conclusions
+	are based on analysis of data from 24 scans: six conditions over
+	four normal subjects using a verbal fluency paradigm.(ABSTRACT TRUNCATED
+	AT 250 WORDS)},
+  institution = {MRC Cyclotron Unit, Hammersmith Hospital, London, U.K.},
+  keywords = {Adult; Analysis of Variance; Brain, physiology/radionuclide imaging;
+	Cerebrovascular Circulation; Humans; Male; Models, Neurological;
+	Models, Theoretical; Tomography, Emission-Computed, methods},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {2347879},
+  timestamp = {2010.09.07}
+}
+
+@ARTICLE{Geman1984,
+  author = {Geman, Stuart and Geman, Donald},
+  title = {Stochastic Relaxation, {G}ibbs Distributions, and the {B}ayesian
+	Restoration of Images},
+  journal = {IEEE Trans. Pattern. Anal. Mach. Intell.},
+  year = {1984},
+  volume = {6},
+  pages = {721--741},
+  number = {6},
+  month = {nov.},
+  abstract = {We make an analogy between images and statistical mechanics systems.
+	Pixel gray levels and the presence and orientation of edges are viewed
+	as states of atoms or molecules in a lattice-like physical system.
+	The assignment of an energy function in the physical system determines
+	its Gibbs distribution. Because of the Gibbs distribution, Markov
+	random field (MRF) equivalence, this assignment also determines an
+	MRF image model. The energy function is a more convenient and natural
+	mechanism for embodying picture attributes than are the local characteristics
+	of the MRF. For a range of degradation mechanisms, including blurring,
+	nonlinear deformations, and multiplicative or additive noise, the
+	posterior distribution is an MRF with a structure akin to the image
+	model. By the analogy, the posterior distribution defines another
+	(imaginary) physical system. Gradual temperature reduction in the
+	physical system isolates low energy states (``annealing''), or what
+	is the same thing, the most probable states under the Gibbs distribution.
+	The analogous operation under the posterior distribution yields the
+	maximum a posteriori (MAP) estimate of the image given the degraded
+	observations. The result is a highly parallel ``relaxation'' algorithm
+	for MAP estimation. We establish convergence properties of the algorithm
+	and we experiment with some simple pictures, for which good restorations
+	are obtained at low signal-to-noise ratios.},
+  doi = {10.1109/TPAMI.1984.4767596},
+  issn = {0162-8828}
+}
+
+@INPROCEEDINGS{Gering1999,
+  author = {D. Gering and A. Nabavi and R. Kikinis and W. Grimson and N. Hata
+	and P. Everett and F. Jolesz and W. Wells},
+  title = {An Integrated Visualization System for Surgical Planning and Guidance
+	using Image Fusion and Interventional Imaging},
+  booktitle = {Int Conf Med Image Comput Comput Assist Interv},
+  year = {1999},
+  volume = {2},
+  pages = {809--819},
+  owner = {ntustison},
+  timestamp = {2010.09.03}
+}
+
+@ARTICLE{Goualher1999,
+  author = {G. Le Goualher and E. Procyk and D. L. Collins and R. Venugopal and
+	C. Barillot and A. C. Evans},
+  title = {Automated extraction and variability analysis of sulcal neuroanatomy.},
+  journal = {IEEE Trans Med Imaging},
+  year = {1999},
+  volume = {18},
+  pages = {206--217},
+  number = {3},
+  month = {Mar},
+  abstract = {Systematic mapping of the variability in cortical sulcal anatomy is
+	an area of increasing interest which presents numerous methodological
+	challenges. To address these issues, we have implemented sulcal extraction
+	and assisted labeling (SEAL) to automatically extract the two-dimensional
+	(2-D) surface ribbons that represent the median axis of cerebral
+	sulci and to neuroanatomically label these entities. To encode the
+	extracted three-dimensional (3-D) cortical sulcal schematic topography
+	(CSST) we define a relational graph structure composed of two main
+	features: vertices (representing sulci) and arcs (representing the
+	relationships between sulci). Vertices contain a parametric representation
+	of the surface ribbon buried within the sulcus. Points on this surface
+	are expressed in stereotaxic coordinates (i.e., with respect to a
+	standardized brain coordinate system). For each of these vertices,
+	we store length, depth, and orientation as well as anatomical attributes
+	(e.g., hemisphere, lobe, sulcus type, etc.). Each arc stores the
+	3-D location of the junction between sulci as well as a list of its
+	connecting sulci. Sulcal labeling is performed semiautomatically
+	by selecting a sulcal entity in the CSST and selecting from a menu
+	of candidate sulcus names. In order to help the user in the labeling
+	task, the menu is restricted to the most likely candidates by using
+	priors for the expected sulcal spatial distribution. These priors,
+	i.e., sulcal probabilistic maps, were created from the spatial distribution
+	of 34 sulci traced manually on 36 different subjects. Given these
+	spatial probability maps, the user is provided with the likelihood
+	that the selected entity belongs to a particular sulcus. The cortical
+	structure representation obtained by SEAL is suitable to extract
+	statistical information about both the spatial and the structural
+	composition of the cerebral cortical topography. This methodology
+	allows for the iterative construction of a successively more complete
+	statistical models of the cerebral topography containing spatial
+	distributions of the most important structures, their morphometrics,
+	and their structural components.},
+  doi = {10.1109/42.764891},
+  institution = {McConnell Brain Imaging Center and the Department of Neurology and
+	Neurosurgery, Montreal Neurological Institute and Hospital, McGill
+	University, PQ, Canada. georges@bic.mni.mcgill.ca},
+  keywords = {Algorithms; Cerebral Cortex, anatomy /&/ histology; Humans; Image
+	Processing, Computer-Assisted, statistics /&/ numerical data; Likelihood
+	Functions; Magnetic Resonance Imaging, methods; Reproducibility of
+	Results},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {10363699},
+  timestamp = {2010.09.08},
+  url = {http://dx.doi.org/10.1109/42.764891}
+}
+
+@ARTICLE{Greenspan2006,
+  author = {Hayit Greenspan and Amit Ruf and Jacob Goldberger},
+  title = {Constrained Gaussian mixture model framework for automatic segmentation
+	of {MR} brain images.},
+  journal = {IEEE Trans Med Imaging},
+  year = {2006},
+  volume = {25},
+  pages = {1233--1245},
+  number = {9},
+  month = {Sep},
+  abstract = {An automated algorithm for tissue segmentation of noisy, low-contrast
+	magnetic resonance (MR) images of the brain is presented. A mixture
+	model composed of a large number of Gaussians is used to represent
+	the brain image. Each tissue is represented by a large number of
+	Gaussian components to capture the complex tissue spatial layout.
+	The intensity of a tissue is considered a global feature and is incorporated
+	into the model through tying of all the related Gaussian parameters.
+	The expectation-maximization (EM) algorithm is utilized to learn
+	the parameter-tied, constrained Gaussian mixture model. An elaborate
+	initialization scheme is suggested to link the set of Gaussians per
+	tissue type, such that each Gaussian in the set has similar intensity
+	characteristics with minimal overlapping spatial supports. Segmentation
+	of the brain image is achieved by the affiliation of each voxel to
+	the component of the model that maximized the a posteriori probability.
+	The presented algorithm is used to segment three-dimensional, T1-weighted,
+	simulated and real MR images of the brain into three different tissues,
+	under varying noise conditions. Results are compared with state-of-the-art
+	algorithms in the literature. The algorithm does not use an atlas
+	for initialization or parameter learning. Registration processes
+	are therefore not required and the applicability of the framework
+	can be extended to diseased brains and neonatal brains.},
+  institution = {Tel-Aviv University, Tel Aviv 69978, Israel. hayit@eng.tau.ac.il},
+  keywords = {Algorithms; Artificial Intelligence; Brain, anatomy /&/ histology;
+	Humans; Image Enhancement, methods; Image Interpretation, Computer-Assisted,
+	methods; Information Storage and Retrieval, methods; Magnetic Resonance
+	Imaging, methods; Models, Neurological; Models, Statistical; Normal
+	Distribution; Pattern Recognition, Automated, methods; Reproducibility
+	of Results; Sensitivity and Specificity},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {16967808},
+  timestamp = {2010.09.07}
+}
+
+@ARTICLE{Heckemann2006,
+  author = {Rolf A Heckemann and Joseph V Hajnal and Paul Aljabar and Daniel
+	Rueckert and Alexander Hammers},
+  title = {Automatic anatomical brain {MRI} segmentation combining label propagation
+	and decision fusion.},
+  journal = {Neuroimage},
+  year = {2006},
+  volume = {33},
+  pages = {115--126},
+  number = {1},
+  month = {Oct},
+  abstract = {Regions in three-dimensional magnetic resonance (MR) brain images
+	can be classified using protocols for manually segmenting and labeling
+	structures. For large cohorts, time and expertise requirements make
+	this approach impractical. To achieve automation, an individual segmentation
+	can be propagated to another individual using an anatomical correspondence
+	estimate relating the atlas image to the target image. The accuracy
+	of the resulting target labeling has been limited but can potentially
+	be improved by combining multiple segmentations using decision fusion.
+	We studied segmentation propagation and decision fusion on 30 normal
+	brain MR images, which had been manually segmented into 67 structures.
+	Correspondence estimates were established by nonrigid registration
+	using free-form deformations. Both direct label propagation and an
+	indirect approach were tested. Individual propagations showed an
+	average similarity index (SI) of 0.754+/-0.016 against manual segmentations.
+	Decision fusion using 29 input segmentations increased SI to 0.836+/-0.009.
+	For indirect propagation of a single source via 27 intermediate images,
+	SI was 0.779+/-0.013. We also studied the effect of the decision
+	fusion procedure using a numerical simulation with synthetic input
+	data. The results helped to formulate a model that predicts the quality
+	improvement of fused brain segmentations based on the number of individual
+	propagated segmentations combined. We demonstrate a practicable procedure
+	that exceeds the accuracy of previous automatic methods and can compete
+	with manual delineations.},
+  doi = {10.1016/j.neuroimage.2006.05.061},
+  institution = {Imaging Sciences Department, MRC Clinical Sciences Centre, Imperial
+	College at Hammersmith Hospital Campus, Du Cane Road, London W12
+	0HS, UK.},
+  keywords = {Adult; Algorithms; Automatic Data Processing; Brain, anatomy /&/ histology;
+	Decision Support Techniques; Female; Humans; Image Processing, Computer-Assisted,
+	statistics /&/ numerical data; Magnetic Resonance Imaging, statistics
+	/&/ numerical data; Male; Middle Aged; Models, Statistical; Quality
+	Control; Reference Values},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1053-8119(06)00645-8},
+  pmid = {16860573},
+  timestamp = {2010.09.08},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2006.05.061}
+}
+
+@ARTICLE{Held1997,
+  author = {K. Held and E. Rota Kops and B. J. Krause and W. M. Wells and R.
+	Kikinis and H. W. Müller-Gärtner},
+  title = {Markov random field segmentation of brain {MR} images.},
+  journal = {IEEE Trans Med Imaging},
+  year = {1997},
+  volume = {16},
+  pages = {878--886},
+  number = {6},
+  month = {Dec},
+  abstract = {We describe a fully-automatic three-dimensional (3-D)-segmentation
+	technique for brain magnetic resonance (MR) images. By means of Markov
+	random fields (MRF's) the segmentation algorithm captures three features
+	that are of special importance for MR images, i.e., nonparametric
+	distributions of tissue intensities, neighborhood correlations, and
+	signal inhomogeneities. Detailed simulations and real MR images demonstrate
+	the performance of the segmentation algorithm. In particular, the
+	impact of noise, inhomogeneity, smoothing, and structure thickness
+	are analyzed quantitatively. Even single-echo MR images are well
+	classified into gray matter, white matter, cerebrospinal fluid, scalp-bone,
+	and background. A simulated annealing and an iterated conditional
+	modes implementation are presented.},
+  doi = {10.1109/42.650883},
+  institution = {Institute of Medicine, Research Center Jülich GmbH, Germany.},
+  keywords = {Algorithms; Brain, anatomy /&/ histology; Humans; Image Processing,
+	Computer-Assisted, methods; Magnetic Resonance Imaging},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {9533587},
+  timestamp = {2010.08.29},
+  url = {http://dx.doi.org/10.1109/42.650883}
+}
+
+@ARTICLE{Kikinis1992,
+  author = {R. Kikinis and M. E. Shenton and G. Gerig and J. Martin and M. Anderson
+	and D. Metcalf and C. R. Guttmann and R. W. McCarley and W. Lorensen
+	and H. Cline},
+  title = {Routine quantitative analysis of brain and cerebrospinal fluid spaces
+	with {MR} imaging.},
+  journal = {J Magn Reson Imaging},
+  year = {1992},
+  volume = {2},
+  pages = {619--629},
+  number = {6},
+  abstract = {A computerized system for processing spin-echo magnetic resonance
+	(MR) imaging data was implemented to estimate whole brain (gray and
+	white matter) and cerebrospinal fluid volumes and to display three-dimensional
+	surface reconstructions of specified tissue classes. The techniques
+	were evaluated by assessing the radiometric variability of MR volume
+	data and by comparing automated and manual procedures for measuring
+	tissue volumes. Results showed (a) the homogeneity of the MR data
+	and (b) that automated techniques were consistently superior to manual
+	techniques. Both techniques, however, were affected by the complexity
+	of the structure, with simpler structures (eg, the intracranial cavity)
+	showing less variability and better spatial correlation of segmentation
+	results between raters. Moreover, the automated techniques were completed
+	for whole brain in a fraction of the time required to complete the
+	equivalent segmentation manually. Additional evaluations included
+	interrater reliability and an evaluation that included longitudinal
+	measurement, in which one subject was imaged sequentially 24 times,
+	with reliability computed from data collected by three raters over
+	1 year. Results showed good reliability for the automated segmentation
+	procedures.},
+  institution = {Department of Radiology, Harvard Medical School, Brigham and Women's
+	Hospital.},
+  keywords = {Body Fluid Compartments; Brain, anatomy /&/ histology; Cerebrospinal
+	Fluid; Humans; Image Processing, Computer-Assisted; Magnetic Resonance
+	Imaging, methods; Reproducibility of Results},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {1446105},
+  timestamp = {2010.08.23}
+}
+
+@ARTICLE{Klauschen2009,
+  author = {Frederick Klauschen and Aaron Goldman and Vincent Barra and Andreas
+	Meyer-Lindenberg and Arvid Lundervold},
+  title = {Evaluation of automated brain {MR} image segmentation and volumetry
+	methods.},
+  journal = {Hum. Brain. Mapp.},
+  year = {2009},
+  volume = {30},
+  pages = {1310--1327},
+  number = {4},
+  month = {Apr},
+  abstract = {We compare three widely used brain volumetry methods available in
+	the software packages FSL, SPM5, and FreeSurfer and evaluate their
+	performance using simulated and real MR brain data sets. We analyze
+	the accuracy of gray and white matter volume measurements and their
+	robustness against changes of image quality using the BrainWeb MRI
+	database. These images are based on "gold-standard" reference brain
+	templates. This allows us to assess between- (same data set, different
+	method) and also within-segmenter (same method, variation of image
+	quality) comparability, for both of which we find pronounced variations
+	in segmentation results for gray and white matter volumes. The calculated
+	volumes deviate up to >10\% from the reference values for gray and
+	white matter depending on method and image quality. Sensitivity is
+	best for SPM5, volumetric accuracy for gray and white matter was
+	similar in SPM5 and FSL and better than in FreeSurfer. FSL showed
+	the highest stability for white (<5\%), FreeSurfer (6.2\%) for gray
+	matter for constant image quality BrainWeb data. Between-segmenter
+	comparisons show discrepancies of up to >20\% for the simulated data
+	and 24\% on average for the real data sets, whereas within-method
+	performance analysis uncovered volume differences of up to >15\%.
+	Since the discrepancies between results reach the same order of magnitude
+	as volume changes observed in disease, these effects limit the usability
+	of the segmentation methods for following volume changes in individual
+	patients over time and should be taken into account during the planning
+	and analysis of brain volume studies.},
+  doi = {10.1002/hbm.20599},
+  institution = {Department of Biomedicine, University of Bergen, Norway. fklauschen@mail.nih.gov},
+  keywords = {Aged; Algorithms; Automatic Data Processing, methods; Brain Mapping;
+	Brain, anatomy /&/ histology; Computer Simulation; Databases, Bibliographic,
+	statistics /&/ numerical data; Female; Humans; Image Processing,
+	Computer-Assisted, methods; Magnetic Resonance Imaging, methods;
+	Male; Middle Aged; Reference Values; Software},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {18537111},
+  timestamp = {2010.08.19},
+  url = {http://dx.doi.org/10.1002/hbm.20599}
+}
+
+@ARTICLE{Klein2010,
+  author = {Arno Klein and Satrajit S Ghosh and Brian Avants and B. T T Yeo and
+	Bruce Fischl and Babak Ardekani and James C Gee and J. J. Mann and
+	Ramin V Parsey},
+  title = {Evaluation of volume-based and surface-based brain image registration
+	methods.},
+  journal = {Neuroimage},
+  year = {2010},
+  volume = {51},
+  pages = {214--220},
+  number = {1},
+  month = {May},
+  abstract = {Establishing correspondences across brains for the purposes of comparison
+	and group analysis is almost universally done by registering images
+	to one another either directly or via a template. However, there
+	are many registration algorithms to choose from. A recent evaluation
+	of fully automated nonlinear deformation methods applied to brain
+	image registration was restricted to volume-based methods. The present
+	study is the first that directly compares some of the most accurate
+	of these volume registration methods with surface registration methods,
+	as well as the first study to compare registrations of whole-head
+	and brain-only (de-skulled) images. We used permutation tests to
+	compare the overlap or Hausdorff distance performance for more than
+	16,000 registrations between 80 manually labeled brain images. We
+	compared every combination of volume-based and surface-based labels,
+	registration, and evaluation. Our primary findings are the following:
+	1. de-skulling aids volume registration methods; 2. custom-made optimal
+	average templates improve registration over direct pairwise registration;
+	and 3. resampling volume labels on surfaces or converting surface
+	labels to volumes introduces distortions that preclude a fair comparison
+	between the highest ranking volume and surface registration methods
+	using present resampling methods. From the results of this study,
+	we recommend constructing a custom template from a limited sample
+	drawn from the same or a similar representative population, using
+	the same algorithm used for registering brains to the template.},
+  doi = {10.1016/j.neuroimage.2010.01.091},
+  institution = {New York State Psychiatric Institute, Columbia University, NY, NY
+	10032, USA. arno@binarybottle.com},
+  keywords = {Adult; Algorithms; Brain, anatomy /&/ histology; Female; Head, anatomy
+	/&/ histology; Humans; Image Processing, Computer-Assisted, methods;
+	Imaging, Three-Dimensional, methods; Magnetic Resonance Imaging,
+	methods; Male; Organ Size; Software; Young Adult},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1053-8119(10)00114-X},
+  pmid = {20123029},
+  timestamp = {2010.08.28},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2010.01.091}
+}
+
+@ARTICLE{Klein2005,
+  author = {Arno Klein and Joy Hirsch},
+  title = {Mindboggle: a scatterbrained approach to automate brain labeling.},
+  journal = {Neuroimage},
+  year = {2005},
+  volume = {24},
+  pages = {261--280},
+  number = {2},
+  month = {Jan},
+  abstract = {Mindboggle (http://www.binarybottle.com/mindboggle.html) is a fully
+	automated, feature matching approach to label cortical structures
+	and activity anatomically in human brain MRI data. This approach
+	does not assume that the existence of component structures and their
+	relative spatial relationship is preserved from brain to brain, but
+	instead disassembles a labeled atlas and reassembles its pieces to
+	match corresponding pieces in an unlabeled subject brain before labeling.
+	Mindboggle: (1) converts linearly coregistered subject and atlas
+	MRI data into sulcus pieces, (2) matches each atlas piece with a
+	combination of subject pieces by minimizing a cost function, (3)
+	transforms atlas label boundaries to the matching subject pieces,
+	(4) warps atlas labels to their transformed boundaries, and (5) propagates
+	labels to fill remaining gaps in a mask derived from the subject
+	brain. We compared Mindboggle with four registration methods: linear
+	registration, and nonlinear registration using SPM2, AIR, and ANIMAL.
+	Automated labeling by all of the nonlinear methods was found to be
+	at least comparable with linear registration. Mindboggle outperformed
+	every other method, as measured by the agreement between overlapping
+	atlas labels and manually assigned subject labels, with respect to
+	the union or the intersection of voxels. After applying the same
+	procedure that Mindboggle uses to fill a subject's segmented gray
+	matter mask with labels (step 5), the results of the other methods
+	improved. However, after performing a one-way ANOVA (and Tukey's
+	honestly significant difference criterion) in a multiple comparison
+	between the results obtained by the different methods, Mindboggle
+	was still found to be the only nonlinear method whose labeling performance
+	was significantly better than that of linear registration or SPM2.
+	Further advantages to Mindboggle include a high degree of robustness
+	against image artifacts, poor image quality, and incomplete brain
+	data. We tested the latter hypothesis by conducting all of the tests
+	again, this time registering the atlas to an artificially lesioned
+	version of itself, and found that Mindboggle was the only method
+	whose performance did not degrade significantly as the lesion size
+	increased.},
+  doi = {10.1016/j.neuroimage.2004.09.016},
+  institution = {fMRI Research Center, Columbia University, New York 10032, USA. arno@binarybottle.com},
+  keywords = {Animals; Brain Mapping, methods; Brain, anatomy /&/ histology/physiology;
+	Humans; Image Processing, Computer-Assisted; Magnetic Resonance Imaging;
+	Reproducibility of Results; Software},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1053-8119(04)00541-5},
+  pmid = {15627570},
+  timestamp = {2010.09.08},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2004.09.016}
+}
+
+@ARTICLE{Leemput2003,
+  author = {Koen Van Leemput and Frederik Maes and Dirk Vandermeulen and Paul
+	Suetens},
+  title = {A unifying framework for partial volume segmentation of brain {MR}
+	images.},
+  journal = {IEEE Trans Med Imaging},
+  year = {2003},
+  volume = {22},
+  pages = {105--119},
+  number = {1},
+  month = {Jan},
+  abstract = {Accurate brain tissue segmentation by intensity-based voxel classification
+	of magnetic resonance (MR) images is complicated by partial volume
+	(PV) voxels that contain a mixture of two or more tissue types. In
+	this paper, we present a statistical framework for PV segmentation
+	that encompasses and extends existing techniques. We start from a
+	commonly used parametric statistical image model in which each voxel
+	belongs to one single tissue type, and introduce an additional downsampling
+	step that causes partial voluming along the borders between tissues.
+	An expectation-maximization approach is used to simultaneously estimate
+	the parameters of the resulting model and perform a PV classification.
+	We present results on well-chosen simulated images and on real MR
+	images of the brain, and demonstrate that the use of appropriate
+	spatial prior knowledge not only improves the classifications, but
+	is often indispensable for robust parameter estimation as well. We
+	conclude that general robust PV segmentation of MR brain images requires
+	statistical models that describe the spatial distribution of brain
+	tissues more accurately than currently available models.},
+  doi = {10.1109/TMI.2002.806587},
+  institution = {Medical Image Computing (Radiology-ESAT/PSI), Faculty of Medicine,
+	University Hospital Gasthuisberg, Leuven, Belgium. koen.vanleemput@hus.fi},
+  keywords = {Algorithms; Brain, anatomy /&/ histology; Computer Simulation; Humans;
+	Image Enhancement, methods; Imaging, Three-Dimensional, methods;
+	Likelihood Functions; Magnetic Resonance Imaging, methods; Models,
+	Biological; Models, Statistical; Pattern Recognition, Automated;
+	Phantoms, Imaging; Quality Control; Reproducibility of Results; Sensitivity
+	and Specificity},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {12703764},
+  timestamp = {2010.08.30},
+  url = {http://dx.doi.org/10.1109/TMI.2002.806587}
+}
+
+@ARTICLE{Leemput1999,
+  author = {K. Van Leemput and F. Maes and D. Vandermeulen and P. Suetens},
+  title = {Automated model-based bias field correction of {MR} images of the
+	brain.},
+  journal = {IEEE Trans Med Imaging},
+  year = {1999},
+  volume = {18},
+  pages = {885--896},
+  number = {10},
+  month = {Oct},
+  abstract = {We propose a model-based method for fully automated bias field correction
+	of MR brain images. The MR signal is modeled as a realization of
+	a random process with a parametric probability distribution that
+	is corrupted by a smooth polynomial inhomogeneity or bias field.
+	The method we propose applies an iterative expectation-maximization
+	(EM) strategy that interleaves pixel classification with estimation
+	of class distribution and bias field parameters, improving the likelihood
+	of the model parameters at each iteration. The algorithm, which can
+	handle multichannel data and slice-by-slice constant intensity offsets,
+	is initialized with information from a digital brain atlas about
+	the a priori expected location of tissue classes. This allows full
+	automation of the method without need for user interaction, yielding
+	more objective and reproducible results. We have validated the bias
+	correction algorithm on simulated data and we illustrate its performance
+	on various MR images with important field inhomogeneities. We also
+	relate the proposed algorithm to other bias correction algorithms.},
+  doi = {10.1109/42.811268},
+  institution = {Medical Image Computing (Radiology-ESAT/PSI), Faculty of Medicine,
+	University Hospital Gasthuisberg, Leuven, Belgium.},
+  keywords = {Algorithms; Bias (Epidemiology); Brain, pathology; Humans; Magnetic
+	Resonance Imaging, instrumentation/methods/statistics /&/ numerical
+	data; Models, Neurological; Reproducibility of Results; Schizophrenia,
+	diagnosis},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {10628948},
+  timestamp = {2010.08.29},
+  url = {http://dx.doi.org/10.1109/42.811268}
+}
+
+@ARTICLE{Leemput1999a,
+  author = {K. Van Leemput and F. Maes and D. Vandermeulen and P. Suetens},
+  title = {Automated model-based tissue classification of {MR} images of the
+	brain.},
+  journal = {IEEE Trans Med Imaging},
+  year = {1999},
+  volume = {18},
+  pages = {897--908},
+  number = {10},
+  month = {Oct},
+  abstract = {We describe a fully automated method for model-based tissue classification
+	of magnetic resonance (MR) images of the brain. The method interleaves
+	classification with estimation of the model parameters, improving
+	the classification at each iteration. The algorithm is able to segment
+	single- and multispectral MR images, corrects for MR signal inhomogeneities,
+	and incorporates contextual information by means of Markov random
+	Fields (MRF's). A digital brain atlas containing prior expectations
+	about the spatial location of tissue classes is used to initialize
+	the algorithm. This makes the method fully automated and therefore
+	it provides objective and reproducible segmentations. We have validated
+	the technique on simulated as well as on real MR images of the brain.},
+  doi = {10.1109/42.811270},
+  institution = {Medical Image Computing (Radiology-ESAT/PSI), Faculty of Medicine,
+	University Hospital Gasthuisberg, Leuven, Belgium.},
+  keywords = {Algorithms; Bias (Epidemiology); Brain, pathology; Computer Simulation;
+	Humans; Likelihood Functions; Magnetic Resonance Imaging, classification/methods/statistics
+	/&/ numerical data; Markov Chains; Models, Neurological; Reproducibility
+	of Results},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {10628949},
+  timestamp = {2010.08.29},
+  url = {http://dx.doi.org/10.1109/42.811270}
+}
+
+@ARTICLE{Lehmann2007,
+  author = {G. Lehmann},
+  title = {Label object representation and manipulation with {ITK}},
+  journal = {The Insight Journal},
+  year = {2007},
+  volume = {2},
+  pages = {1--34},
+  owner = {ntustison},
+  timestamp = {2010.08.27},
+  url = {http://hdl.handle.net/1926/584}
+}
+
+@BOOK{Li2001,
+  title = {Markov random field modeling in computer vision},
+  publisher = {Springer-Verlag},
+  year = {2001},
+  author = {Li, S. Z.},
+  address = {London, UK}
+}
+
+@ARTICLE{Marroquin2002,
+  author = {J. L. Marroquin and B. C. Vemuri and S. Botello and F. Calderon and
+	A. Fernandez-Bouzas},
+  title = {An accurate and efficient bayesian method for automatic segmentation
+	of brain {MRI}.},
+  journal = {IEEE Trans Med Imaging},
+  year = {2002},
+  volume = {21},
+  pages = {934--945},
+  number = {8},
+  month = {Aug},
+  abstract = {Automatic three-dimensional (3-D) segmentation of the brain from magnetic
+	resonance (MR) scans is a challenging problem that has received an
+	enormous amount of attention lately. Of the techniques reported in
+	the literature, very few are fully automatic. In this paper, we present
+	an efficient and accurate, fully automatic 3-D segmentation procedure
+	for brain MR scans. It has several salient features; namely, the
+	following. 1) Instead of a single multiplicative bias field that
+	affects all tissue intensities, separate parametric smooth models
+	are used for the intensity of each class. 2) A brain atlas is used
+	in conjunction with a robust registration procedure to find a nonrigid
+	transformation that maps the standard brain to the specimen to be
+	segmented. This transformation is then used to: segment the brain
+	from nonbrain tissue; compute prior probabilities for each class
+	at each voxel location and find an appropriate automatic initialization.
+	3) Finally, a novel algorithm is presented which is a variant of
+	the expectation-maximization procedure, that incorporates a fast
+	and accurate way to find optimal segmentations, given the intensity
+	models along with the spatial coherence assumption. Experimental
+	results with both synthetic and real data are included, as well as
+	comparisons of the performance of our algorithm with that of other
+	published methods.},
+  doi = {10.1109/TMI.2002.803119},
+  institution = {Centro de Investigaci6n en Matematicas, Guanajuato 36000, Mexico.},
+  keywords = {Algorithms; Bayes Theorem; Brain, anatomy /&/ histology; Computer
+	Simulation; Databases, Factual; Humans; Image Enhancement, methods;
+	Image Interpretation, Computer-Assisted, methods; Imaging, Three-Dimensional,
+	methods; Magnetic Resonance Imaging, methods; Models, Neurological;
+	Models, Statistical; Pattern Recognition, Automated; Quality Control;
+	Reproducibility of Results; Sensitivity and Specificity},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {12472266},
+  timestamp = {2010.08.30},
+  url = {http://dx.doi.org/10.1109/TMI.2002.803119}
+}
+
+@ARTICLE{Maurer2003,
+  author = {Maurer,Jr., Calvin R. and Qi, Rensheng and Raghavan, Vijay},
+  title = {A Linear Time Algorithm for Computing Exact {E}uclidean Distance
+	Transforms of Binary Images in Arbitrary Dimensions},
+  journal = {IEEE Trans. Pattern Anal. Mach. Intell.},
+  year = {2003},
+  volume = {25},
+  pages = {265--270},
+  number = {2},
+  address = {Washington, DC, USA},
+  doi = {http://dx.doi.org/10.1109/TPAMI.2003.1177156},
+  issn = {0162-8828},
+  publisher = {IEEE Computer Society}
+}
+
+@INCOLLECTION{Noe2001,
+  author = {Aljaz Noe and James C. Gee},
+  title = {Partial Volume Segmentation of Cerebral {MRI} Scans with Mixture
+	Model Clustering},
+  booktitle = {Information Processing in Medical Imaging},
+  publisher = {Springer Berlin / Heidelberg},
+  year = {2001},
+  editor = {Insana, Michael and Leahy, Richard},
+  volume = {2082},
+  series = {Lecture Notes in Computer Science},
+  pages = {423-430},
+  abstract = {A mixture model clustering algorithm is presented for robust MRI brain
+	image segmentation in the presence of partial volume averaging. The
+	method uses additional classes to represent partial volume voxels
+	of mixed tissue type in the data with their probability distributions
+	modeled accordingly. The image model also allows for tissue-dependent
+	variance values and voxel neighborhood information is taken into
+	account in the clustering formulation. The final result is the estimated
+	fractional amount of each tissue type present within a voxel in addition
+	to the label assigned to the voxel. A multi-threaded implementation
+	of the method is evaluated using both synthetic and real MRI data.},
+  affiliation = {University of Ljubljana Faculty of Electrical Engineering Tržaška
+	25 SI-1000 Ljubljana Slovenija},
+  url = {http://dx.doi.org/10.1007/3-540-45729-1_44}
+}
+
+@ARTICLE{Olabarriaga2001,
+  author = {S. D. Olabarriaga and A. W. Smeulders},
+  title = {Interaction in the segmentation of medical images: a survey.},
+  journal = {Med. Image Anal.},
+  year = {2001},
+  volume = {5},
+  pages = {127--142},
+  number = {2},
+  month = {Jun},
+  abstract = {Segmentation of the object of interest is a difficult step in the
+	analysis of digital images. Fully automatic methods sometimes fail,
+	producing incorrect results and requiring the intervention of a human
+	operator. This is often true in medical applications, where image
+	segmentation is particularly difficult due to restrictions imposed
+	by image acquisition, pathology and biological variation. In this
+	paper we present an early review of the largely unknown territory
+	of human-computer interaction in image segmentation. The purpose
+	is to identify patterns in the use of interaction and to develop
+	qualitative criteria to evaluate interactive segmentation methods.
+	We discuss existing interactive methods with respect to the following
+	aspects: the type of information provided by the user, how this information
+	affects the computational part, and the purpose of interaction in
+	the segmentation process. The discussion is based on the potential
+	impact of each strategy on the accuracy, repeatability and interaction
+	efficiency. Among others, these are important aspects to characterise
+	and understand the implications of interaction to the results generated
+	by an interactive segmentation method. This survey is focused on
+	medical imaging, however similar patterns are expected to hold for
+	other applications as well.},
+  institution = {Informatics Institute, Federal University of Rio Grande do Sul, Porto
+	Alegre, RS, Brazil. silvia@inf.ufrgs.br},
+  keywords = {Algorithms; Diagnostic Imaging; Image Processing, Computer-Assisted,
+	methods; User-Computer Interface},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1361841500000414},
+  pmid = {11516707},
+  timestamp = {2010.08.19}
+}
+
+@ARTICLE{Osher1988,
+  author = {S. Osher and J. A. Sethian},
+  title = {Fronts propagating with curvature-dependent speed: Algorithms based
+	on {H}amilton-{J}acobi formulations},
+  journal = {J. Comput Phys.},
+  year = {1988},
+  volume = {79},
+  pages = {12-49},
+  owner = {ntustison},
+  timestamp = {2009.08.14}
+}
+
+@ARTICLE{Pal1993,
+  author = {Nikhil R. Pal and Sankar K. Pal},
+  title = {A review on image segmentation techniques},
+  journal = {Pattern Recognition},
+  year = {1993},
+  volume = {26},
+  pages = {1277-1294},
+  owner = {ntustison},
+  timestamp = {2010.08.19}
+}
+
+@ARTICLE{Pappas1992,
+  author = {T. N. Pappas},
+  title = {An Adaptive Clustering Algorithm for Image Segmentation},
+  journal = {IEEE Trans. Signal Proc.},
+  year = {1992},
+  volume = {40},
+  pages = {901--914},
+  owner = {ntustison},
+  timestamp = {2010.08.30}
+}
+
+@ARTICLE{Pham2000,
+  author = {D. L. Pham and C. Xu and J. L. Prince},
+  title = {Current methods in medical image segmentation.},
+  journal = {Annu. Rev. Biomed. Eng.},
+  year = {2000},
+  volume = {2},
+  pages = {315--337},
+  abstract = {Image segmentation plays a crucial role in many medical-imaging applications,
+	by automating or facilitating the delineation of anatomical structures
+	and other regions of interest. We present a critical appraisal of
+	the current status of semi-automated and automated methods for the
+	segmentation of anatomical medical images. Terminology and important
+	issues in image segmentation are first presented. Current segmentation
+	approaches are then reviewed with an emphasis on the advantages and
+	disadvantages of these methods for medical imaging applications.
+	We conclude with a discussion on the future of image segmentation
+	methods in biomedical research.},
+  doi = {10.1146/annurev.bioeng.2.1.315},
+  institution = {Department of Electrical and Computer Engineering, Johns Hopkins
+	University, Laboratory of Personality and Cognition, National Institute
+	on Aging, Baltimore, Maryland, USA. pham@jhu.edu},
+  keywords = {Algorithms; Biomedical Engineering; Brain, anatomy /&/ histology;
+	Cluster Analysis; Computer Simulation; Female; Heart, anatomy /&/
+	histology; Humans; Image Processing, Computer-Assisted, methods/statistics
+	/&/ numerical data; Magnetic Resonance Imaging; Mammography; Markov
+	Chains; Models, Anatomic; Neural Networks (Computer)},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {2/1/315},
+  pmid = {11701515},
+  timestamp = {2010.08.19},
+  url = {http://dx.doi.org/10.1146/annurev.bioeng.2.1.315}
+}
+
+@INPROCEEDINGS{Pieper2004,
+  author = {S. Pieper and M. Halle and R. Kikinis},
+  title = {{3D} {SLICER}},
+  booktitle = {Proceedings of the 1st IEEE International Symposium on Biomedical
+	Imaging: From Nano to Macro},
+  year = {2004},
+  volume = {1},
+  pages = {632--635},
+  owner = {ntustison},
+  timestamp = {2010.09.03}
+}
+
+@INPROCEEDINGS{Pieper2006,
+  author = {S. Pieper and B. Lorensen and W. Schroeder and R. Kikinis},
+  title = {The {NA-MIC} Kit: {ITK}, {VTK}, Pipelines, Grids and {3D} {S}licer
+	as an Open Platform for the Medical Image Computing Community},
+  booktitle = {Proceedings of the 3rd IEEE International Symposium on Biomedical
+	Imaging: From Nano to Macro},
+  year = {2006},
+  volume = {1},
+  pages = {698--701},
+  owner = {ntustison},
+  timestamp = {2010.09.03}
+}
+
+@ARTICLE{Pohl2007,
+  author = {Kilian M Pohl and Sylvain Bouix and Motoaki Nakamura and Torsten
+	Rohlfing and Robert W McCarley and Ron Kikinis and W. Eric L Grimson
+	and Martha E Shenton and William M Wells},
+  title = {A hierarchical algorithm for {MR} brain image parcellation.},
+  journal = {IEEE Trans Med Imaging},
+  year = {2007},
+  volume = {26},
+  pages = {1201--1212},
+  number = {9},
+  month = {Sep},
+  abstract = {We introduce an algorithm for segmenting brain magnetic resonance
+	(MR) images into anatomical compartments such as the major tissue
+	classes and neuro-anatomical structures of the gray matter. The algorithm
+	is guided by prior information represented within a tree structure.
+	The tree mirrors the hierarchy of anatomical structures and the subtrees
+	correspond to limited segmentation problems. The solution to each
+	problem is estimated via a conventional classifier. Our algorithm
+	can be adapted to a wide range of segmentation problems by modifying
+	the tree structure or replacing the classifier. We evaluate the performance
+	of our new segmentation approach by revisiting a previously published
+	statistical group comparison between first-episode schizophrenia
+	patients, first-episode affective psychosis patients, and comparison
+	subjects. The original study is based on 50 MR volumes in which an
+	expert identified the brain tissue classes as well as the superior
+	temporal gyrus, amygdala, and hippocampus. We generate analogous
+	segmentations using our new method and repeat the statistical group
+	comparison. The results of our analysis are similar to the original
+	findings, except for one structure (the left superior temporal gyrus)
+	in which a trend-level statistical significance (p = 0.07) was observed
+	instead of statistical significance.},
+  doi = {10.1109/TMI.2007.901433},
+  institution = {Surgical Planning Laboratory, Harvard Medical School and Brigham
+	and Women's Hospital, Boston, MA 02115, USA. pohl@csail.mit.edu},
+  keywords = {Affective Disorders, Psychotic, diagnosis; Algorithms; Artificial
+	Intelligence; Brain, pathology; Computer Simulation; Humans; Image
+	Enhancement, methods; Image Interpretation, Computer-Assisted, methods;
+	Magnetic Resonance Imaging, methods; Models, Neurological; Pattern
+	Recognition, Automated, methods; Reproducibility of Results; Schizophrenia,
+	diagnosis; Sensitivity and Specificity},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {17896593},
+  timestamp = {2010.09.03},
+  url = {http://dx.doi.org/10.1109/TMI.2007.901433}
+}
+
+@ARTICLE{Pohl2006,
+  author = {Kilian M Pohl and John Fisher and W. Eric L Grimson and Ron Kikinis
+	and William M Wells},
+  title = {A {B}ayesian model for joint segmentation and registration.},
+  journal = {Neuroimage},
+  year = {2006},
+  volume = {31},
+  pages = {228--239},
+  number = {1},
+  month = {May},
+  abstract = {A statistical model is presented that combines the registration of
+	an atlas with the segmentation of magnetic resonance images. We use
+	an Expectation Maximization-based algorithm to find a solution within
+	the model, which simultaneously estimates image artifacts, anatomical
+	labelmaps, and a structure-dependent hierarchical mapping from the
+	atlas to the image space. The algorithm produces segmentations for
+	brain tissues as well as their substructures. We demonstrate the
+	approach on a set of 22 magnetic resonance images. On this set of
+	images, the new approach performs significantly better than similar
+	methods which sequentially apply registration and segmentation.},
+  doi = {10.1016/j.neuroimage.2005.11.044},
+  institution = {Computer Science and Artificial Intelligence Lab, Massachusetts Institute
+	of Technology, 77 Massachusetts Ave., Cambridge, MA 02139, USA. pohl@csail.mit.edu},
+  keywords = {Artifacts; Bayes Theorem; Brain Diseases, diagnosis; Brain Mapping;
+	Brain, pathology; Cerebral Ventricles, pathology; Dominance, Cerebral,
+	physiology; Humans; Image Enhancement; Image Processing, Computer-Assisted,
+	statistics /&/ numerical data; Magnetic Resonance Imaging, statistics
+	/&/ numerical data; Models, Statistical; Thalamus, pathology},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1053-8119(05)02477-8},
+  pmid = {16466677},
+  timestamp = {2010.08.30},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2005.11.044}
+}
+
+@ARTICLE{Ruan2000,
+  author = {S. Ruan and C. Jaggi and J. Xue and J. Fadili and D. Bloyet},
+  title = {Brain tissue classification of magnetic resonance images using partial
+	volume modeling.},
+  journal = {IEEE Trans Med Imaging},
+  year = {2000},
+  volume = {19},
+  pages = {1179--1187},
+  number = {12},
+  month = {Dec},
+  abstract = {This paper presents a fully automatic three-dimensional classification
+	of brain tissues for Magnetic Resonance (MR) images. An MR image
+	volume may be composed of a mixture of several tissue types due to
+	partial volume effects. Therefore, we consider that in a brain dataset
+	there are not only the three main types of brain tissue: gray matter,
+	white matter, and cerebro spinal fluid, called pure classes, but
+	also mixtures, called mixclasses. A statistical model of the mixtures
+	is proposed and studied by means of simulations. It is shown that
+	it can be approximated by a Gaussian function under some conditions.
+	The D'Agostino-Pearson normality test is used to assess the risk
+	alpha of the approximation. In order to classify a brain into three
+	types of brain tissue and deal with the problem of partial volume
+	effects, the proposed algorithm uses two steps: 1) segmentation of
+	the brain into pure and mixclasses using the mixture model; 2) reclassification
+	of the mixclasses into the pure classes using knowledge about the
+	obtained pure classes. Both steps use Markov random field (MRF) models.
+	The multifractal dimension, describing the topology of the brain,
+	is added to the MRFs to improve discrimination of the mixclasses.
+	The algorithm is evaluated using both simulated images and real MR
+	images with different T1-weighted acquisition sequences.},
+  doi = {10.1109/42.897810},
+  institution = {Greyc-Ismra, Cnrs Umr 6072, Caen, France. Su.Ruan@greyc.ismra.fr},
+  keywords = {Algorithms; Brain, anatomy /&/ histology; Humans; Magnetic Resonance
+	Imaging; Markov Chains; Models, Statistical; Normal Distribution},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {11212366},
+  timestamp = {2010.09.07},
+  url = {http://dx.doi.org/10.1109/42.897810}
+}
+
+@ARTICLE{Scherrer2009,
+  author = {Benoit Scherrer and Florence Forbes and Catherine Garbay and Michel
+	Dojat},
+  title = {Distributed local {MRF} models for tissue and structure brain segmentation.},
+  journal = {IEEE Trans Med Imaging},
+  year = {2009},
+  volume = {28},
+  pages = {1278--1295},
+  number = {8},
+  month = {Aug},
+  abstract = {Accurate tissue and structure segmentation of magnetic resonance (MR)
+	brain scans is critical in several applications. In most approaches
+	this task is handled through two sequential steps. We propose to
+	carry out cooperatively both tissue and subcortical structure segmentation
+	by distributing a set of local and cooperative Markov random field
+	(MRF) models Tissue segmentation is performed by partitioning the
+	volume into subvolumes where local MRFs are estimated in cooperation
+	with their neighbors to ensure consistency. Local estimation fits
+	precisely to the local intensity distribution and thus handles nonuniformity
+	of intensity without any bias field modelization. Similarly, subcortical
+	structure segmentation is performed via local MRF models that integrate
+	localization constraints provided by a priori fuzzy description of
+	brain anatomy. Subcortical structure segmentation is not reduced
+	to a subsequent processing step but joined with tissue segmentation:
+	the two procedures cooperate to gradually and conjointly improve
+	model accuracy. We propose a framework to implement this distributed
+	modeling integrating cooperation, coordination, and local model checking
+	in an efficient way. Its evaluation was performed using both phantoms
+	and real 3 T brain scans, showing good results and in particular
+	robustness to nonuniformity and noise with a low computational cost.
+	This original combination of local MRF models, including anatomical
+	knowledge, appears as a powerful and promising approach for MR brain
+	scan segmentation.},
+  doi = {10.1109/TMI.2009.2014459},
+  institution = {INSERM, 38043 Grenoble, France. benoit.scherrer@imag.fr},
+  keywords = {Algorithms; Brain, anatomy /&/ histology; Fuzzy Logic; Humans; Magnetic
+	Resonance Imaging, methods; Markov Chains; Normal Distribution; Phantoms,
+	Imaging},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {19228553},
+  timestamp = {2010.09.07},
+  url = {http://dx.doi.org/10.1109/TMI.2009.2014459}
+}
+
+@ARTICLE{Shattuck2008,
+  author = {David W Shattuck and Mubeena Mirza and Vitria Adisetiyo and Cornelius
+	Hojatkashani and Georges Salamon and Katherine L Narr and Russell
+	A Poldrack and Robert M Bilder and Arthur W Toga},
+  title = {Construction of a 3{D} probabilistic atlas of human cortical structures.},
+  journal = {Neuroimage},
+  year = {2008},
+  volume = {39},
+  pages = {1064--1080},
+  number = {3},
+  month = {Feb},
+  abstract = {We describe the construction of a digital brain atlas composed of
+	data from manually delineated MRI data. A total of 56 structures
+	were labeled in MRI of 40 healthy, normal volunteers. This labeling
+	was performed according to a set of protocols developed for this
+	project. Pairs of raters were assigned to each structure and trained
+	on the protocol for that structure. Each rater pair was tested for
+	concordance on 6 of the 40 brains; once they had achieved reliability
+	standards, they divided the task of delineating the remaining 34
+	brains. The data were then spatially normalized to well-known templates
+	using 3 popular algorithms: AIR5.2.5's nonlinear warp (Woods et al.,
+	1998) paired with the ICBM452 Warp 5 atlas (Rex et al., 2003), FSL's
+	FLIRT (Smith et al., 2004) was paired with its own template, a skull-stripped
+	version of the ICBM152 T1 average; and SPM5's unified segmentation
+	method (Ashburner and Friston, 2005) was paired with its canonical
+	brain, the whole head ICBM152 T1 average. We thus produced 3 variants
+	of our atlas, where each was constructed from 40 representative samples
+	of a data processing stream that one might use for analysis. For
+	each normalization algorithm, the individual structure delineations
+	were then resampled according to the computed transformations. We
+	next computed averages at each voxel location to estimate the probability
+	of that voxel belonging to each of the 56 structures. Each version
+	of the atlas contains, for every voxel, probability densities for
+	each region, thus providing a resource for automated probabilistic
+	labeling of external data types registered into standard spaces;
+	we also computed average intensity images and tissue density maps
+	based on the three methods and target spaces. These atlases will
+	serve as a resource for diverse applications including meta-analysis
+	of functional and structural imaging data and other bioinformatics
+	applications where display of arbitrary labels in probabilistically
+	defined anatomic space will facilitate both knowledge-based development
+	and visualization of findings from multiple disciplines.},
+  doi = {10.1016/j.neuroimage.2007.09.031},
+  institution = {Laboratory of Neuro Imaging, Department of Neurology, David Geffen
+	School of Medicine, University of California, Los Angeles, 635 Charles
+	Young Drive South, NRB1, Suite 225, Los Angeles, CA 90095, USA. shattuck@loni.ucla.edu},
+  keywords = {Adolescent; Adult; Algorithms; Atlases as Topic; Brain Mapping; Cerebral
+	Cortex, anatomy /&/ histology/physiology; Echo-Planar Imaging; Humans;
+	Image Processing, Computer-Assisted; Likelihood Functions; Models,
+	Statistical; Nonlinear Dynamics; Observer Variation; Reference Values},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1053-8119(07)00809-9},
+  pmid = {18037310},
+  timestamp = {2010.08.28},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2007.09.031}
+}
+
+@ARTICLE{Sled1998,
+  author = {J. G. Sled and A. P. Zijdenbos and A. C. Evans},
+  title = {A nonparametric method for automatic correction of intensity nonuniformity
+	in {MRI} data.},
+  journal = {IEEE Trans Med Imaging},
+  year = {1998},
+  volume = {17},
+  pages = {87--97},
+  number = {1},
+  month = {Feb},
+  abstract = {A novel approach to correcting for intensity nonuniformity in magnetic
+	resonance (MR) data is described that achieves high performance without
+	requiring a model of the tissue classes present. The method has the
+	advantage that it can be applied at an early stage in an automated
+	data analysis, before a tissue model is available. Described as nonparametric
+	nonuniform intensity normalization (N3), the method is independent
+	of pulse sequence and insensitive to pathological data that might
+	otherwise violate model assumptions. To eliminate the dependence
+	of the field estimate on anatomy, an iterative approach is employed
+	to estimate both the multiplicative bias field and the distribution
+	of the true tissue intensities. The performance of this method is
+	evaluated using both real and simulated MR data.},
+  doi = {10.1109/42.668698},
+  institution = {McConnell Brain Imaging Centre, Montréal Neurological Institute and
+	McGill University, Canada. jgsled@bic.mni.mcgill.ca},
+  keywords = {Brain, anatomy /&/ histology; Humans; Magnetic Resonance Imaging,
+	methods; Models, Theoretical},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {9617910},
+  timestamp = {2010.08.28},
+  url = {http://dx.doi.org/10.1109/42.668698}
+}
+
+@ARTICLE{Suri2002,
+  author = {Suri, Jasjit S. and Singh, Sameer and Reden, Laura},
+  title = {Computer Vision and Pattern Recognition Techniques for 2-{D} and
+	3-{D} {MR} Cerebral Cortical Segmentation (Part I): A State-of-the-Art
+	Review},
+  journal = {Pattern Analysis \& Applications},
+  year = {2002},
+  volume = {5},
+  pages = {46-76},
+  note = {10.1007/s100440200005},
+  abstract = {Extensive growth in functional brain imaging, perfusion-weighted imaging,
+	diffusion-weighted imaging, brain mapping and brain scanning techniques
+	has led tremendously to the importance of the cerebral cortical segmentation,
+	both in 2-D and 3-D, from volumetric brain magnetic resonance imaging
+	data sets. Besides that, recent growth in deformable brain segmentation
+	techniques in 2-D and 3-D has brought the engineering community,
+	such as the areas of computer vision, image processing, pattern recognition
+	and graphics, closer to the medical community, such as to neuro-surgeons,
+	psychiatrists, oncologists, neuro-radiologists and internists. This
+	paper is an attempt to review the state-of-the-art 2-D and 3-D cerebral
+	cortical segmentation techniques from brain magnetic resonance imaging
+	based on three main classes: region-based, boundary/surface-based
+	and fusion of boundary/surface-based with region-based techniques.
+	In the first class, region-based techniques, we demonstrated more
+	than 18 different techniques for segmenting the cerebral cortex from
+	brain slices acquired in orthogonal directions. In the second class,
+	boundary/surface-based, we showed more than ten different techniques
+	to segment the cerebral cortex from magnetic resonance brain volumes.
+	Particular emphasis will be placed by presenting four state-of-the-art
+	systems in the third class, based on the fusion of boundary/surface-based
+	with region-based techniques outlined in Part II of the paper, also
+	called regional-geometric deformation models, which take the paradigm
+	of partial differential equations in the level set framework. We
+	also discuss the pros and cons of various techniques, besides giving
+	the mathematical foundations for each sub-class in the cortical taxonomy.},
+  affiliation = {Magnetic Resonance Clinical Research Division, Marconi Medical Systems,
+	Inc., Cleveland, OH, USA US},
+  issn = {1433-7541},
+  issue = {1},
+  keyword = {Computer Science},
+  publisher = {Springer London},
+  url = {http://dx.doi.org/10.1007/s100440200005}
+}
+
+@ARTICLE{Tosun2004,
+  author = {Duygu Tosun and Maryam E Rettmann and Xiao Han and Xiaodong Tao and
+	Chenyang Xu and Susan M Resnick and Dzung L Pham and Jerry L Prince},
+  title = {Cortical surface segmentation and mapping.},
+  journal = {Neuroimage},
+  year = {2004},
+  volume = {23 Suppl 1},
+  pages = {S108--S118},
+  abstract = {Segmentation and mapping of the human cerebral cortex from magnetic
+	resonance (MR) images plays an important role in neuroscience and
+	medicine. This paper describes a comprehensive approach for cortical
+	reconstruction, flattening, and sulcal segmentation. Robustness to
+	imaging artifacts and anatomical consistency are key achievements
+	in an overall approach that is nearly fully automatic and computationally
+	fast. Results demonstrating the application of this approach to a
+	study of cortical thickness changes in aging are presented.},
+  doi = {10.1016/j.neuroimage.2004.07.042},
+  institution = {Department of Electrical and Computer, Engineering Johns Hopkins
+	University, Baltimore, MD 21218, USA.},
+  keywords = {Aging, physiology; Algorithms; Brain Mapping, methods; Cerebral Cortex,
+	growth /&/ development/physiology; Humans; Image Processing, Computer-Assisted,
+	methods/statistics /&/ numerical data; Magnetic Resonance Imaging;
+	Models, Statistical; Nerve Tissue, anatomy /&/ histology; Reproducibility
+	of Results},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1053-8119(04)00391-X},
+  pmid = {15501080},
+  timestamp = {2010.08.19},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2004.07.042}
+}
+
+@INPROCEEDINGS{Tustison2010a,
+  author = {Nicholas Tustison and Brian Avants and Talissa Altes and Eduard de
+	Lange and John Mugler and James Gee},
+  title = {Automatic Segmentation of Ventilation Defects in Hyperpolarized {3He}
+	{MRI}},
+  booktitle = {Proceedings of the Biomedical Engineering Society Annual Meeting},
+  year = {2010},
+  owner = {ntustison},
+  timestamp = {2010.08.29}
+}
+
+@ARTICLE{Tustison2010,
+  author = {Nicholas J Tustison and Brian B Avants and Philip A Cook and Yuanjie
+	Zheng and Alexander Egan and Paul A Yushkevich and James C Gee},
+  title = {{N4ITK}: improved {N3} bias correction.},
+  journal = {IEEE Trans Med Imaging},
+  year = {2010},
+  volume = {29},
+  pages = {1310--1320},
+  number = {6},
+  month = {Jun},
+  abstract = {A variant of the popular nonparametric nonuniform intensity normalization
+	(N3) algorithm is proposed for bias field correction. Given the superb
+	performance of N3 and its public availability, it has been the subject
+	of several evaluation studies. These studies have demonstrated the
+	importance of certain parameters associated with the B-spline least-squares
+	fitting. We propose the substitution of a recently developed fast
+	and robust B-spline approximation routine and a modified hierarchical
+	optimization scheme for improved bias field correction over the original
+	N3 algorithm. Similar to the N3 algorithm, we also make the source
+	code, testing, and technical documentation of our contribution, which
+	we denote as "N4ITK," available to the public through the Insight
+	Toolkit of the National Institutes of Health. Performance assessment
+	is demonstrated using simulated data from the publicly available
+	Brainweb database, hyperpolarized (3)He lung image data, and 9.4T
+	postmortem hippocampus data.},
+  doi = {10.1109/TMI.2010.2046908},
+  institution = {Department of Radiology, University of Pennsylvania, Philadelphia,
+	PA 19140, USA. ntustison@wustl.edu},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {20378467},
+  timestamp = {2010.08.27},
+  url = {http://dx.doi.org/10.1109/TMI.2010.2046908}
+}
+
+@ARTICLE{Vannier1985,
+  author = {M. W. Vannier and R. L. Butterfield and D. Jordan and W. A. Murphy
+	and R. G. Levitt and M. Gado},
+  title = {Multispectral analysis of magnetic resonance images.},
+  journal = {Radiology},
+  year = {1985},
+  volume = {154},
+  pages = {221--224},
+  number = {1},
+  month = {Jan},
+  abstract = {Magnetic resonance (MR) imaging systems produce spatial distribution
+	estimates of proton density, relaxation time, and flow, in a two
+	dimensional matrix form that is analogous to that of the image data
+	obtained from multispectral imaging satellites. Advanced NASA satellite
+	image processing offers sophisticated multispectral analysis of MR
+	images. Spin echo and inversion recovery pulse sequence images were
+	entered in a digital format compatible with satellite images and
+	accurately registered pixel by pixel. Signatures of each tissue class
+	were automatically determined using both supervised and unsupervised
+	classification. Overall tissue classification was obtained in the
+	form of a theme map. In MR images of the brain, for example, the
+	classes included CSF, gray matter, white matter, subcutaneous fat,
+	muscle, and bone. These methods provide an efficient means of identifying
+	subtle relationships in a multi-image MR study.},
+  keywords = {Basal Ganglia Diseases, diagnosis; Hematoma, diagnosis; Humans; Lymphatic
+	Diseases, diagnosis; Magnetic Resonance Spectroscopy, diagnostic
+	use/methods; Pleural Effusion, diagnosis},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {3964938},
+  timestamp = {2010.08.19}
+}
+
+@ARTICLE{Viergever2001,
+  author = {M. A. Viergever and J. B. Maintz and W. J. Niessen and H. J. Noordmans
+	and J. P. Pluim and R. Stokking and K. L. Vincken},
+  title = {Registration, segmentation, and visualization of multimodal brain
+	images.},
+  journal = {Comput. Med. Imaging. Graph.},
+  year = {2001},
+  volume = {25},
+  pages = {147--151},
+  number = {2},
+  abstract = {This paper gives an overview of the studies performed at our institute
+	over the last decade on the processing and visualization of brain
+	images, in the context of international developments in the field.
+	The focus is on multimodal image registration and multimodal visualization,
+	while segmentation is touched upon as a preprocessing step for visualization.
+	The state-of-the-art in these areas is discussed and suggestions
+	for future research are given.},
+  institution = {Image Sciences Institute, University Medical Center Utrecht, Heidelberglaan
+	100, 3584 CX Utrecht, The Netherlands. max@isi.uu.nl},
+  keywords = {Brain Mapping, methods; Brain Neoplasms, pathology/radionuclide imaging;
+	Brain, pathology/radionuclide imaging; Computer Simulation; Humans;
+	Image Processing, Computer-Assisted, methods; Magnetic Resonance
+	Imaging, methods; Tomography, Emission-Computed, Single-Photon, methods;
+	Tourette Syndrome, pathology/radionuclide imaging},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S0895-6111(00)00065-3},
+  pmid = {11137791},
+  timestamp = {2010.08.19}
+}
+
+@ARTICLE{Weisenfeld2009,
+  author = {Neil I Weisenfeld and Simon K Warfield},
+  title = {Automatic segmentation of newborn brain {MRI}.},
+  journal = {Neuroimage},
+  year = {2009},
+  volume = {47},
+  pages = {564--572},
+  number = {2},
+  month = {Aug},
+  abstract = {Quantitative brain tissue segmentation from newborn MRI offers the
+	possibility of improved clinical decision making and diagnosis, new
+	insight into the mechanisms of disease, and new methods for the evaluation
+	of treatment protocols for preterm newborns. Such segmentation is
+	challenging, however, due to the imaging characteristics of the developing
+	brain. Existing techniques for newborn segmentation either achieve
+	automation by ignoring critical distinctions between different tissue
+	types or require extensive expert interaction. Because manual interaction
+	is time consuming and introduces both bias and variability, we have
+	developed a novel automatic segmentation algorithm for brain MRI
+	of newborn infants. The key algorithmic contribution of this work
+	is a new approach for automatically learning patient-specific class-conditional
+	probability density functions. The algorithm achieves performance
+	comparable to expert segmentations while automatically identifying
+	cortical gray matter, subcortical gray matter, cerebrospinal fluid,
+	myelinated white matter and unmyelinated white matter. We compared
+	the performance of our algorithm with a previously published semi-automated
+	algorithm and with expert-drawn images. Our algorithm achieved an
+	accuracy comparable with methods that require undesirable manual
+	interaction.},
+  doi = {10.1016/j.neuroimage.2009.04.068},
+  institution = {Department of Cognitive and Neural Systems, Boston University Boston,
+	MA, USA. weisen@crl.med.harvard.edu},
+  keywords = {Algorithms; Artificial Intelligence; Brain, anatomy /&/ histology;
+	Female; Humans; Image Enhancement, methods; Image Interpretation,
+	Computer-Assisted, methods; Imaging, Three-Dimensional, methods;
+	Infant, Newborn; Magnetic Resonance Imaging, methods; Male; Pattern
+	Recognition, Automated, methods; Reproducibility of Results; Sensitivity
+	and Specificity},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1053-8119(09)00433-9},
+  pmid = {19409502},
+  timestamp = {2010.09.07},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2009.04.068}
+}
+
+@ARTICLE{Wells1996,
+  author = {W. M. Wells and W. L. Grimson and R. Kikinis and F. A. Jolesz},
+  title = {Adaptive segmentation of {MRI} data.},
+  journal = {IEEE Trans Med Imaging},
+  year = {1996},
+  volume = {15},
+  pages = {429--442},
+  number = {4},
+  abstract = {Intensity-based classification of MR images has proven problematic,
+	even when advanced techniques are used. Intrascan and interscan intensity
+	inhomogeneities are a common source of difficulty. While reported
+	methods have had some success in correcting intrascan inhomogeneities,
+	such methods require supervision for the individual scan. This paper
+	describes a new method called adaptive segmentation that uses knowledge
+	of tissue intensity properties and intensity inhomogeneities to correct
+	and segment MR images. Use of the expectation-maximization (EM) algorithm
+	leads to a method that allows for more accurate segmentation of tissue
+	types as well as better visualization of magnetic resonance imaging
+	(MRI) data, that has proven to be effective in a study that includes
+	more than 1000 brain scans. Implementation and results are described
+	for segmenting the brain in the following types of images: axial
+	(dual-echo spin-echo), coronal [three dimensional Fourier transform
+	(3-DFT) gradient-echo T1-weighted] all using a conventional head
+	coil, and a sagittal section acquired using a surface coil. The accuracy
+	of adaptive segmentation was found to be comparable with manual segmentation,
+	and closer to manual segmentation than supervised multivariant classification
+	while segmenting gray and white matter.},
+  doi = {10.1109/42.511747},
+  institution = { Women's Hospital, Boston, MA.},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {18215925},
+  timestamp = {2010.08.29},
+  url = {http://dx.doi.org/10.1109/42.511747}
+}
+
+@ARTICLE{Zaidi2006,
+  author = {Habib Zaidi and Torsten Ruest and Frederic Schoenahl and Marie-Louise
+	Montandon},
+  title = {Comparative assessment of statistical brain {MR} image segmentation
+	algorithms and their impact on partial volume correction in {PET}.},
+  journal = {Neuroimage},
+  year = {2006},
+  volume = {32},
+  pages = {1591--1607},
+  number = {4},
+  month = {Oct},
+  abstract = {Magnetic resonance imaging (MRI)-guided partial volume effect correction
+	(PVC) in brain positron emission tomography (PET) is now a well-established
+	approach to compensate the large bias in the estimate of regional
+	radioactivity concentration, especially for small structures. The
+	accuracy of the algorithms developed so far is, however, largely
+	dependent on the performance of segmentation methods partitioning
+	MRI brain data into its main classes, namely gray matter (GM), white
+	matter (WM), and cerebrospinal fluid (CSF). A comparative evaluation
+	of three brain MRI segmentation algorithms using simulated and clinical
+	brain MR data was performed, and subsequently their impact on PVC
+	in 18F-FDG and 18F-DOPA brain PET imaging was assessed. Two algorithms,
+	the first is bundled in the Statistical Parametric Mapping (SPM2)
+	package while the other is the Expectation Maximization Segmentation
+	(EMS) algorithm, incorporate a priori probability images derived
+	from MR images of a large number of subjects. The third, here referred
+	to as the HBSA algorithm, is a histogram-based segmentation algorithm
+	incorporating an Expectation Maximization approach to model a four-Gaussian
+	mixture for both global and local histograms. Simulated under different
+	combinations of noise and intensity non-uniformity, MR brain phantoms
+	with known true volumes for the different brain classes were generated.
+	The algorithms' performance was checked by calculating the kappa
+	index assessing similarities with the "ground truth" as well as multiclass
+	type I and type II errors including misclassification rates. The
+	impact of image segmentation algorithms on PVC was then quantified
+	using clinical data. The segmented tissues of patients' brain MRI
+	were given as input to the region of interest (RoI)-based geometric
+	transfer matrix (GTM) PVC algorithm, and quantitative comparisons
+	were made. The results of digital MRI phantom studies suggest that
+	the use of HBSA produces the best performance for WM classification.
+	For GM classification, it is suggested to use the EMS. Segmentation
+	performed on clinical MRI data show quite substantial differences,
+	especially when lesions are present. For the particular case of PVC,
+	SPM2 and EMS algorithms show very similar results and may be used
+	interchangeably. The use of HBSA is not recommended for PVC. The
+	partial volume corrected activities in some regions of the brain
+	show quite large relative differences when performing paired analysis
+	on 2 algorithms, implying a careful choice of the segmentation algorithm
+	for GTM-based PVC.},
+  doi = {10.1016/j.neuroimage.2006.05.031},
+  institution = {Division of Nuclear Medicine, Geneva University Hospital, CH-1211
+	Geneva 4, Switzerland. habib.zaidi@hcuge.ch},
+  keywords = {Algorithms; Brain Mapping; Brain, anatomy /&/ histology/radionuclide
+	imaging; Data Interpretation, Statistical; Dihydroxyphenylalanine,
+	analogs /&/ derivatives/diagnostic use; Fluorodeoxyglucose F18, diagnostic
+	use; Humans; Magnetic Resonance Imaging, statistics /&/ numerical
+	data; Phantoms, Imaging; Positron-Emission Tomography, statistics
+	/&/ numerical data; Radiopharmaceuticals, diagnostic use},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pii = {S1053-8119(06)00579-9},
+  pmid = {16828315},
+  timestamp = {2010.08.19},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2006.05.031}
+}
+
+@ARTICLE{Zhang2001,
+  author = {Y. Zhang and M. Brady and S. Smith},
+  title = {Segmentation of brain {MR} images through a hidden Markov random
+	field model and the expectation-maximization algorithm.},
+  journal = {IEEE Trans Med Imaging},
+  year = {2001},
+  volume = {20},
+  pages = {45--57},
+  number = {1},
+  month = {Jan},
+  abstract = {The finite mixture (FM) model is the most commonly used model for
+	statistical segmentation of brain magnetic resonance (MR) images
+	because of its simple mathematical form and the piecewise constant
+	nature of ideal brain MR images. However, being a histogram-based
+	model, the FM has an intrinsic limitation--no spatial information
+	is taken into account. This causes the FM model to work only on well-defined
+	images with low levels of noise; unfortunately, this is often not
+	the the case due to artifacts such as partial volume effect and bias
+	field distortion. Under these conditions, FM model-based methods
+	produce unreliable results. In this paper, we propose a novel hidden
+	Markov random field (HMRF) model, which is a stochastic process generated
+	by a MRF whose state sequence cannot be observed directly but which
+	can be indirectly estimated through observations. Mathematically,
+	it can be shown that the FM model is a degenerate version of the
+	HMRF model. The advantage of the HMRF model derives from the way
+	in which the spatial information is encoded through the mutual influences
+	of neighboring sites. Although MRF modeling has been employed in
+	MR image segmentation by other researchers, most reported methods
+	are limited to using MRF as a general prior in an FM model-based
+	approach. To fit the HMRF model, an EM algorithm is used. We show
+	that by incorporating both the HMRF model and the EM algorithm into
+	a HMRF-EM framework, an accurate and robust segmentation can be achieved.
+	More importantly, the HMRF-EM framework can easily be combined with
+	other techniques. As an example, we show how the bias field correction
+	algorithm of Guillemaud and Brady (1997) can be incorporated into
+	this framework to achieve a three-dimensional fully automated approach
+	for brain MR image segmentation.},
+  doi = {10.1109/42.906424},
+  institution = {FMRIB Centre, John Radcliffe Hospital, University of Oxford, UK.
+	yongyue@fmrib.ox.ac.uk},
+  keywords = {Algorithms; Brain, anatomy /&/ histology; Humans; Imaging, Three-Dimensional;
+	Magnetic Resonance Imaging, methods; Markov Chains},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {ntustison},
+  pmid = {11293691},
+  timestamp = {2010.08.29},
+  url = {http://dx.doi.org/10.1109/42.906424}
+}
+
+@comment{jabref-meta: selector_publisher:}
+
+@comment{jabref-meta: selector_author:}
+
+@comment{jabref-meta: selector_journal:}
+
+@comment{jabref-meta: selector_keywords:}
+
