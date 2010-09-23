@@ -122,7 +122,6 @@ void
 AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 ::SetPriorLabelImage( const ClassifiedImageType * prior )
 {
-  this->m_InitializationStrategy = PriorLabelImage;
   this->SetNthInput( 2, const_cast<ClassifiedImageType *>( prior ) );
 }
 
