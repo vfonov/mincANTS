@@ -112,7 +112,7 @@
         showtabs = false,
         numbers = none,
         numbersep = 6pt,
-        numberstyle={\ttfamily\color{listnumbers}},
+       numberstyle={\ttfamily\color{listnumbers}},
         tabsize = 2,
         language=[ANSI]C++,
         floatplacement=!h,
@@ -238,24 +238,27 @@ ANTs (Advanced Normalization Tools)%
 \footnote{
 http://www.picsl.upenn.edu/ANTs
 }
-package, {\em Atropos} is an ITK-based multivariate
-$n$-class Expectation Maximization (EM) segmentation algorithm which uses 
-either parametric or non-parametric finite mixture modelings (FMM) of the class intensities.  
-It is capable of incorporating prior labelings, prior probability maps, and/or 
-Markov Random Field (MRF) modeling assumptions as spatial priors and geodesically 
-propagating segmentation information across neuroanatomy to ensure a 
-dense labeling.  Atropos has also been efficiently implemented to handle 
-large quantities of possible labelings (in the experimental section, we use
-up to 56 classes) with a minimal memory footprint.
-In addition to describing the technical and implementation aspects of Atropos, 
-this work evaluates its performance on the parcellation problem given two different
-training datasets, the LPBA40 dataset from the University of California, Los Angeles
-and the NIREP dataset
-from University of Iowa.  We evaluate three aspects of the problem: (1) the quality
-of automatic cortical extraction from raw data; (2) the quality of
-parcellation, given a ground truth cortical extraction; (3) the
-quality of automated cortical extraction followed by automated
-cortical parcellation.  
+package, {\em Atropos} is an ITK-based multivariate $n$-class
+Expectation Maximization (EM) segmentation algorithm which uses either
+parametric or non-parametric finite mixture modelings (FMM) of the
+class intensities.  It is capable of incorporating prior labelings,
+prior probability maps, and/or Markov Random Field (MRF) modeling
+assumptions as spatial priors and geodesically propagating
+segmentation information across neuroanatomy to ensure a dense
+labeling.  Atropos has also been efficiently implemented to handle
+large quantities of possible labelings (in the experimental section,
+we use up to 68 classes) with a minimal memory footprint.  In addition
+to describing the technical and implementation aspects of Atropos,
+this work evaluates its performance on the parcellation problem given
+two different training datasets, the BrainWeb dataset from Montreal
+Neurological Institute and the Hammers atlas from UCL [FIXME].  We use
+the datasets to evaluate three uses of the Atropos segmentation method: (1) K-means
+segmentation without use of template data; (2) segmentation with prior
+probability maps derived from a group template; (3) N-class EM
+segmentation for parcellating the brain into 68 classes based on
+training data.  These evaluation studies, combined with illustrative
+examples that excercise Atropos options, demonstrate both performance
+and wide applicability of this new segmentation tool.
 
 %Component (3) corresponds to the most
 %realistic clinical case, while component (2) eliminates the confound
@@ -273,33 +276,39 @@ cortical parcellation.
 
 \clearpage
 
-\section{Introduction}
+\section{Introduction} Neurological and neurodevelopmental research
+rely on anatomical and functional correspondence both within and
+between subjects.  As image acquisition technology has advanced,
+concomitant investment has been made towards image classification
+techniques for the cerebrum beginning with the seminal work of
+\cite{Vannier1985} in which NASA satellite image processing software
+was appropriated for statistical classification of head tissues in 2-D
+MR images.  Since then, a proliferation of techniques has ensued with
+increasing sophistication.  The chronology of progress in segmentation
+may be tracked through both technical reviews
+\citep{Bezdek1993,Pal1993,Clarke1995,Pham2000,Viergever2001,Suri2002,Duncan2004,Balafar2010}
+and evaluation studies
+\citep[e.g.][]{Cuadra2005,Zaidi2006,Klauschen2009,Boer2010}.
 
-Establishment of anatomical and functional correspondence, both inter- and intra-subjectively, is
-vital in neurodevelopmental and neurological research.  With advancements in image acquisition
- technology, significant investment has been made towards development of
- classification techniques for the cerebrum beginning 
-with the seminal work of \cite{Vannier1985} in which NASA satellite image processing software was 
-appropriated for statistical classification of the various head tissues in 2-D MR images.  Since
-then, a proliferation of techniques has ensued with increasing sophistication.  A chronology of 
-this development can be inferred from the relevant reviews of the contemporaneous state-of-the-art
-\citep{Bezdek1993,Pal1993,Clarke1995,Pham2000,Viergever2001,Suri2002,Duncan2004,Balafar2010}.
-Concomitant with the distillation of technical matters found in the various papers and reviews are
- important evaluation studies of these segmentation methods \citep[e.g.][]{Cuadra2005,Zaidi2006,Klauschen2009,Boer2010}.
- 
- 
-Motivations for such algorithmic development are historically rooted in delineating the white and grey matters and the cerebrospinal fluid.
-Following the early statistical approach of \cite{Vannier1985},  other researchers followed 
-suit in adopting statistical methods for $n$-tissue anatomical brain segmentation.
-Given the ``missing data'' aspect of this problem, a natural optimization strategy is the 
-use of the Expectation-Maximization (EM) framework \citep{Dempster1977}.  The work described in \cite{Wells1996} 
-was one  of the first to incorporate EM to find a locally optimal solution by iterating between
-bias field estimation and tissue segmentation.  A core component of this work was the 
-explicit modeling of the tissue intensity values as normal distributions \citep{Cline1990} 
-for both 2-D univariate simulated data and T1 coronal images which continues to find utility in contemporary developments.   A secondary component was an 
-extended nonparametric approach, also influenced by earlier work \citep{Kikinis1992}, where 
-Parzen windowing is used to model the tissue intensity distribution omitting consideration of the underlying bias
-field.  Although technically not an EM-based algorithm, the robustness of the latter approach has motivated its continued use even in more recent approaches \citep[e.g.][]{Weisenfeld2009}.
+The problem of accurately delineating the white matter, grey matter
+and cerebrospinal fluid of the primate brain continuously spurs
+technical development in segmentation.  Following \cite{Vannier1985},
+many researchers adopted statistical methods for $n$-tissue anatomical
+brain segmentation.  Given the ``missing data'' aspect of this
+problem, a natural optimization strategy is the use of the
+Expectation-Maximization (EM) framework \citep{Dempster1977}.  The
+work described in \cite{Wells1996} was one of the first to use EM for
+finding a locally optimal solution by iterating between bias field
+estimation and tissue segmentation.  A core component of this work was
+explicit modeling of the tissue intensity values as normal
+distributions \citep{Cline1990} for both 2-D univariate simulated data
+and T1 coronal images, which continues to find utility in contemporary
+developments.  A secondary component was an extended nonparametric
+approach, also influenced by earlier work \citep{Kikinis1992}, where
+Parzen windowing is used to model the tissue intensity distribution
+omitting consideration of the underlying bias field.  Although
+technically not an EM-based algorithm, the robustness of the latter
+approach has motivated its continued use even more recently \citep[e.g.][]{Weisenfeld2009}.
 
 Subsequent development included the use of Markov Random Field (MRF)  modeling \citep{Geman1984}
 to regularize the classification results \citep{Held1997} with later work adding heuristics concerning neuroanatomy to prevent 
@@ -341,7 +350,20 @@ $n$-tissue segmentation including imposition of prior information in the form of
 Atropos addresses the bias field issue by incorporating the recently developed N4 bias correction algorithm \citep{Tustison2010} in an adaptive manner.  Coupled with the registration \citep{Avants2010b} and template building strategies \citep{Avants2010} already included in the ANTs toolkit,   
 Atropos is a versatile and powerful software tool which touches multiple aspects of our brain processing pipeline from brain extraction \citep{Avants2010a} to grey matter/white matter/cerebrospinal fluid segmentation to label fusion and propagation for achieving a refined cortical parcellation based on both prior information and subject-specific image data.  
 
-Despite its versatility, we limit our Atropos evaluation concentrating on the latter task of image-based cortical parcellation.  Consistent with our advocacy of open science (not to mention the facilitation of analysis due to accessibility) we perform our evaluation analysis using public data sets.  Organization of this work is as follows:  we first describe the theory behind the various algorithmic components of Atropos while acknowledging that theoretical discussion is available elsewhere, e.g. in previously cited literature.  This is followed by a thorough discussion of implementation which is something not typically discussed but yet is of immense practical utility.  We then showcase Atropos' performance on public data sets in comparison with select algorithms previously mentioned.  Finally, we provide a discussion of our work both in the context of the remainder of this paper and in the larger context of previous and future work.
+While Atropos may be applied to multivariate data from arbitrary
+modalities, we limit our Atropos evaluation to tissue-classification
+in T1 neuroimaging in part due to the abundance of ``gold-standard''
+data for this modality.  Consistent with our advocacy of open science
+(not to mention the facilitation of analysis due to accessibility) we
+also only use publicly available data sets.  Organization of this work
+is as follows: we first describe the theory behind the various
+algorithmic components of Atropos while acknowledging that theoretical
+discussion is available elsewhere, e.g. in previously cited
+literature.  This is followed by a thorough discussion of
+implementation which is something not typically discussed but yet is
+of immense practical utility.  Finally, we provide a discussion of our work both in the
+context of the remainder of this paper and in the larger context of
+previous and future work.
 
 %\begin{comment}{
 
@@ -402,13 +424,19 @@ To each of the $K$ labels corresponds a single probabilistic model describing th
   p_k\left(y_i|l_k\right) &= G\left(\mu_k;\sigma_k\right) \nonumber \\
                     &= \frac{1}{\sqrt{2\pi \sigma_k^2}}\exp\left( \frac{ -(y_i - \mu_k)^2 }{2\sigma_k^2} \right)
 \end{align}
-where the parameters $\mu_k$ and $\sigma_k^2$ respectively represent the mean and variance of the $k^{th}$ model.  In the case of multi-modal data, where $y_i$ is a vector quantity, a mulitvariate Gaussian is used defined by the mean vector, $\boldsymbol{\mu}_k$, and covariance matrix, $\Sigma_k$.  An initial estimate for these model parameters are tabulated during the initialization process, e.g. K-means or Otsu thresholding.
+where the parameters $\mu_k$ and $\sigma_k^2$ respectively represent
+the mean and variance of the $k^{th}$ model.  In the case of
+multi-modal data, where $y_i$ is a vector quantity, a mulitvariate
+Gaussian is defined by the mean vector, $\boldsymbol{\mu}_k$, and
+covariance matrix, $\Sigma_k$.  An initial estimate for these model
+parameters are tabulated during the initialization process,
+e.g. K-means or Otsu thresholding.
 
 A common technique for the non-parametric variant is to define $p_k$ using Parzen windowing of the sample observation histogram of $\mathbf{y}$, i.e.
 \begin{align} \label{eq:nonparam}
-  p_k\left(y_i|l_k\right) &= \frac{1}{N_B} \sum_{j=1}^{N_B} \frac{1}{\sqrt{2\pi \sigma_h^2}}\exp\left( \frac{ -(y_i - c_j)^2 }{2\sigma_h^2} \right)
+  p_k\left(y_i|l_k\right) &= \frac{1}{N_B} \sum_{j=1}^{N_B} \frac{1}{\sqrt{2\pi \sigma_j^2}}\exp\left( \frac{ -(y_i - c_j)^2 }{2\sigma_j^2} \right)
 \end{align}
-where $N_B$ is the number of bins used to define the histogram of the sample observations (in Atropos the default is $N_B = 32$) and $c_j$ is the center of $j^{th}$ bin in the histogram.  $\sigma_h$ is the width of each of the $N_B$ Gaussian kernels.  For multi-modal data in which the number of components of $y_i$ is greater than one, a Parzen window function is constructed for each component.  The likelihood value is determined by the joint probability given by their product.
+where $N_B$ is the number of bins used to define the histogram of the sample observations (in Atropos the default is $N_B = 32$) and $c_j$ is the center of $j^{th}$ bin in the histogram.  $\sigma_j$ is the width of each of the $N_B$ Gaussian kernels.  For multi-modal data in which the number of components of $y_i$ is greater than one, a Parzen window function is constructed for each component.  The likelihood value is determined by the joint probability given by their product.
 
 In order to calculate the probability associated with the entire set of observations, $\mathbf{y}$, we assume independency between voxels which is done primarily for facilitating quantification as opposed to modeling realistic assumptions.  Spatial interdependency between voxels is modeled by the prior probabilities discussed in the next section.  Marginalizing over the set of possible labels, $\mathcal{L}$, leads to the following probabilistic formulation
 \begin{align}\label{eq:likelihood}
@@ -416,7 +444,7 @@ In order to calculate the probability associated with the entire set of observat
                                                         \sum_{k=1}^K \gamma_k p_k(y_i|l_k)
                                                         \right)
 \end{align}
-where $\gamma_k$ is the mixing parameter.  
+where $\gamma_k$ is the mixing parameter \cite{Ashburner2005}.  
 
 \subsection{Prior Probability Models}
 
@@ -429,15 +457,22 @@ In order to apply MRF theory,  we assume the random field introduced earlier, $X
 \begin{align} \label{eq:mrf}
   p(\mathbf{x}) > 0, \,\, \forall\mathbf{x}
 \end{align}
-where $\mathbf{x}$ is any particular labeling configuration on $X$ (in other words, any labeling permutation on $X$ is {\em a priori} possible) and 
+where $\mathbf{x}$ is any particular labeling configuration on $X$ (in
+other words, any labeling permutation on $X$ is {\em a priori}
+possible).  The MRF locality condition is 
 \begin{align}
-  p\left(x_i | x_{\mathcal{I}-\{i\}}\right) = p\left(x_i | x_{\mathcal{N}_i}\right)
+  p\left(x_i | x_{\mathcal{I}-\{i\}}\right) = p\left(x_i | x_{\mathcal{N}_i}\right),
 \end{align}
-where $x_{\mathcal{I}-\{i\}}$ is the labeling of the entire image lattice except at site $i$ and  $x_{\mathcal{N}_i}$ is the labeling of $\mathcal{N}_i$.  This latter property enforces solely local considerations based on the neighborhood system in calculating the probability of the particular configuration, $\mathbf{x}$.  Due to these two assumption, the Hammersley--Clifford theorem provides the basis for treating the MRF distribution (cf. Eqn. (\ref{eq:mrf})) as a Gibbs distribution \citep{Besag1974,Geman1984}, i.e.
+where $x_{\mathcal{I}-\{i\}}$ is the labeling of the entire image lattice except at site $i$ and  $x_{\mathcal{N}_i}$ is the labeling of $\mathcal{N}_i$.  This locality property enforces solely local considerations based on the neighborhood system in calculating the probability of the particular configuration, $\mathbf{x}$.  Following these two assumptions, the Hammersley--Clifford theorem provides the basis for treating the MRF distribution (cf. Eqn. (\ref{eq:mrf})) as a Gibbs distribution \citep{Besag1974,Geman1984}, i.e.
 \begin{align} \label{eq:gibbs}
 p(\mathbf{x}) = Z^{-1} \exp\left(-U(\mathbf{x})\right).
 \end{align}
-$Z$ is a normalization factor known as the {\em partition function} and $U(\mathbf{x})$ is the {\em energy function} which can take several forms \citep{Li2001}. In Atropos, as is the case with many other segmentation algorithms of the same family, we choose $U(\mathbf{x})$ such that it is only composed of pairwise interactions between neighboring sites,%
+$Z$ is a normalization factor known as the {\em partition function}
+and $U(\mathbf{x})$ is the {\em energy function} which can take
+several forms \citep{Li2001}. In Atropos, as is the case with many
+other segmentation algorithms of the same family, we choose
+$U(\mathbf{x})$ such that it is only composed of a sum over pairwise
+interactions between neighboring sites across the image,%
 \footnote{
 Using a more expansive definition of  $U(\mathbf{x})$, 
 \begin{align}
@@ -449,7 +484,8 @@ i.e.
 \begin{align}\label{eq:U}
 U(\mathbf{x}) = \beta \sum_{i = 1}^N \sum_{j \in \mathcal{N}_i} V_{ij}( x_i, x_j )
 \end{align}
-where $V_{ij}$ is typically defined in terms of the Kronecker delta, $\delta_{ij}$, based on the Ising potential or Potts model \citep{Besag1974}
+where $V_{ij}$ is typically defined in terms of the Kronecker delta,
+$\delta_{ij}$, based on the Ising potential (also known as a Potts model) \citep{Besag1974}
 \begin{align}
 V_{ij}(x_i, x_j) &= \delta_{ij} \nonumber \\
                           &= \left\{
@@ -460,7 +496,7 @@ V_{ij}(x_i, x_j) &= \delta_{ij} \nonumber \\
                          \right.   
 \end{align}
 and $\beta$ is a granularity term which weights the contribution of the MRF prior on the segmentation solution.
-Since Atropos allows for neighborhood systems in which not just the immediate face-connected neighbors are considered, we use the modified function also used in \cite{Noe2001}, which weights the interaction term by the Euclidean distance, $d_{ij}$,  between interacting sites $i$ and $j$ such that 
+Since Atropos allows for non-uniform neighborhood systems and systems in which not just the immediate face-connected neighbors are considered, we use the modified function also used in \cite{Noe2001}, which weights the interaction term by the Euclidean distance, $d_{ij}$,  between interacting sites $i$ and $j$ such that 
 \begin{align}
   V_{ij} = \frac{\delta_{ij}}{d_{ij}}
 \end{align}
@@ -469,11 +505,19 @@ so that sites in the neighborhood closer to $i$ are weighted more heavily than s
 \subsubsection{Template-Based Priors}
 A number of researchers have used template-based strategies to both ensure spatial coherence and incorporate prior knowledge in obtaining a sutiable segmentation.  A common technique is to select labeled subjects from a population from which a template is constructed \citep[e.g.][which is also available in the ANTs toolkit]{Avants2010}.  Each labeling can then be warped to the template where the synthesis of warped labeled regions produces a prior probability map or prior label map encoding the spatial distribution of labeled anatomy which can be harnessed in joint segmentation/registration or, specifically, Atropos/ANTs strategies involving unlabeled subjects.
 
-We employ the strategy given in \cite{Ashburner2005} in which the stationary mixing proportions, $\mathrm{Pr}(x_i = l_k) = \gamma_k$, describing the prior probability that $l_k$ corresponds to a particular voxel, regardless of intensity, are replaced by the following spatially varying mixing proportions
+We employ the strategy given in \cite{Ashburner2005} in which the
+stationary mixing proportions, $\mathrm{Pr}(x_i = l_k) = \gamma_k$,
+describing the prior probability that label $l_k$ corresponds to a particular voxel, regardless of intensity, are replaced by the following spatially varying mixing proportions
 \begin{align}
 \mathrm{Pr}(x_i = l_k) = \frac{\gamma_k t_{ik}}{\sum_{j=1}^K\gamma_j t_{ij}}
 \end{align}
-where $t_{ik}$ is the prior probability value due to the template-based prior information at site $i$.
+where $t_{ik}$ is the prior probability value due to the
+template-based prior information at site $i$.
+{\textcolor{red}{FIXME --- need explanation of heuristic ...  Also, we
+  allow a weighted combination defined by the ComputeLocalPosterior
+  function in Atropos --- how do we justify / explain this?   clearly,
+it's a balance of the global solution (no local prior) and the local
+one with spatial prior ... }}
 
 \subsubsection{Distance Prior for Label Propagation}
 
@@ -492,7 +536,7 @@ In other words, the peak is an interior site (or multiple interior sites) in $R_
                                                 \end{array}
                                                 \right.
 \end{align}
-The probability calculations are illustrated in Fig.~\ref{fig:distancePrior} and were designed so that the most interior point, or set of points, of region $R_k$ would have a distance prior probability of 1.0 which would linearly decrease within the region to the boundary with a user-selected probability value of $\alpha_k$.  Outside $R_k$, the distance prior exponentially decays with a decay rate governed by another user-selected parameter $\sigma_k$.  This permits a dense segmentation throughout the segmentation region of $\mathcal{I}$ even if the template prior probabilities are zero. 
+The probability calculations are illustrated in Fig.~\ref{fig:distancePrior} and were designed so that the most interior point, or set of points, of region $R_k$ would have a distance prior probability of 1.0 which would linearly decrease within the region to the boundary with a user-selected probability value of $\alpha_k$.  Outside $R_k$, the distance prior exponentially decays with a decay rate governed by another user-selected parameter $\sigma_k$.  This permits a dense segmentation throughout the segmentation region of $\mathcal{I}$ even where the template prior probabilities are zero. 
 
 \begin{figure}
 \begin{center}
@@ -506,7 +550,15 @@ The probability calculations are illustrated in Fig.~\ref{fig:distancePrior} and
 
 
 
-A crucial matter, particularly for propagating labels in the cortical regions, is the choice of distance function.  One of the advantages to surface-based methods is that distances can be calculated along the surface mesh, thus discriminating between proximal cortical surface points and those points which are situated close together due to cortical folding.  In Atropos, we provide two possibilities---(1) a geodesic distance function using a fast marching construction \citep{Osher1988} of the distance function over the image and (2) a Euclidean distance function using the algorithm described in \cite{Maurer2003}.  The differences in label propagation results are illustrated in Fig.~\ref{fig:label_propagation}.   
+A crucial matter, particularly for propagating labels in the cortical
+regions, is the choice of distance function.  One of the advantages to
+surface-based methods is that distances can be calculated along the
+surface mesh, thus discriminating between proximal cortical surface
+points and those points which are situated close together due to
+cortical folding.  In Atropos, we provide two possibilities---(1) a
+geodesic distance function using a fast marching construction
+\citep{Osher1988} of the distance function with Atropos's masked
+region of interest and (2) a Euclidean distance function using the algorithm described in \cite{Maurer2003}.  The differences in label propagation results are illustrated in Fig.~\ref{fig:label_propagation}.   
 
 \begin{figure}
 \begin{center}
@@ -530,20 +582,30 @@ Given the likelihood models and prior probabilities whose product is proportiona
 \begin{align}
   \hat{\mathbf{x}} = \argmax_{\mathbf{x}} \left\{p(\mathbf{y}|\mathbf{x})p(\mathbf{x})\right\}.
 \end{align}
-Similar to its algorithmic predecessors, Atropos employs the EM framework \citep{Dempster1977} which, after initial estimation of the likelihood model parameters, iterates between calculation of the missing $\hat{\mathbf{x}}$ and subsequent re-estimation of the model parameters by maximizing the expectation of the complete data log-likelihood (cf. Eqn. (\ref{eq:likelihood})) 
+Similar to its algorithmic predecessors, Atropos employs the EM
+framework \citep{Dempster1977}.  After initial estimation of the
+likelihood model parameters, EM iterates between calculation of the missing $\hat{\mathbf{x}}$ and subsequent re-estimation of the model parameters by maximizing the expectation of the complete data log-likelihood (cf. Eqn. (\ref{eq:likelihood})).
 %\begin{align}
 %\log( p(\mathbf{y}) ) = \sum_{i=1}^N \log \left( \sum_{k=1}^K \gamma_k  p(\mathbf{y}|l_k)  \right)
 %\end{align}
-with the maximization of its expectation derived in various publications including \cite{Zhang2001} which yields the optimal mean and variance (or covariance).  The derivation of $\gamma_k$ at each iteration follows that provided in \cite{Ashburner2005}.%
+The expectation maximization procedure is derived in various
+publications including \cite{Zhang2001} which yields the optimal mean
+and variance (or covariance), but sets the mixing parameter $\gamma_k$
+as a constant.  The Atropos implementation estimates $\gamma_k$ at
+each iteration as in \cite{Ashburner2005}.
 \footnote{
 Due to the lack of parameters in the non-parametric approach, it is not technically an EM algorithm (as described in \cite{Wells1996}).  However, the same iterative strategy is applicable and is quite robust in practice as evidenced by the number of researchers employing non-parametric strategies (see the Introduction).
 }  
-
-With spatial coherence constraints given by the MRF prior, the optimal segmentation solution becomes intractable.%
+When spatial coherence constraints are included as an MRF prior in Atropos, the optimal segmentation solution becomes intractable.%
 \footnote{
 Consider $N$ sites each with a possible $K$ labels for a total of $N^K$ possible labeling configurations.  Due to the large $K$ associated with cortical labeling problems, exact optimization is even more problematic than for the traditional 3-tissue scenario.
 }
-Although many optimization techniques exist \citep[see the introduction in][for a concise summary of the myriad optimization possibilities]{Marroquin2002} each with their characteristic advantages and disadvantages in terms of computational complexity and accuracy,  Atropos utilizes the well-known greedy strategy known as {\em Iterated Conditional Modes} (ICM)  \citep{Besag1986} which is computationally efficient and provides good performance.
+Although many optimization techniques exist \citep[see the
+introduction in][for a concise summary of the myriad optimization
+possibilities]{Marroquin2002}---each with their characteristic
+advantages and disadvantages in terms of computational complexity and
+accuracy---Atropos uses the well-known {\em Iterated Conditional
+  Modes} (ICM)  \citep{Besag1986} which is greedy, computationally efficient and provides good performance.
 
 %\begin{align}
 %P(l_k | y_i, t_i, m_i,d_i) &= \frac{P(y_i|l_k ,t_i,m_i,d_i)   P(l_k|t_i,m_i,d_i)   }{P(y_i|t_i,m_i,d_i)}
@@ -634,7 +696,10 @@ As with other classes that comprise ANTs, Atropos uses the Insight Toolkit as a 
 This allows us to take advantage of the mature portions of ITK (e.g. image IO) and ensures the 
 integrity of the ancillary processes such as those facilitated by the underlying statistical framework.  Although Atropos is 
 publicly distributed with the rest of the ANTs package, we plan to contribute the Atropos segmentation
-framework to the Insight Toolkit where it can be vetted and further improved by other interested researchers.
+framework to the Insight Toolkit where it can be vetted and further
+improved by other interested researchers. 
+{\textcolor{red}{FIXME ---- should we save this for a deliverable in
+    some grant?}}
 
 An overview of the core components of Atropos can be gleaned, in part, from the flowchart depicted in 
 Fig.~\ref{fig:flowchart}.  To provide a more intuitive interface without the overhead costs of a graphical user interface, a set of unique command line parsing classes were developed which can also provide insight to the functionality of Atropos.  
@@ -683,9 +748,9 @@ OPTIONS:
 The typical processing pipeline begins with an intensity normalization/bias correction
 step using the recently developed N4 algorithm \citep{Tustison2010} which is based on the popular nonparametric 
 nonuniformity intensity normalization (N3) method introduced in \cite{Sled1998}.    It was previously mentioned that several methods proposed in the literature have taken an integrative view of the segmentation problem by incorporating an intrinsic bias correction step into the actual algorithmic workflow.   The advancements
-introduced with the N4 algorithm permit such an adaptive integration with Atropos.  Given recent 
-demonstrations suggesting that improved white matter segmentation produces better gain field estimates using N3 
-\citep{Boyes2008}, when performing 3-tissue segmentation, we use the posterior probability map of white matter
+introduced with the N4 algorithm permit such an adaptive integration with Atropos.  
+Recent demonstrations suggest improved white matter segmentation produces better gain field estimates using N3 
+\citep{Boyes2008}.  Thus, when performing 3-tissue segmentation, we use the posterior probability map of white matter
 at the current  iteration as a weighted mask for input to N4.  This is done by setting the `{\ttfamily --weight-image}' option on the N4 command line call (see Listing \ref{listing:n4}) to the posterior probability image corresponding to the white matter produced as output in the Atropos call, i.e. `{\ttfamily Atropos --output}'.
 
 
@@ -740,19 +805,18 @@ are loaded into run-time memory simultaneously.  A major part of minimizing memo
 Motivated by the observation that these spatial prior probability maps tend to be highly localized for large quantities of  
 cortical labels, a threshold is specified on the command line (default = 0.0) and only those probability values which exceed 
 that threshold are stored in the sparse representation.  During the course of optimization, the prior probability image for a
-given label is reconstructed on the fly as needed.  For the NIREP data used in this manuscript where the images are 
+given label is reconstructed on the fly as needed.  {\textcolor{red}For the NIREP data used in this manuscript where the images are 
 on the order of $300 \times 300 \times 256$ and 32 cortical labels, this typically shrinks run-time memory usage from a 
-peak of 10+ GB to approximately 1.5 GB. 
+peak of 10+ GB to approximately 1.5 GB. --- FIXME }
  
  \subsubsection{Likelihood or Observation Models}
 As mentioned previously in the introduction, different groups have opted for different likelihood models which have included
 either parametric, specifically Gaussian, or nonparametric variations.  However, these approaches are similar in that 
 they require a list sample of intensity data from the input image(s) and a list of weighting values for each observation 
 of the list sample from which the model is constructed.  
-
-Once the model constructed, a measurement
-observation at a given pixel consisting of a single intensity (for univariate segmentation) or multiple intensities (for multivariate
-segmentation), is used to query the model value.  These similarities permitted the creation of a generic plug-in architecture
+In general, one may query model probabilities by passing a given pixel's single intensity (for univariate segmentation) or multiple intensities (for multivariate
+segmentation) to the modeling function, regardless of whether the
+function is parameter or non-parametric.  These similarities permitted the creation of a generic plug-in architecture
 where classes describing both parametric and nonparametric  observational models are all derived from an abstract 
 list sample function class.   Three likelihood classes have been developed, one parametric and two nonparametric,
 and are available for usage although one of the nonparametric classes is still in experimental development.  The plug-in architecture even permits mixing likelihood models with different classes during the same run for a hybrid parametric/non-parametric approach although this possibility has yet to be fully explored.
@@ -760,10 +824,20 @@ and are available for usage although one of the nonparametric classes is still i
 If the Gaussian likelihood model is chosen, the list sample of intensity values and 
 corresponding weights comprised of the posterior probabilities are used to estimate the Gaussian model parameters, i.e.
 the mean and variance.  For the non-parametric model, the list sample and posteriors are used
-in a Parzen windowing scheme on a weighted histogram to estimate the observational model.  
+in a Parzen windowing scheme on a weighted histogram to estimate the
+observational model  {\textcolor{red} cite Suyash}.  
 
 \subsubsection{Prior Probability Models}
-Consistent with our previous discussion, we offer both an MRF-based prior probability for modeling spatial coherence and the possibility of specifying a set of prior probability maps or a prior label map with the latter extendable to creating a dense labeling.  To invoke the MRF `{\ttfamily -m/--mrf}' option, one specifies the smoothing factor (or the granularity parameter, $\beta$, given in Eqn. (\ref{eq:U}), and the radius of the neighborhood system using the vector notation `{\ttfamily 1x1x1}' for a neighborhood radius of 1 in all 3 dimensions.  Note that this radius prescribes an $L_\infty$ distance and thus includes not just the face-connected neighboring voxels.
+Consistent with our previous discussion, we offer both an MRF-based
+prior probability for modeling spatial coherence and the possibility
+of specifying a set of prior probability maps or a prior label map
+with the latter extendable to creating a dense labeling.  To invoke
+the MRF `{\ttfamily -m/--mrf}' option, one specifies the smoothing
+factor (or the granularity parameter, $\beta$, given in
+Eqn. (\ref{eq:U}), and the radius (in voxels) of the neighborhood
+system using the vector notation `{\ttfamily 1x1x1}' for a
+neighborhood radius of 1 in all 3 dimensions.  Note that this radius
+prescribes an $L_\infty$  {\textcolor{red} FIXME should this be $L_2$?} distance and thus includes not just the face-connected neighboring voxels.
 
 To propagate labels with the specification of prior probability images or a prior label image, one needs to select the distance function (set by the `{\ttfamily -e/--use-euclidean-distance}' boolean option) which, by default, is determined by the geodesic distance.  The user also needs to set the label propagation parameters for one or more of the classes.  This  includes both the boundary probability and the exponential decay parameter, respectively $\alpha_k$ and $\sigma_k$ in Eqn. (\ref{eq:prop}).  
 
