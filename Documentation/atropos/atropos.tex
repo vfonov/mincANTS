@@ -28,6 +28,7 @@
 
 % Set page margins correctly
 \usepackage{geometry}
+\usepackage{url}
 \geometry{letterpaper,top=1.0in,left=1.0in,bottom=1.0in,top=1.0in,headsep=6pt,footskip=18pt}
 
 \usepackage{lscape}
@@ -320,7 +321,9 @@ explicit bias correction solution \citep{Scherrer2009}.
 
 Given the local optimization susceptibility characteristic of EM algorithms, various initialization schemes have been proposed.  Common low-level initialization strategies include uniform
 probability assignment \citep{Wells1996}, Otsu thresholding \citep{Zhang2001}, and K-means clustering \citep{Pappas1992}.  More sophisticated low-level initialization schemes include that of \cite{Greenspan2006} in which a dense spatial distribution of Gaussians is used to capture the complex neuroanatomical layout with subsequent processing used to conjoin subsets of Gaussians belonging to the same tissue classes.  Recently, anatomically specific strategies for incorporating prior knowledge  into the segmentation solution have included the use of spatial prior probability maps  of the various structures of interest \citep{Leemput1999a,Marroquin2002,Ashburner2005}.  These spatial prior probability maps can also be used to provide an
-initial segmentation.   Related technological developments encompasses those driven by partial volume modeling for increased accuracy in brain segmentation \citep{Ruan2000,Ballester2002,Leemput2003}.
+initial segmentation.   Related technological developments encompasses
+those driven by partial volume modeling for increased accuracy in
+brain segmentation \citep{Ruan2000,Ballester2002,Leemput2003}.  
 
 Observations regarding a general trend towards a more integrative view 
 of neuroanatomical image processing led to the work described in \cite{Ashburner2005} which is
@@ -350,26 +353,40 @@ $n$-tissue segmentation including imposition of prior information in the form of
 Atropos addresses the bias field issue by incorporating the recently developed N4 bias correction algorithm \citep{Tustison2010} in an adaptive manner.  Coupled with the registration \citep{Avants2010b} and template building strategies \citep{Avants2010} already included in the ANTs toolkit,   
 Atropos is a versatile and powerful software tool which touches multiple aspects of our brain processing pipeline from brain extraction \citep{Avants2010a} to grey matter/white matter/cerebrospinal fluid segmentation to label fusion and propagation for achieving a refined cortical parcellation based on both prior information and subject-specific image data.  
 
-While Atropos may be applied to multivariate data from arbitrary
-modalities, we limit our Atropos evaluation to tissue-classification
-in T1 neuroimaging in part due to the abundance of ``gold-standard''
-data for this modality.  Consistent with our advocacy of open science
-(not to mention the facilitation of analysis due to accessibility) we
-also only use publicly available data sets.  Organization of this work
-is as follows: we first describe the theory behind the various
-algorithmic components of Atropos while acknowledging that theoretical
-discussion is available elsewhere, e.g. in previously cited
-literature.  This is followed by a thorough discussion of
-implementation which is something not typically discussed but yet is
-of immense practical utility.  Finally, we provide a discussion of our work both in the
-context of the remainder of this paper and in the larger context of
-previous and future work.
 
-%\begin{comment}{
+The major contribution of the Atropos algorithm is a flexible, memory
+efficient implementation of core expectation maximization machinery
+that is useful across many segmentation problems.  To highlight the
+value of this open-source, free contribution, we performed a search of
+software attributes on NITRC and found that as of {\textcolor{red}
+INSERT DATE NO STAND-ALONE N-CLASS EM methods are currently listed}.
+Atropos's memory efficiency enables EM-segmentation of many classes at
+once, a capability that is due to a sparse internal representation of
+prior probability images that minimizes the need for random access
+memory.  We evaluate EM-based classification of $1 mm^3$ T1 MR
+neuroimages into 68 neuronatomical regions to illustrate the practical
+value of the low-memory implementation within this paper.  Atropos
+also allows multivariate image features to drive the data term.  Such
+an approach is valuable when more than one view of anatomy aids
+segmentation, as in neonatal brain tissue classification
+\cite{Weisenfeld2009}.  Although Atropos may be applied to
+multivariate data from arbitrary modalities, we limit our evaluation
+to tissue-classification in T1 neuroimaging in part due to the
+abundance of ``gold-standard'' data for this modality.  Consistent
+with our advocacy of open science (not to mention the facilitation of
+analysis due to accessibility) we also only use publicly available
+data sets.  
 
-
-
-
+Organization of this work is as follows: we first describe the theory
+behind the various algorithmic components of Atropos while
+acknowledging that theoretical discussion is available elsewhere,
+e.g. in previously cited literature.  This is followed by a thorough
+discussion of implementation which, though often overlooked, is of
+immense practical utility.  We then report evaluation results on
+public T1 neuroimaging datasets that have reference gold/silver
+standard labelings.  Finally, we provide a discussion of our results
+and our open-source contribution in the context of the remainder of
+this paper and of previous and future work.
 
 %  We evaluate this
 %method on BrainWeb 20 data and show that by relying upon accurate,
@@ -386,13 +403,9 @@ previous and future work.
 %\end{comment}
 
 
-
-
-
-
 \section{Theoretical Foundations for Atropos Segmentation} 
 
-Atropos encodes a family of Bayesian segmentation techniques that may be configured in an application-specific manner.  The theory underlying Atropos dates back 20+ years and is representative of some of the most innovative work in the field.  Although we synthesize some of the theoretical work in this section, we recommend to the interested reader consultation with the literature cited previously for further insight.
+Atropos encodes a family of Bayesian segmentation techniques that may be configured in an application-specific manner.  The theory underlying Atropos dates back 20$+$ years and is representative of some of the most innovative work in the field.  Although we synthesize some of the theoretical work in this section, we recommend to the interested reader consultation with the literature cited previously for further insight.
 
 Bayes' theorem provides a powerful mechanism for making inductive inferences assuming the availability of quantities defining the relevant conditional probabilities, specifically the likelihood and prior probability terms.  A Bayesian paradigm for brain image segmentation utilizes a user-selected observation model defining the likelihood term and one or more prior probability terms whose product is proportional to the posterior probability.  Whereas the likelihood term has been previously defined parametrically (e.g. a Gaussian model) or non-parametrically (e.g. Parzen windowing of the sample histogram), the prior term, as given in the literature, has been formed inclusively either as MRF-based or template-based.  An image segmentation solution in this context is an assignment of one label to each voxel%
 \footnote{
@@ -560,6 +573,21 @@ geodesic distance function using a fast marching construction
 \citep{Osher1988} of the distance function with Atropos's masked
 region of interest and (2) a Euclidean distance function using the algorithm described in \cite{Maurer2003}.  The differences in label propagation results are illustrated in Fig.~\ref{fig:label_propagation}.   
 
+Figure~\ref{fig:neonate} illustrates the benefit of geodesic distance
+priors in segmenting T2 MRI of the 
+neonatal brain.  Geodesic distance priors may be used to reduce ambiguity at
+tissue interfaces, where partial voluming leads to mixed intensity.  
+In neonatal brain segmentation from T2 MRI, the
+interface of gray matter (low intensity) and cerebrospinal fluid
+(bright intensity) often matches that of white matter (medium intensity). 
+However, the white matter class should never appear near the surface
+of the brain.  Thus, the distance from the brain surface may be used
+to disambiguate voxels such as these.  
+In this case, the distance of a voxel from a known
+or expected tissue location serves to differentiate it from classes
+that have similar intensity signature.  The geodesic distance is therefore an
+alternative to explicit models of partial volume \citep{Ruan2000,Ballester2002,Leemput2003}. 
+
 \begin{figure}
 \begin{center}
 \begin{tabular}{ccc}
@@ -575,6 +603,13 @@ Atropos can be used to propagate the labels in a dense manner throughout the mas
 \end{center}
 \end{figure}
 
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.9\textwidth]{sparse_labels.png} 
+\caption{\baselineskip 12pt \small  Neonatal brain segmentation.  }
+\label{fig:neonate}
+\end{center}
+\end{figure}
 
 
 \subsection{Optimization}
@@ -841,38 +876,9 @@ prescribes an $L_\infty$  {\textcolor{red} FIXME should this be $L_2$?} distance
 
 To propagate labels with the specification of prior probability images or a prior label image, one needs to select the distance function (set by the `{\ttfamily -e/--use-euclidean-distance}' boolean option) which, by default, is determined by the geodesic distance.  The user also needs to set the label propagation parameters for one or more of the classes.  This  includes both the boundary probability and the exponential decay parameter, respectively $\alpha_k$ and $\sigma_k$ in Eqn. (\ref{eq:prop}).  
 
-\section{Comparative Evaluation}
+\section{Evaluation}
 
-{\color{red}{\em Brian, John}}
-
-\subsection{The LPBA40 Dataset}  
-\label{sec:lpba}
-The LONI Probabilistic Brain Atlas data, LPBA40, \citep{Shattuck2008} was collected at the North Shore Long
-Island Jewish Health System imaging center and is maintained at UCLA.
-LPBA40 contains 40 images (20 male $+$ 20 female) from normal, healthy
-ethnically diverse volunteers with average age of 29.2 $\pm$ 6.3
-years.  Each subject underwent 3D SPGR MRI on a 1.5T GE system
-resulting in $0.86 \times 0.86 \times 1.5 mm^3$ images.  Each MRI in
-the LPBA40 dataset was manually labeled with 56 independent structures
-at the UCLA Laboratory of Neuro Imaging (LONI).  The test-retest
-reliability of the labeling, across raters, was reported as a minimum
-Jaccard ratio of $0.697$ in the supramarginal gyrus to a maximum of
-$0.966$ in the gyrus rectus.  A single labeling of each image is made
-available to the public and used, here, as silver-standard data 
-for both training and testing in our cross-validation scheme. 
-
-\subsection{The NIREP Dataset}  
-The non-rigid image registration evaluation project (NIREP
-http://www.nirep.org/) is a resource of 16 high quality labeled brain
-images at 1$mm^3$.  Each brain was labeled with 32 cortical regions
-(16 on each hemisphere) and an additional class of other gray matter
-tissue.  Regions vary in size from large (inferior temporal region) to
-small (temporal pole, insula gyrus, frontal pole).  The main drawback
-is a lack of inter-rater reliability numbers -- in particular because
-visual inspection and comparison of labelings reveals a degree of
-inconsistency in labeling of particular regions across subjects.
-Nevertheless, the NIREP dataset is perhaps the highest quality
-evaluation dataset currently available for the cortex. 
+\input{evaluation_data_description.tex}
 
 \section{Discussion}
 
