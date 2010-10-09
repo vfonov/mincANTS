@@ -136,6 +136,7 @@ public:
 
   typedef std::pair<RealType, RealType>               LabelParametersType;
   typedef std::map<LabelType, LabelParametersType>    LabelParameterMapType;
+  typedef Array<RealType>                             ParametersType;
 
   /** ivars Set/Get functionality */
 
@@ -161,6 +162,9 @@ public:
 
   itkSetMacro( InitializationStrategy, InitializationStrategyType );
   itkGetConstMacro( InitializationStrategy, InitializationStrategyType );
+
+  itkSetMacro( InitialKMeansParameters, ParametersType );
+  itkGetConstMacro( InitialKMeansParameters, ParametersType );
 
   itkSetMacro( SplineOrder, unsigned int );
   itkGetConstMacro( SplineOrder, unsigned int );
@@ -338,7 +342,9 @@ private:
 
   std::vector<LikelihoodFunctionPointer>         m_MixtureModelComponents;
   Array<RealType>                                m_MixtureModelProportions;
+
   InitializationStrategyType                     m_InitializationStrategy;
+  ParametersType                                 m_InitialKMeansParameters;
 
   typename OutlierHandlingFilterType::Pointer    m_OutlierHandlingFilter;
 
