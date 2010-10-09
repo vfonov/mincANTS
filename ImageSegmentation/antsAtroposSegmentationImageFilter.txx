@@ -1636,7 +1636,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
             /**
              * Calculate likelihood probability from the model
              */
-            RealType likelihood = this->m_MixtureModelProportions[c] *
+            RealType likelihood =
               this->m_MixtureModelComponents[c]->Evaluate( measurement );
 
             /**
@@ -1645,7 +1645,8 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
              */
             RealType posteriorProbability = this->m_PriorProbabilityWeight *
               likelihood * mrfPrior * priorProbability + ( 1.0 -
-              this->m_PriorProbabilityWeight ) * likelihood * mrfPrior;
+              this->m_PriorProbabilityWeight ) *
+              this->m_MixtureModelProportions[c] * likelihood * mrfPrior;
 
             if( vnl_math_isnan( posteriorProbability ) ||
               vnl_math_isinf( posteriorProbability ) )
@@ -1891,7 +1892,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
           /**
            * Calculate likelihood probability from the model
            */
-          RealType likelihood = this->m_MixtureModelProportions[whichClass-1] *
+          RealType likelihood =
             this->m_MixtureModelComponents[whichClass-1]->Evaluate( measurement );
 
           /**
@@ -1900,7 +1901,9 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
            */
           RealType posteriorProbability = this->m_PriorProbabilityWeight *
             likelihood * mrfPrior * priorProbability + ( 1.0 -
-            this->m_PriorProbabilityWeight ) * likelihood * mrfPrior;
+            this->m_PriorProbabilityWeight ) *
+            this->m_MixtureModelProportions[whichClass-1] * likelihood *
+            mrfPrior;
 
           if( vnl_math_isnan( posteriorProbability ) ||
             vnl_math_isinf( posteriorProbability ) )
