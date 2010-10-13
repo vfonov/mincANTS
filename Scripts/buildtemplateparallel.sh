@@ -789,9 +789,10 @@ if [ ! -s $REGTEMPLATE ]
 else
     echo  
     echo "--------------------------------------------------------------------------------------"
-    echo " Initial template found.  This will be used for guiding the registration."
+    echo " Initial template found.  This will be used for guiding the registration. use : $REGTEMPLATE and $TEMPLATE "
     echo "--------------------------------------------------------------------------------------"
 	# now move the initial registration template to OUTPUTNAME, otherwise this input gets overwritten.
+    TEMPLATE=$REGTEMPLATE 
     cp ${REGTEMPLATE} ${TEMPLATE}
     
 fi
@@ -982,7 +983,7 @@ while [  $i -lt ${ITERATIONLIMIT} ]
     elif [ $DOQSUB -eq 2 ] ; then 
 	echo $pexe 
 	echo $pexe >> job${count}_${i}.sh
-    elif  [ $DOQSUB -eq 0 ] ; then 
+    elif  [ $DOQSUB -eq 0 ] ; then
 	sh $exe
     fi
     
