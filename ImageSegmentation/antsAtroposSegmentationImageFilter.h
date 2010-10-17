@@ -187,8 +187,8 @@ public:
   itkSetClampMacro( PriorProbabilityWeight, RealType, 0.0, 1.0 );
   itkGetConstMacro( PriorProbabilityWeight, RealType );
 
-  itkSetClampMacro( PriorProbabilityThreshold, RealType, 0.0, 1.0 );
-  itkGetConstMacro( PriorProbabilityThreshold, RealType );
+  itkSetClampMacro( ProbabilityThreshold, RealType, 0.0, 1.0 );
+  itkGetConstMacro( ProbabilityThreshold, RealType );
 
   void SetAdaptiveSmoothingWeight( unsigned int idx, RealType weight )
     {
@@ -303,8 +303,7 @@ public:
   typename RealImageType::Pointer
     CalculateSmoothIntensityImageFromPriorProbabilityImage(
     unsigned int, unsigned int );
-  typename RealImageType::Pointer
-    GetDistancePriorProbabilityImageFromPriorLabelImage( unsigned int );
+  typename RealImageType::Pointer GetDistancePriorProbabilityImage( unsigned int );
   typename SampleType::Pointer GetScalarSamples();
 
 #ifdef ITK_USE_CONCEPT_CHECKING
@@ -360,7 +359,7 @@ private:
   std::vector<RealType>                          m_AdaptiveSmoothingWeights;
   RealType                                       m_PriorProbabilityWeight;
   LabelParameterMapType                          m_PriorLabelParameterMap;
-  RealType                                       m_PriorProbabilityThreshold;
+  RealType                                       m_ProbabilityThreshold;
   std::vector<typename RealImageType::Pointer>   m_PriorProbabilityImages;
   std::vector<typename SparseImageType::Pointer> m_PriorProbabilitySparseImages;
 
