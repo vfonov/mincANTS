@@ -5582,6 +5582,7 @@ cortroimap[45]=std::string("White Matter");
   vnl_vector<double> pvals4(maxlab+1,1.0);
   vnl_vector<double> pvals5(maxlab+1,1.0);
   vnl_vector<double> clusters(maxlab+1,0.0);
+  vnl_vector<double> masses(maxlab+1,0.0);
   typename ImageType::PointType mycomlist[33];
 
   std::ofstream logfile;
@@ -5659,6 +5660,7 @@ cortroimap[45]=std::string("White Matter");
     for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]/=(float)totalct;
 
     clusters[(unsigned long)*it]=totalvolume;
+    masses[(unsigned long)*it]=totalmass/totalct;
     pvals[(unsigned long)*it]=1.0-maxoneminuspval;
     pvals3[(unsigned long)*it]=maxoneminuspval3;
     pvals4[(unsigned long)*it]=1.0-maxoneminuspval4;
@@ -5676,13 +5678,25 @@ cortroimap[45]=std::string("White Matter");
       {
 	if (roi < maxlab )
 	logfile << cortroimap.find(roi)->second << ",";
-	else logfile << cortroimap.find(roi)->second << std::endl;
+	else logfile << cortroimap.find(roi)->second << ","; //<< std::endl;
+      }
+    for (unsigned int roi=maxlab+1; roi <=maxlab*2 ; roi++)
+      {
+	if (roi < maxlab*2 )
+	logfile << cortroimap.find(roi-maxlab)->second+std::string("mass") << ",";
+	else logfile << cortroimap.find(roi-maxlab)->second+std::string("mass") << std::endl;
       }
     for (unsigned int roi=1; roi <=maxlab ; roi++)
       {
 	if (roi < maxlab )
 	logfile << clusters[roi] << ",";
-	else logfile << clusters[roi] << std::endl;
+	else logfile << clusters[roi] << ","; //<< std::endl;
+      }
+    for (unsigned int roi=maxlab+1; roi <=maxlab*2 ; roi++)
+      {
+	if (roi < maxlab*2 )
+	logfile << masses[roi-maxlab] << ",";
+	else logfile << masses[roi-maxlab] << std::endl;
       }
     for (unsigned int roi=1; roi <=maxlab ; roi++)
       {
