@@ -138,6 +138,9 @@ public:
   typedef std::map<LabelType, LabelParametersType>    LabelParameterMapType;
   typedef Array<RealType>                             ParametersType;
 
+  enum PosteriorProbabilityFormulationType
+    { Socrates, Plato, Aristotle /*, Zeno, Diogenes, Thales, Democritus*/ };
+
   /** ivars Set/Get functionality */
 
   itkSetClampMacro( NumberOfClasses, unsigned int, 2,
@@ -165,6 +168,12 @@ public:
 
   itkSetMacro( InitialKMeansParameters, ParametersType );
   itkGetConstMacro( InitialKMeansParameters, ParametersType );
+
+  itkSetMacro( PosteriorProbabilityFormulation, PosteriorProbabilityFormulationType );
+  itkGetConstMacro( PosteriorProbabilityFormulation, PosteriorProbabilityFormulationType );
+
+  itkSetMacro( UseMixtureModelProportions, bool );
+  itkGetConstMacro( UseMixtureModelProportions, bool );
 
   itkSetMacro( SplineOrder, unsigned int );
   itkGetConstMacro( SplineOrder, unsigned int );
@@ -299,12 +308,14 @@ public:
    */
   typename RealImageType::Pointer GetLikelihoodImage( unsigned int );
 
+  RealType CalculateLocalPosteriorProbability( RealType, RealType,
+    RealType, RealType, RealType );
   typename RealImageType::Pointer GetPosteriorProbabilityImage( unsigned int );
   typename RealImageType::Pointer
-    CalculateSmoothIntensityImageFromPriorProbabilityImage(
-    unsigned int, unsigned int );
+    GetSmoothIntensityImageFromPriorImage( unsigned int, unsigned int );
   typename RealImageType::Pointer GetDistancePriorProbabilityImage( unsigned int );
   typename SampleType::Pointer GetScalarSamples();
+
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
@@ -350,6 +361,9 @@ private:
 
   InitializationStrategyType                     m_InitializationStrategy;
   ParametersType                                 m_InitialKMeansParameters;
+
+  PosteriorProbabilityFormulationType            m_PosteriorProbabilityFormulation;
+  bool                                           m_UseMixtureModelProportions;
 
   typename OutlierHandlingFilterType::Pointer    m_OutlierHandlingFilter;
 
