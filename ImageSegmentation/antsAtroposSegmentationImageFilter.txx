@@ -1672,7 +1672,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
               if( distancePriorProbabilityImage )
                 {
                 distancePriorProbability =
-                  priorProbabilityImage->GetPixel( ItO.GetIndex() );
+                  distancePriorProbabilityImage->GetPixel( ItO.GetIndex() );
                 }
               if( priorProbabilityImage )
                 {
