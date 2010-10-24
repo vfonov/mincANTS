@@ -5554,7 +5554,7 @@ cortroimap[45]=std::string("White Matter");
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn0 = std::string(argv[argct]);   argct++;
   std::cout <<"  fn0 " << fn0 << std::endl;
-  cortroimap=RoiList(fn0);
+  std::map <unsigned int,std::string> roimap=RoiList(fn0);
   std::string fn1 = std::string(argv[argct]);   argct++;
   std::string fn2 = "";
   if (  argc > argct) { fn2=std::string(argv[argct]);   argct++; }
@@ -5608,7 +5608,7 @@ cortroimap[45]=std::string("White Matter");
   vnl_vector<double> clusters(maxlab+1,0.0);
   vnl_vector<double> masses(maxlab+1,0.0);
   typename ImageType::PointType mycomlist[33];
-
+  std::cout <<" csv b " << std::endl;
   std::ofstream logfile;
   logfile.open(outname.c_str() );
 
@@ -5701,46 +5701,42 @@ cortroimap[45]=std::string("White Matter");
     for (unsigned int roi=1; roi <=maxlab ; roi++)
       {
 	if (roi < maxlab )
-	logfile << cortroimap.find(roi)->second << ",";
-	else logfile << cortroimap.find(roi)->second << ","; //<< std::endl;
+	logfile << roimap.find(roi-1)->second << ",";
+	else logfile << roimap.find(roi-1)->second << ","; //<< std::endl;
       }
     for (unsigned int roi=maxlab+1; roi <=maxlab*2 ; roi++)
       {
 	if (roi < maxlab*2 )
-	logfile << cortroimap.find(roi-maxlab)->second+std::string("mass") << ",";
-	else logfile << cortroimap.find(roi-maxlab)->second+std::string("mass") << std::endl;
+	logfile << roimap.find(roi-maxlab-1)->second+std::string("mass") << ",";
+	else logfile << roimap.find(roi-maxlab-1)->second+std::string("mass") << std::endl;
       }
     for (unsigned int roi=1; roi <=maxlab ; roi++)
       {
 	if (roi < maxlab )
-	logfile << clusters[roi] << ",";
-	else logfile << clusters[roi] << ","; //<< std::endl;
+	logfile << clusters[roi-1] << ",";
+	else logfile << clusters[roi-1] << ","; //<< std::endl;
       }
     for (unsigned int roi=maxlab+1; roi <=maxlab*2 ; roi++)
       {
 	if (roi < maxlab*2 )
-	logfile << masses[roi-maxlab] << ",";
-	else logfile << masses[roi-maxlab] << std::endl;
+	logfile << masses[roi-maxlab-1] << ",";
+	else logfile << masses[roi-maxlab-1] << std::endl;
       }
+    logfile.close();
+    return 0;
     for (unsigned int roi=1; roi <=maxlab ; roi++)
       {
 	//unsigned int resol=5000;
 	//unsigned int intpvalue=resol*totalmass/totalct;
 	//	float pvalue=1.0-(float)intpvalue/(float)resol;// average pvalue
 	myCenterOfMass=mycomlist[roi];
-	if( wmroimap.find(roi) != wmroimap.end() && iswm )
- 	  std::cout << wmroimap.find(roi)->second << " & " << clusters[roi] << " , "  << pvals[roi] << "  & xy & yz  \\ " << std::endl;
-	else if( cortroimap.find(roi) != cortroimap.end() && ! iswm )
- 	  std::cout << cortroimap.find(roi)->second << " & " << clusters[roi] << " , "  << pvals[roi] << "  & " <<  pvals3[roi]  << " &  " << pvals4[roi]   << " &  " << (float)((int)(myCenterOfMass[0]*10))/10. << " " << (float)((int)(myCenterOfMass[1]*10))/10.  << " " <<  (float)((int)(myCenterOfMass[2]*10))/10.  << "   \\ " << std::endl;
-	//	else
- 	//  std::cout << cortroimap.find(roi)->second << " &  NA  &  NA  & NA & NA  &  NA  \\ " << std::endl;
-	//	else  std::cout << wmroimap.find(roi)->second << " &  - , -   & xy & yz  \\ " << std::endl;
-	//          std::cout << " Volume Of Label " << *it << " is " << totalvolume <<   "  Avg-Location " << myCenterOfMass <<" mass is " << totalmass << " average-val is " << totalmass/totalct << std::endl;
-	//      std::cout << *it << "  " <<  totalvolume <<  " & " <<  totalmass/totalct   << " \ " << std::endl;
+	if( roimap.find(roi) != roimap.end() && iswm )
+ 	  std::cout << roimap.find(roi)->second << " & " << clusters[roi] << " , "  << pvals[roi] << "  & xy & yz  \\ " << std::endl;
+	else if( roimap.find(roi) != roimap.end() && ! iswm )
+ 	  std::cout << roimap.find(roi)->second << " & " << clusters[roi] << " , "  << pvals[roi] << "  & " <<  pvals3[roi]  << " &  " << pvals4[roi]   << " &  " << (float)((int)(myCenterOfMass[0]*10))/10. << " " << (float)((int)(myCenterOfMass[1]*10))/10.  << " " <<  (float)((int)(myCenterOfMass[2]*10))/10.  << "   \\ " << std::endl;
     }
-  logfile.close();
 
-  WriteImage<TwoDImageType>(squareimage,imagename.c_str());
+  //  WriteImage<TwoDImageType>(squareimage,imagename.c_str());
 
   return 0;
 
