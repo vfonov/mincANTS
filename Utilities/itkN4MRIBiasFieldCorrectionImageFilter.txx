@@ -7,7 +7,7 @@
   Version:   $Revision: 1.6 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -29,6 +29,7 @@
 #include "itkIterationReporter.h"
 #include "itkLogImageFilter.h"
 #include "itkSubtractImageFilter.h"
+#include "itkVectorIndexSelectionCastImageFilter.h"
 
 #include "vnl/algo/vnl_fft_1d.h"
 #include "vnl/vnl_complex_traits.h"
@@ -140,8 +141,8 @@ N4MRIBiasFieldCorrectionImageFilter<TInputImage, TMaskImage, TOutputImage>
       /**
        * Sharpen the current estimate of the uncorrected image.
        */
-      typename RealImageType::Pointer logSharpenedImage =
-        this->SharpenImage( logUncorrectedImage );
+      typename RealImageType::Pointer logSharpenedImage = RealImageType::New();
+      this->SharpenImage( logUncorrectedImage, logSharpenedImage );
 
       typedef SubtractImageFilter<RealImageType, RealImageType, RealImageType>
         SubtracterType;
@@ -154,8 +155,9 @@ N4MRIBiasFieldCorrectionImageFilter<TInputImage, TMaskImage, TOutputImage>
        * Smooth the residual bias field estimate and add the resulting
        * control point grid to get the new total bias field estimate.
        */
-      typename RealImageType::Pointer newLogBiasField
-        = this->UpdateBiasFieldEstimate( subtracter1->GetOutput() );
+      typename RealImageType::Pointer newLogBiasField = NULL;
+      void *img = &newLogBiasField;
+      this->UpdateBiasFieldEstimate( subtracter1->GetOutput(), img );
 
       this->m_CurrentConvergenceMeasurement =
         this->CalculateConvergenceMeasurement( logBiasField, newLogBiasField );
@@ -214,10 +216,9 @@ N4MRIBiasFieldCorrectionImageFilter<TInputImage, TMaskImage, TOutputImage>
 }
 
 template<class TInputImage, class TMaskImage, class TOutputImage>
-typename N4MRIBiasFieldCorrectionImageFilter
-  <TInputImage, TMaskImage, TOutputImage>::RealImageType::Pointer
+void
 N4MRIBiasFieldCorrectionImageFilter<TInputImage, TMaskImage, TOutputImage>
-::SharpenImage( typename RealImageType::Pointer unsharpenedImage )
+::SharpenImage( RealImageType *unsharpenedImage, RealImageType *sharpenedImage )
 {
   /**
    * Build the histogram for the uncorrected image.  Store copy
@@ -406,7 +407,6 @@ N4MRIBiasFieldCorrectionImageFilter<TInputImage, TMaskImage, TOutputImage>
   /**
    * Sharpen the image with the new mapping, E(u|v)
    */
-  typename RealImageType::Pointer sharpenedImage = RealImageType::New();
   sharpenedImage->SetOrigin( unsharpenedImage->GetOrigin() );
   sharpenedImage->SetSpacing( unsharpenedImage->GetSpacing() );
   sharpenedImage->SetRegions( unsharpenedImage->GetLargestPossibleRegion() );
@@ -439,15 +439,12 @@ N4MRIBiasFieldCorrectionImageFilter<TInputImage, TMaskImage, TOutputImage>
       ItC.Set( correctedPixel );
       }
     }
-
-  return sharpenedImage;
 }
 
 template<class TInputImage, class TMaskImage, class TOutputImage>
-typename N4MRIBiasFieldCorrectionImageFilter
-  <TInputImage, TMaskImage, TOutputImage>::RealImageType::Pointer
+void
 N4MRIBiasFieldCorrectionImageFilter<TInputImage, TMaskImage, TOutputImage>
-::UpdateBiasFieldEstimate( typename RealImageType::Pointer fieldEstimate )
+::UpdateBiasFieldEstimate( RealImageType* fieldEstimate, void *smoothField )
 {
   /**
    * Calculate min/max for sigmoid weighting.  Calculate mean for offseting
@@ -605,31 +602,25 @@ N4MRIBiasFieldCorrectionImageFilter<TInputImage, TMaskImage, TOutputImage>
   reconstructer->SetSize( fieldEstimate->GetLargestPossibleRegion().GetSize() );
   reconstructer->Update();
 
-  typename RealImageType::Pointer smoothField = RealImageType::New();
-  smoothField->SetOrigin( fieldEstimate->GetOrigin() );
-  smoothField->SetSpacing( fieldEstimate->GetSpacing() );
-  smoothField->SetRegions( fieldEstimate->GetLargestPossibleRegion() );
-  smoothField->SetDirection( direction );
-  smoothField->Allocate();
+  typedef VectorIndexSelectionCastImageFilter<ScalarImageType, RealImageType>
+    SelectorType;
+  typename SelectorType::Pointer selector = SelectorType::New();
+  selector->SetInput( reconstructer->GetOutput() );
+  selector->SetIndex( 0 );
+  selector->Update();
+  selector->GetOutput()->SetRegions( this->GetInput()->GetRequestedRegion() );
 
-  ImageRegionIterator<ScalarImageType> ItR( reconstructer->GetOutput(),
-    reconstructer->GetOutput()->GetLargestPossibleRegion() );
-  ImageRegionIterator<RealImageType> ItF( smoothField,
-    smoothField->GetLargestPossibleRegion() );
-  for( ItR.GoToBegin(), ItF.GoToBegin(); !ItR.IsAtEnd(); ++ItR, ++ItF )
-    {
-    ItF.Set( ItR.Get()[0] );
-    }
-
-  return smoothField;
+  typename RealImageType::Pointer *img =
+    (typename RealImageType::Pointer *)smoothField;
+  *img = selector->GetOutput();
 }
 
 template<class TInputImage, class TMaskImage, class TOutputImage>
 typename N4MRIBiasFieldCorrectionImageFilter
   <TInputImage, TMaskImage, TOutputImage>::RealType
 N4MRIBiasFieldCorrectionImageFilter<TInputImage, TMaskImage, TOutputImage>
-::CalculateConvergenceMeasurement( typename RealImageType::Pointer
-  fieldEstimate1, typename RealImageType::Pointer fieldEstimate2 )
+::CalculateConvergenceMeasurement( RealImageType *fieldEstimate1,
+  RealImageType *fieldEstimate2 )
 {
   typedef SubtractImageFilter<RealImageType, RealImageType, RealImageType>
     SubtracterType;
