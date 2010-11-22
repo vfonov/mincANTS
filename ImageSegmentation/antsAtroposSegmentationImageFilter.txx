@@ -469,7 +469,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
       continue;
       }
     typename SampleType::MeasurementVectorType measurement;
-    ::itk::Statistics::MeasurementVectorTraits::SetLength( measurement,
+    NumericTraits<MeasurementVectorType>::SetLength( measurement,
       this->m_NumberOfIntensityImages );
     for( unsigned int i = 0; i < this->m_NumberOfIntensityImages; i++ )
       {
@@ -910,8 +910,8 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
     membershipFunction->SetMeasurementVectorSize(
       sample->GetMeasurementVectorSize() );
     typename MembershipFunctionType::CentroidType centroid;
-    ::itk::Statistics::MeasurementVectorTraits::SetLength( centroid,
-      sample->GetMeasurementVectorSize() );
+    NumericTraits<typename MembershipFunctionType::CentroidType>::SetLength(
+      centroid, sample->GetMeasurementVectorSize() );
     centroid[0] = estimatorParameters[n];
     membershipFunction->SetCentroid( centroid );
     membershipFunctionsVector.push_back( membershipFunction.GetPointer() );
@@ -1065,8 +1065,8 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
       membershipFunction->SetMeasurementVectorSize(
         sample->GetMeasurementVectorSize() );
       typename MembershipFunctionType::CentroidType centroid;
-      ::itk::Statistics::MeasurementVectorTraits::SetLength( centroid,
-        sample->GetMeasurementVectorSize() );
+      NumericTraits<typename MembershipFunctionType::CentroidType>::SetLength(
+        centroid, sample->GetMeasurementVectorSize() );
       for( unsigned int i = 0; i < this->m_NumberOfIntensityImages; i++ )
         {
         centroid[i] = estimator->GetParameters()[
@@ -1356,7 +1356,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
        for( unsigned int i = 0; i < this->m_NumberOfIntensityImages; i++ )
          {
          typename SampleType::MeasurementVectorType measurement;
-					 			::itk::Statistics::MeasurementVectorTraits::SetLength( measurement, 1 );
+         NumericTraits<MeasurementVectorType>::SetLength( measurement, 1 );
          measurement.SetSize( 1 );
          measurement[0] =
            this->GetIntensityImage( i )->GetPixel( ItO.GetIndex() );
@@ -1393,7 +1393,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
          {
          typename SampleType::MeasurementVectorType measurement;
          measurement.SetSize( this->m_NumberOfIntensityImages );
-					 			::itk::Statistics::MeasurementVectorTraits::SetLength( measurement,
+         NumericTraits<MeasurementVectorType>::SetLength( measurement,
            this->m_NumberOfIntensityImages );
          measurement[0] = It.GetMeasurementVector()[0];
          scalarSamples->PushBack( measurement );
@@ -1672,7 +1672,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
               if( distancePriorProbabilityImage )
                 {
                 distancePriorProbability =
-                  distancePriorProbabilityImage->GetPixel( ItO.GetIndex() );
+                  priorProbabilityImage->GetPixel( ItO.GetIndex() );
                 }
               if( priorProbabilityImage )
                 {
