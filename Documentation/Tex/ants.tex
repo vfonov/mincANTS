@@ -249,6 +249,8 @@ similarity and optimization criteria as options.  The program is
 wrapped in \verb ants.sh ~for normalization with ``out of the box''
 parameters and in \verb buildtemplateparallel.sh ~for 
 computationally distributed optimal template construction.
+You can also call  \verb ANTS \verb --help to get basic usage. 
+
 
 \subsection{The WarpImageMultiTransform Executable}
 The WarpImageMultiTransform program applies ANTS mappings to images.  One may apply an 
@@ -257,6 +259,7 @@ to compose a series of affine and deformable mappings -- and/or their inverses -
 may avoid multiple interpolations of a single image.  This program is used internally in ANTS 
 optimization to avoid ever using more than one interpolation.  The use-NN option applies nearest 
 neighbor interpolation, otherwise linear interpolation is used. 
+You can call  \verb WarpImageMultiTransform \verb --help to get basic usage. 
 
 Also, please take a look at 
 \href{http://picsl.upenn.edu/ANTS/ioants.php}{http://picsl.upenn.edu/ANTS/ioants.php} 
@@ -345,7 +348,21 @@ to apply the inverse transform to the fixed image:
 
 WarpImageMultiTransform 2 B.nii.gz BDeformed.nii.gz -R A.nii.gz -i RegA2BAffine.txt RegA2BInverseWarp.nii.gz 
 
-\subsection{The ImageMath Executable} This is a multi-purpose program that has the following syntax:  ``ImageMath ImageDimension outputfilename   Operation  InputFileName  parameters ``.  Most basic scalar image operations -- and some tensor operations -- may be performed with this program.  Some operations output text files, some output images and some output only to the terminal.   ImageMath allows one to multiply images together (m), to negate images (Neg), to take an image to a power (pow), to test the invertibility of transformations (InvId), to compute the fractional anisotropy of an image (TensorFA) and to perform Markov Random Field segmentation with or without priors (Segment).   Many other operations are available.  Like all other ANTS programs, one may call ImageMath from the command line to see all of its options.   ImageMath is used heavily in ANTS scripts.  
+\subsection{The ImageMath Executable} This is a multi-purpose program
+that has the following syntax:  ``ImageMath ImageDimension
+outputfilename   Operation  InputFileName  parameters ``.  Most basic
+scalar image operations -- and some tensor operations -- may be
+performed with this program.  Some operations output text files, some
+output images and some output only to the terminal.   ImageMath allows
+one to multiply images together (m), to negate images (Neg), to take
+an image to a power (pow), to test the invertibility of
+transformations (InvId), to compute the fractional anisotropy of an
+image (TensorFA) and to perform Markov Random Field segmentation with
+or without priors (Segment).   Many other operations are available.
+Like all other ANTS programs, one may call ImageMath from the command
+line to see all of its options.   ImageMath is used heavily in ANTS
+scripts.   You can call it, in compination with grep or less, to attempt to
+find some of its capabilities.  
 
 \subsection{ANTS Scripts} 
 The ANTS/Scripts directory contains (hopefully) user-friendly
@@ -572,11 +589,11 @@ sanity checks before running through loads of data.
 An ANTS deformation consists of
 a standard naming prefix plus a standard naming extension. We usually 
 assume nii but other file types may be used. The standard naming
-extension is Warpxvec.nii for the x component of the deformation with
+extension is Warpxvec.nii.gz for the x component of the deformation with
 similar naming for y and z. Each component is stored in a separate
 scalar image. The value of a voxel of a deformation/warp component
 image is the physical space displacement from that voxel. Note that
-the inverse mapping is stored in InverseWarpxvec.nii and provides the
+the inverse mapping is stored in InverseWarpxvec.nii.gz and provides the
 mapping in the opposite direction.  Note that an inverse -- in the 
 digital domain -- is only approximate as shown in figure~\ref{fig:inv}.
 \begin{figure}
@@ -657,22 +674,22 @@ II=r16slice.nii # change to your own images
 JJ=r64slice.nii 
 DIM=2 # two-dimensional images 
 ITS=" -i 100x100x30 " # 3 optimization levels 
-TSYNWITHTIME=" -t SyN[1,2,0.05]  -r Gauss[3,0.5] "
+TSYNWITHTIME=" -t SyN[0.5,5,0.01]  -r Gauss[3,0] "
 TGREEDYSYN=" -t SyN[0.25]  -r Gauss[3,0] "
-TELAST=" -t Elast[1] -r Gauss[0,3] " 
-TEXP="  -t Exp[0.5,10] -r Gauss[0,3] " 
+TELAST=" -t Elast[1] -r Gauss[0.5,3] " 
+TEXP="  -t Exp[0.5,10] -r Gauss[0.5,3] " 
 LABELGUIDED=" -m PSE[${II},${JJ},${II},${JJ},0.75,0.1,25,0,10] "
-INTMSQ=" -m MSQ[${II},${JJ},1,0.1] "
+INTMSQ=" -m MSQ[${II},${JJ},1,0] "
 INTMI=" -m MI[${II},${JJ},1,32] "
-INTPR=" -m PR[${II},${JJ},1,4] "
+INTCC=" -m CC[${II},${JJ},1,4] "
 NAME=TEST
 INT=$INTPR
 TRAN=$TSYN
 ANTS $DIM -o $NAME $ITS  $TRAN  $INT
-INVW=" -i ${NAME}Affine.txt ${NAME}InverseWarp.nii "
-FWDW=" ${NAME}Warp.nii ${NAME}Affine.txt "
-WarpImageMultiTransform  2 ${II} a.nii -R ${JJ} $INVW
-WarpImageMultiTransform  2 ${JJ} b.nii -R ${II} $FWDW
+INVW=" -i ${NAME}Affine.txt ${NAME}InverseWarp.nii.gz "
+FWDW=" ${NAME}Warp.nii.gz ${NAME}Affine.txt "
+WarpImageMultiTransform  2 ${II} a.nii.gz -R ${JJ} $INVW
+WarpImageMultiTransform  2 ${JJ} b.nii.gz -R ${II} $FWDW
 \end{verbatim}
 Convergence occurs under two conditions: (1) either the maximum number of 
 iterations are reached at a given optimization level or (2) the slope 
@@ -767,7 +784,7 @@ Check the path to the programs, the fact that all the images you want to use are
 listed and that the template output name is ok with you.  
 Once everything is prepared, then edit the script to remove the exit call at the end of the parameter check. 
 \item  Call the script as in step 4 and then wait for the output.  The template will 
-be called something like (in this example)  \verb OUTtemplate.nii .
+be called something like (in this example)  \verb OUTtemplate.nii.gz .
 \end{enumerate}
 The script is fairly easy to alter so that you can send the whole thing to distributed computing. 
 Typically, one would use voxbo or the qsub program available in the Sun Grid Engine.  This 
@@ -804,12 +821,12 @@ An example of this final point is given here.
 A recent study used the following call to ANTS across a dataset of elderly subjects:
 \begin{verbatim}
 ANTS 3 -m PR[template.nii.gz,subject.nii.gz,1,2] -i 10x50x50x20
- -o subjectmap.nii -t SyN[0.25] -r Gauss[3,0]
+ -o subjectmap.nii.gz -t SyN[0.25] -r Gauss[3,0]
 \end{verbatim}
 This succeeded for all subjects but one.  This subject had severe neurodegeneration which caused "under-normalization" to result.  A larger deformation mapping was required and so we increased the maximum number of iterations (the "-i" parameter).  One might also increase the gradient-descent step-size (SyN[0.25] => SyN[0.5]).   Large deformation mapping is challenging not only because of the amount of deformation, but also because the "true" solution is difficult to find.  Keeping this in mind, we also increased the "span" (radius) of the correlation window in the similarity metric (which also increases computation time). These modified parameters succeeded: 
 \begin{verbatim}
 ANTS 3 -m PR[template.nii.gz,subject.nii.gz,1,4] -i 100x100x100x20
- -o subjectmap.nii -t SyN[0.25] -r Gauss[3,0] 
+ -o subjectmap.nii.gz -t SyN[0.25] -r Gauss[3,0] 
 \end{verbatim}
 Key changes were to increase the radius of the correlation and to
 allow more iterations at the coarsest resolution.  
@@ -823,14 +840,17 @@ at left.
 ANTS has tools for both tissue based segmentation and prior-based segmentation that 
 leverages spatial priors, usually based on a template mapping.  
 \subsection{Basic Segmentation}
-A basic MRF segmentation algorithm is available in ANTS ImageMath.  We apply 
+An advanced MRF segmentation algorithm is available in ANTS via the
+\verb Atropos tool, which is still under development.  We apply 
 the segmentation to the example data in: ANTS/Examples/Data/r16slice.nii.  
 \begin{verbatim}
-ImageMath 2 r16slice.nii Segment r16slice.nii 4 0 
-% output = r16slice_seg.nii, r16slice_prob_0.nii, r16slice_prob_1.nii, r16slice_prob_2.nii .  
+  ThresholdImage 2 r16slice.nii mask.nii.gz 0.001 Inf
+  Atropos -d 2 -a r16slice.nii -o [r16slice_seg.nii.gz,r16slice_prob_%02d.nii.gz] \
+      -c [10,0.001] -m [0.05,1] -i kmeans[3] -x mask.nii.gz
 \end{verbatim}
-The parameter \verb 4 ~indicates 3 tissues plus background are sought.  The \verb 0 ~indicates 
-that there are no prior images available to guide the segmentation.  Output is shown 
+The parameter \verb kmeans[3] ~indicates 3 tissues plus background are sought.  The \verb [0.05,1] ~indicates 
+that some MRF smoothing will be applied to the labels.  Other
+options are defined in the Atropos help.  Output is shown 
 in figure~\ref{fig:seg} and -- with priors -- in figure~\ref{fig:seg2}.
 \begin{figure}
 \includegraphics[width=1\textwidth]{Figures/segmentation.pdf} 
@@ -849,12 +869,12 @@ tool available in binary form only -- a future release may provide code.
 The same algorithm may be augmented 
 to perform Prior-based segmentation.  
 \begin{verbatim}
-ImageMath 2 r16sliceprior.nii Segment r16slice.nii 4 0.5 
-   csfprior.nii wmprior.nii  gmprior.nii 
-% output = r16sliceprior_seg.nii  r16sliceprior_prob_0.nii  
-% r16sliceprior_prob_1.nii  r16sliceprior_prob_2.nii .  
+  Atropos -d 2 -a r16slice.nii -o [r16slice_seg.nii.gz,r16slice_prob_%02d.nii.gz] \
+      -c [10,0.001] -m [0.05,1] \ 
+      -i  PriorProbabilityImages[3,r16slice_prob_%02d.nii.gz,0.5] -x mask.nii.gz
 \end{verbatim}
-The parameter \verb 4 indicates 3 tissues plus background are sought.  The \verb 0.5 indicates 
+The \verb PriorProbabilityImages ~parameter~ \verb 3 ~indicates 3 tissues
+plus background are sought.  The \verb PriorProbabilityImages ~term \verb 0.5 ~indicates 
 we weight the priors equally as the data term and use a spatially varying set of Gaussians 
 to estimate the segmentation.  In this way, data from the priors may be used to modify 
 and guide the segmentation in a locally varying way, accomodating for both inhomogeneity 
@@ -941,8 +961,8 @@ determined by an inclusive mask) is determined by the solution outside
 of the region. To achieve this with ANTS, one would use a call similar
 to this:
 \begin{verbatim}
-ANTS 3 -m PR[tp22_s1.nii,template.nii.gz,1,4] -i 50x20x0
-   -o tp22map -t SyN[0.5] -x mask.nii.gz -r Gauss[3,0] 
+ANTS 3 -m CC[tp22_s1.nii,template.nii.gz,1,4] -i 50x20x0
+   -o tp22map -t SyN[0.25] -x mask.nii.gz -r Gauss[3,0] 
 \end{verbatim}
 The additional parameter needed for this approach 
 is the \verb -x ~ \verb mask.nii.gz ~ which 
@@ -984,24 +1004,44 @@ All of these studies benefit in some way from normalization whether the topic is
 thickness, Jacobian-based morphometry, volumetric morphometry or functional studies. 
 From a broad perspective, each of these applications requires the same steps:
 \begin{enumerate}
-\item Preprocess images -- bias correction, segmentation, etc.  Potentially construct an optimal template. 
+\item Preprocess images -- bias correction (e.g. via the \verb
+  N4BiasFieldCorrection program), segmentation (via \verb Atropos ), etc.  Potentially construct an optimal template. 
 \item Normalize images -- run \verb ants.sh ~ to map a population of images to a template and store the deformations. 
-\item Derive any data from the deformation that may be necessary, e.g. the log-Jacobian.
+\item Derive any data from the deformation that may be necessary,
+  e.g. the log-Jacobian, via ANTSJacobian.
 \item Apply the warp to any images one may want to analyze in template space.  
 \item Perform statistics in template space over the region of interest, e.g. all cortex. 
 \end{enumerate}
 We now illustrate this procedure using ANTS tools and example images from ANTS/Examples/Data. 
 The expected output is in figure~\ref{fig:morph}.
 \begin{verbatim}
-1.  ImageMath 2 r64slice.nii Segment r64slice.nii 4 0
-1.  ImageMath 2 r16slice.nii Segment r16slice.nii 4 0
-2.  sh ants.sh 2 r16slice.nii r64slice.nii SPM 100x100x100
-3.  SmoothImage 2 r64slice_prob_1.nii  1. r64slice_prob_1.nii  
-3.  WarpImageMultiTransform 2 r64slice_prob_1.nii  r64slice_prob_1_norm.nii
-     -R r16slice.nii SPMWarp.nii SPMAffine.txt 
-3.  ANTSJacobian 2 SPMWarp.nii SPM 1  # take the log
-4.  ImageMath 2 SPMlogjacobianmask.nii m SPMlogjacobian.nii r64slice_prob_1_norm.nii
-5.  Repeat for a population and run statistics on log jacobians.
+# 0.  Here, we use r16 as a template and r64 as a subject T1 image. 
+# 1. Segment the input images 
+  ThresholdImage 2 r16slice.nii mask.nii.gz 0.001 Inf
+  Atropos -d 2 -a r16slice.nii -o [r16slice_seg.nii.gz,r16slice_prob_%02d.nii.gz] \
+      -c [10,0.001] -m [0.05,1] -i kmeans[3] -x mask.nii.gz
+  ThresholdImage 2 r64slice.nii mask.nii.gz 0.001 Inf
+  Atropos -d 2 -a r64slice.nii -o [r64slice_seg.nii.gz,r64slice_prob_%02d.nii.gz] \
+       -c [10,0.001] -m [0.05,1] -i kmeans[3] -x mask.nii.gz
+# 2. Compute the deformation
+  sh ants.sh 2 r16slice_prob_02.nii.gz r64slice_prob_02.nii.gz SPM 100x100x100
+# 3. Smooth the segmented image 
+  SmoothImage 2 r64slice_prob_02.nii.gz  1. sr64slice_prob_02.nii.gz  
+# 3. Warp the segmented image by the 
+  WarpImageMultiTransform 2 sr64slice_prob_02.nii.gz  sr64slice_prob_02_norm.nii.gz \ 
+     -R r16slice.nii SPMWarp.nii.gz SPMAffine.txt 
+# 4. Compute the log Jacobian from the transformation.
+  ANTSJacobian 2 SPMWarp.nii.gz SPM 1  # take the log
+  gzip SPMlogjacobian.nii 
+# 5. Multiply the log-jacobian by the gray matter probability. 
+ ImageMath 2 SPMlogjacobianmask.nii.gz m SPMlogjacobian.nii.gz sr64slice_prob_02_norm.nii.gz
+# 6.  Estimate cortical thickness --- use svn revision 684 or greater (not in official release yet). 
+ KellySlater 2 r64slice_seg.nii.gz r64slice_prob_03.nii.gz  r64slice_prob_02.nii.gz \
+    r64slice_thickness.nii.gz 0.02 50 8 0 0.5
+# 7.  Warp to template space. 
+  WarpImageMultiTransform 2 r64slice_thickness.nii.gz  r64slice_thickness_norm.nii.gz  \
+    -R r16slice.nii SPMWarp.nii.gz SPMAffine.txt 
+# 8.  Repeat steps 1-7 for a population and run statistics.
 \end{verbatim}
 \begin{figure}
 \includegraphics[width=1\textwidth]{Figures/morphometry.pdf}
@@ -1098,7 +1138,10 @@ multivariate diffusion tensor and T1 cortical thickness studies,
 longitudinal mapping and reconstruction of nifti images from Dicom.
 \newpage
 \section{Annotated Bibliography}
-The original statement of the symmetric normalization and template
+The {\em de facto} ANTs reference is now
+\href{http://www.ncbi.nlm.nih.gov/pubmed/20851191}{``A reproducible
+  evaluation of ANTs similarity metric performance in brain image
+  registration.'' (this is a link).}  The original statement of the symmetric normalization and template
 construction methodology was given in \cite{Avants2004} with a more 
 recent template paper here \cite{Avants2009c}. 
 A follow up study that used landmark guidance to compare the chimpanzee cortex to

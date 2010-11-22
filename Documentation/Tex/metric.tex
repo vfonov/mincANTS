@@ -1,8 +1,10 @@
 ANTS supports both volumetric registration and point set registration. The image / point set similarity metrics in ANTS are unified in the form of a function on the images or the point sets:       $$\textbf{Simlarity}[\textbf{fixedImage}, \textbf{movingImage}, \textbf{weight}, \textbf{parameters}].$$
         
-The similarity type for the deformation transformation is specified by \verb -m  option, which contains two parts: simarity type and the parameters inside the brackets. (Note: no white spaces exist between parameters.) The possible similarity metrics for volumetric images are: 
+The similarity type for the deformation transformation is specified by
+the \verb -m  option, which contains two parts: simarity type and the parameters inside the brackets. (Note: no white spaces exist between parameters.) The possible similarity metrics for volumetric images are: 
 \begin{itemize}
-    \item Cross correlation estimate:  \verb"-m CC[fixedImage,movingImage,weight,radius]". This metric works well for intra-modality image registration. For exxample, \verb"-m CC[fixed.nii,moving.nii,1,5]" specifies:
+    \item Cross correlation estimate:  \verb " -m  CC[fixedImage,movingImage,weight,radius]". This metric works
+      well for intra-modality and some inter-modality image registration. For exxample, \verb"-m CC[fixed.nii,moving.nii,1,5]" specifies:
     \begin{itemize}
         \item the fixed image: fixed.nii
         \item the moving image: moving.nii             
@@ -12,7 +14,8 @@ The similarity type for the deformation transformation is specified by \verb -m 
 
     \item Mutual information: \verb"-m MI[fixedImage,movingImage,weight,number-of-histogram-bins]". This metric works both well for intra-modality and inter-modality image registration. For example, the first three parameters in \verb"-m MI[fixed.nii,moving.nii,1,32]" is similar to the example above in cross correlation, except that the last parameter means that the number of bins in computing mutual information is 32.
 
-    \item PR: \verb"-m PR[fixedImage,movingImage,weight,radius]". This metric works for intra-modality image registration and some inter-modality cases. This metric is a strict implementation of correlation whereas CC estimates correlation-like optical flow. The meaning of parameters are similar to cross correlation.
+    \item PR: \verb"-m PR[fixedImage,movingImage,weight,radius]". This
+      metric is deprecated.  It still ``works'' but CC is preferred.  
 
     \item Mean square difference: \verb"-m MSQ[fixedImage,movingImage,weight,0]". This metric works for intra-modality image registration. The last parameter \verb"0" is a padding value of no real meaning. For example, \verb"-m MSQ[fixed.nii,moving.nii,1,0]". 
 
