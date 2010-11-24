@@ -2,7 +2,7 @@
 #include <string>
 #include "itkImageFileReader.h"
 #include "itkVector.h"
-#include "itkVectorImageFileReader.h"
+//#include "itkVectorImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkMatrixOffsetTransformBase.h"
 #include "itkTransformFactory.h"
@@ -542,7 +542,7 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
 
 
     typedef itk::TransformFileReader TranReaderType;
-    typedef itk::VectorImageFileReader<ImageType, DeformationFieldType> FieldReaderType;
+    typedef itk::ImageFileReader<DeformationFieldType> FieldReaderType;
     bool takeaffinv=false;
     unsigned int   transcount=0;
     const int kOptQueueSize = opt_queue.size();

@@ -70,7 +70,7 @@ VectorParameterizedNeighborhoodOperatorImageFilter<TInputImage,TOutputImage,TPar
     
     // build an exception
     InvalidRequestedRegionError e(__FILE__, __LINE__);
-    OStringStream msg;
+    std::ostringstream msg;
     msg << static_cast<const char *>(this->GetNameOfClass())
         << "::GenerateInputRequestedRegion()";
     e.SetLocation(msg.str().c_str());

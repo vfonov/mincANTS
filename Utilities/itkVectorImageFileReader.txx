@@ -165,7 +165,7 @@ VectorImageFileReader<TImage, TVectorImage, ConvertPixelTraits>
       }
     else
       {
-      itk::OStringStream buf;
+      std::ostringstream buf;
       buf << i;
       this->m_FileName += ( std::string( "." )  + std::string( buf.str().c_str() ) );
       }
@@ -187,7 +187,7 @@ VectorImageFileReader<TImage, TVectorImage, ConvertPixelTraits>
 
       if ( m_ImageIO.IsNull() )
         {
-        OStringStream msg;
+        std::ostringstream msg;
         msg << " Could not create IO object for file "
             << m_FileName.c_str() << std::endl;
         if (m_ExceptionMessage.size())
@@ -359,7 +359,7 @@ VectorImageFileReader<TImage, TVectorImage, ConvertPixelTraits>
       }
     else
       {
-      itk::OStringStream buf;
+      std::ostringstream buf;
       buf << i;
       this->m_FileName += ( std::string( "." )  + std::string( buf.str().c_str() ) );
       }
@@ -375,7 +375,7 @@ VectorImageFileReader<TImage, TVectorImage, ConvertPixelTraits>
     if( ! itksys::SystemTools::FileExists( m_FileName.c_str() ) )
       {
       VectorImageFileReaderException e(__FILE__, __LINE__);
-      OStringStream msg;
+      std::ostringstream msg;
       msg <<"The file doesn't exists. "
           << std::endl << "Filename = " << m_FileName
           << std::endl;
@@ -390,7 +390,7 @@ VectorImageFileReader<TImage, TVectorImage, ConvertPixelTraits>
     if( readTester.fail() )
       {
       readTester.close();
-      OStringStream msg;
+      std::ostringstream msg;
       msg <<"The file couldn't be opened for reading. "
           << std::endl << "Filename: " << m_FileName
           << std::endl;
@@ -498,7 +498,7 @@ void VectorImageFileReader<TImage, TVectorImage, ConvertPixelTraits>
       }
     else
       {
-      itk::OStringStream buf;
+      std::ostringstream buf;
       buf << i;
       this->m_FileName += ( std::string( "." )  + std::string( buf.str().c_str() ) );
       }
@@ -561,15 +561,17 @@ void VectorImageFileReader<TImage, TVectorImage, ConvertPixelTraits>
     // (as opposed to the sizes of the output)
     try
       {
-      if ( m_ImageIO->GetComponentTypeInfo()
-           != typeid(ITK_TYPENAME ConvertPixelTraits::ComponentType)
-           || (m_ImageIO->GetNumberOfComponents()
+      if ( /** FIXME */
+// m_ImageIO->GetComponentTypeInfo()
+//           != typeid(ITK_TYPENAME ConvertPixelTraits::ComponentType)
+//           ||
+ (m_ImageIO->GetNumberOfComponents()
                != ConvertPixelTraits::GetNumberOfComponents()))
         {
         // the pixel types don't match so a type conversion needs to be
         // performed
         itkDebugMacro(<< "Buffer conversion required from: "
-                      << m_ImageIO->GetComponentTypeInfo().name()
+                     <<  " FIXME m_ImageIO->GetComponentTypeInfo().name() " 
                       << " to: "
                       << typeid(ITK_TYPENAME ConvertPixelTraits::ComponentType).name());
 
@@ -663,7 +665,7 @@ VectorImageFileReader<TImage, TVectorImage, ConvertPixelTraits>
 // type InternalPixelType, but each pixel is really 'k' consecutive pixels.
 
 #define ITK_CONVERT_BUFFER_IF_BLOCK(type)               \
- else if( m_ImageIO->GetComponentTypeInfo() == typeid(type) )   \
+ else if( true /** FIXME  m_ImageIO->GetComponentTypeInfo() == typeid(type) )  */ )   \
    {                                                   \
    if( strcmp( this->GetOutput()->GetNameOfClass(), "VectorImage" ) == 0 ) \
      { \
@@ -708,7 +710,7 @@ VectorImageFileReader<TImage, TVectorImage, ConvertPixelTraits>
   else
     {
     VectorImageFileReaderException e(__FILE__, __LINE__);
-    OStringStream msg;
+    std::ostringstream msg;
     msg <<"Couldn't convert component type: "
         << std::endl << "    "
         << m_ImageIO->GetComponentTypeAsString(m_ImageIO->GetComponentType())

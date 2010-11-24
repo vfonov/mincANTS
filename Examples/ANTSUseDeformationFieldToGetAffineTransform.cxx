@@ -13,7 +13,7 @@
 #include <iostream>
 #include "ReadWriteImage.h"
 #include "itkTransformFileWriter.h"
-#include "itkVectorImageFileReader.h"
+//#include "itkVectorImageFileReader.h"
 // #include "ANTS_affine_registration2.h"
 #include <vnl/vnl_matrix.h>
 // #include <vnl/vnl_qr.h>
@@ -338,7 +338,7 @@ void FetchLandmarkMappingFromDeformationField(const StringType &deformation_fiel
     typedef itk::Image<float, ImageDimension> ImageType;
     typedef itk::Vector<float, ImageDimension>         VectorType;
     typedef itk::Image<VectorType, ImageDimension>     DeformationFieldType;
-    typedef itk::VectorImageFileReader<ImageType, DeformationFieldType> FieldReaderType;
+    typedef itk::ImageFileReader<DeformationFieldType> FieldReaderType;
 
 
     typename FieldReaderType::Pointer field_reader = FieldReaderType::New();
