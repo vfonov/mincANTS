@@ -190,7 +190,8 @@
 \vspace*{5cm}
 
 \begin{center}
-{\Large \bf An Open Source Framework for Multivariate $n$-Tissue Segmentation and Volumetric Cortical Parcellation:  Evaluation Using the BrainWeb, NIREP, and LPBA Public Data Sets} \\
+{\Large \bf An Open Source Framework for Multivariate $n$-Tissue
+  Segmentation and Evaluation Using Open Data Sets} \\
 \vspace*{0.5cm}
 {\normalsize Brian B.~Avants$^{1*}$,  Nicholas J.~Tustison$^2$%
 \symbolfootnote[1]{
@@ -248,27 +249,26 @@ assumptions as spatial priors and geodesically propagating
 segmentation information across neuroanatomy to ensure a dense
 labeling.  Atropos has also been efficiently implemented to handle
 large quantities of possible labelings (in the experimental section,
-we use up to 68 classes) with a minimal memory footprint.  In addition
-to describing the technical and implementation aspects of Atropos,
-this work evaluates its performance on the parcellation problem given
-two different training datasets, the BrainWeb dataset from Montreal
-Neurological Institute and the Hammers atlas from UCL [FIXME].  We use
-the datasets to evaluate three uses of the Atropos segmentation method: (1) K-means
-segmentation without use of template data; (2) segmentation with prior
-probability maps derived from a group template; (3) N-class EM
-segmentation for parcellating the brain into 68 classes based on
-training data.  These evaluation studies, combined with illustrative
-examples that excercise Atropos options, demonstrate both performance
-and wide applicability of this new segmentation tool.
-
+we use up to 68 classes) with a minimal memory footprint.  This work
+describes the technical and implementation aspects of Atropos and
+evaluates its performance on two different ground-truth datasets.
+First, we use the BrainWeb dataset from Montreal Neurological
+Institute to evaluate three tissue segmentation performance via (1)
+K-means segmentation without use of template data; (2) Markov Random
+Field Segmentation with initialization by prior probability maps
+derived from a group template; (3) Prior-based Segmentation with use
+of spatial prior probability maps derived from a group template.  We
+also evaluate Atropos performance by using spatial priors to drive a 68 class EM segmentation
+problem defined by the Hammers atlas from University College London
+{\bf FIXME proper name}.  These evaluation studies, combined with
+illustrative examples that excercise Atropos options, demonstrate both
+performance and wide applicability of this new platform-independent 
+open source segmentation tool.
 %Component (3) corresponds to the most
 %realistic clinical case, while component (2) eliminates the confound
 %of defining the cortex itself and focuses only on the parcellation
 %problem.  Consistent with the open source dissemination of ANTs, we
 %make publicly available all scripts and code from the evaluation.
-
-
-
 \end{abstract}
 
 %\begin{keyword}
@@ -281,12 +281,13 @@ and wide applicability of this new segmentation tool.
 rely on anatomical and functional correspondence both within and
 between subjects.  As image acquisition technology has advanced,
 concomitant investment has been made towards image classification
-techniques for the cerebrum beginning with the seminal work of
-\cite{Vannier1985} in which NASA satellite image processing software
-was appropriated for statistical classification of head tissues in 2-D
-MR images.  Since then, a proliferation of techniques has ensued with
-increasing sophistication.  The chronology of progress in segmentation
-may be tracked through both technical reviews
+techniques for the cerebrum beginning the appropriation of NASA
+satellite image processing software for statistical classification of
+head tissues in 2-D MR images \cite{Vannier1985}.  A proliferation of
+techniques has ensued with increasing sophistication in both core
+methodology and degree of refinement for specific problems.  The
+chronology of progress in segmentation may be tracked through both
+technical reviews
 \citep{Bezdek1993,Pal1993,Clarke1995,Pham2000,Viergever2001,Suri2002,Duncan2004,Balafar2010}
 and evaluation studies
 \citep[e.g.][]{Cuadra2005,Zaidi2006,Klauschen2009,Boer2010}.
@@ -325,16 +326,55 @@ initial segmentation.   Related technological developments encompasses
 those driven by partial volume modeling for increased accuracy in
 brain segmentation \citep{Ruan2000,Ballester2002,Leemput2003}.  
 
-Observations regarding a general trend towards a more integrative view 
-of neuroanatomical image processing led to the work described in \cite{Ashburner2005} which is
-publicly available as SPM---a large-scale Matlab module in which registration, segmentation, and bias field 
-correction can be simultaneously modeled within a single optimization scheme. The roots of this very popular 
-software package stem back to early seminal work by Karl Friston in which the basis for statistical parametric mapping was developed \citep{Friston1990} and subsequently provided to the research community. A similar holistic approach
-to brain processing was provided in \cite{Pohl2006} in which segmentation
-and registration parameters were optimized simultaneously while casting the inhomogeneity model parameters
-of \cite{Wells1996} as nuisance variables.  Continued work involved recursive parcellation of the brain volume by considering sub-structures in a hierarchical manner \citep{Pohl2007}.  An implementation is provided in  3D slicer \cite{Pieper2006}---an open source package with developmental contributions from multiple agencies including both private and academic institutions.
+Observations regarding a general trend towards a more integrative view
+of neuroanatomical image processing led to the work described in
+\cite{Ashburner2005} which is publicly available as SPM---a
+large-scale Matlab module in which registration, segmentation, and
+bias field correction can be simultaneously modeled within a single
+optimization scheme. The roots of this very popular software package
+stem back to early seminal work by Karl Friston in which the basis for
+statistical parametric mapping was developed \citep{Friston1990} and
+subsequently provided to the research community. A similar holistic
+approach to brain processing was provided in \cite{Pohl2006} in which
+segmentation and registration parameters were optimized simultaneously
+while casting the inhomogeneity model parameters of \cite{Wells1996}
+as nuisance variables.  Continued work involved recursive parcellation
+of the brain volume by considering sub-structures in a hierarchical
+manner \citep{Pohl2007}.  An implementation is provided in 3D slicer
+\cite{Pieper2006}---an open source package with developmental
+contributions from multiple agencies including both private and
+academic institutions.  {\bf FIXME references proper names SIENA stuff}
+Researchers in aging have also developed tools that have focused on
+accurately segmenting the T1 MRI of elderly controls and subjects
+suffering from neurodegeneration.  Recent comparative evaluation studies {\bf
+  FIXME cite a number of these} have shown that methods such as FAST,
+SPM Unified Segmentation, SIENA and others show different performance
+characteristics under different evaluation criteria.  That is, no
+single method performs best under every measurement, highlighting
+the need for segmentation tools that are tunable for different
+problems and research goals.  
 
-Related neuroanatomical research concerns the selection of geometric features of the cortex \citep[e.g.][]{Goualher1999} with aims at understanding the functional-anatomical relationship of the human brain. Recent endeavors produce a dense cortical labeling in which every point of the cortex is classified, i.e. a cortical parcellation \citep{Fischl2004,Heckemann2006,Destrieux2010}.  Given the extreme time-consumption and tedium associated with manual effort towards the latter, various algorithms have been proposed of which a small subset has been publicly availed to the research community such as the popular software package known as Freesurfer \citep{Dale1999,Fischl1999,Fischl2004}.  In contrast to the volumetric approach detailed in this work, Freesurfer is primarily a surface-based technique in which the brain structures such as the grey-white matter interface and pial surfaces are processed, analyzed, and displayed as tessellated surfaces  \cite{Dale1999,Fischl1999}.  Advantages of surface-based approaches include the ability to map processed neuroanatomy to simple geometric primitives such as spheres or planes and the ease of including topological constraints in the analysis workflow.  
+
+Related neuroanatomical research concerns the selection of geometric
+features of the cortex \citep[e.g.][]{Goualher1999} with aims at
+understanding the functional-anatomical relationship of the human
+brain. Recent endeavors produce a dense cortical labeling in which
+every point of the cortex is classified, i.e. a cortical parcellation
+\citep{Fischl2004,Heckemann2006,Destrieux2010}.  Given the extreme
+time-consumption and tedium associated with manual effort towards the
+latter, various algorithms have been proposed of which a small subset
+has been publicly availed to the research community such as the
+popular software package known as Freesurfer
+\citep{Dale1999,Fischl1999,Fischl2004}.  In contrast to the volumetric
+approach detailed in this work, Freesurfer is primarily a
+surface-based technique in which the brain structures such as the
+grey-white matter interface and pial surfaces are processed, analyzed,
+and displayed as tessellated surfaces  \cite{Dale1999,Fischl1999}.
+Advantages of surface-based approaches include the ability to map
+processed neuroanatomy to simple geometric primitives such as spheres
+or planes and the ease of including topological constraints in the
+analysis workflow.  These types of methods, as well as Klein's
+Mindboggle \cite{Klein2003}, would usually follow an initial segmentation by a volumetric method such as Atropos.  
 
 {\color{red}{{\em Needs work}:  Mindboggle, Heckemann  One advantage of the pipeline we propose is that we parcellate
 cortex entirely in the image space, thus avoiding the difficulty of
@@ -342,17 +382,42 @@ transferring labels from the mesh space back to the image space---a
 problem that is a confound of surface-based methods\citep{Klein2010}.}}
 
 
-Our open source segmentation tool, which we have dubbed {\em Atropos},%
-\footnote{
-Atropos is one of the three Fates from Greek mythology characterized by her dreaded shears used to decide the destiny of each mortal.  Also, consistent with the entomological motif of our ANTs toolkit, {\it Acherontia atropos} is a species of large moth known for the skull-like pattern visible on its thorax.
-}
-takes advantage of the $n$-tissue paradigm for volumetric image segmentation and harnesses its generalization for template-based cortical parcellation.
-Atropos is an EM-based algorithm which contains many of the features of its predecessors for performing
-$n$-tissue segmentation including imposition of prior information in the form of MRFs and template-based prior probability maps.  The latter is extended in this work through the formulation of a distance template-based prior used for EM label-propagation and refinement performed in an anatomically meaningful way. 
+Our open source segmentation tool, which we have dubbed {\em
+Atropos}, 
+\footnote{ Atropos is one of the three Fates from Greek
+mythology characterized by her dreaded shears used to decide the
+destiny of each mortal.  Also, consistent with the entomological motif
+of our ANTs toolkit, {\it Acherontia atropos} is a species of large
+moth known for the skull-like pattern visible on its thorax.  }
+efficiently and flexibly implements the $n$-tissue paradigm for
+volumetric image segmentation.  Atropos allows users to harness its
+generalized EM algorithm for standard tissue classification of
+the brain into gray matter, white matter and cerebrospinal fluid.
+Atropos equally allows incarnations that use EM to simultaneously
+maximize the posterior probabilities of many classes, for instance,
+when parcellating the brain into hemispheres, cortical regions and
+deep brain structures such as amygdala, hippocampus and
+thalamus.  Atropos contains features of its predecessors for
+performing $n$-tissue segmentation including imposition of prior
+information in the form of MRFs and template-based spatial prior
+probability maps as well as weighted combinations of these terms.  We
+extend the use of spatial priors, in this work, to allow sparse priors
+that may then be extended by a geodesic distance-based label propagation
+approach.  In short, Atropos seeks to provide a toolbox of
+segmentation approaches that may be modified, tuned and refined by the user
+for different problems.  
 
-Atropos addresses the bias field issue by incorporating the recently developed N4 bias correction algorithm \citep{Tustison2010} in an adaptive manner.  Coupled with the registration \citep{Avants2010b} and template building strategies \citep{Avants2010} already included in the ANTs toolkit,   
-Atropos is a versatile and powerful software tool which touches multiple aspects of our brain processing pipeline from brain extraction \citep{Avants2010a} to grey matter/white matter/cerebrospinal fluid segmentation to label fusion and propagation for achieving a refined cortical parcellation based on both prior information and subject-specific image data.  
-
+We also allow Atropos to address the bias field issue by incorporating
+the recently developed N4 bias correction algorithm
+\citep{Tustison2010} in an adaptive manner.  Coupled with the
+registration \citep{Avants2010b} and template building strategies
+\citep{Avants2010} already included in the ANTs toolkit, Atropos is a
+versatile and powerful software tool which touches multiple aspects of
+our brain processing pipeline from brain extraction
+\citep{Avants2010a} to grey matter/white matter/cerebrospinal fluid
+segmentation to label fusion and propagation for achieving a refined
+cortical parcellation based on both prior information and
+subject-specific image data.
 
 The major contribution of the Atropos algorithm is a flexible, memory
 efficient implementation of core expectation maximization machinery
@@ -411,12 +476,14 @@ Bayes' theorem provides a powerful mechanism for making inductive inferences ass
 \footnote{
 In the classic 3-tissue segmentation case, each voxel in the brain region is assigned a label of `cerebrospinal fluid (csf)', `gray matter (gm)', or `white matter (wm)'. 
 }
-such that the posterior probability is maximized.  Following introductory notation, the following sections provide a formal description of these three essential components, viz.
+such that the posterior probability is maximized.  Following
+introductory notation, the next sections provide a formal description of these three essential components, viz.
 \begin{itemize}
   \item the likelihood or observation model(s),
   \item the prior probability quantities derived from a generalized MRF, template-based prior terms, and a novel distance prior used for label propagation, and 
   \item the optimization framework for maximizing the posterior probability.
 \end{itemize}
+These key components are common across most segmentation approaches. 
 
 \subsection{Notation}
 
@@ -836,13 +903,16 @@ multiple scalar images with a single image corresponding to a particular label. 
 the standard 3-tissue segmentation (i.e. white matter, gray matter, and cerebrospinal fluid), this does not typically present
 computational complexities using modern hardware.  However, when considering dense cortical parcellations where the number
 of labels can range upwards of 74 per hemisphere \citep{Destrieux2010}, the memory load can be prohibitive if all label images 
-are loaded into run-time memory simultaneously.  A major part of minimizing memory usage in Atropos,  which corresponds to the boolean `{\ttfamily -u/--minimize-memory-usage}' option, is the sparse representation of each of the prior probability images.
+are loaded into run-time memory simultaneously.  A major part of
+minimizing memory usage in Atropos,  which corresponds to the boolean
+`{\ttfamily -u/--minimize-memory-usage}' option, is the sparse
+representation of each of the prior probability images.  
 Motivated by the observation that these spatial prior probability maps tend to be highly localized for large quantities of  
 cortical labels, a threshold is specified on the command line (default = 0.0) and only those probability values which exceed 
 that threshold are stored in the sparse representation.  During the course of optimization, the prior probability image for a
 given label is reconstructed on the fly as needed.  {\textcolor{red}For the NIREP data used in this manuscript where the images are 
 on the order of $300 \times 300 \times 256$ and 32 cortical labels, this typically shrinks run-time memory usage from a 
-peak of 10+ GB to approximately 1.5 GB. --- FIXME }
+peak of 10+ GB to approximately 1.5 GB. --- FIXME }  
  
  \subsubsection{Likelihood or Observation Models}
 As mentioned previously in the introduction, different groups have opted for different likelihood models which have included
@@ -875,6 +945,8 @@ neighborhood radius of 1 in all 3 dimensions.  Note that this radius
 prescribes an $L_\infty$  {\textcolor{red} FIXME should this be $L_2$?} distance and thus includes not just the face-connected neighboring voxels.
 
 To propagate labels with the specification of prior probability images or a prior label image, one needs to select the distance function (set by the `{\ttfamily -e/--use-euclidean-distance}' boolean option) which, by default, is determined by the geodesic distance.  The user also needs to set the label propagation parameters for one or more of the classes.  This  includes both the boundary probability and the exponential decay parameter, respectively $\alpha_k$ and $\sigma_k$ in Eqn. (\ref{eq:prop}).  
+
+{\bf FIXME Prior label image definition?}
 
 \section{Evaluation}
 
