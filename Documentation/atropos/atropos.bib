@@ -35,6 +35,67 @@
   url = {http://dx.doi.org/10.1016/j.neuroimage.2005.02.018}
 }
 
+@ARTICLE{Aubert-Broche2006a,
+  author = {Berengère Aubert-Broche and Mark Griffin and G. Bruce Pike and Alan
+	C Evans and D. Louis Collins},
+  title = {Twenty new digital brain phantoms for creation of validation image
+	data bases.},
+  journal = {IEEE Trans Med Imaging},
+  year = {2006},
+  volume = {25},
+  pages = {1410--1416},
+  number = {11},
+  month = {Nov},
+  abstract = {Simulations provide a way of generating data where ground truth is
+	known, enabling quantitative testing of image processing methods.
+	In this paper, we present the construction of 20 realistic digital
+	brain phantoms that can be used to simulate medical imaging data.
+	The phantoms are made from 20 normal adults to take into account
+	intersubject anatomical variabilities. Each digital brain phantom
+	was created by registering and averaging four T1, T2, and proton
+	density (PD)-weighted magnetic resonance imaging (MRI) scans from
+	each subject. A fuzzy minimum distance classification was used to
+	classify voxel intensities from T1, T2, and PD average volumes into
+	grey-matter, white matter, cerebro-spinal fluid, and fat. Automatically
+	generated mask volumes were required to separate brain from nonbrain
+	structures and ten fuzzy tissue volumes were created: grey matter,
+	white matter, cerebro-spinal fluid, skull, marrow within the bone,
+	dura, fat, tissue around the fat, muscles, and skin/muscles. A fuzzy
+	vessel class was also obtained from the segmentation of the magnetic
+	resonance angiography scan of the subject. These eleven fuzzy volumes
+	that describe the spatial distribution of anatomical tissues define
+	the digital phantom, where voxel intensity is proportional to the
+	fraction of tissue within the voxel. These fuzzy volumes can be used
+	to drive simulators for different modalities including MRI, PET,
+	or SPECT. These phantoms were used to construct 20 simulated T1-weighted
+	MR scans. To evaluate the realism of these simulations, we propose
+	two approaches to compare them to real data acquired with the same
+	acquisition parameters. The first approach consists of comparing
+	the intensities within the segmented classes in both real and simulated
+	data. In the second approach, a whole brain voxel-wise comparison
+	between simulations and real T1-weighted data is performed. The first
+	comparison underlines that segmented classes appear to properly represent
+	the anatomy on average, and that inside these classes, the simulated
+	and real intensity values are quite similar. The second comparison
+	enables the study of the regional variations with no a priori class.
+	The experiments demonstrate that these variations are small when
+	real data are corrected for intensity nonuniformity.},
+  doi = {10.1109/TMI.2006.883453},
+  institution = {Montreal Neurological Institute Brain Imaging Center, McGill University,
+	Montreal, QC H3A 2B4, Canada.},
+  keywords = {Adult; Brain, anatomy /&/ histology; Databases, Factual; Female; Humans;
+	Image Interpretation, Computer-Assisted, methods/standards; Magnetic
+	Resonance Imaging, methods/standards; Male; Medical Records Systems,
+	Computerized; Models, Anatomic; Models, Neurological; Phantoms, Imaging;
+	Reference Values; Signal Processing, Computer-Assisted},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {brianavants},
+  pmid = {17117770},
+  timestamp = {2010.12.08},
+  url = {http://dx.doi.org/10.1109/TMI.2006.883453}
+}
+
 @INPROCEEDINGS{Avants2010a,
   author = {Brian Avants and Arno Klein and Nicholas Tustison and Jue Woo and
 	and James C. Gee},
@@ -146,6 +207,57 @@
   owner = {ntustison},
   pmid = {12494949},
   timestamp = {2010.09.07}
+}
+
+@ARTICLE{Battaglini2008,
+  author = {Marco Battaglini and Stephen M Smith and Susanna Brogi and Nicola
+	De Stefano},
+  title = {Enhanced brain extraction improves the accuracy of brain atrophy
+	estimation.},
+  journal = {Neuroimage},
+  year = {2008},
+  volume = {40},
+  pages = {583--589},
+  number = {2},
+  month = {Apr},
+  abstract = {BET (Brain Extraction Tool) is a widely used computer program to automatically
+	separate brain from non-brain structures in MR images. This procedure
+	is used in SIENAX and SIENA, which are robust approaches to quantifying
+	brain volume (atrophy state) and volume change (atrophy rate), respectively.
+	Occasionally, however, BET produces imperfect results (e.g., inclusion
+	of non-brain structures). This is usually either ignored (if inaccuracies
+	are small) or corrected by manual adjustment, with the disadvantages
+	of user intervention. We describe here a new, automated option in
+	BET. This is based on the original BET, but uses standard-space masking
+	to remove tissue around the eyes, and further morphological operations
+	and thresholding to refine eyeball removal and eliminate additional
+	non-brain tissues. To assess whether the new BET procedure improves
+	brain volume measurements, this was compared with the traditional
+	and manual editing procedures in SIENA and SIENAX. Measures of atrophy
+	rate and state were significantly higher with the traditional procedure
+	than with the manual editing and new procedures. In contrast, both
+	atrophy measures were almost identical and highly correlated when
+	the manual editing and new procedures were used. The voxels excluded
+	with these two procedures showed close overlap, as judged by the
+	Dice overlap coefficient. We conclude that, in SIENA and SIENAX,
+	the proposed BET procedure shows results matching those obtained
+	after manual editing, thus more closely approximating the "true"
+	brain volume. Multicentre studies monitoring brain atrophy in clinical
+	trials may receive benefit by using this unbiased, fully automated
+	procedure.},
+  doi = {10.1016/j.neuroimage.2007.10.067},
+  institution = {Department of Neurological and Behavioural Sciences, University of
+	Siena, Italy.},
+  keywords = {Adult; Atrophy; Brain, pathology; Female; Humans; Image Processing,
+	Computer-Assisted; Magnetic Resonance Imaging; Male; Middle Aged;
+	Organ Size; Reproducibility of Results},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {brianavants},
+  pii = {S1053-8119(07)01139-1},
+  pmid = {18255315},
+  timestamp = {2010.12.08},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2007.10.067}
 }
 
 @ARTICLE{Besag1986,
@@ -342,6 +454,54 @@
   owner = {ntustison},
   pmid = {18063391},
   timestamp = {2010.08.28}
+}
+
+@ARTICLE{Bresser2011,
+  author = {Jeroen de Bresser and Marileen P Portegies and Alexander Leemans
+	and Geert Jan Biessels and L. Jaap Kappelle and Max A Viergever},
+  title = {A comparison of MR based segmentation methods for measuring brain
+	atrophy progression.},
+  journal = {Neuroimage},
+  year = {2011},
+  volume = {54},
+  pages = {760--768},
+  number = {2},
+  month = {Jan},
+  abstract = {Automated brain segmentation methods with a good precision and accuracy
+	are required to detect subtle changes in brain volumes over time
+	in clinical applications. However, the ability of established methods
+	such as SIENA, US and kNN to estimate brain volume change have not
+	been compared on the same data, nor been evaluated with ground-truth
+	manual segmentations. We compared measurements of brain volume change
+	between SIENA, US and kNN in terms of precision (repeatability) and
+	accuracy (ground-truth) using one baseline and two repeated follow-up
+	1.5T MRI scans after 4years of 10 subjects. The coefficient of repeatability
+	(brain volume/volume change) was larger for US (29.6cc/2.84\%) than
+	for kNN (4.9cc/0.31\%) and SIENA (-/0.92\%). In terms of absolute
+	brain volume measurements US and kNN showed good correlation with
+	the manual segmentations and with each other (all Spearman's correlation
+	coefficients ρ≥0.96; all p<0.001). Concerning brain volume changes,
+	SIENA showed a good (ρ=0.82; p=0.004), kNN a moderate (ρ=0.60; p=0.067)
+	and US a weak (ρ=0.50; p=0.138) correlation with the manual segmentations.
+	For measurements of volume change, SIENA-US (mean correlation coefficient
+	and p-value: ρ=0.28; p=0.442) and US-kNN (ρ=0.17; p=0.641) showed
+	a weak correlation, but correlation was fairly good for kNN-SIENA
+	(ρ=0.65; p=0.048). In conclusion, US and kNN showed a good precision,
+	accuracy and comparability for brain volume measurements. For measurements
+	of volume change, SIENA showed the best performance. kNN is a good
+	alternative if volume change measurements of other brain structures
+	are required.},
+  doi = {10.1016/j.neuroimage.2010.09.060},
+  institution = {Image Sciences Institute, University Medical Center Utrecht, The
+	Netherlands; Department of Neurology, Rudolf Magnus Institute of
+	Neuroscience, University Medical Center Utrecht, The Netherlands.},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {brianavants},
+  pii = {S1053-8119(10)01262-0},
+  pmid = {20888923},
+  timestamp = {2010.12.08},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2010.09.060}
 }
 
 @ARTICLE{Clarke1995,
@@ -866,6 +1026,59 @@
   timestamp = {2010.09.07}
 }
 
+@ARTICLE{Hammers2003,
+  author = {Alexander Hammers and Richard Allom and Matthias J Koepp and Samantha
+	L Free and Ralph Myers and Louis Lemieux and Tejal N Mitchell and
+	David J Brooks and John S Duncan},
+  title = {Three-dimensional maximum probability atlas of the human brain, with
+	particular reference to the temporal lobe.},
+  journal = {Hum Brain Mapp},
+  year = {2003},
+  volume = {19},
+  pages = {224--247},
+  number = {4},
+  month = {Aug},
+  __markedentry = {[brianavants]},
+  abstract = {Probabilistic atlases of neuroanatomy are more representative of population
+	anatomy than single brain atlases. They allow anatomical labeling
+	of the results of group studies in stereotaxic space, automated anatomical
+	labeling of individual brain imaging datasets, and the statistical
+	assessment of normal ranges for structure volumes and extents. No
+	such manually constructed atlas is currently available for the frequently
+	studied group of young adults. We studied 20 normal subjects (10
+	women, median age 31 years) with high-resolution magnetic resonance
+	imaging (MRI) scanning. Images were nonuniformity corrected and reoriented
+	along both the anterior-posterior commissure (AC-PC) line horizontally
+	and the midsagittal plane sagittally. Building on our previous work,
+	we have expanded and refined existing algorithms for the subdivision
+	of MRI datasets into anatomical structures. The resulting algorithm
+	is presented in the Appendix. Forty-nine structures were interactively
+	defined as three-dimensional volumes-of-interest (VOIs). The resulting
+	20 individual atlases were spatially transformed (normalized) into
+	standard stereotaxic space, using SPM99 software and the MNI/ICBM
+	152 template. We evaluated volume data for all structures both in
+	native space and after spatial normalization, and used the normalized
+	superimposed atlases to create a maximum probability map in stereotaxic
+	space, which retains quantitative information regarding inter-subject
+	variability. Its potential applications range from the automatic
+	labeling of new scans to the detection of anatomical abnormalities
+	in patients. Further data can be extracted from the atlas for the
+	detailed analysis of individual structures.},
+  doi = {10.1002/hbm.10123},
+  institution = {MRC Clinical Sciences Centre and Division of Neuroscience, Faculty
+	of Medicine, Imperial College, Hammersmith Hospital, London, United
+	Kingdom.},
+  keywords = {Adult; Algorithms; Brain Mapping, methods; Female; Humans; Image Interpretation,
+	Computer-Assisted; Magnetic Resonance Imaging, methods; Male; Reference
+	Values; Stereotaxic Techniques; Temporal Lobe, anatomy /&/ histology},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {brianavants},
+  pmid = {12874777},
+  timestamp = {2010.12.08},
+  url = {http://dx.doi.org/10.1002/hbm.10123}
+}
+
 @ARTICLE{Heckemann2006,
   author = {Rolf A Heckemann and Joseph V Hajnal and Paul Aljabar and Daniel
 	Rueckert and Alexander Hammers},
@@ -916,6 +1129,55 @@
   pmid = {16860573},
   timestamp = {2010.09.08},
   url = {http://dx.doi.org/10.1016/j.neuroimage.2006.05.061}
+}
+
+@ARTICLE{Heckemann2010,
+  author = {Rolf A Heckemann and Shiva Keihaninejad and Paul Aljabar and Daniel
+	Rueckert and Joseph V Hajnal and Alexander Hammers and Alzheimer's
+	Disease Neuroimaging Initiative},
+  title = {Improving intersubject image registration using tissue-class information
+	benefits robustness and accuracy of multi-atlas based anatomical
+	segmentation.},
+  journal = {Neuroimage},
+  year = {2010},
+  volume = {51},
+  pages = {221--227},
+  number = {1},
+  month = {May},
+  abstract = {Automatic anatomical segmentation of magnetic resonance human brain
+	images has been shown to be accurate and robust when based on multiple
+	atlases that encompass the anatomical variability of the cohort of
+	subjects. We observed that the method tends to fail when the segmentation
+	target shows ventricular enlargement that is not captured by the
+	atlas database. By incorporating tissue classification information
+	into the image registration process, we aimed to increase the robustness
+	of the method. For testing, subjects who participated in the Oxford
+	Project to Investigate Memory and Aging (OPTIMA) and the Alzheimer's
+	Disease Neuroimaging Initiative (ADNI) were selected for ventriculomegaly.
+	Segmentation quality was substantially improved in the ventricles
+	and surrounding structures (9/9 successes on visual rating versus
+	4/9 successes using the baseline method). In addition, the modification
+	resulted in a significant increase of segmentation accuracy in healthy
+	subjects' brain images. Hippocampal segmentation results in a group
+	of patients with temporal lobe epilepsy were near identical with
+	both approaches. The modified approach (MAPER, multi-atlas propagation
+	with enhanced registration) extends the applicability of multi-atlas
+	based automatic whole-brain segmentation to subjects with ventriculomegaly,
+	as seen in normal aging as well as in numerous neurodegenerative
+	diseases.},
+  institution = {Division of Neuroscience and Mental Health, Faculty of Medicine,
+	Department of Computing, Imperial College, London, UK. soundray@imperial.ac.uk},
+  keywords = {Aged; Aged, 80 and over; Aging, pathology; Alzheimer Disease, pathology;
+	Anatomy, Artistic; Atlases as Topic; Automation; Brain, pathology;
+	Cerebral Ventricles, pathology; Databases, Factual; Epilepsy, Temporal
+	Lobe, pathology; Hippocampus, pathology; Humans; Image Processing,
+	Computer-Assisted, methods; Magnetic Resonance Imaging, methods;
+	Middle Aged},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {brianavants},
+  pmid = {20114079},
+  timestamp = {2010.12.08}
 }
 
 @ARTICLE{Held1997,
@@ -1783,6 +2045,46 @@
   pmid = {9617910},
   timestamp = {2010.08.28},
   url = {http://dx.doi.org/10.1109/42.668698}
+}
+
+@ARTICLE{Smith2007,
+  author = {Stephen M Smith and Anil Rao and Nicola De Stefano and Mark Jenkinson
+	and Jonathan M Schott and Paul M Matthews and Nick C Fox},
+  title = {Longitudinal and cross-sectional analysis of atrophy in Alzheimer's
+	disease: cross-validation of BSI, SIENA and SIENAX.},
+  journal = {Neuroimage},
+  year = {2007},
+  volume = {36},
+  pages = {1200--1206},
+  number = {4},
+  month = {Jul},
+  abstract = {Brain volume loss (atrophy) is widely used as a marker of disease
+	progression. Atrophy has been measured with a variety of methods,
+	some estimating atrophy rate from two temporally separated scans,
+	and others estimating atrophy state from a single scan. Three popular
+	tools for measuring brain atrophy are BSI and SIENA (rate) and SIENAX
+	(state). Previous papers have shown BSI and SIENA to have similar
+	accuracy, but no work has carefully compared both methods using the
+	same data set. Here we compare these methods, using data from patients
+	with Alzheimer's disease and age-matched controls. We also compare
+	the SIENA longitudinal measure with atrophy state estimated by SIENAX
+	using just the earliest scan taken from each subject. We show strong
+	correspondence and similar sensitivity to atrophy between all 3 measures.},
+  doi = {10.1016/j.neuroimage.2007.04.035},
+  institution = {Oxford University Centre for Functional MRI of the Brain (FMRIB),
+	Oxford, UK. steve@fmrib.ox.ac.uk},
+  keywords = {Aged; Alzheimer Disease, diagnosis; Artifacts; Artificial Intelligence;
+	Atrophy; Brain, pathology; Cerebral Ventricles, pathology; Cross-Sectional
+	Studies; Female; Humans; Image Processing, Computer-Assisted, methods;
+	Longitudinal Studies; Magnetic Resonance Imaging, methods; Male;
+	Reference Values; Sensitivity and Specificity; Software},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {brianavants},
+  pii = {S1053-8119(07)00333-3},
+  pmid = {17537648},
+  timestamp = {2010.12.08},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2007.04.035}
 }
 
 @ARTICLE{Suri2002,

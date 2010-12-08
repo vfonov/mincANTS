@@ -210,7 +210,7 @@ Philip A.~Cook$^1$, Jue Woo$^1$, and James C.~Gee$^1$} \\
 \scriptsize
 \flushleft
 %\line(1, 0){250} \\
-{\bf Atropos:  $n$-Tissue Segmentation and Cortical Parcellation}\\
+{\bf Atropos:  $n$-Tissue Segmentation}\\
 Corresponding author: \\
 Brian B. Avants\\
 3600 Market Street, Suite 370\\
@@ -230,24 +230,22 @@ avants@picsl.upenn.edu\\
 
 
 \begin{abstract} 
-Neuroanatomical coordinate systems are essential for the interpretation of 
-structural and functional imaging studies.  However, manual delineation of the 
-sulco-gyral complex is time consuming and prone to variability given cortical 
-complexity.  This work describes an open source, image-based algorithmic approach to 
-cortical parcellation which uses training data to propagate structural labelings to 
-individual images.  Along with other neuroinformatics tools publicly distributed in our
-ANTs (Advanced Normalization Tools)%
+%Neuroanatomical coordinate systems are essential for the
+%interpretation of structural and functional imaging studies.
+%However, manual delineation of the sulco-gyral complex is time
+%consuming and prone to variability given cortical complexity.  This
+%work describes an open source, image-based algorithmic approach to
+%cortical parcellation which uses training data to propagate
+%structural labelings to individual images.  Along with other
+%neuroinformatics tools publicly distributed in our ANTs (Advanced Normalization Tools)%
+We introduce {\em Atropos}, an ITK-based multivariate $n$-class
+Expectation Maximization (EM) segmentation algorithm based on either parametric or non-parametric finite mixture modelings (FMM) of the
+class intensities.  Atropos, available in ANTs
 \footnote{
 http://www.picsl.upenn.edu/ANTs
-}
-package, {\em Atropos} is an ITK-based multivariate $n$-class
-Expectation Maximization (EM) segmentation algorithm which uses either
-parametric or non-parametric finite mixture modelings (FMM) of the
-class intensities.  It is capable of incorporating prior labelings,
-prior probability maps, and/or Markov Random Field (MRF) modeling
-assumptions as spatial priors and geodesically propagating
-segmentation information across neuroanatomy to ensure a dense
-labeling.  Atropos has also been efficiently implemented to handle
+}, is capable of incorporating spatial prior probability maps,
+(sparse) prior label maps and/or Markov Random Field (MRF) modeling
+assumptions.  Atropos has also been efficiently implemented to handle
 large quantities of possible labelings (in the experimental section,
 we use up to 68 classes) with a minimal memory footprint.  This work
 describes the technical and implementation aspects of Atropos and
@@ -259,8 +257,7 @@ Field Segmentation with initialization by prior probability maps
 derived from a group template; (3) Prior-based Segmentation with use
 of spatial prior probability maps derived from a group template.  We
 also evaluate Atropos performance by using spatial priors to drive a 68 class EM segmentation
-problem defined by the Hammers atlas from University College London
-{\bf FIXME proper name}.  These evaluation studies, combined with
+problem defined by the Hammers atlas from University College London.  These evaluation studies, combined with
 illustrative examples that excercise Atropos options, demonstrate both
 performance and wide applicability of this new platform-independent 
 open source segmentation tool.
@@ -277,14 +274,12 @@ open source segmentation tool.
 
 \clearpage
 
-\section{Introduction} Neurological and neurodevelopmental research
-rely on anatomical and functional correspondence both within and
-between subjects.  As image acquisition technology has advanced,
-concomitant investment has been made towards image classification
-techniques for the cerebrum beginning the appropriation of NASA
+\section{Introduction} As medical image acquisition technology has advanced,
+concomitant investment has been made towards adapting classification
+techniques for neuroanatomy.  Some of the earliest work appropriated NASA
 satellite image processing software for statistical classification of
 head tissues in 2-D MR images \cite{Vannier1985}.  A proliferation of
-techniques has ensued with increasing sophistication in both core
+techniques ensued with increasing sophistication in both core
 methodology and degree of refinement for specific problems.  The
 chronology of progress in segmentation may be tracked through both
 technical reviews
@@ -320,19 +315,30 @@ commonly referred to as FAST (FMRIB's Automated Segmentation Tool), which is in 
 given its public availability and good performance.  More recently, a uniform distribution of local MRFs within the brain volume and their subsequent integration into a global solution has been proposed obviating the need for an 
 explicit bias correction solution \citep{Scherrer2009}.  
 
-Given the local optimization susceptibility characteristic of EM algorithms, various initialization schemes have been proposed.  Common low-level initialization strategies include uniform
-probability assignment \citep{Wells1996}, Otsu thresholding \citep{Zhang2001}, and K-means clustering \citep{Pappas1992}.  More sophisticated low-level initialization schemes include that of \cite{Greenspan2006} in which a dense spatial distribution of Gaussians is used to capture the complex neuroanatomical layout with subsequent processing used to conjoin subsets of Gaussians belonging to the same tissue classes.  Recently, anatomically specific strategies for incorporating prior knowledge  into the segmentation solution have included the use of spatial prior probability maps  of the various structures of interest \citep{Leemput1999a,Marroquin2002,Ashburner2005}.  These spatial prior probability maps can also be used to provide an
-initial segmentation.   Related technological developments encompasses
-those driven by partial volume modeling for increased accuracy in
-brain segmentation \citep{Ruan2000,Ballester2002,Leemput2003}.  
+EM algorithms are sensitive to local optima. Consequently, a good initialization
+strategy is critical.  Common low-level initialization strategies include uniform
+probability assignment \citep{Wells1996}, Otsu thresholding
+\citep{Zhang2001}, and K-means clustering \citep{Pappas1992}.  More
+sophisticated low-level initialization schemes include that of
+\cite{Greenspan2006} in which a dense spatial distribution of
+Gaussians is used to capture the complex neuroanatomical layout with
+subsequent processing used to conjoin subsets of Gaussians belonging
+to the same tissue classes.  Recently, anatomically specific
+strategies for incorporating prior knowledge into the segmentation
+solution have included the use of spatial prior probability maps of
+the various structures of interest
+\citep{Leemput1999a,Marroquin2002,Ashburner2005}.  These spatial prior
+probability maps can also be used to provide an initial segmentation.
+Related technological developments encompasses those driven by partial
+volume modeling for increased accuracy in brain segmentation
+\citep{Ruan2000,Ballester2002,Leemput2003}.
 
-Observations regarding a general trend towards a more integrative view
-of neuroanatomical image processing led to the work described in
-\cite{Ashburner2005} which is publicly available as SPM---a
+A general trend towards more integrative neuroanatomical image processing led to the work described in
+\cite{Ashburner2005} which is publicly available within SPM5---a
 large-scale Matlab module in which registration, segmentation, and
 bias field correction can be simultaneously modeled within a single
 optimization scheme. The roots of this very popular software package
-stem back to early seminal work by Karl Friston in which the basis for
+stem back to early work by Karl Friston in which the basis for
 statistical parametric mapping was developed \citep{Friston1990} and
 subsequently provided to the research community. A similar holistic
 approach to brain processing was provided in \cite{Pohl2006} in which
@@ -341,13 +347,12 @@ while casting the inhomogeneity model parameters of \cite{Wells1996}
 as nuisance variables.  Continued work involved recursive parcellation
 of the brain volume by considering sub-structures in a hierarchical
 manner \citep{Pohl2007}.  An implementation is provided in 3D slicer
-\cite{Pieper2006}---an open source package with developmental
+\citep{Pieper2006}---an open source package with developmental
 contributions from multiple agencies including both private and
-academic institutions.  {\bf FIXME references proper names SIENA stuff}
-Researchers in aging have also developed tools that have focused on
+academic institutions. Researchers in aging often focus on
 accurately segmenting the T1 MRI of elderly controls and subjects
-suffering from neurodegeneration.  Recent comparative evaluation studies {\bf
-  FIXME cite a number of these} have shown that methods such as FAST,
+suffering from neurodegeneration, for instance, via the SIENA algorithm
+\citep{Smith2007}.  Two recent comparative evaluation studies \citep{,Bresser2011} have shown that methods such as FAST,
 SPM Unified Segmentation, SIENA and others show different performance
 characteristics under different evaluation criteria.  That is, no
 single method performs best under every measurement, highlighting
@@ -374,12 +379,12 @@ Advantages of surface-based approaches include the ability to map
 processed neuroanatomy to simple geometric primitives such as spheres
 or planes and the ease of including topological constraints in the
 analysis workflow.  These types of methods, as well as Klein's
-Mindboggle \cite{Klein2003}, would usually follow an initial segmentation by a volumetric method such as Atropos.  
+Mindboggle \cite{Klein2005}, would usually follow an initial segmentation by a volumetric method such as Atropos.  
 
-{\color{red}{{\em Needs work}:  Mindboggle, Heckemann  One advantage of the pipeline we propose is that we parcellate
-cortex entirely in the image space, thus avoiding the difficulty of
-transferring labels from the mesh space back to the image space---a
-problem that is a confound of surface-based methods\citep{Klein2010}.}}
+%{\color{red}{{\em Needs work}:  Mindboggle, Heckemann  One advantage
+%of the pipeline we propose is that we parcellate cortex entirely in
+%the image space, thus avoiding the difficulty of transferring labels
+%from the mesh space back to the image space---a problem that is a confound of surface-based methods\citep{Klein2010}.}}
 
 
 Our open source segmentation tool, which we have dubbed {\em
@@ -389,8 +394,8 @@ mythology characterized by her dreaded shears used to decide the
 destiny of each mortal.  Also, consistent with the entomological motif
 of our ANTs toolkit, {\it Acherontia atropos} is a species of large
 moth known for the skull-like pattern visible on its thorax.  }
-efficiently and flexibly implements the $n$-tissue paradigm for
-volumetric image segmentation.  Atropos allows users to harness its
+efficiently and flexibly implements a $n$-tissue paradigm for
+voxel-based image segmentation.  Atropos allows users to harness its
 generalized EM algorithm for standard tissue classification of
 the brain into gray matter, white matter and cerebrospinal fluid.
 Atropos equally allows incarnations that use EM to simultaneously
@@ -419,20 +424,22 @@ segmentation to label fusion and propagation for achieving a refined
 cortical parcellation based on both prior information and
 subject-specific image data.
 
-The major contribution of the Atropos algorithm is a flexible, memory
-efficient implementation of core expectation maximization machinery
-that is useful across many segmentation problems.  To highlight the
+The major contribution of the Atropos algorithm is a flexible,
+well-designed, memory efficient implementation of core expectation maximization machinery
+that is useful across many segmentation problems.  Atropos options
+include different maximization criterion, an interactive mode, tunable
+priors and multivariate density estimators using both
+non-parametric and parametric functions.  To highlight the
 value of this open-source, free contribution, we performed a search of
-software attributes on NITRC and found that as of {\textcolor{red}
-INSERT DATE NO STAND-ALONE N-CLASS EM methods are currently listed}.
+software attributes on NITRC and found that as of November 2010 no
+stand-alone EM methods are currently listed.
 Atropos's memory efficiency enables EM-segmentation of many classes at
 once, a capability that is due to a sparse internal representation of
 prior probability images that minimizes the need for random access
 memory.  We evaluate EM-based classification of $1 mm^3$ T1 MR
 neuroimages into 68 neuronatomical regions to illustrate the practical
 value of the low-memory implementation within this paper.  Atropos
-also allows multivariate image features to drive the data term.  Such
-an approach is valuable when more than one view of anatomy aids
+also allows multivariate image features to drive the data term, relevant when more than one view of anatomy aids
 segmentation, as in neonatal brain tissue classification
 \cite{Weisenfeld2009}.  Although Atropos may be applied to
 multivariate data from arbitrary modalities, we limit our evaluation
@@ -440,7 +447,9 @@ to tissue-classification in T1 neuroimaging in part due to the
 abundance of ``gold-standard'' data for this modality.  Consistent
 with our advocacy of open science (not to mention the facilitation of
 analysis due to accessibility) we also only use publicly available
-data sets.  
+data sets.  For this reason, all results in this paper are
+reproducible with the caveat that users may require some guidance from
+the authors or other users in the community.
 
 Organization of this work is as follows: we first describe the theory
 behind the various algorithmic components of Atropos while
@@ -530,6 +539,7 @@ where $\gamma_k$ is the mixing parameter \cite{Ashburner2005}.
 
 By modeling $\mathcal{F}$ via the set of observation models $\Phi$, this so called finite-mixture model could be used to produce a labeling or segmentation \citep[e.g.][]{Wells1996}.  However, as pointed out by \cite{Zhang2001}, the exclusive use of the observation models in modeling the intensity profile produces a less than optimal solution as spatial contextual considerations are completely removed.  This has been remedied by the introduction of a host of  prior probability models including those characterized by their use of MRF theory and template-based information.  For example, in the works of \cite{Leemput1999a} and \cite{Weisenfeld2009}, the original global prior term given in \cite{Wells1996} is replaced by the product of the template-based and the MRF-based prior terms.  In addition to their descriptions below, we discuss our introduction of a third possible prior term in the form of an extension of template-based Euclidean and geodesic distance label propagation.  
 
+
 \subsubsection{Generalized MRF Prior}
 In the labeling of a single voxel, an appealing strategy for incorporating spatial coherence into the segmentation solution is to consider the labeling of the voxel neighborhood and favoring labeling configurations in which voxel neighborhoods tended towards homogeneity. This intuition is formally described by MRF theory in which spatial interactions in voxel neighborhoods can be modeled \citep{Li2001}.
 
@@ -592,7 +602,9 @@ describing the prior probability that label $l_k$ corresponds to a particular vo
 \mathrm{Pr}(x_i = l_k) = \frac{\gamma_k t_{ik}}{\sum_{j=1}^K\gamma_j t_{ij}}
 \end{align}
 where $t_{ik}$ is the prior probability value due to the
-template-based prior information at site $i$.
+template-based prior information at site $i$.  The user may also
+choose mixing proportions equal to $\frac{1}{K}$ via the command line
+interface to the posterior formulation.
 {\textcolor{red}{FIXME --- need explanation of heuristic ...  Also, we
   allow a weighted combination defined by the ComputeLocalPosterior
   function in Atropos --- how do we justify / explain this?   clearly,
