@@ -16,7 +16,6 @@
   
 =========================================================================*/
 
-
 // We divide the 2nd input image by its mean and add it to the first 
 // input image with weight 1/n.  
 //The output overwrites the 1st img with the sum.  
@@ -24,38 +23,30 @@
 //Note: could easily add variance computation
 //http://people.revoledu.com/kardi/tutorial/RecursiveStatistic/Time-Variance.htm
 
-#include "ReadWriteImage.h"
+#include "itkArray.h"
+#include "itkVariableLengthVector.h"
+#include "itkImage.h"
+#include "itkImageRegionConstIterator.h"
+#include "itkImageFileReader.h"
+#include "itkImageFileWriter.h"
+#include "itkImageRegionIteratorWithIndex.h"
 #include "itkOptimalSharpeningImageFilter.h"
 
-template <unsigned int ImageDimension>
-int AverageImages(unsigned int argc, char *argv[])        
+template <unsigned int ImageDimension,unsigned int NVectorComponents>
+int AverageImages1(unsigned int argc, char *argv[])        
 {
   typedef float  PixelType;
-  typedef itk::Vector<float,ImageDimension>         VectorType;
-  typedef itk::Image<VectorType,ImageDimension>     FieldType;
-  typedef itk::Image<PixelType,ImageDimension> ImageType;
-  typedef itk::ImageFileReader<ImageType> readertype;
-  typedef itk::ImageFileWriter<ImageType> writertype;
-  typedef typename ImageType::IndexType IndexType;
-  typedef typename ImageType::SizeType SizeType;
-  typedef typename ImageType::SpacingType SpacingType;
-  typedef itk::AffineTransform<double,ImageDimension>   AffineTransformType;
-  typedef itk::LinearInterpolateImageFunction<ImageType,double>  InterpolatorType1;
-  typedef itk::NearestNeighborInterpolateImageFunction<ImageType,double>  InterpolatorType2;
+  typedef itk::Image<PixelType, ImageDimension>           ImageType;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-   
+  typedef itk::ImageFileReader<ImageType>  ImageFileReader;
+  typedef itk::ImageFileWriter<ImageType> writertype;
 
   bool normalizei=atoi(argv[3]);
   float numberofimages=(float)argc - 4.;
-
-  std::cout <<" Averaging " << numberofimages << " images " << std::endl;
-
-
   typename ImageType::Pointer averageimage = NULL; 
   typename ImageType::Pointer image2 = NULL; 
 
   typename ImageType::SizeType size; 
-  double meanval=1;
   size.Fill(0);
   unsigned int bigimage=0;
   for (unsigned int j=4; j< argc; j++)
@@ -67,6 +58,7 @@ int AverageImages(unsigned int argc, char *argv[])
 	itk::ImageIOFactory::CreateImageIO(fn.c_str(), itk::ImageIOFactory::ReadMode);
       imageIO->SetFileName(fn.c_str());
       imageIO->ReadImageInformation();
+
       for (unsigned int i=0; i<imageIO->GetNumberOfDimensions(); i++)
 	{
 	  if ( imageIO->GetDimensions(i) > size[i] )
@@ -75,56 +67,58 @@ int AverageImages(unsigned int argc, char *argv[])
 	    bigimage=j;
 	    std::cout << " bigimage " << j << " size " << size << std::endl;
 	   }       
-                    }
+        }
     }
     
   std:: cout << " largest image " << size << std::endl;
-  
-
-ReadImage<ImageType>(averageimage,argv[bigimage]);
-averageimage->FillBuffer(0);
+  typename ImageFileReader::Pointer reader = ImageFileReader::New();
+  reader->SetFileName(argv[bigimage]);
+  reader->Update();
+  averageimage=reader->GetOutput();
+  unsigned int vectorlength=reader->GetImageIO()->GetNumberOfComponents();
+  std::cout <<" Averaging " << numberofimages << " images with dim = " << ImageDimension << " vector components " << vectorlength << std::endl;
+  PixelType meanval=0;
+  averageimage->FillBuffer(meanval);
   for (unsigned int j=4; j< argc; j++)
     {
-      // Get the image dimension
-      std::string fn = std::string(argv[j]);
-      //      std::cout <<" fn " << fn << std::endl;
-       ReadImage<ImageType>(image2,fn.c_str());
-
-  unsigned long ct = 0;
-  if (normalizei)
-    {
-      meanval = 0.0;
+      std::cout << " reading " << std::string(argv[j]) << std::endl;
+      typename ImageFileReader::Pointer reader = ImageFileReader::New();
+      reader->SetFileName(argv[j]);
+      reader->Update();
+      image2=reader->GetOutput();
       Iterator vfIter2( image2,  image2->GetLargestPossibleRegion() );  
-      for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
-	{
-	  meanval+=vfIter2.Get();
+      unsigned long ct = 0;
+      if (normalizei)
+      {
+	meanval=0;
+        for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+  	{
+	  PixelType localp=image2->GetPixel( vfIter2.GetIndex() );
+	  meanval=meanval+localp;
 	  ct++;
 	}
-      if (ct > 0) meanval /= (float)ct;
-      if (meanval <= 0) meanval=1.0;
+        if (ct > 0) meanval = meanval/(float)ct;
+        if (meanval <= 0) meanval=(1);
+      }
+      for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+      {
+        PixelType val=vfIter2.Get();
+	if (normalizei) val/=meanval;
+	val=val/(float)numberofimages;
+        PixelType oldval=averageimage->GetPixel(vfIter2.GetIndex()); 
+        averageimage->SetPixel(vfIter2.GetIndex() , val + oldval );
+      }
     }
 
-  ct = 0;
-  Iterator vfIter( image2,  image2->GetLargestPossibleRegion() );  
-  for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
-    {
-      double val =  vfIter.Get()/meanval *1.0/numberofimages;
-      averageimage->SetPixel(vfIter.GetIndex() ,   val + averageimage->GetPixel(vfIter.GetIndex()));
-    }
-   }
-
-  typedef itk::OptimalSharpeningImageFilter< 
-                              ImageType, 
-                              ImageType >    sharpeningFilter;
-  typename sharpeningFilter::Pointer shFilter = sharpeningFilter::New();
-  
-  if (normalizei && argc > 3 )    {
+  typedef itk::OptimalSharpeningImageFilter<ImageType,ImageType > sharpeningFilter;
+  typename sharpeningFilter::Pointer shFilter = sharpeningFilter::New(); 
+  if (normalizei && argc > 3 && vectorlength == 1)    {
     shFilter->SetInput( averageimage );
     shFilter->SetSValue(0.5);
     averageimage =  shFilter->GetOutput();
-    }
+  }
 
-  std::cout << " writing output ";
+ std::cout << " writing output ";
   {
     typename writertype::Pointer writer = writertype::New();
     writer->SetFileName(argv[2]);
@@ -133,15 +127,104 @@ averageimage->FillBuffer(0);
   }
 
   return 0;
- 
-}     
+}
+
+template <unsigned int ImageDimension,unsigned int NVectorComponents>
+int AverageImages(unsigned int argc, char *argv[])        
+{
+  typedef itk::Vector<float,NVectorComponents> PixelType;
+  typedef itk::Image<PixelType, ImageDimension>           ImageType;
+  typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
+  typedef itk::ImageFileReader<ImageType>  ImageFileReader;
+  typedef itk::ImageFileWriter<ImageType> writertype;
+
+  bool normalizei=atoi(argv[3]);
+  float numberofimages=(float)argc - 4.;
+  typename ImageType::Pointer averageimage = NULL; 
+  typename ImageType::Pointer image2 = NULL; 
+
+  typename ImageType::SizeType size; 
+  size.Fill(0);
+  unsigned int bigimage=0;
+  for (unsigned int j=4; j< argc; j++)
+    {
+      // Get the image dimension
+      std::string fn = std::string(argv[j]);
+      std::cout <<" fn " << fn << std::endl;
+      typename itk::ImageIOBase::Pointer imageIO =
+	itk::ImageIOFactory::CreateImageIO(fn.c_str(), itk::ImageIOFactory::ReadMode);
+      imageIO->SetFileName(fn.c_str());
+      imageIO->ReadImageInformation();
+
+      for (unsigned int i=0; i<imageIO->GetNumberOfDimensions(); i++)
+	{
+	  if ( imageIO->GetDimensions(i) > size[i] )
+	   {
+	    size[i]=imageIO->GetDimensions(i);
+	    bigimage=j;
+	    std::cout << " bigimage " << j << " size " << size << std::endl;
+	   }       
+        }
+    }
+    
+  std:: cout << " largest image " << size << std::endl;
+  typename ImageFileReader::Pointer reader = ImageFileReader::New();
+  reader->SetFileName(argv[bigimage]);
+  reader->Update();
+  averageimage=reader->GetOutput();
+  unsigned int vectorlength=reader->GetImageIO()->GetNumberOfComponents();
+  std::cout <<" Averaging " << numberofimages << " images with dim = " << ImageDimension << " vector components " << vectorlength << std::endl;
+  PixelType meanval;
+  //  meanval.SetSize(vectorlength); // for variable length vector 
+  meanval.Fill(0);
+  averageimage->FillBuffer(meanval);
+  for (unsigned int j=4; j< argc; j++)
+    {
+      std::cout << " reading " << std::string(argv[j]) << std::endl;
+      typename ImageFileReader::Pointer reader = ImageFileReader::New();
+      reader->SetFileName(argv[j]);
+      reader->Update();
+      image2=reader->GetOutput();
+      Iterator vfIter2( image2,  image2->GetLargestPossibleRegion() );  
+      unsigned long ct = 0;
+      if (normalizei)
+      {
+	meanval.Fill(0);
+        for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+  	{
+	  PixelType localp=image2->GetPixel( vfIter2.GetIndex() );
+	  meanval=meanval+localp;
+	  ct++;
+	}
+        if (ct > 0) meanval = meanval/(float)ct;
+        if (meanval.GetNorm() <= 0) meanval.Fill(1);
+      }
+      for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+      {
+        PixelType val=vfIter2.Get();
+	if (normalizei) 
+	  for (unsigned int k=0; k<vectorlength; k++)
+	    val[k]/=meanval[k];
+	val=val/(float)numberofimages;
+        PixelType oldval=averageimage->GetPixel(vfIter2.GetIndex()); 
+        averageimage->SetPixel(vfIter2.GetIndex() , val + oldval );
+      }
+    }
+
+  {
+    typename writertype::Pointer writer = writertype::New();
+    writer->SetFileName(argv[2]);
+    writer->SetInput( averageimage ); 
+    writer->Update();   
+  }
+
+  return 0;
+}
 
 
-      
-int main(int argc, char *argv[])        
+int main(int argc, char * argv[])
 {
 
-   
   if ( argc < 3 )     
     { 
     std::cout << "\n" << std::endl;    
@@ -158,15 +241,38 @@ int main(int argc, char *argv[])
   }           
 
    int dim = atoi( argv[1] );
-
+   itk::ImageIOBase::Pointer imageIO =
+     itk::ImageIOFactory::CreateImageIO(argv[4], itk::ImageIOFactory::ReadMode);
+   imageIO->SetFileName(argv[4]);
+   imageIO->ReadImageInformation();
+   unsigned int ncomponents=imageIO->GetNumberOfComponents();
+   
    // Get the image dimension
   switch( atoi(argv[1]))
    {
    case 2:
-     AverageImages<2>(argc,argv);
-      break;
+     switch( ncomponents )
+       {
+       case 2:
+	 AverageImages<2,2>(argc,argv);
+	 break;
+       default:
+	 AverageImages1<2,1>(argc,argv);
+	 break;
+       }
+     break;
    case 3:
-     AverageImages<3>(argc,argv);
+     switch( ncomponents )
+       {
+       case 6:
+	 AverageImages<3,6>(argc,argv);
+	 break;
+       case 3:
+	 AverageImages<3,3>(argc,argv);
+	 break;
+       default:
+	 AverageImages1<3,1>(argc,argv);
+       }
       break;
    default:
       std::cerr <<" You passed ImageDimension: " << dim << " . Please use only 2 or 3 (for 2 or 3 Dimensional registration)  " << std::endl;
@@ -174,5 +280,5 @@ int main(int argc, char *argv[])
    }
 	
   return 0;
-} 
 
+}
