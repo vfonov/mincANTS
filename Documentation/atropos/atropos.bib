@@ -162,6 +162,107 @@
   url = {http://dx.doi.org/10.1016/j.neuroimage.2009.09.062}
 }
 
+@ARTICLE{Awate2006,
+  author = {Suyash P Awate and Tolga Tasdizen and Norman Foster and Ross T Whitaker},
+  title = {Adaptive Markov modeling for mutual-information-based, unsupervised
+	MRI brain-tissue classification.},
+  journal = {Med Image Anal},
+  year = {2006},
+  volume = {10},
+  pages = {726--739},
+  number = {5},
+  month = {Oct},
+  __markedentry = {[brianavants]},
+  abstract = {This paper presents a novel method for brain-tissue classification
+	in magnetic resonance (MR) images that relies on a very general,
+	adaptive statistical model of image neighborhoods. The method models
+	MR-tissue intensities as derived from stationary random fields. It
+	models the associated Markov statistics nonparametrically via a data-driven
+	strategy. This paper describes the essential theoretical aspects
+	underpinning adaptive, nonparametric Markov modeling and the theory
+	behind the consistency of such a model. This general formulation
+	enables the method to easily adapt to various kinds of MR images
+	and the associated acquisition artifacts. It implicitly accounts
+	for the intensity nonuniformity and performs reasonably well on T1-weighted
+	MR data without nonuniformity correction. The method minimizes an
+	information-theoretic metric on the probability density functions
+	associated with image neighborhoods to produce an optimal classification.
+	It automatically tunes its important internal parameters based on
+	the information content of the data. Combined with an atlas-based
+	initialization, it is completely automatic. Experiments on real,
+	simulated, and multimodal data demonstrate the advantages of the
+	method over the current state-of-the-art.},
+  doi = {10.1016/j.media.2006.07.002},
+  institution = {School of Computing, Scientific Computing and Imaging Institute,
+	University of Utah, 50 South Central Campus Drive, Salt Lake City,
+	UT 84112, USA. suyash@cs.utah.edu},
+  keywords = {Algorithms; Artificial Intelligence; Brain, anatomy /&/ histology;
+	Computer Simulation; Humans; Image Enhancement, methods; Image Interpretation,
+	Computer-Assisted, methods; Magnetic Resonance Imaging, methods;
+	Markov Chains; Models, Neurological; Models, Statistical; Pattern
+	Recognition, Automated, methods; Reproducibility of Results; Sensitivity
+	and Specificity},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {brianavants},
+  pii = {S1361-8415(06)00056-9},
+  pmid = {16919993},
+  timestamp = {2010.12.12},
+  url = {http://dx.doi.org/10.1016/j.media.2006.07.002}
+}
+
+@ARTICLE{Awate2007a,
+  author = {Suyash P Awate and Hui Zhang and James C Gee},
+  title = {A fuzzy, nonparametric segmentation framework for DTI and MRI analysis:
+	with applications to DTI-tract extraction.},
+  journal = {IEEE Trans Med Imaging},
+  year = {2007},
+  volume = {26},
+  pages = {1525--1536},
+  number = {11},
+  month = {Nov},
+  abstract = {This paper presents a novel fuzzy-segmentation method for diffusion
+	tensor (DT) and magnetic resonance (MR) images. Typical fuzzy-segmentation
+	schemes, e.g., those based on fuzzy C means (FCM), incorporate Gaussian
+	class models that are inherently biased towards ellipsoidal clusters
+	characterized by a mean element and a covariance matrix. Tensors
+	in fiber bundles, however, inherently lie on specific manifolds in
+	Riemannian spaces. Unlike FCM-based schemes, the proposed method
+	represents these manifolds using nonparametric data-driven statistical
+	models. The paper describes a statistically-sound (consistent) technique
+	for nonparametric modeling in Riemannian DT spaces. The proposed
+	method produces an optimal fuzzy segmentation by maximizing a novel
+	information-theoretic energy in a Markov-random-field framework.
+	Results on synthetic and real, DT and MR images, show that the proposed
+	method provides information about the uncertainties in the segmentation
+	decisions, which stem from imaging artifacts including noise, partial
+	voluming, and inhomogeneity. By enhancing the nonparametric model
+	to capture the spatial continuity and structure of the fiber bundle,
+	we exploit the framework to extract the cingulum fiber bundle. Typical
+	tractography methods for tract delineation, incorporating thresholds
+	on fractional anisotropy and fiber curvature to terminate tracking,
+	can face serious problems arising from partial voluming and noise.
+	For these reasons, tractography often fails to extract thin tracts
+	with sharp changes in orientation, such as the cingulum. The results
+	demonstrate that the proposed method extracts this structure significantly
+	more accurately as compared to tractography.},
+  doi = {10.1109/TMI.2007.907301},
+  institution = {Penn Image Computing and Science Laboratory (PICSL), Department of
+	Radiology, University of Pennsylvania, Philadelphia, PA 19104 USA.
+	awate@mail.med.upenn.edu},
+  keywords = {Algorithms; Brain, anatomy /&/ histology; Diffusion Magnetic Resonance
+	Imaging, methods; Fuzzy Logic; Humans; Image Enhancement, methods;
+	Image Interpretation, Computer-Assisted, methods; Imaging, Three-Dimensional,
+	methods; Nerve Fibers, Myelinated, ultrastructure; Pattern Recognition,
+	Automated, methods; Reproducibility of Results; Sensitivity and Specificity},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {brianavants},
+  pmid = {18041267},
+  timestamp = {2010.12.12},
+  url = {http://dx.doi.org/10.1109/TMI.2007.907301}
+}
+
 @ARTICLE{Balafar2010,
   author = {M. A. Balafar and A. R. Ramli and M. I. Saripan and S. Mashohor},
   title = {Review of brain {MRI} image segmentation methods},
@@ -1038,7 +1139,6 @@
   pages = {224--247},
   number = {4},
   month = {Aug},
-  __markedentry = {[brianavants]},
   abstract = {Probabilistic atlases of neuroanatomy are more representative of population
 	anatomy than single brain atlases. They allow anatomical labeling
 	of the results of group studies in stereotaxic space, automated anatomical
@@ -1905,6 +2005,42 @@
   pmid = {11212366},
   timestamp = {2010.09.07},
   url = {http://dx.doi.org/10.1109/42.897810}
+}
+
+@ARTICLE{Sanjay-Gopal1998,
+  author = {S. Sanjay-Gopal and T. J. Hebert},
+  title = {Bayesian pixel classification using spatially variant finite mixtures
+	and the generalized EM algorithm.},
+  journal = {IEEE Trans Image Process},
+  year = {1998},
+  volume = {7},
+  pages = {1014--1028},
+  number = {7},
+  abstract = {A spatially variant finite mixture model is proposed for pixel labeling
+	and image segmentation. For the case of spatially varying mixtures
+	of Gaussian density functions with unknown means and variances, an
+	expectation-maximization (EM) algorithm is derived for maximum likelihood
+	estimation of the pixel labels and the parameters of the mixture
+	densities, An a priori density function is formulated for the spatially
+	variant mixture weights. A generalized EM algorithm for maximum a
+	posteriori estimation of the pixel labels based upon these prior
+	densities is derived. This algorithm incorporates a variation of
+	gradient projection in the maximization step and the resulting algorithm
+	takes the form of grouped coordinate ascent. Gaussian densities have
+	been used for simplicity, but the algorithm can easily be modified
+	to incorporate other appropriate models for the mixture model component
+	densities. The accuracy of the algorithm is quantitatively evaluated
+	through Monte Carlo simulation, and its performance is qualitatively
+	assessed via experimental images from computerized tomography (CT)
+	and magnetic resonance imaging (MRI).},
+  doi = {10.1109/83.701161},
+  institution = {Dept. of Radiol., Michigan Univ., Ann Arbor, MI 48109-0904, USA.},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {brianavants},
+  pmid = {18276317},
+  timestamp = {2010.12.12},
+  url = {http://dx.doi.org/10.1109/83.701161}
 }
 
 @ARTICLE{Scherrer2009,

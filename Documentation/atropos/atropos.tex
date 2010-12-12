@@ -65,7 +65,7 @@
 \usepackage{boxedminipage}
 \usepackage{graphicx}
 \usepackage{amsmath,amsfonts}
-\usepackage{babel}
+\usepackage{babel,verbatim}
 \usepackage{enumerate}
 %\usepackage{dsfont}
 \usepackage{longtable}
@@ -481,34 +481,80 @@ this paper and of previous and future work.
 
 Atropos encodes a family of Bayesian segmentation techniques that may be configured in an application-specific manner.  The theory underlying Atropos dates back 20$+$ years and is representative of some of the most innovative work in the field.  Although we synthesize some of the theoretical work in this section, we recommend to the interested reader consultation with the literature cited previously for further insight.
 
-Bayes' theorem provides a powerful mechanism for making inductive inferences assuming the availability of quantities defining the relevant conditional probabilities, specifically the likelihood and prior probability terms.  A Bayesian paradigm for brain image segmentation utilizes a user-selected observation model defining the likelihood term and one or more prior probability terms whose product is proportional to the posterior probability.  Whereas the likelihood term has been previously defined parametrically (e.g. a Gaussian model) or non-parametrically (e.g. Parzen windowing of the sample histogram), the prior term, as given in the literature, has been formed inclusively either as MRF-based or template-based.  An image segmentation solution in this context is an assignment of one label to each voxel%
+Bayes' theorem provides a powerful mechanism for making inductive
+inferences assuming the availability of quantities defining the
+relevant conditional probabilities, specifically the likelihood and
+prior probability terms.  Bayesian paradigms for brain image
+segmentation utilize a user-selected observation model defining the
+likelihood term and one or more prior probability terms.  The produce
+of likelihood(s) and prior(s) is proportional to the posterior
+probability.  The likelihood term has been previously defined both 
+parametrically (e.g. a Gaussian model) and non-parametrically
+(e.g. Parzen windowing of the sample histogram).  The prior term, as
+given in the literature, has often been formed either as
+MRF-based or template-based.  An image segmentation solution in this
+context is an assignment of one label to each voxel%
 \footnote{
 In the classic 3-tissue segmentation case, each voxel in the brain region is assigned a label of `cerebrospinal fluid (csf)', `gray matter (gm)', or `white matter (wm)'. 
 }
-such that the posterior probability is maximized.  Following
-introductory notation, the next sections provide a formal description of these three essential components, viz.
+such that the posterior probability is maximized.  The next sections
+introduce notation and provide a formal description of three essential
+components in Bayesian segmentation, viz.
 \begin{itemize}
   \item the likelihood or observation model(s),
-  \item the prior probability quantities derived from a generalized MRF, template-based prior terms, and a novel distance prior used for label propagation, and 
+  \item the prior probability quantities derived from a generalized
+    MRF and template-based prior terms, and 
+%, and a novel distance prior used for label propagation, and 
   \item the optimization framework for maximizing the posterior probability.
 \end{itemize}
-These key components are common across most segmentation approaches. 
+These components are common across most EM segmentation approaches. 
 
 \subsection{Notation}
-
-Assume a field, $\mathcal{F}$, whose values are known at discrete locations, i.e. sites, within a regular voxel lattice, $\mathcal{I}$.  Note that $\mathcal{F}$ can be a scalar field in the case of unimodal data (e.g. T1 image only) or a vector field in the case of multimodal data (e.g. T1, T2, and proton density images).
-A specific set of observed values, denoted by $\mathbf{y}$, are indexed at $N$ discrete locations in $\mathcal{I}$ by $i \in \{1, 2, \ldots, N\}$.  It is assumed that the complete set of observations is a random field $Y = \{y_1, y_2, \ldots, y_N \}$.    A labeling of $\mathcal{I}$, 
-also known as a hard segmentation of $\mathcal{I}$,
-assigns to each site in $\mathcal{I}$ one of $K$ labels from the finite set $\mathcal{L} = \{l_1, l_2, \ldots, l_K\}$.  Also considered a random field, we denote this discrete labeling by $X = \{x_1, x_2, \ldots, x_N\}$.
+Assume a field, $\mathcal{F}$, whose values are known at discrete
+locations, i.e. sites, within a regular voxel lattice that makes up an
+image domain, $\mathcal{I}$.  Note that $\mathcal{F}$ can be a scalar
+field in the case of unimodal data (e.g. T1 image only) or a vector
+field in the case of multimodal data (e.g. T1, T2, and proton density
+images).  A specific set of observed values, denoted by $\mathbf{y}$,
+are indexed at $N$ discrete locations in $\mathcal{I}$ by $i \in \{1,
+2, \ldots, N\}$.  This random field, $Y = \{y_1, y_2, \ldots, y_N \}$,
+serves as a discrete representation of an observed image's intensities.  A labeling
+of this image, also known as a hard segmentation, assigns to each site
+in $\mathcal{I}$ one of $K$ labels from the finite set $\mathcal{L} =
+\{l_1, l_2, \ldots, l_K\}$.  Also considered a random field, this
+discrete labeling is $X = \{x_1, x_2, \ldots, x_N\}$ where each
+$x_i \in \mathcal{L}$.   We use $\mathbf{x}$ to denote a specific set of labels in
+$\mathcal{I}$ and a valid, though not necessarily optimal, solution to the segmentation problem.
 
 %Furthermore, it is assumed that $\mathcal{F}$ is a random field whose true state, $\mathcal{S}$, is `hidden' beneath its observed values but fully represented by $\mathcal{L}$.%
 %\footnote{
 %For example, in the classic 3-tissue segmentation problem $\mathcal{L}$ is defined as the set $ \{\mathrm{csf}, \mathrm{gm}, \mathrm{wm}\}$ and each voxel in the brain region is assigned one and only one of these three labels.  
 %}
 
-\subsection{Likelihood or Observation Models}
+\subsection{Segmentation Objective Function} Atropos optimizes a class
+of user-selectable maximization objective functions each of which may
+be represented in a generic Bayesian framework, as described by \cite{Sanjay-Gopal1998}.  This framework
+requires {\em likelihood models} and {\em prior models} which enter
+into Bayes' formula,
+\begin{equation}\label{eq:bayes}
+p(\mathbf{x}|\mathbf{y})=\underbrace{
+p(\mathbf{y}|\mathbf{x})}_{\text{Likelihood(s)}} \underbrace{
+p(\mathbf{x})}_{\text{Prior(s)}}\frac{1}{\mathbf{y}}, 
+\end{equation} 
+where the normalization term, $1/\mathbf{y}$, is a constant that does
+not affect the optimization \citep{Sanjay-Gopal1998}.
+Given choices for likelihood models and prior probabilities, the Bayesian
+segmentation solution is the labeling $\hat{\mathbf{x}}$ which
+maximizes the posterior probability, i.e.
+\begin{align} \hat{\mathbf{x}} = \argmax_{\mathbf{x}}
+\left\{p(\mathbf{y}|\mathbf{x})p(\mathbf{x})\right\}.
+\end{align} Similar to its algorithmic predecessors, Atropos employs
+the EM framework \citep{Dempster1977} to find maximum likelihood
+solutions to this problem.  The following sections detail
+Atropos choices for the likelihood(s), prior(s) and EM strategy.  
 
-To each of the $K$ labels corresponds a single probabilistic model describing the variation of $\mathcal{F}$ over $\mathcal{I}$.  We denote this set of $K$ likelihood models as $\Phi = \{p_1, p_2, \ldots, p_K\}$.  Using the standard notation, $\mathrm{Pr}(S=s) = p(s)$, $\mathrm{Pr}(S=s|T=t) = p(s|t)$, we can define these voxelwise probabilities, $\mathrm{Pr}_k( Y_i = y_i | X_i = l_k ) = p_k(y_i|l_k)$, in either parametric or non-parametric terms.   Given its simplicity and good performance, in the parametric case, $p_k$ is typically defined as a normalized distribution, i.e.
+\subsection{Likelihood or Observation Models}
+To each of the $K$ labels corresponds a single probabilistic model describing the variation of $\mathcal{F}$ over $\mathcal{I}$.  We denote this set of $K$ likelihood models as $\Phi = \{p_1, p_2, \ldots, p_K\}$.  Using the standard notation, $\mathrm{Pr}(S=s) = p(s)$, $\mathrm{Pr}(S=s|T=t) = p(s|t)$, we can define these voxelwise probabilities, $\mathrm{Pr}_k( Y_i = y_i | X_i = l_k ) = p_k(y_i|l_k)$, in either parametric or non-parametric terms.   Given its simplicity and good performance, in the parametric case, $p_k$ is typically defined as a normal distribution, i.e.
 \begin{align}\label{eq:param}
   p_k\left(y_i|l_k\right) &= G\left(\mu_k;\sigma_k\right) \nonumber \\
                     &= \frac{1}{\sqrt{2\pi \sigma_k^2}}\exp\left( \frac{ -(y_i - \mu_k)^2 }{2\sigma_k^2} \right)
@@ -517,7 +563,8 @@ where the parameters $\mu_k$ and $\sigma_k^2$ respectively represent
 the mean and variance of the $k^{th}$ model.  In the case of
 multi-modal data, where $y_i$ is a vector quantity, a mulitvariate
 Gaussian is defined by the mean vector, $\boldsymbol{\mu}_k$, and
-covariance matrix, $\Sigma_k$.  An initial estimate for these model
+covariance matrix, $\Sigma_k$.  Multivariate probabilities are derived from the
+Mahalanobis distance.  An initial estimate for these model
 parameters are tabulated during the initialization process,
 e.g. K-means or Otsu thresholding.
 
@@ -527,29 +574,50 @@ A common technique for the non-parametric variant is to define $p_k$ using Parze
 \end{align}
 where $N_B$ is the number of bins used to define the histogram of the sample observations (in Atropos the default is $N_B = 32$) and $c_j$ is the center of $j^{th}$ bin in the histogram.  $\sigma_j$ is the width of each of the $N_B$ Gaussian kernels.  For multi-modal data in which the number of components of $y_i$ is greater than one, a Parzen window function is constructed for each component.  The likelihood value is determined by the joint probability given by their product.
 
+Atropos enables two choices for the likelihood formulation.  One is
+based on the classical finite mixture model (FMM) and the second is based on
+the spatially varying mixture model (SVMM) defined in \citep{Sanjay-Gopal1998}.
 In order to calculate the probability associated with the entire set of observations, $\mathbf{y}$, we assume independency between voxels which is done primarily for facilitating quantification as opposed to modeling realistic assumptions.  Spatial interdependency between voxels is modeled by the prior probabilities discussed in the next section.  Marginalizing over the set of possible labels, $\mathcal{L}$, leads to the following probabilistic formulation
 \begin{align}\label{eq:likelihood}
-  p(\mathbf{y}) = \prod_{i=1}^N \left(      
+  p(\mathbf{y}|\mathbf{x}) = \prod_{i=1}^N \left(      
                                                         \sum_{k=1}^K \gamma_k p_k(y_i|l_k)
                                                         \right)
 \end{align}
-where $\gamma_k$ is the mixing parameter \cite{Ashburner2005}.  
+where $\gamma_k$ is the mixing parameter \citep{Ashburner2005}.  
 
 \subsection{Prior Probability Models}
-
-By modeling $\mathcal{F}$ via the set of observation models $\Phi$, this so called finite-mixture model could be used to produce a labeling or segmentation \citep[e.g.][]{Wells1996}.  However, as pointed out by \cite{Zhang2001}, the exclusive use of the observation models in modeling the intensity profile produces a less than optimal solution as spatial contextual considerations are completely removed.  This has been remedied by the introduction of a host of  prior probability models including those characterized by their use of MRF theory and template-based information.  For example, in the works of \cite{Leemput1999a} and \cite{Weisenfeld2009}, the original global prior term given in \cite{Wells1996} is replaced by the product of the template-based and the MRF-based prior terms.  In addition to their descriptions below, we discuss our introduction of a third possible prior term in the form of an extension of template-based Euclidean and geodesic distance label propagation.  
-
+By modeling $\mathcal{F}$ via the set of observation models $\Phi$,
+this so called finite-mixture model could be used to produce a
+labeling or segmentation \citep[e.g.][]{Wells1996}.  However, as
+pointed out by \cite{Zhang2001}, the exclusive use of the observation
+models in modeling the intensity profile produces a less than optimal
+solution because spatial contextual considerations are ignored.  This
+has been remedied by the introduction of a host of prior probability
+models including those characterized by use of MRF theory and
+template-based information.  For example, in the works of
+\cite{Leemput1999a} and \cite{Weisenfeld2009}, the original global
+prior term given in \cite{Wells1996} is replaced by the product of the
+template-based and the MRF-based prior terms.  In addition to their
+descriptions below, we discuss our introduction of a third possible
+prior/objective combination in the form of a (sparse) prior labeling which fixes specific points
+of the segmentation and uses EM to propagate this information
+elsewhere in the image.  
+% extension of template-based Euclidean and geodesic distance label propagation.
 
 \subsubsection{Generalized MRF Prior}
-In the labeling of a single voxel, an appealing strategy for incorporating spatial coherence into the segmentation solution is to consider the labeling of the voxel neighborhood and favoring labeling configurations in which voxel neighborhoods tended towards homogeneity. This intuition is formally described by MRF theory in which spatial interactions in voxel neighborhoods can be modeled \citep{Li2001}.
+One may incorporate spatial coherence into the segmentation by
+favoring labeling configurations in which voxel neighborhoods tend
+towards homogeneity. This intuition is formally described by MRF
+theory in which spatial interactions in voxel neighborhoods can be
+modeled \citep{Li2001}.
 
-In order to apply MRF theory,  we assume the random field introduced earlier, $X$, is an MRF and is, therefore, characterized by a neighborhood system, $\mathcal{N}_i$, on the lattice, $\mathcal{I}$, composed of the neighboring sites of $i$.  This neighborhood system is both noninclusive, i.e. $i \notin \mathcal{N}_i$, and reciprocating, i.e. $i \in \mathcal{N}_j \Leftrightarrow j \in \mathcal{N}_i$.   As an MRF, $X$ also satisfies the positivity and locality conditions, i.e., respectively
-\begin{align} \label{eq:mrf}
-  p(\mathbf{x}) > 0, \,\, \forall\mathbf{x}
-\end{align}
-where $\mathbf{x}$ is any particular labeling configuration on $X$ (in
+We assume the random field introduced earlier, $X$, is an MRF characterized by a neighborhood system, $\mathcal{N}_i$, on the lattice, $\mathcal{I}$, composed of the neighboring sites of $i$.  This neighborhood system is both noninclusive, i.e. $i \notin \mathcal{N}_i$, and reciprocating, i.e. $i \in \mathcal{N}_j \Leftrightarrow j \in \mathcal{N}_i$.   As an MRF, $X$ also satisfies the positivity and locality conditions, i.e., 
+ \begin{align} \label{eq:mrf}
+  p(\mathbf{x}) > 0, \,\, \forall\mathbf{x} 
+ \end{align}
+and where $\mathbf{x}$ is any particular labeling configuration on $X$ (in
 other words, any labeling permutation on $X$ is {\em a priori}
-possible).  The MRF locality condition is 
+possible).  The MRF locality condition is then, 
 \begin{align}
   p\left(x_i | x_{\mathcal{I}-\{i\}}\right) = p\left(x_i | x_{\mathcal{N}_i}\right),
 \end{align}
@@ -575,7 +643,7 @@ i.e.
 U(\mathbf{x}) = \beta \sum_{i = 1}^N \sum_{j \in \mathcal{N}_i} V_{ij}( x_i, x_j )
 \end{align}
 where $V_{ij}$ is typically defined in terms of the Kronecker delta,
-$\delta_{ij}$, based on the Ising potential (also known as a Potts model) \citep{Besag1974}
+$\delta_{ij}$, based on the classical Ising potential (also known as a Potts model) \citep{Besag1974}
 \begin{align}
 V_{ij}(x_i, x_j) &= \delta_{ij} \nonumber \\
                           &= \left\{
@@ -593,10 +661,11 @@ Since Atropos allows for non-uniform neighborhood systems and systems in which n
 so that sites in the neighborhood closer to $i$ are weighted more heavily than sites further away.
 
 \subsubsection{Template-Based Priors}
-A number of researchers have used template-based strategies to both ensure spatial coherence and incorporate prior knowledge in obtaining a sutiable segmentation.  A common technique is to select labeled subjects from a population from which a template is constructed \citep[e.g.][which is also available in the ANTs toolkit]{Avants2010}.  Each labeling can then be warped to the template where the synthesis of warped labeled regions produces a prior probability map or prior label map encoding the spatial distribution of labeled anatomy which can be harnessed in joint segmentation/registration or, specifically, Atropos/ANTs strategies involving unlabeled subjects.
+A number of researchers have used template-based strategies to both ensure spatial coherence and incorporate prior knowledge in segmentation.  A common technique is to select labeled subjects from a population from which a template is constructed \citep[e.g.][which is also available in the ANTs toolkit]{Avants2010}.  Each labeling can then be warped to the template where the synthesis of warped labeled regions produces a prior probability map or prior label map encoding the spatial distribution of labeled anatomy which can be harnessed in joint segmentation/registration or, specifically, Atropos/ANTs strategies involving unlabeled subjects.
 
 We employ the strategy given in \cite{Ashburner2005} in which the
 stationary mixing proportions, $\mathrm{Pr}(x_i = l_k) = \gamma_k$,
+FIXME DEFINE THE GAMMA --- SHOULD USE SVMM FROM HEBERT ?
 describing the prior probability that label $l_k$ corresponds to a particular voxel, regardless of intensity, are replaced by the following spatially varying mixing proportions
 \begin{align}
 \mathrm{Pr}(x_i = l_k) = \frac{\gamma_k t_{ik}}{\sum_{j=1}^K\gamma_j t_{ij}}
@@ -605,12 +674,22 @@ where $t_{ik}$ is the prior probability value due to the
 template-based prior information at site $i$.  The user may also
 choose mixing proportions equal to $\frac{1}{K}$ via the command line
 interface to the posterior formulation.
-{\textcolor{red}{FIXME --- need explanation of heuristic ...  Also, we
-  allow a weighted combination defined by the ComputeLocalPosterior
-  function in Atropos --- how do we justify / explain this?   clearly,
-it's a balance of the global solution (no local prior) and the local
-one with spatial prior ... }}
 
+% {\textcolor{red}{FIXME --- need explanation of heuristic ...  Also, we
+
+%  allow a weighted combination defined by the ComputeLocalPosterior
+
+%  function in Atropos --- how do we justify / explain this?   clearly,
+
+% it's a balance of the global solution (no local prior) and the local
+
+% one with spatial prior ... }}
+
+\subsubsection{Supervised Initialization to the EM Algorithm}
+PriorLabelImage
+
+\begin{comment}
+{
 \subsubsection{Distance Prior for Label Propagation}
 
 In order to provide a dense segmentation even in regions where the template-based prior probability is 0, we use the template-based prior label images or probability maps described previously to formulate an optional distance prior probability.
@@ -690,15 +769,18 @@ Atropos can be used to propagate the labels in a dense manner throughout the mas
 \end{center}
 \end{figure}
 
+}
+\end{comment}
 
 \subsection{Optimization}
-Given the likelihood models and prior probabilities whose product is proportional to the posterior probability, the Bayesian segmentation solution is the labeling $\hat{\mathbf{x}}$ which maximizes the posterior probability, i.e.
-\begin{align}
-  \hat{\mathbf{x}} = \argmax_{\mathbf{x}} \left\{p(\mathbf{y}|\mathbf{x})p(\mathbf{x})\right\}.
-\end{align}
-Similar to its algorithmic predecessors, Atropos employs the EM
-framework \citep{Dempster1977}.  After initial estimation of the
-likelihood model parameters, EM iterates between calculation of the missing $\hat{\mathbf{x}}$ and subsequent re-estimation of the model parameters by maximizing the expectation of the complete data log-likelihood (cf. Eqn. (\ref{eq:likelihood})).
+Atropos uses expectation maximization to find a locally optimal
+solution for the user-selected version of the Bayesian segmentation
+problem (cf. Eqn. (\ref{eq:bayes})).
+After initial estimation of the
+likelihood model parameters, EM iterates between calculation of the
+missing $\hat{\mathbf{x}}$ and subsequent re-estimation of the model
+parameters by maximizing the expectation of the complete data
+log-likelihood (cf. Eqn. (\ref{eq:likelihood})).  
 %\begin{align}
 %\log( p(\mathbf{y}) ) = \sum_{i=1}^N \log \left( \sum_{k=1}^K \gamma_k  p(\mathbf{y}|l_k)  \right)
 %\end{align}
@@ -712,14 +794,22 @@ Due to the lack of parameters in the non-parametric approach, it is not technica
 }  
 When spatial coherence constraints are included as an MRF prior in Atropos, the optimal segmentation solution becomes intractable.%
 \footnote{
-Consider $N$ sites each with a possible $K$ labels for a total of $N^K$ possible labeling configurations.  Due to the large $K$ associated with cortical labeling problems, exact optimization is even more problematic than for the traditional 3-tissue scenario.
+Consider $N$ sites each with a possible $K$ labels for a total of $N^K$ possible labeling configurations.  Due to the large $K$ associated with $K>>1$ problems, exact optimization is even more problematic than for the traditional 3-tissue scenario.
 }
 Although many optimization techniques exist \citep[see the
 introduction in][for a concise summary of the myriad optimization
 possibilities]{Marroquin2002}---each with their characteristic
 advantages and disadvantages in terms of computational complexity and
 accuracy---Atropos uses the well-known {\em Iterated Conditional
-  Modes} (ICM)  \citep{Besag1986} which is greedy, computationally efficient and provides good performance.
+  Modes} (ICM)  \citep{Besag1986} which is greedy, computationally
+efficient and provides good performance.  The EM algorithm employed in
+Atropos may therefore be written
+\begin{eqnarray}
+X \\ 
+Y \\
+Z
+\end{eqnarray}
+The solution will be a local maxima. 
 
 %\begin{align}
 %P(l_k | y_i, t_i, m_i,d_i) &= \frac{P(y_i|l_k ,t_i,m_i,d_i)   P(l_k|t_i,m_i,d_i)   }{P(y_i|t_i,m_i,d_i)}
@@ -812,8 +902,6 @@ integrity of the ancillary processes such as those facilitated by the underlying
 publicly distributed with the rest of the ANTs package, we plan to contribute the Atropos segmentation
 framework to the Insight Toolkit where it can be vetted and further
 improved by other interested researchers. 
-{\textcolor{red}{FIXME ---- should we save this for a deliverable in
-    some grant?}}
 
 An overview of the core components of Atropos can be gleaned, in part, from the flowchart depicted in 
 Fig.~\ref{fig:flowchart}.  To provide a more intuitive interface without the overhead costs of a graphical user interface, a set of unique command line parsing classes were developed which can also provide insight to the functionality of Atropos.  
@@ -900,7 +988,8 @@ OPTIONS:
 \subsubsection{Initialization}
 Atropos was designed to be dimensionally generic in the sense that the same code can be used to handle 2-, 3-, and 
 even 4-dimensional image data.  Higher dimensions are possible although we have not yet encountered such 
-application-specific need.  Multiple images (assumed to be of the same dimension, size, origin, etc.) can be specified 
+application-specific need.  Multiple images (assumed to be of the same
+dimension, size, origin, etc.), which enable multivariate likelihoods, can be specified 
 on the command line using the `{\ttfamily -a/--intensity-image}' option for each image.  The first image specified on the 
 command line is used to initialize the Random, Otsu, or K-means labeling with the latter initialization further
 refined by incorporating the additional intensity images, i.e. an initial univariate K-means clustering is determined 
@@ -942,7 +1031,7 @@ If the Gaussian likelihood model is chosen, the list sample of intensity values 
 corresponding weights comprised of the posterior probabilities are used to estimate the Gaussian model parameters, i.e.
 the mean and variance.  For the non-parametric model, the list sample and posteriors are used
 in a Parzen windowing scheme on a weighted histogram to estimate the
-observational model  {\textcolor{red} cite Suyash}.  
+observational model  \citep{Awate2006}.  
 
 \subsubsection{Prior Probability Models}
 Consistent with our previous discussion, we offer both an MRF-based
@@ -953,8 +1042,9 @@ the MRF `{\ttfamily -m/--mrf}' option, one specifies the smoothing
 factor (or the granularity parameter, $\beta$, given in
 Eqn. (\ref{eq:U}), and the radius (in voxels) of the neighborhood
 system using the vector notation `{\ttfamily 1x1x1}' for a
-neighborhood radius of 1 in all 3 dimensions.  Note that this radius
-prescribes an $L_\infty$  {\textcolor{red} FIXME should this be $L_2$?} distance and thus includes not just the face-connected neighboring voxels.
+neighborhood radius of 1 in all 3 dimensions.  This radius is defined
+such that voxels including but not limited to those that are face
+connected will influence the MRF.  
 
 To propagate labels with the specification of prior probability images or a prior label image, one needs to select the distance function (set by the `{\ttfamily -e/--use-euclidean-distance}' boolean option) which, by default, is determined by the geodesic distance.  The user also needs to set the label propagation parameters for one or more of the classes.  This  includes both the boundary probability and the exponential decay parameter, respectively $\alpha_k$ and $\sigma_k$ in Eqn. (\ref{eq:prop}).  
 
