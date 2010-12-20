@@ -1207,15 +1207,27 @@ initialization with MRF $\beta \in \{ 0.00 , 0.05 , 0.10 , 0.15 , 0.20
 , 0.25 , 0.30 \}$ at each bias field.  We also feed the white matter
 probability map derived from K-means into N4 to guide the bias
 correction.  Segmentation is then repeated, with the same parameters,
-but with the N4 corrected image as input.  Thus, we are able to
-compare the impact of bias on our N4 and Atropos algorithm and also
-the validity of our prior label image initialization.  The prior label
-image manual initialization was based on a crude ITK-SNAP-based labeling of a
-small set of voxels for each tissue.  
+but with the N4 corrected image as input.  The resulting algorithm is
+similar to those methods that fix segmentation parameters while
+estimating bias and fix bias while estimating segmentation parameters.
+Thus, with this simple evaluation, we are able to compare the impact
+of bias on our N4 and Atropos algorithm and also the validity of our
+prior label image initialization.  The prior label image manual
+initialization was based on a crude ITK-SNAP labeling of a small
+set of voxels for each tissue.  Results, in terms of
+Dice overlap, are shown in figure~\ref{fig:bweb1}.
 \begin{figure}
 \begin{center}
 \begin{tabular}{c}
-% \includegraphics[height=8in]{Figures/final_results_majority_vote_vs_atropos.pdf}
+\includegraphics[height=2in]{Figures/tissue_dice_vs_mrf_B_RF0.pdf}
+\includegraphics[height=2in]{Figures/tissue_dice_vs_mrf_B_RF20.pdf}
+\includegraphics[height=2in]{Figures/tissue_dice_vs_mrf_B_RF40.pdf}\\
+\includegraphics[height=2in]{Figures/tissue_dice_vs_mrf_N4_RF0.pdf}
+\includegraphics[height=2in]{Figures/tissue_dice_vs_mrf_N4_RF20.pdf}
+\includegraphics[height=2in]{Figures/tissue_dice_vs_mrf_N4_RF40.pdf}\\
+\includegraphics[height=2in]{Figures/tissue_dice_vs_mrf_PLI_RF0.pdf}
+\includegraphics[height=2in]{Figures/tissue_dice_vs_mrf_PLI_RF20.pdf}
+\includegraphics[height=2in]{Figures/tissue_dice_vs_mrf_PLI_RF40.pdf}
 \end{tabular}
 \caption{\baselineskip 12pt \small Brainweb single-subject results for
   each tissue.  The results show that the N4 bias correction
@@ -1223,7 +1235,7 @@ small set of voxels for each tissue.
   bias, even at the 40\% level.  The optimal $\beta$ for the MRF term
   appears to be between $0.1$ and $0.2$.  The prior label image
   initialization is competitive with but inferior to K-means.}
-\label{fig:hammers}
+\label{fig:bweb1}
 \end{center}
 \end{figure}
 \subsubsection{20 Subject Evaluation}
