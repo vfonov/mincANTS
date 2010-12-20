@@ -172,7 +172,6 @@
   pages = {726--739},
   number = {5},
   month = {Oct},
-  __markedentry = {[brianavants]},
   abstract = {This paper presents a novel method for brain-tissue classification
 	in magnetic resonance (MR) images that relies on a very general,
 	adaptive statistical model of image neighborhoods. The method models
@@ -557,6 +556,85 @@
   timestamp = {2010.08.28}
 }
 
+@ARTICLE{Boykov2004,
+  author = {Yuri Boykov and Vladimir Kolmogorov},
+  title = {An experimental comparison of min-cut/max-flow algorithms for energy
+	minimization in vision.},
+  journal = {IEEE Trans Pattern Anal Mach Intell},
+  year = {2004},
+  volume = {26},
+  pages = {1124--1137},
+  number = {9},
+  month = {Sep},
+  abstract = {After [15], [31], [19], [8], [25], [5], minimum cut/maximum flow algorithms
+	on graphs emerged as an increasingly useful tool for exact or approximate
+	energy minimization in low-level vision. The combinatorial optimization
+	literature provides many min-cut/max-flow algorithms with different
+	polynomial time complexity. Their practical efficiency, however,
+	has to date been studied mainly outside the scope of computer vision.
+	The goal of this paper is to provide an experimental comparison of
+	the efficiency of min-cut/max flow algorithms for applications in
+	vision. We compare the running times of several standard algorithms,
+	as well as a new algorithm that we have recently developed. The algorithms
+	we study include both Goldberg-Tarjan style "push-relabel" methods
+	and algorithms based on Ford-Fulkerson style "augmenting paths."
+	We benchmark these algorithms on a number of typical graphs in the
+	contexts of image restoration, stereo, and segmentation. In many
+	cases, our new algorithm works several times faster than any of the
+	other methods, making near real-time performance possible. An implementation
+	of our max-flow/min-cut algorithm is available upon request for research
+	purposes.},
+  doi = {10.1109/TPAMI.2004.60},
+  institution = {Computer Science Department, the University of Western Ontario, London,
+	Ontario N6A 5B7, Canada. yuri@csd.uwo.ca},
+  keywords = {Algorithms; Artificial Intelligence; Cluster Analysis; Energy Transfer;
+	Image Enhancement, methods; Image Interpretation, Computer-Assisted,
+	methods; Imaging, Three-Dimensional, methods; Information Storage
+	and Retrieval, methods; Pattern Recognition, Automated, methods;
+	Photogrammetry, methods; Photography, methods; Reproducibility of
+	Results; Sensitivity and Specificity},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {brianavants},
+  pmid = {15742889},
+  timestamp = {2010.12.17},
+  url = {http://dx.doi.org/10.1109/TPAMI.2004.60}
+}
+
+@INPROCEEDINGS{Boykov2001,
+  author = {Boykov, Y. Y.  and Jolly, M.-P. },
+  title = {Interactive graph cuts for optimal boundary \& region segmentation
+	of objects in N-D images},
+  booktitle = {Proc. Eighth IEEE Int. Conf. Computer Vision ICCV 2001},
+  year = {2001},
+  volume = {1},
+  pages = {105--112},
+  __markedentry = {[brianavants]},
+  abstract = {In this paper we describe a new technique for general purpose interactive
+	<span class='snippet'>segmentation</span> of <span class='snippet'>N</span>-dimensional
+	<span class='snippet'>images</span>. The user marks certain pixels
+	as &ldquo;object&rdquo; or &ldquo;background&rdquo; to provide hard
+	constraints for <span class='snippet'>segmentation</span>. Additional
+	soft constraints incorporate both boundary <span class='snippet'>and</span>
+	region information. <span class='snippet'>Graph</span> <span class='snippet'>cuts</span>
+	are used to find the globally optimal <span class='snippet'>segmentation</span>
+	of the <span class='snippet'>N</span>-dimensional <span class='snippet'>image</span>.
+	The obtained solution gives the best balance of boundary <span class='snippet'>and</span>
+	region properties among all <span class='snippet'>segmentations</span>
+	satisfying the constraints. The topology of our <span class='snippet'>segmentation</span>
+	is unrestricted <span class='snippet'>and</span> both &ldquo;object&rdquo;
+	<span class='snippet'>and</span> &ldquo;background&rdquo; segments
+	may consist of several isolated parts. Some experimental results
+	are presented in the context of photo/video editing <span class='snippet'>and</span>
+	medical <span class='snippet'>image</span> <span class='snippet'>segmentation</span>.
+	We also demonstrate an interesting Gestalt example. A fast implementation
+	of our <span class='snippet'>segmentation</span> method is possible
+	via a new max-flow algorithm},
+  doi = {10.1109/ICCV.2001.937505},
+  owner = {brianavants},
+  timestamp = {2010.12.19}
+}
+
 @ARTICLE{Bresser2011,
   author = {Jeroen de Bresser and Marileen P Portegies and Alexander Leemans
 	and Geert Jan Biessels and L. Jaap Kappelle and Max A Viergever},
@@ -927,6 +1005,46 @@
   pmid = {9931269},
   timestamp = {2010.09.08},
   url = {http://dx.doi.org/10.1006/nimg.1998.0396}
+}
+
+@ARTICLE{Freeborough1997a,
+  author = {P. A. Freeborough and N. C. Fox and R. I. Kitney},
+  title = {Interactive algorithms for the segmentation and quantitation of 3-D
+	MRI brain scans.},
+  journal = {Comput Methods Programs Biomed},
+  year = {1997},
+  volume = {53},
+  pages = {15--25},
+  number = {1},
+  month = {May},
+  abstract = {Interactive algorithms are an attractive approach to the accurate
+	segmentation of 3D brain scans as they potentially improve the reliability
+	of fully automated segmentation while avoiding the labour intensiveness
+	and inaccuracies of manual segmentation. We present a 3D image analysis
+	package (MIDAS) with a novel architecture enabling highly interactive
+	segmentation algorithms to be implemented as add on modules. Interactive
+	methods based on intensity thresholding, region growing and the constrained
+	application of morphological operators are also presented. The methods
+	involve the application of constraints and freedoms on the algorithms
+	coupled with real time visualisation of the effect. This methodology
+	has been applied to the segmentation, visualisation and measurement
+	of the whole brain and a small irregular neuroanatomical structure,
+	the hippocampus. We demonstrate reproducible and anatomically accurate
+	segmentations of these structures. The efficacy of one method in
+	measuring volume loss (atrophy) of the hippocampus in Alzheimer's
+	disease is shown and is compared to conventional methods.},
+  institution = {Dementia Research Group, National Hospital for Neurology and Neurosurgery,
+	London, UK.},
+  keywords = {Algorithms; Alzheimer Disease, pathology; Brain, anatomy /&/ histology/pathology;
+	Hippocampus, pathology; Image Processing, Computer-Assisted, methods;
+	Magnetic Resonance Imaging, methods; Reproducibility of Results;
+	Software},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {brianavants},
+  pii = {S0169260797018038},
+  pmid = {9113464},
+  timestamp = {2010.12.19}
 }
 
 @ARTICLE{Friston1990,
@@ -1314,6 +1432,49 @@
   url = {http://dx.doi.org/10.1109/42.650883}
 }
 
+@ARTICLE{Julin1997,
+  author = {P. Julin and T. Melin and C. Andersen and B. Isberg and L. Svensson
+	and L. O. Wahlund},
+  title = {Reliability of interactive three-dimensional brain volumetry using
+	MP-RAGE magnetic resonance imaging.},
+  journal = {Psychiatry Res},
+  year = {1997},
+  volume = {76},
+  pages = {41--49},
+  number = {1},
+  month = {Nov},
+  abstract = {We assessed the reliability of an interactive 3-dimensional methodology
+	for magnetic resonance imaging (MRI) brain tissue segmentation and
+	volumetry using a 3-dimensional magnetization prepared rapid gradient
+	echo pulse sequence (3D MP-RAGE). The methodology was intended to
+	be practically useful to study structural brain changes in larger
+	groups of patients investigated for suspected dementia. The pulse
+	sequence combines volume acquisition, excellent tissue contrast and
+	short patient scan-time. The volumetric method is fully interactive,
+	requiring a minimum of image pre-processing. Ten healthy controls
+	and 10 patients with dementia were included in the study. Six healthy
+	controls were scanned twice. The method is based on thresholding
+	combined with manual tracing in a 3D volume. The 3-dimensional measurement
+	method reduces the measurement time considerably compared to that
+	of slice by slice measurement and permits 3-dimensional display of
+	measured volumes. For different brain regions the intra-study (0.5-1.3\%),
+	study-study (1.8-4.7\%) and inter-operator (7.1\%) variability of
+	this method compared favourably with other manual or automated methods
+	reported. The major advantages of the method are its simplicity and
+	speed, which permits measurement and display of regional brain volumes
+	and tissues in larger patient groups.},
+  institution = {Karolinska Institute, Department of Clinical Neuroscience and Family
+	Medicine, Huddinge University Hospital, Sweden. Per.Julin@cnsf.ki.se},
+  keywords = {Aged; Alzheimer Disease, diagnosis; Aphasia, diagnosis; Automatic
+	Data Processing; Brain, abnormalities; Humans; Magnetic Resonance
+	Imaging; Reproducibility of Results},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {brianavants},
+  pmid = {9498308},
+  timestamp = {2010.12.19}
+}
+
 @ARTICLE{Kikinis1992,
   author = {R. Kikinis and M. E. Shenton and G. Gerig and J. Martin and M. Anderson
 	and D. Metcalf and C. R. Guttmann and R. W. McCarley and W. Lorensen
@@ -1654,6 +1815,41 @@
   year = {2001},
   author = {Li, S. Z.},
   address = {London, UK}
+}
+
+@ARTICLE{Lim1989,
+  author = {K. O. Lim and A. Pfefferbaum},
+  title = {Segmentation of MR brain images into cerebrospinal fluid spaces,
+	white and gray matter.},
+  journal = {J Comput Assist Tomogr},
+  year = {1989},
+  volume = {13},
+  pages = {588--593},
+  number = {4},
+  abstract = {An interactive computer method for quantifying CSF, white matter,
+	and gray matter in magnetic resonance (MR) axial brain scans is presented.
+	A stripping algorithm is used to remove the skull and scalp from
+	each axial section. The images are then filtered to correct for radiofrequency
+	inhomogeneity image artifacts. Late echo images are subtracted from
+	or added to early echo images to enhance fluid/tissue and gray/white
+	tissue contrast, respectively. Thresholds for fluid/tissue and gray/white
+	separation are set interactively. A boundary pixel locking algorithm
+	is used to handle ambiguities due to partial voluming between the
+	fluid and tissue compartments. The MR brain scans from five healthy,
+	young, normal men were obtained using a standard neuroanatomical
+	reference technique. These data were processed and percentages computed
+	for fluid, gray matter and white matter compartments. The gray/white
+	ratios compare favorably with those determined in a published postmortem
+	brain study.},
+  institution = {Veterans Administration Medical Center, Palo Alto, CA 94304.},
+  keywords = {Algorithms; Brain, anatomy /&/ histology; Cerebrospinal Fluid; Humans;
+	Image Processing, Computer-Assisted; Magnetic Resonance Imaging,
+	methods; Male; Reference Values},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {brianavants},
+  pmid = {2745775},
+  timestamp = {2010.12.19}
 }
 
 @ARTICLE{Marroquin2002,
@@ -2495,6 +2691,51 @@
   pmid = {18215925},
   timestamp = {2010.08.29},
   url = {http://dx.doi.org/10.1109/42.511747}
+}
+
+@ARTICLE{Yushkevich2006,
+  author = {Paul A Yushkevich and Joseph Piven and Heather Cody Hazlett and Rachel
+	Gimpel Smith and Sean Ho and James C Gee and Guido Gerig},
+  title = {User-guided 3D active contour segmentation of anatomical structures:
+	significantly improved efficiency and reliability.},
+  journal = {Neuroimage},
+  year = {2006},
+  volume = {31},
+  pages = {1116--1128},
+  number = {3},
+  month = {Jul},
+  abstract = {Active contour segmentation and its robust implementation using level
+	set methods are well-established theoretical approaches that have
+	been studied thoroughly in the image analysis literature. Despite
+	the existence of these powerful segmentation methods, the needs of
+	clinical research continue to be fulfilled, to a large extent, using
+	slice-by-slice manual tracing. To bridge the gap between methodological
+	advances and clinical routine, we developed an open source application
+	called ITK-SNAP, which is intended to make level set segmentation
+	easily accessible to a wide range of users, including those with
+	little or no mathematical expertise. This paper describes the methods
+	and software engineering philosophy behind this new tool and provides
+	the results of validation experiments performed in the context of
+	an ongoing child autism neuroimaging study. The validation establishes
+	SNAP intrarater and interrater reliability and overlap error statistics
+	for the caudate nucleus and finds that SNAP is a highly reliable
+	and efficient alternative to manual tracing. Analogous results for
+	lateral ventricle segmentation are provided.},
+  doi = {10.1016/j.neuroimage.2006.01.015},
+  institution = {Penn Image Computing and Science Laboratory, Department of Radiology,
+	University of Pennsylvania, PA 19104-6274, USA. pauly2@grasp.upenn.edu},
+  keywords = {Brain, anatomy /&/ histology; Caudate Nucleus, anatomy /&/ histology;
+	Dominance, Cerebral, physiology; Humans; Image Processing, Computer-Assisted,
+	methods; Imaging, Three-Dimensional, methods; Magnetic Resonance
+	Imaging, methods; Mathematical Computing; Software; Software Validation;
+	User-Computer Interface},
+  language = {eng},
+  medline-pst = {ppublish},
+  owner = {brianavants},
+  pii = {S1053-8119(06)00063-2},
+  pmid = {16545965},
+  timestamp = {2010.12.19},
+  url = {http://dx.doi.org/10.1016/j.neuroimage.2006.01.015}
 }
 
 @ARTICLE{Zaidi2006,
