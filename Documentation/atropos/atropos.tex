@@ -197,7 +197,7 @@
 \symbolfootnote[1]{
   The first two authors contributed equally to this work.
 }, 
-Philip A.~Cook$^1$, Jue Woo$^1$, and James C.~Gee$^1$} \\
+Jue Wu$^1$, Philip A.~Cook$^1$, and James C.~Gee$^1$} \\
 \begin{singlespace} 
 {\scriptsize  $^1$ Penn Image Computing and Science Laboratory, University of Pennsylvania, Philadelphia, Pennsylvania,  USA.\\
   $^2$ Department of Radiology, University of Virginia, Charlottesville, Virginia, USA}
@@ -246,7 +246,7 @@ http://www.picsl.upenn.edu/ANTs
 }, is capable of incorporating spatial prior probability maps,
 (sparse) prior label maps and/or Markov Random Field (MRF) modeling.  Atropos has also been efficiently implemented to handle
 large quantities of possible labelings (in the experimental section,
-we use up to 68 classes) with a minimal memory footprint.  This work
+we use up to 69 classes) with a minimal memory footprint.  This work
 describes the technical and implementation aspects of Atropos and
 evaluates its performance on two different ground-truth datasets.
 First, we use the BrainWeb dataset from Montreal Neurological
@@ -254,7 +254,7 @@ Institute to evaluate three tissue segmentation performance via (1)
 K-means segmentation without use of template data; (2) MRF segmentation with initialization by prior probability maps
 derived from a group template; (3) Prior-based segmentation with use
 of spatial prior probability maps derived from a group template.  We
-also evaluate Atropos performance by using spatial priors to drive a 68 class EM segmentation
+also evaluate Atropos performance by using spatial priors to drive a 69 class EM segmentation
 problem defined by the Hammers atlas from University College London.  These evaluation studies, combined with
 illustrative examples that excercise Atropos options, demonstrate both
 performance and wide applicability of this new platform-independent 
@@ -433,7 +433,7 @@ Atropos's memory efficiency enables EM-segmentation of many classes at
 once, a capability that is due to a sparse internal representation of
 prior probability images that minimizes the need for random access
 memory.  We evaluate EM-based classification of $1 mm^3$ T1 MR
-neuroimages into 68 neuronatomical regions to illustrate the practical
+neuroimages into 69 neuronatomical regions to illustrate the practical
 value of the low-memory implementation within this paper.  Atropos
 also allows multivariate image features to drive the data term, relevant when more than one view of anatomy aids
 segmentation, as in neonatal brain tissue classification
@@ -1191,7 +1191,7 @@ many class} expectation maximization problem.  We choose this
 evaluation problem in part to illustrate the flexibility of Atropos
 and also the benefits of the novel, efficient implementation that
 allows many-class problems to be solved with low memory usage ($<$2GB
-for a 68 class model on 1mm$^3$ brain data).
+for a 69 class model on 1mm$^3$ brain data).
 
 
 \subsection{BrainWeb Evaluation}
@@ -1238,7 +1238,42 @@ Dice overlap, are shown in figure~\ref{fig:bweb1}.
 \label{fig:bweb1}
 \end{center}
 \end{figure}
-\subsubsection{20 Subject Evaluation}
+\subsubsection{20 Subject Evaluation} The single-subject brainweb
+study in the previous section tested the basic Atropos options and the
+benefit of N4 for segmentation in the presence of bias.  The 20
+subject brainweb data allows us to use 2-fold cross-validation to test
+our ability to segment different individuals reliably.  In this study,
+we divide the 20 subjects equally into training and testing groups.
+We then exploit the ground-truth labeling of the training data to
+build both a group template \citep{Avants2010} and also prior
+probability maps for each of the three major tissues in the cerebrum.
+Each prior probability map is gained by deforming the ground truth
+labels from each of the 10 training subjects to their template and
+averaging component by component.  We then deform the template---and
+priors---to the ten testing subjects and run Atropos with not only
+{\ttfamily KMeans[3]} initialization but also {\ttfamily
+  PriorProbabilityMap[3,priors\%02d.nii.gz,$w$] } where $w \in
+\{0.0,0.5\}$.  We then switch the roles of testing and training sets to
+gain 3-tissue segmentation for each of the twenty subjects.  
+When $w=0$, the priors are only used in initializing
+the model parameters but not during subsequent EM iterations.  
+When $w=1$, the priors are only maintained in the product with the
+likelihood during all EM iterations.  Results, in terms of bar
+plots for Dice overlap mean and standard deviation, are shown in figure~\ref{fig:bweb20}.
+\begin{figure}
+\begin{center}
+\begin{tabular}{c}
+\includegraphics[width=2.2in]{Figures/bw20_kmeans.png}
+\includegraphics[width=2.2in]{Figures/bw20_priorIni.png}
+\includegraphics[width=2.2in]{Figures/bw20_priorSeg.png}
+\end{tabular}
+\caption{\baselineskip 12pt \small Brainweb 20-subject results for
+  each tissue as a function of MRF-$\beta$ parameter where MRF-$\beta$
+  is in $\{0,0.05,0.1,0.15,0.2\}$ and increases left to right.  The results show that the PriorProbabilityMaps with
+  $w=0.5$ (far right) gives the best performance for all tissues.}
+\label{fig:bweb20}
+\end{center}
+\end{figure}
 
 
 
@@ -1248,7 +1283,7 @@ We evaluate the ability to improve multi-template
 labeling results by converting the group labels to probability maps
 and using them to drive many-class EM segmentation.  The procedure we
 use here is similar to that described in \citep{Avants2010a}.  The
-ground truth labels cover 68 classes and much of the brain.  Some
+ground truth labels cover 69 classes and much of the brain.  Some
 unlabeled regions remain which we assign to label 69 such that all
 brain parenchyma contains a unique label.  The initialization of our
 evaluation applies the script {\verb ants_multitemplate_labeling.sh }
@@ -1290,11 +1325,54 @@ significant improvement, $-$ performance reduction, $\sim$ no change.}
 \end{center}
 \end{figure}
 
+\subsection{Reproducibility of this Evaluation}
+The brainweb data is freely available.  We used single-subject
+brainweb data as is.  The 20 subject data, however, required excluding
+non-cerebrum tissue classes.  The Hammers data was also used as is.
+The scripts for the single-subject brainweb study is available in
+supplementary material.  The initialization procedure for the brainweb 20 and
+the Hammers evaluation data is based on freely available scripts
+included with the ANTs toolkit.  {\bf \textcolor{red}{ FIXME}}.
 
 \section{Discussion}
+We introduced the Atropos algorithm, the theory and implementation
+details and documented its performance in a variety of use cases.  We
+also showed evidence that the openly available N4 bias correction
+method can easily used with Atropos to improve segmentation.
+Furthermore, we used multiple subject brainweb data to build dataset
+specific priors that provided the most consistent segmentation
+performance across tissues.  Finally, we used majority voting to
+initialize an Atropos EM solution to a 69 class brain parcellation
+problem.  Significant improvements were gained in multiple brain
+regions, in particular in temporal lobe cortex, the hippocampi and
+amygdalae and the lateral ventricles.  This work, in summary, proves
+the applicability of Atropos in both basic and extended use cases.
 
-{\textcolor{red}{ Elaborate after including the results.} }
+\subsection{Performance on Single-Subject Brainweb Data}
+How does Atropos performance compare to other methods that have been
+evaluated on the basic brainweb data?   {\bf {\textcolor{red}{ FIXME}}}.
 
+\subsection{Performance on Twenty-Subject Brainweb Data}
+How does Atropos performance compare to other methods that have been
+evaluated on the brainweb twenty data?   {\bf {\textcolor{red}{ FIXME}}}.
+
+\subsection{Performance on Hammers Data}
+Our prior work, \citep{Avants2010b}, showed that the majority vote
+initialization provided to Atropos by ANTs template mapping is
+competitive with \cite{Heckemann2006}.  The Atropos EM extension of
+improved these results further.  However, the Atropos EM segmentation
+performed significantly worse.  This is not surprising, in that
+Atropos EM assumes that signal from the likelihood and MRF term is
+valuable in improving the segmentation.  This assumption held for
+amygdala and lateral ventricles among other areas.  However, in
+pallidum and corpus callosum (the most significant areas with loss of
+performance), this is not true.  We believe the explanation is that
+the intensity varies within these structures and that a more complex
+intensity model (or finer parcellation) would be needed here.  An
+alternative solution would be to use boundary conditions for these
+structures, as in the PriorLabelImage Atropos option.
+
+\subsection{Other Thoughts} {\bf {\textcolor{red}{ FIXME}}}
 A more general advantage which extends beyond the scope of the experimental 
 evaluation section of this paper is the flexibility of the Atropos algorithm.   This includes 
 not only $n$-tissue segmentation and dense volumetric cortical parcellation,
@@ -1304,9 +1382,21 @@ popular, publicly available brain extraction tools \citep{Avants2010a}.  An addi
 application area is that of ventilation-based segmentation of hyperpolarized helium-3 MRI
 \citep{Tustison2010a}.
 
+\section{Conclusion}
+The Atropos algorithm is freely available to the public.  We release
+this code not only to make it available to clinical researchers but
+with the hope that other researchers in segmentation will provide
+feedback about the implementation decisions that we made.  EM
+segmentation is non-trivial and there are numerous design alternatives
+available not only in the models selected but also in the ICM coding
+strategy, alternatives to ICM and the specific method in which prior
+and likelihood are combined.  Due to the flexibility of Atropos, we
+also hope that some of its capabilities, though not evaluated here,
+are explored by the segmentation or clinical community.
 
-%\paragraph{Acknowledgments}
-%{This work was supported in part by NIH ... }
+
+\paragraph{Acknowledgments}
+{This work was supported in part by NIH  {\bf {\textcolor{red}{ FIXME}}} }
 
 \newpage
 
