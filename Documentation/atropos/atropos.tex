@@ -1234,7 +1234,10 @@ Dice overlap, are shown in figure~\ref{fig:bweb1}.
   algorithm, combined with Atropos, results in a minimal effect of
   bias, even at the 40\% level.  The optimal $\beta$ for the MRF term
   appears to be between $0.1$ and $0.2$.  The prior label image
-  initialization is competitive with but inferior to K-means.}
+  initialization is competitive with but inferior to K-means.  The
+  legend is in the same position in each graph, allowing a visual
+  comparison of the results.  As one may see, the N4 assisted overlap
+  values are consistent across bias field/RF inhomogeneity.}
 \label{fig:bweb1}
 \end{center}
 \end{figure}
@@ -1348,13 +1351,36 @@ regions, in particular in temporal lobe cortex, the hippocampi and
 amygdalae and the lateral ventricles.  This work, in summary, proves
 the applicability of Atropos in both basic and extended use cases.
 
-\subsection{Performance on Single-Subject Brainweb Data}
-How does Atropos performance compare to other methods that have been
-evaluated on the basic brainweb data?   {\bf {\textcolor{red}{ FIXME}}}.
-
-\subsection{Performance on Twenty-Subject Brainweb Data}
-How does Atropos performance compare to other methods that have been
-evaluated on the brainweb twenty data?   {\bf {\textcolor{red}{ FIXME}}}.
+\subsection{Performance on Brainweb Data}
+Atropos results are competitive with the state of the art.  For
+instance, \cite{Ashburner2005} (SPM5) evaluated on 0\% RF (bias field) 3\%
+noise braineweb single subject data finding 0.932 (GM) and .961 (WM)
+Dice. Results on 40\% RF were .934 (GM) and .961 (WM). SPM5 exhibits
+insensitivity to bias similar to our own best results on the 40\%RF, 3
+\% noise case (MRF-$\beta$=0.2, Kmeans $+$ N4) with Dice for GM is
+0.950737 and for WM is 0.962586.  \cite{Nakamura2009} gave GM Dice
+results (brainweb single 3\% noise) of 0.962 (0\%RF), 0.964(20\%RF)
+and .956(40\%RF) which are slightly higher than either SPM5 or Atropos
+results.  However, \cite{Nakamura2009} do not report WM or CSF numbers
+for comparison.  Topology preserving approaches also perform well.
+\cite{Shiee2010} achieved Dice results for 3\% noise 20\% RF brainweb
+single subject with 0.927, 0.912 and 0.900 for WM, GM and CSF,
+respectively.  These are excellent numbers given the additional
+constraint applied to the segmentation.  
+\cite{Bazin2007c} proposed the TOADS method and, estimating from the
+paper's graph, showed that the average Dice accuracy for 3\% noise various RF was
+.95-.96 for WM, .93-.95 for GM and .92-.94 for CSF.
+Perhaps the most recent balanced evaluation was performed in
+\citep{Klauschen2009}, which reports confusion matrix numbers, rather
+than Dice overlap.  Because the absolute true number of GM and WM
+voxels for brainweb are known, we can convert the confusion matrix to
+Dice.  In that case, the SPM5 Dice for brainweb single GM and WM is .8847
+and .9085, respectively, while FreeSurfer and FSL's accuracy is
+lower. The best GM result for 20 subjects is obtained by SPM5: 0.9295;
+best WM Dice is from FSL: 0.9499.  We note that \cite{Klauschen2009}
+used a comprehensive evaluation where quality of brain extraction also
+contributed to the outcome.  Thus, the results must be interpreted
+slightly differently than those from other papers.  
 
 \subsection{Performance on Hammers Data}
 Our prior work, \citep{Avants2010b}, showed that the majority vote
@@ -1372,17 +1398,30 @@ intensity model (or finer parcellation) would be needed here.  An
 alternative solution would be to use boundary conditions for these
 structures, as in the PriorLabelImage Atropos option.
 
-\subsection{Other Thoughts} {\bf {\textcolor{red}{ FIXME}}}
+\subsection{Clinically-Related Evaluation}
+While specifying performance on brainweb is highly
+valuable, clinical validation is a second important aspect of
+segmentation evaluation.  For instance, 
+\citep{Freeborough1997,Westlye2009,Sanchez-Benavides2010,Chou2009,Bresser2011}
+are only a few of the papers that evaluate segmentation performance with
+respect to a known neurobiological outcome measure.  Atropos is
+currently used in clinical studies and a number of clinically-focused,
+application-specific evaluations are ongoing and will constitute
+future work.  One early example of a clinically-focused Atropos
+neuroimaging application is in \citep{Avants2010c}.  An additional successful
+application area is that of ventilation-based segmentation of hyperpolarized helium-3 MRI
+\citep{Tustison2010a} which also used the open-source  Glamorous Glue
+algorithm to impose topology constraints.  Thus, future work may
+incorporate topology more closely into the Atropos methodology.  
+
+\section{Conclusion}
 A more general advantage which extends beyond the scope of the experimental 
 evaluation section of this paper is the flexibility of the Atropos algorithm.   This includes 
 not only $n$-tissue segmentation and dense volumetric cortical parcellation,
 as reported in this work, but Atropos is also used in conjunction with our ANTs registration tools for robust
 brain extraction which has reported good performance in comparison with other
-popular, publicly available brain extraction tools \citep{Avants2010a}.  An additional successful
-application area is that of ventilation-based segmentation of hyperpolarized helium-3 MRI
-\citep{Tustison2010a}.
-
-\section{Conclusion}
+popular, publicly available brain extraction tools \citep{Avants2010a}.  
+ 
 The Atropos algorithm is freely available to the public.  We release
 this code not only to make it available to clinical researchers but
 with the hope that other researchers in segmentation will provide
