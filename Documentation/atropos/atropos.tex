@@ -1243,10 +1243,15 @@ data with 3\% noise and bias 0, 20 and 40 \% RF inhomogeneity.  We
 study the effect of the MRF prior term and initialization on
 the Dice overlap between ground truth and the segmentation result for
 each tissue.  We test both K-means and prior label image
-initialization with MRF $\beta \in \{ 0.00 , 0.05 , 0.10 , 0.15 , 0.20
-, 0.25 , 0.30 \}$ at each bias field.  We also feed the white matter
+initialization with MRF $\beta \in \{ 0.00 , 0.05 , 0.10 , 0.15 , 0.20, 
+0.25 , 0.30 \}$ at each bias field.  We also feed the white matter
 probability map derived from K-means into N4 to guide the bias
-correction.  Segmentation is then repeated, with the same parameters,
+correction.%
+\footnote{
+A comprehensive evaluation of N4 reported in \cite{Tustison2010} used the BrainWeb data set
+to compare performance with the original N3 algorithm \cite{Sled1998}.
+}
+Segmentation is then repeated, with the same parameters,
 but with the N4 corrected image as input.  The resulting algorithm is
 similar to those that fix segmentation parameters while
 estimating bias and fix bias while estimating segmentation parameters.
