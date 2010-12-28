@@ -1277,7 +1277,7 @@ bias level.
 \includegraphics[height=2in]{Figures/tissue_dice_vs_mrf_PLI_RF20.pdf}
 \includegraphics[height=2in]{Figures/tissue_dice_vs_mrf_PLI_RF40.pdf}
 \end{tabular}
-\caption{\baselineskip 12pt \small Brainweb single-subject results for
+\caption{\baselineskip 12pt \small BrainWeb single-subject results for
   each tissue.  The results show that N4 bias correction, combined with Atropos, results in a minimal effect of
   bias, even at the 40\% level.  The optimal $\beta$ for the MRF term
   appears to be between $0.1$ and $0.2$.  The prior label image
@@ -1317,7 +1317,7 @@ plots for Dice overlap mean and standard deviation, are shown in figure~\ref{fig
 \includegraphics[width=2.2in]{Figures/bw20_priorIni.png}
 \includegraphics[width=2.2in]{Figures/bw20_priorSeg.png}
 \end{tabular}
-\caption{\baselineskip 12pt \small Brainweb 20-subject results for
+\caption{\baselineskip 12pt \small BrainWeb 20-subject results for
   each tissue as a function of MRF-$\beta$ parameter where MRF-$\beta$
   is in $\{0,0.05,0.1,0.15,0.2\}$ and increases left to right.  The results show that the PriorProbabilityMaps with
   $w=0.5$ (far right) gives the best performance for all tissues.}
@@ -1352,7 +1352,7 @@ individually, the 69 $\times$ 18 label images to the unlabeled
 subject.  The label probability map is gained by averaging the 18
 deformed images associated with each label.  We repeat this for each
 subject.  The following parameters are the most relevant to this discussion:
-{\ttfamily  -i  PriorProbabilityImages[3, label\_prob\%02d.nii.gz,0.5] 
+{\ttfamily  -i  PriorProbabilityImages[3,label\_prob\%02d.nii.gz,0.5] 
 -m [0.1,1x1x1] -c [5,0] -p Socrates[1] }.  Results, in terms of
 Dice overlap, are shown in figure~\ref{fig:hammers}.
 \begin{figure}
@@ -1398,16 +1398,16 @@ regions, in particular in temporal lobe cortex, the hippocampi and
 amygdalae and the lateral ventricles.  This work, in summary, proves
 the applicability of Atropos in both basic and extended use cases.
 
-\subsection{Performance on Brainweb Data}
+\subsection{Performance on BrainWeb Data}
 Atropos results are competitive with the state of the art.  For
 instance, \cite{Ashburner2005} (SPM5) evaluated on 0\% RF (bias field) 3\%
 noise brainweb single subject data finding 0.932 (GM) and .961 (WM)
-Dice. Results on 40\% RF were .934 (GM) and .961 (WM). SPM5 exhibits
-insensitivity to bias similar to our own best results on the 40\%RF, 3
-\% noise case (MRF-$\beta$=0.2, Kmeans $+$ N4) with Dice for GM is
+Dice. Results on 40\% RF were 0.934 (GM) and 0.961 (WM). SPM5 exhibits
+insensitivity to bias similar to our own best results on the 40\%RF, 3\% 
+noise case (MRF-$\beta$=0.2, K-means $+$ N4) with Dice for GM is
 0.950737 and for WM is 0.962586.  \cite{Nakamura2009} gave GM Dice
 results (brainweb single 3\% noise) of 0.962 (0\%RF), 0.964(20\%RF)
-and .956(40\%RF) which are slightly higher than either SPM5 or Atropos
+and 0.956(40\%RF) which are slightly higher than either SPM5 or Atropos
 results.  However, \cite{Nakamura2009} do not report WM or CSF numbers
 for comparison.  Topology preserving methods also perform well.
 \cite{Shiee2010} achieved Dice results for 3\% noise 20\% RF brainweb
@@ -1416,13 +1416,13 @@ respectively.  These are excellent numbers given the additional
 constraint applied to the segmentation.  
 \cite{Bazin2007c} proposed TOADS and, estimating from the
 paper's graph, showed that the average Dice accuracy for 3\% noise various RF was
-.95-.96 for WM, .93-.95 for GM and .92-.94 for CSF.
+0.95-0.96 for WM, 0.93-0.95 for GM and 0.92-0.94 for CSF.
 Perhaps the most recent balanced evaluation was performed in
 \citep{Klauschen2009}, which reports confusion matrix numbers, rather
 than Dice overlap.  Because the absolute true number of GM and WM
 voxels for brainweb are known, we can convert the confusion matrix to
-Dice.  In that case, the SPM5 Dice for brainweb single GM and WM is .8847
-and .9085, respectively, while FreeSurfer and FSL's accuracy is
+Dice.  In that case, the SPM5 Dice for brainweb single GM and WM is 0.8847
+and 0.9085, respectively, while FreeSurfer and FSL's accuracy is
 lower. The best GM result for 20 subjects is obtained by SPM5: 0.9295;
 best WM Dice is from FSL: 0.9499.  We note that \cite{Klauschen2009}
 used a comprehensive evaluation where quality of brain extraction also
