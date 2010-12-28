@@ -828,23 +828,24 @@ prior probability images, one for each class.
 \item[ICM Label Update (E-Step):] Given the initialization and fixed
 model parameters, Atropos will evaluate the posterior probability for
 each possible label and assign, to each voxel, the label that
-maximizes the posterior.  {\bf \textcolor{red}{ FIXME more specific?}}.
+maximizes the posterior. 
+% {\bf \textcolor{red}{ FIXME more specific?}}.
 \item[Parameter Update (M-Step):] 
 Note that the posteriors used in the previous iteration are used to 
 estimate the parameters at the current iteration.  
 We use a common and elementary estimate of the mixing parameters:
 \begin{align}
 \gamma_k \leftarrow \frac{1}{N} \sum_{i=1}^N  p_k(l_k|y_i)
-%\gamma^{new}_k \leftarrow  \sum_i \frac{p^{old}_{ik}}{\sum_{j=1}^K p^{old}_{ij}}. 
 \end{align}
-For parametric model update, for each of
-  $K$ labels, we compute the mean,
+We update the parametric model parameters by computing, for each of
+  $K$ labels, the mean,
 \begin{align}  
  \mu_k \leftarrow \frac{ \sum_{i=1}^N  y_i p_k(l_k|y_i)}{ \sum_{i=1}^N p_k(l_k|y_i) },
 \end{align}
 and variance,
 \begin{align}  
- \sigma^2_k \leftarrow  \frac{ \sum_{i=1}^N  (y_i - \mu_k ) p_k(l_k|y_i)}{ \sum_{i=1}^N p_k(l_k|y_i) }.
+ \sigma^2_k \leftarrow  \frac{ \sum_{i=1}^N  (y_i - \mu_k )^T
+   p_k(l_k|y_i) (y_i - \mu_k )}{ \sum_{i=1}^N p_k(l_k|y_i) }.
 \end{align}
 The latter two quantities are modified, respectively, in the case of multivariate data as follows:
 \begin{align}
@@ -852,12 +853,12 @@ The latter two quantities are modified, respectively, in the case of multivariat
 \end{align}
 and the $(m,n)^{th}$ element of the covariance matrix, $\boldsymbol{\Sigma}$, is calculated from
 \begin{align}
- \boldsymbol{\Sigma}_{mn,k} \leftarrow \frac{ \sum_{i=1}^N  ( \mathbf{y}_i - \boldsymbol{\mu}_k ) p_k(l_k|\mathbf{y}_i)}{1 - \sum_{i=1}^N p^2_k(l_k|\mathbf{y}_i) }.
+ \boldsymbol{\Sigma}_{mn,k} \leftarrow \frac{ \sum_{i=1}^N  ( \mathbf{y}_i - \boldsymbol{\mu}_k )^T p_k(l_k|\mathbf{y}_i) ( \mathbf{y}_i - \boldsymbol{\mu}_k )}{1 - \sum_{i=1}^N p^2_k(l_k|\mathbf{y}_i) }.
 \end{align}
 
 This type of update is known as {\em soft} EM.  Hard EM, in
 contrast, only uses sites containing label $l_k$ to update model $k$ parameters.
-A similar pattern is used in the multivariate and non-parametric cases.
+A similar pattern is used in non-parametric cases.
 \end{description}
 EM will iterate toward a local maximum.  We track
 convergence by summing up the maximum posterior
@@ -1371,7 +1372,8 @@ significant improvement, $-$ performance reduction, $\sim$ no change.}
 
 \subsection{Reproducibility of this Evaluation}
 The brainweb data is freely available.  We used single-subject
-brainweb data as is.  The 20 subject data, however, required excluding
+brainweb data as is but added a meta format data header to the raw
+binary files.   An example copy of this header is contained in {\verb atroposBwebRF40FigureExample.sh }.  The 20 subject data, however, required excluding
 non-cerebrum tissue classes.  The Hammers data was also used as is.
 The scripts for the single-subject brainweb study is available in
 supplementary material.  The initialization procedure for the brainweb 20 and
@@ -1472,9 +1474,9 @@ and likelihood are combined.  Due to the flexibility of Atropos, we
 also hope that some of its capabilities, though not evaluated here,
 are explored by the segmentation or clinical community.
 
-
 \paragraph{Acknowledgments}
-{This work was supported in part by NIH  {\bf {\textcolor{red}{ FIXME}}} }
+{This work was supported in part by NIH (AG17586, AG15116, NS44266, and
+NS53488).}
 
 \newpage
 
