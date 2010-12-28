@@ -1191,7 +1191,7 @@ corresponding to the white matter produced as output in the Atropos
 call, i.e. `{\ttfamily Atropos --output}'.  N4 is
 currently being added as a standard part of the Insight Toolkit.  The
 evaluation section will illustrate inclusion of Atropos, N4 and ANTs
-in a brain processing pipeline.  An example of this procedure, using brainweb data with
+in a brain processing pipeline.  An example of this procedure, using BrainWeb data with
 40\% RF bias, is in figure~\ref{fig:bwebrf40}.  We supply the
 information necessary to repeat this example in the script entitled
 `{\ttfamily  atroposBwebRF40FigureExample.sh}' which is available in the ANTs toolkit's Atropos
@@ -1202,7 +1202,7 @@ documentation folder as of svn commit 711.
 \includegraphics[width=6in]{Figures/bwebN4ex.pdf}
 \end{tabular}
 \caption{\baselineskip 12pt \small We combine N4 and Atropos by simple
-sequential processing and apply to brainweb single-subject data with
+sequential processing and apply to BrainWeb single-subject data with
 40\% RF bias and 3\% noise.  The $\beta$ for the MRF term is, here,
 $0.2$.  Slice 71 of the input data is in (a).  The initial K-means
 ($K=3$) segmentation is in panel (b).  We use the brain mask to guide
@@ -1236,7 +1236,7 @@ for a 69 class model on 1mm$^3$ brain data).
 
 \subsection{BrainWeb Evaluation}
 \label{sec:bweb} The BrainWeb data is freely available at
-\url{http://mouldy.bic.mni.mcgill.ca/brainweb/}.  We employ both the
+\url{http://mouldy.bic.mni.mcgill.ca/BrainWeb/}.  We employ both the
 individual subject data and the BrainWeb20 data in this evaluation.
 \subsubsection{Single-Subject Evaluation} We use the single-subject
 data with 3\% noise and bias 0, 20 and 40 \% RF inhomogeneity.  We
@@ -1288,10 +1288,10 @@ bias level.
 \label{fig:bweb1}
 \end{center}
 \end{figure}
-\subsubsection{20 Subject Evaluation} The single-subject brainweb
+\subsubsection{20 Subject Evaluation} The single-subject BrainWeb
 study in the previous section tested the basic Atropos options and the
 benefit of N4 for segmentation in the presence of bias.  The 20
-subject brainweb data allows us to use 2-fold cross-validation to test
+subject BrainWeb data allows us to use 2-fold cross-validation to test
 our ability to segment different individuals reliably.  In this study,
 we divide the 20 subjects equally into training and testing groups.
 We then exploit the ground-truth labeling of the training data to
@@ -1376,12 +1376,12 @@ significant improvement, $-$ performance reduction, $\sim$ no change.}
 \end{figure}
 
 \subsection{Reproducibility of this Evaluation}
-The brainweb data is freely available.  We used single-subject
-brainweb data as is but added a meta format data header to the raw
+The BrainWeb data is freely available.  We used single-subject
+BrainWeb data as is but added a meta format data header to the raw
 binary files.   An example copy of this header is contained in {\verb atroposBwebRF40FigureExample.sh }.  The 20 subject data, however, required excluding
 non-cerebrum tissue classes.  The Hammers data was also used as is.
-The scripts for the single-subject brainweb study is available in
-supplementary material.  The initialization procedure for the brainweb 20 and
+The scripts for the single-subject BrainWeb study is available in
+supplementary material.  The initialization procedure for the BrainWeb 20 and
 the Hammers evaluation data is based on freely available scripts
 included with the ANTs toolkit, specifically  {\verb ants_multitemplate_labeling.sh } and  {\verb atroposBwebRF40FigureExample.sh }.
 
@@ -1389,7 +1389,7 @@ included with the ANTs toolkit, specifically  {\verb ants_multitemplate_labeling
 We introduced Atropos, the theory and implementation
 details and documented its performance in a variety of use cases.  We
 also showed evidence that the openly available N4 bias correction can easily used with Atropos to improve segmentation.
-Furthermore, we used multiple subject brainweb data to build dataset
+Furthermore, we used multiple subject BrainWeb data to build dataset
 specific priors that provided the most consistent segmentation
 performance across tissues.  Finally, we used majority voting to
 initialize an Atropos EM solution to a 69 class brain parcellation
@@ -1401,27 +1401,27 @@ the applicability of Atropos in both basic and extended use cases.
 \subsection{Performance on BrainWeb Data}
 Atropos results are competitive with the state of the art.  For
 instance, \cite{Ashburner2005} (SPM5) evaluated on 0\% RF (bias field) 3\%
-noise brainweb single subject data finding 0.932 (GM) and .961 (WM)
+noise BrainWeb single subject data finding 0.932 (GM) and .961 (WM)
 Dice. Results on 40\% RF were 0.934 (GM) and 0.961 (WM). SPM5 exhibits
-insensitivity to bias similar to our own best results on the 40\%RF, 3\% 
+insensitivity to bias similar to our own best results on the 40\% RF, 3\% 
 noise case (MRF-$\beta$=0.2, K-means $+$ N4) with Dice for GM is
 0.950737 and for WM is 0.962586.  \cite{Nakamura2009} gave GM Dice
-results (brainweb single 3\% noise) of 0.962 (0\%RF), 0.964(20\%RF)
-and 0.956(40\%RF) which are slightly higher than either SPM5 or Atropos
+results (BrainWeb single 3\% noise) of 0.962 (0\%cRF), 0.964 (20\% RF)
+and 0.956 (40\%RF) which are slightly higher than either SPM5 or Atropos
 results.  However, \cite{Nakamura2009} do not report WM or CSF numbers
 for comparison.  Topology preserving methods also perform well.
-\cite{Shiee2010} achieved Dice results for 3\% noise 20\% RF brainweb
+\cite{Shiee2010} achieved Dice results for 3\% noise 20\% RF BrainWeb
 single subject with 0.927, 0.912 and 0.900 for WM, GM and CSF,
 respectively.  These are excellent numbers given the additional
 constraint applied to the segmentation.  
 \cite{Bazin2007c} proposed TOADS and, estimating from the
 paper's graph, showed that the average Dice accuracy for 3\% noise various RF was
-0.95-0.96 for WM, 0.93-0.95 for GM and 0.92-0.94 for CSF.
+0.95--0.96 for WM, 0.93--0.95 for GM and 0.92--0.94 for CSF.
 Perhaps the most recent balanced evaluation was performed in
 \citep{Klauschen2009}, which reports confusion matrix numbers, rather
 than Dice overlap.  Because the absolute true number of GM and WM
-voxels for brainweb are known, we can convert the confusion matrix to
-Dice.  In that case, the SPM5 Dice for brainweb single GM and WM is 0.8847
+voxels for BrainWeb are known, we can convert the confusion matrix to
+Dice.  In that case, the SPM5 Dice for BrainWeb single GM and WM is 0.8847
 and 0.9085, respectively, while FreeSurfer and FSL's accuracy is
 lower. The best GM result for 20 subjects is obtained by SPM5: 0.9295;
 best WM Dice is from FSL: 0.9499.  We note that \cite{Klauschen2009}
@@ -1446,7 +1446,7 @@ alternative solution would be to use boundary conditions for these
 structures, as in the PriorLabelImage Atropos option.
 
 \subsection{Clinically-Related Evaluation}
-While specifying performance on brainweb is highly
+While specifying performance on BrainWeb is highly
 valuable, clinical validation is a second important aspect of
 segmentation evaluation.  For instance, 
 \citep{Freeborough1997,Westlye2009,Sanchez-Benavides2010,Chou2009,Bresser2011}
@@ -1457,8 +1457,8 @@ application-specific evaluations are ongoing and will constitute
 future work.  One early example of a clinically-focused Atropos
 neuroimaging application is in \citep{Avants2010c}.  An additional successful
 application area is that of ventilation-based segmentation of hyperpolarized helium-3 MRI
-\citep{Tustison2010a} which also used the open-source  Glamorous Glue
-algorithm to impose topology constraints.  Thus, future work may
+\citep{Tustison2010a} which also used the open source Glamorous Glue
+algorithm to impose topology constraints \cite{Tustison2010b}.  Thus, future work may
 incorporate topology more closely into the Atropos methodology.  
 
 A more general advantage which extends beyond the scope of the experimental 
