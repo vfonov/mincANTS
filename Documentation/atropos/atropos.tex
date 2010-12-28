@@ -1026,21 +1026,21 @@ an example definition for each parameter:
 %  where scalar $w \in [0,1]$ is unused. 
 \item  {\ttfamily -i  PriorProbabilityImages[3,label\_prob\%02d.nii.gz,w]} 
 where $w=0$~(use the prior probability images only for
-  initialization) or $w=0.5$ (use the prior probability images
-  throughout the optimization).  If one chooses $0 < w < 0.5$ then one
+  initialization) or $w>0.0$ (use the prior probability images
+  throughout the optimization).  If one chooses $0 < w < 1.0$ then one
   will increase (from zero) the weight on the priors.  These images,
-  like the PriorLabelImage, should be defined with the same domain as
+  like the {\ttfamily PriorLabelImage}, should be defined with the same domain as
   the input images to be segmented.  
 \end{itemize}
 \item[Posterior formulation:]  The user may choose to estimate the
   mixture proportions (or not) by setting  {\ttfamily -p Socrates[1]}
   or {\ttfamily -p Socrates[0] }.  Fixed label boundary conditions may be employed by
-  selecting the PriorLabelImage initialization and   {\ttfamily -p Plato[0] }.
+  selecting the {\ttfamily PriorLabelImage} initialization and   {\ttfamily -p Plato[0]}.
 \item[Output:] Atropos will output the hard segmentation and the
   probability image for each model.  E.g.  {\ttfamily -o
-    [segmentation.nii.gz,seg\_prob\%02d.nii.gz] } will write
+    [segmentation.nii.gz,seg\_prob\%02d.nii.gz]} will write
   out the hard segmentation in the first output parameter and a
-  probability image for each class named, here, seg\_prob01.nii.gz ,
+  probability image for each class named, here, seg\_prob01.nii.gz,
   seg\_prob02.nii.gz, etc. 
 \end{description}
 Higher dimensions than 4 are possible although we have not yet encountered such 
