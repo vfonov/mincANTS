@@ -191,7 +191,7 @@
 
 \begin{center}
 {\Large \bf An Open Source Framework for Multivariate $n$-Tissue
-  Segmentation and Evaluation Using Open Data Sets} \\
+  Segmentation with Evaluation Using Open Data Sets} \\
 \vspace*{0.5cm}
 {\normalsize Brian B.~Avants$^{1*}$,  Nicholas J.~Tustison$^2$%
 \symbolfootnote[1]{
@@ -239,11 +239,15 @@ avants@picsl.upenn.edu\\
 %structural labelings to individual images.  Along with other
 %neuroinformatics tools publicly distributed in our ANTs (Advanced Normalization Tools)%
 We introduce {\em Atropos}, an ITK-based multivariate $n$-class
-Expectation Maximization (EM) segmentation tool based on either parametric or non-parametric finite mixture modeling (FMM) of the
-class intensities.  Atropos, available in ANTs
+open source segmentation algorithm distributed
+with ANTs.%
 \footnote{
 http://www.picsl.upenn.edu/ANTs
-}, is capable of incorporating spatial prior probability maps,
+}  The Bayesian formulation of the segmentation problem is 
+solved using the Expectation Maximization (EM) algorithm
+with the modeling of the class intensities 
+ based on either parametric or non-parametric finite mixtures.  
+Atropos is capable of incorporating spatial prior probability maps,
 (sparse) prior label maps and/or Markov Random Field (MRF) modeling.  Atropos has also been efficiently implemented to handle
 large quantities of possible labelings (in the experimental section,
 we use up to 69 classes) with a minimal memory footprint.  This work
@@ -255,7 +259,7 @@ K-means segmentation without use of template data; (2) MRF segmentation with ini
 derived from a group template; (3) Prior-based segmentation with use
 of spatial prior probability maps derived from a group template.  We
 also evaluate Atropos performance by using spatial priors to drive a 69 class EM segmentation
-problem defined by the Hammers atlas from University College London.  These evaluation studies, combined with
+problem derived from the Hammers atlas from University College London.  These evaluation studies, combined with
 illustrative examples that exercise Atropos options, demonstrate both
 performance and wide applicability of this new platform-independent 
 open source segmentation tool.
@@ -273,8 +277,8 @@ open source segmentation tool.
 \clearpage
 
 \section{Introduction} As medical image acquisition technology has advanced,
-concomitant investment has been made towards adapting classification
-techniques for neuroanatomy.  Some of the earliest work appropriated NASA
+significant investment has been made towards adapting classification
+techniques for neuroanatomy.  Early work appropriated NASA
 satellite image processing software for statistical classification of
 head tissues in 2-D MR images \citep{Vannier1985}.  A proliferation of
 techniques ensued with increasing sophistication in both core
@@ -286,11 +290,11 @@ and evaluation studies
 \citep[e.g.][]{Cuadra2005,Zaidi2006,Klauschen2009,Boer2010}.
 
 The problem of accurately delineating the white matter, grey matter
-and cerebrospinal fluid of the primate brain continuously spurs
+and cerebrospinal fluid (and further subdivisions) of the human brain continuously spurs
 technical development in segmentation.  Following \cite{Vannier1985},
 many researchers adopted statistical methods for $n$-tissue anatomical
 brain segmentation.  Given the ``missing data'' aspect of this
-problem, use of the Expectation-Maximization (EM) framework is natural\citep{Dempster1977}.  The
+problem, use of the Expectation-Maximization (EM) framework is natural \citep{Dempster1977}.  The
 work described in \cite{Wells1996} was one of the first to use EM for
 finding a locally optimal solution by iterating between bias field
 estimation and tissue segmentation.  A core component of this work was
@@ -311,15 +315,15 @@ commonly referred to as FAST (FMRIB's Automated Segmentation Tool), which is in 
 given its public availability and good performance.  More recently, a uniform distribution of local MRFs within the brain volume and their subsequent integration into a global solution has been proposed obviating the need for an 
 explicit bias correction solution \citep{Scherrer2009}.  
 
-EM may easily be caught in local optima. Consequently, a good
-initialization is critical.  Common low-level initialization steps 
+Several initialization strategies have been proposed to overcome the characteristic
+susceptibility of EM algorithms to local optima.   Common low-level initialization steps 
 include uniform probability assignment \citep{Wells1996},
 Otsu thresholding \citep{Zhang2001}, and K-means clustering
 \citep{Pappas1992}.  More sophisticated low-level initialization
 schemes include that of \cite{Greenspan2006} in which a dense spatial
 distribution of Gaussians is used to capture the complex
 neuroanatomical layout with subsequent processing used to conjoin
-subsets of Gaussians belonging to the same tissue classes.  Recently,
+subsets of such Gaussians belonging to the same tissue classes.  Recently,
 anatomically specific strategies for incorporating prior knowledge
 into the segmentation solution have included the use of spatial prior
 probability maps of the various structures of interest
@@ -334,27 +338,18 @@ A general trend towards more integrative neuroanatomical image processing led to
 large-scale Matlab module in which registration, segmentation, and
 bias field correction can be simultaneously modeled within a single
 optimization scheme. The roots of this very popular software package
-stem back to early work by Karl Friston in which the basis for
-statistical parametric mapping was developed \citep{Friston1990} and
-subsequently provided to the research community.  Similar integrative brain processing was provided in \cite{Pohl2006} in which
+stem back to early work by Karl Friston which laid the basis for
+statistical parametric mapping \citep{Friston1990}. 
+ Similar integrative brain processing was provided in \cite{Pohl2006} in which
 segmentation and registration parameters were optimized simultaneously
 while casting the inhomogeneity model parameters of \cite{Wells1996}
 as nuisance variables.  Continued work involved recursive parcellation
 of the brain volume by considering sub-structures in a hierarchical
 manner \citep{Pohl2007}.  An implementation is provided in 3D slicer
-\citep{Pieper2006}---an open source package with developmental
+\citep{Pieper2006}---an open source medical image computation and
+visualization package with developmental
 contributions from multiple agencies including both private and
-academic institutions. Researchers in aging often focus on
-accurately segmenting the T1 MRI of elderly controls and subjects
-suffering from neurodegeneration, for instance, via SIENA \citep{Smith2007}.  A recent evaluation study 
-compared kNN segmentation, SPM Unified Segmentation and SIENA and
-found different performance
-characteristics under different evaluation criteria
-\citep{Bresser2011}.  \cite{Klauschen2009} had similar findings when
-comparing SPM5, FSL and FreeSurfer.  These studies suggest that no
-single method performs best under every measurement and, along with the No
-Free Lunch theorem, highlight the need for segmentation tools that are tunable for different
-problems and research goals.  
+academic institutions.
 
 Related neuroanatomical research concerns the selection of geometric
 features of the cortex \citep[e.g.][]{Goualher1999} with aims at
@@ -370,22 +365,34 @@ popular software package known as Freesurfer
 approach detailed in this work, Freesurfer is primarily a
 surface-based technique in which the brain structures such as the
 grey-white matter interface and pial surfaces are processed, analyzed,
-and displayed as tessellated surfaces  \cite{Dale1999,Fischl1999}.
+and displayed as tessellated surfaces  \citep{Dale1999,Fischl1999}.
 Advantages of surface representations include the ability to map
 processed neuroanatomy to simple geometric primitives such as spheres
 or planes and the ease of including topological constraints in the
-analysis workflow.  These types of methods, as well as Klein's
-Mindboggle \cite{Klein2005}, would usually follow an initial segmentation by a volumetric method such as Atropos.  
+analysis workflow.  These types of methods, including Klein's
+Mindboggle \citep{Klein2005}, would usually follow an initial segmentation by a 
+volumetric method such as Atropos.  
 
 %{\color{red}{{\em Needs work}:  Mindboggle, Heckemann  One advantage
 %of the pipeline we propose is that we parcellate cortex entirely in
 %the image space, thus avoiding the difficulty of transferring labels
 %from the mesh space back to the image space---a problem that is a confound of surface-based methods\citep{Klein2010}.}}
 
+Researchers in aging often focus on
+accurately segmenting the T1 MRI of elderly controls and subjects
+suffering from neurodegeneration, for instance, via SIENA \citep{Smith2007}.  A recent evaluation study 
+compared kNN segmentation, SPM Unified Segmentation and SIENA and
+found different performance
+characteristics under different evaluation criteria
+\citep{Bresser2011}.  \cite{Klauschen2009} had similar findings when
+comparing SPM5, FSL and FreeSurfer.  These studies suggest that no
+single method performs best under every measurement and, along with the No
+Free Lunch theorem \citep{Wolpert1997}, highlight the need for segmentation tools that are tunable for different
+problems and research goals.  
 
 Our open source segmentation tool, which we have dubbed {\em
-Atropos}, 
-\footnote{ Atropos is one of the three Fates from Greek
+Atropos},%
+\footnote{Atropos is one of the three Fates from Greek
 mythology characterized by her dreaded shears used to decide the
 destiny of each mortal.  Also, consistent with the entomological motif
 of our ANTs toolkit, {\it Acherontia atropos} is a species of large
@@ -393,9 +400,13 @@ moth known for the skull-like pattern visible on its thorax.  }
 efficiently and flexibly implements a $n$-tissue paradigm for
 voxel-based image segmentation.  Atropos allows users to harness its
 generalized EM algorithm for standard tissue classification of
-the brain into gray matter, white matter and cerebrospinal fluid.
+the brain into gray matter, white matter and cerebrospinal fluid even
+in cases of multivariate image data---relevant when more than one 
+view of anatomy aids segmentation, as in neonatal brain tissue classification
+\citep[e.g.][]{Prastawa2005,Weisenfeld2009}.  
 Atropos equally allows incarnations that use EM to simultaneously
-maximize the posterior probabilities of many classes, for instance,
+maximize the posterior probabilities of many classes with minimal
+random access memory requirements, for instance,
 when parcellating the brain into hemispheres, cortical regions and
 deep brain structures such as amygdala, hippocampus and
 thalamus.  Atropos contains features of its predecessors for
@@ -406,7 +417,7 @@ also borrow an idea from \cite{Boykov2004} and use sparse spatial
 priors to provide initialization and boundary conditions for Atropos
 EM segmentation in a semi-interactive manner.  In short, Atropos seeks
 to provide a segmentation toolbox that may be modified,
-tuned and refined by the user for different problems.
+tuned and refined for different use scenarios.
 
 We also allow Atropos to address the bias field issue by incorporating
 the recently developed N4 bias correction software \citep{Tustison2010} in an adaptive manner.  Coupled with the
@@ -419,20 +430,21 @@ segmentation to label fusion and propagation for achieving a refined
 cortical parcellation based on both prior information and
 subject-specific image data.
 
-Atropos is multi-platform, free, stand-alone and able to
-manage a wide range of scalar and vector image datatypes.  To highlight the
+%Atropos is multi-platform, free, /stand-alone and able to
+%manage a wide range of scalar and vector image datatypes.  
+
+To highlight the
 value of this open-source contribution, we performed a search of
 software attributes on NITRC and found that as of November 2010 no
 stand-alone EM methods are currently listed.
-Atropos's memory efficiency enables EM-segmentation of many classes at
-once, a capability that is due to a sparse internal representation of
-prior probability images that minimizes the need for random access
-memory.  We evaluate EM-based classification of $1 mm^3$ T1 MR
+%Atropos's memory efficiency enables EM-segmentation of many classes at
+%once, a capability that is due to a sparse internal representation of
+%prior probability images that minimizes the need for random access
+%memory.  
+We evaluate EM-based classification of $1 mm^3$ T1 MR
 neuroimages into 69 neuroanatomical regions to illustrate the practical
-value of the low-memory implementation within this paper.  Atropos
-also allows multivariate image features to drive the data term, relevant when more than one view of anatomy aids
-segmentation, as in neonatal brain tissue classification
-\cite{Weisenfeld2009}.  Although Atropos may be applied to
+value of the low-memory implementation within this paper.  
+Although Atropos may be applied to
 multivariate data from arbitrary modalities, we limit our evaluation
 to tissue-classification in T1 neuroimaging in part due to the
 abundance of ``gold-standard'' data for this modality.  Consistent
@@ -444,13 +456,13 @@ the authors or other users in the community.
 
 Organization of this work is as follows: we first describe the theory
 behind the various components of Atropos while
-acknowledging that theoretical discussion is available elsewhere,
-e.g. in previously cited literature.  This is followed by a thorough
+acknowledging that additional theoretical discussion is available elsewhere.  
+This is followed by a thorough
 discussion of implementation which, though often overlooked, is of
 immense practical utility.  We then report evaluation results on
 public T1 neuroimaging datasets that have reference gold/silver
 standard labelings.  Finally, we provide a discussion of our results
-and our open-source contribution in the context of the remainder of
+and our open source contribution in the context of the remainder of
 this paper and of previous and future work.
 
 \section{Theoretical Foundations for Atropos Segmentation} 
@@ -468,8 +480,8 @@ probability.  The likelihood term has been previously defined both
 parametrically (e.g. a Gaussian model) and non-parametrically
 (e.g. Parzen windowing of the sample histogram).  The prior term, as
 given in the literature, has often been formed either as
-MRF-based or template-based.  An image segmentation solution in this
-context is an assignment of one label to each voxel
+MRF-based and/or template-based.  An image segmentation solution in this
+context is an assignment of one label to each voxel%
 \footnote{
 In the classic 3-tissue segmentation case, each voxel in the brain region is assigned a label of `cerebrospinal fluid (csf)', `gray matter (gm)', or `white matter (wm)'. 
 }
@@ -507,8 +519,10 @@ $\mathcal{I}$ and a valid, though not necessarily optimal, solution to the segme
 %For example, in the classic 3-tissue segmentation problem $\mathcal{L}$ is defined as the set $ \{\mathrm{csf}, \mathrm{gm}, \mathrm{wm}\}$ and each voxel in the brain region is assigned one and only one of these three labels.  
 %}
 
-\subsection{Segmentation Objective Function} Atropos optimizes a class
-of user-selectable maximization objective functions each of which may
+\subsection{Segmentation Objective Function}
+
+ Atropos optimizes a class
+of user-selectable objective functions each of which may
 be represented in a generic Bayesian framework, as described by \cite{Sanjay-Gopal1998}.  This framework
 requires {\em likelihood models} and {\em prior models} which enter
 into Bayes' formula,
@@ -527,7 +541,7 @@ maximizes the posterior probability, i.e.
 \end{align} Similar to its predecessors, Atropos employs
 the EM framework \citep{Dempster1977} to find maximum likelihood
 solutions to this problem.  The following sections detail the 
-Atropos EM along with choices for the likelihood(s), prior(s).  
+Atropos EM along with choices for the likelihood and prior terms.  
 
 \subsection{Likelihood or Observation Models}
 To each of the $K$ labels corresponds a single probabilistic model describing the variation of $\mathcal{F}$ over $\mathcal{I}$.  We denote this set of $K$ likelihood models as $\Phi = \{p_1, p_2, \ldots, p_K\}$.  Using the standard notation, $\mathrm{Pr}(S=s) = p(s)$, $\mathrm{Pr}(S=s|T=t) = p(s|t)$, we can define these voxelwise probabilities, $\mathrm{Pr}_k( Y_i = y_i | X_i = l_k ) = p_k(y_i|l_k)$, in either parametric or non-parametric terms.   Given its simplicity and good performance, in the parametric case, $p_k$ is typically defined as a normal distribution, i.e.
@@ -539,7 +553,7 @@ where the parameters $\mu_k$ and $\sigma_k^2$ respectively represent
 the mean and variance of the $k^{th}$ model.  When $y_i$ is a vector
 quantity, we replace the Euclidean distance by by Mahalanobis distance
 and define multivariate Gaussian parameters via a mean vector,
-$\boldsymbol{\mu}_k$, and covariance matrix, ${\bf \Sigma_k}$.
+$\boldsymbol{\mu}_k$, and covariance matrix, ${\bf \Sigma}_k$.
 
 A common technique for the non-parametric variant is to define $p_k$ using Parzen windowing of the sample observation histogram of $\mathbf{y}$, i.e.
 \begin{align} \label{eq:nonparam}
@@ -788,13 +802,13 @@ The expectation maximization procedure is derived in various
 publications including \cite{Zhang2001} which yields the optimal mean
 and variance (or covariance), but sets the mixing parameter $\gamma_k$
 as a constant.  The Atropos implementation estimates $\gamma_k$ at
-each iteration as in \cite{Ashburner2005}.
+each iteration as in \cite{Ashburner2005}.%
 \footnote{
 Due to the lack of parameters in the non-parametric approach, it is not technically an EM algorithm (as described in \cite{Wells1996}).  However, the same iterative maximization is applicable and is quite robust in practice as evidenced by the number of researchers employing non-parametric models (see the Introduction).
 }  
 When spatial coherence constraints are included as an MRF prior in Atropos, the optimal segmentation solution becomes intractable.%
 \footnote{
-Consider $N$ sites each with a possible $K$ labels for a total of $N^K$ possible labeling configurations.  Due to the large $K$ associated with $K>>1$ problems, exact optimization is even more problematic than for the traditional 3-tissue scenario.
+Consider $N$ sites each with a possible $K$ labels for a total of $N^K$ possible labeling configurations.  Due to the large $K$ associated with $K>>1$ problems, exact optimization is even more intractable than for the traditional 3-tissue scenario.
 }
 Although many optimization techniques exist \citep[see the
 introduction in][for a concise summary of the myriad optimization
@@ -811,25 +825,36 @@ K-means algorithm with only the number of classes as a prior.
 Otherwise, the user must provide prior information for each class in
 the form of either a single $n$-ary prior label image or a series of
 prior probability images, one for each class.
-\item[E-Step: ICM Label Update:] Given the initialization and fixed
+\item[ICM Label Update (E-Step):] Given the initialization and fixed
 model parameters, Atropos will evaluate the posterior probability for
 each possible label and assign, to each voxel, the label that
 maximizes the posterior.  {\bf \textcolor{red}{ FIXME more specific?}}.
-\item[M-Step: Parameter Update:] 
-The posteriors used in this step are called $p^{old}$ to make it
-clear that we use the previous parameter estimates.
+\item[Parameter Update (M-Step):] 
+Note that the posteriors used in the previous iteration are used to 
+estimate the parameters at the current iteration.  
 We use a common and elementary estimate of the mixing parameters:
 \begin{align}
-\gamma^{new}_k \leftarrow  \sum_i \frac{p^{old}_{ik}}{\sum_{j=1}^K p^{old}_{ij}}. 
+\gamma_k \leftarrow \frac{1}{N} \sum_{i=1}^N  p_k(l_k|y_i)
+%\gamma^{new}_k \leftarrow  \sum_i \frac{p^{old}_{ik}}{\sum_{j=1}^K p^{old}_{ij}}. 
 \end{align}
 For parametric model update, for each of
   $K$ labels, we compute the mean,
-$$ \mu^{new}_k \leftarrow \frac{ \sum_{i=1}^N  y_i p^{old}_k(l_k|y_i)}{ \sum_{i=1}^N p^{old}_k(l_k|y_i) },
-$$
-and variance {\bf \textcolor{red}{ FIXME should this be the full
-    covariance matrix?}},
-$$ \sigma^{new}_k \leftarrow  \frac{ \sum_{i=1}^N  (y_i - \mu_k ) p^{old}_k(l_k|y_i)}{ \sum_{i=1}^N p^{old}_k(l_k|y_i) }.
-$$
+\begin{align}  
+ \mu_k \leftarrow \frac{ \sum_{i=1}^N  y_i p_k(l_k|y_i)}{ \sum_{i=1}^N p_k(l_k|y_i) },
+\end{align}
+and variance,
+\begin{align}  
+ \sigma^2_k \leftarrow  \frac{ \sum_{i=1}^N  (y_i - \mu_k ) p_k(l_k|y_i)}{ \sum_{i=1}^N p_k(l_k|y_i) }.
+\end{align}
+The latter two quantities are modified, respectively, in the case of multivariate data as follows:
+\begin{align}
+ \boldsymbol{\mu}_k \leftarrow \frac{ \sum_{i=1}^N  \mathbf{y}_i p_k(l_k|\mathbf{y}_i)}{ \sum_{i=1}^N p_k(l_k|\mathbf{y}_i) },
+\end{align}
+and the $(m,n)^{th}$ element of the covariance matrix, $\boldsymbol{\Sigma}$, is calculated from
+\begin{align}
+ \boldsymbol{\Sigma}_{mn,k} \leftarrow \frac{ \sum_{i=1}^N  ( \mathbf{y}_i - \boldsymbol{\mu}_k ) p_k(l_k|\mathbf{y}_i)}{1 - \sum_{i=1}^N p^2_k(l_k|\mathbf{y}_i) }.
+\end{align}
+
 This type of update is known as {\em soft} EM.  Hard EM, in
 contrast, only uses sites containing label $l_k$ to update model $k$ parameters.
 A similar pattern is used in the multivariate and non-parametric cases.
