@@ -301,7 +301,7 @@ estimation and tissue segmentation.  A core component of this work was
 explicit modeling of the tissue intensity values as normal
 distributions \citep{Cline1990} for both 2-D univariate simulated data
 and T1 coronal images, which continues to find utility in contemporary
-developments.  A secondary component was an extended nonparametric
+developments.  A secondary component was an extended non-parametric
 probability model, also influenced by earlier work \citep{Kikinis1992}, where
 Parzen windowing is used to model the tissue intensity distribution
 omitting consideration of the underlying bias field.  Although
@@ -1056,7 +1056,7 @@ the key implementation options are given below.
 \subsection{Likelihood Implementation}
 As mentioned previously in the introduction, different groups have
 opted for different likelihood models which have included either
-parametric, specifically Gaussian, or nonparametric variations.
+parametric, specifically Gaussian, or non-parametric variations.
 However, these approaches are similar in that they require a list
 sample of intensity data from the input image(s) and a list of
 weighting values for each observation of the list sample from which
@@ -1064,13 +1064,13 @@ the model is constructed.  In general, one may query model
 probabilities by passing a given pixel's single intensity (for
 univariate segmentation) or multiple intensities (for multivariate
 segmentation) to the modeling function, regardless of whether the
-function is parameter or non-parametric.  These similarities permitted
+function is parametric or non-parametric.  These similarities permitted
 the creation of a generic plug-in architecture where classes
-describing both parametric and nonparametric observational models are
+describing both parametric and non-parametric observational models are
 all derived from an abstract list sample function class.  Three
 likelihood classes have been developed, one parametric and one
-nonparametric, and are available for usage although one of the
-nonparametric classes is still in experimental development.  The
+non-parametric, and are available for usage although one of the
+non-parametric classes is still in experimental development.  The
 plug-in architecture even permits mixing likelihood models with
 different classes during the same run for a hybrid
 parametric/non-parametric model although this possibility has yet
@@ -1175,7 +1175,7 @@ OPTIONS:
 The typical segmentation processing pipeline begins with an intensity
 normalization/bias correction step using the recently developed N4
 algorithm \citep{Tustison2010} which is based on the popular
-nonparametric nonuniformity intensity normalization (N3) introduced in \cite{Sled1998}.  It was previously mentioned that
+non-parametric nonuniformity intensity normalization (N3) introduced in \cite{Sled1998}.  It was previously mentioned that
 several methods proposed in the literature have taken an integrative
 view of the segmentation problem by incorporating an intrinsic bias
 correction step into the actual workflow.  The
