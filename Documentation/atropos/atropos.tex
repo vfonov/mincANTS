@@ -808,7 +808,7 @@ Due to the lack of parameters in the non-parametric approach, it is not technica
 }  
 When spatial coherence constraints are included as an MRF prior in Atropos, the optimal segmentation solution becomes intractable.%
 \footnote{
-Consider $N$ sites each with a possible $K$ labels for a total of $N^K$ possible labeling configurations.  Due to the large $K$ associated with $K>>1$ problems, exact optimization is even more intractable than for the traditional 3-tissue scenario.
+Consider $N$ sites each with a possible $K$ labels for a total of $N^K$ possible labeling configurations. For large $K \gg 3$, exact optimization is even more intractable than for the traditional 3-tissue scenario.
 }
 Although many optimization techniques exist \citep[see the
 introduction in][for a concise summary of the myriad optimization
@@ -1007,10 +1007,10 @@ an example definition for each parameter:
   instantiated.  E.g.  {\ttfamily -a Image.nii.gz} for one image and
   {\ttfamily -a Image1.nii.gz -a Image2.nii.gz} for multiple images.
 \item[Input image mask:] This binary image
-  will define the spatial segmentation domain.  Regions outside the
-  mask receive the label $0$.  E.g.  {\ttfamily -x mask.nii.gz}. 
-\item[Convergence criteria:] The algorithm terminates if it reaches max-iterations or
-  produces a change less than the minimum change in the posterior.
+  defines the spatial segmentation domain.  Voxels outside the
+  masked region are designated with the label $0$.  E.g.  {\ttfamily -x mask.nii.gz}. 
+\item[Convergence criteria:] The algorithm terminates if it reaches  the maximum number of iterations or
+  produces a change less than the minimum threshold change in the posterior.
   E.g. {\ttfamily -c [5,1.e-5]}. 
 \item[MRF prior:] The key parameter to increase or decrease the
   spatial smoothness of the label map is $\beta$.  A useful range of
@@ -1020,12 +1020,12 @@ an example definition for each parameter:
 \item[Initialization:] The initialization options include (where the
   first parameter defines $K$, here 3 for each below),
 \begin{itemize}
-\item  {\ttfamily -i  kmeans[3]} standard kmeans initialization for
-  three classes.
-\item  {\ttfamily -i  PriorLabelImage[3, label\_image.nii.gz , w ]}
-  where scalar $w \in [0,1]$ is unused. 
-\item  {\ttfamily -i  PriorProbabilityImages[3, label\_prob\%02d.nii.gz ,
-    w ]} where $w=0$~(use the prior probability images only for
+\item  {\ttfamily -i  Kmeans[3]} standard K-means initialization for
+  three classes,
+\item  {\ttfamily -i  PriorLabelImage[3,label\_image.nii.gz]} and
+%  where scalar $w \in [0,1]$ is unused. 
+\item  {\ttfamily -i  PriorProbabilityImages[3,label\_prob\%02d.nii.gz,w]} 
+where $w=0$~(use the prior probability images only for
   initialization) or $w=0.5$ (use the prior probability images
   throughout the optimization).  If one chooses $0 < w < 0.5$ then one
   will increase (from zero) the weight on the priors.  These images,
@@ -1038,7 +1038,7 @@ an example definition for each parameter:
   selecting the PriorLabelImage initialization and   {\ttfamily -p Plato[0] }.
 \item[Output:] Atropos will output the hard segmentation and the
   probability image for each model.  E.g.  {\ttfamily -o
-    [segmentation.nii.gz , seg\_prob\%02d.nii.gz] } will write
+    [segmentation.nii.gz,seg\_prob\%02d.nii.gz] } will write
   out the hard segmentation in the first output parameter and a
   probability image for each class named, here, seg\_prob01.nii.gz ,
   seg\_prob02.nii.gz, etc. 
