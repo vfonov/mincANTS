@@ -851,9 +851,9 @@ The latter two quantities are modified, respectively, in the case of multivariat
 \begin{align}
  \boldsymbol{\mu}_k \leftarrow \frac{ \sum_{i=1}^N  \mathbf{y}_i p_k(l_k|\mathbf{y}_i)}{ \sum_{i=1}^N p_k(l_k|\mathbf{y}_i) },
 \end{align}
-and the $(m,n)^{th}$ element of the covariance matrix, $\boldsymbol{\Sigma}$, is calculated from
+and the $k^{th}$ covariance matrix, $\boldsymbol{\Sigma}_k$, is calculated from
 \begin{align}
- \boldsymbol{\Sigma}_{mn,k} \leftarrow \frac{ \sum_{i=1}^N  ( \mathbf{y}_i - \boldsymbol{\mu}_k )^T p_k(l_k|\mathbf{y}_i) ( \mathbf{y}_i - \boldsymbol{\mu}_k )}{1 - \sum_{i=1}^N p^2_k(l_k|\mathbf{y}_i) }.
+ \boldsymbol{\Sigma}_{k} \leftarrow \frac{ \sum_{i=1}^N  p_k(l_k|\mathbf{y}_i) ( \mathbf{y}_{i} - \boldsymbol{\mu}_{k} )^{\mathrm{T}}  ( \mathbf{y}_{i} - \boldsymbol{\mu}_{k} )}{1 - \sum_{i=1}^N p^2_k(l_k|\mathbf{y}_{i}) }.
 \end{align}
 
 This type of update is known as {\em soft} EM.  Hard EM, in
@@ -1068,7 +1068,7 @@ function is parameter or non-parametric.  These similarities permitted
 the creation of a generic plug-in architecture where classes
 describing both parametric and nonparametric observational models are
 all derived from an abstract list sample function class.  Three
-likelihood classes have been developed, one parametric and two
+likelihood classes have been developed, one parametric and one
 nonparametric, and are available for usage although one of the
 nonparametric classes is still in experimental development.  The
 plug-in architecture even permits mixing likelihood models with
