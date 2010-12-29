@@ -441,7 +441,7 @@ stand-alone EM methods are currently listed.
 %once, a capability that is due to a sparse internal representation of
 %prior probability images that minimizes the need for random access
 %memory.  
-We evaluate EM-based classification of $1 mm^3$ T1 MR
+We evaluate EM-based classification of 1 mm$^3$ T1 MR
 neuroimages into 69 neuroanatomical regions to illustrate the practical
 value of the low-memory implementation within this paper.  
 Although Atropos may be applied to
@@ -1209,7 +1209,7 @@ many class} expectation maximization problem.  We choose this
 evaluation problem in part to illustrate the flexibility of Atropos
 and also the benefits of the novel, efficient implementation that
 allows many-class problems to be solved with low memory usage ($<$2GB
-for a 69 class model on 1mm$^3$ brain data).
+for a 69 class model on 1 mm$^3$ brain data).
 
 
 \subsection{BrainWeb Evaluation}
@@ -1227,7 +1227,7 @@ probability map derived from K-means into N4 to guide the bias
 correction.%
 \footnote{
 A comprehensive evaluation of N4 reported in \cite{Tustison2010} used the BrainWeb data set
-to compare performance with the original N3 algorithm \cite{Sled1998}.
+to compare performance with the original N3 algorithm \citep{Sled1998}.
 }
 Segmentation is then repeated, with the same parameters,
 but with the N4 corrected image as input.  The resulting algorithm is
