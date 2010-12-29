@@ -52,7 +52,7 @@
 \newfloat{command}{thp}{lop}
 \floatname{command}{Command}
 
-% \doublespacing
+\doublespacing
 
 % Use pslatex fonts
 %\usepackage[T1]{fontenc}
@@ -190,7 +190,7 @@
 \vspace*{5cm}
 
 \begin{center}
-{\Large \bf An Open-Source Multivariate Framework for $n$-Tissue
+{\Large \bf An Open Source Multivariate Framework for $n$-Tissue
   Segmentation with Evaluation on Public Data} \\
 \vspace*{0.5cm}
 {\normalsize Brian B.~Avants$^{1*}$,  Nicholas J.~Tustison$^2$%
@@ -994,7 +994,7 @@ OPTIONS:
 \end{lstlisting} 
 \end{command}
 
-
+\doublespacing
 \subsection{Initializing the Atropos Objective}
 Atropos has a number of parameters defined within
 Listing \ref{listing:n4} and will function on 2, 3 or 4 dimensional
@@ -1109,6 +1109,7 @@ the classes.   This  includes both the boundary probability and the exponential
 }\end{comment}
 
 
+\doublespacing
 \subsection{Integration with Registration and N4 Bias Correction} 
 Much of the image processing in our lab takes advantage of multiple
 open source tools.  Most critically, these involve registration and
@@ -1171,7 +1172,8 @@ OPTIONS:
      --help 
 \end{lstlisting} 
 \end{command}
-\subsubsection{Integration of N4 Bias Correction}
+\doublespacing
+\subsubsection{Integrating N4 Bias Correction}
 The typical segmentation processing pipeline begins with an intensity
 normalization/bias correction step using the recently developed N4
 algorithm \citep{Tustison2010} which is based on the popular
@@ -1191,31 +1193,7 @@ corresponding to the white matter produced as output in the Atropos
 call, i.e. `{\ttfamily Atropos --output}'.  N4 is
 currently being added as a standard part of the Insight Toolkit.  The
 evaluation section will illustrate inclusion of Atropos, N4 and ANTs
-in a brain processing pipeline.  An example of this procedure, using BrainWeb data with
-40\% RF bias, is in figure~\ref{fig:bwebrf40}.  We supply the
-information necessary to repeat this example in the script entitled
-`{\ttfamily  atroposBwebRF40FigureExample.sh}' which is available in the ANTs toolkit's Atropos
-documentation folder as of svn commit 711.
-\begin{figure}
-\begin{center}
-\begin{tabular}{c}
-\includegraphics[width=6in]{Figures/bwebN4ex.pdf}
-\end{tabular}
-\caption{\baselineskip 12pt \small We combine N4 and Atropos by simple
-sequential processing and apply to BrainWeb single-subject data with
-40\% RF bias and 3\% noise.  The $\beta$ for the MRF term is, here,
-$0.2$.  Slice 71 of the input data is in (a).  The initial K-means
-($K=3$) segmentation is in panel (b).  We use the brain mask to guide
-N4 bias correction and produce the image, shown in (c).  We repeat the
-K-means segmentation, but with the N4 corrected image as input, and
-produce the segmentation in (d).  The average 3-tissue Dice overlap of
-result (b) is 0.906 while the average overlap for (d) is 0.954.
-Arrows highlight a region of large before-after segmentation
-discrepancy.}
-\label{fig:bwebrf40}
-\end{center}
-\end{figure}
-
+in a brain processing pipeline.  
 
 \section{Evaluation}
 Atropos~encodes a family of segmentation techniques that may be
@@ -1263,7 +1241,51 @@ set of voxels for each tissue.  Results, in terms of
 Dice overlap, are shown in figure~\ref{fig:bweb1}  Because overlap
 ratios with N4 bias correction approximate those of the zero bias data, we may
 conclude that simple N4 pre-processing is adequate to correct even the 40\%
-bias level.
+bias level.  An example of this procedure, using BrainWeb data with 40\% RF bias,
+is in figure~\ref{fig:bwebrf40}.  We supply the information necessary
+to repeat the results in this figure in the script entitled
+`{\ttfamily atroposBwebRF40FigureExample.sh}' which is available in
+the ANTs toolkit's Atropos documentation folder as of svn commit 711.
+The script may be easily modified to run the whole evaluation.  In
+addition, Figure~\ref{fig:bwebrf40} shows the results of simultaneously using proton density
+and T1 weighted BrainWeb data to perform the segmentation.  This
+multivariate input data outperforms the univariate T1 weighted data
+alone. 
+\begin{figure}
+\begin{center}
+\begin{tabular}{c}
+\includegraphics[width=6in]{Figures/bwebN4ex.pdf}
+\end{tabular}
+\caption{\baselineskip 12pt \small We combine N4 and Atropos by simple
+sequential processing and apply to BrainWeb T1-weighted single-subject
+data with 40\% RF bias and 3\% noise.  The $\beta$ for the MRF term
+is, here, $0.2$.  Slice 71 of the input data is in (a).  The initial
+K-means ($K=3$) segmentation is in panel (b).  We use the brain mask
+to guide N4 bias correction and produce the image in (c).  We
+repeat the K-means segmentation, but with the N4 corrected image as
+input and produce the segmentation in (d).  The average 3-tissue Dice
+overlap of result (b) is 0.906 while the average overlap for (d) is
+0.954.  Arrows highlight a region of large before-after segmentation
+discrepancy.  In (e) we see the BrainWeb proton density image with no
+inhomogeneity and 3\% noise.  Its segmentation is in (f) with average
+3-tissue Dice overlap of 0.895.  In (g) we use both proton density
+data and T1 data as multiple modality input to Atropos.  The segmentation
+of this two-modality input data, using a multivariate Gaussian model,
+produces average 3-tissue Dice overlap of 0.958, which exceeds
+the univariate solution.  An arrow highlights one region where there
+is small, visually recognizable improvement in sulcal segmentation
+relative to the result from T1 data alone.  A second area of
+improvement is the putamen segmentation.  The ground truth
+segmentation is in (h).  The multivariate segmentation result, in
+combination with the low PD segmentation performance, suggests PD and
+T1 provide complementary information that may improve 3-tissue
+segmentation and serves to validate the multivariate Atropos
+implementation.
+}
+\label{fig:bwebrf40}
+\end{center}
+\end{figure}
+
 \begin{figure}
 \begin{center}
 \begin{tabular}{c}
@@ -1335,7 +1357,7 @@ drive many-class EM segmentation.  The ground truth labels cover 69
 classes and much of the brain.  Some unlabeled regions remain which we
 assign to label 69 such that all brain parenchyma contains a unique
 label.  Following \cite{Avants2010a}, the initialization of our
-evaluation applies the script {\verb ants_multitemplate_labeling.sh }
+evaluation applies the script {\ttfamily ants\_multitemplate\_labeling.sh }
 (available in the ANTs toolkit) to the 19 Hammers evaluation datasets
 located at \url{http://www.brain-development.org/}
 \citep{Hammers2003,Heckemann2006}.  These initial majority voting
@@ -1376,14 +1398,31 @@ significant improvement, $-$ performance reduction, $\sim$ no change.}
 \end{figure}
 
 \subsection{Reproducibility of this Evaluation}
-The BrainWeb data is freely available.  We used single-subject
-BrainWeb data as is but added a meta format data header to the raw
-binary files.   An example copy of this header is contained in {\verb atroposBwebRF40FigureExample.sh }.  The 20 subject data, however, required excluding
-non-cerebrum tissue classes.  The Hammers data was also used as is.
-The scripts for the single-subject BrainWeb study is available in
-supplementary material.  The initialization procedure for the BrainWeb 20 and
-the Hammers evaluation data is based on freely available scripts
-included with the ANTs toolkit, specifically  {\verb ants_multitemplate_labeling.sh } and  {\verb atroposBwebRF40FigureExample.sh }.
+\noindent{\bf Data:} The BrainWeb data is freely available.  We used
+single-subject BrainWeb data as is but added a meta format data header
+to the raw binary files.  An example copy of this header is contained
+in {\ttfamily atroposBwebRF40FigureExample.sh }.  The 20 subject data,
+however, required excluding non-cerebrum tissue classes.  The Hammers
+data was also used as is (\url{http://www.brain-development.org/}).
+
+\noindent{\bf Software:} The ANTs software is available at \url{http://www.picsl.upenn.edu/ANTs} with download and compilation
+instructions at \url{http://www.picsl.upenn.edu/ANTS/download.php}.
+Svn release 711 was used for the examples and evaluations performed in
+this paper.  Some components of ANTs depend on the Insight ToolKit.
+The most critical dependency, for Atropos, is the ITK statistics framework
+used to implement the univariate and multivariate parametric models.
+We linked to the git version of ITK current as of Dec. 1, 2010.  See
+\url{http://www.itk.org/Wiki/ITK/Git/Download} for instructions on git ITK.
+
+\noindent{\bf Scripts:} The complete script for the single-subject
+BrainWeb study is based on generalizing {\ttfamily atroposBwebRF40FigureExample.sh }, which is available in the ANTs
+toolkit (svn release 711 or greater) and which reproduces Figure 2
+results.  The template-based normalization procedure for the BrainWeb
+20 and the Hammers evaluation data is based on freely available
+scripts included with the ANTs toolkit, specifically {\ttfamily
+  ants\_multitemplate\_labeling.sh } and {\ttfamily
+  buildtemplateparallel.sh }.  A release version of ANTs---with a final version of Atropos---will
+be prepared with the final version of this manuscript.
 
 \section{Discussion}
 We introduced Atropos, the theory and implementation
@@ -1458,7 +1497,7 @@ future work.  One early example of a clinically-focused Atropos
 neuroimaging application is in \citep{Avants2010c}.  An additional successful
 application area is that of ventilation-based segmentation of hyperpolarized helium-3 MRI
 \citep{Tustison2010a} which also used the open source Glamorous Glue
-algorithm to impose topology constraints \cite{Tustison2010b}.  Thus, future work may
+algorithm to impose topology constraints \citep{Tustison2010b}.  Thus, future work may
 incorporate topology more closely into the Atropos methodology.  
 
 A more general advantage which extends beyond the scope of the experimental 
@@ -1490,3 +1529,28 @@ NS53488).}
 
 \end{document}
 
+%# T1_RF40_3%_N4 reference results 
+ Label 1 DICE 0.941891  RO 0.890165 TP1 0.904786 TP2 0.98217
+ Label 3 DICE 0.966776  RO 0.935688 TP1 0.962814 TP2 0.97077
+ Label 2 DICE 0.953862  RO 0.911794 TP1 0.971043 TP2 0.937279
+ AvgDice  : 0.954176
+%# T1_RF40_3%_N4 + T2_RF0_3% noise reference results 
+Label 1 DICE 0.937508  RO 0.882367 TP1 0.889406 TP2 0.99111
+ Label 3 DICE 0.96701  RO 0.936128 TP1 0.958398 TP2 0.975778
+ Label 2 DICE 0.951639  RO 0.90774 TP1 0.977645 TP2 0.926981
+ AvgDice  : 0.952052
+%# T1_RF40_3%_N4 + PD_RF0_3% noise reference results 
+ Label 1 DICE 0.944732  RO 0.895254 TP1 0.912413 TP2 0.979425
+ Label 3 DICE 0.970348  RO 0.942405 TP1 0.969169 TP2 0.971531
+ Label 2 DICE 0.957976  RO 0.919341 TP1 0.97094 TP2 0.945353
+ AvgDice  : 0.957685
+%# PD_RF0_3% noise reference results 
+ Label 2 DICE 0.905959  RO 0.828085 TP1 0.892396 TP2 0.919941
+ Label 3 DICE 0.942477  RO 0.891212 TP1 0.943874 TP2 0.941084
+ Label 1 DICE 0.837847  RO 0.720944 TP1 0.87262 TP2 0.805739
+ AvgDice  : 0.895428
+%# T2 
+ Label 1 DICE 0.931616  RO 0.871986 TP1 0.984176 TP2 0.884385
+ Label 2 DICE 0.882997  RO 0.790505 TP1 0.79822 TP2 0.987921
+ Label 3 DICE 0.901592  RO 0.820817 TP1 0.99405 TP2 0.82487
+ AvgDice  : 0.905402
