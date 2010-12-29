@@ -20,8 +20,8 @@ NAMING=bwebRF40example
 # you can get this by thresholding the ground_truth labeling 
 WTIM=mask.nii.gz
 BS="N4BiasFieldCorrection -d 3  -h 0 " ; ITS=20 ; ITS2=3
-# $BS  -i $IMG   -o  n4.nii.gz -s 2 -b [200] -w mask.nii.gz -c [${ITS}x${ITS}x${ITS}x${ITS}x${ITS2},0.0001] -x mask.nii.gz 
-Atropos  -d 3 -a n4.nii.gz -a $PDG -i KMeans[$NC] -o [test.nii.gz,test_prob%02d.nii.gz] -m [${MRF},1x1x1] -x mask.nii.gz -p Socrates[${SOC}]  -c $CONV 
+$BS  -i $IMG   -o  n4.nii.gz -s 2 -b [200] -w mask.nii.gz -c [${ITS}x${ITS}x${ITS}x${ITS}x${ITS2},0.0001] -x mask.nii.gz 
+Atropos  -d 3 -a n4.nii.gz  -i KMeans[$NC] -o [test.nii.gz,test_prob%02d.nii.gz] -m [${MRF},1x1x1] -x mask.nii.gz -p Socrates[${SOC}]  -c $CONV # -k HistogramParzenWindows[1,32]
 # evaluation numbers
 if [ -s ground_truth.nii.gz ] ; then 
 ImageMath 3 dice_out.txt DiceAndMinDistSum test.nii.gz ground_truth.nii.gz 
