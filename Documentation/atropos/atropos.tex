@@ -118,7 +118,7 @@
         language=[ANSI]C++,
         floatplacement=!h,
         caption={\small \baselineskip 12pt Atropos short command line menu which is invoked using the `{\ttfamily -h}' option. 
-        The expanded menu, which provides additional details regarding the possible parameters and usage 
+        The expanded menu, which provides details regarding the possible parameters and usage 
         options, is elicited using the `{\ttfamily {-}{-}help}' option.},
         captionpos=b,
         label=listing:command
@@ -146,7 +146,7 @@
         language=[ANSI]C++,
         floatplacement=!h,
         caption={\small \baselineskip 12pt N4 short command line menu which is invoked using the `{\ttfamily -h}' option. 
-        The expanded menu, which provides additional details regarding the possible parameters and usage 
+        The expanded menu, which provides details regarding the possible parameters and usage 
         options, is elicited using the `{\ttfamily {-}{-}help}' option.  },
         captionpos=b,
         label=listing:n4
@@ -290,7 +290,7 @@ and evaluation studies
 \citep[e.g.][]{Cuadra2005,Zaidi2006,Klauschen2009,Boer2010}.
 
 The problem of accurately delineating the white matter, grey matter
-and cerebrospinal fluid (and further subdivisions) of the human brain continuously spurs
+and cerebrospinal fluid (and subdivisions) of the human brain continuously spurs
 technical development in segmentation.  Following \cite{Vannier1985},
 many researchers adopted statistical methods for $n$-tissue anatomical
 brain segmentation.  Given the ``missing data'' aspect of this
@@ -356,22 +356,21 @@ features of the cortex \citep[e.g.][]{Goualher1999} with aims at
 understanding the functional-anatomical relationship of the human
 brain. Recent endeavors produce a dense cortical labeling in which
 every point of the cortex is classified, i.e. a cortical parcellation
-\citep{Fischl2004,Heckemann2006,Destrieux2010}.  Given the extreme
-time-consumption and tedium associated with manual effort towards the
-latter, various techniques have been proposed of which a small subset
-has been publicly availed to the research community such as the
-popular software package known as Freesurfer
+\citep{Fischl2004,Heckemann2006,Destrieux2010}.  Various techniques
+have been proposed to reduce the manual effort required to densely
+label a high-resolution neuroimage; one example is the popular
+software package known as Freesurfer
 \citep{Dale1999,Fischl1999,Fischl2004}.  In contrast to the volumetric
 approach detailed in this work, Freesurfer is primarily a
 surface-based technique in which the brain structures such as the
 grey-white matter interface and pial surfaces are processed, analyzed,
-and displayed as tessellated surfaces  \citep{Dale1999,Fischl1999}.
+and displayed as tessellated surfaces \citep{Dale1999,Fischl1999}.
 Advantages of surface representations include the ability to map
 processed neuroanatomy to simple geometric primitives such as spheres
 or planes and the ease of including topological constraints in the
 analysis workflow.  These types of methods, including Klein's
-Mindboggle \citep{Klein2005}, would usually follow an initial segmentation by a 
-volumetric method such as Atropos.  
+Mindboggle \citep{Klein2005}, would usually follow an initial
+segmentation by a volumetric method such as Atropos.
 
 %{\color{red}{{\em Needs work}:  Mindboggle, Heckemann  One advantage
 %of the pipeline we propose is that we parcellate cortex entirely in
@@ -419,35 +418,25 @@ EM segmentation in a semi-interactive manner.  In short, Atropos seeks
 to provide a segmentation toolbox that may be modified,
 tuned and refined for different use scenarios.
 
-We also allow Atropos to address the bias field issue by incorporating
-the recently developed N4 bias correction software \citep{Tustison2010} in an adaptive manner.  Coupled with the
-registration \citep{Avants2011} and template building 
+Coupled with the registration \citep{Avants2011} and template building
 \citep{Avants2010} already included in the ANTs toolkit, Atropos is a
 versatile and powerful software tool which touches multiple aspects of
-our brain processing pipeline from brain extraction
-\citep{Avants2010a} to grey matter/white matter/cerebrospinal fluid
-segmentation to label fusion and propagation for achieving a refined
-cortical parcellation based on both prior information and
-subject-specific image data.
-
-%Atropos is multi-platform, free, /stand-alone and able to
-%manage a wide range of scalar and vector image datatypes.  
-
-To highlight the
-value of this open source contribution, we performed a search of
-software attributes on NITRC and found that as of November 2010 no
-stand-alone EM methods are currently listed.
-%Atropos's memory efficiency enables EM-segmentation of many classes at
-%once, a capability that is due to a sparse internal representation of
-%prior probability images that minimizes the need for random access
-%memory.  
-We evaluate EM-based classification of 1 mm$^3$ T1 MR
-neuroimages into 69 neuroanatomical regions to illustrate the practical
-value of the low-memory implementation within this paper.  
-Although Atropos may be applied to
-multivariate data from arbitrary modalities, we limit our evaluation
-to tissue-classification in T1 neuroimaging in part due to the
-abundance of ``gold-standard'' data for this modality.  Consistent
+our brain processing pipeline.  We use Atropos to address brain
+extraction \citep{Avants2010a}, grey matter/white matter/cerebrospinal
+fluid segmentation, label fusion/propagation and cortical
+parcellation.  We also allow Atropos to interact with the recently
+developed N4 bias correction software \citep{Tustison2010} in an
+adaptive manner.  To further highlight the value of this open source
+contribution, we performed a search of software attributes on NITRC
+and found that as of November 2010 no stand-alone EM methods are
+currently listed.  We also evaluate Atropos performance on two brain
+MRI segmentation objectives.  First, three tissue classification.
+Second, we test our ability to parcellate the brain into 69
+neuroanatomical regions to illustrate the practical value of the
+low-memory implementation within this paper.  Although Atropos may be
+applied to multivariate data from arbitrary modalities, we limit our
+evaluation to tissue-classification in T1 neuroimaging in part due to
+the abundance of ``gold-standard'' data for this modality.  Consistent
 with our advocacy of open science (not to mention the facilitation of
 analysis due to accessibility) we also only use publicly available
 data sets.  For this reason, all results in this paper are
@@ -456,7 +445,7 @@ the authors or other users in the community.
 
 Organization of this work is as follows: we first describe the theory
 behind the various components of Atropos while
-acknowledging that additional theoretical discussion is available elsewhere.  
+acknowledging that more theoretical discussion is available elsewhere.  
 This is followed by a thorough
 discussion of implementation which, though often overlooked, is of
 immense practical utility.  We then report evaluation results on
@@ -467,7 +456,13 @@ this paper and of previous and future work.
 
 \section{Theoretical Foundations for Atropos Segmentation} 
 
-Atropos encodes a family of Bayesian segmentation techniques that may be configured in an application-specific manner.  The theory underlying Atropos dates back 20$+$ years and is representative of some of the most innovative work in the field.  Although we synthesize some of the theoretical work in this section, we recommend to the interested reader consultation with the literature cited previously for further insight.
+Atropos encodes a family of Bayesian segmentation techniques that may
+be configured in an application-specific manner.  The theory
+underlying Atropos dates back 20$+$ years and is representative of
+some of the most innovative work in the field.  Although we synthesize
+some of the theoretical work in this section, we recommend to the
+interested reader consultation with the literature cited previously
+for additional perspective.
 
 Bayes' theorem provides a powerful mechanism for making inductive
 inferences assuming the availability of quantities defining the
@@ -646,7 +641,8 @@ Since Atropos allows for non-uniform neighborhood systems and systems in which n
 \begin{align}
   V_{ij} = \frac{\delta_{ij}}{d_{ij}}
 \end{align}
-so that sites in the neighborhood closer to $i$ are weighted more heavily than sites further away.
+so that sites in the neighborhood closer to $i$ are weighted more
+heavily than distant sites.
 
 \subsubsection{Template-Based Priors}
 A number of researchers have used templates to both
@@ -697,7 +693,7 @@ that influence the EM solution outside of the known sites.  While the
 graph-based min-cut max-flow solution is globally optimal for two
 labels, only locally optimal optimizers are available for 3 or more
 classes.  Thus, in most practical applications, EM is a
-reasonable and efficient alterative to Boykov's solution.
+reasonable and efficient alternative to Boykov's solution.
 Furthermore, one may automate the initialization process.  We compare
 our sparse prior labeling strategy to fully automated methods in the
 evaluation section.
@@ -803,7 +799,7 @@ The expectation maximization procedure is derived in various
 publications including \cite{Zhang2001} which yields the optimal mean
 and variance (or covariance), but sets the mixing parameter $\gamma_k$
 as a constant.  The Atropos implementation estimates $\gamma_k$ at
-each iteration as in \cite{Ashburner2005}.%
+each iteration, similar to \cite{Ashburner2005}.%
 \footnote{
 Due to the lack of parameters in the non-parametric approach, it is not technically an EM algorithm (as described in \cite{Wells1996}).  However, the same iterative maximization is applicable and is quite robust in practice as evidenced by the number of researchers employing non-parametric models (see the Introduction).
 }  
@@ -825,7 +821,8 @@ classes to segment.  The simplest initialization is by the classic
 K-means algorithm with only the number of classes as a prior.
 Otherwise, the user must provide prior information for each class in
 the form of either a single $n$-ary prior label image or a series of
-prior probability images, one for each class.
+prior probability images, one for each class.  The initialization also
+provides starter parameters.
 \item[ICM Label Update (E-Step):] Given the initialization and fixed
 model parameters, Atropos will evaluate the posterior probability for
 each possible label and assign, to each voxel, the label that
@@ -836,7 +833,7 @@ Note that the posteriors used in the previous iteration are used to
 estimate the parameters at the current iteration.  
 We use a common and elementary estimate of the mixing parameters:
 \begin{align}
-\gamma_k \leftarrow \frac{1}{N} \sum_{i=1}^N  p_k(l_k|y_i)
+\gamma_k \leftarrow \frac{1}{N} \sum_{i=1}^N  p_k(l_k|y_i).
 \end{align}
 We update the parametric model parameters by computing, for each of
   $K$ labels, the mean,
@@ -940,7 +937,10 @@ the absolute superiority of one approach over the other.
 
 
 \section{Implementation} 
-
+Organization of the implementation section roughly follows that of the
+theory section.  
+%Thus, the reader can refer to, for instance, 2.2 for
+%the likelihood theory and 3.3 for likelihood implementation.
 \begin{figure}
 \begin{center}
 \begin{tabular}{c}
@@ -962,8 +962,7 @@ advantage of the mature portions of ITK (e.g. image IO) and ensures
 the integrity of the ancillary processes such as those facilitated by
 the underlying statistical framework.  Although Atropos is publicly
 distributed with the rest of the ANTs package, we plan to contribute
-its core elements to the Insight Toolkit where it can be vetted and further
-improved by other interested researchers.
+its core elements to the Insight Toolkit where it can be vetted and improved by other interested researchers.
 
 An overview of Atropos components can be gleaned, in part, from the flowchart depicted in 
 Fig.~\ref{fig:flowchart}.  To provide a more intuitive interface without the overhead costs of a graphical user interface, a set of unique command line parsing classes were developed which can also provide insight to the functionality of Atropos.  
@@ -1056,12 +1055,13 @@ where $w=0$~(use the prior probability images only for
 Higher dimensions than 4 are possible although we have not yet encountered such 
 application-specific need.  Multiple images (assumed to be of the same
 dimension, size, origin, etc.), will automatically enable multivariate
-likelihoods.  In that case, the first image specified on the 
-command line is used to initialize the Random, Otsu, or K-means labeling with the latter initialization further
-refined by incorporating the additional intensity images, i.e. an initial univariate K-means clustering is determined 
-from the first intensity image which, along with the other images, provides the starting multivariate cluster centers for a 
-follow-up multivariate K-means labeling.    More details on each of
-the key implementation options are given below.  
+likelihoods.  In that case, the first image specified on the command
+line is used to initialize the Random, Otsu, or K-means labeling with
+the latter initialization refined by incorporating the additional intensity images, i.e. an initial univariate K-means clustering is
+determined from the first intensity image which, along with the other
+images, provides the starting multivariate cluster centers for a
+follow-up multivariate K-means labeling.  More details on each of the
+key implementation options are given below.
 
 \subsection{Likelihood Implementation}
 As mentioned previously in the introduction, different groups have
@@ -1094,6 +1094,7 @@ and posteriors are used in a Parzen windowing scheme on a weighted
 histogram to estimate the observational model \citep{Awate2006}.
 
 \subsection{Prior Probability Models}
+\subsubsection{Label Regularity}
 Consistent with our previous discussion, we offer both an MRF-based
 prior probability for modeling spatial coherence and the possibility
 of specifying a set of prior probability maps or a prior label map
@@ -1117,14 +1118,8 @@ also needs to set the label propagation parameters for one or more of
 the classes.   This  includes both the boundary probability and the exponential
  decay parameter, respectively $\alpha_k$ and $\sigma_k$ in Eqn. (\ref{eq:prop}).  
 }\end{comment}
-
-
 \doublespacing
-\subsection{Integration with Registration and N4 Bias Correction} 
-Much of the image processing in our lab takes advantage of multiple
-open source tools.  Most critically, these involve registration and
-bias correction, in addition to segmentation. 
-\subsubsection{Registration of Probability Maps} 
+\subsubsection{Registration and Probability Maps} 
 Image registration enables the ability to transform information
 between spatial domains which may aid in both segmentation and bias
 correction.  We rely heavily on template-building strategies
@@ -1157,7 +1152,8 @@ NIREP (www.nirep.org) evaluation images are on the order of $300
 minimizing image representation typically shrinks run-time memory usage from a
 peak of 10+ GB to approximately 1.5 GB and enable these datasets to be
 used for training/prior-based cortical parcellation.
- 
+
+
 \singlespacing 
 \begin{command}
 \lstsetcppnfour
@@ -1184,9 +1180,10 @@ OPTIONS:
 \end{command}
 \doublespacing
 \subsubsection{Integrating N4 Bias Correction}
-The typical segmentation processing pipeline begins with an intensity
+Assumptions about bias correction may be thought of as another prior
+model.  As such, the typical segmentation processing pipeline begins with an intensity
 normalization/bias correction step using a method such as the recently developed N4
-algorithm \citep{Tustison2010} which is based on the popular
+algorithm \citep{Tustison2010}.  N4 builds upon the popular
 non-parametric nonuniformity intensity normalization (N3) introduced in \cite{Sled1998}.  It was previously mentioned that
 several methods proposed in the literature have taken an integrative
 view of the segmentation problem by incorporating an intrinsic bias
@@ -1204,6 +1201,29 @@ call, i.e. `{\ttfamily Atropos --output}'.  N4 is
 currently being added as a standard part of the Insight Toolkit.  The
 evaluation section will illustrate inclusion of Atropos, N4 and ANTs
 in a brain processing pipeline.  
+
+\subsection{Running the Atropos Optimization} 
+The Atropos algorithm is cross-platform and compiles on, at minimum,
+modern osx, windows and linux-based operating systems.  The
+user-interface may be reached through the operating system's user
+terminal.  Because of its portability and low-level efficiency,
+Atropos can easily be called from within other packages, such as
+Matlab or Slicer, or, alternatively, integrated at compile time as a
+library.  A typical call to the algorithm, illustrated here with ANTs
+example data, is:
+{\ttfamily Atropos -d 2 -a r16slice.nii.gz -i kmeans[3] -c [5,0] -x
+mask.nii.gz -m [0.2,1x1] -o
+[r16\_seg.nii.gz,r16\_prob\_\%02d.nii.gz]}.  In this case, Atropos
+will output the segmentation image, the per-class probability images
+and a listing of the parameters used to set up the algorithm.  A
+useful feature is that one may re-initialize the Atropos EM via the
+{\ttfamily -i PriorProbabilityImages[...]} option.  This feature
+allows one to compute an initial segmentation via K-means, alter the
+output probabilities by externally computed
+functions (e.g. Gaussian smoothing, image similarity or edge maps) and re-estimate the
+segmentation with the modified priors.  Finally, the functionality
+that is available to parametric models is equally available to the
+non-parametric models enabled by Atropos.
 
 \section{Evaluation}
 Atropos~encodes a family of segmentation techniques that may be
@@ -1244,10 +1264,10 @@ but with the N4 corrected image as input.  The resulting algorithm is
 similar to those that fix segmentation parameters while
 estimating bias and fix bias while estimating segmentation parameters.
 Thus, with this simple evaluation, we are able to compare the impact
-of bias on $($N4 $+$ Atropos$)$ and also the validity of our
+of bias on the combination of N4 and Atropos and also the validity of our
 prior label image initialization.  The prior label image manual
 initialization was based on a crude ITK-SNAP labeling of a small
-set of voxels for each tissue.  Results, in terms of
+set of voxels for each tissue.  Results of these evaluation scenarios, in terms of
 Dice overlap, are shown in Figure~\ref{fig:bweb1}. Because overlap
 ratios with N4 bias correction approximate those of the zero bias data, we may
 conclude that simple N4 pre-processing is adequate to correct even the 40\%
@@ -1256,11 +1276,11 @@ is in Figure~\ref{fig:bwebrf40}.  We supply the information necessary
 to repeat the results in this figure in the script entitled
 `{\ttfamily atroposBwebRF40FigureExample.sh}' which is available in
 the ANTs toolkit's Atropos documentation folder as of svn commit 711.
-The script may be easily modified to run the whole evaluation.  In
-addition, Figure~\ref{fig:bwebrf40} shows the results of simultaneously using proton density
-and T1 weighted BrainWeb data to perform the segmentation.  This
-multivariate input data outperforms the univariate T1 weighted data
-alone. 
+The script may be easily modified to run the whole
+evaluation.  Figure~\ref{fig:bwebrf40} shows the results of
+simultaneously using proton density and T1 weighted BrainWeb data to
+perform the segmentation.  This multivariate input data outperforms
+the univariate T1 weighted data alone.
 \begin{figure}
 \begin{center}
 \begin{tabular}{c}
@@ -1290,7 +1310,8 @@ segmentation is in (h).  The multivariate segmentation result, in
 combination with the low PD segmentation performance, suggests PD and
 T1 provide complementary information that may improve 3-tissue
 segmentation and serves to validate the multivariate Atropos
-implementation.
+implementation.  In this case, the benefit is likely to derive from
+the fact that the PD image has no bias.
 }
 \label{fig:bwebrf40}
 \end{center}
@@ -1465,8 +1486,7 @@ results.  However, \cite{Nakamura2009} do not report WM or CSF numbers
 for comparison.  Topology preserving methods also perform well.
 \cite{Shiee2010} achieved Dice results for 3\% noise 20\% RF BrainWeb
 single subject with 0.927, 0.912 and 0.900 for WM, GM and CSF,
-respectively.  These are excellent numbers given the additional
-constraint applied to the segmentation.  
+respectively.  These are excellent numbers given the topological constraint applied to the segmentation.  
 \cite{Bazin2007c} proposed TOADS and, estimating from the paper's
 graph, showed that the average Dice accuracy for 3\% noise various RF
 was 0.95--0.96 for WM, 0.93--0.95 for GM and 0.92--0.94 for CSF.
@@ -1515,7 +1535,7 @@ respect to a known neurobiological outcome measure.  Atropos is
 currently used in clinical studies and a number of clinically-focused,
 application-specific evaluations are ongoing and will constitute
 future work.  One early example of a clinically-focused Atropos
-neuroimaging application is in \citep{Avants2010c}.  An additional successful
+neuroimaging application is in \citep{Avants2010c}.  A second successful
 application area is that of ventilation-based segmentation of hyperpolarized helium-3 MRI
 \citep{Tustison2010a} which also used the open source Glamorous Glue
 algorithm to impose topology constraints \citep{Tustison2010b}.  Thus, future work may
