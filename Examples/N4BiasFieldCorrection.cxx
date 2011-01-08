@@ -54,7 +54,6 @@ public:
       << " (threshold = " << filter->GetConvergenceThreshold()
       << ")" << std::endl;
     }
-
 };
 
 template <unsigned int ImageDimension>
@@ -69,21 +68,23 @@ int N4( itk::ants::CommandLineParser *parser )
   typename MaskImageType::Pointer maskImage = NULL;
 
   typedef itk::N4MRIBiasFieldCorrectionImageFilter<ImageType, MaskImageType,
-    ImageType> CorrecterType;
+						   ImageType> CorrecterType;
   typename CorrecterType::Pointer correcter = CorrecterType::New();
 
   typedef itk::ImageFileReader<ImageType> ReaderType;
   typename ReaderType::Pointer reader = ReaderType::New();
 
-		typename itk::ants::CommandLineParser::OptionType::Pointer inputImageOption =
-				parser->GetOption( "input-image" );
-		if( inputImageOption )
-				{
+
+  typename itk::ants::CommandLineParser::OptionType::Pointer inputImageOption =
+    parser->GetOption( "input-image" );
+  if( inputImageOption )
+    {
     std::string inputFile = inputImageOption->GetValue();
-				reader->SetFileName( inputFile.c_str() );
-				reader->Update();
+    reader->SetFileName( inputFile.c_str() );
 
     inputImage = reader->GetOutput();
+    inputImage->Update();
+    inputImage->DisconnectPipeline();
     }
   else
     {
@@ -91,22 +92,24 @@ int N4( itk::ants::CommandLineParser *parser )
     return EXIT_FAILURE;
     }
 
+
   /**
    * handle the mask image
    */
 
-		typename itk::ants::CommandLineParser::OptionType::Pointer maskImageOption =
-				parser->GetOption( "mask-image" );
-		if( maskImageOption && maskImageOption->GetNumberOfValues() )
-				{
+  typename itk::ants::CommandLineParser::OptionType::Pointer maskImageOption =
+    parser->GetOption( "mask-image" );
+  if( maskImageOption && maskImageOption->GetNumberOfValues() )
+    {
     std::string inputFile = maskImageOption->GetValue();
-				typedef itk::ImageFileReader<MaskImageType> ReaderType;
-				typename ReaderType::Pointer maskreader = ReaderType::New();
-				maskreader->SetFileName( inputFile.c_str() );
+    typedef itk::ImageFileReader<MaskImageType> ReaderType;
+    typename ReaderType::Pointer maskreader = ReaderType::New();
+    maskreader->SetFileName( inputFile.c_str() );
     try
       {
-  				maskreader->Update();
-  				maskImage = maskreader->GetOutput();
+      maskImage = maskreader->GetOutput();
+      maskImage->Update();
+      maskImage->DisconnectPipeline();
       }
     catch(...) {}
     }
@@ -120,23 +123,26 @@ int N4( itk::ants::CommandLineParser *parser )
     otsu->SetNumberOfHistogramBins( 200 );
     otsu->SetInsideValue( 0 );
     otsu->SetOutsideValue( 1 );
-    otsu->Update();
 
     maskImage = otsu->GetOutput();
+    maskImage->Update();
+    maskImage->DisconnectPipeline();
     }
+
 
   typename ImageType::Pointer weightImage = NULL;
 
-		typename itk::ants::CommandLineParser::OptionType::Pointer weightImageOption =
-				parser->GetOption( "weight-image" );
-		if( weightImageOption  && weightImageOption->GetNumberOfValues() )
-				{
+  typename itk::ants::CommandLineParser::OptionType::Pointer weightImageOption =
+    parser->GetOption( "weight-image" );
+  if( weightImageOption  && weightImageOption->GetNumberOfValues() )
+    {
     std::string inputFile = weightImageOption->GetValue();
-				typedef itk::ImageFileReader<ImageType> ReaderType;
-				typename ReaderType::Pointer weightreader = ReaderType::New();
-				weightreader->SetFileName( inputFile.c_str() );
-				weightreader->Update();
-				weightImage = weightreader->GetOutput();
+    typedef itk::ImageFileReader<ImageType> ReaderType;
+    typename ReaderType::Pointer weightreader = ReaderType::New();
+    weightreader->SetFileName( inputFile.c_str() );
+    weightImage = weightreader->GetOutput();
+    weightImage->Update();
+    weightImage->DisconnectPipeline();
     }
 
   /**
@@ -158,14 +164,14 @@ int N4( itk::ants::CommandLineParser *parser )
         }
       correcter->SetMaximumNumberOfIterations( maximumNumberOfIterations );
 
-						typename CorrecterType::ArrayType numberOfFittingLevels;
-						numberOfFittingLevels.Fill( numIters.size() );
-						correcter->SetNumberOfFittingLevels( numberOfFittingLevels );
+      typename CorrecterType::ArrayType numberOfFittingLevels;
+      numberOfFittingLevels.Fill( numIters.size() );
+      correcter->SetNumberOfFittingLevels( numberOfFittingLevels );
       }
     if( convergenceOption->GetNumberOfParameters() > 1 )
       {
       correcter->SetConvergenceThreshold( parser->Convert<float>(
-        convergenceOption->GetParameter( 1 ) ) );
+					    convergenceOption->GetParameter( 1 ) ) );
       }
     }
 
@@ -193,17 +199,7 @@ int N4( itk::ants::CommandLineParser *parser )
     if( bsplineOption->GetNumberOfParameters() > 1 )
       {
       correcter->SetSplineOrder( parser->Convert<unsigned int>(
-        bsplineOption->GetParameter( 1 ) ) );
-      }
-    if( bsplineOption->GetNumberOfParameters() > 2 )
-      {
-      correcter->SetSigmoidNormalizedAlpha( parser->Convert<float>(
-        bsplineOption->GetParameter( 2 ) ) );
-      }
-    if( bsplineOption->GetNumberOfParameters() > 3 )
-      {
-      correcter->SetSigmoidNormalizedBeta( parser->Convert<float>(
-        bsplineOption->GetParameter( 3 ) ) );
+				   bsplineOption->GetParameter( 1 ) ) );
       }
     if( bsplineOption->GetNumberOfParameters() > 0 )
       {
@@ -218,52 +214,57 @@ int N4( itk::ants::CommandLineParser *parser )
         useSplineDistance = true;
         float splineDistance = array[0];
 
-								unsigned long lowerBound[ImageDimension];
-								unsigned long upperBound[ImageDimension];
+        unsigned long lowerBound[ImageDimension];
+        unsigned long upperBound[ImageDimension];
 
-								for( unsigned int d = 0; d < ImageDimension; d++ )
-										{
-										float domain = static_cast<RealType>( inputImage->
-												GetLargestPossibleRegion().GetSize()[d] - 1 ) * inputImage->GetSpacing()[d];
-										unsigned int numberOfSpans = static_cast<unsigned int>(
-            vcl_ceil( domain / splineDistance ) );
-										unsigned long extraPadding = static_cast<unsigned long>( ( numberOfSpans *
-												splineDistance - domain ) / inputImage->GetSpacing()[d] + 0.5 );
-										lowerBound[d] = static_cast<unsigned long>( 0.5 * extraPadding );
-										upperBound[d] = extraPadding - lowerBound[d];
-          newOrigin[d] -= ( static_cast<RealType>( lowerBound[d] ) *
-            inputImage->GetSpacing()[d] );
-
+        for( unsigned int d = 0; d < ImageDimension; d++ )
+          {
+          float domain = static_cast<RealType>( inputImage->
+             GetLargestPossibleRegion().GetSize()[d] - 1 ) * inputImage->GetSpacing()[d];
+          unsigned int numberOfSpans = static_cast<unsigned int>(
+                   vcl_ceil( domain / splineDistance ) );
+          unsigned long extraPadding = static_cast<unsigned long>( ( numberOfSpans *
+                    splineDistance - domain ) / inputImage->GetSpacing()[d] + 0.5 );
+          lowerBound[d] = static_cast<unsigned long>( 0.5 * extraPadding );
+          upperBound[d] = extraPadding - lowerBound[d];
+                 newOrigin[d] -= ( static_cast<RealType>( lowerBound[d] ) *
+              inputImage->GetSpacing()[d] );
           numberOfControlPoints[d] = numberOfSpans + correcter->GetSplineOrder();
-										}
+          }
 
-								typedef itk::ConstantPadImageFilter<ImageType, ImageType> PadderType;
-								typename PadderType::Pointer padder = PadderType::New();
-								padder->SetInput( inputImage );
-								padder->SetPadLowerBound( lowerBound );
-								padder->SetPadUpperBound( upperBound );
-								padder->SetConstant( 0 );
-								padder->Update();
+        typedef itk::ConstantPadImageFilter<ImageType, ImageType> PadderType;
+        typename PadderType::Pointer padder = PadderType::New();
+        padder->SetInput( inputImage );
+        padder->SetPadLowerBound( lowerBound );
+        padder->SetPadUpperBound( upperBound );
+        padder->SetConstant( 0 );
+        padder->Update();
+
         inputImage = padder->GetOutput();
+        inputImage->DisconnectPipeline();
 
-								typedef itk::ConstantPadImageFilter<MaskImageType, MaskImageType> MaskPadderType;
-								typename MaskPadderType::Pointer maskPadder = MaskPadderType::New();
-								maskPadder->SetInput( maskImage );
-								maskPadder->SetPadLowerBound( lowerBound );
-								maskPadder->SetPadUpperBound( upperBound );
-								maskPadder->SetConstant( 0 );
-								maskPadder->Update();
+        typedef itk::ConstantPadImageFilter<MaskImageType, MaskImageType> MaskPadderType;
+        typename MaskPadderType::Pointer maskPadder = MaskPadderType::New();
+        maskPadder->SetInput( maskImage );
+        maskPadder->SetPadLowerBound( lowerBound );
+        maskPadder->SetPadUpperBound( upperBound );
+        maskPadder->SetConstant( 0 );
+        maskPadder->Update();
+
         maskImage = maskPadder->GetOutput();
+        maskImage->DisconnectPipeline();
 
         if( weightImage )
           {
-										typename PadderType::Pointer weightPadder = PadderType::New();
-										weightPadder->SetInput( weightImage );
-										weightPadder->SetPadLowerBound( lowerBound );
-										weightPadder->SetPadUpperBound( upperBound );
-										weightPadder->SetConstant( 0 );
-										weightPadder->Update();
-										weightImage = weightPadder->GetOutput();
+          typename PadderType::Pointer weightPadder = PadderType::New();
+          weightPadder->SetInput( weightImage );
+          weightPadder->SetPadLowerBound( lowerBound );
+          weightPadder->SetPadUpperBound( upperBound );
+          weightPadder->SetConstant( 0 );
+          weightPadder->Update();
+
+          weightImage = weightPadder->GetOutput();
+          weightImage->DisconnectPipeline();
           }
         }
       else if( array.size() == ImageDimension )
@@ -293,15 +294,15 @@ int N4( itk::ants::CommandLineParser *parser )
   maskshrinker->SetInput( maskImage );
   maskshrinker->SetShrinkFactors( 1 );
 
-		typename itk::ants::CommandLineParser::OptionType::Pointer shrinkFactorOption =
-				parser->GetOption( "shrink-factor" );
+  typename itk::ants::CommandLineParser::OptionType::Pointer shrinkFactorOption =
+    parser->GetOption( "shrink-factor" );
   int shrinkFactor = 4;
-		if( shrinkFactorOption )
-				{
+  if( shrinkFactorOption && shrinkFactorOption->GetNumberOfValues())
+    {
     shrinkFactor = parser->Convert<int>( shrinkFactorOption->GetValue() );
     }
-		shrinker->SetShrinkFactors( shrinkFactor );
-		maskshrinker->SetShrinkFactors( shrinkFactor );
+  shrinker->SetShrinkFactors( shrinkFactor );
+  maskshrinker->SetShrinkFactors( shrinkFactor );
   shrinker->Update();
   maskshrinker->Update();
 
@@ -310,18 +311,15 @@ int N4( itk::ants::CommandLineParser *parser )
 
   correcter->SetInput( shrinker->GetOutput() );
   correcter->SetMaskImage( maskshrinker->GetOutput() );
+
+  typedef itk::ShrinkImageFilter<ImageType, ImageType> WeightShrinkerType;
+  typename WeightShrinkerType::Pointer weightshrinker = WeightShrinkerType::New();
   if( weightImage )
     {
-				typedef itk::ShrinkImageFilter<ImageType, ImageType> WeightShrinkerType;
-				typename WeightShrinkerType::Pointer weightshrinker = WeightShrinkerType::New();
-				weightshrinker->SetInput( weightImage );
-				weightshrinker->SetShrinkFactors( 1 );
-				if( shrinkFactorOption )
-						{
-						int shrinkFactor = parser->Convert<int>( shrinkFactorOption->GetValue() );
-						weightshrinker->SetShrinkFactors( shrinkFactor );
-						}
+    weightshrinker->SetInput( weightImage );
+    weightshrinker->SetShrinkFactors(shrinkFactor);
     weightshrinker->Update();
+
     correcter->SetConfidenceImage( weightshrinker->GetOutput() );
     }
 
@@ -339,28 +337,29 @@ int N4( itk::ants::CommandLineParser *parser )
     if( histOption->GetNumberOfParameters() > 0 )
       {
       correcter->SetBiasFieldFullWidthAtHalfMaximum( parser->Convert<float>(
-        histOption->GetParameter( 0 ) ) );
+						       histOption->GetParameter( 0 ) ) );
       }
     if( histOption->GetNumberOfParameters() > 1 )
       {
       correcter->SetWeinerFilterNoise( parser->Convert<float>(
-        histOption->GetParameter( 1 ) ) );
+					 histOption->GetParameter( 1 ) ) );
       }
     if( histOption->GetNumberOfParameters() > 2 )
       {
       correcter->SetNumberOfHistogramBins( parser->Convert<unsigned int>(
-        histOption->GetParameter( 2 ) ) );
+					     histOption->GetParameter( 2 ) ) );
       }
     }
 
 
   try
     {
+    //correcter->DebugOn();
     correcter->Update();
     }
-  catch(...)
+  catch(itk::ExceptionObject &e)
     {
-    std::cerr << "Exception caught." << std::endl;
+    std::cerr << "Exception caught: " << e << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -376,50 +375,50 @@ int N4( itk::ants::CommandLineParser *parser )
     parser->GetOption( "output" );
   if( outputOption )
     {
-				/**
+    /**
 					* Reconstruct the bias field at full image resolution.  Divide
 					* the original input image by the bias field to get the final
 					* corrected image.
 					*/
-				typedef itk::BSplineControlPointImageFilter<typename
-						CorrecterType::BiasFieldControlPointLatticeType, typename
-						CorrecterType::ScalarImageType> BSplinerType;
-				typename BSplinerType::Pointer bspliner = BSplinerType::New();
-				bspliner->SetInput( correcter->GetLogBiasFieldControlPointLattice() );
-				bspliner->SetSplineOrder( correcter->GetSplineOrder() );
-				bspliner->SetSize( inputImage->GetLargestPossibleRegion().GetSize() );
-				bspliner->SetOrigin( newOrigin );
-				bspliner->SetDirection( inputImage->GetDirection() );
-				bspliner->SetSpacing( inputImage->GetSpacing() );
-				bspliner->Update();
+    typedef itk::BSplineControlPointImageFilter<typename
+      CorrecterType::BiasFieldControlPointLatticeType, typename
+      CorrecterType::ScalarImageType> BSplinerType;
+    typename BSplinerType::Pointer bspliner = BSplinerType::New();
+    bspliner->SetInput( correcter->GetLogBiasFieldControlPointLattice() );
+    bspliner->SetSplineOrder( correcter->GetSplineOrder() );
+    bspliner->SetSize( inputImage->GetLargestPossibleRegion().GetSize() );
+    bspliner->SetOrigin( newOrigin );
+    bspliner->SetDirection( inputImage->GetDirection() );
+    bspliner->SetSpacing( inputImage->GetSpacing() );
+    bspliner->Update();
 
-				typename ImageType::Pointer logField = ImageType::New();
-				logField->SetOrigin( inputImage->GetOrigin() );
-				logField->SetSpacing( inputImage->GetSpacing() );
-				logField->SetRegions( inputImage->GetLargestPossibleRegion() );
-				logField->SetDirection( inputImage->GetDirection() );
-				logField->Allocate();
+    typename ImageType::Pointer logField = ImageType::New();
+    logField->SetOrigin( inputImage->GetOrigin() );
+    logField->SetSpacing( inputImage->GetSpacing() );
+    logField->SetRegions( inputImage->GetLargestPossibleRegion() );
+    logField->SetDirection( inputImage->GetDirection() );
+    logField->Allocate();
 
-				itk::ImageRegionIterator<typename CorrecterType::ScalarImageType> ItB(
-						bspliner->GetOutput(),
-						bspliner->GetOutput()->GetLargestPossibleRegion() );
-				itk::ImageRegionIterator<ImageType> ItF( logField,
-						logField->GetLargestPossibleRegion() );
-				for( ItB.GoToBegin(), ItF.GoToBegin(); !ItB.IsAtEnd(); ++ItB, ++ItF )
-						{
-						ItF.Set( ItB.Get()[0] );
-						}
+    itk::ImageRegionIterator<typename CorrecterType::ScalarImageType> ItB(
+      bspliner->GetOutput(),
+      bspliner->GetOutput()->GetLargestPossibleRegion() );
+    itk::ImageRegionIterator<ImageType> ItF( logField,
+					     logField->GetLargestPossibleRegion() );
+    for( ItB.GoToBegin(), ItF.GoToBegin(); !ItB.IsAtEnd(); ++ItB, ++ItF )
+      {
+      ItF.Set( ItB.Get()[0] );
+      }
 
-				typedef itk::ExpImageFilter<ImageType, ImageType> ExpFilterType;
-				typename ExpFilterType::Pointer expFilter = ExpFilterType::New();
-				expFilter->SetInput( logField );
-				expFilter->Update();
+    typedef itk::ExpImageFilter<ImageType, ImageType> ExpFilterType;
+    typename ExpFilterType::Pointer expFilter = ExpFilterType::New();
+    expFilter->SetInput( logField );
+    expFilter->Update();
 
-				typedef itk::DivideImageFilter<ImageType, ImageType, ImageType> DividerType;
-				typename DividerType::Pointer divider = DividerType::New();
-				divider->SetInput1( inputImage );
-				divider->SetInput2( expFilter->GetOutput() );
-				divider->Update();
+    typedef itk::DivideImageFilter<ImageType, ImageType, ImageType> DividerType;
+    typename DividerType::Pointer divider = DividerType::New();
+    divider->SetInput1( inputImage );
+    divider->SetInput2( expFilter->GetOutput() );
+    divider->Update();
 
 				if( weightImage &&
 						( maskImageOption && maskImageOption->GetNumberOfValues() > 0 ) )
@@ -439,16 +438,16 @@ int N4( itk::ants::CommandLineParser *parser )
     inputRegion.SetIndex( inputImageIndex );
     inputRegion.SetSize( inputImageSize );
 
-				typedef itk::ExtractImageFilter<ImageType, ImageType> CropperType;
-				typename CropperType::Pointer cropper = CropperType::New();
-				cropper->SetInput( divider->GetOutput() );
-				cropper->SetExtractionRegion( inputRegion );
-				cropper->Update();
+    typedef itk::ExtractImageFilter<ImageType, ImageType> CropperType;
+    typename CropperType::Pointer cropper = CropperType::New();
+    cropper->SetInput( divider->GetOutput() );
+    cropper->SetExtractionRegion( inputRegion );
+    cropper->Update();
 
-				typename CropperType::Pointer biasFieldCropper = CropperType::New();
-				biasFieldCropper->SetInput( expFilter->GetOutput() );
-				biasFieldCropper->SetExtractionRegion( inputRegion );
-				biasFieldCropper->Update();
+    typename CropperType::Pointer biasFieldCropper = CropperType::New();
+    biasFieldCropper->SetInput( expFilter->GetOutput() );
+    biasFieldCropper->SetExtractionRegion( inputRegion );
+    biasFieldCropper->Update();
 
     if( outputOption->GetNumberOfParameters() == 0 )
       {
@@ -468,11 +467,11 @@ int N4( itk::ants::CommandLineParser *parser )
       }
     if( outputOption->GetNumberOfParameters() > 1 )
       {
-						typedef itk::ImageFileWriter<ImageType> WriterType;
-						typename WriterType::Pointer writer = WriterType::New();
-						writer->SetFileName( ( outputOption->GetParameter( 1 ) ).c_str() );
-						writer->SetInput( biasFieldCropper->GetOutput() );
-						writer->Update();
+      typedef itk::ImageFileWriter<ImageType> WriterType;
+      typename WriterType::Pointer writer = WriterType::New();
+      writer->SetFileName( ( outputOption->GetParameter( 1 ) ).c_str() );
+      writer->SetInput( biasFieldCropper->GetOutput() );
+      writer->Update();
       }
     }
 
@@ -595,17 +594,13 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
     std::string( "of the mesh elements. The latter option is typically preferred. " ) +
     std::string( "For each subsequent level, the spline distance decreases in " ) +
     std::string( "half, or equivalently, the number of mesh elements doubles " ) +
-    std::string( "Cubic splines (order = 3) are typically used.  The final " ) +
-    std::string( "two parameters are experimental and really do not need to " ) +
-    std::string( "be used for good performance." );
+    std::string( "Cubic splines (order = 3) are typically used." );
 
   OptionType::Pointer option = OptionType::New();
   option->SetLongName( "bspline-fitting" );
   option->SetShortName( 'b' );
-  option->SetUsageOption( 0,
-    "[splineDistance,<splineOrder=3>,<sigmoidAlpha=0.0>,<sigmoidBeta=0.5>]" );
-  option->SetUsageOption( 1,
-    "[initialMeshResolution,<splineOrder=3>,<sigmoidAlpha=0.0>,<sigmoidBeta=0.5>]" );
+  option->SetUsageOption( 0, "[splineDistance,<splineOrder=3>]" );
+  option->SetUsageOption( 1, "[initialMeshResolution,<splineOrder=3>]" );
   option->SetDescription( description );
   parser->AddOption( option );
   }
