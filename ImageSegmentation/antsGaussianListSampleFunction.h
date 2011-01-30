@@ -55,6 +55,8 @@ public:
   /** List sample typedef support. */
   typedef TListSample                                       ListSampleType;
 
+  typedef typename Superclass::ListSampleWeightArrayType    ListSampleWeightArrayType;
+
 
   /** Gaussian typedefs */
   typedef typename itk::Statistics::GaussianMembershipFunction

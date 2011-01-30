@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Advanced Normalization Tools
-  Module:    $RCSfile: antsLogEuclideanGaussianListSampleFunction.h,v $
+  Module:    $RCSfile: antsPartialVolumeGaussianListSampleFunction.h,v $
   Language:  C++
   Date:      $Date: $
   Version:   $Revision: $
@@ -16,27 +16,27 @@
   PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef __antsLogEuclideanGaussianListSampleFunction_h
-#define __antsLogEuclideanGaussianListSampleFunction_h
+#ifndef __antsPartialVolumeGaussianListSampleFunction_h
+#define __antsPartialVolumeGaussianListSampleFunction_h
 
 #include "antsListSampleFunction.h"
 
-#include "itkVariableSizeMatrix.h"
+#include "itkGaussianMembershipFunction.h"
 
 namespace itk {
 namespace ants {
 namespace Statistics {
 
-/** \class LogEuclideanGaussianListSampleFunction.h
- * \brief
+/** \class PartialVolumeGaussianListSampleFunction.h
+ * \brief point set filter.
  */
 
 template <class TListSample, class TOutput = double, class TCoordRep = double>
-class ITK_EXPORT LogEuclideanGaussianListSampleFunction
+class ITK_EXPORT PartialVolumeGaussianListSampleFunction
 : public ListSampleFunction<TListSample, TOutput, TCoordRep>
 {
 public:
-  typedef LogEuclideanGaussianListSampleFunction           Self;
+  typedef PartialVolumeGaussianListSampleFunction          Self;
   typedef ListSampleFunction
     <TListSample, TOutput, TCoordRep>                      Superclass;
   typedef SmartPointer<Self>                               Pointer;
@@ -46,41 +46,55 @@ public:
   itkNewMacro( Self );
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( LogEuclideanGaussianListSampleFunction, ListSampleFunction );
+  itkTypeMacro( PartialVolumeGaussianListSampleFunction,
+    ListSampleFunction );
 
   typedef typename Superclass::InputListSampleType          InputListSampleType;
   typedef typename Superclass::InputMeasurementVectorType   InputMeasurementVectorType;
   typedef typename Superclass::InputMeasurementType         InputMeasurementType;
 
+  typedef typename Superclass::ListSampleWeightArrayType              ListSampleWeightArrayType;
+
+  /** Gaussian typedefs */
+  typedef typename itk::Statistics::GaussianMembershipFunction
+    <InputMeasurementVectorType>                            GaussianType;
+  typedef typename GaussianType::MeanType                   MeanType;
+  typedef typename GaussianType::CovarianceType             CovarianceType;
+
+  /** List sample typedef support. */
+  typedef TListSample                                       ListSampleType;
+
   /** Other typedef */
-  typedef TOutput                                           RealType;
-  typedef TOutput                                           OutputType;
-  typedef VariableSizeMatrix<RealType>                      TensorType;
+  typedef TOutput                                  RealType;
+  typedef TOutput                                  OutputType;
 
-  /** Helper functions */
-
-  virtual void SetInputListSample( const InputListSampleType * ptr );
+  virtual void SetInputListSample(
+    unsigned int d, const InputListSampleType * ptr );
 
   virtual TOutput Evaluate( const InputMeasurementVectorType& measurement ) const;
 
 protected:
-  LogEuclideanGaussianListSampleFunction();
-  virtual ~LogEuclideanGaussianListSampleFunction();
+  PartialVolumeGaussianListSampleFunction();
+  virtual ~PartialVolumeGaussianListSampleFunction();
   void PrintSelf( std::ostream& os, Indent indent ) const;
 
   void GenerateData();
 
-  TensorType LogTensorTransform( const TensorType & ) const;
-  TensorType ExpTensorTransform( const TensorType & ) const;
-  RealType CalculateTensorDistance( const TensorType &, const TensorType & ) const;
-
-  TensorType                                                m_MeanTensor;
-  RealType                                                  m_Dispersion;
-
 private:
   //purposely not implemented
-  LogEuclideanGaussianListSampleFunction( const Self& );
+  PartialVolumeGaussianListSampleFunction( const Self& );
   void operator=( const Self& );
+
+  void CalculateGaussianParametersFromListSample( const InputListSampleType *,
+    const ListSampleWeightArrayType *, MeanType & );
+
+  void CalculateGaussianParameters();
+
+  MeanType                                                  m_Mean[2];
+  bool                                                      m_IsCalculated[2];
+
+  typename GaussianType::Pointer                            m_Gaussian;
+
 };
 
 } // end of namespace Statistics
@@ -88,7 +102,7 @@ private:
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "antsLogEuclideanGaussianListSampleFunction.txx"
+#include "antsPartialVolumeGaussianListSampleFunction.txx"
 #endif
 
 #endif
