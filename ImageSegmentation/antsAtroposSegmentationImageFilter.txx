@@ -1554,7 +1554,6 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 
   for ( unsigned int k = 0; k < totalNumberOfClasses; k++ )
     {
-    std::cout << "HERE k = " << k << std::endl;
     // Calculate likelihood probability
 
     RealType likelihood =
@@ -1611,7 +1610,6 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
       maxPosteriorProbability = posteriorProbability;
       maxLabel = static_cast<LabelType>( k + 1 );
       }
-    std::cout << "HERSS k = " << k << std::endl;
     }
   It.SetCenterPixel( maxLabel );
 
