@@ -7,7 +7,7 @@
   Version:   $Revision: 1.17 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -330,6 +330,8 @@ void
 DecomposeTensorFunction<TInput, TRealType, TOutput>
 ::PrintSelf( std::ostream& os, Indent indent ) const
 {
+  Superclass::PrintSelf( os, indent );
+
 }
 
 } // end namespace itk
