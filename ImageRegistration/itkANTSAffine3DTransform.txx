@@ -500,7 +500,7 @@ ComputeMatrix()
      
 //     InternalMatrixType A, Q, R;
      
-     typedef vnl_matrix<double> TMatrix; 
+     typedef vnl_matrix<TScalarType> TMatrix; 
      
      TMatrix A,Q,R;
      

@@ -117,7 +117,7 @@ ANTSCenteredAffine2DTransform<TScalarType>
 ::ComputeMatrixParameters( void )
 {
 
-    typedef vnl_matrix<double> TMatrix; 
+    typedef vnl_matrix<TScalarType> TMatrix; 
 
     TMatrix A,Q,R;
 
