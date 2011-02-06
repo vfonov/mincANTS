@@ -823,10 +823,44 @@ Otherwise, the user must provide prior information for each class in
 the form of either a single $n$-ary prior label image or a series of
 prior probability images, one for each class.  The initialization also
 provides starter parameters.
-\item[ICM Label Update (E-Step):] Given the initialization and fixed
-model parameters, Atropos will evaluate the posterior probability for
-each possible label and assign, to each voxel, the label that
-maximizes the posterior.  
+\item[Label Update (E-Step):] Given the initialization and fixed
+model parameters, {\color{red}{Atropos is capable of updating the current label 
+estimates using either a {\em synchronous} or {\em asynchronous} scheme.
+The former is characterized by iterating through the image and determining
+which label maximizes the posterior probability without updating any
+labels until all voxels in the mask have been visited at which point
+all the voxel labels are updated simultaneously (hence the descriptor 
+``synchronous'').  This option is specified with \texttt{--icm [0]}. 
+However, unlike asynchronous schemes characteristic of ICM, synchronous 
+updates lack convergence guarantees.  To determine the labeling 
+which maximizes the posterior probability for the asynchronous option, 
+an ``ICM code'' image is created once for all iterations by iterating 
+through the image and assigning an ICM code label to each voxel in the 
+mask such that each MRF neighborhood has a non-repeating code label set.  
+Thus each masked voxel in the ICM code image is assigned a value in the 
+range $\{1,\ldots,C\}$ where $C$ is the maximum code label.
+Such an image can be created and viewed with Atropos by assigning a valid
+filename in the \texttt{--icm [1]} set of options.  An example is given in 
+Figure \ref{fig:r16icm}.  For each iteration, a random ordering of the
+set $\{1,\ldots,C\}$ is created which prescribes the order in which the
+voxel labels are updated asynchronously. After the first pass through the
+set of code labels, additional passes can further increase the posterior
+probability until convergence (in $\sim$5 iterations).  One can specify
+a maximum number of these ``ICM iterations'' on the command line.}}
+
+\begin{figure}
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=70mm]{r16slice.png} &
+\includegraphics[width=70mm]{r16icm.png} \\
+(a) & (b) \\
+\end{tabular}
+\end{center}
+\caption{\baselineskip 12pt \small  (a) An adult brain image slice and (b) the corresponding ICM code image created using a $5\times5$ MRF neighborhood with a maximum ICM code label of `13'.  }
+\label{fig:r16icm}
+\end{figure}
+
+
 % {\bf \textcolor{red}{ FIXME more specific?}}.
 \item[Parameter Update (M-Step):] 
 Note that the posteriors used in the previous iteration are used to 
@@ -853,11 +887,11 @@ and the $k^{th}$ covariance matrix, $\boldsymbol{\Sigma}_k$, is calculated from
 \begin{align}
  \boldsymbol{\Sigma}_{k} \leftarrow \frac{ \sum_{i=1}^N  p_k(l_k|\mathbf{y}_i) ( \mathbf{y}_{i} - \boldsymbol{\mu}_{k} )^{\mathrm{T}}  ( \mathbf{y}_{i} - \boldsymbol{\mu}_{k} )}{1 - \sum_{i=1}^N p^2_k(l_k|\mathbf{y}_{i}) }.
 \end{align}
-
 This type of update is known as {\em soft} EM.  Hard EM, in
 contrast, only uses sites containing label $l_k$ to update model $k$ parameters.
 A similar pattern is used in non-parametric cases.
 \end{description}
+
 EM will iterate toward a local maximum.  We track convergence by
 summing up the maximum posterior probability at each site over the
 segmentation domain.  The E-step, above, depends upon the selected
@@ -986,15 +1020,23 @@ OPTIONS:
                             fileSeriesFormat(index=1 to numberOfClasses) or vectorImage,
                             priorWeighting,<priorProbabilityThreshold>]
                           PriorLabelImage[numberOfClasses,labelImage,priorWeighting]
+     -p, --posterior-formulation Socrates[<useMixtureModelProportions=1>,
+                                   <initialAnnealingTemperature=1>,<annealingRate=1>,
+                                   <minimumTemperature=0.1>]
+                                 Plato[<useMixtureModelProportions=1>,
+                                   <initialAnnealingTemperature=1>,<annealingRate=1>,
+                                   <minimumTemperature=0.1>]
      -x, --mask-image maskImageFilename
      -c, --convergence [<numberOfIterations=5>,<convergenceThreshold=0.001>]
      -k, --likelihood-model Gaussian
                             HistogramParzenWindows[<sigma=1.0>,<numberOfBins=32>]
      -m, --mrf [<smoothingFactor=0.3>,<radius=1x1x...>]
+     -g, --icm [<useAsynchronousUpdate=1>,<maximumNumberOfICMIterations=1>,
+                <icmCodeImage=`'>]     
      -o, --output [classifiedImage,<posteriorProbabilityImageFileNameFormat>]
      -u, --minimize-memory-usage (0)/1
      -w, --winsorize-outliers BoxPlot[<lowerPercentile=0.25>,<upperPercentile=0.75>,
-                               <whiskerLength=1.5>]
+                                <whiskerLength=1.5>]
                               GrubbsRosner[<significanceLevel=0.05>,<winsorizingLevel=0.10>]
      -e, --use-euclidean-distance (0)/1
      -l, --label-propagation whichLabel[sigma=0.0,<boundaryProbability=1.0>]
@@ -1197,8 +1239,13 @@ iteration as a weighted mask for input to N4.  This is done by setting
 the `{\ttfamily --weight-image}' option on the N4 command line call
 (see Listing \ref{listing:n4}) to the posterior probability image
 corresponding to the white matter produced as output in the Atropos
-call, i.e. `{\ttfamily Atropos --output}'.  N4 is
-currently being added as a standard part of the Insight Toolkit.  The
+call, i.e. `{\ttfamily Atropos --output}'.  N4 was recently added  
+to the Insight Toolkit repository%
+\footnote{
+http://www.itk.org/Doxygen/html/classitk\_1\_1N4MRIBiasFieldCorrectionImageFilter.html
+} 
+where it is built and tested on
+multiple platforms nightly.  The
 evaluation section will illustrate inclusion of Atropos, N4 and ANTs
 in a brain processing pipeline.  
 
