@@ -50,7 +50,7 @@ The revision of the paper includes:
 \begin{enumerate}
 \item  A new figure revision highlighting ICM and providing a simple
   starter example for Atropos usage. 
-\item Fixes to two typos in the equations. 
+\item Typo fixes in the equations. 
 \item  Many minor changes in the body of the text.  
 \item  The references were altered according to reviewer suggestions.
 \end{enumerate}
@@ -130,10 +130,22 @@ The main computational challenge with graph cuts is memory.  Because one needs t
 solve multiple shortest path problems---and store the solution of
 each---the potential for memory bloat is high.  Even in EM, memory
 concerns emerge when enough labels are used (e.g. in our examples).
-In theory, though, EM computations are embarassingly parallel which is
+In theory, though, EM computations are embarrassingly parallel which is
 not a property shared by graph-based methods.  As such, one would
 expect even an optimally implemented multi-label graph cut method to
-lag in speed behind an optimally implemented EM segmentation. 
+lag in speed behind an optimally implemented EM segmentation.  
+
+{\color{blue}{ We would also
+like to point out that we have had prior experience with graph cuts (see,
+for example, our implementation available at http://hdl.handle.net/1926/1503
+and related publications:  Zhuang Song, Nicholas J. Tustison, Brian B. Avants, 
+James C. Gee: Integrated Graph Cuts for Brain MRI Segmentation. MICCAI (2) 2006: 831-838
+and Zhuang Song, Nicholas J. Tustison, Brian B. Avants, James C. Gee: 
+Integrated Graph Cuts for Brain MRI Segmentation. MICCAI (2) 2006: 831-838) and
+our preference for our current EM-based approach is certainly not restricted to 
+speed considerations.  As enthusiastic supporters of open source software,
+patent issues constrain the use of graph cuts where no such limitations exist
+for EM-based approaches.}}
 \newline
 \newline
 {\em 5) Page 13, Equation 17. This looks like a multivariate equation to me. I'm also not familiar with the form of Equation 19 - why is it different from 17?'}
@@ -145,10 +157,10 @@ parameter is replaced by the covariance matrix.  This is a standard
 extension from univariate to multivariate probability. 
 \newline
 \newline
-{\em 6) Page 17. Penultimate line. "Three likelihood classes have been
-  developed, one parametric and one ...". Should this be "Three
+{\em 6) Page 17. Penultimate line. ``Three likelihood classes have been
+  developed, one parametric and one ...''. Should this be ``Three
   likelihood classes have been developed, one parametric and [two]
-  ..."?'}
+  ...''?'}
 \newline
 \newline
 Yes, thank you.  The fix is made.  
@@ -166,7 +178,13 @@ Fixed.
 {\em 8) I could not verify the validity of all the references as they were not numbered neither were they in alphabetical order. }
 \newline
 \newline
-{\bf FIXME NICK Standard neuroinformatics style?}
+{\color{blue}{We apologize.  In preparing the original
+manuscript, we were unable to find a .bst for the
+Neuroinformatics journal so we created our own using
+natbib and did not use all the options to facilitate
+the reviewing process.  The references are now numbered
+in the manuscript and in the bibliography section and
+are ordered as they appear in the manuscript.   }}
 \newline
 \newline
 The reviewer also mentioned not being able to locate the 19 Hammers
@@ -211,37 +229,60 @@ provide suggestive results, as we've done here.
 {\em I have only two concerns with the article. First, there is almost
   no explanation of any of the figures in the body of the text, which
   raises questions about the significance of the findings, such as
-  those of Figure 4 ("The results show that the PriorProbabilityMaps
+  those of Figure 4 (``The results show that the PriorProbabilityMaps
   with w = 0.5 (far right) gives the best performance for all
-  tissues."). 
+  tissues.''). }
 \newline
 \newline
 The revision adds explanatory material in the body of the text
 associated with each figure.  {\bf FIXME}
 \newline
 \newline
-{\em Second, why is it that "In this study, we labeled the brain web (sic) template very sparsely, quickly and crudely and did not expect highly accurate results."
+{\em Second, why is it that ``In this study, we labeled the brain web (sic) template very sparsely, quickly and crudely and did not expect highly accurate results.''
 The results depending on these manual prior labels aren't informative
 -- they don't give good results, and don't tell us whether the results
 would be better if better manual labels were used.}
 \newline
 \newline
 We agree with the reviewer and removed this comment and the evaluation
-results.  We added: {\color{red}{We provide this capability to allow the user to implement
+results.  We added: 
+    \begin{quote}
+    We provide this capability to allow the user to implement
     an interactive editing and segmentation loop.  The user may
     run Atropos with sparse manual label guidance, evaluate the
     results, update the manual labels and repeat until achieving the desired
-    outcome.  This processing loop be performed easily with, e.g., ITK-SNAP.}
-\newline
-\newline
-{\em On page 22: "The advancements introduced with N4 permit such an
-  adaptive integration with Atropos." What relevant advances are
+    outcome.  This processing loop be performed easily with, e.g., ITK-SNAP.
+    \end{quote}
+{\em On page 22: ``The advancements introduced with N4 permit such an
+  adaptive integration with Atropos.'' What relevant advances are
   introduced with respect to N3?}
 \newline
 \newline
-{\bf FIXME NICK}
-\newline
-\newline
+{\color{blue}{We added the following elaboration on the benefits of N4 in section 3.4.3 (page 21):
+\begin{quote}
+N4 extends the popular
+nonparametric nonuniform intensity normalization (N3) algorithm [63]
+in two principal ways:
+\begin{itemize}
+  \item We replace the least squares B-spline fitting with a parallelizable alternative 
+  (which we also made publicly available in the Insight Toolkit)---
+  the advantages being that 1) computation is much faster 
+  and 2) smoothing is not susceptible to outliers as is characteristic with
+  standard least squares fitting algorithms.
+  \item The fitting algorithm permits a multi-resolution approach so whereas standard 
+  N3 practice is to select a single resolution at which bias correction occurs, the N4
+  framework permits a multi-resolution correction where a base resolution is chosen and
+  correction can then occur at multiple resolution levels each resolution being twice 
+  the resolution of the previous level.
+\end{itemize}  
+Specifically, with respect to segmentation, there exists a third advantage with N4 over
+N3 in that the former permits the specification of a probabilistic mask as opposed 
+to a binary mask.  Recent demonstrations suggest improved
+white matter segmentation produces better gain field estimates using
+N3 [64].  Thus, when performing 3-tissue segmentation, we
+may opt to use, for instance, the posterior probability map of white matter at the current
+iteration as a weighted mask for input to N4.
+\end{quote} }}
 {\em Equations: Please remove punctuation following equations, because it came sometimes be distracting. For example, on pg.9, eq.1's comma might also appear to be a prime/apostrophe for the variable y.}
 \newline
 \newline
