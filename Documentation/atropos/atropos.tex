@@ -32,7 +32,7 @@
 \geometry{letterpaper,top=1.0in,left=1.0in,bottom=1.0in,top=1.0in,headsep=6pt,footskip=18pt}
 
 \usepackage{lscape}
-\usepackage[round,semicolon,authoryear,]{natbib}
+\usepackage[square,comma,numbers,sort&compress]{natbib}
 
 % Use fancy header style
 \usepackage{fancyhdr}
@@ -696,7 +696,7 @@ labels, only locally optimal optimizers are available for 3 or more
 classes.  Thus, in most practical applications, EM is a
 reasonable and efficient alternative to Boykov's solution.
 Furthermore, one may automate the initialization process.  
-{\color{red}{We provide this capability to allow the user to implement
+{\color{blue}{We provide this capability to allow the user to implement
     an interactive editing and segmentation loop.  The user may
     run Atropos with sparse manual label guidance, evaluate the
     results, update the manual labels and repeat until achieving the desired
@@ -833,7 +833,7 @@ the form of either a single $n$-ary prior label image or a series of
 prior probability images, one for each class.  The initialization also
 provides starter parameters.
 \item[Label Update (E-Step):] Given the initialization and fixed
-model parameters, {\color{red}{Atropos is capable of updating the current label 
+model parameters, {\color{blue}{Atropos is capable of updating the current label 
 estimates using either a {\em synchronous} or {\em asynchronous} scheme.
 The former is characterized by iterating through the image and determining
 which label maximizes the posterior probability without updating any
@@ -859,13 +859,23 @@ a maximum number of these ``ICM iterations'' on the command line.}}
 
 \begin{figure}
 \begin{center}
-\begin{tabular}{cc}
-\includegraphics[width=70mm]{r16slice.png} &
-\includegraphics[width=70mm]{r16icm.png} \\
-(a) & (b) \\
+\begin{tabular}{c}
+\includegraphics[width=160mm]{ICMfigure.pdf}
+%\includegraphics[width=70mm]{r16slice.png} &
+%\includegraphics[width=70mm]{r16icm.png} \\
+%(a) & (b) \\
 \end{tabular}
 \end{center}
-\caption{\baselineskip 12pt \small  (a) An adult brain image slice and (b) the corresponding ICM code image created using a $5\times5$ MRF neighborhood with a maximum ICM code label of `13'.  }
+\caption{\baselineskip 12pt \small {\color{blue}{An adult brain image slice is shown 
+with its ICM code image corresponding to a $5\times5$ MRF neighborhood.  
+To the right of the ICM code image, we focus on a single neighborhood
+with a center voxel associated with the ICM code label of '10'.  Each 
+center voxel in a specified neighborhood exhibits a unique ICM code
+label which does not appear elsewhere in its neighborhood.  When performing
+the segmentation labeling update for ICM, we iterate through the set
+of ICM code labels and, for each code label, we iterate through the image
+and update only those voxels associated with the current code label.}}
+  }
 \label{fig:r16icm}
 \end{figure}
 
@@ -1238,13 +1248,31 @@ OPTIONS:
 Assumptions about bias correction may be thought of as another prior
 model.  As such, the typical segmentation processing pipeline begins with an intensity
 normalization/bias correction step using a method such as the recently developed N4
-algorithm \citep{Tustison2010}.  N4 builds upon the popular
-non-parametric nonuniformity intensity normalization (N3) introduced in \cite{Sled1998}.  It was previously mentioned that
-several methods proposed in the literature have taken an integrative
-view of the segmentation problem by incorporating an intrinsic bias
-correction step into the actual workflow.  The
-advances introduced with N4 permit such an adaptive
-integration with Atropos.  Recent demonstrations suggest improved
+algorithm \citep{Tustison2010}.  {\color{blue}{N4 extends the popular
+nonparametric nonuniform intensity normalization (N3) algorithm \citep{Sled1998}
+in two principal ways:
+\begin{itemize}
+  \item We replace the least squares B-spline fitting with a parallelizable alternative 
+  (which we also made publicly available in the Insight Toolkit)---
+  the advantages being that 1) computation is much faster 
+  and 2) smoothing is not susceptible to outliers as is characteristic with
+  standard least squares fitting algorithms.
+  \item The fitting algorithm permits a multi-resolution approach so whereas standard 
+  N3 practice is to select a single resolution at which bias correction occurs, the N4
+  framework permits a multi-resolution correction where a base resolution is chosen and
+  correction can then occur at multiple resolution levels each resolution being twice 
+  the resolution of the previous level.
+\end{itemize}  
+Specifically, with respect to segmentation, there exists a third advantage with N4 over
+N3 in that the former permits the specification of a probabilistic mask as opposed 
+to a binary mask.}}
+%It was previously mentioned that
+%several methods proposed in the literature have taken an integrative
+%view of the segmentation problem by incorporating an intrinsic bias
+%correction step into the actual workflow.  The
+%advances introduced with N4 permit such an adaptive
+%integration with Atropos.  
+Recent demonstrations suggest improved
 white matter segmentation produces better gain field estimates using
 N3 \citep{Boyes2008}.  Thus, when performing 3-tissue segmentation, we
 may opt to use, for instance, the posterior probability map of white matter at the current
@@ -1622,13 +1650,13 @@ combined.  Due to the flexibility of Atropos, we also hope that some
 of its capabilities, though not evaluated here, are explored by the segmentation or clinical community.
 
 \paragraph{Information Sharing Statement}
-{\color{red}{Atropos software is available in ANTs
+{\color{blue}{Atropos software is available in ANTs
     \url{http://www.picsl.upenn.edu/ANTs} 
 which depends on ITK \url{http://www.itk.org/Wiki/ITK/Git/Download}.
 The data used in this work is available in the ANTs software
 repository, BrainWeb 
 \url{http://mouldy.bic.mni.mcgill.ca/BrainWeb/} and at \url{www.brain-development.org}.
-We employed itk-SNAP for visualization \url{www.itksnap.org}.}
+We employed itk-SNAP for visualization \url{www.itksnap.org}.}}
 
 \paragraph{Acknowledgments}
 {This work was supported in part by NIH (AG17586, AG15116, NS44266, and
