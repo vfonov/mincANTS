@@ -816,9 +816,9 @@ When spatial coherence constraints are included as an MRF prior in Atropos, the 
 \footnote{
 Consider $N$ sites each with a possible $K$ labels for a total of $N^K$ possible labeling configurations. For large $K \gg 3$, exact optimization is even more intractable than for the traditional 3-tissue scenario.
 }
-Although many optimization techniques exist \citep[see the
-introduction in][for a concise summary of the myriad optimization
-possibilities]{Marroquin2002}---each with their characteristic
+Although many optimization techniques exist (see the introduction in 
+\cite{Marroquin2002} for a concise summary of the myriad optimization
+possibilities)---each with their characteristic
 advantages and disadvantages in terms of computational complexity and
 accuracy---Atropos uses the well-known {\em Iterated Conditional
   Modes} (ICM)  \citep{Besag1986} which is greedy, computationally
@@ -827,7 +827,8 @@ Atropos may therefore be written as a series of steps:
 \begin{description}
 \item[Initialization:] In all cases, the user defines the number of
 classes to segment.  The simplest initialization is by the classic
-K-means algorithm with only the number of classes as a prior.
+K-means or Otsu thresholding algorithms with only the number of classes 
+specified by the user.
 Otherwise, the user must provide prior information for each class in
 the form of either a single $n$-ary prior label image or a series of
 prior probability images, one for each class.  The initialization also
@@ -849,13 +850,19 @@ mask such that each MRF neighborhood has a non-repeating code label set.
 Thus each masked voxel in the ICM code image is assigned a value in the 
 range $\{1,\ldots,C\}$ where $C$ is the maximum code label.
 Such an image can be created and viewed with Atropos by assigning a valid
-filename in the \texttt{--icm [1]} set of options.  An example is given in 
-Figure \ref{fig:r16icm}.  For each iteration, a random ordering of the
+filename in the \texttt{--icm [1]} set of options.  An example adult brain
+slice and the associated code image is given in 
+Figure \ref{fig:r16icm} for an MRF neighborhood of $5 \times 5$ pixels.
+This produces a maximum code label of `13'.
+For each iteration, a random ordering of the
 set $\{1,\ldots,C\}$ is created which prescribes the order in which the
 voxel labels are updated asynchronously. After the first pass through the
 set of code labels, additional passes can further increase the posterior
 probability until convergence (in $\sim$5 iterations).  One can specify
-a maximum number of these ``ICM iterations'' on the command line.}}
+a maximum number of these ``ICM iterations'' on the command line.  For
+our example in Figure \ref{fig:r16icm}, this means that for each
+ICM iteration, we would iterate through the image 13 times only updating
+those segmentation labels associated with the current ICM code.}}
 
 \begin{figure}
 \begin{center}
@@ -1019,7 +1026,9 @@ distributed with the rest of the ANTs package, we plan to contribute
 its core elements to the Insight Toolkit where it can be vetted and improved by other interested researchers.
 
 An overview of Atropos components can be gleaned, in part, from the flowchart depicted in 
-Fig.~\ref{fig:flowchart}.  To provide a more intuitive interface without the overhead costs of a graphical user interface, a set of unique command line parsing classes were developed which can also provide insight to the functionality of Atropos.  
+Fig.~\ref{fig:flowchart}.  {\color{blue}{Given a set of input images and a mask images, each is preprocessed using N4 to correct for intensity inhomogeneity.  For our brain processing pipeline, the mask is usually obtained from the standard skull-stripping preprocessing step which also uses Atropos.  Initialization can be performed in various ways using standard clustering techniques, such as K-means, to prior-based images.  This initialization is used to provide the initial estimate of the parameters of the likelihood model for each class.  These likelihoods combine with the current labeling to generate the current estimate of the posterior probabilities at each voxel for each class.  At each iteration, one can also integrate N4 by using the current posterior probability estimation of the white matter to update the estimate of bias field. }}
+
+To provide a more intuitive interface without the overhead costs of a graphical user interface, a set of unique command line parsing classes were developed which can also provide insight to the functionality of Atropos.  
 The short version of the command line help menu is given in Listing
 \ref{listing:command} which is invoked by typing `{\ttfamily Atropos
   -h}' at the command prompt.  Both short and long option flags are
