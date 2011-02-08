@@ -71,22 +71,36 @@ Philadelphia, PA 19104
 \begin{center}
 \LARGE{{\bf Response To Reviewers}}
 \end{center}
-\section{Reviewer 1}
+\section*{Reviewer 1}
+{\em This paper summarised a semi-automatic segmentation tool called Atropos primarily targeting the brain. It uses EM based methods and can deal with a high number of labels. Overall it is well written, and the availability of the source code is great.
+Although the techniques used are not novel, the paper is primarily a description of the Atropos tool and does this very well. It gives good background information as well as explains the theoretical aspects of the work clearly.}
+\newline
+\newline
+{\em Furthermore, I obtained the source code and compiled it successfully. Unfortunately, I could not get it to work on our in-house data before submitting this review.}
+\newline
+\newline
+{\color{blue}{Please let us know through Sourceforge (http://sourceforge.net/projects/advants/) if you run into any compilation troubles and/or troubles running the code.  In addition to Atropos adhering to strict ITK coding practices and standards, we recently turned ensured that all compilation warnings using gcc 4.2.1 on Mac OS X 10.6 were completely resolved.
+One of our motivations for making Atropos open source is the same for most of software---interaction with and feedback from users can only make our code better and more useful to us.  }}
+\newline
+\newline
+{\em Below are my comments split into two sections. The first are primarily technical whereas the second section contains grammatical corrections some of which may be ignored at the authors discretion.}
+\newline
+\newline
 We thank reviewer 1 for his/her careful reading for technical content
-and for improving our work.\\
+and for helping us to improve our work.\\
 \newline
 \newline
 {\em 1) Page 5, 2nd line from bottom. What are silver standard
   labellings?}
 \newline
 \newline
-We've changed this line to be more specific in the current revision.
-\newline
-\newline
-Done.  
-\newline
-\newline
-{\em 2) Page 10, Equations 8 - 11. These follow standard
+{\color{blue}{We realize that the use of this term in distinguishing levels of confidence in a given data set might be a source of unnecessary confusion so we have eliminated its use.  The relevant passage current reads (first paragraph, page 6):
+\begin{quote}
+Although Atropos may be applied to multivariate data from arbitrary modalities, we limit our evaluation to tissue classification in T1 neuroimaging in part due to the abundance of “gold-standard” data for this modality.
+\end{quote}
+}}
+\noindent
+{\em 2) Page 10, Equations 8--11. These follow standard
   approaches. However, Equation 11 does not seem consistent with [8]
   and [10]. If delta(x\_i,x\_j)=1 for x\_i=x\_j, then U(x) as defined in
   [10] increases, and p(x) as defined in [8] decreases - hence
@@ -202,7 +216,7 @@ and grammar of the text.
 We appreciate reviewer 1's time and effort.  
 \newline
 \newline
-\section{Reviewer 2}
+\section*{Reviewer 2}
 We thank reviewer 2 for his/her attention to the manuscript and overall 
 positive comments.  We made the reviewer's suggested minor changes in this revision.  
 The following comments were addressed: 
@@ -221,9 +235,12 @@ The following comments were addressed:
 \newline
 We agree with the reviewer that establishing the benefit of
 multivariate segmentation in the presence of bias would be
-significant.  However, because we only have one multivariate dataset
-on which to test this hypothesis, it is difficult to do much more than
-provide suggestive results, as we've done here.
+significant.  {\color{blue}{Such exploration would probably lengthen
+the current manuscript beyond its intended scope.  However, we did 
+want to provide suggestive results with the single data set that 
+we currently have which will obviously segue into a possible future
+publication focusing on multivariate segmentation with Atropos
+on specific data sets for which multi-modal data sets are essential.}}
 \newline
 \newline
 {\em I have only two concerns with the article. First, there is almost
@@ -235,7 +252,7 @@ provide suggestive results, as we've done here.
 \newline
 \newline
 The revision adds explanatory material in the body of the text
-associated with each figure.  {\bf FIXME}
+associated with each figure.  {\color{blue}{These revisions are printed in blue font and are sprinkled throughout the manuscript.}}
 \newline
 \newline
 {\em Second, why is it that ``In this study, we labeled the brain web (sic) template very sparsely, quickly and crudely and did not expect highly accurate results.''
@@ -245,7 +262,7 @@ would be better if better manual labels were used.}
 \newline
 \newline
 We agree with the reviewer and removed this comment and the evaluation
-results.  We added: 
+results.  We added (bottom of page 12): 
     \begin{quote}
     We provide this capability to allow the user to implement
     an interactive editing and segmentation loop.  The user may
