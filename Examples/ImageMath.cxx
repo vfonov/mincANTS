@@ -2093,6 +2093,11 @@ int TensorFunctions(int argc, char *argv[])
 	      for ( unsigned int ee=0; ee<d4size; ee++) 
 		{
 		  ind2[3]=ee;
+		  if ( ee ==  2 ) 
+		  pix6[2]=d4img->GetPixel(ind2);
+		  else if ( ee ==  3 ) 
+		  pix6[3]=d4img->GetPixel(ind2);
+		  else 
 		  pix6[ee]=d4img->GetPixel(ind2);
 		}
 	    }
@@ -5294,6 +5299,50 @@ int Lipschitz( int argc, char *argv[] )
 
 }
 
+
+template <unsigned int ImageDimension>
+int ExtractVectorComponent( int argc, char *argv[] )
+{
+  typedef float PixelType;
+  typedef itk::VectorImage<PixelType, ImageDimension> ImageType;
+  typedef itk::Image<PixelType, ImageDimension> RealImageType;
+  int argct=2;
+  std::string outname=std::string(argv[argct]); argct++;
+  std::string operation = std::string(argv[argct]);  argct++;
+  std::string inname = std::string(argv[argct]);   argct++;
+  unsigned int whichvec = atoi(argv[argct]);   argct++;
+  typedef itk::ImageFileReader< ImageType> ReaderType;
+  typename ReaderType::Pointer reader1 = ReaderType::New();
+  reader1->SetFileName( inname.c_str() );
+  reader1->Update();
+  typename ImageType::Pointer vecimage=reader1->GetOutput();
+  if ( whichvec >= vecimage->GetVectorLength() ){
+    std::cout << " input image " << inname << " only has " << vecimage->GetVectorLength() << " components " <<std::endl;
+    return EXIT_FAILURE;
+  }
+  else {
+    typename RealImageType::Pointer component = RealImageType::New();
+    component->SetOrigin( vecimage->GetOrigin() );
+    component->SetSpacing( vecimage->GetSpacing() );
+    component->SetRegions( vecimage->GetLargestPossibleRegion() );
+    component->SetDirection(  vecimage->GetDirection());
+    component->Allocate();
+    component->FillBuffer(0);
+    typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
+    Iterator It1 ( vecimage,vecimage->GetLargestPossibleRegion() );
+    for( It1.GoToBegin(); !It1.IsAtEnd(); ++It1 )
+    {
+      component->SetPixel(It1.GetIndex(),It1.Get()[whichvec]);
+    }
+    typedef itk::ImageFileWriter<RealImageType> RealImageWriterType;
+    typename RealImageWriterType::Pointer realwriter = RealImageWriterType::New();
+    realwriter->SetFileName( outname.c_str() );
+    realwriter->SetInput( component );
+    realwriter->Update();
+  }
+  return EXIT_SUCCESS;
+}
+
 template <unsigned int ImageDimension>
 int InvId( int argc, char *argv[] )
 {
@@ -6224,6 +6273,7 @@ int main(int argc, char *argv[])
     std::cout << "  TensorColor DTImage --- produces RGB values identifying principal directions " << std::endl;
     std::cout << "  TensorToVector DTImage WhichVec --- produces vector field identifying one of the principal directions, 2 = largest eigenvalue " << std::endl;
     std::cout << "  TensorToVectorComponent DTImage WhichVec --- 0 => 2 produces component of the principal vector field , i.e. largest eigenvalue.   3 = 8 => gets values from the tensor " << std::endl;
+    std::cout << "  ExtractVectorComponent VecImage WhichVec ---  produces the WhichVec component of the vector " << std::endl;
     std::cout << "  TensorIOTest DTImage --- will write the DT image back out ... tests I/O processes for consistency. " << std::endl;
     std::cout << "  MakeImage  SizeX  SizeY {SizeZ}  " << std::endl;
     std::cout << "  SetOrGetPixel  ImageIn Get/Set-Value  IndexX  IndexY {IndexZ}  -- for example \n  ImageMath 2 outimage.nii SetOrGetPixel Image  Get 24 34 -- gets the value at 24, 34 \n   ImageMath 2 outimage.nii SetOrGetPixel Image 1.e9  24 34  -- this sets 1.e9 as the value at 23 34  " << std::endl << " you can also pass a boolean at the end to force the physical space to be used "  << std::endl;
@@ -6283,6 +6333,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"Lipschitz") == 0 )  Lipschitz<2>(argc,argv);
      else if (strcmp(operation.c_str(),"InvId") == 0 )  InvId<2>(argc,argv);
      else if (strcmp(operation.c_str(),"GetLargestComponent") == 0 )  GetLargestComponent<2>(argc,argv);
+     else if (strcmp(operation.c_str(),"ExtractVectorComponent") == 0 )  ExtractVectorComponent<2>(argc,argv);
      else if (strcmp(operation.c_str(),"ThresholdAtMean") == 0 )  ThresholdAtMean<2>(argc,argv);
      else if (strcmp(operation.c_str(),"FlattenImage") == 0 )  FlattenImage<2>(argc,argv);
      else if (strcmp(operation.c_str(),"CorruptImage") == 0 )  CorruptImage<2>(argc,argv);
@@ -6343,6 +6394,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"Lipschitz") == 0 )  Lipschitz<3>(argc,argv);
      else if (strcmp(operation.c_str(),"InvId") == 0 )  InvId<3>(argc,argv);
      else if (strcmp(operation.c_str(),"GetLargestComponent") == 0 )  GetLargestComponent<3>(argc,argv);
+     else if (strcmp(operation.c_str(),"ExtractVectorComponent") == 0 )  ExtractVectorComponent<3>(argc,argv);
      else if (strcmp(operation.c_str(),"ThresholdAtMean") == 0 )  ThresholdAtMean<3>(argc,argv);
      else if (strcmp(operation.c_str(),"FlattenImage") == 0 )  FlattenImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"CorruptImage") == 0 )  CorruptImage<3>(argc,argv);
@@ -6410,6 +6462,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"Lipschitz") == 0 )  Lipschitz<4>(argc,argv);
      else if (strcmp(operation.c_str(),"InvId") == 0 )  InvId<4>(argc,argv);
      else if (strcmp(operation.c_str(),"GetLargestComponent") == 0 )  GetLargestComponent<4>(argc,argv);
+     else if (strcmp(operation.c_str(),"ExtractVectorComponent") == 0 )  ExtractVectorComponent<4>(argc,argv);
      else if (strcmp(operation.c_str(),"ThresholdAtMean") == 0 )  ThresholdAtMean<4>(argc,argv);
      else if (strcmp(operation.c_str(),"FlattenImage") == 0 )  FlattenImage<4>(argc,argv);
      else if (strcmp(operation.c_str(),"CorruptImage") == 0 )  CorruptImage<4>(argc,argv);
