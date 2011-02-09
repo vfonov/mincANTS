@@ -373,11 +373,11 @@ from the command line.  For instance, try \verb sh ~ \verb ants.sh .
 Additionally, if you run ants in tcsh shells, you will need to call it
 as follows:
 \begin{verbatim}
-~/Code/ANTSSourceForgeSVN/bin/ANTS 2 -m PR\[r16slice.nii,r64slice.nii,1,2\]
+~/Code/ANTSSourceForgeSVN/bin/ANTS 2 -m CC\[r16slice.nii,r64slice.nii,1,2\]
 \end{verbatim}
 instead of
 \begin{verbatim}
-~/Code/ANTSSourceForgeSVN/bin/ANTS 2 -m PR[r16slice.nii,r64slice.nii,1,2]
+~/Code/ANTSSourceForgeSVN/bin/ANTS 2 -m CC[r16slice.nii,r64slice.nii,1,2]
 \end{verbatim}
 because tcsh does no interpret the brackets as intended.  Using the
 bash shell script interface also avoids this.  The key change involves using the slash to force tcsh to 
@@ -454,7 +454,9 @@ An overview of available models and similarity terms is in Table~\ref{table:char
        {} & Geodesic SyN$^\dagger$ &  CC, PR, MI, MSQ, PSE  &  $~\min~\velocity(\x,t)$ over all time \\
     \bottomrule
     \end{tabular}
-  \caption{Transformations and a subset of the similarity metrics available in ANTS.  Similarity metric acronyms:  CC = fast cross correlation, PR = pure cross correlation (the preferred metric), MSQ = mean squared difference, MI = mutual information, PSE = point-set expectation \cite{Pluta2008}.  ANTS also provides the inverse of those transformations denoted by the `$\dagger$' symbol.  The brief descriptions of the diffeomorphic algorithms contrast the way in which the velocity field is optimized and used to parameterize $\phi$, the mapping.  All 
+  \caption{Transformations and a subset of the similarity metrics
+    available in ANTS.  Similarity metric acronyms:  CC = fast cross
+    correlation (the preferred metric), PR = cross correlation (deprecated), MSQ = mean squared difference, MI = mutual information, PSE = point-set expectation \cite{Pluta2008}.  ANTS also provides the inverse of those transformations denoted by the `$\dagger$' symbol.  The brief descriptions of the diffeomorphic algorithms contrast the way in which the velocity field is optimized and used to parameterize $\phi$, the mapping.  All 
 ANTS Diff algorithms generate $\phi(\x,t)$ over $t \in [ 0, 1]$ through gradient descent.}
   \label{table:chart}
 \end{table*}    
@@ -562,10 +564,10 @@ Gradient descent optimization of an elastic mapping may be summarized (crudely) 
 where $\Pi$ is the similarity, $\delta$ is a gradient step length and $G_\sigma$ is a gaussian smoother.
 This optimization is captured in the following ANTS command:
 \begin{verbatim}
-ANTS 3 -m PR[AtlasHead.nii,crAnatomical.nii,1,4] -r Gauss[0,3]  
+ANTS 3 -m CC[AtlasHead.nii,crAnatomical.nii,1,4] -r Gauss[0,3]  
 -o ElasticTest.nii.gz -i 30x20x10  -t Elast[1.5] 
 \end{verbatim}
-Here, we use the PR metric (a cross-correlation implementation) with
+Here, we use the CC metric (a cross-correlation implementation) with
 window radius 4, weight 1 and gradient step length 1.5.  The
 optimization will be performed over three resolutions with a maximum
 of 30 iterations at the coarsest level, 20 at the next coarsest and 10
@@ -614,7 +616,7 @@ causes expansion, then $\mathcal{J}(\x) > 1$. }
 A few important notes follow. 
 (1) Deformation directionality: Warps/deformations applied to images occur in the opposite direction from warps/deformations applied to points. That is, if we map image B to A using 
 \begin{verbatim}
-ANTS 2 -m PR[A,B,1,2] -o OUTPUT 
+ANTS 2 -m CC[A,B,1,2] -o OUTPUT 
 \end{verbatim}
  then we get a deformation called \verb OUTPUTWarp+extensions ~and an affine transform called \verb OUTPUTAffine.txt . 
 This composite mapping - when applied to B - will transform B into the space of A. 
@@ -732,13 +734,13 @@ A second type of multivariate normalization is able to use the T1 and DTI compon
 directly in the optimization of the mapping.  An example of this type of call is below, 
 where we assume that one has resampled the DT data to the space of T1: 
 \begin{verbatim}
-ANTS 3 -m PR[T1template.nii,T1subject.nii,1.25,4]
-       -m PR[FAtemplate.nii,FAsubject.nii,1,4] 
+ANTS 3 -m CC[T1template.nii,T1subject.nii,1.25,4]
+       -m CC[FAtemplate.nii,FAsubject.nii,1,4] 
 -o MultiVar -i 30x30x20  -r Gauss[3,0] -t SyN[0.25]
 \end{verbatim}
 In this case, dense features within white matter are gained by using the DT component  
-in addition to the T1 component.   The T1 PR metric, here, is weighted slightly more 
-than the FA PR metric, 1.25 vs. 1.0.  {\em The convergence criterion for 
+in addition to the T1 component.   The T1 CC metric, here, is weighted slightly more 
+than the FA CC metric, 1.25 vs. 1.0.  {\em The convergence criterion for 
 the multivariate scenario is a slave to the {\bf last} metric you 
 pass on the ANTS command line}.
 
@@ -776,19 +778,19 @@ across this dataset -- is recovered in the derived optimal template.}
 \item   Make a directory for this example.   Copy or link all the B*tiff images into it.
 \item Copy the file ANTS/Scripts/buildtemplate.sh into that directory.  
 \item  On the command line, within that directory, run the following command: 
-\verb  sh ~ \verb buildtemplate.sh ~ to get usage. 
-\item If you follow the usage, you will then call the script something like this: 
-\verb sh ~ \verb buildtemplate.sh ~ \verb 2 ~ \verb B ~ \verb tiff ~ \verb OUT ~ \verb 4 ~ . 
-\item The script should exit and ask if the parameters are ok for your problem.  
-Check the path to the programs, the fact that all the images you want to use are being 
-listed and that the template output name is ok with you.  
-Once everything is prepared, then edit the script to remove the exit call at the end of the parameter check. 
-\item  Call the script as in step 4 and then wait for the output.  The template will 
-be called something like (in this example)  \verb OUTtemplate.nii.gz .
+\verb  bash ~ \verb buildtemplateparallel.sh -h ~ to get usage. 
+\item Following the usage, you can write a script that contains a call like this: 
+\verb buildtemplateparallel.sh ~ \verb  -d ~ \verb  2 ~ \verb -o ~ \verb  BTP ~ \verb -c ~ \verb  0 ~ \verb  B*tiff
+% \verb bash ~ \verb ~ \verb 2 ~ \verb B ~ \verb tiff ~ \verb OUT ~ \verb 4 ~ . 
+\item  Call the script in step 4 and then wait for the output.  The template will 
+be called (in this example)  \verb BTPtemplate.nii.gz .
+\item If the script does not produce the desired output, check that
+  you defined \$ANTSPATH in your path.
+You may also check and or define the path to the ANTs programs
+explicitly by editing this variable in buildtemplateparallel and antsIntroduction.
 \end{enumerate}
-The script is fairly easy to alter so that you can send the whole thing to distributed computing. 
-Typically, one would use voxbo or the qsub program available in the Sun Grid Engine.  This 
-is what is done in \verb buildtemplateparallel.sh .  
+The script offers an option ( -c 1  for qsub , -c 2 for voxbo )  so that you can send the whole thing to distributed computing. 
+Typically, one would use voxbo or the qsub program available in the Sun Grid Engine.  
 Figure~\ref{fig:template} shows the data and a result that may be recreated by the user.
 \subsection{Notes on Large Deformation Mapping} 
 Figure~\ref{fig:large} defines what one might expect from a 
@@ -820,12 +822,12 @@ Usually, reasons for registration failure are one of a very few things:
 An example of this final point is given here.   
 A recent study used the following call to ANTS across a dataset of elderly subjects:
 \begin{verbatim}
-ANTS 3 -m PR[template.nii.gz,subject.nii.gz,1,2] -i 10x50x50x20
+ANTS 3 -m CC[template.nii.gz,subject.nii.gz,1,2] -i 10x50x50x20
  -o subjectmap.nii.gz -t SyN[0.25] -r Gauss[3,0]
 \end{verbatim}
 This succeeded for all subjects but one.  This subject had severe neurodegeneration which caused "under-normalization" to result.  A larger deformation mapping was required and so we increased the maximum number of iterations (the "-i" parameter).  One might also increase the gradient-descent step-size (SyN[0.25] => SyN[0.5]).   Large deformation mapping is challenging not only because of the amount of deformation, but also because the "true" solution is difficult to find.  Keeping this in mind, we also increased the "span" (radius) of the correlation window in the similarity metric (which also increases computation time). These modified parameters succeeded: 
 \begin{verbatim}
-ANTS 3 -m PR[template.nii.gz,subject.nii.gz,1,4] -i 100x100x100x20
+ANTS 3 -m CC[template.nii.gz,subject.nii.gz,1,4] -i 100x100x100x20
  -o subjectmap.nii.gz -t SyN[0.25] -r Gauss[3,0] 
 \end{verbatim}
 Key changes were to increase the radius of the correlation and to
