@@ -600,7 +600,7 @@ We assume the random field introduced earlier, $X$, is an MRF characterized by a
 and where $\mathbf{x}$ is any particular labeling configuration on $X$ (in
 other words, any labeling permutation on $X$ is {\em a priori}
 possible).  The MRF locality condition is then, 
-\begin{align}
+\begin{align}\label{eq:cond}
   p\left(x_i | x_{\mathcal{I}-\{i\}}\right) = p\left(x_i |
     x_{\mathcal{N}_i}\right) 
 \end{align}
@@ -617,7 +617,8 @@ interactions between neighboring sites across the image,%
 \footnote{
 Using a more expansive definition of  $U(\mathbf{x})$, 
 \begin{align}
-U(\mathbf{x}) = \sum_{i = 1}^N \left( V_i(x_i) + \beta \sum_{j \in \mathcal{N}_i} V_{ij}( x_i, x_j ) \right)
+U(\mathbf{x}) = \sum_{i = 1}^N \left( V_i(x_i) + \beta \sum_{j \in
+    \mathcal{N}_i} V_{ij}( x_i, x_j ) \right) \nonumber
 \end{align}
 would permit casting the other prior terms inside the definition of $U(\mathbf{x})$ in the form of the external field $V_i(x_i)$ but, for clarity purposes, we consider them separately. 
 }
@@ -700,8 +701,7 @@ Furthermore, one may automate the initialization process.
     an interactive editing and segmentation loop.  The user may
     run Atropos with sparse manual label guidance, evaluate the
     results, update the manual labels and repeat until achieving the desired
-    outcome.  This processing loop be performed easily with, e.g., ITK-SNAP.}}
-
+    outcome.  This processing loop may be performed easily with, e.g., ITK-SNAP.}}
 \begin{comment}
 {
 \subsubsection{Distance Prior for Label Propagation}
@@ -854,8 +854,8 @@ filename in the \texttt{--icm [1]} set of options.  An example adult brain
 slice and the associated code image is given in 
 Figure \ref{fig:r16icm} for an MRF neighborhood of $5 \times 5$ pixels.
 This produces a maximum code label of `13'.
-For each iteration, a random ordering of the
-set $\{1,\ldots,C\}$ is created which prescribes the order in which the
+For each iteration, one has the option to permute the
+set $\{1,\ldots,C\}$ which prescribes the order in which the
 voxel labels are updated asynchronously. After the first pass through the
 set of code labels, additional passes can further increase the posterior
 probability until convergence (in $\sim$5 iterations).  One can specify
@@ -1507,8 +1507,8 @@ individually, the 69 $\times$ 18 label images to the unlabeled
 subject.  The label probability map is gained by averaging the 18
 deformed images associated with each label.  We repeat this for each
 subject.  The following parameters are the most relevant to this discussion:
-{\ttfamily  -i  PriorProbabilityImages[3,label\_prob\%02d.nii.gz,0.5] 
--m [0.1,1x1x1] -c [5,0] -p Socrates[1]}.  Results, in terms of
+{\ttfamily  -i  PriorProbabilityImages[69,label\_prob\%02d.nii.gz,0.5] 
+-m [0.2,1x1x1] -c [5,0] -p Socrates[1]}.  Results, in terms of
 Dice overlap, are shown in Figure~\ref{fig:hammers}.
 \begin{figure}
 \begin{center}
