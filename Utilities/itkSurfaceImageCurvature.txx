@@ -1176,6 +1176,7 @@ void  SurfaceImageCurvature<TSurface>
     thresh+=kpix; 
     float offset=0;
     if ( fabs( image->GetPixel(index) - 0 ) > 1.e-6  ) offset=128.0;
+    if (which == 5) offset=0;
     this->m_FunctionImage->SetPixel(index,offset+kpix);
     ct2++;
     ++ti;

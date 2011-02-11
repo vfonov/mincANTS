@@ -623,6 +623,7 @@ SurfaceCurvatureBase<TSurface,TDimension>
   if (fabs(m_GaussianKappa) < th*th) m_GaussianKappa=0.0;
   if (fabs(m_MeanKappa) < th)  m_MeanKappa=0.0;
  
+
   if      (m_MeanKappa > 0 && m_GaussianKappa > 0 ) return 8;
   else if (m_MeanKappa > 0 && m_GaussianKappa == 0) return 7;
   else if (m_MeanKappa > 0 && m_GaussianKappa <  0) return 6;
