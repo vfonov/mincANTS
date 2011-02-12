@@ -1170,6 +1170,7 @@ void  SurfaceImageCurvature<TSurface>
 //      kpix=1.0+this->m_Kappa1*this->m_Kappa1+this->m_Kappa2*this->m_Kappa2;
 //    kpix=fabs(this->m_Normal[0]);
       if (which == 5) kpix=this->CharacterizeSurface();
+      if (which == 6) kpix=this->m_GaussianKappa;
       ct++;
       this->m_PointList.clear();  
     }
