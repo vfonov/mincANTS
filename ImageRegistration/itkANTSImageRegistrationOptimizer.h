@@ -48,6 +48,7 @@
 #include "itkVector.h"
 #include "itkBSplineScatteredDataPointSetToImageFilter.h"
 #include "itkGeneralToBSplineDeformationFieldFilter.h"
+#include "itkBSplineControlPointImageFunction.h"
 #include "ANTS_affine_registration2.h"
 #include "itkVectorFieldGradientImageFunction.h"
 #include "itkBSplineInterpolateImageFunction.h"
@@ -1120,11 +1121,18 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
           bspliner->SetNumberOfControlPoints( ncps );
           bspliner->Update();
 
+          typedef BSplineControlPointImageFunction<CurveType> BSplinerType2;
+          typename BSplinerType2::Pointer bspliner2 = BSplinerType2::New();
+          bspliner2->SetOrigin( origin );
+          bspliner2->SetSpacing( spacing );
+          bspliner2->SetSize( size );
+          bspliner2->SetSplineOrder( 1 );
+          bspliner2->SetInputImage( bspliner->GetOutput() );
+
 	  ProfilePointType endPoint;
           endPoint[0] = static_cast<TReal>( this->m_CurrentIteration-domainsize*0.5 );
-	  typename BSplinerType::GradientType gradient;
-	  gradient.Fill(0);
-	  bspliner->EvaluateGradientAtPoint( endPoint, gradient );
+	  typename BSplinerType2::GradientType gradient =
+	    bspliner2->EvaluateGradientAtParametricPoint( endPoint );
 	  this->m_ESlope=gradient[0][0]  ;
 	  if (  this->m_ESlope < 0.0001 && this->m_CurrentIteration > domtar) converged=true;
 	  std::cout << " E-Slope " <<  this->m_ESlope;//<< std::endl;
