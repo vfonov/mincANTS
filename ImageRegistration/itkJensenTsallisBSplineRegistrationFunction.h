@@ -7,7 +7,7 @@
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -123,14 +123,14 @@ public:
   void SetFixedKernelSigma( RealType r )  { this->m_FixedKernelSigma = r; }
   RealType GetFixedKernelSigma()  { return this->m_FixedKernelSigma; }
 
-  void SetFixedEvaluationKNeighborhood( unsigned int r )  
+  void SetFixedEvaluationKNeighborhood( unsigned int r )
     { this->m_FixedEvaluationKNeighborhood = r; }
-  unsigned int GetFixedEvaluationKNeighborhood()  
+  unsigned int GetFixedEvaluationKNeighborhood()
     { return this->m_FixedEvaluationKNeighborhood; }
 
-  void SetFixedCovarianceKNeighborhood( unsigned int r )  
+  void SetFixedCovarianceKNeighborhood( unsigned int r )
     { this->m_FixedCovarianceKNeighborhood = r; }
-  unsigned int GetFixedCovarianceKNeighborhood()  
+  unsigned int GetFixedCovarianceKNeighborhood()
     { return this->m_FixedCovarianceKNeighborhood; }
 
   void SetNumberOfFixedSamples( unsigned long r )  { this->m_NumberOfFixedSamples = r; }
@@ -142,14 +142,14 @@ public:
   void SetMovingKernelSigma( RealType r )  { this->m_MovingKernelSigma = r; }
   RealType GetMovingKernelSigma()  { return this->m_MovingKernelSigma; }
 
-  void SetMovingEvaluationKNeighborhood( unsigned int r )  
+  void SetMovingEvaluationKNeighborhood( unsigned int r )
     { this->m_MovingEvaluationKNeighborhood = r; }
-  unsigned int GetMovingEvaluationKNeighborhood()  
+  unsigned int GetMovingEvaluationKNeighborhood()
     { return this->m_MovingEvaluationKNeighborhood; }
 
-  void SetMovingCovarianceKNeighborhood( unsigned int r )  
+  void SetMovingCovarianceKNeighborhood( unsigned int r )
     { this->m_MovingCovarianceKNeighborhood = r; }
-  unsigned int GetMovingCovarianceKNeighborhood()  
+  unsigned int GetMovingCovarianceKNeighborhood()
     { return this->m_MovingCovarianceKNeighborhood; }
 
   void SetNumberOfMovingSamples( unsigned long r )  { this->m_NumberOfMovingSamples = r; }
