@@ -7,7 +7,7 @@ do
 pdflatex $FL 
 bibtex   $FL
 done
-cp ${FL}.pdf ../
+# cp ${FL}.pdf ../
 done 
 rm -f *.bbl *.log *.aux *.toc *.blg *.brf *.out *.spl *~ 
 
