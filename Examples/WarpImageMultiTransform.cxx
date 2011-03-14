@@ -829,13 +829,13 @@ int main(int argc, char **argv){
      imageIO->SetFileName(moving_image_filename);
      imageIO->ReadImageInformation();
      unsigned int ncomponents=imageIO->GetNumberOfComponents();
-
-        std::cout << "moving_image_filename: " << moving_image_filename << std::endl;
-        std::cout << "output_image_filename: " << output_image_filename << std::endl;
-        std::cout << "reference_image_filename: ";
-        if (misc_opt.reference_image_filename) std::cout << misc_opt.reference_image_filename << std::endl;
-        else std::cout << "NULL" << std::endl;
-        DisplayOptQueue(opt_queue);
+     
+     std::cout << "moving_image_filename: " << moving_image_filename << " components " << ncomponents << std::endl;
+     std::cout << "output_image_filename: " << output_image_filename << std::endl;
+     std::cout << "reference_image_filename: ";
+     if (misc_opt.reference_image_filename) std::cout << misc_opt.reference_image_filename << std::endl;
+     else std::cout << "NULL" << std::endl;
+     DisplayOptQueue(opt_queue);
 
   switch( kImageDim )
    {
@@ -855,6 +855,9 @@ int main(int argc, char **argv){
        {
        case 3:
 	 WarpImageMultiTransform<3,3>(moving_image_filename, output_image_filename, opt_queue, misc_opt);
+	 break;
+       case 6:
+	 WarpImageMultiTransform<3,6>(moving_image_filename, output_image_filename, opt_queue, misc_opt);
 	 break;
        default:
 	 WarpImageMultiTransform<3,1>(moving_image_filename, output_image_filename, opt_queue, misc_opt);
