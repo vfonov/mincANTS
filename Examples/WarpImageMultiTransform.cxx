@@ -487,9 +487,11 @@ template<int ImageDimension, unsigned int NVectorComponents>
 void WarpImageMultiTransform(char *moving_image_filename, char *output_image_filename,
         TRAN_OPT_QUEUE &opt_queue, MISC_OPT &misc_opt){
 
-    typedef itk::Vector<float, NVectorComponents> PixelType;
+  typedef float RealType;
+    typedef itk::Vector<RealType, NVectorComponents> PixelType;
     typedef itk::Image<PixelType, ImageDimension> ImageType;
-    typedef itk::Vector<float, ImageDimension>         VectorType;
+    typedef itk::VectorImage<RealType, ImageDimension> RefImageType;
+    typedef itk::Vector<RealType, ImageDimension>         VectorType;
     typedef itk::Image<VectorType, ImageDimension>     DeformationFieldType;
     typedef itk::MatrixOffsetTransformBase< double, ImageDimension, ImageDimension > AffineTransformType;
     typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DeformationFieldType, AffineTransformType> WarperType;
@@ -497,6 +499,7 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
     itk::TransformFactory<AffineTransformType>::RegisterTransform();
 
     typedef itk::ImageFileReader<ImageType> ImageFileReaderType;
+    typedef itk::ImageFileReader<RefImageType> VectorImageFileReaderType;
     typename ImageFileReaderType::Pointer reader_img = ImageFileReaderType::New();
     reader_img->SetFileName(moving_image_filename);
     reader_img->Update();
@@ -504,9 +507,9 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
 
     img_mov = reader_img->GetOutput();
 
-    typename ImageType::Pointer img_ref; // = ImageType::New();
+    typename RefImageType::Pointer img_ref; // = ImageType::New();
 
-    typename ImageFileReaderType::Pointer reader_img_ref = ImageFileReaderType::New();
+    typename VectorImageFileReaderType::Pointer reader_img_ref = VectorImageFileReaderType::New();
     if (misc_opt.reference_image_filename){
         reader_img_ref->SetFileName(misc_opt.reference_image_filename);
         reader_img_ref->Update();
