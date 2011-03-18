@@ -125,9 +125,7 @@ TensorType TensorLogAndExp( TensorType dtv, bool takelog , bool success=true)
   double e1 = D(0,0);
   double e2 = D(1,1);
   double e3 = D(2,2);
-  if ( e1 < 0 ) e1=e2;
-  if ( e3 < 0 ) e3=e2;
-  //float peigeps=1.e-12;   
+  // float peigeps=1.e-12;   
 
   if ( fabs(e3) < eps ) { success=false; std::cout << "-4" << std::flush; return dtv; }
   
@@ -135,6 +133,8 @@ TensorType TensorLogAndExp( TensorType dtv, bool takelog , bool success=true)
   eigmat.Fill(0);
   if (takelog)
 	{
+          if ( e1 < 0 ) e1=e2;
+          if ( e3 < 0 ) e3=e2;
 	  eigmat(0,0)=log(fabs(e1));
 	  eigmat(1,1)=log(fabs(e2));
 	  eigmat(2,2)=log(fabs(e3));
@@ -219,8 +219,6 @@ float  GetMetricTensorCost(  TVectorType dpath,  TTensorType dtv , unsigned int 
   double e1 = (eig.D(0,0));
   double e2 = (eig.D(1,1));
   double e3 = (eig.D(2,2));
-  if ( e1 < 0 ) e1=e2;
-  if ( e3 < 0 ) e3=e2;
   double etot=e1+e2+e3;
   if (etot==0) etot=1;
  
@@ -258,8 +256,6 @@ TVectorType ChangeTensorByVector(  TVectorType dpath,  TTensorType dtv, float ep
   double e3 = (eig.D(0,0));
   double e2 = (eig.D(1,1));
   double e1 = (eig.D(2,2));  
-  if ( e1 < 0 ) e1=e2;
-  if ( e3 < 0 ) e3=e2;
   double etot=e1+e2+e3;
   if (etot==0) etot=1;
  
@@ -369,8 +365,6 @@ float  GetTensorADC( TTensorType dtv,  unsigned int opt = 0)
   double e1 = (eig.D(0,0));
   double e2 = (eig.D(1,1));
   double e3 = (eig.D(2,2));
-  if ( e1 < 0 ) e1=e2;
-  if ( e3 < 0 ) e3=e2;
   if (opt <= 1 )  return (e1+e1+e3)/3.0;
   //  else if (opt == 4 ) return e2; 
   else if (opt == 3 ) return (e2+e1)/2.0;
@@ -479,8 +473,6 @@ itk::RGBPixel< float >   GetTensorPrincipalEigenvector( TTensorType dtv )
   double e1 = (eig.D(0,0));
   double e2 = (eig.D(1,1));
   double e3 = (eig.D(2,2));
-  if ( e1 < 0 ) e1=e2;
-  if ( e3 < 0 ) e3=e2;
   itk::RGBPixel< float > rgb;
 
   float xx = dtv[0];
@@ -628,8 +620,6 @@ static float GetMetricTensorCost(  itk::Vector<float, 3> dpath,  TTensorType dtv
   double e1 = (eig.D(0,0));
   double e2 = (eig.D(1,1));
   double e3 = (eig.D(2,2));
-  if ( e1 < 0 ) e1=e2;
-  if ( e3 < 0 ) e3=e2;
   double etot=e1+e2+e3;
   if (etot==0) etot=1;
   
