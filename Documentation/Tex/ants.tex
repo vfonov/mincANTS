@@ -745,7 +745,10 @@ the \verb -m  option, which contains two parts: simarity type and the parameters
     \begin{itemize}
         \item the fixed image: fixed.nii
         \item the moving image: moving.nii             
-        \item weight for this metric is 1 (i.e. only this metric drives the registration).      
+        \item weight for this metric is 1 (the weights are relative to
+          the weights on the $N$ other metrics passed to ANTS --- $N$
+          is unlimited).  So, the weight, $w_i$ on the $i^{th}$ metric
+          will be  $w_i=w_i/ ( \sum_i  w_i )$.
         \item the region radius for computing cross correlation is 5
     \end{itemize}
 
@@ -771,7 +774,7 @@ kNeighborhood,PartialMatchingIterations=100000]
         \item \verb"movingImage": defines the space domain of the moving point set.
         \item \verb"fixedPoints/Image": defines the coordinates of the fixed point set or label image. It can be an image with discrete positive labels, a VTK format point set file, or a text file. Details can be found in I/O section (TODO).
         \item \verb"movingPoints/Image": defines the coordinates of the moving point set or label image. 
-        \item \verb"weight": weight for this metric. \verb"1" means that only this metric drives the registration.
+        \item \verb"weight": weight for this metric. \verb"1" weights are relative to the weights on the $N$ other metrics passed to ANTS --- $N$ is unlimited.
         \item \verb"pointSetPercentage": the percentage of points to be randomly sampled used in the registration.
         \item \verb"pointSetSigma": the standard deviation of the Parzen window used to estimate the expectation. 
         \item \verb"boundaryPointsOnly":  \verb"1" (or ``true'') means only the boundary points in the label image is used to drive registration.
@@ -790,7 +793,7 @@ meshResolution,splineOrder,numberOfLevels,useAnisotropicCovariances]
         \item \verb"movingImage": defines the space domain of the moving point set.
         \item \verb"fixedPoints": defines the coordinates of the fixed point set. It can be an image with discrete positive labels, a VTK format point set file, or a text file. Details can be found in I/O section (TODO).
         \item \verb"movingPoints": defines the coordinates of the moving point set.
-        \item \verb"weight": weight for this metric. \verb"1" means that only this metric drives the registration.
+        \item \verb"weight": weight for this metric.  The weights are relative to the weights on the $N$ other metrics passed to ANTS --- $N$ is unlimited.
         \item \verb"pointSetPercentage": the percentage of points to be randomly sampled used in the registration.
         \item \verb"pointSetSigma": the sigma for the Parzen window used to estimate probabilities.  
         \item \verb"boundaryPointsOnly": [TODO] \verb"1" (or ``true'') means only the boundary points in the point sets are used to drive registration.
