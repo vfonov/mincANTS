@@ -15,7 +15,7 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#include <map> 
+#include <map>
 // Here I'm using a map but you could choose even other containers
 #include <fstream>
 #include <string>
@@ -2050,12 +2050,12 @@ int TensorFunctions(int argc, char *argv[])
     imageIO->SetFileName(fn1.c_str());
     imageIO->ReadImageInformation();
     unsigned int dim=imageIO->GetNumberOfDimensions();
-    if ( dim == 4 ) 
+    if ( dim == 4 )
       {
 	typename D4TensorImageType::Pointer d4img=NULL;
 	ReadImage<D4TensorImageType>(d4img, fn1.c_str());
 	unsigned int d4size=d4img->GetLargestPossibleRegion().GetSize()[3];
-	if ( d4size != 6 && d4size != 7 ) 
+	if ( d4size != 6 && d4size != 7 )
 	  {
 	    std::cout << " you should not be using this function if the input data is not a tensor. " << std::endl;
 	    std::cout << " there is no way for us to really check if your use of this function is correct right now except checking the size of the 4th dimension which should be 6 or 7 (the latter if you store b0 in the first component) --- you should really store tensors not as 4D images but as 3D images with tensor voxel types. " << std::endl;
@@ -2069,7 +2069,7 @@ int TensorFunctions(int argc, char *argv[])
 	for ( unsigned int dd=0; dd<ImageDimension; dd++){
   	  size[dd]=d4img->GetLargestPossibleRegion().GetSize()[dd];
 	  origin[dd]=d4img->GetOrigin()[dd];
-	  spacing[dd]=d4img->GetSpacing()[dd]; 
+	  spacing[dd]=d4img->GetSpacing()[dd];
   	    for ( unsigned int ee=0; ee<ImageDimension; ee++)
 	      direction[dd][ee]=d4img->GetDirection()[dd][ee];
 	}
@@ -2081,32 +2081,32 @@ int TensorFunctions(int argc, char *argv[])
 	cimage->SetOrigin(origin);
 	cimage->SetDirection(direction);
 
-	// now iterate through & set the values of the tensors. 
+	// now iterate through & set the values of the tensors.
 	Iterator tIter(cimage, cimage->GetLargestPossibleRegion() );
 	for(  tIter.GoToBegin(); !tIter.IsAtEnd(); ++tIter )
 	  {
 	    typename TensorImageType::IndexType ind=tIter.GetIndex();
 	    typename D4TensorImageType::IndexType ind2;
 	    for ( unsigned int dd=0; dd<ImageDimension; dd++) ind2[dd]=ind[dd];
-	    TensorType pix6=tIter.Get(); 
+	    TensorType pix6=tIter.Get();
 	    if ( d4size == 6 ) {
-	      for ( unsigned int ee=0; ee<d4size; ee++) 
+	      for ( unsigned int ee=0; ee<d4size; ee++)
 		{
 		  ind2[3]=ee;
-		  if ( ee ==  2 ) 
+		  if ( ee ==  2 )
 		  pix6[2]=d4img->GetPixel(ind2);
-		  else if ( ee ==  3 ) 
+		  else if ( ee ==  3 )
 		  pix6[3]=d4img->GetPixel(ind2);
-		  else 
+		  else
 		  pix6[ee]=d4img->GetPixel(ind2);
 		}
 	    }
-	    // ITK-way 
-	    //  xx, xy, yy, xz , yz, zz 
-	    // VTK/other-way 
-	    //  xx, xy, xz, yy , yz, zz 
+	    // ITK-way
+	    //  xx, xy, yy, xz , yz, zz
+	    // VTK/other-way
+	    //  xx, xy, xz, yy , yz, zz
 	    else if ( d4size == 7 ) {
-	      for ( unsigned int ee=1; ee<d4size; ee++) 
+	      for ( unsigned int ee=1; ee<d4size; ee++)
 		{
 		  ind2[3]=ee;
 		  pix6[ee-1]=d4img->GetPixel(ind2);
@@ -2182,6 +2182,18 @@ int TensorFunctions(int argc, char *argv[])
     else if (strcmp(operation.c_str(),"TensorMeanDiffusion") == 0)
 	  {
 	    result=GetTensorADC<TensorType>(tIter.Value(),0);
+      if (vnl_math_isnan(result)) result=0;
+      vimage->SetPixel(ind,result);
+	  }
+    else if (strcmp(operation.c_str(),"TensorFANumerator") == 0)
+	  {
+	    result=GetTensorFANumerator<TensorType>(tIter.Value());
+      if (vnl_math_isnan(result)) result=0;
+      vimage->SetPixel(ind,result);
+	  }
+    else if (strcmp(operation.c_str(),"TensorFADenominator") == 0)
+	  {
+	    result=GetTensorFADenominator<TensorType>(tIter.Value());
       if (vnl_math_isnan(result)) result=0;
       vimage->SetPixel(ind,result);
 	  }
@@ -6270,6 +6282,8 @@ int main(int argc, char *argv[])
     std::cout << "  Where Image ValueToLookFor maskImage-option tolerance --- the where function from IDL " << std::endl;
     std::cout << "  4DTensorTo3DTensor 4D_DT_Image --- outputs a 3D_DT_Image with the same information. " << std::endl;
     std::cout << "  TensorFA DTImage  " << std::endl;
+    std::cout << "  TensorFANumerator DTImage  " << std::endl;
+    std::cout << "  TensorFADenominator DTImage  " << std::endl;
     std::cout << "  TensorColor DTImage --- produces RGB values identifying principal directions " << std::endl;
     std::cout << "  TensorToVector DTImage WhichVec --- produces vector field identifying one of the principal directions, 2 = largest eigenvalue " << std::endl;
     std::cout << "  TensorToVectorComponent DTImage WhichVec --- 0 => 2 produces component of the principal vector field , i.e. largest eigenvalue.   3 = 8 => gets values from the tensor " << std::endl;
@@ -6403,6 +6417,8 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"FitSphere") == 0 )  FitSphere<3>(argc,argv);
      else if (strcmp(operation.c_str(),"Where") == 0 )  Where<3>(argc,argv);
      else if (strcmp(operation.c_str(),"TensorFA") == 0 )  TensorFunctions<3>(argc,argv);
+     else if (strcmp(operation.c_str(),"TensorFANumerator") == 0 )  TensorFunctions<3>(argc,argv);
+     else if (strcmp(operation.c_str(),"TensorFADenominator") == 0 )  TensorFunctions<3>(argc,argv);
      else if (strcmp(operation.c_str(),"4DTensorTo3DTensor") == 0 )  TensorFunctions<3>(argc,argv);
      else if (strcmp(operation.c_str(),"TensorIOTest") == 0 )  TensorFunctions<3>(argc,argv);
      else if (strcmp(operation.c_str(),"TensorMeanDiffusion") == 0 )  TensorFunctions<3>(argc,argv);
