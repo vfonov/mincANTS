@@ -165,6 +165,7 @@ FloatOffsetType(0.0));
 FloatOffsetType(0.0));
 
 
+  void SetUseSSD( bool b ) { this->m_UseSSD=b; }
   /** Get the metric value. The metric value is the mean square difference 
    * in intensity between the fixed image and transforming moving image 
    * computed over the the overlapping region between the two images. */
@@ -245,8 +246,7 @@ private:
   mutable double                  m_RMSChange;
   mutable double                  m_SumOfSquaredChange;
 
-  /** Mutex lock to protect modification to metric. */
-  mutable SimpleFastMutexLock     m_MetricCalculationLock;
+  bool m_UseSSD; 
 
 };
 
