@@ -135,6 +135,10 @@ public:
     /** Set functions */
     void SetAffineTransform(AffineTransformPointer A) {this->m_AffineTransform=A;}
     void SetDeformationField(DeformationFieldPointer A) {this->m_DeformationField=A;}
+    void SetTimeVaryingVelocityField(TimeVaryingVelocityFieldPointer A) {
+      this->m_TimeVaryingVelocity=A;
+      this->m_VelocityFieldInterpolator->SetInputImage(this->m_TimeVaryingVelocity);
+    }
     void SetInverseDeformationField(DeformationFieldPointer A) {this->m_InverseDeformationField=A;}
     void SetMaskImage( ImagePointer m) { this->m_MaskImage=m; }
 
@@ -1481,12 +1485,12 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
 
   void SetUseNearestNeighborInterpolation( bool useNN) {  this->m_UseNN=useNN; }
   void SetUseBSplineInterpolation( bool useNN) {  this->m_UseBSplineInterpolation=useNN; }
+  VectorType IntegratePointVelocity(TReal starttimein, TReal finishtimein , IndexType startPoint);
 
 protected:
 
   DeformationFieldPointer IntegrateVelocity(TReal,TReal);
   DeformationFieldPointer IntegrateLandmarkSetVelocity(TReal,TReal, PointSetPointer movingpoints, ImagePointer referenceimage );
-  VectorType IntegratePointVelocity(TReal starttimein, TReal finishtimein , IndexType startPoint);
 
   ImagePointer  MakeSubImage( ImagePointer bigimage)
     {
