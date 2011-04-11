@@ -12,6 +12,7 @@
 #include "itkVectorNearestNeighborInterpolateImageFunction.h"
 #include "ReadWriteImage.h"
 #include "itkWarpImageMultiTransformFilter.h"
+#include "itkExpTensorImageFilter.h"
 
 typedef enum{INVALID_FILE=1, AFFINE_FILE, DEFORMATION_FILE, IMAGE_AFFINE_HEADER, IDENTITY_TRANSFORM} TRAN_FILE_TYPE;
 typedef struct{
@@ -469,6 +470,44 @@ void GetLaregstSizeAfterWarp(WarperPointerType &warper, ImagePointerType &img, S
 }
 
 
+template<typename TensorImageType>
+void
+DirectionCorrect( typename TensorImageType::Pointer img_out, typename TensorImageType::Pointer img_mov )
+{
+  itk::ImageRegionIteratorWithIndex<TensorImageType> it(img_out, img_out->GetLargestPossibleRegion() );
+  
+  typename TensorImageType::DirectionType directionSwap = img_out->GetDirection() * img_mov->GetDirection();
+  
+  while( !it.IsAtEnd() )
+    {
+    typename TensorImageType::DirectionType::InternalMatrixType  dt;
+    dt(0,0) = it.Value()[0];
+    dt(0,1) = dt(1,0) = it.Value()[1];
+    dt(0,2) = dt(2,0) = it.Value()[2];
+    dt(1,1) = it.Value()[3];
+    dt(1,2) = dt(2,1) = it.Value()[4];
+    dt(2,2) = it.Value()[5];
+   
+    dt = directionSwap * dt * directionSwap.GetTranspose();   
+    
+    typename TensorImageType::PixelType outDt;
+    
+    outDt[0] = dt(0,0);
+    outDt[1] = dt(0,1);
+    outDt[2] = dt(0,2);
+    outDt[3] = dt(1,1);
+    outDt[4] = dt(1,2);
+    outDt[5] = dt(2,2);
+    
+    it.Set( outDt );
+
+    ++it;
+    }
+
+
+}
+
+
 template<int ImageDimension>
 void WarpImageMultiTransform(char *moving_image_filename, char *output_image_filename,
         TRAN_OPT_QUEUE &opt_queue, MISC_OPT &misc_opt){
@@ -685,8 +724,17 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
 
     }
    
+   typedef itk::ExpTensorImageFilter<TensorImageType, TensorImageType> ExpFilterType;
+   typename ExpFilterType::Pointer expFilter = ExpFilterType::New();
+   expFilter->SetInput( img_output );
+   expFilter->Update();
+   
+   //typename TensorImageType::Pointer final_out = expFilter->GetOutput();
+   
+   DirectionCorrect<TensorImageType>(img_output, img_mov);
+   
   
-    WriteTensorImage<TensorImageType>(img_output, output_image_filename,true);
+   WriteTensorImage<TensorImageType>(img_output, output_image_filename,true);
 }
 
 
