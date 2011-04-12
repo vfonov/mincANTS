@@ -217,6 +217,7 @@ typename TImage::Pointer
   Image->SetLargestPossibleRegion(input->GetLargestPossibleRegion()  );
   Image->SetBufferedRegion(input->GetLargestPossibleRegion());
   Image->Allocate();
+  Image->FillBuffer( 0.0 );
   Image->SetSpacing(input->GetSpacing());
   Image->SetOrigin(input->GetOrigin());
   typedef itk::NeighborhoodIterator<ImageType>  iteratorType;
@@ -480,15 +481,15 @@ DiReCTCompose(typename TField::Pointer velofield, typename TField::Pointer diffm
 
 
 template <class TImage,class TField>
-void 
+void
 InvertField( typename TField::Pointer field,
 		    typename TField::Pointer inverseFieldIN, double weight=1.0,
 		    double toler=0.1, int maxiter=20, bool print = false)
 {
-  
+
   enum { ImageDimension = TImage::ImageDimension };
-  typedef TField DeformationFieldType; 
-  typedef typename TField::Pointer DeformationFieldPointer; 
+  typedef TField DeformationFieldType;
+  typedef typename TField::Pointer DeformationFieldPointer;
   typedef typename TField::PixelType VectorType;
   typedef TImage ImageType;
   typedef typename TImage::Pointer ImagePointer;
@@ -522,7 +523,7 @@ InvertField( typename TField::Pointer field,
   inverseField->SetRequestedRegion(field->GetRequestedRegion() );
   inverseField->SetBufferedRegion( field->GetLargestPossibleRegion() );
   inverseField->Allocate();
-  inverseField->FillBuffer(zero); 
+  inverseField->FillBuffer(zero);
 
   DeformationFieldPointer lagrangianInitCond=DeformationFieldType::New();
   lagrangianInitCond->SetSpacing( field->GetSpacing() );
@@ -563,7 +564,7 @@ InvertField( typename TField::Pointer field,
       VectorType newvec=vec1*weight;
       lagrangianInitCond->SetPixel(index,newvec);
       inverseField->SetPixel(index,inverseFieldIN->GetPixel(index));
-      
+
       double mag=0;
       for (unsigned int jj=0; jj<ImageDimension; jj++) mag+=newvec[jj]*newvec[jj];
       mag=sqrt(mag);
@@ -819,7 +820,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   VIterator.GoToBegin();
   while(  !VIterator.IsAtEnd()  )
     {
-      // the velocity field solution value 
+      // the velocity field solution value
       VectorType vec=VIterator.Get();
       RealType mag=0;
       for (unsigned dd=0; dd<ImageDimension; dd++)mag+=vec[dd]*vec[dd];
@@ -957,7 +958,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	      if ( wmag*dd > maxlapgrad2mag ) maxlapgrad2mag=wmag*dd;
 	      } else speed_image->SetPixel(speedindex, 0);
 	      ++xxIterator;
-	    }  
+	    }
 	  if ( maxlapgrad2mag < 1.e-4) maxlapgrad2mag=1.e9;
 	  if ( ttiter == numtimepoints-1 ) {
 	  if (ImageDimension==2) WriteImage<ImageType>(surfdef,"surfdef.nii.gz");
@@ -1008,10 +1009,10 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
               IndexType velind=Iterator.GetIndex();
 	      bool shouldbezero=false;
 	      if ( segmentationimage->GetPixel(velind) == 0 ) shouldbezero=true;
-	      if ( !shouldbezero ) 
+	      if ( !shouldbezero )
 	      if ( bsurf->GetPixel(velind) == 0 && gmsurf->GetPixel(velind) == 0 && segmentationimage->GetPixel(velind) != 2 ) shouldbezero=true;
-  	      if ( shouldbezero   ){                  
-                velofield->SetPixel(velind,zero); 
+  	      if ( shouldbezero   ){
+                velofield->SetPixel(velind,zero);
                 corrfield->SetPixel(velind,zero);
                 invfield->SetPixel(velind,zero);
 	      }
@@ -1038,7 +1039,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	    RealType thkval=0;
 	    if ( hitval > 0.001 ) /** potential source of problem 2 -- this value could be smaller ... */
 	      thkval=totalimage->GetPixel(velind)/hitval - thickoffset;
-	    if ( thkval > 10 ) 
+	    if ( thkval > 10 )
 	      {
 		std::cout << "thkval " << thkval << " hitval " << hitval << " total " << totalimage->GetPixel(velind) << std::endl;
 	      }
