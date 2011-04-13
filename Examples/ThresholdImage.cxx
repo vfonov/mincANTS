@@ -7,11 +7,11 @@
   Version:   $Revision: 1.20 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -20,10 +20,10 @@
 //  Software Guide : BeginLatex
 //
 //  This example illustrates how to deform an image using a BSplineTransform.
-// 
+//
 //  \index{BSplineDeformableTransform}
 //
-//  Software Guide : EndLatex 
+//  Software Guide : EndLatex
 
 #include <cstdlib>
 #include <ctime>
@@ -32,8 +32,8 @@
 
 
 // Software Guide : BeginCodeSnippet
-#include "itkImageFileReader.h" 
-#include "itkImageFileWriter.h" 
+#include "itkImageFileReader.h"
+#include "itkImageFileWriter.h"
 #include "itkNeighborhoodIterator.h"
 #include "itkImage.h"
 #include "itkResampleImageFilter.h"
@@ -52,23 +52,23 @@
 #include <fstream>
 
 template <class TImage>
-typename TImage::Pointer 
+typename TImage::Pointer
 MultiplyImage(typename TImage::Pointer image1, typename TImage::Pointer image2)
-{  
+{
 std::cout << " Multiply " << std::endl;
     // Begin Multiply Images
     typedef TImage tImageType;
     //  output will be the speed image for FMM
     typedef itk::MultiplyImageFilter<tImageType,
-    tImageType,tImageType >  MultFilterType;                   
+    tImageType,tImageType >  MultFilterType;
     typename MultFilterType::Pointer filter = MultFilterType::New();
-    filter->SetInput1( image1 ); 
+    filter->SetInput1( image1 );
     filter->SetInput2( image2 );
-    filter->Update(); 
+    filter->Update();
     return filter->GetOutput(); // this is the speed image
 
-    // write a function to threshold the speedimage so 
-    // if the dist is g.t. D then speed = 1 
+    // write a function to threshold the speedimage so
+    // if the dist is g.t. D then speed = 1
 
 }
 
@@ -76,24 +76,23 @@ std::cout << " Multiply " << std::endl;
 
 template <class TImage>
 typename TImage::Pointer BinaryThreshold(
-  typename TImage::PixelType low, 
+  typename TImage::PixelType low,
    typename TImage::PixelType high,
-   typename TImage::PixelType replaceval, typename TImage::Pointer input)
+   typename TImage::PixelType insideval, typename TImage::PixelType outsideval,
+   typename TImage::Pointer input )
 {
 std::cout << " Binary Thresh " << std::endl;
 
   typedef typename TImage::PixelType PixelType;
   // Begin Threshold Image
   typedef itk::BinaryThresholdImageFilter<TImage,TImage>  InputThresholderType;
-  typename InputThresholderType::Pointer inputThresholder = 
+  typename InputThresholderType::Pointer inputThresholder =
     InputThresholderType::New();
 
   inputThresholder->SetInput( input );
-  inputThresholder->SetInsideValue(  replaceval );
-  int outval=0;
-  if ((float) replaceval == (float) -1) outval=1;
-  inputThresholder->SetOutsideValue( outval );
-  
+  inputThresholder->SetInsideValue(  insideval );
+  inputThresholder->SetOutsideValue( outsideval );
+
   if (high < low) high=255;
   float eps=1.e-6*low;
   inputThresholder->SetLowerThreshold((PixelType) low-eps );
@@ -104,7 +103,7 @@ std::cout << " Binary Thresh " << std::endl;
 }
 
 template <class TImage>
-typename TImage::Pointer  
+typename TImage::Pointer
   LabelSurface(typename TImage::PixelType foreground,
   typename TImage::PixelType newval, typename TImage::Pointer input)
 {
@@ -114,15 +113,15 @@ std::cout << " Label Surf " << std::endl;
   typename   ImageType::Pointer     Image = ImageType::New();
   Image->SetLargestPossibleRegion(input->GetLargestPossibleRegion()  );
   Image->SetBufferedRegion(input->GetLargestPossibleRegion());
-  Image->Allocate(); 
+  Image->Allocate();
   Image->SetSpacing(input->GetSpacing());
   Image->SetOrigin(input->GetOrigin());
-  typedef itk::NeighborhoodIterator<ImageType>  iteratorType; 
+  typedef itk::NeighborhoodIterator<ImageType>  iteratorType;
 
   typename iteratorType::RadiusType rad;
   for (int j=0; j<ImageDimension; j++) rad[j]=1;
   iteratorType GHood(rad, input,input->GetLargestPossibleRegion());
-  
+
   GHood.GoToBegin();
 
 //  std::cout << " foreg " << (int) foreground;
@@ -136,19 +135,19 @@ std::cout << " Label Surf " << std::endl;
       bool atedge=false;
 
       for (int i = 0; i < GHood.Size(); i++)
-      { 
+      {
         ind2=GHood.GetIndex(i);
         float dist=0.0;
-        for (int j=0; j<ImageDimension; j++) 
+        for (int j=0; j<ImageDimension; j++)
           dist+=(float)(ind[j]-ind2[j])*(float)(ind[j]-ind2[j]);
         dist=sqrt(dist);
-  	    if (GHood.GetPixel(i) != foreground && dist < 1.1 ) 
+  	    if (GHood.GetPixel(i) != foreground && dist < 1.1 )
         {
           atedge=true;
         }
       }
-      if (atedge && p == foreground) Image->SetPixel(ind,newval); 
-      else if ( p == foreground) Image->SetPixel(ind,0); 
+      if (atedge && p == foreground) Image->SetPixel(ind,newval);
+      else if ( p == foreground) Image->SetPixel(ind,0);
     }
     ++GHood;
   }
@@ -156,7 +155,7 @@ std::cout << " Label Surf " << std::endl;
 }
 
 template <class TImage>
-typename TImage::Pointer   
+typename TImage::Pointer
 DanielssonDistanceMap(
 typename TImage::PixelType pixlo,
 typename TImage::PixelType pixhi,
@@ -165,7 +164,7 @@ typename TImage::Pointer input)
 std::cout << " DDMap " << std::endl;
 
   typedef TImage ImageType;
-  
+
   typedef itk::DanielssonDistanceMapImageFilter<
                ImageType, ImageType >  FilterType;
 
@@ -222,7 +221,7 @@ int ThresholdImage( int argc, char * argv[] )
   typedef   itk::ImageFileReader< FixedImageType  >  FixedReaderType;
   typename FixedReaderType::Pointer fixedReader = FixedReaderType::New();
   fixedReader->SetFileName( argv[2] );
-  
+
   typedef   itk::ImageFileWriter< FixedImageType >  MovingWriterType;
   typename MovingWriterType::Pointer movingWriter = MovingWriterType::New();
   typename MovingWriterType::Pointer movingWriter2 = MovingWriterType::New();
@@ -246,7 +245,20 @@ int ThresholdImage( int argc, char * argv[] )
   	thresh = OtsuThreshold<FixedImageType>(atoi(argv[5]),fixedReader->GetOutput());
   }
   else
-  	thresh = BinaryThreshold<FixedImageType>(atof(argv[4]),atof(argv[5]),1.,fixedReader->GetOutput());
+    {
+    PixelType insideValue = 1;
+    PixelType outsideValue = 0;
+    if( argc > 6 )
+      {
+      insideValue = static_cast<PixelType>( atof( argv[6] ) );
+      }
+    if( argc > 7 )
+      {
+      outsideValue = static_cast<PixelType>( atof( argv[7] ) );
+      }
+    thresh = BinaryThreshold<FixedImageType>(atof(argv[4]),atof(argv[5]),
+      insideValue,outsideValue,fixedReader->GetOutput());
+    }
 
   movingWriter->SetInput(thresh);
   movingWriter->Write( );
@@ -259,7 +271,7 @@ int main( int argc, char * argv[] )
   if( argc < 3 )
     {
     std::cerr << "Usage: " << argv[0];
-    std::cerr << "   ImageDimension ImageIn.ext outImage.ext  threshlo threshhi " << std::endl;
+    std::cerr << "   ImageDimension ImageIn.ext outImage.ext  threshlo threshhi <insideValue> <outsideValue>" << std::endl;
     std::cerr << "   ImageDimension ImageIn.ext outImage.ext  Otsu NumberofThresholds " << std::endl;
 
     std::cout << " Inclusive thresholds " << std::endl;
@@ -267,7 +279,7 @@ int main( int argc, char * argv[] )
     }
 
    // Get the image dimension
- 
+
   switch ( atoi(argv[1]))
    {
    case 2:
@@ -283,7 +295,7 @@ int main( int argc, char * argv[] )
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
    }
-	
+
   return 0;
 
 }
