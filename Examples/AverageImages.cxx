@@ -174,8 +174,8 @@ int AverageImages(unsigned int argc, char *argv[])
   averageimage=reader->GetOutput();
   unsigned int vectorlength=reader->GetImageIO()->GetNumberOfComponents();
   std::cout <<" Averaging " << numberofimages << " images with dim = " << ImageDimension << " vector components " << vectorlength << std::endl;
-  PixelType meanval;
-  //  meanval.SetSize(vectorlength); // for variable length vector 
+  typename ImageType::IndexType zindex; zindex.Fill(0);
+  PixelType meanval=reader->GetOutput()->GetPixel(zindex);
   meanval.Fill(0);
   averageimage->FillBuffer(meanval);
   for (unsigned int j=4; j< argc; j++)
@@ -271,6 +271,9 @@ int main(int argc, char * argv[])
 	 break;
        case 3:
 	 AverageImages<3,3>(argc,argv);
+	 break;
+       case 2:
+	 AverageImages<3,2>(argc,argv);
 	 break;
        default:
 	 AverageImages1<3,1>(argc,argv);
