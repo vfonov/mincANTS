@@ -1221,6 +1221,29 @@ images or fractional anisotropy images derived from the diffusion
 tensor modality.  In all these cases, steps similar to those above 
 would be performed.  
 
+\subsection{Statistical Mapping with ANTS: rsfMRI}
+We are developing methods within ANTs to enable rsfMRI processing.  
+The current strategy is within an ImageMath function called
+CompCorRestingStateConnectivity.   This function will use pre-labeled
+regions of the rsfMRI image to estimate the impact of physiological
+confounds on the rsfMRI signal.  We implement the following steps 
+\begin{enumerate}
+\item Define matrices ${\bf G} , {\bf C},  {\bf R}$ which cover the
+  gray matter region of interest, the confound region of interest and
+  the reference region against which to compare the gray matter. 
+\item Perform PCA on the ${\bf C}$ matrix to get its first N (e.g. 5)
+  eigenvectors.  Use ordinary least squares to factor the effect of
+  these out from the matrices ${\bf G} ,  {\bf R}$.
+\item Get the first and second principal eigenvector from ${\bf R}$,
+  the reference region.  
+\item Correlate these against ${\bf G}$ on a voxel-by-voxel basis. 
+\end{enumerate}
+This has not been validated yet except by performing the same analysis
+on a test-retest dataset with anterior cingulate as the reference
+region.  This highlighted the thalamus, posterior cingulate and
+cerebellum as part of the default mode network in both test and retest data.
+
+
 \subsection{Statistics with ANTS and {\bf R}}
 {\bf R} is an open-source, cutting-edge statistical package 
 used by statisticians world-wide.   ANTS is designed to 

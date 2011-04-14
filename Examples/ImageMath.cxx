@@ -117,7 +117,7 @@
 #include "itkRGBPixel.h"
 #include "ReadWriteImage.h"
 #include "TensorFunctions.h"
-
+#include "antsMatrixUtilities.h"
 
 
 std::string ANTSGetFilePrefix(const char *str){
@@ -1451,6 +1451,173 @@ int TimeSeriesSubset(int argc, char *argv[])
 
   return 0;
 }
+
+template<unsigned int ImageDimension>
+int CompCorRestingStateConnectivity(int argc, char *argv[])
+{
+  typedef float  PixelType;
+  typedef itk::Vector<float,ImageDimension>         VectorType;
+  typedef itk::Image<VectorType,ImageDimension>     FieldType;
+  typedef itk::Image<PixelType,ImageDimension> ImageType;
+  typedef itk::Image<PixelType,ImageDimension-1> OutImageType;
+  typedef typename OutImageType::IndexType OutIndexType;
+  typedef itk::ImageFileReader<ImageType> readertype;
+  typedef itk::ImageFileWriter<ImageType> writertype;
+  typedef typename ImageType::IndexType IndexType;
+  typedef typename ImageType::SizeType SizeType;
+  typedef typename ImageType::SpacingType SpacingType;
+  typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
+  
+  typedef double Scalar;
+  typedef itk::ants::antsMatrixUtilities<ImageType,Scalar>  matrixOpType;
+  typename matrixOpType::Pointer matrixOps=matrixOpType::New();
+
+  int argct=2;
+  std::string outname=std::string(argv[argct]); argct++;
+  std::string operation = std::string(argv[argct]);  argct++;
+  std::string fn1 = std::string(argv[argct]);   argct++;
+  std::string fn_label = std::string(argv[argct]);   argct++;
+  std::string::size_type idx;
+  idx = outname.find_first_of('.');
+  std::string tempname = outname.substr(0,idx);
+  std::string extension = outname.substr(idx,outname.length());
+
+  typename ImageType::Pointer image1 = NULL;
+  typename OutImageType::Pointer outimage = NULL;
+  typename OutImageType::Pointer outimage2 = NULL;
+  typename OutImageType::Pointer label_image = NULL;
+
+  typedef itk::ImageRegionIteratorWithIndex<ImageType> ImageIt;
+  typedef itk::ImageRegionIteratorWithIndex<OutImageType> SliceIt;
+
+  if (fn1.length() > 3)   ReadImage<ImageType>(image1, fn1.c_str());
+  else return 1;
+  if (fn_label.length() > 3)   ReadImage<OutImageType>(label_image, fn_label.c_str());
+  else return 1;
+  if (fn_label.length() > 3)   ReadImage<OutImageType>(outimage, fn_label.c_str());
+  if (fn_label.length() > 3)   ReadImage<OutImageType>(outimage2, fn_label.c_str());
+  outimage->FillBuffer(0);
+  outimage2->FillBuffer(0);
+  std::cout << " read images " << std::endl;
+  unsigned int timedims=image1->GetLargestPossibleRegion().GetSize()[ImageDimension-1];
+  std::cout << "timedims " << timedims << " size " <<image1->GetLargestPossibleRegion().GetSize() << std::endl;
+
+  // first, count the label numbers
+  typedef itk::ImageRegionIteratorWithIndex<OutImageType> labIterator;
+  labIterator vfIter2( label_image,  label_image->GetLargestPossibleRegion() );
+  unsigned long ct_nuis=0;
+  unsigned long ct_ref=0;
+  unsigned long ct_gm=0;
+  std::cout << " iterate " << std::endl;
+  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+    {
+      OutIndexType ind=vfIter2.GetIndex();
+      if ( vfIter2.Get() == 3 ) { // nuisance 
+	ct_nuis++;
+      }
+      if ( vfIter2.Get() == 2 ) { // reference  
+	ct_ref++;
+      }
+      if ( vfIter2.Get() == 2 ||  vfIter2.Get() == 1 ) { // gm roi  
+	ct_gm++;
+      }
+    }
+
+
+  // step 1.  compute , in label 3 ( the nuisance region ), the average value of the time series over the region.  at the same time, compute the average value in label 2 ( the reference region ). 
+  // step 2.  factor out the nuisance region from the activation at each voxel in the ROI (nonzero labels).
+  // step 3.  compute the correlation of the reference region with every voxel in the roi.  
+  typedef vnl_matrix<Scalar>      timeMatrixType;
+  typedef vnl_vector<Scalar>      timeVectorType;
+  timeMatrixType mNuisance(timedims,ct_nuis,0);
+  timeMatrixType mReference(timedims,ct_ref,0);
+  timeMatrixType mSample(timedims,ct_gm,0);
+  unsigned long nuis_vox=0;
+  unsigned long ref_vox=0;
+  unsigned long gm_vox=0;
+  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+    {
+      OutIndexType ind=vfIter2.GetIndex();
+      if ( vfIter2.Get() == 3 ) { // nuisance 
+	IndexType tind;
+	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
+	for (unsigned int t=0; t<timedims; t++){
+          tind[ImageDimension-1]=t;
+	  Scalar pix=image1->GetPixel(tind);
+          mNuisance(t,nuis_vox)=pix;
+	}
+	nuis_vox++;
+      }
+      if ( vfIter2.Get() == 2 ) { // reference  
+	IndexType tind;
+	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
+	for (unsigned int t=0; t<timedims; t++){
+          tind[ImageDimension-1]=t;
+	  Scalar pix=image1->GetPixel(tind);
+          mReference(t,ref_vox)=pix;
+	}
+	ref_vox++;
+      }
+      if ( vfIter2.Get() == 1 || vfIter2.Get() == 2 ) { // reference  
+	IndexType tind;
+	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
+	for (unsigned int t=0; t<timedims; t++){
+          tind[ImageDimension-1]=t;
+	  Scalar pix=image1->GetPixel(tind);
+          mSample(t,gm_vox)=pix;
+	}
+	gm_vox++;
+      }
+    }
+  // factor out the nuisance variables by OLS
+  unsigned int nnuis=5;
+  timeMatrixType reducedNuisance(timedims,nnuis);
+  for (unsigned int i=0; i<nnuis;i++) {
+    timeVectorType nuisi=matrixOps->GetCovMatEigenvector(mNuisance,nnuis);
+    reducedNuisance.set_column(i,nuisi);
+  }
+  timeMatrixType RRt=matrixOps->ProjectionMatrix(reducedNuisance);
+  mReference=matrixOps->NormalizeMatrix(mReference);
+  mReference=mReference-RRt*mReference;
+  //  mSample=matrixOps->NormalizeMatrix(mSample);
+  mSample=mSample-RRt*mSample;
+  // reduce your reference region to the first & second eigenvector 
+  timeVectorType vReference=matrixOps->GetCovMatEigenvector(mReference,0);
+  timeVectorType vReference2=matrixOps->GetCovMatEigenvector(mReference,1);
+  if ( vReference.size() != timedims ) { std::cout << " CompCorr Error exiting " << std::endl; exit(1); }
+  //  Scalar corryz=matrixOps->PearsonCorr(mReference.get_column(0),mNuisance.get_column(0));
+  //  std::cout << " base_nuis_corr " << corryz << std::endl;
+  //  timeVectorType vSample=matrixOps->GetCovMatEigenvector(mSample,0);
+  //  Scalar corryz=matrixOps->PearsonCorr(vSample,vReference);
+  //  std::cout << " base_nuis_corr " << corryz << std::endl;
+  gm_vox=0;
+  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+    {
+      OutIndexType ind=vfIter2.GetIndex();
+      if ( vfIter2.Get() == 1 || vfIter2.Get() == 2 ) { // compute the gm-reference correlation
+	//	Scalar corrxy=matrixOps->PearsonCorr(mSample.get_column(gm_vox),mReference.get_column(0));
+	//	Scalar corrxz=matrixOps->PearsonCorr(mSample.get_column(gm_vox),mNuisance.get_column(0));
+	//	Scalar partialcorrnumer=corrxy-corrxz*corryz;
+	//	Scalar partialcorrdenom=sqrt(1-corrxz*corrxz)*sqrt(1-corryz*corryz);
+	//	if ( partialcorrdenom == 0 ) partialcorrdenom=1;
+	//	Scalar partialcorr=partialcorrnumer/partialcorrdenom;
+	//	outimage->SetPixel(ind,partialcorr);
+	timeVectorType samp=mSample.get_column(gm_vox);
+	Scalar corr=matrixOps->PearsonCorr(samp,vReference);
+	Scalar corr2=matrixOps->PearsonCorr(samp,vReference2);
+	outimage->SetPixel(ind,corr);
+	outimage2->SetPixel(ind,corr2);
+	gm_vox++;
+      }
+    }
+  std::string kname=tempname+std::string("first_evec")+extension;
+  WriteImage<OutImageType>(outimage,kname.c_str());
+  kname=tempname+std::string("second_evec")+extension;
+  WriteImage<OutImageType>(outimage2,kname.c_str());
+  return 0;
+
+}
+
 
 template<unsigned int ImageDimension>
 int StackImage(int argc, char *argv[])
@@ -6357,6 +6524,11 @@ int main(int argc, char *argv[])
     std::cout << "  GO Image1.ext s	: Grayscale Opening with radius s" << std::endl;
     std::cout << "  GC Image1.ext s	: Grayscale Closing with radius s" << std::endl;
 
+    std::cout << "\nTime Series Operations:" << std::endl;
+    std::cout << " CompCorRestingStateConnectivity : Outputs a 3D image measuring the correlation of a time series voxel/region with a reference voxel/region factored out.  Requires a label image with 1=overall region of interest,  2=reference voxel, 3=region to factor out" << std::endl;
+    std::cout << "    Usage		: CompCorRestingStateConnectivity 4D_TimeSeries.nii.gz LabeLimage.nii.gz " << std::endl;
+    std::cout << " TimeSeriesSubset : Outputs n 3D image sub-volumes extracted uniformly from the input time-series 4D image." << std::endl;
+    std::cout << "    Usage		: TimeSeriesSubset 4D_TimeSeries.nii.gz n " << std::endl;
 
     std::cout << "\nTensor Operations:" << std::endl;
     std::cout << "  4DTensorTo3DTensor	: Outputs a 3D_DT_Image with the same information. " << std::endl;
@@ -6516,7 +6688,7 @@ int main(int argc, char *argv[])
 
   switch ( atoi(argv[1]) )
    {
-
+     /*
    case 2:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<2>(argc,argv);
      else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<2>(argc,argv);
@@ -6647,10 +6819,10 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<3>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
-
+     */
  case 4:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<4>(argc,argv);
-     else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<4>(argc,argv);
+     /*    else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<4>(argc,argv);
      else if (strcmp(operation.c_str(),"+") == 0)  ImageMath<4>(argc,argv);
      else if (strcmp(operation.c_str(),"-") == 0)  ImageMath<4>(argc,argv);
      else if (strcmp(operation.c_str(),"/") == 0)  ImageMath<4>(argc,argv);
@@ -6713,7 +6885,8 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"TruncateImageIntensity") == 0 ) TruncateImageIntensity<4>(argc,argv);
      else if (strcmp(operation.c_str(),"ExtractSlice") == 0)  ExtractSlice<4>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<4>(argc,argv);
-     else if (strcmp(operation.c_str(),"TimeSeriesSubset") == 0)  TimeSeriesSubset<4>(argc,argv);
+     else if (strcmp(operation.c_str(),"TimeSeriesSubset") == 0)  TimeSeriesSubset<4>(argc,argv);*/
+     else if (strcmp(operation.c_str(),"CompCorRestingStateConnectivity") == 0)  CompCorRestingStateConnectivity<4>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
 
