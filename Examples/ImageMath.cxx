@@ -1576,20 +1576,19 @@ int CompCorRestingStateConnectivity(int argc, char *argv[])
     timeVectorType nuisi=matrixOps->GetCovMatEigenvector(mNuisance,nnuis);
     reducedNuisance.set_column(i,nuisi);
   }
+  timeVectorType vGlobal=matrixOps->AverageColumns(mSample);
+  reducedNuisance.set_column(nnuis-1,vGlobal);
   timeMatrixType RRt=matrixOps->ProjectionMatrix(reducedNuisance);
   mReference=matrixOps->NormalizeMatrix(mReference);
   mReference=mReference-RRt*mReference;
-  //  mSample=matrixOps->NormalizeMatrix(mSample);
+  mSample=matrixOps->NormalizeMatrix(mSample);
   mSample=mSample-RRt*mSample;
   // reduce your reference region to the first & second eigenvector 
   timeVectorType vReference=matrixOps->GetCovMatEigenvector(mReference,0);
-  timeVectorType vReference2=matrixOps->GetCovMatEigenvector(mReference,1);
+  timeVectorType vReference2=matrixOps->AverageColumns(mReference);
+  Scalar testcorr=matrixOps->PearsonCorr(vReference,vReference2);
+  if ( testcorr < 0 ) vReference=vReference*(-1);
   if ( vReference.size() != timedims ) { std::cout << " CompCorr Error exiting " << std::endl; exit(1); }
-  //  Scalar corryz=matrixOps->PearsonCorr(mReference.get_column(0),mNuisance.get_column(0));
-  //  std::cout << " base_nuis_corr " << corryz << std::endl;
-  //  timeVectorType vSample=matrixOps->GetCovMatEigenvector(mSample,0);
-  //  Scalar corryz=matrixOps->PearsonCorr(vSample,vReference);
-  //  std::cout << " base_nuis_corr " << corryz << std::endl;
   gm_vox=0;
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
@@ -1812,7 +1811,7 @@ std::cout << " Label Surf " << std::endl;
 template<unsigned int ImageDimension>
 int FitSphere(int argc, char *argv[])
 {
-/*
+  /*
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
   typedef itk::Image<VectorType,ImageDimension>     FieldType;
@@ -6688,7 +6687,7 @@ int main(int argc, char *argv[])
 
   switch ( atoi(argv[1]) )
    {
-     /*
+     
    case 2:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<2>(argc,argv);
      else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<2>(argc,argv);
@@ -6819,10 +6818,10 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<3>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
-     */
+     
  case 4:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<4>(argc,argv);
-     /*    else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<4>(argc,argv);
+     else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<4>(argc,argv);
      else if (strcmp(operation.c_str(),"+") == 0)  ImageMath<4>(argc,argv);
      else if (strcmp(operation.c_str(),"-") == 0)  ImageMath<4>(argc,argv);
      else if (strcmp(operation.c_str(),"/") == 0)  ImageMath<4>(argc,argv);
@@ -6885,7 +6884,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"TruncateImageIntensity") == 0 ) TruncateImageIntensity<4>(argc,argv);
      else if (strcmp(operation.c_str(),"ExtractSlice") == 0)  ExtractSlice<4>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<4>(argc,argv);
-     else if (strcmp(operation.c_str(),"TimeSeriesSubset") == 0)  TimeSeriesSubset<4>(argc,argv);*/
+     else if (strcmp(operation.c_str(),"TimeSeriesSubset") == 0)  TimeSeriesSubset<4>(argc,argv);
      else if (strcmp(operation.c_str(),"CompCorRestingStateConnectivity") == 0)  CompCorRestingStateConnectivity<4>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
