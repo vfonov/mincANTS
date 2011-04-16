@@ -1069,6 +1069,16 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
         this->m_Parser->AddOption( option );
     }
 
+    if (true)
+      {
+      OptionType::Pointer option = OptionType::New();
+      option->SetLongName("use-all-metrics-for-convergence");
+      option->SetDescription(" enable to use weighted sum of all metric terms for convergence computation. By default, only the first metric is used");
+      std::string zero = std::string( "0" );
+      option->AddValue( zero );
+      this->m_Parser->AddOption( option );
+      }
+
     if( true )
       {
       std::string description = std::string( "Print the help menu (short version)." );
