@@ -170,7 +170,7 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
     grid=warper->GetOutput();
     typedef  itk::ImageFileWriter<ImageType> writertype;
     typename writertype::Pointer writer = writertype::New();
-    std::string fng=std::string(fnm)+"grid.nii";
+    std::string fng=std::string(fnm)+"grid.nii.gz";
     writer->SetFileName(fng.c_str());
     writer->SetInput(grid); 
     writer->Write();   
@@ -281,7 +281,7 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
       rrpix = rrpix*h+rpix*(1.-h);
       llpix = TransformVector<ImageType,FieldType>(field,ddlindex);
       llpix = llpix*h+lpix*(1.-h);
-      dPix=( lpix*(-8.0) + rpix*8.0 - rrpix + llpix )*(-1.0)*space/(12.0); //4th order centered difference
+      dPix=( rrpix*(-1.0) + rpix*8.0 - lpix*8.0 + lpix )*(-1.0)*space/(12.0*h); //4th order centered difference
       if ( use2ndorder) dPix=( lpix - rpix )*(1.0)*space/(2.0*h); //4th order centered difference
 
 	    for(unsigned int col=0; col< ImageDimension;col++){
@@ -372,8 +372,8 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
 
   typedef  itk::ImageFileWriter<TImage> writertype;
   typename writertype::Pointer writer = writertype::New();
-  std::string fn=std::string(fnm)+"jacobian.nii";
-  if (uselog) fn=std::string(fnm)+"logjacobian.nii";
+  std::string fn=std::string(fnm)+"jacobian.nii.gz";
+  if (uselog) fn=std::string(fnm)+"logjacobian.nii.gz";
   writer->SetFileName(fn.c_str());
   writer->SetInput(m_FloatImage); 
   writer->Write();   
