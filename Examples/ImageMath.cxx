@@ -334,7 +334,8 @@ int ExtractSlice(int argc, char *argv[])
 
   typename ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
   extractFilter->SetInput( image1 );
-  extractFilter->SetDirectionCollapseToIdentity();
+  //  extractFilter->SetDirectionCollapseToIdentity();
+  extractFilter->SetDirectionCollapseToSubmatrix();
   extractFilter->SetExtractionRegion( extractRegion );
   extractFilter->Update();
   outimage=extractFilter->GetOutput();
@@ -1442,7 +1443,8 @@ int TimeSeriesSubset(int argc, char *argv[])
 
     typename ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
     extractFilter->SetInput( image1 );
-    extractFilter->SetDirectionCollapseToIdentity();
+    //    extractFilter->SetDirectionCollapseToIdentity();
+    extractFilter->SetDirectionCollapseToSubmatrix();
     extractFilter->SetExtractionRegion( extractRegion );
     extractFilter->Update();
     outimage=extractFilter->GetOutput();
