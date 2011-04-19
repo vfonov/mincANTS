@@ -1520,7 +1520,7 @@ int CompCorr(int argc, char *argv[])
       if ( vfIter2.Get() == 2 ) { // reference  
 	ct_ref++;
       }
-      if ( vfIter2.Get() == 2 ||  vfIter2.Get() == 1 ) { // gm roi  
+      if ( vfIter2.Get() > 0 ) { // gm roi  
 	ct_gm++;
       }
     }
@@ -6894,7 +6894,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"CompCorr") == 0)  CompCorr<4>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
-
+ 
    default:
      std::cerr << " Dimension Not supported " << atoi(argv[1]) << std::endl;
      exit( 1 );
