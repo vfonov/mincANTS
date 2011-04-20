@@ -141,6 +141,7 @@ public:
     }
     void SetInverseDeformationField(DeformationFieldPointer A) {this->m_InverseDeformationField=A;}
     void SetMaskImage( ImagePointer m) { this->m_MaskImage=m; }
+    void SetReferenceSpaceImage( ImagePointer m) { this->m_ReferenceSpaceImage=m; }
 
     void SetFixedImageAffineTransform(AffineTransformPointer A) {this->m_FixedImageAffineTransform=A;}
     AffineTransformPointer GetFixedImageAffineTransform() {return this->m_FixedImageAffineTransform;}
@@ -976,7 +977,8 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
       fixedImage = this->m_SimilarityMetrics[0]->GetFixedImage();
       movingImage = this->m_SimilarityMetrics[0]->GetMovingImage();
       spacing=fixedImage->GetSpacing();
-      this->ComputeMultiResolutionParameters(fixedImage);
+      if ( this->m_ReferenceSpaceImage ) this->ComputeMultiResolutionParameters(this->m_ReferenceSpaceImage);
+      else this->ComputeMultiResolutionParameters(fixedImage);
       std::cout << " Its at this level " << this->m_Iterations[currentLevel] << std::endl;
 
       /*  generate smoothed images for all metrics */
@@ -1684,6 +1686,7 @@ private:
     typename ParserType::Pointer m_Parser;
     SimilarityMetricListType m_SimilarityMetrics;
     ImagePointer m_MaskImage;
+    ImagePointer m_ReferenceSpaceImage;
     TReal m_ScaleFactor;
     bool m_UseMulti;
   bool m_UseROI;

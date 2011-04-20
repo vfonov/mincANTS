@@ -178,6 +178,16 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
         fixed_aff_init = TransformationModelType::AffineTransformType::New();
         ReadAffineTransformFile(fixed_initial_affine_filename, fixed_aff_init);
 	std::cout << " FIXME!  currently, if one passes a fixed initial affine mapping, then NO affine mapping will be performed subsequently! " << std::endl;
+	std::string refheader=this->m_Parser->GetOption( "fixed-image-initial-affine-ref-image" )->GetValue();
+	if ( refheader != "" ){
+	  std::cout << " Setting reference deformation space by " << refheader << std::endl;
+          typedef ImageFileReader<ImageType> ReaderType;
+          typename ReaderType::Pointer fixedImageFileReader = ReaderType::New();
+          fixedImageFileReader->SetFileName( refheader.c_str() );
+          fixedImageFileReader->Update();
+          ImagePointer temp = fixedImageFileReader->GetOutput();
+          this->m_RegistrationOptimizer->SetReferenceSpaceImage(temp);
+	}
     }
     else{
         std::cout << "Use identity affine transform as initial fixed affine para." << std::endl;
@@ -712,16 +722,18 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
               }
               else if ( whichMetric == "SSD" )
               {
-                typedef itk::HistogramMatchingImageFilter<ImageType,ImageType> FilterType;
-                typename FilterType::Pointer filter = FilterType::New();
-                filter->SetInput(movingImage );
-                filter->SetReferenceImage(fixedImage);
-                filter->SetNumberOfHistogramLevels( 256 );
-                filter->SetNumberOfMatchPoints( 12 );
-                filter->ThresholdAtMeanIntensityOn();
-                filter->Update();   std::cout <<  " use Histogram Matching " << std::endl;
-                movingImage=filter->GetOutput();
-                movingImage = this->PreprocessImage(movingImage);
+                if (useHistMatch){
+                  movingImage = this->PreprocessImage(movingImage);
+                  typedef itk::HistogramMatchingImageFilter<ImageType,ImageType> FilterType;
+                  typename FilterType::Pointer filter = FilterType::New();
+                  filter->SetInput(movingImage );
+                  filter->SetReferenceImage(fixedImage);
+                  filter->SetNumberOfHistogramLevels( 256 );
+                  filter->SetNumberOfMatchPoints( 12 );
+                  filter->ThresholdAtMeanIntensityOn();
+                  filter->Update();   std::cout <<  " use Histogram Matching " << std::endl;
+                  movingImage=filter->GetOutput();
+		}
                 similarityMetric->SetMovingImage( movingImage );
                   typedef SyNDemonsRegistrationFunction
                   <ImageType, ImageType, DeformationFieldType> MetricType;
@@ -1173,6 +1185,13 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
         option->SetLongName( "fixed-image-initial-affine" );
         option->SetShortName( 'F' );
         option->SetDescription( "use the input file as the initial affine parameter for the fixed image " );
+        this->m_Parser->AddOption( option );
+    }    
+    if (true)
+    {
+        OptionType::Pointer option = OptionType::New();
+        option->SetLongName( "fixed-image-initial-affine-ref-image" );
+        option->SetDescription( "reference space for using the input file as the initial affine parameter for the fixed image " );
         this->m_Parser->AddOption( option );
     }
     if (true)
