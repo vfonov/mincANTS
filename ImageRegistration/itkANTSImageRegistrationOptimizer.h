@@ -976,9 +976,8 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
       /** FIXME -- here we assume the metrics all have the same image */
       fixedImage = this->m_SimilarityMetrics[0]->GetFixedImage();
       movingImage = this->m_SimilarityMetrics[0]->GetMovingImage();
-      spacing=fixedImage->GetSpacing();
-      if ( this->m_ReferenceSpaceImage ) this->ComputeMultiResolutionParameters(this->m_ReferenceSpaceImage);
-      else this->ComputeMultiResolutionParameters(fixedImage);
+      if ( ! this->m_ReferenceSpaceImage ) this->m_ReferenceSpaceImage=fixedImage; 
+      this->ComputeMultiResolutionParameters(this->m_ReferenceSpaceImage);
       std::cout << " Its at this level " << this->m_Iterations[currentLevel] << std::endl;
 
       /*  generate smoothed images for all metrics */
@@ -1115,6 +1114,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
                 ProfilePointType pm;
                 pm[0] = qq;
                 ProfilePointDataType em;
+		em.Fill(0);
                 energyProfiles[im]->GetPointData( qq, &em );
                 RealType weight = this->m_SimilarityMetrics[im]->GetWeightScalar();
                 energy[0] += weight * em[0];
@@ -1140,6 +1140,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
                 ProfilePointType pm;
                 pm[0] = qq;
                 ProfilePointDataType em;
+		em.Fill(0);
                 energyProfiles[im]->GetPointData( qq, &em );
                 RealType weight = this->m_SimilarityMetrics[im]->GetWeightScalar();
                 energy[0] += weight * em[0];
@@ -1280,12 +1281,12 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
       	 }
       }
 
-    this->m_DeformationField->SetOrigin( this->m_SimilarityMetrics[0]->GetFixedImage()->GetOrigin() );
-    this->m_DeformationField->SetDirection( this->m_SimilarityMetrics[0]->GetFixedImage()->GetDirection() );
+    this->m_DeformationField->SetOrigin( this->m_ReferenceSpaceImage->GetOrigin() );
+    this->m_DeformationField->SetDirection( this->m_ReferenceSpaceImage->GetDirection() );
     if (this->m_InverseDeformationField)
       {
-      this->m_InverseDeformationField->SetOrigin( this->m_SimilarityMetrics[0]->GetFixedImage()->GetOrigin() );
-      this->m_InverseDeformationField->SetDirection( this->m_SimilarityMetrics[0]->GetFixedImage()->GetDirection() );
+      this->m_InverseDeformationField->SetOrigin( this->m_ReferenceSpaceImage->GetOrigin() );
+      this->m_InverseDeformationField->SetDirection( this->m_ReferenceSpaceImage->GetDirection() );
       }
 
       if ( this->m_TimeVaryingVelocity  ) {
