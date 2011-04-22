@@ -532,7 +532,6 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
   imageReader->Update();
 
   typename ImageType::Pointer mask=NULL;
-  /*
   if ( argc > argct )
     {
     mask = ImageType::New();
@@ -550,7 +549,6 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
 	mask=NULL;
      };
     }
-  */
   //  std::cout << " Mask " << std::endl;
   if( !mask )
     {
@@ -1615,8 +1613,8 @@ int CompCorr(int argc, char *argv[])
 
   std::string kname=tempname+std::string("first_evec")+extension;
   WriteImage<OutImageType>(outimage,kname.c_str());
-  kname=tempname+std::string("second_evec")+extension;
-  WriteImage<OutImageType>(outimage2,kname.c_str());
+  //  kname=tempname+std::string("second_evec")+extension;
+  //  WriteImage<OutImageType>(outimage2,kname.c_str());
   kname=tempname+std::string("_corrected")+extension;
   WriteImage<ImageType>(image1,kname.c_str());
   return 0;
