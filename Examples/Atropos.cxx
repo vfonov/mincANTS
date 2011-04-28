@@ -21,6 +21,8 @@
 #include "antsPassThroughListSampleFilter.h"
 #include "antsPartialVolumeGaussianListSampleFunction.h"
 
+#include "itkTimeProbe.h"
+
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -893,18 +895,25 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
       }
     }
 
+  itk::TimeProbe timer;
+  timer.Start();
+
   try
     {
     std::cout << std::endl << "Progress: " << std::endl;
 
 //    segmenter->DebugOn();
     segmenter->Update();
+
+
     }
   catch( itk::ExceptionObject exp )
     {
     std::cerr << exp << std::endl;
     return EXIT_FAILURE;
     }
+
+  timer.Stop();
 
   /**
    * output
@@ -1090,6 +1099,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
 
   std::cout << std::endl;
   segmenter->Print( std::cout, 2 );
+  std::cout << "Elapsed time: " << timer.GetMeanTime() << std::endl;
 
   return EXIT_SUCCESS;
 }
