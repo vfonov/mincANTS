@@ -89,7 +89,7 @@ PreservationOfPrincipalDirectionTensorReorientationImageFilter<TTensorImage,TVec
   DT(2,0)=DT(0,2)=tensor[2];
   DT(2,1)=DT(1,2)=tensor[4];
       
-  vnl_symmetric_eigensystem< float > eig(DT);
+  vnl_symmetric_eigensystem< RealType > eig(DT);
   TensorType outTensor;
 
   TransformInputVectorType ev1;
@@ -164,21 +164,21 @@ PreservationOfPrincipalDirectionTensorReorientationImageFilter<TTensorImage,TVec
   typename DeformationFieldType::IndexType difIndex[ImageDimension][2];
   
   unsigned int posoff=1;
-  float difspace=1.0;
-  float space=1.0;
+  RealType difspace=1.0;
+  RealType space=1.0;
   if (posoff == 0) difspace=1.0;
-  float mindist=1.0;
-  float dist=100.0;
+  RealType mindist=1.0;
+  RealType dist=100.0;
   bool oktosample=true;
 
   for (unsigned int row=0; row<ImageDimension; row++)
     {
-      dist = fabs((float)index[row]);      
+      dist = fabs((RealType)index[row]);      
       if (dist < mindist) 
         {
         oktosample = false;
         }
-      dist = fabs((float)size[row] - (float)index[row]);
+      dist = fabs((RealType)size[row] - (RealType)index[row]);
       if (dist < mindist) 
         {
         oktosample = false;
@@ -192,7 +192,6 @@ PreservationOfPrincipalDirectionTensorReorientationImageFilter<TTensorImage,TVec
     typename DeformationFieldType::PixelType cpix = m_DeformationField->GetPixel(index);
     if (this->m_UseImageDirection)
       {
-        for ( unsigned int 
       cpix = m_DirectionTransform->TransformVector( cpix );
       }
     
@@ -214,7 +213,7 @@ PreservationOfPrincipalDirectionTensorReorientationImageFilter<TTensorImage,TVec
         ddlindex[row] = index[row]-2;
         }
       
-      float h=1;
+      RealType h=1;
       space=1.0; // should use image spacing here?
       
       typename DeformationFieldType::PixelType rpix = m_DeformationField->GetPixel( difIndex[row][1] );
@@ -243,7 +242,7 @@ PreservationOfPrincipalDirectionTensorReorientationImageFilter<TTensorImage,TVec
       for(unsigned int col=0; col< ImageDimension; col++)
         {
         
-        float val = dPix[col] / spacing[col];
+        RealType val = dPix[col] / spacing[col];
               
         if (row == col) 
           {
@@ -365,7 +364,7 @@ PreservationOfPrincipalDirectionTensorReorientationImageFilter<TTensorImage,TVec
       }
       
     bool isNull = false;
-    float trace = inTensor[0] + inTensor[3] + inTensor[5];
+    RealType trace = inTensor[0] + inTensor[3] + inTensor[5];
     if (trace <= 0)
       {
       isNull = true;
