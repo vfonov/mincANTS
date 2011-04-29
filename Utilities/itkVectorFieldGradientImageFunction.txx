@@ -1,17 +1,16 @@
 /*=========================================================================
 
-  Program:   Advanced Normalization Tools
+  Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkVectorFieldGradientImageFunction.txx,v $
   Language:  C++
-  Date:      $Date: 2008/11/15 23:46:06 $
-  Version:   $Revision: 1.16 $
+  Date:      $Date: 2009/04/22 16:11:04 $
+  Version:   $Revision: 1.4 $
 
-  Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
- http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
+  Copyright (c) Insight Software Consortium. All rights reserved.
+  See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -51,13 +50,13 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
     for ( unsigned int i = 0; i < minDimension; i++ )
       {
       F[i][i] = 1.0;
-      }   
-    itkWarningMacro( "The specified point, " << point 
-      << ", is outside the image boundaries." ); 
-    return F; 
+      }
+    itkWarningMacro( "The specified point, " << point
+      << ", is outside the image boundaries." );
+    return F;
     }
 
-  typename InputImageType::SpacingType spacing 
+  typename InputImageType::SpacingType spacing
     = this->GetInputImage()->GetSpacing();
 
   typedef VectorLinearInterpolateImageFunction<InputImageType> InterpolatorType;
@@ -68,16 +67,20 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   F.SetSize( ImageDimension, VectorDimension );
 
   typename InterpolatorType::OutputType x;
-  
+
   typename InterpolatorType::PointType ipoint;
   ipoint.CastFrom( point );
   x = interpolator->Evaluate( ipoint );
 
   for ( unsigned int i = 0; i < ImageDimension; i++ )
     {
-    typename InterpolatorType::PointType::VectorType delta;
+    typename PointType::VectorType delta;
     delta.Fill( 0.0 );
     delta[i] = spacing[i];
+
+    typename InterpolatorType::PointType::VectorType idelta;
+    idelta.Fill( 0.0 );
+    idelta[i] = spacing[i];
 
     typename InterpolatorType::OutputType xp1;
     typename InterpolatorType::OutputType xp2;
@@ -89,40 +92,34 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
       xp2 = xp1 = x;
       }
     else
-      {        
-      xp1 = interpolator->Evaluate( ipoint + delta );
+      {
+      xp1 = interpolator->Evaluate( ipoint + idelta );
       if ( this->IsInsideBuffer( point + delta*2.0 ) )
         {
-        xp2 = interpolator->Evaluate( ipoint + delta*2.0 );  
+        xp2 = interpolator->Evaluate( ipoint + idelta*2.0 );
         }
       else
         {
         xp2 = xp1;
         }
-      }        
+      }
 
     if ( !this->IsInsideBuffer( point - delta ) )
       {
       xm2 = xm1 = x;
       }
     else
-      {        
-      xm1 = interpolator->Evaluate( ipoint - delta );
+      {
+      xm1 = interpolator->Evaluate( ipoint - idelta );
       if ( this->IsInsideBuffer( point - delta*2.0 ) )
         {
-        xm2 = interpolator->Evaluate( ipoint - delta*2.0 );  
+        xm2 = interpolator->Evaluate( ipoint - idelta*2.0 );
         }
       else
         {
         xm2 = xm1;
         }
-      }        
-
-    RealType h = 0.5;
-    xp1 = xp1*h + x*(1.0-h);
-    xm1 = xm1*h + x*(1.0-h);
-    xp2 = xp2*h + xp1*(1.0-h);
-    xp2 = xm2*h + xm1*(1.0-h);
+      }
 
     RealType weight = 1.0 / ( 12.0*delta[i] );
     for ( unsigned int j = 0; j < VectorDimension; j++ )
@@ -132,7 +129,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
     }
 
   unsigned int minDimension = ImageDimension;
-  if ( static_cast<unsigned int>( VectorDimension ) < 
+  if ( static_cast<unsigned int>( VectorDimension ) <
        static_cast<unsigned int>( ImageDimension ) )
     {
     minDimension = VectorDimension;
@@ -140,7 +137,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   for ( unsigned int i = 0; i < minDimension; i++ )
     {
     F[i][i] += 1.0;
-    }   
+    }
 
   return F;
 }
@@ -162,10 +159,10 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
     for ( unsigned int i = 0; i < minDimension; i++ )
       {
       F[i][i] = 1.0;
-      }   
-    itkWarningMacro( "The specified index, " << index 
-      << ", is outside the image boundaries." ); 
-    return F; 
+      }
+    itkWarningMacro( "The specified index, " << index
+      << ", is outside the image boundaries." );
+    return F;
     }
 
 
@@ -175,7 +172,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   typename InputImageType::PixelType x;
   x = this->GetInputImage()->GetPixel( index );
 
-  typename InputImageType::SpacingType spacing 
+  typename InputImageType::SpacingType spacing
     = this->GetInputImage()->GetSpacing();
 
   for ( unsigned int i = 0; i < ImageDimension; i++ )
@@ -197,42 +194,36 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
       xp2 = xp1 = x;
       }
     else
-      {        
+      {
       xp1 = this->GetInputImage()->GetPixel( index + offset1 );
       if ( this->IsInsideBuffer( index + offset2 ) )
         {
-        xp2 = this->GetInputImage()->GetPixel( index + offset2 );  
+        xp2 = this->GetInputImage()->GetPixel( index + offset2 );
         }
       else
         {
         xp2 = xp1;
         }
-      }        
+      }
 
     if ( !this->IsInsideBuffer( index - offset1 ) )
       {
       xm2 = xm1 = x;
       }
     else
-      {        
+      {
       xm1 = this->GetInputImage()->GetPixel( index - offset1 );
       if ( this->IsInsideBuffer( index - offset2 ) )
         {
-        xm2 = this->GetInputImage()->GetPixel( index - offset2 );  
+        xm2 = this->GetInputImage()->GetPixel( index - offset2 );
         }
       else
         {
         xm2 = xm1;
         }
-      }        
+      }
 
-    RealType h = 0.5;
-    xp1 = xp1*h + x*(1.0-h);
-    xm1 = xm1*h + x*(1.0-h);
-    xp2 = xp2*h + xp1*(1.0-h);
-    xp2 = xm2*h + xm1*(1.0-h);
-
-    RealType weight = 1.0 
+    RealType weight = 1.0
       / ( 12.0*static_cast<RealType>( offset1[i] ) * spacing[i] );
     for ( unsigned int j = 0; j < VectorDimension; j++ )
       {
@@ -241,7 +232,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
     }
 
   unsigned int minDimension = ImageDimension;
-  if ( static_cast<unsigned int>( VectorDimension ) < 
+  if ( static_cast<unsigned int>( VectorDimension ) <
        static_cast<unsigned int>( ImageDimension ) )
     {
     minDimension = VectorDimension;
@@ -249,7 +240,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   for ( unsigned int i = 0; i < minDimension; i++ )
     {
     F[i][i] += 1.0;
-    }   
+    }
 
   return F;
 }
@@ -304,7 +295,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 {
   MatrixType F = this->EvaluateDeformationGradientTensor( point );
   MatrixType E(ImageDimension, ImageDimension);
-  
+
   typename MatrixType::InternalMatrixType ff = F.GetTranspose() * F.GetVnlMatrix();
 
   for ( unsigned int i = 0; i < ff.rows(); i++ )
@@ -315,11 +306,11 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
       if ( i == j )
         {
         E[i][j] -= 1.0;
-        }   
-      E[i][j] *= 0.5;      
-      } 
-    }   
-  return E; 
+        }
+      E[i][j] *= 0.5;
+      }
+    }
+  return E;
 }
 
 template <typename TInputImage, typename TRealType, typename TOutputImage>
@@ -330,7 +321,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 {
   MatrixType F = this->EvaluateDeformationGradientTensorAtIndex( index );
   MatrixType E(ImageDimension, ImageDimension);
-  
+
   typename MatrixType::InternalMatrixType ff = F.GetTranspose() * F.GetVnlMatrix();
 
   for ( unsigned int i = 0; i < ff.rows(); i++ )
@@ -341,11 +332,11 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
       if ( i == j )
         {
         E[i][j] -= 1.0;
-        }   
-      E[i][j] *= 0.5;      
-      } 
-    }   
-  return E; 
+        }
+      E[i][j] *= 0.5;
+      }
+    }
+  return E;
 }
 
 template <typename TInputImage, typename TRealType, typename TOutputImage>
@@ -361,7 +352,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   for ( unsigned int i = 0; i < v.size(); i++ )
     {
     s += v[i]*V[i];
-    } 
+    }
   return s;
 }
 
@@ -379,7 +370,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   for ( unsigned int i = 0; i < v.size(); i++ )
     {
     s += v[i]*V[i];
-    } 
+    }
   return s;
 }
 
@@ -391,7 +382,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 {
   MatrixType F = this->EvaluateDeformationGradientTensor( point );
   MatrixType E(ImageDimension, ImageDimension);
-  
+
   typename MatrixType::InternalMatrixType ff
     = vnl_matrix_inverse<RealType>( F.GetVnlMatrix() * F.GetTranspose()  );
   for ( unsigned int i = 0; i < ff.rows(); i++ )
@@ -402,11 +393,11 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
       if ( i == j )
         {
         E[i][j] += 1.0;
-        }   
-      E[i][j] *= 0.5;      
+        }
+      E[i][j] *= 0.5;
       }
-    }   
-  return E; 
+    }
+  return E;
 }
 
 template <typename TInputImage, typename TRealType, typename TOutputImage>
@@ -417,7 +408,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 {
   MatrixType F = this->EvaluateDeformationGradientTensorAtIndex( index );
   MatrixType E(ImageDimension, ImageDimension);
-  
+
   typename MatrixType::InternalMatrixType ff
     = vnl_matrix_inverse<RealType>( F.GetVnlMatrix() * F.GetTranspose()  );
   for ( unsigned int i = 0; i < ff.rows(); i++ )
@@ -428,18 +419,18 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
       if ( i == j )
         {
         E[i][j] += 1.0;
-        }   
-      E[i][j] *= 0.5;      
+        }
+      E[i][j] *= 0.5;
       }
-    }   
-  return E; 
+    }
+  return E;
 }
 
 template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::RealType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateEulerianDirectionalStrain( 
+::EvaluateEulerianDirectionalStrain(
   const PointType &point, const VectorType &V ) const
 {
   MatrixType E = this->EvaluateEulerianStrainTensor( point );
@@ -448,7 +439,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   for ( unsigned int i = 0; i < v.size(); i++ )
     {
     s += v[i]*V[i];
-    } 
+    }
   return s;
 }
 
@@ -456,7 +447,7 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::RealType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateEulerianDirectionalStrainAtIndex( 
+::EvaluateEulerianDirectionalStrainAtIndex(
   const IndexType &index, const VectorType &V ) const
 {
   MatrixType E = this->EvaluateEulerianStrainTensorAtIndex( index );
@@ -465,7 +456,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   for ( unsigned int i = 0; i < v.size(); i++ )
     {
     s += v[i]*V[i];
-    } 
+    }
   return s;
 }
 
@@ -485,8 +476,8 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
       {
       B[i][j] = b[i][j];
       }
-    }    
-  return B; 
+    }
+  return B;
 }
 
 template <typename TInputImage, typename TRealType, typename TOutputImage>
@@ -505,8 +496,8 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
       {
       B[i][j] = b[i][j];
       }
-    }    
-  return B; 
+    }
+  return B;
 }
 
 template <typename TInputImage, typename TRealType, typename TOutputImage>
@@ -525,8 +516,8 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
       {
       C[i][j] = c[i][j];
       }
-    }    
-  return C; 
+    }
+  return C;
 }
 
 template <typename TInputImage, typename TRealType, typename TOutputImage>
@@ -545,8 +536,8 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
       {
       C[i][j] = c[i][j];
       }
-    }    
-  return C; 
+    }
+  return C;
 }
 
 template <typename TInputImage, typename TRealType, typename TOutputImage>
@@ -568,7 +559,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   U.Fill( 0 );
   for ( unsigned int d = 0; d < C.Rows(); d++ )
     {
-    RealType lambda = sqrt( D[d][d] ); 
+    RealType lambda = sqrt( D[d][d] );
     for ( unsigned int i = 0; i < C.Rows(); i++ )
       {
       for ( unsigned int j = 0; j < C.Cols(); j++ )
@@ -576,8 +567,8 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
         U[i][j] += lambda*V[i][d]*V[j][d];
         }
       }
-    }      
-  return U; 
+    }
+  return U;
 }
 
 template <typename TInputImage, typename TRealType, typename TOutputImage>
@@ -599,7 +590,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   U.Fill( 0 );
   for ( unsigned int d = 0; d < C.Rows(); d++ )
     {
-    RealType lambda = sqrt( D[d][d] ); 
+    RealType lambda = sqrt( D[d][d] );
     for ( unsigned int i = 0; i < C.Rows(); i++ )
       {
       for ( unsigned int j = 0; j < C.Cols(); j++ )
@@ -607,8 +598,8 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
         U[i][j] += lambda*V[i][d]*V[j][d];
         }
       }
-    }      
-  return U; 
+    }
+  return U;
 }
 
 template <typename TInputImage, typename TRealType, typename TOutputImage>
@@ -629,7 +620,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   U.Fill( 0 );
   for ( unsigned int d = 0; d < B.Rows(); d++ )
     {
-    RealType lambda = sqrt( D[d][d] ); 
+    RealType lambda = sqrt( D[d][d] );
     for ( unsigned int i = 0; i < B.Rows(); i++ )
       {
       for ( unsigned int j = 0; j < B.Cols(); j++ )
@@ -637,8 +628,8 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
         U[i][j] += lambda*V[i][d]*V[j][d];
         }
       }
-    }      
-  return U; 
+    }
+  return U;
 }
 
 template <typename TInputImage, typename TRealType, typename TOutputImage>
@@ -659,7 +650,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   U.Fill( 0 );
   for ( unsigned int d = 0; d < B.Rows(); d++ )
     {
-    RealType lambda = sqrt( D[d][d] ); 
+    RealType lambda = sqrt( D[d][d] );
     for ( unsigned int i = 0; i < B.Rows(); i++ )
       {
       for ( unsigned int j = 0; j < B.Cols(); j++ )
@@ -667,8 +658,8 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
         U[i][j] += lambda*V[i][d]*V[j][d];
         }
       }
-    }      
-  return U; 
+    }
+  return U;
 }
 
 template <typename TInputImage, typename TRealType, typename TOutputImage>
@@ -678,7 +669,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 {
   Superclass::PrintSelf(os,indent);
 }
-  
+
 } // end namespace itk
 
 #endif
