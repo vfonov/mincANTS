@@ -7,7 +7,7 @@
   Version:   $Revision: 1.16 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -79,13 +79,12 @@ public:
   /** Other typedef */
   typedef TOutput                                  RealType;
   typedef TOutput                                  OutputType;
-  typedef Vector<RealType,
-    itkGetStaticConstMacro( Dimension )>           VectorType;
 
   typedef typename Statistics
     ::MersenneTwisterRandomVariateGenerator              RandomizerType;
-  typedef typename Statistics
-    ::GaussianProbabilityDensityFunction<VectorType>     GaussianType;
+  typedef typename Statistics::
+  GaussianProbabilityDensityFunction
+    <MeasurementVectorType>                              GaussianType;
   typedef std::vector<typename GaussianType::Pointer>    GaussianContainerType;
   typedef typename GaussianType::MatrixType              CovarianceMatrixType;
 
