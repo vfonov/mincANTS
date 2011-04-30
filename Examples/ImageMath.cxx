@@ -6834,7 +6834,7 @@ int main(int argc, char *argv[])
      //     else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<2>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
      break;
-     /*
+     
    case 3:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<3>(argc,argv);
@@ -6859,6 +6859,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"Grad") == 0 )  GradientImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"Laplacian") == 0 )  LaplacianImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"PH") == 0 )  PrintHeader<3>(argc,argv);
+     else if (strcmp(operation.c_str(),"CenterImage2inImage1") == 0 )  CenterImage2inImage1<3>(argc,argv);
      else if (strcmp(operation.c_str(),"Byte") == 0 )  ByteImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"LabelStats") == 0 )  LabelStats<3>(argc,argv);
      else if (strcmp(operation.c_str(),"ROIStatistics") == 0 )  ROIStatistics<3>(argc,argv);
@@ -6930,6 +6931,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"Laplacian") == 0 )  LaplacianImage<4>(argc,argv);
      else if (strcmp(operation.c_str(),"PH") == 0 )  PrintHeader<4>(argc,argv);
      else if (strcmp(operation.c_str(),"nvols") == 0 )  PrintHeader<4>(argc,argv);
+     else if (strcmp(operation.c_str(),"CenterImage2inImage1") == 0 )  CenterImage2inImage1<4>(argc,argv);
      else if (strcmp(operation.c_str(),"Byte") == 0 )  ByteImage<4>(argc,argv);
      else if (strcmp(operation.c_str(),"LabelStats") == 0 )  LabelStats<4>(argc,argv);
      else if (strcmp(operation.c_str(),"ROIStatistics") == 0 )  ROIStatistics<4>(argc,argv);
@@ -6974,7 +6976,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"CompCorr") == 0)  CompCorr<4>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
-     */
+     
    default:
      std::cerr << " Dimension Not supported " << atoi(argv[1]) << std::endl;
      exit( 1 );
