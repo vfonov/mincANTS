@@ -209,6 +209,7 @@ public:
  
   void PrintSelf( std::ostream& os, Indent indent ) const
   {
+    os << indent;
   }
  
 

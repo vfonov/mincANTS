@@ -290,7 +290,7 @@ int GetLargestComponent(int argc, char *argv[])
 template<unsigned int ImageDimension>
 int ExtractSlice(int argc, char *argv[])
 {
-
+  if (argc <= 2 ) { std::cout << " too few options " << std::endl; return 1; }
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
   typedef itk::Image<VectorType,ImageDimension>     FieldType;
@@ -1388,21 +1388,15 @@ int PadImage(int argc, char *argv[])
 
 
 template<unsigned int ImageDimension>
-int PadImageToTargetSize(int argc, char *argv[])
+int CenterImage2inImage1(int argc, char *argv[])
 {
-
   typedef float  PixelType;
-  typedef itk::Vector<float,ImageDimension>         VectorType;
-  typedef itk::Image<VectorType,ImageDimension>     FieldType;
   typedef itk::Image<PixelType,ImageDimension> ImageType;
   typedef itk::ImageFileReader<ImageType> readertype;
   typedef itk::ImageFileWriter<ImageType> writertype;
   typedef typename ImageType::IndexType IndexType;
   typedef typename ImageType::SizeType SizeType;
   typedef typename ImageType::SpacingType SpacingType;
-  typedef itk::AffineTransform<double,ImageDimension>   AffineTransformType;
-  typedef itk::LinearInterpolateImageFunction<ImageType,double>  InterpolatorType1;
-  typedef itk::NearestNeighborInterpolateImageFunction<ImageType,double>  InterpolatorType2;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
 
   int argct=2;
@@ -1412,82 +1406,66 @@ int PadImageToTargetSize(int argc, char *argv[])
   std::string fn2 = "";
   if (argc > argct) fn2=std::string(argv[argct]);   argct++;
 
-  typename ImageType::Pointer padimage = NULL;
-  if (fn1.length() > 3)   ReadImage<ImageType>(padimage, fn1.c_str());
   typename ImageType::Pointer image1 = NULL;
-  if (fn2.length() > 3)   ReadImage<ImageType>(image1, fn2.c_str());
+  if (fn1.length() > 3)   ReadImage<ImageType>(image1, fn1.c_str());
+  typename ImageType::Pointer image2 = NULL;
+  if (fn2.length() > 3)   ReadImage<ImageType>(image2, fn2.c_str());
 
-  typename ImageType::PointType origin=image1->GetOrigin();
-  typename ImageType::PointType origin2=image1->GetOrigin();
-  padimage->SetSpacing(image1->GetSpacing());
-  padimage->SetDirection(image1->GetDirection());
-
-  typename ImageType::PointType point1; 
-  typename ImageType::PointType outside_points; 
-  typename ImageType::PointType inside_points; 
-  typename ImageType::PointType cm_points; 
-  typename ImageType::PointType all_points; 
-  typename ImageType::PointType neworigin; 
-  unsigned long ct_out=0;
-  unsigned long ct_in=0;
-  float out_in_ratio=1; 
-  Iterator iter( image1,  image1->GetLargestPossibleRegion() );
-  unsigned int its=0;
-  while ( out_in_ratio > 0 && its < 100 ) {
-  padimage->FillBuffer( 0 );
-  outside_points.Fill(0);
-  cm_points.Fill(0);
-  all_points.Fill(0);
-  inside_points.Fill(0);
+  // compute center of mass in image2 in point space
   double iweight=0;
+  typename ImageType::PointType cm_point; cm_point.Fill(0);
+  Iterator iter( image2,  image2->GetLargestPossibleRegion() );
   for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
     {
-      typename ImageType::IndexType oindex=iter.GetIndex();
-      typename ImageType::IndexType padindex=iter.GetIndex();
-      image1->TransformIndexToPhysicalPoint(oindex, point1);
-      padimage->TransformPhysicalPointToIndex(point1, padindex);
-      bool isinside=padimage->TransformPhysicalPointToIndex(point1, padindex);
-      if (isinside)
-	{
-	  padimage->SetPixel(padindex,iter.Get());
-          for (unsigned int d=0; d<outside_points.Size(); d++) {
-	    cm_points[d]=cm_points[d]+point1[d]*iter.Get();
-  	    inside_points[d]=inside_points[d]+point1[d];
-	    all_points[d]=all_points[d]+point1[d];
-	  }
-	  iweight+=iter.Get();
-	  ct_in++;
-	}
-      else {
-	for (unsigned int d=0; d<outside_points.Size(); d++) 
-  	  outside_points[d]=outside_points[d]+point1[d];
-        ct_out++;
+      typename ImageType::PointType point;
+      image2->TransformIndexToPhysicalPoint(iter.GetIndex(), point);
+      for (unsigned int d=0; d<ImageDimension; d++) 
+	cm_point[d]+=point[d]*iter.Get();
+      iweight+=iter.Get();
+    }
+
+  // center of image1
+  typename ImageType::IndexType image_1_center_index;
+  image_1_center_index.Fill(0);
+  for (unsigned int d=0; d<ImageDimension; d++) {
+    cm_point[d]/=iweight;
+    image_1_center_index[d]=image1->GetLargestPossibleRegion().GetSize()[d]/2;
+  }
+  typename ImageType::PointType image_1_center_point;
+  image1->TransformIndexToPhysicalPoint(image_1_center_index, image_1_center_point);
+  
+  // now we translate the cm_point to the center of image1 
+  typename ImageType::PointType trans;
+  for (unsigned int d=0; d<ImageDimension; d++) 
+    trans[d]=image_1_center_point[d]-cm_point[d];
+
+  for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
+    {
+      typename ImageType::PointType point;
+      image2->TransformIndexToPhysicalPoint(iter.GetIndex(), point);
+      for (unsigned int d=0; d<ImageDimension; d++) 
+	point[d]=point[d]+trans[d];
+      
+      typename ImageType::IndexType newindex;
+      newindex.Fill(0);
+      bool isinside=image1->TransformPhysicalPointToIndex(point,newindex);
+      if ( isinside ) {
+	image1->SetPixel(newindex,iter.Get());
       }
     }
-  for (unsigned int d=0; d<outside_points.Size(); d++) {
-    outside_points[d]=outside_points[d]/(float)ct_out;
-    inside_points[d]=inside_points[d]/(float)ct_in;
-    cm_points[d]=cm_points[d]/iweight;
-    all_points[d]=all_points[d]/(float)ct_in;
-    neworigin[d]=padimage->GetOrigin()[d]+(outside_points[d]-inside_points[d]);
-    //    neworigin[d]=cm_points[d]*(-1);
-  }
-  padimage->SetOrigin(neworigin);
-  out_in_ratio=(float)ct_out/(float)ct_in; 
-  //std::cout <<" in " << ct_in <<" out " << ct_out << " outside_points " << outside_points << " inside_points " << inside_points << std::endl;
-  its++; 
-  }// while 
-  // std::cout << " cm " << cm_points << " orig " << padimage->GetOrigin() << std::endl;
-  WriteImage<ImageType>(padimage,outname.c_str());
+
+
+
+  WriteImage<ImageType>(image1,outname.c_str());
   return 0;
 
 }
 
 
-
 template<unsigned int ImageDimension>
 int TimeSeriesSubset(int argc, char *argv[])
 {
+  if (argc <= 2 ) { std::cout << " too few options " << std::endl; return 1; }
 
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
@@ -1553,6 +1531,7 @@ int TimeSeriesSubset(int argc, char *argv[])
 template<unsigned int ImageDimension>
 int CompCorr(int argc, char *argv[])
 {
+  if (argc <= 2 ) { std::cout << " too few options " << std::endl; return 1; }
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
   typedef itk::Image<VectorType,ImageDimension>     FieldType;
@@ -1723,7 +1702,7 @@ int CompCorr(int argc, char *argv[])
 template<unsigned int ImageDimension>
 int StackImage(int argc, char *argv[])
 {
-
+  if (argc <= 2 ) { std::cout << " too few options " << std::endl; return 1; }
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
   typedef itk::Image<VectorType,ImageDimension>     FieldType;
@@ -1913,6 +1892,7 @@ std::cout << " Label Surf " << std::endl;
 template<unsigned int ImageDimension>
 int FitSphere(int argc, char *argv[])
 {
+  if (argc <= 2 ) { std::cout << " too few options " << std::string(argv[1]) << std::endl; return 1; }
   /*
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
@@ -2407,15 +2387,15 @@ int TensorFunctions(int argc, char *argv[])
 	      direction[dd][ee]=d4img->GetDirection()[dd][ee];
 	}
 	tensorregion.SetSize(size);
-	typename TensorImageType::Pointer cimage = TensorImageType::New();
-	cimage->SetRegions( tensorregion );
-	cimage->Allocate();
-	cimage->SetSpacing(spacing);
-	cimage->SetOrigin(origin);
-	cimage->SetDirection(direction);
+	timage = TensorImageType::New();
+	timage->SetRegions( tensorregion );
+	timage->Allocate();
+	timage->SetSpacing(spacing);
+	timage->SetOrigin(origin);
+	timage->SetDirection(direction);
 
 	// now iterate through & set the values of the tensors.
-	Iterator tIter(cimage, cimage->GetLargestPossibleRegion() );
+	Iterator tIter(timage, timage->GetLargestPossibleRegion() );
 	for(  tIter.GoToBegin(); !tIter.IsAtEnd(); ++tIter )
 	  {
 	    typename TensorImageType::IndexType ind=tIter.GetIndex();
@@ -2445,9 +2425,9 @@ int TensorFunctions(int argc, char *argv[])
 		  pix6[ee-1]=d4img->GetPixel(ind2);
 		}
 	    }
-	    cimage->SetPixel(ind,pix6);
+	    timage->SetPixel(ind,pix6);
 	  }
-	WriteTensorImage<TensorImageType>(cimage, outname.c_str() ,false);
+	WriteTensorImage<TensorImageType>(timage, outname.c_str() ,false);
 	return 0;
       }
     std::cout << " cannot convert --- input image not 4D --- " << fn1 << std::endl;
@@ -3008,8 +2988,8 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input,float ra
   //  images. This is specified with the methods \code{SetErodeValue()} and
   //  \code{SetDilateValue()}. The value passed to these methods will be
   //  considered the value over which the dilation and erosion rules will apply
-  binaryErode->SetErodeValue( 1 );
-  binaryDilate->SetDilateValue( 1 );
+  binaryErode->SetErodeValue( (unsigned int ) dilateval );
+  binaryDilate->SetDilateValue(  (unsigned int ) dilateval );
 
   typename TImage::Pointer temp;
   if (option == 1)
@@ -4215,8 +4195,8 @@ int MorphImage(int argc, char *argv[])
   ReadImage<ImageType>(image1, fn1.c_str());
 
   // SRD set dilatevalue
-  float dilateval = 1.0;
-  //  if (argc > argct + 1) dilateval=atof(argv[argct+1]);
+  float dilateval=1;
+  if (argc > argct + 1) dilateval=atof(argv[argct+1]);
 
 
   image1=Morphological<ImageType>(image1, sigma, morphopt , dilateval);
@@ -4658,10 +4638,6 @@ int FillHoles(int argc, char *argv[])
 	      for (unsigned int i = 0; i < GHood.Size(); i++)
 		{
 		  ind2=GHood.GetIndex(i);
-		  float dist=0.0;
-		  for (unsigned int j=0; j<ImageDimension; j++)
-		    dist+=(float)(ind[j]-ind2[j])*(float)(ind[j]-ind2[j]);
-		  dist=sqrt(dist);
 		  float val2=image1->GetPixel(ind2);
 		  if (val2 >= 0.5 && GHood.GetPixel(i) != lab )
 		    {
@@ -4791,6 +4767,7 @@ int PrintHeader(int argc, char *argv[])
   std::string outname=std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
+  if (argc > 20 ) std::cout << " k " << std::endl;
   //  std::string opt = std::string(argv[argct]);   argct++;
 
   typename readertype::Pointer reader = readertype::New();
@@ -4932,8 +4909,8 @@ template <unsigned int ImageDimension>
 void
 RemoveLabelInterfaces(int argc, char *argv[])
 {
-
- typedef float  PixelType;
+  if (argc <= 2 ) { std::cout << " too few options " << std::endl; return; }
+  typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
   typedef itk::Image<VectorType,ImageDimension>     FieldType;
   typedef itk::Image<PixelType,ImageDimension> ImageType;
@@ -5532,6 +5509,7 @@ int DiceAndMinDistSum(      int argc, char *argv[])
 template <unsigned int ImageDimension>
 int Lipschitz( int argc, char *argv[] )
 {
+  if (argc > 20 ) std::cout << " k " << std::endl;
   std::cout << " Compute Lipschitz continuity of the mapping " << std::endl;
 
   typedef float RealType;
@@ -5654,6 +5632,7 @@ int Lipschitz( int argc, char *argv[] )
 template <unsigned int ImageDimension>
 int ExtractVectorComponent( int argc, char *argv[] )
 {
+  if (argc <= 2 ) { std::cout << " too few options " << std::endl; return 1; }
   typedef float PixelType;
   typedef itk::VectorImage<PixelType, ImageDimension> ImageType;
   typedef itk::Image<PixelType, ImageDimension> RealImageType;
@@ -5697,8 +5676,9 @@ int ExtractVectorComponent( int argc, char *argv[] )
 template <unsigned int ImageDimension>
 int InvId( int argc, char *argv[] )
 {
+  if (argc > 2 ) 
   std::cout << " Compute  phi(  phi^{-1}(x)) " << std::endl;
-
+  else return 1;
   typedef float RealType;
   typedef itk::Image<RealType, ImageDimension> RealImageType;
   typedef itk::Vector<RealType, ImageDimension> VectorType;
@@ -6384,13 +6364,13 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
   std:: cout << " largest image " << size << " num images " << numberofimages << " voxct " << voxct << std::endl;
 
 /** declare the tiled image */
-  unsigned long xx=0,yy=0;
+  unsigned long xx1=0,yy1=0;
   if (rowcoloption==0)
-    {  std::cout << " row option " << std::endl;  xx=voxct;  yy=numberofimages; }
+    {  std::cout << " row option " << std::endl;  xx1=voxct;  yy1=numberofimages; }
   if (rowcoloption==1)
-    {  std::cout << " col option " << std::endl;  yy=voxct;  xx=numberofimages; }
-  unsigned long xsize=xx;
-  unsigned long ysize=yy;
+    {  std::cout << " col option " << std::endl;  yy1=voxct;  xx1=numberofimages; }
+  unsigned long xsize=xx1;
+  unsigned long ysize=yy1;
   typename MatrixImageType::SizeType tilesize;
   tilesize[0]=xsize;
   tilesize[1]=ysize;
@@ -6741,8 +6721,8 @@ int main(int argc, char *argv[])
     std::cout << "\n  PadImage		: If Pad-Number is negative, de-Padding occurs" << std::endl;
     std::cout << "      Usage		: PadImage ImageIn Pad-Number" << std::endl;
 
-    std::cout << "\n  PadImageToTargetSize		: for giving images the same domain size" << std::endl;
-    std::cout << "      Usage		: PadImageToTargetSize TargetImage ImageToPad " << std::endl;
+    std::cout << "\n  CenterImage2inImage1		: " << std::endl;
+    std::cout << "      Usage		: ReferenceImageSpace ImageToCenter " << std::endl;
 
     std::cout << "\n  PH			: Print Header" << std::endl;
 
@@ -6817,6 +6797,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"Grad") == 0 )  GradientImage<2>(argc,argv);
      else if (strcmp(operation.c_str(),"Laplacian") == 0 )  LaplacianImage<2>(argc,argv);
      else if (strcmp(operation.c_str(),"PH") == 0 )  PrintHeader<2>(argc,argv);
+     else if (strcmp(operation.c_str(),"CenterImage2inImage1") == 0 )  CenterImage2inImage1<2>(argc,argv);
      else if (strcmp(operation.c_str(),"Byte") == 0 )  ByteImage<2>(argc,argv);
      else if (strcmp(operation.c_str(),"LabelStats") == 0 )  LabelStats<2>(argc,argv);
      else if (strcmp(operation.c_str(),"ROIStatistics") == 0 )  ROIStatistics<2>(argc,argv);
@@ -6833,7 +6814,6 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"FillHoles") == 0 )  FillHoles<2>(argc,argv);
      else if (strcmp(operation.c_str(),"HistogramMatch") == 0) HistogramMatching<2>(argc,argv);
      else if (strcmp(operation.c_str(),"PadImage") == 0 )  PadImage<2>(argc,argv);
-     else if (strcmp(operation.c_str(),"PadImageToTargetSize") == 0 )  PadImageToTargetSize<2>(argc,argv);
      else if (strcmp(operation.c_str(),"SetOrGetPixel") == 0 )  SetOrGetPixel<2>(argc,argv);
      else if (strcmp(operation.c_str(),"MakeImage") == 0 )  MakeImage<2>(argc,argv);
      else if (strcmp(operation.c_str(),"stack") == 0 )  StackImage<2>(argc,argv);
@@ -6854,7 +6834,7 @@ int main(int argc, char *argv[])
      //     else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<2>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
      break;
-
+     /*
    case 3:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<3>(argc,argv);
@@ -6994,7 +6974,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"CompCorr") == 0)  CompCorr<4>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
-
+     */
    default:
      std::cerr << " Dimension Not supported " << atoi(argv[1]) << std::endl;
      exit( 1 );
