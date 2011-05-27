@@ -377,6 +377,14 @@ PreservationOfPrincipalDirectionTensorReorientationImageFilter<TTensorImage,TVec
        {
       outTensor = this->ApplyReorientation( localDeformation, inTensor );
       }
+    // valid values?
+    for (unsigned int jj=0; jj<6; jj++) 
+      {
+      if ( vnl_math_isnan( outTensor[jj] ) || vnl_math_isinf( outTensor[jj]) )
+        {
+	  outTensor[jj]=0;
+        }
+      }
         
     outputIt.Set( outTensor );
     }
