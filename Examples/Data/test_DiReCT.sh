@@ -20,7 +20,7 @@ THPROG=KellyKapowski
 smoothing=1
 # for r in 0.010 0.015 0.020 0.025 0.05 0.075 0.1 0.125 0.15 ; do 
 rct=10
-for r in 0.15 0.175 0.20 0.225 ; do
+for r in 0.05 0.075 0.10 0.125 0.15 0.175 0.20 0.225 ; do
   thexe="$THPROG -d 3 -s ${SEGOUT} -w $WM -g $GM -o $THICKOUT -r $r --convergence [ 45 , 0 , 5 ] -t 10 -m $smoothing "
   echo $thexe 
   $thexe 
