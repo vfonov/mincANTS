@@ -28,6 +28,7 @@ for r in 0.05 0.075 0.10 0.125 0.15 0.175 0.20 0.225 ; do
   ImageMath 3 diff_${rct}_slice.nii.gz ExtractSlice diff.nii.gz 30 
   ImageMath 3 gt_slice.nii.gz ExtractSlice $GT 30 
   ThresholdImage 2 gt_slice.nii.gz gt_slice.nii.gz 2 999 
+  echo " params: grad-step $r , smooth = $smoothing " >> direct_eval_log.txt
   MeasureMinMaxMean 2 diff_${rct}_slice.nii.gz direct_eval_log.txt  1 gt_slice.nii.gz 
   MeasureMinMaxMean 2 diff_${rct}_slice.nii.gz direct_eval_log.txt  0 gt_slice.nii.gz
   let rct=$rct+1
