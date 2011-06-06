@@ -7,7 +7,7 @@
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -19,6 +19,8 @@
 #define __itkLabeledPointSetFileWriter_txx
 
 #include "itkLabeledPointSetFileWriter.h"
+
+#include "itkBoundingBox.h"
 #include "itkImageFileWriter.h"
 
 #include <fstream>
@@ -94,14 +96,18 @@ LabeledPointSetFileWriter<TInputMesh>
 
   if( this->m_ImageSize[0] == 0 )
     {
-    this->m_ImageSize.Fill( 100 );
-    this->m_ImageOrigin.CastFrom( 
-      this->m_Input->GetBoundingBox()->GetMinimum() );
+    typedef BoundingBox<unsigned long, Dimension,
+      typename TInputMesh::CoordRepType, typename TInputMesh::PointsContainer>
+      BoundingBoxType;
+    typename BoundingBoxType::Pointer bbox = BoundingBoxType::New();
+    bbox->SetPoints( this->m_Input->GetPoints() );
+    bbox->ComputeBoundingBox();
+
     for( unsigned int d = 0; d < Dimension; d++ )
       {
-      this->m_ImageSpacing[d] = ( 
-        this->m_Input->GetBoundingBox()->GetMaximum()[d] -
-        this->m_Input->GetBoundingBox()->GetMinimum()[d] ) 
+      this->m_ImageSpacing[d] = (
+        bbox->GetMaximum()[d] -
+        bbox->GetMinimum()[d] )
         / static_cast<double>( this->m_ImageSize[d] + 1 );
       }
     this->m_ImageDirection.SetIdentity();
@@ -199,9 +205,9 @@ LabeledPointSetFileWriter<TInputMesh>
       }
     pointIterator++;
     }
-  outputFile.close();  
-}  
-  
+  outputFile.close();
+}
+
 template<class TInputMesh>
 void
 LabeledPointSetFileWriter<TInputMesh>
@@ -211,11 +217,11 @@ LabeledPointSetFileWriter<TInputMesh>
   // Write to output file
   //
   std::ofstream outputFile( this->m_FileName.c_str(), std::ios::app );
-  
+
   // No point data conditions
   if (!this->m_Input->GetPointData()) return;
   if (this->m_Input->GetPointData()->Size() == 0) return;
-  
+
   unsigned int numberOfPoints = this->m_Input->GetNumberOfPoints();
 
   outputFile << std::endl;
@@ -223,17 +229,17 @@ LabeledPointSetFileWriter<TInputMesh>
 
   std::string type = std::string( "float" );
 
-  if( !this->m_MultiComponentScalars ) 
+  if( !this->m_MultiComponentScalars )
     {
-    outputFile << "SCALARS pointLabels " << type 
+    outputFile << "SCALARS pointLabels " << type
       << " 1" << std::endl;
     outputFile << "LOOKUP_TABLE default" << std::endl;
-  
+
     typename InputMeshType::PointDataContainerIterator pointDataIterator
       = this->m_Input->GetPointData()->Begin();
     typename InputMeshType::PointDataContainerIterator pointDataEnd
       = this->m_Input->GetPointData()->End();
-  
+
     while( pointDataIterator != pointDataEnd )
       {
       outputFile << pointDataIterator.Value() << " ";
@@ -243,26 +249,26 @@ LabeledPointSetFileWriter<TInputMesh>
     }
   else
     {
-    MultiComponentScalarType scalar 
+    MultiComponentScalarType scalar
       = this->m_MultiComponentScalars->GetElement( 0 );
     unsigned int numberOfComponents = scalar.GetSize();
-     
+
     outputFile << "SCALARS scalars " << type
       << numberOfComponents << std::endl;
     outputFile << "LOOKUP_TABLE default" << std::endl;
-  
+
     typename MultiComponentScalarSetType::Iterator It
       = this->m_MultiComponentScalars->Begin();
     typename MultiComponentScalarSetType::Iterator ItEnd
       = this->m_MultiComponentScalars->End();
-  
+
     while( It != ItEnd )
       {
       outputFile << It.Value() << " ";
       It++;
       }
     outputFile << std::endl;
-    }  
+    }
   outputFile.close();
 }
 
@@ -272,8 +278,8 @@ LabeledPointSetFileWriter<TInputMesh>
 ::WriteLinesToVTKFile()
 {
   if( this->m_Lines )
-    {  
-     
+    {
+
     std::ofstream outputFile( this->m_FileName.c_str(), std::ios::app );
 
     unsigned int numberOfLines = this->m_Lines->Size();
@@ -282,32 +288,32 @@ LabeledPointSetFileWriter<TInputMesh>
     typename LineSetType::Iterator It
       = this->m_Lines->Begin();
     typename LineSetType::Iterator ItEnd = this->m_Lines->End();
-  
+
     while( It != ItEnd )
       {
-      totalSize += ( It.Value() ).Size(); 
+      totalSize += ( It.Value() ).Size();
       totalSize++;
       It++;
       }
-     
-    outputFile << "LINES " << 
-      numberOfLines << " " << totalSize << std::endl; 
+
+    outputFile << "LINES " <<
+      numberOfLines << " " << totalSize << std::endl;
 
     It = this->m_Lines->Begin();
     while( It != ItEnd )
       {
-      unsigned int numberOfPoints = ( It.Value() ).Size(); 
+      unsigned int numberOfPoints = ( It.Value() ).Size();
       outputFile << numberOfPoints << " ";
       for( unsigned int d = 0; d < numberOfPoints; d++ )
         {
-        outputFile << ( It.Value() )[d] << " "; 
+        outputFile << ( It.Value() )[d] << " ";
         }
-      outputFile << std::endl; 
-      ++It;  
+      outputFile << std::endl;
+      ++It;
       }
     outputFile << std::endl;
     outputFile.close();
-    }  
+    }
 }
 
 
