@@ -7,11 +7,11 @@
   Version:   $Revision: 1.15 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -44,14 +44,14 @@ namespace itk
  * any holes and overlaps in the output image.
  *
  * Each vector in the deformation field represent the distance between
- * a geometric point in the input space and a point in the output space such 
+ * a geometric point in the input space and a point in the output space such
  * that:
  *
  * \f[ p_{in} = p_{out} + d \f]
  *
- * Typically the mapped position does not correspond to an integer pixel 
+ * Typically the mapped position does not correspond to an integer pixel
  * position in the input image. Interpolation via an image function
- * is used to compute values at non-integer positions. The default 
+ * is used to compute values at non-integer positions. The default
  * interpolation typed used is the LinearInterpolateImageFunction.
  * The user can specify a particular interpolation function via
  * SetInterpolator(). Note that the input interpolator must derive
@@ -60,9 +60,9 @@ namespace itk
  * Position mapped to outside of the input image buffer are assigned
  * a edge padding value.
  *
- * The LargetPossibleRegion for the output is inherited from the 
- * input deformation field. The output image spacing and origin may be set 
- * via SetOutputSpacing, SetOutputOrigin. The default are respectively a 
+ * The LargetPossibleRegion for the output is inherited from the
+ * input deformation field. The output image spacing and origin may be set
+ * via SetOutputSpacing, SetOutputOrigin. The default are respectively a
  * vector of 1's and a vector of 0's.
  *
  * This class is templated over the type of the input image, the
@@ -164,8 +164,8 @@ public:
     itkSetObjectMacro(AffineTransform, TransformType);
 
     itkGetObjectMacro(AffineTransform, TransformType);
-    
-        
+
+
     itkSetEnumMacro(TransformOrder, TransformOrderType);
     itkGetEnumMacro(TransformOrder, TransformOrderType);
 
@@ -217,18 +217,18 @@ public:
      * set to be the same as that of the output requested region. */
     virtual void GenerateInputRequestedRegion();
 
-    /** This method is used to set the state of the filter before 
+    /** This method is used to set the state of the filter before
      * multi-threading. */
     virtual void BeforeThreadedGenerateData();
 
-    /** This method is used to set the state of the filter after 
+    /** This method is used to set the state of the filter after
      * multi-threading. */
     virtual void AfterThreadedGenerateData();
 
     /** precompute the smoothed image if necessary **/
     void SetSmoothScale(double scale);
     double GetSmoothScale() {return m_SmoothScale;};
-    
+
     void UpdateSizeByScale();
 
 
@@ -251,10 +251,10 @@ protected:
     void PrintSelf(std::ostream& os, Indent indent) const;
 
     /** WarpImageWAffineFilter is implemented as a multi-threaded filter.
-     * As such, it needs to provide and implementation for 
+     * As such, it needs to provide and implementation for
      * ThreadedGenerateData(). */
     void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-            int threadId );
+            ThreadIdType threadId );
 
 private:
     WarpImageWAffineFilter(const Self&); //purposely not implemented

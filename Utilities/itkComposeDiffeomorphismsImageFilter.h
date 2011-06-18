@@ -133,7 +133,7 @@ protected:
   void BeforeThreadedGenerateData();
 
   /** Multithreaded function which generates the output field. */
-  void ThreadedGenerateData( const RegionType &, int );
+  void ThreadedGenerateData( const RegionType &, ThreadIdType );
 
 private:
   ComposeDiffeomorphismsImageFilter( const Self& ); //purposely not implemented

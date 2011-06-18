@@ -7,7 +7,7 @@
   Version:   $Revision: $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -146,7 +146,7 @@ template<class TLabelImage>
 void
 LabelOverlapMeasuresImageFilter<TLabelImage>
 ::ThreadedGenerateData( const RegionType& outputRegionForThread,
-  int threadId )
+  ThreadIdType threadId )
 {
   ImageRegionConstIterator<LabelImageType> ItS( this->GetSourceImage(),
     outputRegionForThread );

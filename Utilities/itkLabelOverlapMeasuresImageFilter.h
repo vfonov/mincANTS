@@ -7,7 +7,7 @@
   Version:   $Revision: $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -181,7 +181,7 @@ protected:
   void AfterThreadedGenerateData();
 
   /** Multi-thread version GenerateData. */
-  void ThreadedGenerateData( const RegionType&, int );
+  void ThreadedGenerateData( const RegionType&, ThreadIdType );
 
   // Override since the filter needs all the data for the algorithm
   void GenerateInputRequestedRegion();

@@ -13,9 +13,9 @@ class TTransform
 class ITK_EXPORT DeformationFieldFromMultiTransformFilter :
 public WarpImageMultiTransformFilter< TOutputImage, TOutputImage, TDeformationField, TTransform>
 {
-public:    
+public:
     /** Standard class typedefs. */
-    typedef TOutputImage TInputImage; 
+    typedef TOutputImage TInputImage;
     typedef DeformationFieldFromMultiTransformFilter      Self;
     typedef WarpImageMultiTransformFilter<TInputImage,TOutputImage, TDeformationField, TTransform> Superclass;
     typedef SmartPointer<Self>         Pointer;
@@ -54,9 +54,9 @@ public:
     typedef typename DeformationFieldType::Pointer  DeformationFieldPointer;
     typedef typename DeformationFieldType::PixelType DisplacementType;
     typedef typename DisplacementType::ValueType DisplacementScalarValueType;
-    
+
     typedef typename Superclass::PointType          PointType;
-   
+
 
     virtual void GenerateInputRequestedRegion() {
         Superclass::GenerateInputRequestedRegion();
@@ -70,24 +70,24 @@ public:
         // call the superclass's implementation
         Superclass::GenerateOutputInformation();
     };
-    
+
 protected:
     DeformationFieldFromMultiTransformFilter() : Superclass(){
-        this->SetNumberOfRequiredInputs( 0 );  
+        this->SetNumberOfRequiredInputs( 0 );
         const DisplacementScalarValueType kMaxDisp = itk::NumericTraits<DisplacementScalarValueType>::max();
         Superclass::m_EdgePaddingValue.Fill(kMaxDisp);
     }
-    
+
     ~DeformationFieldFromMultiTransformFilter() {};
     void PrintSelf(std::ostream& os, Indent indent) const{
         Superclass::PrintSelf(os, indent);
     };
 
     /** WarpImageMultiTransformFilter is implemented as a multi-threaded filter.
-     * As such, it needs to provide and implementation for 
+     * As such, it needs to provide and implementation for
      * ThreadedGenerateData(). */
     void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-            int threadId ){
+            ThreadIdType threadId ){
 
         OutputImagePointer outputPtr = this->GetOutput();
 
@@ -110,18 +110,18 @@ protected:
 
                 if (isinside){
                     PixelType value;
-                    
+
                     for(int ii=0; ii<OutputImageType::ImageDimension; ii++){
-                        value[ii]=point2[ii]-point1[ii]; 
+                        value[ii]=point2[ii]-point1[ii];
                     }
-                    
-                    
+
+
                     outputIt.Set( value );
                 }
                 else {
                     PixelType value;
                     const DisplacementScalarValueType kMaxDisp = itk::NumericTraits<DisplacementScalarValueType>::max();
-                    for(int ii=0; ii<OutputImageType::ImageDimension; ii++) value[ii]=kMaxDisp; 
+                    for(int ii=0; ii<OutputImageType::ImageDimension; ii++) value[ii]=kMaxDisp;
                     outputIt.Set( value );
                 }
 
@@ -130,9 +130,9 @@ protected:
         }
 
         progress.CompletedPixel();
-        
+
     };
-  
+
 };
 
 } // end namespace itk

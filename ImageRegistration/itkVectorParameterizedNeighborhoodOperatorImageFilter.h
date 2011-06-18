@@ -7,11 +7,11 @@
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -28,8 +28,8 @@
 namespace itk
 {
 /** \class VectorParameterizedNeighborhoodOperatorImageFilter
- * \brief Applies a single scalar NeighborhoodOperator to an 
- * itk::Vector image region. 
+ * \brief Applies a single scalar NeighborhoodOperator to an
+ * itk::Vector image region.
  *
  * This filter calculates successive inner products between a single
  * NeighborhoodOperator and a NeighborhoodIterator, which is swept
@@ -45,7 +45,7 @@ namespace itk
  *
  * To apply a scalar NeighborhoodOperator to a scalar image
  * use NeighborhoodOperatorImageFilter instead.
- * 
+ *
  * \ingroup ImageFilters
  *
  * \sa Image
@@ -57,7 +57,7 @@ namespace itk
 
 template <class TInputImage, class TOutputImage, class TParamImage>
 class ITK_EXPORT VectorParameterizedNeighborhoodOperatorImageFilter :
-    public ImageToImageFilter< TInputImage, TOutputImage > 
+    public ImageToImageFilter< TInputImage, TOutputImage >
 {
 public:
   /** Standard class typedefs. */
@@ -71,7 +71,7 @@ public:
 
   /** Run-time type information (and related methods) */
   itkTypeMacro(VectorParameterizedNeighborhoodOperatorImageFilter, ImageToImageFilter);
-  
+
   /** Extract some information from the image types.  Dimensionality
    * of the two images is assumed to be the same. */
   typedef typename TInputImage::Pointer           InputImagePointer;
@@ -84,7 +84,7 @@ public:
   typedef TParamImage ParameterImageType;
   typedef typename TParamImage::Pointer ParameterImagePointer;
   typedef typename TParamImage::PixelType ParameterImageTypePixelType;
-  
+
   /** Determine image dimension. */
   itkStaticConstMacro(ImageDimension, unsigned int,
                       TOutputImage::ImageDimension );
@@ -96,12 +96,12 @@ public:
   /** Typedef for generic boundary condition pointer */
   typedef ImageBoundaryCondition<OutputImageType> *
   ImageBoundaryConditionPointerType;
-  
+
   /** Superclass typedefs. */
   typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
 
   typedef itk::GaussianOperator<ScalarValueType, itkGetStaticConstMacro(ImageDimension)>  OperatorType;
-//  Neighborhood<ScalarValueType, itkGetStaticConstMacro(ImageDimension)> 
+//  Neighborhood<ScalarValueType, itkGetStaticConstMacro(ImageDimension)>
 
   /** Sets the operator that is used to filter the image. Note
    * that the operator is stored as an internal COPY (it
@@ -135,7 +135,7 @@ public:
 protected:
   VectorParameterizedNeighborhoodOperatorImageFilter() {  m_ParameterImage = NULL; }
   virtual ~VectorParameterizedNeighborhoodOperatorImageFilter() {}
-    
+
   /** VectorParameterizedNeighborhoodOperatorImageFilter can be implemented as a
    * multithreaded filter.  Therefore, this implementation provides a
    * ThreadedGenerateData() routine which is called for each
@@ -147,7 +147,7 @@ protected:
    * \sa ImageToImageFilter::ThreadedGenerateData(),
    *     ImageToImageFilter::GenerateData() */
   void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-                            int threadId );
+                            ThreadIdType threadId );
 
   void PrintSelf(std::ostream& os, Indent indent) const
   { Superclass::PrintSelf(os,indent);  }
@@ -165,7 +165,7 @@ private:
   ParameterImagePointer m_ParameterImage;
 
 };
-  
+
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION

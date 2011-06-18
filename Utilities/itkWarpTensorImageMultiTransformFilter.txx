@@ -7,7 +7,7 @@
   Version:   $Revision: 1.1 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -44,8 +44,8 @@ WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDeformationField, 
     m_OutputOrigin.Fill( 0.0 );
 
     PixelType Zero;
-    Zero.SetIdentity(); 
-    Zero=Zero*1.e-6; 
+    Zero.SetIdentity();
+    Zero=Zero*1.e-6;
     m_EdgePaddingValue = Zero;
 
     // Setup default interpolator
@@ -314,7 +314,7 @@ void
 WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDeformationField, TTransform>
 ::ThreadedGenerateData(
         const OutputImageRegionType& outputRegionForThread,
-        int threadId )
+        ThreadIdType threadId )
 {
     InputImageConstPointer inputPtr = this->GetInput();
     OutputImagePointer outputPtr = this->GetOutput();

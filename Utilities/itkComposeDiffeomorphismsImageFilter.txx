@@ -80,7 +80,7 @@ ComposeDiffeomorphismsImageFilter<InputImage, TOutputImage>
 template<class InputImage, class TOutputImage>
 void
 ComposeDiffeomorphismsImageFilter<InputImage, TOutputImage>
-::ThreadedGenerateData( const RegionType & region, int itkNotUsed( threadId ) )
+::ThreadedGenerateData( const RegionType & region, ThreadIdType itkNotUsed( threadId ) )
 {
   VectorType zeroVector( 0.0 );
 

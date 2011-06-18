@@ -7,11 +7,11 @@
   Version:   $Revision: 1.12 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -36,7 +36,7 @@ WarpImageWAffineFilter<TInputImage,TOutputImage,TDeformationField, TTransform>
 ::WarpImageWAffineFilter()
 {
     // Setup the number of required inputs
-    this->SetNumberOfRequiredInputs( 2 );  
+    this->SetNumberOfRequiredInputs( 2 );
 
     // Setup default values
     m_OutputSpacing.Fill( 1.0 );
@@ -118,7 +118,7 @@ WarpImageWAffineFilter<TInputImage,TOutputImage,TDeformationField, TTransform>
         const DeformationFieldType * field )
 {
     // const cast is needed because the pipeline is not const-correct.
-    DeformationFieldType * input =  
+    DeformationFieldType * input =
         const_cast< DeformationFieldType * >( field );
         this->ProcessObject::SetNthInput( 1, input );
 }
@@ -240,16 +240,16 @@ WarpImageWAffineFilter<TInputImage,TOutputImage,TDeformationField, TTransform>
 //        // get the interpolated value
 //        if( m_Interpolator->IsInsideBuffer( point3 ) )
 //        {
-//            PixelType value = static_cast<PixelType>( 
+//            PixelType value = static_cast<PixelType>(
 //                    m_Interpolator->Evaluate( point3 ) );
 //            outputIt.Set( value );
 //        }
 //        else
 //        {
 //            outputIt.Set( m_EdgePaddingValue );
-//        }   
+//        }
 //        ++outputIt;
-//        ++fieldIt; 
+//        ++fieldIt;
 //        progress.CompletedPixel();
 //    }
 //
@@ -273,7 +273,7 @@ WarpImageWAffineFilter<TInputImage,TOutputImage,TDeformationField, TTransform>
         inputPtr->SetRequestedRegionToLargestPossibleRegion();
     }
 
-    // just propagate up the output requested region for the 
+    // just propagate up the output requested region for the
     // deformation field.
     DeformationFieldPointer fieldPtr = this->GetDeformationField();
     //    OutputImagePointer outputPtr = this->GetOutput();
@@ -331,7 +331,7 @@ WarpImageWAffineFilter<TInputImage,TOutputImage,TDeformationField, TTransform>
 ::SetSmoothScale(double scale)
 {
     if (m_SmoothScale != scale){
-        // compute the new cached 
+        // compute the new cached
         m_SmoothScale = scale;
 
         typename InputImageType::SpacingType inputSpacing = this->GetInput()->GetSpacing();
@@ -341,31 +341,31 @@ WarpImageWAffineFilter<TInputImage,TOutputImage,TDeformationField, TTransform>
         typename InputImageType::RegionType::SizeType outputSize;
 
 
-        double minimumSpacing = inputSpacing.GetVnlVector().min_value();  
-        double maximumSpacing = inputSpacing.GetVnlVector().max_value();  
+        double minimumSpacing = inputSpacing.GetVnlVector().min_value();
+        double maximumSpacing = inputSpacing.GetVnlVector().max_value();
 
 
         InputImagePointer image = const_cast<InputImageType *> (this->GetInput());
         for ( unsigned int d = 0; d < ImageDimension; d++ )
         {
-            double scaling = vnl_math_min( 1.0 / scale * minimumSpacing / inputSpacing[d], 
+            double scaling = vnl_math_min( 1.0 / scale * minimumSpacing / inputSpacing[d],
                     static_cast<double>( inputSize[d] ) / 32.0 );
-            outputSpacing[d] = inputSpacing[d] * scaling; 
-            outputSize[d] = static_cast<unsigned long>( inputSpacing[d] * 
+            outputSpacing[d] = inputSpacing[d] * scaling;
+            outputSize[d] = static_cast<unsigned long>( inputSpacing[d] *
                     static_cast<double>( inputSize[d] ) / outputSpacing[d] + 0.5 );
 
-            double sigma = 0.2 * ( outputSpacing[d] / inputSpacing[d]  ); 
+            double sigma = 0.2 * ( outputSpacing[d] / inputSpacing[d]  );
 
             typedef RecursiveGaussianImageFilter<InputImageType, InputImageType> GaussianFilterType;
             typename GaussianFilterType::Pointer smoother = GaussianFilterType::New();
             smoother->SetInputImage( image );
             smoother->SetDirection( d );
             smoother->SetNormalizeAcrossScale( false );
-	    
+
 
 //            std::cout << "scale = " << scale << " => " << "sigma of dim " << d << ": " << sigma << " outsize " << outputSize <<  std::endl;
-         
-            smoother->SetSigma( sigma ); 
+
+            smoother->SetSigma( sigma );
             if ( smoother->GetSigma() > 0.0 )
             {
                 smoother->Update();
@@ -374,8 +374,8 @@ WarpImageWAffineFilter<TInputImage,TOutputImage,TDeformationField, TTransform>
         }
 
         m_CachedSmoothImage = image;
-        
-        
+
+
         SetOutputSpacing( outputSpacing );
         SetOutputOrigin( this->GetInput()->GetOrigin() );
         SetOutputSize(outputSize);
@@ -392,7 +392,7 @@ void
 WarpImageWAffineFilter<TInputImage,TOutputImage,TDeformationField, TTransform>
 ::ThreadedGenerateData(
         const OutputImageRegionType& outputRegionForThread,
-        int threadId )
+        ThreadIdType threadId )
 {
 
     InputImageConstPointer inputPtr = this->GetInput();
@@ -431,8 +431,8 @@ WarpImageWAffineFilter<TInputImage,TOutputImage,TDeformationField, TTransform>
 
         // compute the required input image point
         bool isinside = false;
-        
-               
+
+
         switch (m_TransformOrder){
         case AffineFirst:
         {
@@ -452,7 +452,7 @@ WarpImageWAffineFilter<TInputImage,TOutputImage,TDeformationField, TTransform>
             typename DefaultInterpolatorType::Pointer vinterp =  DefaultInterpolatorType::New();
             vinterp->SetInputImage(fieldPtr);
 
-            typename DefaultInterpolatorType::ContinuousIndexType  contind;            
+            typename DefaultInterpolatorType::ContinuousIndexType  contind;
             // isinside = fieldPtr->TransformPhysicalPointToContinuousIndex(point2, contind);
             // explicitly written to avoid double / float type dismatching
             for (unsigned int i = 0; i < ImageDimension; i++) {
@@ -476,16 +476,16 @@ WarpImageWAffineFilter<TInputImage,TOutputImage,TDeformationField, TTransform>
         // get the interpolated value
         if( isinside && (m_Interpolator->IsInsideBuffer( point3 )) )
         {
-            PixelType value = static_cast<PixelType>( 
+            PixelType value = static_cast<PixelType>(
                     m_Interpolator->Evaluate( point3 ) );
             outputIt.Set( value );
         }
         else
         {
             outputIt.Set( m_EdgePaddingValue );
-        }   
+        }
         ++outputIt;
-        ++fieldIt; 
+        ++fieldIt;
         progress.CompletedPixel();
     }
 
@@ -495,15 +495,15 @@ void
 WarpImageWAffineFilter<TInputImage,TOutputImage,TDeformationField, TTransform>
 ::UpdateSizeByScale()
 {
-    
+
     DeformationFieldPointer field = this->GetDeformationField();
-    
+
     SetOutputSpacing( field->GetSpacing() / m_SmoothScale );
     SetOutputOrigin( field->GetOrigin() );
-    
+
     typename InputImageType::SizeType imgsz =  field->GetLargestPossibleRegion().GetSize();
     for(int ii = 0; ii < InputImageType::ImageDimension; ii++) imgsz[ii] = (typename InputImageType::SizeType::SizeValueType) (imgsz[ii] * m_SmoothScale + 0.5);
-    
+
     SetOutputSize(imgsz);
 
 }
