@@ -7,7 +7,7 @@
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -311,7 +311,7 @@ void
 WarpImageMultiTransformFilter<TInputImage,TOutputImage,TDeformationField, TTransform>
 ::ThreadedGenerateData(
         const OutputImageRegionType& outputRegionForThread,
-        int threadId )
+        ThreadIdType threadId )
 {
     InputImageConstPointer inputPtr = this->GetInput();
     OutputImagePointer outputPtr = this->GetOutput();
