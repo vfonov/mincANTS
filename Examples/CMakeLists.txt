@@ -22,7 +22,7 @@ if(USE_ITK)
   endif(ITK_FOUND)
 endif(USE_ITK)
 #
-# now check if we have the minimum required itk version number 
+# now check if we have the minimum required itk version number
 #
 # refer to this variable from ITK .... set( ITK_VERSION_MAJOR "4")
 SET( number ${ITK_VERSION_MAJOR}  )
@@ -229,6 +229,12 @@ target_link_libraries(ResampleImage ${ITK_LIBRARIES})
 add_executable(ExtractSliceFromImage ExtractSliceFromImage.cxx )
 target_link_libraries(ExtractSliceFromImage ${ITK_LIBRARIES})
 
+add_executable(ExtractRegionFromImage ExtractRegionFromImage.cxx )
+target_link_libraries(ExtractRegionFromImage ${ITK_LIBRARIES})
+
+add_executable(LabelGeometryMeasures LabelGeometryMeasures.cxx )
+target_link_libraries(LabelGeometryMeasures ${ITK_LIBRARIES})
+
 add_executable(TileImages TileImages.cxx )
 target_link_libraries(TileImages ${ITK_LIBRARIES})
 
@@ -303,8 +309,8 @@ target_link_libraries(ANTSIntegrateVelocityField ${ITK_LIBRARIES})
 INSTALL(TARGETS ANTS
   ANTSJacobian
   PrintHeader
-  ResetDirection 
-  ANTSUseLandmarkImagesToGetAffineTransform 
+  ResetDirection
+  ANTSUseLandmarkImagesToGetAffineTransform
   ANTSUseDeformationFieldToGetAffineTransform
   ImageMath
   SurfaceCurvature
@@ -313,7 +319,7 @@ INSTALL(TARGETS ANTS
   SetOrigin
   SetSpacing
   SetDirectionByMatrix
-  ConvertScalarImageToRGB 
+  ConvertScalarImageToRGB
   CreateWarpedGridImage
   MeasureImageSimilarity
   ConvertToJpg
@@ -327,10 +333,10 @@ INSTALL(TARGETS ANTS
   ClusterImageStatistics
   LabelClustersUniquely
   LabelOverlapMeasures
-  MeasureMinMaxMean 
+  MeasureMinMaxMean
   WarpImageMultiTransform
   ComposeMultiTransform
-  StackSlices 
+  StackSlices
   PermuteFlipImageOrientationAxes
   ImageCompare
   ResampleImageBySpacing
