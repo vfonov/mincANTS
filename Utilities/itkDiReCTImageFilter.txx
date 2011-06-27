@@ -39,7 +39,7 @@
 #include "itkImageRegionConstIteratorWithIndex.h"
 #include "itkIterationReporter.h"
 #include "itkMaximumImageFilter.h"
-#include "itkMultiplyImageFilter.h"
+#include "itkMultiplyByConstantImageFilter.h"
 #include "itkMultiplyByConstantVectorImageFilter.h"
 #include "itkOrImageFilter.h"
 #include "itkPointSet.h"
@@ -810,7 +810,7 @@ DiReCTImageFilter<TInputImage, TOutputImage>
     }
   RealType weight2 = 1.0 - weight1;
 
-  typedef MultiplyImageFilter<VectorImageType, VectorImageType,
+  typedef MultiplyByConstantImageFilter<VectorImageType, RealType,
     VectorImageType> MultiplierType;
 
   typename MultiplierType::Pointer multiplier1 = MultiplierType::New();
