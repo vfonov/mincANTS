@@ -1600,16 +1600,21 @@ int ComputeTimeSeriesLeverage(int argc, char *argv[])
         mSample(t)=pix;
 	all_mean+=pix;
       }
+      // compute mean time series value at this voxel 
       all_mean/=(double)timedims;
 
       // second compute the leverage for each time point and add that to the total leverage 
+      //
       // this is a simple approach --- just the difference from the mean.
+      //
       for (unsigned int t=0; t<timedims; t++){
-	mLeverage(t)+=fabs(all_mean-mSample(t));
+	mLeverage(t)+=fabs(all_mean-mSample(t))/(Scalar)timedims;
       }
     }
 
+
   // now use k neighbors to get a distance 
+  kDistance.fill(0);
   for (unsigned int t=0; t<timedims; t++){
     int lo=(int)t-k_neighbors/2;
     int hi=(int)t+k_neighbors/2;
@@ -1617,20 +1622,24 @@ int ComputeTimeSeriesLeverage(int argc, char *argv[])
     if ( hi > (int)(timedims-1) ) hi=timedims-1;
     unsigned int ct=0;
     for ( int k=lo; k<hi; k++){
-      if ( k != (int)t) {
+      if ( k != (int)t) 
+      {
         kDistance(t)+=fabs(mLeverage(t)-mLeverage(k));
 	ct++;
       }
     }
     kDistance(t)/=(double)ct;
+    kDistance(t)=kDistance(t)/mLeverage(t);
   }
 
   // now write the mLeverage value for each time point ...
   std::ofstream logfile;
   logfile.open(outname.c_str());
   if ( logfile.good() ) {
+    std::cout << "Raw_Leverage,K_Neighbors_Distance"<<  std::endl;   
     logfile << "Raw_Leverage,K_Neighbors_Distance"<<  std::endl;   
     for (unsigned int t=0; t<timedims; t++){
+      std::cout <<  mLeverage(t) << ","<< kDistance(t) << std::endl;   
       logfile <<  mLeverage(t) << ","<< kDistance(t) << std::endl;   
     }
   }
@@ -6723,7 +6732,7 @@ int main(int argc, char *argv[])
     std::cout << " TimeSeriesSubset : Outputs n 3D image sub-volumes extracted uniformly from the input time-series 4D image." << std::endl;
     std::cout << "    Usage		: TimeSeriesSubset 4D_TimeSeries.nii.gz n " << std::endl;
 
-    std::cout << " ComputeTimeSeriesLeverage : Outputs a csv file that identifies the leverage for each time point in the 4D image.  leverage, here, is the effect of the left-out image on the average of the n-1 remaining images." << std::endl;
+    std::cout << " ComputeTimeSeriesLeverage : Outputs a csv file that identifies the raw leverage and normalized leverage for each time point in the 4D image.  leverage, here, is the difference of the time-point image from the average of the n images.  the normalized leverage is =  average( sum_k abs(Leverage(t)-Leverage(k)) )/Leverage(t). " << std::endl;
     std::cout << "    Usage		: ComputeTimeSeriesLeverage 4D_TimeSeries.nii.gz k_neighbors " << std::endl;
 
     std::cout << "\nTensor Operations:" << std::endl;
