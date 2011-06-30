@@ -3,8 +3,7 @@
 
 #include "itkWarpImageMultiTransformFilter.h"
 
-namespace itk
-{
+namespace itk {
 template <
 class TOutputImage,
 class TDeformationField,
@@ -16,10 +15,10 @@ public WarpImageMultiTransformFilter< TOutputImage, TOutputImage, TDeformationFi
 public:
     /** Standard class typedefs. */
     typedef TOutputImage TInputImage;
-    typedef DeformationFieldFromMultiTransformFilter      Self;
+    typedef DeformationFieldFromMultiTransformFilter Self;
     typedef WarpImageMultiTransformFilter<TInputImage,TOutputImage, TDeformationField, TTransform> Superclass;
-    typedef SmartPointer<Self>         Pointer;
-    typedef SmartPointer<const Self>   ConstPointer;
+    typedef SmartPointer<Self> Pointer;
+    typedef SmartPointer<const Self> ConstPointer;
 
     /** Method for creation through the object factory. */
     itkNewMacro(Self);
@@ -31,15 +30,15 @@ public:
     typedef typename TOutputImage::RegionType OutputImageRegionType;
 
     /** Inherit some types from the superclass. */
-    typedef typename Superclass::InputImageType        InputImageType;
-    typedef typename Superclass::InputImagePointer     InputImagePointer;
-    typedef typename Superclass::OutputImageType       OutputImageType;
-    typedef typename Superclass::OutputImagePointer    OutputImagePointer;
+    typedef typename Superclass::InputImageType InputImageType;
+    typedef typename Superclass::InputImagePointer InputImagePointer;
+    typedef typename Superclass::OutputImageType OutputImageType;
+    typedef typename Superclass::OutputImagePointer OutputImagePointer;
     typedef typename Superclass::InputImageConstPointer InputImageConstPointer;
-    typedef typename OutputImageType::IndexType        IndexType;
-    typedef typename OutputImageType::SizeType         SizeType;
-    typedef typename OutputImageType::PixelType        PixelType;
-    typedef typename OutputImageType::SpacingType      SpacingType;
+    typedef typename OutputImageType::IndexType IndexType;
+    typedef typename OutputImageType::SizeType SizeType;
+    typedef typename OutputImageType::PixelType PixelType;
+    typedef typename OutputImageType::SpacingType SpacingType;
 
     /** Determine the image dimension. */
     itkStaticConstMacro(ImageDimension, unsigned int,
@@ -50,13 +49,12 @@ public:
             TDeformationField::ImageDimension );
 
     /** Deformation field typedef support. */
-    typedef TDeformationField    DeformationFieldType;
-    typedef typename DeformationFieldType::Pointer  DeformationFieldPointer;
+    typedef TDeformationField DeformationFieldType;
+    typedef typename DeformationFieldType::Pointer DeformationFieldPointer;
     typedef typename DeformationFieldType::PixelType DisplacementType;
     typedef typename DisplacementType::ValueType DisplacementScalarValueType;
 
-    typedef typename Superclass::PointType          PointType;
-
+    typedef typename Superclass::PointType PointType;
 
     virtual void GenerateInputRequestedRegion() {
         Superclass::GenerateInputRequestedRegion();
@@ -66,20 +64,20 @@ public:
 
     virtual void AfterThreadedGenerateData() {};
 
-    virtual void GenerateOutputInformation(){
+    virtual void GenerateOutputInformation() {
         // call the superclass's implementation
         Superclass::GenerateOutputInformation();
     };
 
 protected:
-    DeformationFieldFromMultiTransformFilter() : Superclass(){
+    DeformationFieldFromMultiTransformFilter() : Superclass() {
         this->SetNumberOfRequiredInputs( 0 );
         const DisplacementScalarValueType kMaxDisp = itk::NumericTraits<DisplacementScalarValueType>::max();
         Superclass::m_EdgePaddingValue.Fill(kMaxDisp);
     }
 
     ~DeformationFieldFromMultiTransformFilter() {};
-    void PrintSelf(std::ostream& os, Indent indent) const{
+    void PrintSelf(std::ostream& os, Indent indent) const {
         Superclass::PrintSelf(os, indent);
     };
 
@@ -87,7 +85,7 @@ protected:
      * As such, it needs to provide and implementation for
      * ThreadedGenerateData(). */
     void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-            ThreadIdType threadId ){
+            ThreadIdType threadId ) {
 
         OutputImagePointer outputPtr = this->GetOutput();
 
@@ -108,23 +106,21 @@ protected:
 
             bool isinside = MultiTransformPoint(point1, point2, Superclass::m_bFirstDeformNoInterp, index);
 
-                if (isinside){
-                    PixelType value;
+            if (isinside) {
+                PixelType value;
 
-                    for(int ii=0; ii<OutputImageType::ImageDimension; ii++){
-                        value[ii]=point2[ii]-point1[ii];
-                    }
-
-
-                    outputIt.Set( value );
-                }
-                else {
-                    PixelType value;
-                    const DisplacementScalarValueType kMaxDisp = itk::NumericTraits<DisplacementScalarValueType>::max();
-                    for(int ii=0; ii<OutputImageType::ImageDimension; ii++) value[ii]=kMaxDisp;
-                    outputIt.Set( value );
+                for(int ii=0; ii<OutputImageType::ImageDimension; ii++) {
+                    value[ii]=point2[ii]-point1[ii];
                 }
 
+                outputIt.Set( value );
+            }
+            else {
+                PixelType value;
+                const DisplacementScalarValueType kMaxDisp = itk::NumericTraits<DisplacementScalarValueType>::max();
+                for(int ii=0; ii<OutputImageType::ImageDimension; ii++) value[ii]=kMaxDisp;
+                outputIt.Set( value );
+            }
 
             ++outputIt;
         }
@@ -137,5 +133,4 @@ protected:
 
 } // end namespace itk
 #endif /*ITKDEFORMATIONFIELDFROMMULTITRANSFORMFILTER_H_*/
-
 

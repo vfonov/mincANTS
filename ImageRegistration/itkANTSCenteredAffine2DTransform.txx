@@ -365,8 +365,6 @@ GetParameters( void ) const
         this->m_Parameters[i+4] = this->GetCenter()[i];
     }
 
-
-
     // Get the translation
     for(unsigned int i=0; i < OutputSpaceDimension; i++) 
     {
