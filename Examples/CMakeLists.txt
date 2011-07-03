@@ -329,7 +329,7 @@ target_link_libraries(WarpVTKPolyDataMultiTransform ${ITK_LIBRARIES} vtksys vtkI
  add_executable(ANTSConformalMapping ANTSConformalMapping.cxx ${UI_SOURCES})
   target_link_libraries(ANTSConformalMapping ${ITK_LIBRARIES} FLATFEM ${ITK_LIBRARIES} ITKMetaIO  vtkRendering vtkIO)
 
- 
+
 
 ENDIF (USE_VTK_FILE)
 endif(USE_VTK)
@@ -341,6 +341,9 @@ target_link_libraries(ANTSIntegrateVectorField ${ITK_LIBRARIES})
 
 add_executable(ANTSIntegrateVelocityField ANTSIntegrateVelocityField.cxx)
 target_link_libraries(ANTSIntegrateVelocityField ${ITK_LIBRARIES})
+
+  add_executable(AtroposMin AtroposMin.cxx ${UI_SOURCES})
+  target_link_libraries(AtroposMin ${ITK_LIBRARIES}   )
 
   add_executable(Atropos Atropos.cxx ${UI_SOURCES})
   target_link_libraries(Atropos ${ITK_LIBRARIES}   )
@@ -411,7 +414,7 @@ install(PROGRAMS ../Scripts/ants.sh  ../Scripts/basic_ants_example.sh
                 ../Scripts/antsaffine.sh
                 ../Scripts/ANTSAverage2DAffine.sh ../Scripts/ANTSAverage3DAffine.sh
                 ../Scripts/buildtemplateparallel.sh ../Scripts/ANTSpexec.sh
-                ../Scripts/waitForSGEQJobs.pl DESTINATION bin 
+                ../Scripts/waitForSGEQJobs.pl DESTINATION bin
                 PERMISSIONS GROUP_EXECUTE
                 CONFIGURATIONS  Release )
 
