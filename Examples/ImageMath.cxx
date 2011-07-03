@@ -55,9 +55,14 @@
 #include "itkRelabelComponentImageFilter.h"
 #include "itkTranslationTransform.h"
 #include "itkImageMomentsCalculator.h"
+#include "itkImageDuplicator.h"
 #include "itkBinaryThresholdImageFilter.h"
 #include "ReadWriteImage.h"
 #include "itkBSplineControlPointImageFilter.h"
+#include "itkLabelStatisticsImageFilter.h"
+#include "itkMaximumImageFilter.h"
+#include "itkMultiplyImageFilter.h"
+#include "itkSubtractImageFilter.h"
 #include "itkExpImageFilter.h"
 #include "itkOtsuThresholdImageFilter.h"
 #include "itkShrinkImageFilter.h"
@@ -1420,7 +1425,7 @@ int CenterImage2inImage1(int argc, char *argv[])
     {
       typename ImageType::PointType point;
       image2->TransformIndexToPhysicalPoint(iter.GetIndex(), point);
-      for (unsigned int d=0; d<ImageDimension; d++) 
+      for (unsigned int d=0; d<ImageDimension; d++)
 	cm_point[d]+=point[d]*iter.Get();
       iweight+=iter.Get();
     }
@@ -1434,19 +1439,19 @@ int CenterImage2inImage1(int argc, char *argv[])
   }
   typename ImageType::PointType image_1_center_point;
   image1->TransformIndexToPhysicalPoint(image_1_center_index, image_1_center_point);
-  
-  // now we translate the cm_point to the center of image1 
+
+  // now we translate the cm_point to the center of image1
   typename ImageType::PointType trans;
-  for (unsigned int d=0; d<ImageDimension; d++) 
+  for (unsigned int d=0; d<ImageDimension; d++)
     trans[d]=image_1_center_point[d]-cm_point[d];
 
   for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
     {
       typename ImageType::PointType point;
       image2->TransformIndexToPhysicalPoint(iter.GetIndex(), point);
-      for (unsigned int d=0; d<ImageDimension; d++) 
+      for (unsigned int d=0; d<ImageDimension; d++)
 	point[d]=point[d]+trans[d];
-      
+
       typename ImageType::IndexType newindex;
       newindex.Fill(0);
       bool isinside=image1->TransformPhysicalPointToIndex(point,newindex);
@@ -1546,7 +1551,7 @@ int ComputeTimeSeriesLeverage(int argc, char *argv[])
   typedef typename ImageType::SizeType SizeType;
   typedef typename ImageType::SpacingType SpacingType;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-  
+
   typedef double Scalar;
   typedef itk::ants::antsMatrixUtilities<ImageType,Scalar>  matrixOpType;
   typename matrixOpType::Pointer matrixOps=matrixOpType::New();
@@ -1580,7 +1585,7 @@ int ComputeTimeSeriesLeverage(int argc, char *argv[])
   typedef itk::ImageRegionIteratorWithIndex<ImageType> ImageIt;
   typedef itk::ImageRegionIteratorWithIndex<OutImageType> SliceIt;
 
-  // step 1.  compute , for each image in the time series, the effect on the average. 
+  // step 1.  compute , for each image in the time series, the effect on the average.
   // step 2.  the effect is defined as the influence of that point on the average or, more simply, the distance of that image from the average ....
   typedef vnl_vector<Scalar>      timeVectorType;
   timeVectorType mSample(timedims,0);
@@ -1591,7 +1596,7 @@ int ComputeTimeSeriesLeverage(int argc, char *argv[])
     {
       OutIndexType ind=vfIter2.GetIndex();
       IndexType tind;
-      // first collect all samples for that location 
+      // first collect all samples for that location
       for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
       double all_mean=0;
       for (unsigned int t=0; t<timedims; t++){
@@ -1600,10 +1605,10 @@ int ComputeTimeSeriesLeverage(int argc, char *argv[])
         mSample(t)=pix;
 	all_mean+=pix;
       }
-      // compute mean time series value at this voxel 
+      // compute mean time series value at this voxel
       all_mean/=(double)timedims;
 
-      // second compute the leverage for each time point and add that to the total leverage 
+      // second compute the leverage for each time point and add that to the total leverage
       //
       // this is a simple approach --- just the difference from the mean.
       //
@@ -1613,7 +1618,7 @@ int ComputeTimeSeriesLeverage(int argc, char *argv[])
     }
 
 
-  // now use k neighbors to get a distance 
+  // now use k neighbors to get a distance
   kDistance.fill(0);
   for (unsigned int t=0; t<timedims; t++){
     int lo=(int)t-k_neighbors/2;
@@ -1622,7 +1627,7 @@ int ComputeTimeSeriesLeverage(int argc, char *argv[])
     if ( hi > (int)(timedims-1) ) hi=timedims-1;
     unsigned int ct=0;
     for ( int k=lo; k<hi; k++){
-      if ( k != (int)t) 
+      if ( k != (int)t)
       {
         kDistance(t)+=fabs(mLeverage(t)-mLeverage(k));
 	ct++;
@@ -1636,11 +1641,11 @@ int ComputeTimeSeriesLeverage(int argc, char *argv[])
   std::ofstream logfile;
   logfile.open(outname.c_str());
   if ( logfile.good() ) {
-    std::cout << "Raw_Leverage,K_Neighbors_Distance"<<  std::endl;   
-    logfile << "Raw_Leverage,K_Neighbors_Distance"<<  std::endl;   
+    std::cout << "Raw_Leverage,K_Neighbors_Distance"<<  std::endl;
+    logfile << "Raw_Leverage,K_Neighbors_Distance"<<  std::endl;
     for (unsigned int t=0; t<timedims; t++){
-      std::cout <<  mLeverage(t) << ","<< kDistance(t) << std::endl;   
-      logfile <<  mLeverage(t) << ","<< kDistance(t) << std::endl;   
+      std::cout <<  mLeverage(t) << ","<< kDistance(t) << std::endl;
+      logfile <<  mLeverage(t) << ","<< kDistance(t) << std::endl;
     }
   }
   logfile.close();
@@ -1665,7 +1670,7 @@ int CompCorr(int argc, char *argv[])
   typedef typename ImageType::SizeType SizeType;
   typedef typename ImageType::SpacingType SpacingType;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-  
+
   typedef double Scalar;
   typedef itk::ants::antsMatrixUtilities<ImageType,Scalar>  matrixOpType;
   typename matrixOpType::Pointer matrixOps=matrixOpType::New();
@@ -1710,21 +1715,21 @@ int CompCorr(int argc, char *argv[])
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       OutIndexType ind=vfIter2.GetIndex();
-      if ( vfIter2.Get() == 3 ) { // nuisance 
+      if ( vfIter2.Get() == 3 ) { // nuisance
 	ct_nuis++;
       }
-      if ( vfIter2.Get() == 2 ) { // reference  
+      if ( vfIter2.Get() == 2 ) { // reference
 	ct_ref++;
       }
-      if ( vfIter2.Get() > 0 ) { // gm roi  
+      if ( vfIter2.Get() > 0 ) { // gm roi
 	ct_gm++;
       }
     }
 
 
-  // step 1.  compute , in label 3 ( the nuisance region ), the representative value of the time series over the region.  at the same time, compute the average value in label 2 ( the reference region ). 
+  // step 1.  compute , in label 3 ( the nuisance region ), the representative value of the time series over the region.  at the same time, compute the average value in label 2 ( the reference region ).
   // step 2.  factor out the nuisance region from the activation at each voxel in the ROI (nonzero labels).
-  // step 3.  compute the correlation of the reference region with every voxel in the roi.  
+  // step 3.  compute the correlation of the reference region with every voxel in the roi.
   typedef vnl_matrix<Scalar>      timeMatrixType;
   typedef vnl_vector<Scalar>      timeVectorType;
   timeMatrixType mNuisance(timedims,ct_nuis,0);
@@ -1736,7 +1741,7 @@ int CompCorr(int argc, char *argv[])
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       OutIndexType ind=vfIter2.GetIndex();
-      if ( vfIter2.Get() == 3 ) { // nuisance 
+      if ( vfIter2.Get() == 3 ) { // nuisance
 	IndexType tind;
 	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
 	for (unsigned int t=0; t<timedims; t++){
@@ -1746,7 +1751,7 @@ int CompCorr(int argc, char *argv[])
 	}
 	nuis_vox++;
       }
-      if ( vfIter2.Get() == 2 ) { // reference  
+      if ( vfIter2.Get() == 2 ) { // reference
 	IndexType tind;
 	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
 	for (unsigned int t=0; t<timedims; t++){
@@ -1756,7 +1761,7 @@ int CompCorr(int argc, char *argv[])
 	}
 	ref_vox++;
       }
-      if ( vfIter2.Get() > 0  ) { // in brain  
+      if ( vfIter2.Get() > 0  ) { // in brain
 	IndexType tind;
 	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
 	for (unsigned int t=0; t<timedims; t++){
@@ -1781,7 +1786,7 @@ int CompCorr(int argc, char *argv[])
   mReference=mReference-RRt*mReference;
   mSample=matrixOps->NormalizeMatrix(mSample);
   mSample=mSample-RRt*mSample;
-  // reduce your reference region to the first & second eigenvector 
+  // reduce your reference region to the first & second eigenvector
   timeVectorType vReference=matrixOps->GetCovMatEigenvector(mReference,0);
   timeVectorType vReference2=matrixOps->AverageColumns(mReference);
   Scalar testcorr=matrixOps->PearsonCorr(vReference,vReference2);
@@ -1791,9 +1796,9 @@ int CompCorr(int argc, char *argv[])
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       OutIndexType ind=vfIter2.GetIndex();
-      if ( vfIter2.Get() > 0 ) { 
+      if ( vfIter2.Get() > 0 ) {
 	timeVectorType samp=mSample.get_column(gm_vox);
-// correct the original image 
+// correct the original image
 	IndexType tind;
 	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
 	for (unsigned int t=0; t<timedims; t++){
@@ -5023,6 +5028,128 @@ int LaplacianImage(      int argc, char *argv[])
 
 }
 
+template <unsigned int ImageDimension>
+int PoissonDiffusion( int argc, char *argv[])
+{
+  if( argc < 6 )
+    {
+    std::cerr << "Usage error---not enough arguments.   See help menu."
+      << std::endl;
+    exit( 1 );
+    }
+
+  typedef float PixelType;
+  typedef itk::Image<PixelType, ImageDimension> ImageType;
+  typedef itk::Image<int, ImageDimension> LabelImageType;
+
+  typedef itk::ImageFileReader<ImageType> ReaderType;
+  typename ReaderType::Pointer reader = ReaderType::New();
+  reader->SetFileName( argv[4] );
+  reader->Update();
+
+  typedef itk::ImageDuplicator<ImageType> DuplicatorType;
+  typename DuplicatorType::Pointer duplicator = DuplicatorType::New();
+  duplicator->SetInputImage( reader->GetOutput() );
+  duplicator->Update();
+
+  typename ImageType::Pointer output = duplicator->GetOutput();
+  output->DisconnectPipeline();
+
+  typedef itk::ImageFileReader<LabelImageType> LabelReaderType;
+  typename LabelReaderType::Pointer labelReader = LabelReaderType::New();
+  labelReader->SetFileName( argv[5] );
+  labelReader->Update();
+
+  float label = 1.0;
+  if( argc > 7 )
+    {
+    label = atof( argv[7] );
+    }
+
+  typedef itk::BinaryThresholdImageFilter<LabelImageType, LabelImageType> ThresholderType;
+  typename ThresholderType::Pointer thresholder = ThresholderType::New();
+  thresholder->SetInput( labelReader->GetOutput() );
+  thresholder->SetOutsideValue( 0 );
+  thresholder->SetInsideValue( 1 );
+  thresholder->SetLowerThreshold( label );
+  thresholder->SetUpperThreshold( label );
+  thresholder->Update();
+
+  float sigma = 1.0;
+  if( argc > 6 )
+    {
+    sigma = atof( argv[6] );
+    }
+
+  float convergence = itk::NumericTraits<float>::max();
+  float convergenceThreshold = 1e-10;
+  if( argc > 9 )
+    {
+    convergenceThreshold = atof( argv[9] );
+    }
+  unsigned int maximumNumberOfIterations = 500;
+  if( argc > 8 )
+    {
+    maximumNumberOfIterations = atoi( argv[8] );
+    }
+
+  unsigned int iterations = 0;
+  while( iterations++ < maximumNumberOfIterations && convergence >= 1e-10 )
+    {
+    std::cout << "  Iteration " << iterations << ": " << convergence << std::endl;
+    typedef itk::DiscreteGaussianImageFilter<ImageType, ImageType> SmootherType;
+    typename SmootherType::Pointer smoother = SmootherType::New();
+    smoother->SetVariance( vnl_math_sqr( sigma ) );
+    smoother->SetMaximumError( 0.01f );
+    smoother->SetInput( output );
+
+    typedef itk::MaximumImageFilter<ImageType, ImageType, ImageType>
+      MaximumFilterType;
+    typename MaximumFilterType::Pointer maximumFilter = MaximumFilterType::New();
+    maximumFilter->SetInput1( smoother->GetOutput() );
+    maximumFilter->SetInput2( reader->GetOutput() );
+
+    typedef itk::MultiplyImageFilter<ImageType, LabelImageType, ImageType>
+      MultiplierType;
+    typename MultiplierType::Pointer multiplier = MultiplierType::New();
+    multiplier->SetInput1( maximumFilter->GetOutput() );
+    multiplier->SetInput2( thresholder->GetOutput() );
+
+    typedef itk::AddImageFilter<ImageType, ImageType, ImageType>
+     AdderType;
+    typename AdderType::Pointer adder = AdderType::New();
+    adder->SetInput1( reader->GetOutput() );
+    adder->SetInput2( multiplier->GetOutput() );
+
+    typedef itk::SubtractImageFilter<ImageType, ImageType, ImageType>
+      SubtracterType;
+    typename SubtracterType::Pointer subtracter = SubtracterType::New();
+    subtracter->SetInput1( adder->GetOutput() );
+    subtracter->SetInput2( output );
+
+    typedef itk::LabelStatisticsImageFilter<ImageType, LabelImageType>
+      StatsFilterType;
+    typename StatsFilterType::Pointer stats = StatsFilterType::New();
+    stats->SetInput( subtracter->GetOutput() );
+    stats->SetLabelInput( thresholder->GetOutput() );
+    stats->Update();
+
+    convergence = stats->GetMean( 1 );
+
+    output = adder->GetOutput();
+    output->DisconnectPipeline();
+    }
+
+  typedef itk::ImageFileWriter<ImageType> WriterType;
+  typename WriterType::Pointer writer = WriterType::New();
+  writer->SetFileName( argv[2] );
+  writer->SetInput( output );
+  writer->Update();
+
+  return 0;
+}
+
+
 
 
 
@@ -5797,7 +5924,7 @@ int ExtractVectorComponent( int argc, char *argv[] )
 template <unsigned int ImageDimension>
 int InvId( int argc, char *argv[] )
 {
-  if (argc > 2 ) 
+  if (argc > 2 )
   std::cout << " Compute  phi(  phi^{-1}(x)) " << std::endl;
   else return 1;
   typedef float RealType;
@@ -6693,7 +6820,7 @@ int main(int argc, char *argv[])
   if ( argc < 5 )
   {
     std::cout << "\nUsage: " << argv[0] << " ImageDimension <OutputImage.ext> [operations and inputs] <Image1.ext> <Image2.ext>" << std::endl;
-    
+
     std::cout << "\nUsage Information " << std::endl;
     std::cout << " ImageDimension: 2 or 3 (for 2 or 3 dimensional operations)." << std::endl;
     std::cout << " ImageDimension: 4 (for operations on 4D file, e.g. time-series data)." << std::endl;
@@ -6850,6 +6977,9 @@ int main(int argc, char *argv[])
 
     std::cout << "\n  PH			: Print Header" << std::endl;
 
+    std::cout << "\n  PoissonDiffusion		: Solves Poisson's equation in a designated region using non-zero sources" << std::endl;
+    std::cout << "      Usage		: PoissonDiffusion inputImage labelImage [sigma=1.0] [regionLabel=1] [numberOfIterations=500] [convergenceThreshold=1e-10]" << std::endl;
+
     std::cout << "\n  PropagateLabelsThroughMask: Final output is the propagated label image. Optional stopping value: higher values allow more distant propagation" << std::endl;
     std::cout << "      Usage		: PropagateLabelsThroughMask speed/binaryimagemask.nii.gz initiallabelimage.nii.gz Optional-Stopping-Value" << std::endl;
 
@@ -6896,7 +7026,7 @@ int main(int argc, char *argv[])
 
   switch ( atoi(argv[1]) )
    {
-     
+
    case 2:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<2>(argc,argv);
      else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<2>(argc,argv);
@@ -6945,6 +7075,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"CountVoxelDifference") == 0 )  CountVoxelDifference<2>(argc,argv);
      //     else if (strcmp(operation.c_str(),"AddToZero") == 0 )  AddToZero<2>(argc,argv);
      else if (strcmp(operation.c_str(),"RemoveLabelInterfaces") == 0 )  RemoveLabelInterfaces<2>(argc,argv);
+     else if (strcmp(operation.c_str(),"PoissonDiffusion") == 0 )  PoissonDiffusion<2>(argc,argv);
      else if (strcmp(operation.c_str(),"EnumerateLabelInterfaces") == 0 )  EnumerateLabelInterfaces<2>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertImageToFile") == 0 )  ConvertImageToFile<2>(argc,argv);
      else if (strcmp(operation.c_str(),"PValueImage") == 0 )  PValueImage<2>(argc,argv);
@@ -6958,7 +7089,7 @@ int main(int argc, char *argv[])
      //     else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<2>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
      break;
-     
+
    case 3:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<3>(argc,argv);
@@ -7019,6 +7150,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"ConvertImageToFile") == 0 )  ConvertImageToFile<3>(argc,argv);
      else if (strcmp(operation.c_str(),"PValueImage") == 0 )  PValueImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"CorrelationUpdate") == 0 )  CorrelationUpdate<3>(argc,argv);
+     else if (strcmp(operation.c_str(),"PoissonDiffusion") == 0 )  PoissonDiffusion<2>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertImageSetToMatrix") == 0 )  ConvertImageSetToMatrix<3>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertVectorToImage") == 0 )  ConvertVectorToImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"PropagateLabelsThroughMask") == 0 )  PropagateLabelsThroughMask<3>(argc,argv);
@@ -7029,7 +7161,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<3>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
-     
+
  case 4:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<4>(argc,argv);
      else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<4>(argc,argv);
@@ -7087,6 +7219,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"CountVoxelDifference") == 0 )  CountVoxelDifference<4>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertImageToFile") == 0 )  ConvertImageToFile<4>(argc,argv);
      else if (strcmp(operation.c_str(),"PValueImage") == 0 )  PValueImage<4>(argc,argv);
+     else if (strcmp(operation.c_str(),"PoissonDiffusion") == 0 )  PoissonDiffusion<2>(argc,argv);
      else if (strcmp(operation.c_str(),"CorrelationUpdate") == 0 )  CorrelationUpdate<4>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertImageSetToMatrix") == 0 )  ConvertImageSetToMatrix<4>(argc,argv);
      else if (strcmp(operation.c_str(),"ConvertVectorToImage") == 0 )  ConvertVectorToImage<4>(argc,argv);
@@ -7101,7 +7234,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"ComputeTimeSeriesLeverage") == 0)  ComputeTimeSeriesLeverage<4>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
-     
+
    default:
      std::cerr << " Dimension Not supported " << atoi(argv[1]) << std::endl;
      exit( 1 );
