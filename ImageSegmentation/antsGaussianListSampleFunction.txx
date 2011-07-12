@@ -68,8 +68,8 @@ GaussianListSampleFunction<TListSample, TOutput, TCoordRep>
       covarianceCalculator->SetInput( this->GetInputListSample() );
       covarianceCalculator->Update();
 
-      typename GaussianType::MeanType mean;
-      NumericTraits<typename GaussianType::MeanType>::SetLength( mean,
+      typename GaussianType::MeanVectorType mean;
+      NumericTraits<typename GaussianType::MeanVectorType>::SetLength( mean,
         this->GetInputListSample()->GetMeasurementVectorSize() );
       for( unsigned int d = 0; d < this->GetInputListSample()->
         GetMeasurementVectorSize(); d++ )
@@ -88,8 +88,8 @@ GaussianListSampleFunction<TListSample, TOutput, TCoordRep>
       covarianceCalculator->SetInput( this->GetInputListSample() );
       covarianceCalculator->Update();
 
-      typename GaussianType::MeanType mean;
-      NumericTraits<typename GaussianType::MeanType>::SetLength( mean,
+      typename GaussianType::MeanVectorType mean;
+      NumericTraits<typename GaussianType::MeanVectorType>::SetLength( mean,
         this->GetInputListSample()->GetMeasurementVectorSize() );
       for( unsigned int d = 0; d < this->GetInputListSample()->
         GetMeasurementVectorSize(); d++ )
@@ -135,7 +135,7 @@ GaussianListSampleFunction<TListSample, TOutput, TCoordRep>
 {
   os << indent << "mean = " << this->m_Gaussian->GetMean() << ", ";
 
-  typename GaussianType::CovarianceType covariance =
+  typename GaussianType::CovarianceMatrixType covariance =
     this->m_Gaussian->GetCovariance();
   os << "covariance = [";
   for( unsigned int r = 0; r < covariance.Rows(); r++ )

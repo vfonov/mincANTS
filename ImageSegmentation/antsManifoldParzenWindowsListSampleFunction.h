@@ -73,7 +73,7 @@ public:
   typedef typename itk::Statistics::GaussianMembershipFunction
     <InputMeasurementVectorType>                         GaussianType;
   typedef std::vector<typename GaussianType::Pointer>    GaussianContainerType;
-  typedef typename GaussianType::CovarianceType          CovarianceMatrixType;
+  typedef typename GaussianType::CovarianceMatrixType    CovarianceMatrixType;
 
   /** Helper functions */
 
