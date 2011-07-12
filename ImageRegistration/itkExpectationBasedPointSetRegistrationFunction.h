@@ -7,7 +7,7 @@
   Version:   $Revision: 1.21 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -20,7 +20,7 @@
 
 
 #include "itkPointSetFunction.h"
-#include "itkGaussianProbabilityDensityFunction.h"
+#include "itkGaussianMembershipFunction.h"
 #include "itkKdTreeGenerator.h"
 #include "itkListSample.h"
 #include "itkMatrix.h"
@@ -64,14 +64,14 @@ namespace itk {
 template<class TFixedImage, class TMovingImage, class TDeformationField, class TPointSet>
 class ITK_EXPORT ExpectationBasedPointSetRegistrationFunction :
     public AvantsPDEDeformableRegistrationFunction< TFixedImage,
-                                              TMovingImage, 
+                                              TMovingImage,
 TDeformationField>
 {
 public:
   /** Standard class typedefs. */
   typedef ExpectationBasedPointSetRegistrationFunction    Self;
   typedef PDEDeformableRegistrationFunction< TFixedImage,
-                                             TMovingImage, TDeformationField 
+                                             TMovingImage, TDeformationField
  >    Superclass;
   typedef SmartPointer<Self> Pointer;
   typedef SmartPointer<const Self> ConstPointer;
@@ -101,11 +101,11 @@ public:
   typedef typename Superclass::DeformationFieldTypePointer
   DeformationFieldTypePointer;
   typedef typename DeformationFieldType::PixelType VectorType;
-  
+
   /** Inherit some enums from the superclass. */
   itkStaticConstMacro(ImageDimension, unsigned  int,Superclass::ImageDimension);
   itkStaticConstMacro(MeasurementDimension, unsigned  int,Superclass::ImageDimension);
- 
+
   /** Inherit some enums from the superclass. */
   typedef typename Superclass::PixelType     PixelType;
   typedef typename Superclass::RadiusType    RadiusType;
@@ -125,7 +125,7 @@ public:
 //  typedef long PointDataType;
   typedef Vector <typename PointSetType::CoordRepType, MeasurementDimension>                      MeasurementVectorType;
   typedef typename Statistics::ListSample <MeasurementVectorType>                                   SampleType;
-  typedef typename 
+  typedef typename
     Statistics::WeightedCentroidKdTreeGenerator<SampleType>   TreeGeneratorType;
   typedef typename TreeGeneratorType::KdTreeType::
     InstanceIdentifierVectorType                              NeighborhoodIdentifierType;
@@ -143,22 +143,22 @@ public:
   typedef  float                                             RealType;
   typedef  float                                             OutputType;
   typedef typename Statistics
-     ::MersenneTwisterRandomVariateGenerator                  RandomizerType; 
+     ::MersenneTwisterRandomVariateGenerator                  RandomizerType;
   typedef typename Statistics
-    ::GaussianProbabilityDensityFunction<VectorType>          GaussianType;
+    ::GaussianMembershipFunction<VectorType>          GaussianType;
 
   /** Fixed image gradient calculator type. */
   typedef CentralDifferenceImageFunction<FixedImageType>     GradientCalculatorType;
   typedef typename GradientCalculatorType::Pointer  GradientCalculatorPointer;
 
  /** Moving image gradient calculator type. */
-  
+
   typedef CentralDifferenceImageFunction<MovingImageType>    MovingImageGradientCalculatorType;
   typedef typename MovingImageGradientCalculatorType::Pointer
       MovingImageGradientCalculatorPointer;
 
   /** This class uses a constant timestep of 1. */
-  virtual TimeStepType ComputeGlobalTimeStep(void * itkNotUsed(GlobalData)) 
+  virtual TimeStepType ComputeGlobalTimeStep(void * itkNotUsed(GlobalData))
 const
   { return m_TimeStep; }
 
@@ -191,8 +191,8 @@ const
                                    void *globalData, const FloatOffsetType &offset = FloatOffsetType(0.0));
 
 
-  /** Get the metric value. The metric value is the mean square difference 
-   * in intensity between the fixed image and transforming moving image 
+  /** Get the metric value. The metric value is the mean square difference
+   * in intensity between the fixed image and transforming moving image
    * computed over the the overlapping region between the two images. */
   virtual double GetMetric() const
     { return m_Metric; }
@@ -208,17 +208,17 @@ const
    * iteration) will be the zero vector. Default is 0.001. */
   virtual void SetEuclideanDistanceThreshold(double);
   virtual double GetEuclideanDistanceThreshold() const;
-  
+
   void SetFixedPointSetSigma ( float f ) { this->m_FixedPointSetSigma=f; }
   float GetFixedPointSetSigma (  ) { return this->m_FixedPointSetSigma; }
   void SetMovingPointSetSigma ( float f ) { this->m_MovingPointSetSigma=f; }
   float GetMovingPointSetSigma (  ) { return this->m_MovingPointSetSigma; }
-  
+
   void SetKNeighborhood( unsigned int n ) { this->m_KNeighborhood = n; }
   unsigned int GetKNeighborhood() { return this->m_KNeighborhood; }
 
   void SetUseSymmetricMatching(unsigned int b) { this->m_UseSymmetricMatching=b; }
- 
+
 protected:
   ExpectationBasedPointSetRegistrationFunction();
   ~ExpectationBasedPointSetRegistrationFunction() {}
@@ -235,10 +235,10 @@ protected:
     unsigned long   m_NumberOfPixelsProcessed;
     double          m_SumOfSquaredChange;
   };
- 
+
   void SetUpKDTrees(long whichlabel);
 
- 
+
 private:
   ExpectationBasedPointSetRegistrationFunction(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
@@ -266,7 +266,7 @@ private:
   double                          m_EuclideanDistanceThreshold;
 
   /** The metric value is the mean square difference in intensity between
-   * the fixed image and transforming moving image computed over the 
+   * the fixed image and transforming moving image computed over the
    * the overlapping region between the two images. */
   mutable double                  m_Metric;
   mutable double                  m_SumOfSquaredDifference;
@@ -284,9 +284,9 @@ private:
   float m_MovingPointSetSigma;
 
   float m_LandmarkEnergy;
-  
-  unsigned int                                               m_KNeighborhood; 
-  unsigned int                                               m_BucketSize;   
+
+  unsigned int                                               m_KNeighborhood;
+  unsigned int                                               m_BucketSize;
   RealType                                                   m_Sigma;
 
   typename TreeGeneratorType::Pointer                        m_FixedKdTreeGenerator;
@@ -298,13 +298,13 @@ private:
   LabelSetType                                    m_LabelSet;
   unsigned int  m_UseSymmetricMatching;
 
-     
+
 
 
   typename BSplinePointSetType::Pointer m_bpoints;
   typename BSplineWeightsType::Pointer m_bweights;
   unsigned int m_bcount;
-  
+
 
 };
 
