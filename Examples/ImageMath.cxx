@@ -1773,7 +1773,8 @@ int CompCorr(int argc, char *argv[])
       }
     }
   // factor out the nuisance variables by OLS
-  unsigned int nnuis=5;
+  unsigned int nnuis=2;
+  if ( ct_nuis <= 0 ) nnuis=1; 
   timeMatrixType reducedNuisance(timedims,nnuis);
   for (unsigned int i=0; i<nnuis;i++) {
     timeVectorType nuisi=matrixOps->GetCovMatEigenvector(mNuisance,nnuis);
@@ -6885,7 +6886,7 @@ int main(int argc, char *argv[])
     std::cout << "  GC Image1.ext s	: Grayscale Closing with radius s" << std::endl;
 
     std::cout << "\nTime Series Operations:" << std::endl;
-    std::cout << " CompCorr : Outputs a comp-corr corrected 4D image as well as a 3D image measuring the correlation of a time series voxel/region with a reference voxel/region factored out.  Requires a label image with 1=overall region of interest,  2=reference voxel, 3=region to factor out" << std::endl;
+    std::cout << " CompCorr : Outputs a comp-corr corrected 4D image as well as a 3D image measuring the correlation of a time series voxel/region with a reference voxel/region factored out.  Requires a label image with 1=overall region of interest,  2=reference voxel, 3=region to factor out.  If there is no 3rd label, then only the global signal is factored out." << std::endl;
     std::cout << "    Usage		: CompCorr 4D_TimeSeries.nii.gz LabeLimage.nii.gz " << std::endl;
     std::cout << " TimeSeriesSubset : Outputs n 3D image sub-volumes extracted uniformly from the input time-series 4D image." << std::endl;
     std::cout << "    Usage		: TimeSeriesSubset 4D_TimeSeries.nii.gz n " << std::endl;
