@@ -232,7 +232,7 @@ private:
 
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkANTSCenteredAffine2DTransform.txx"
+#include "itkANTSCenteredAffine2DTransform.hxx"
 #endif
 
 #endif /* __itkANTSCenteredAffine2DTransform_h */

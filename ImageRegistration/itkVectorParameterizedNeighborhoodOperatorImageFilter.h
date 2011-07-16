@@ -169,7 +169,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkVectorParameterizedNeighborhoodOperatorImageFilter.txx"
+#include "itkVectorParameterizedNeighborhoodOperatorImageFilter.hxx"
 #endif
 
 #endif

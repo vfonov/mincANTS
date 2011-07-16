@@ -156,7 +156,7 @@ private:
 
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkANTSAffine3DTransform.txx"
+#include "itkANTSAffine3DTransform.hxx"
 #endif
 
 #endif /* __itkANTSAffine3DTransform_h */

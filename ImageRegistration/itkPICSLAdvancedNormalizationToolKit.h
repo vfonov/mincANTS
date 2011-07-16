@@ -123,7 +123,7 @@ private:
 
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkPICSLAdvancedNormalizationToolKit.txx"
+#include "itkPICSLAdvancedNormalizationToolKit.hxx"
 #endif
 
 #endif

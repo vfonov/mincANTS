@@ -121,7 +121,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkExpTensorImageFilter.txx"
+#include "itkExpTensorImageFilter.hxx"
 #endif
 
 #endif

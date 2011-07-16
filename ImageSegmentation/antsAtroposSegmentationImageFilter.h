@@ -904,7 +904,7 @@ private:
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "antsAtroposSegmentationImageFilter.txx"
+#include "antsAtroposSegmentationImageFilter.hxx"
 #endif
 
 #endif

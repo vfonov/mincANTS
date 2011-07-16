@@ -322,7 +322,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkWarpTensorImageMultiTransformFilter.txx"
+#include "itkWarpTensorImageMultiTransformFilter.hxx"
 #endif
 
 #endif /*ITKWarpTensorImageMultiTRANSFORMFILTER_H_*/

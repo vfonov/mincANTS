@@ -426,7 +426,7 @@ private:
 
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFastMarchingImageFilter.txx"
+#include "itkFastMarchingImageFilter.hxx"
 #endif
 
 #endif

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Advanced Normalization Tools
-  Module:    $RCSfile: itkLogTensorImageFilter.txx,v $
+  Module:    $RCSfile: itkLogTensorImageFilter.hxx,v $
   Language:  C++
   Date:      $Date: 2009/03/17 18:59:48 $
   Version:   $Revision: 1.3 $
@@ -15,8 +15,8 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef _itkLogTensorImageFilter_txx
-#define _itkLogTensorImageFilter_txx
+#ifndef _itkLogTensorImageFilter_hxx
+#define _itkLogTensorImageFilter_hxx
 
 #include "itkConstNeighborhoodIterator.h"
 #include "itkNeighborhoodInnerProduct.h"

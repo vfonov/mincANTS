@@ -1,4 +1,3 @@
-
 #include "itkVectorIndexSelectionCastImageFilter.h"    
 #include "itkImageRegionIteratorWithIndex.h" 
 #include "vnl/algo/vnl_determinant.h"
