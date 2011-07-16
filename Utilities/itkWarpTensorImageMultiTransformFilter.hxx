@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Advanced Normalization Tools
-  Module:    $RCSfile: itkWarpTensorImageMultiTransformFilter.txx,v $
+  Module:    $RCSfile: itkWarpTensorImageMultiTransformFilter.hxx,v $
   Language:  C++
   Date:      $Date: 2009/01/28 22:38:04 $
   Version:   $Revision: 1.1 $
@@ -15,8 +15,8 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef __itkWarpTensorImageMultiTransformFilter_txx
-#define __itkWarpTensorImageMultiTransformFilter_txx
+#ifndef __itkWarpTensorImageMultiTransformFilter_hxx
+#define __itkWarpTensorImageMultiTransformFilter_hxx
 #include "itkWarpTensorImageMultiTransformFilter.h"
 
 #include "itkImageRegionIterator.h"
@@ -619,5 +619,5 @@ WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDeformationField, 
 
 } // end namespace itk
 
-#endif  //__itkWarpTensorImageMultiTransformFilter_txx
+#endif  //__itkWarpTensorImageMultiTransformFilter_hxx
 

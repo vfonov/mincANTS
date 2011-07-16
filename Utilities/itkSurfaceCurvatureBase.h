@@ -290,7 +290,7 @@ private:
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSurfaceCurvatureBase.txx"
+#include "itkSurfaceCurvatureBase.hxx"
 #endif
 
 #endif
