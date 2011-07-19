@@ -124,6 +124,15 @@
 #include "TensorFunctions.h"
 #include "antsMatrixUtilities.h"
 
+template <class T>
+bool from_string(T& t, 
+                 const std::string& s, 
+                 std::ios_base& (*f)(std::ios_base&))
+{
+  std::istringstream iss(s);
+  return !(iss >> f >> t).fail();
+}
+
 
 std::string ANTSGetFilePrefix(const char *str){
 
@@ -2342,21 +2351,20 @@ int ImageMath(int argc, char *argv[])
   typename readertype::Pointer reader1 = readertype::New();
   reader2->SetFileName(fn2.c_str());
 
+
+
   bool isfloat=false;
-  try
-    {
-      reader2->UpdateLargestPossibleRegion();
-    }
-  catch(...)
-    {
-      std::cout << " Error reading " << fn2 << " as a file  -- will treat " <<  argv[argct] << "  as a float value " << std::endl;
-      isfloat=true;
-    }
-
   float floatval=1.0;
-  if (isfloat) floatval=atof(argv[argct]);
-  else  image2 = reader2->GetOutput();
-
+  if(from_string<float>(floatval, fn2, std::dec) )
+  	{
+    isfloat=true;
+  	}
+  else
+  	{
+  	reader2->Update();
+  	image2 = reader2->GetOutput();
+  	}
+  
   reader1->SetFileName(fn1.c_str());
   try
     {
@@ -4906,7 +4914,7 @@ int PrintHeader(int argc, char *argv[])
    std::cout << " Size " << std::endl << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
 
   //  if (strcmp(operation.c_str(),"n_last_dim") == 0){
-    unsigned int lastdim=reader->GetOutput()->GetLargestPossibleRegion().GetSize()[ImageDimension-1];
+    //unsigned int lastdim=reader->GetOutput()->GetLargestPossibleRegion().GetSize()[ImageDimension-1];
     //   std::ofstream logfile;
     // logfile.open(outname.c_str() );
     //if (logfile.good()  )
