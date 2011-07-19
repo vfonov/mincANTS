@@ -4900,10 +4900,10 @@ int PrintHeader(int argc, char *argv[])
   typename readertype::Pointer reader = readertype::New();
   reader->SetFileName(fn1.c_str());
   reader->Update();
-  // std::cout << " Spacing " << reader->GetOutput()->GetSpacing() << std::endl;
-  // std::cout << " Origin " << reader->GetOutput()->GetOrigin() << std::endl;
-  // std::cout << " Direction " << std::endl << reader->GetOutput()->GetDirection() << std::endl;
-  // std::cout << " Size " << std::endl << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
+   std::cout << " Spacing " << reader->GetOutput()->GetSpacing() << std::endl;
+   std::cout << " Origin " << reader->GetOutput()->GetOrigin() << std::endl;
+   std::cout << " Direction " << std::endl << reader->GetOutput()->GetDirection() << std::endl;
+   std::cout << " Size " << std::endl << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
 
   //  if (strcmp(operation.c_str(),"n_last_dim") == 0){
     unsigned int lastdim=reader->GetOutput()->GetLargestPossibleRegion().GetSize()[ImageDimension-1];
@@ -4913,7 +4913,7 @@ int PrintHeader(int argc, char *argv[])
     //{
     //  logfile << lastdim << std::endl;
     //}
-    std::cout << lastdim << std::endl;
+    //cd std::cout << lastdim << std::endl;
     // }
   return 1;
 }
