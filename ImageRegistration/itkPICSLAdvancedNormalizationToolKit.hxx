@@ -694,7 +694,7 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
               {
   typedef itk::HistogramMatchingImageFilter<ImageType,ImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
-  filter->SetInput(movingImage );
+  filter->SetSourceImage(movingImage );
   filter->SetReferenceImage(fixedImage);
   filter->SetNumberOfHistogramLevels( 256 );
   filter->SetNumberOfMatchPoints( 12 );
@@ -726,7 +726,7 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
                   movingImage = this->PreprocessImage(movingImage);
                   typedef itk::HistogramMatchingImageFilter<ImageType,ImageType> FilterType;
                   typename FilterType::Pointer filter = FilterType::New();
-                  filter->SetInput(movingImage );
+                  filter->SetSourceImage(movingImage );
                   filter->SetReferenceImage(fixedImage);
                   filter->SetNumberOfHistogramLevels( 256 );
                   filter->SetNumberOfMatchPoints( 12 );
@@ -793,17 +793,21 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
               {
   typedef itk::HistogramMatchingImageFilter<ImageType,ImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
-  filter->SetInput(movingImage );
+  filter->SetSourceImage(movingImage );
   filter->SetReferenceImage(fixedImage);
   filter->SetNumberOfHistogramLevels( 256 );
   filter->SetNumberOfMatchPoints( 12 );
   filter->ThresholdAtMeanIntensityOn();
 //  filter->ThresholdAtMeanIntensityOff();
   if (useHistMatch){
-  filter->Update();   std::cout <<  " use Histogram Matching " << std::endl;
+std::cout <<  " use Histogram Matching " << std::endl;
+  filter->Update();   
   movingImage=filter->GetOutput();
+std::cout <<  " prepro " << std::endl;
   movingImage = this->PreprocessImage(movingImage);
-  similarityMetric->SetMovingImage( movingImage );}
+std::cout <<  " set " << std::endl;
+  similarityMetric->SetMovingImage( movingImage );
+  }
 
                   typedef itk::CrossCorrelationRegistrationFunction
                   <ImageType, ImageType, DeformationFieldType> MetricType;
@@ -821,7 +825,7 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
               {
   typedef itk::HistogramMatchingImageFilter<ImageType,ImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
-  filter->SetInput(movingImage );
+  filter->SetSourceImage(movingImage );
   filter->SetReferenceImage(fixedImage);
   filter->SetNumberOfHistogramLevels( 256 );
   filter->SetNumberOfMatchPoints( 12 );
