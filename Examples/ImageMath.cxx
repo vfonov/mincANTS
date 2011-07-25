@@ -19,7 +19,7 @@
 // Here I'm using a map but you could choose even other containers
 #include <fstream>
 #include <string>
-
+#include "itkCSVNumericObjectFileWriter.h"
 #include <iostream>
 #include <sstream>
 #include "itkTDistribution.h"
@@ -6614,6 +6614,7 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
   int argct=2;
   if (argc < 5 ) { std::cout <<" need more args -- see usage   " << std::endl;  exit(0); }
   std::string outname=std::string(argv[argct]); argct++;
+  std::string ext = itksys::SystemTools::GetFilenameExtension( outname );
   std::string operation = std::string(argv[argct]);  argct++;
   unsigned int  rowcoloption = atoi(argv[argct]);   argct++;
   std::string maskfn=std::string(argv[argct]); argct++;
@@ -6650,8 +6651,6 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
     }
 
   std:: cout << " largest image " << size << " num images " << numberofimages << " voxct " << voxct << std::endl;
-
-/** declare the tiled image */
   unsigned long xx1=0,yy1=0;
   if (rowcoloption==0)
     {  std::cout << " row option " << std::endl;  xx1=voxct;  yy1=numberofimages; }
@@ -6659,6 +6658,55 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
     {  std::cout << " col option " << std::endl;  yy1=voxct;  xx1=numberofimages; }
   unsigned long xsize=xx1;
   unsigned long ysize=yy1;
+
+  if  (strcmp(ext.c_str(),".csv") == 0 ) {
+    typedef itk::Array2D<double> MatrixType;
+    MatrixType matrix(xsize,ysize);
+    matrix.Fill(0);
+    unsigned int imagecount=0;
+    for (unsigned int j=argct; j< argc; j++)
+    {
+      std::string fn = std::string(argv[j]);
+      ReadImage<ImageType>(image2,fn.c_str());
+      std::cout << " image " << j << " is "  << fn << std::endl;
+      unsigned long xx=0,yy=0,tvoxct=0;
+      if (rowcoloption==0)
+	{    yy=imagecount; }
+      if (rowcoloption==1)
+	{  xx=imagecount; }
+      for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
+	{
+	  if (mIter.Get() >= 0.5)
+	    {
+	      if (rowcoloption==0)
+		{   xx=tvoxct;  }
+	      if (rowcoloption==1)
+		{  yy=tvoxct; }
+	      matrix[xx][yy]=image2->GetPixel(mIter.GetIndex());
+	      tvoxct++;
+	    }
+	}
+      imagecount++;
+    }
+
+    // write out the array2D object
+    typedef itk::CSVNumericObjectFileWriter<double> WriterType;
+    WriterType::Pointer writer = WriterType::New();
+    writer->SetFileName( outname );
+    writer->SetInput( &matrix );
+    try
+    {
+      writer->Write();
+    }
+    catch (itk::ExceptionObject& exp)
+    {
+      std::cerr << "Exception caught!" << std::endl;
+      std::cerr << exp << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+  else {
+/** declare the tiled image */
   typename MatrixImageType::SizeType tilesize;
   tilesize[0]=xsize;
   tilesize[1]=ysize;
@@ -6710,7 +6758,7 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
 
   std::cout << " mat size " << matimage->GetLargestPossibleRegion().GetSize() << std::endl;
   WriteImage<MatrixImageType>(matimage,outname.c_str());
-
+  }
   return 0;
 
 }
@@ -6934,6 +6982,7 @@ int main(int argc, char *argv[])
 
     std::cout << "\n  ConvertImageSetToMatrix: Each row/column contains image content extracted from mask applied to images in *img.nii " << std::endl;
     std::cout << "      Usage		: ConvertImageSetToMatrix rowcoloption Mask.nii *images.nii" << std::endl;
+    std::cout << " ConvertImageSetToMatrix output can be an image type or csv file type." <<std::endl;
 
     std::cout << "\n  ConvertImageToFile	: Writes voxel values to a file  " << std::endl;
     std::cout << "      Usage		: ConvertImageToFile imagevalues.nii {Optional-ImageMask.nii}" << std::endl;
