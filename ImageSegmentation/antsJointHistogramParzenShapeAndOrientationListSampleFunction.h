@@ -20,9 +20,10 @@
 #define __antsJointHistogramParzenShapeAndOrientationListSampleFunction_h
 
 #include "antsListSampleFunction.h"
+#include "itkBSplineInterpolateImageFunction.h"
 
 #include "itkImage.h"
-
+#include "itkLinearInterpolateImageFunction.h"
 namespace itk {
 namespace ants {
 namespace Statistics {
@@ -66,6 +67,12 @@ public:
 
   typedef typename JointHistogramImageType::IndexType IndexType;
   typedef typename IndexType::IndexValueType          IndexValueType;
+  typedef BSplineInterpolateImageFunction<JointHistogramImageType>
+      BInterpolatorType;
+  typedef LinearInterpolateImageFunction<JointHistogramImageType>
+      InterpolatorType;
+  typedef typename InterpolatorType::Pointer   InterpolatorPointer;
+
 
   /** Helper functions */
 
@@ -101,7 +108,7 @@ private:
   RealType                                        m_MinimumEigenvalue1;
   RealType                                        m_MinimumEigenvalue2;
   JointHistogramImagePointer                      m_JointHistogramImages[3];
-
+  InterpolatorPointer m_Interpolator;
   bool                                         m_UseNearestNeighborIncrements;
 
 };
