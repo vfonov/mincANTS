@@ -37,11 +37,11 @@ template <class TListSample, class TOutput, class TCoordRep>
 JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, TCoordRep>
 ::JointHistogramParzenShapeAndOrientationListSampleFunction()
 {
-  this->m_NumberOfJointHistogramBins = 32;
+  this->m_NumberOfJointHistogramBins = 64;
   this->m_Sigma = 1.0;
-  this->m_UseNearestNeighborIncrements = false;
-  this->m_MaximumEigenvalue1 = 1.2;
-  this->m_MaximumEigenvalue2 = 1.2;
+  this->m_UseNearestNeighborIncrements = true;
+  this->m_MaximumEigenvalue1 = 0;
+  this->m_MaximumEigenvalue2 = 0;
   this->m_MinimumEigenvalue1 = 0.1;
   this->m_MinimumEigenvalue2 = 0.1;
 
@@ -217,11 +217,25 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
   RealType tp[2];
   tp[1] = 0.0;
 
+  // If eigenvector has negative x, we reflect it about the origin.
+  // We do this to avoid redundancy in representation of the eigenvectors, 
+  // because they are all redundant.  
+
+  if ( x < 0 ) 
+   {  
+     x*=-1; 
+     y*=-1; 
+     z*=-1;
+   }
+
+
   tp[0] = vcl_acos( z );
 
-   // phi goes from 0.0 (+x axis) and wraps at 2 * PI
+   // phi goes from 0.0 (+x axis) and goes to -pi/2 and pi/2.
    // theta goes from 0.0 (+z axis) and wraps at PI
    // if x and y are 0.0 or very close, return phi == 0
+   // we do this to eliminate redundancy in the distribution of orientations.
+
    if( vnl_math_abs( x ) + vnl_math_abs( y ) < 1e-9 )
      {
      tp[1] = 0.0;
@@ -248,7 +262,7 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
          }
        else
          {
-         tp[1] = 1.5 * vnl_math::pi;
+         tp[1] = - vnl_math::pi_over_2;
          }
        }
      else if( x > 0.0 && y > 0.0 )
@@ -265,16 +279,17 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
        }
      else
        { // fourth quadrant
-       tp[1] = 2.0 * vnl_math::pi + atan( y / x );
+       tp[1] = atan( y / x );
        }
      }
    RealType psi = tp[0];
    RealType theta = tp[1];
 
-  // note, if a point maps to 0 or 2*pi then it should contribute to both bins
-  orientPoint[0] = theta / ( 2.0 * vnl_math::pi ) *
+  
+// note, if a point maps to 0 or 2*pi then it should contribute to both bins -- pretty much only difference between this function and matlab code is the next 15 or so lines, as far as we see
+  orientPoint[0] = psi / (vnl_math::pi ) *
     ( this->m_NumberOfJointHistogramBins - 1) + 1;
-  orientPoint[1] = psi / vnl_math::pi *
+  orientPoint[1] = ( theta + vnl_math::pi_over_2 ) / vnl_math::pi *
     ( this->m_NumberOfJointHistogramBins - 1 );
 
   ContinuousIndex<double, 2> orientCidx;
@@ -519,27 +534,32 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
     // now W holds the eigenvalues ( shape )
 
     // for each tensor sample, we add its content to the relevant histogram.
-    RealType eigenvalue1 = W(2, 2) - this->m_MinimumEigenvalue1;
-    RealType eigenvalue2 = ( W(1, 1) + W(0, 0) ) * 0.5 -
-      this->m_MinimumEigenvalue2;
+    RealType eigenvalue1 = W(2, 2);
+    RealType eigenvalue2 = W(1, 1);
     eigenvalue1 /= ( this->m_MaximumEigenvalue1 - this->m_MinimumEigenvalue1 );
     eigenvalue2 /= ( this->m_MaximumEigenvalue2 - this->m_MinimumEigenvalue2 );
+
+    std::cout << " ev1 " << eigenvalue1 << " oev1 " << W(2,2) << " ev2 " << eigenvalue2 << " oev2 " << W(1,1) << std::endl;
+
     /** joint-hist model for the eigenvalues */
     this->IncrementJointHistogramForShape( eigenvalue1,eigenvalue2 );
 
-    RealType x = V(2, 0);
-    RealType y = V(2, 1);
+    RealType x = V(0, 2);
+    RealType y = V(1, 2);
     RealType z = V(2, 2);
+
     /** joint-hist model for the principal eigenvector */
     this->IncrementJointHistogramForOrientation( x, y, z, 1 );
-    x = V(1, 0);
+    x = V(0, 1);
     y = V(1, 1);
-    z = V(1, 2);
+    z = V(2, 1);
     /** joint-hist model for the second eigenvector */
     this->IncrementJointHistogramForOrientation( x, y, z, 2 );
 
     ++It;
     }
+    
+    
 
   for( unsigned int d = 0; d < 3; d++ )
     {
@@ -564,7 +584,8 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
     divider->SetConstant( stats->GetSum() );
     divider->Update();
     this->m_JointHistogramImages[d] = divider->GetOutput();
-    }
+        
+    }    
 }
 
 template <class TListSample, class TOutput, class TCoordRep>
