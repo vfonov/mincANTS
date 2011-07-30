@@ -22,6 +22,8 @@
 #include "antsListSampleFunction.h"
 
 #include "itkImage.h"
+#include "itkBSplineInterpolateImageFunction.h"
+#include "itkLinearInterpolateImageFunction.h"
 
 namespace itk {
 namespace ants {
@@ -60,6 +62,11 @@ public:
   typedef TOutput                                           OutputType;
 
   typedef Image<RealType, 1>                                HistogramImageType;
+  typedef BSplineInterpolateImageFunction<HistogramImageType>
+      InterpolatorType;
+  typedef LinearInterpolateImageFunction<HistogramImageType>
+      LInterpolatorType;
+  typedef typename InterpolatorType::Pointer   InterpolatorPointer;
 
 
   /** Helper functions */
@@ -88,7 +95,7 @@ private:
 
   unsigned int                                         m_NumberOfHistogramBins;
   RealType                                             m_Sigma;
-
+  InterpolatorPointer m_Interpolator;
   std::vector<typename HistogramImageType::Pointer>    m_HistogramImages;
 };
 

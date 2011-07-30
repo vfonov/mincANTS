@@ -20,9 +20,9 @@
 #define __antsJointHistogramParzenShapeAndOrientationListSampleFunction_h
 
 #include "antsListSampleFunction.h"
-#include "itkBSplineInterpolateImageFunction.h"
 
 #include "itkImage.h"
+#include "itkBSplineInterpolateImageFunction.h"
 #include "itkLinearInterpolateImageFunction.h"
 namespace itk {
 namespace ants {
@@ -68,9 +68,9 @@ public:
   typedef typename JointHistogramImageType::IndexType IndexType;
   typedef typename IndexType::IndexValueType          IndexValueType;
   typedef BSplineInterpolateImageFunction<JointHistogramImageType>
-      BInterpolatorType;
-  typedef LinearInterpolateImageFunction<JointHistogramImageType>
       InterpolatorType;
+  typedef LinearInterpolateImageFunction<JointHistogramImageType>
+      LInterpolatorType;
   typedef typename InterpolatorType::Pointer   InterpolatorPointer;
 
 
