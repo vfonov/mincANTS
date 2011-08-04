@@ -7,11 +7,11 @@
   Version:   $Revision: 1.20 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -29,7 +29,7 @@
 #include "itkCentralDifferenceImageFunction.h"
 #include "itkBSplineInterpolateImageFunction.h"
 #include "itkLinearInterpolateImageFunction.h"
-#include "itkBSplineDeformableTransform.h"
+#include "itkBSplineTransform.h"
 #include "itkTranslationTransform.h"
 #include "itkArray2D.h"
 #include "itkImageBase.h"
@@ -45,13 +45,13 @@ namespace itk
 {
 
 /** \class AvantsMutualInformationRegistrationFunction
- * \brief Computes the mutual information between two images to be 
+ * \brief Computes the mutual information between two images to be
  * registered using the method of Avants et al.
  *
- * AvantsMutualInformationRegistrationFunction computes the mutual 
+ * AvantsMutualInformationRegistrationFunction computes the mutual
  * information between a fixed and moving image to be registered.
  *
- * This class is templated over the FixedImage type and the MovingImage 
+ * This class is templated over the FixedImage type and the MovingImage
  * type.
  *
  * The fixed and moving images are set via methods SetFixedImage() and
@@ -63,11 +63,11 @@ namespace itk
  * SetInterpolator().
  *
  * If a BSplineInterpolationFunction is used, this class obtain
- * image derivatives from the BSpline interpolator. Otherwise, 
+ * image derivatives from the BSpline interpolator. Otherwise,
  * image derivatives are computed using central differencing.
  *
  * \warning This metric assumes that the moving image has already been
- * connected to the interpolator outside of this class. 
+ * connected to the interpolator outside of this class.
  *
  * The method GetValue() computes of the mutual information
  * while method GetValueAndDerivative() computes
@@ -77,10 +77,10 @@ namespace itk
  * The calculations are based on the method of Avants et al [1,2]
  * where the probability density distribution are estimated using
  * Parzen histograms. Since the fixed image PDF does not contribute
- * to the derivatives, it does not need to be smooth. Hence, 
+ * to the derivatives, it does not need to be smooth. Hence,
  * a zero order (box car) BSpline kernel is used
  * for the fixed image intensity PDF. On the other hand, to ensure
- * smoothness a third order BSpline kernel is used for the 
+ * smoothness a third order BSpline kernel is used for the
  * moving image intensity PDF.
  *
  * On Initialize(), the FixedImage is uniformly sampled within
@@ -90,9 +90,9 @@ namespace itk
  *
  * During each call of GetValue(), GetDerivatives(),
  * GetValueAndDerivatives(), marginal and joint intensity PDF's
- * values are estimated at discrete position or bins. 
+ * values are estimated at discrete position or bins.
  * The number of bins used can be set via SetNumberOfHistogramBins().
- * To handle data with arbitray magnitude and dynamic range, 
+ * To handle data with arbitray magnitude and dynamic range,
  * the image intensity is scale such that any contribution to the
  * histogram will fall into a valid bin.
  *
@@ -100,7 +100,7 @@ namespace itk
  * is obtained by doubling summing over the discrete PDF values.
  *
  *
- * Notes: 
+ * Notes:
  * 1. This class returns the negative mutual information value.
  * 2. This class in not thread safe due the private data structures
  *     used to the store the sampled points and the marginal and joint pdfs.
@@ -111,7 +111,7 @@ namespace itk
  *      Medical Imaging 2001: Image Processing, 2001, pp. 1609-1620.
  * [2] "PET-CT Image Registration in the Chest Using Free-form Deformations"
  *      D. Avants, D. R. Haynor, H. Vesselle, T. Lewellen and W. Eubank
- *      IEEE Transactions in Medical Imaging. Vol.22, No.1, 
+ *      IEEE Transactions in Medical Imaging. Vol.22, No.1,
         January 2003. pp.120-128.
  * [3] "Optimization of Mutual Information for MultiResolution Image
  *      Registration"
@@ -137,7 +137,7 @@ public:
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( AvantsMutualInformationRegistrationFunction, 
+  itkTypeMacro( AvantsMutualInformationRegistrationFunction,
     AvantsPDEDeformableRegistrationFunction );
 
   /** MovingImage image type. */
@@ -150,11 +150,11 @@ public:
   typedef typename FixedImageType::IndexType      IndexType;
   typedef typename FixedImageType::SizeType       SizeType;
   typedef typename FixedImageType::SpacingType    SpacingType;
-  
+
   /** Deformation field type. */
   typedef typename Superclass::VectorType VectorType;
   typedef typename Superclass::DeformationFieldType    DeformationFieldType;
-  typedef typename Superclass::DeformationFieldTypePointer   
+  typedef typename Superclass::DeformationFieldTypePointer
     DeformationFieldTypePointer;
 
   /** Inherit some enums from the superclass. */
@@ -171,7 +171,7 @@ public:
   /** Interpolator type. */
   typedef double CoordRepType;
   typedef    //       //    LinearInterpolateImageFunction<MovingImageType,CoordRepType>
-    BSplineInterpolateImageFunction<MovingImageType,CoordRepType> 
+    BSplineInterpolateImageFunction<MovingImageType,CoordRepType>
     InterpolatorType;
   typedef typename InterpolatorType::Pointer         InterpolatorPointer;
   typedef typename InterpolatorType::PointType       PointType;
@@ -189,11 +189,11 @@ public:
   /** Set the moving image interpolator. */
   void SetMovingImageInterpolator( InterpolatorType * ptr )
   { m_MovingImageInterpolator = ptr; }
-  
+
   /** Get the moving image interpolator. */
   InterpolatorType * GetMovingImageInterpolator(void)
     { return m_MovingImageInterpolator; }
-  
+
   /** This class uses a constant timestep of 1. */
   virtual TimeStepType ComputeGlobalTimeStep(void *itkNotUsed(GlobalData)) const
     { return 1; }
@@ -209,11 +209,11 @@ public:
        return global;
   }
 
-  
+
   /** Release memory for global data structure. */
   virtual void ReleaseGlobalDataPointer( void *GlobalData ) const
-  { 
-     delete (GlobalDataStruct *) GlobalData;  
+  {
+     delete (GlobalDataStruct *) GlobalData;
   }
 
   /** Set the object's state before each iteration. */
@@ -223,7 +223,7 @@ public:
   typedef double CoordinateRepresentationType;
 
   /** Types inherited from Superclass. */
-  typedef TranslationTransform<CoordinateRepresentationType, 
+  typedef TranslationTransform<CoordinateRepresentationType,
     //                    itkGetStaticConstMacro(ImageDimension),
                     itkGetStaticConstMacro(ImageDimension)> TransformType;
 
@@ -268,24 +268,24 @@ public:
 
 
   /**  Get the value and derivatives for single valued optimizers. */
-  double GetValueAndDerivative( IndexType index, 
+  double GetValueAndDerivative( IndexType index,
                               MeasureType& Value, DerivativeType& Derivative1 , DerivativeType& Derivative2 ) ;
 
 
   /**  Get the value and derivatives for single valued optimizers. */
-  double GetValueAndDerivativeInv( IndexType index, 
+  double GetValueAndDerivativeInv( IndexType index,
                               MeasureType& Value, DerivativeType& Derivative1 , DerivativeType& Derivative2 ) ;
 
 
   /** Number of spatial samples to used to compute metric */
   //  itkSetClampMacro( NumberOfSpatialSamples, unsigned long,
   //                1, NumericTraits<unsigned long>::max() );
-  //itkGetConstReferenceMacro( NumberOfSpatialSamples, unsigned long); 
+  //itkGetConstReferenceMacro( NumberOfSpatialSamples, unsigned long);
 
   /** Number of bins to used in the histogram. Typical value is 50. */
   //  itkSetClampMacro( NumberOfHistogramBins, unsigned long,
   //                1, NumericTraits<unsigned long>::max() );
-  // itkGetConstReferenceMacro( NumberOfHistogramBins, unsigned long);   
+  // itkGetConstReferenceMacro( NumberOfHistogramBins, unsigned long);
   void SetNumberOfHistogramBins(unsigned long nhb) { m_NumberOfHistogramBins=nhb+2*this->m_Padding;}
   unsigned long GetNumberOfHistogramBins() {return m_NumberOfHistogramBins;}
 
@@ -311,7 +311,7 @@ public:
       double mi;
       unsigned long ct = 0;
       typename JointPDFType::IndexType index;
-    
+
 	  for (unsigned int ii=0; ii<m_NumberOfHistogramBins; ii++)
 	  {
 	  MarginalPDFIndexType mind;
@@ -319,37 +319,37 @@ public:
 	  px = m_FixedImageMarginalPDF->GetPixel(mind);
 	  for (unsigned int jj=0; jj<m_NumberOfHistogramBins; jj++)
 	    {
-	      mind[0]=jj;	      
+	      mind[0]=jj;
 	      py = m_MovingImageMarginalPDF->GetPixel(mind);
 	      float denom = px*py;
 	      index[0]=ii;
 	      index[1]=jj;
 	      //pxy=m_JointPDF->GetPixel(index);
-	      
+
 	      JointPDFValueType *pdfPtr = m_JointPDF->GetBufferPointer() +
 		( ii* m_NumberOfHistogramBins );
 	      // Move the pointer to the first affected bin
 	      int pdfMovingIndex = static_cast<int>( jj );
 	      pdfPtr += pdfMovingIndex;
 	      pxy=*(pdfPtr);
-      
+
 	      mi=0;
-	      if (fabs(denom) > 0 ) 
+	      if (fabs(denom) > 0 )
 		{
-		  if (pxy/denom > 0) 
+		  if (pxy/denom > 0)
 		    {
-		      //true mi		      
+		      //true mi
 		      mi = pxy*vcl_log(pxy/denom);
-		      //test mi		      
+		      //test mi
 		      //mi = 1.0 + log(pxy/denom);
 		      ct++;
 		    }
-		    
+
 		}
-	      
+
 	      mival += mi;
 	    }
-	//	  std::cout << " II " << ii << " JJ " << ii << " pxy " << pxy << " px " << px << std::endl;  
+	//	  std::cout << " II " << ii << " JJ " << ii << " pxy " << pxy << " px " << px << std::endl;
 
 	}
 	  //GS: temp edit to make sure if this is decreasing (should be )
@@ -365,30 +365,30 @@ public:
                                    const FloatOffsetType &offset = FloatOffsetType(0.0))
   {
     VectorType update;
-    update.Fill(0.0);   
+    update.Fill(0.0);
     IndexType oindex = neighborhood.GetIndex();
-    
-    FixedImageType* img =const_cast<FixedImageType *>(this->Superclass::m_FixedImage.GetPointer()); 
+
+    FixedImageType* img =const_cast<FixedImageType *>(this->Superclass::m_FixedImage.GetPointer());
     if (!img) return update;
     typename FixedImageType::SpacingType spacing=img->GetSpacing();
     typename FixedImageType::SizeType imagesize=img->GetLargestPossibleRegion().GetSize();
-    
+
     for (unsigned int dd=0; dd<ImageDimension; dd++)
       {
-	if ( oindex[dd] < 1 || 
-	     oindex[dd] >= static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) ) 
+	if ( oindex[dd] < 1 ||
+	     oindex[dd] >= static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) )
 	  return update;
-      }    
-    
+      }
+
     CovariantVectorType fixedGradient;
     double loce=0.0;
     ParametersType fdvec1(ImageDimension);
-    ParametersType fdvec2(ImageDimension);    
+    ParametersType fdvec2(ImageDimension);
     fdvec1.Fill(0);
     fdvec2.Fill(0);
-    fixedGradient = m_FixedImageGradientCalculator->EvaluateAtIndex( oindex ); 
+    fixedGradient = m_FixedImageGradientCalculator->EvaluateAtIndex( oindex );
     double nccm1=0;
-    loce=this->GetValueAndDerivativeInv(oindex,nccm1,fdvec1,fdvec2); 
+    loce=this->GetValueAndDerivativeInv(oindex,nccm1,fdvec1,fdvec2);
     float eps=10;
     if ( loce > eps ) loce=eps;
     if ( loce < eps*(-1.0) ) loce=eps*(-1.0);
@@ -404,22 +404,22 @@ public:
   {
     double windowTerm = static_cast<double>( intensity ) -  this->m_MovingImageTrueMin;
     windowTerm = windowTerm / ( this->m_MovingImageTrueMax - this->m_MovingImageTrueMin   )  ;
-    return windowTerm ; 
+    return windowTerm ;
   }
 
   double GetFixedParzenTerm( double intensity )
   {
     double windowTerm = static_cast<double>( intensity ) -  this->m_FixedImageTrueMin;
     windowTerm = windowTerm / ( this->m_FixedImageTrueMax - this->m_FixedImageTrueMin   )  ;
-    return  windowTerm ; 
+    return  windowTerm ;
   }
 
-	
-	
-  /* find the image index in the number of histogram bins */	
-	unsigned int FitIndexInBins( double windowTerm ) 
+
+
+  /* find the image index in the number of histogram bins */
+	unsigned int FitIndexInBins( double windowTerm )
 	{
-		unsigned int movingImageParzenWindowIndex  = 
+		unsigned int movingImageParzenWindowIndex  =
 			static_cast<unsigned int>( this->m_Padding + (unsigned int)( windowTerm * (float)(this->m_NumberOfHistogramBins - 1 - this->m_Padding) + 0.5 ) );
 
 		// Make sure the extreme values are in valid bins
@@ -446,31 +446,31 @@ public:
                                    const FloatOffsetType &offset = FloatOffsetType(0.0))
   {
     VectorType update;
-    update.Fill(0.0);   
+    update.Fill(0.0);
     IndexType oindex = neighborhood.GetIndex();
-    
-    FixedImageType* img =const_cast<FixedImageType *>(this->Superclass::m_MovingImage.GetPointer()); 
+
+    FixedImageType* img =const_cast<FixedImageType *>(this->Superclass::m_MovingImage.GetPointer());
     if (!img) return update;
     typename FixedImageType::SpacingType spacing=img->GetSpacing();
     typename FixedImageType::SizeType imagesize=img->GetLargestPossibleRegion().GetSize();
-    
+
     for (unsigned int dd=0; dd<ImageDimension; dd++)
       {
-	if ( oindex[dd] < 1 || 
-	     oindex[dd] >= static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) ) 
+	if ( oindex[dd] < 1 ||
+	     oindex[dd] >= static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) )
 	  return update;
-      }    
-    
+      }
+
     CovariantVectorType movingGradient;
     double loce=0.0;
     ParametersType fdvec1(ImageDimension);
-    ParametersType fdvec2(ImageDimension);    
+    ParametersType fdvec2(ImageDimension);
     fdvec1.Fill(0);
     fdvec2.Fill(0);
-    movingGradient = m_MovingImageGradientCalculator->EvaluateAtIndex( oindex ); 
-	
+    movingGradient = m_MovingImageGradientCalculator->EvaluateAtIndex( oindex );
+
     double nccm1=0;
-    loce=this->GetValueAndDerivative(oindex,nccm1,fdvec1,fdvec2); 
+    loce=this->GetValueAndDerivative(oindex,nccm1,fdvec1,fdvec2);
 
     float eps=10;
     if ( loce > eps ) loce=eps;
@@ -483,7 +483,7 @@ public:
 
   void WriteImages()
   {
-    
+
     if (this->m_MetricImage)
     {
       typedef ImageFileWriter<FixedImageType> writertype;
@@ -491,10 +491,10 @@ public:
       w->SetInput(  this->m_MetricImage);
       w->SetFileName("ZZmetric.nii.gz");
       w->Write();
-    }   
+    }
 
   }
-  
+
 
   void SetOpticalFlow(bool b){ m_OpticalFlow = b; }
 
@@ -508,7 +508,7 @@ public:
 
  /** FixedImage image neighborhood iterator type. */
   typedef ConstNeighborhoodIterator<FixedImageType> FixedImageNeighborhoodIteratorType;
-  
+
   /** A global data type for this class of equation. Used to store
    * iterators for the fixed image. */
   struct GlobalDataStruct
@@ -547,7 +547,7 @@ protected:
   virtual ~AvantsMutualInformationRegistrationFunction() {};
   void PrintSelf(std::ostream& os, Indent indent) const;
 
- 
+
 
 private:
 
@@ -561,19 +561,19 @@ private:
 
   /** Typedefs for BSpline kernel and derivative functions. */
   typedef BSplineKernelFunction<3> CubicBSplineFunctionType;
-  typedef BSplineDerivativeKernelFunction<3> 
+  typedef BSplineDerivativeKernelFunction<3>
   CubicBSplineDerivativeFunctionType;
 
   /** Cubic BSpline kernel for computing Parzen histograms. */
   typename CubicBSplineFunctionType::Pointer m_CubicBSplineKernel;
-  typename CubicBSplineDerivativeFunctionType::Pointer 
+  typename CubicBSplineDerivativeFunctionType::Pointer
   m_CubicBSplineDerivativeKernel;
 
 
   /**
    * Types and variables related to image derivative calculations.
    * If a BSplineInterpolationFunction is used, this class obtain
-   * image derivatives from the BSpline interpolator. Otherwise, 
+   * image derivatives from the BSpline interpolator. Otherwise,
    * image derivatives are computed using central differencing.
    */
   typedef CovariantVector< double,
@@ -604,7 +604,7 @@ private:
 
   /**
    * Types and variables related to BSpline deformable transforms.
-   * If the transform is of type third order BSplineDeformableTransform,
+   * If the transform is of type third order BSplineTransform,
    * then we can speed up the metric derivative calculation by
    * only inspecting the parameters within the support region
    * of a mapped point.
@@ -616,27 +616,27 @@ private:
   /** The number of BSpline parameters per image dimension. */
   long m_NumParametersPerDim;
 
-  /** 
+  /**
    * The number of BSpline transform weights is the number of
-   * of parameter in the support region (per dimension ). */   
+   * of parameter in the support region (per dimension ). */
   unsigned long m_NumBSplineWeights;
 
 
-  /** 
-   * Enum of the deformabtion field spline order. 
+  /**
+   * Enum of the deformabtion field spline order.
    */
   enum { DeformationSplineOrder = 3 };
 
   /**
-   * Typedefs for the BSplineDeformableTransform.
+   * Typedefs for the BSplineTransform.
    */
-  typedef BSplineDeformableTransform<
+  typedef BSplineTransform<
     CoordinateRepresentationType,
     ::itk::GetImageDimension<FixedImageType>::ImageDimension,
     DeformationSplineOrder> BSplineTransformType;
-  typedef typename BSplineTransformType::WeightsType 
+  typedef typename BSplineTransformType::WeightsType
   BSplineTransformWeightsType;
-  typedef typename BSplineTransformType::ParameterIndexArrayType 
+  typedef typename BSplineTransformType::ParameterIndexArrayType
   BSplineTransformIndexArrayType;
 
   /**
@@ -645,7 +645,7 @@ private:
   typename BSplineTransformType::Pointer m_BSplineTransform;
 
   /**
-   * Cache pre-transformed points, weights, indices and 
+   * Cache pre-transformed points, weights, indices and
    * within support region flag.
    */
   typedef typename BSplineTransformWeightsType::ValueType WeightsValueType;
@@ -659,11 +659,11 @@ private:
   BSplineTransformIndicesArrayType      m_BSplineTransformIndicesArray;
   MovingImagePointArrayType             m_PreTransformPointsArray;
   BooleanArrayType                      m_WithinSupportRegionArray;
-  
+
   typename TFixedImage::SpacingType                  m_FixedImageSpacing;
   typename TFixedImage::PointType                  m_FixedImageOrigin;
 
-  typedef FixedArray<unsigned long, 
+  typedef FixedArray<unsigned long,
     ::itk::GetImageDimension<FixedImageType>::ImageDimension> ParametersOffsetType;
   ParametersOffsetType                  m_ParametersOffset;
 
