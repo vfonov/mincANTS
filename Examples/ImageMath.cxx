@@ -6811,6 +6811,7 @@ int ConvertImageSetToEigenvectors(unsigned int argc, char *argv[])
     exit(1);
   }
 
+  typedef itk::Array2D<double> MatrixType;
   typename ImageType::Pointer image2 = NULL;
   typename ImageType::SizeType size;
   size.Fill(0);
@@ -6836,6 +6837,8 @@ int ConvertImageSetToEigenvectors(unsigned int argc, char *argv[])
     }
 
   std:: cout << " largest image " << size << " num images " << numberofimages << std::endl;
+  MatrixType avg_matrix(numberofimages,maxval);
+  avg_matrix.Fill(0);
 
   for ( unsigned long mv=1; mv<=maxval; mv++ ) {
     /** 2. count the voxels in this label */ 
@@ -6853,7 +6856,6 @@ int ConvertImageSetToEigenvectors(unsigned int argc, char *argv[])
   unsigned long ysize=yy1;
 
   if  (strcmp(ext.c_str(),".csv") == 0 ) {
-    typedef itk::Array2D<double> MatrixType;
     MatrixType matrix(xsize,ysize);
     matrix.Fill(0);
     unsigned int imagecount=0;
@@ -6889,6 +6891,7 @@ int ConvertImageSetToEigenvectors(unsigned int argc, char *argv[])
     MatrixType evec_matrix(xsize,n_evecs+1);
     evec_matrix.Fill(0);
     VectorType avg=matrixOps->AverageColumns(matrix);
+    avg_matrix.set_column(mv,avg);
     evec_matrix.set_column(0,avg);
     for (unsigned int i=0; i<n_evecs;i++) {
       /** the GetCovMatEigenvector function normalizes the matrix & computes the covariance matrix internally */
@@ -6917,6 +6920,26 @@ int ConvertImageSetToEigenvectors(unsigned int argc, char *argv[])
   else std::cout << " can only write out csv files " << std::endl;
 
   }// end loop over mv variable 
+
+  {
+    // write out the array2D object
+    typedef itk::CSVNumericObjectFileWriter<double> WriterType;
+    WriterType::Pointer writer = WriterType::New();
+    std::string num=std::string("avg_for_labels");
+    std::string eoutname=outname+num+ext;
+    writer->SetFileName( eoutname );
+    writer->SetInput( &avg_matrix );
+    try
+    {
+      writer->Write();
+    }
+    catch (itk::ExceptionObject& exp)
+    {
+      std::cerr << "Exception caught!" << std::endl;
+      std::cerr << exp << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
 
   return 0;
 
