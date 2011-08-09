@@ -130,7 +130,12 @@ bool from_string(T& t,
                  std::ios_base& (*f)(std::ios_base&))
 {
   std::istringstream iss(s);
-  return !(iss >> f >> t).fail();
+  iss >> f >> t;
+
+  // Check to see that there is nothing left over
+  if (!iss.eof()) return false;  
+   
+  return true;
 }
 
 
