@@ -47,7 +47,6 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformati
   //  this->SetComputeGradient(false); // don't use the default gradient for now
 
   this->m_InterpolatorIsBSpline = false;
-  this->m_TransformIsBSpline    = false;
 
   // Initialize PDFs to NULL
   m_JointPDF = NULL;
@@ -71,9 +70,6 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformati
   m_FixedImageBinSize = 0.0;
   m_MovingImageBinSize = 0.0;
   m_BSplineInterpolator = NULL;
-  m_NumParametersPerDim = 0;
-  m_NumBSplineWeights = 0;
-  m_BSplineTransform = NULL;
   m_NumberOfParameters = ImageDimension;
 
   m_FixedImageGradientCalculator = GradientCalculatorType::New();
@@ -129,8 +125,6 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformati
   os << m_MovingImageBinSize << std::endl;
   os << indent << "InterpolatorIsBSpline: ";
   os << m_InterpolatorIsBSpline << std::endl;
-  os << indent << "TransformIsBSpline: ";
-  os << m_TransformIsBSpline << std::endl;
 
 }
 
