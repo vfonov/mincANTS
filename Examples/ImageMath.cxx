@@ -6599,6 +6599,13 @@ int PValueImage(      int argc, char *argv[])
 
 }
 
+template <class T>
+inline std::string ants_to_string (const T& t)
+{
+  std::stringstream ss;
+  ss << t;
+  return ss.str();
+}
 
 
 template <unsigned int ImageDimension>
@@ -6668,6 +6675,7 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
 
   if  (strcmp(ext.c_str(),".csv") == 0 ) {
     typedef itk::Array2D<double> MatrixType;
+    std::vector<std::string> ColumnHeaders;
     MatrixType matrix(xsize,ysize);
     matrix.Fill(0);
     unsigned int imagecount=0;
@@ -6690,6 +6698,8 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
 	      if (rowcoloption==1)
 		{  yy=tvoxct; }
 	      matrix[xx][yy]=image2->GetPixel(mIter.GetIndex());
+              std::string colname=std::string("V")+ants_to_string<unsigned int>(tvoxct);
+              ColumnHeaders.push_back( colname );
 	      tvoxct++;
 	    }
 	}
@@ -6701,6 +6711,7 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
     WriterType::Pointer writer = WriterType::New();
     writer->SetFileName( outname );
     writer->SetInput( &matrix );
+    writer->SetColumnHeaders( ColumnHeaders );
     try
     {
       writer->Write();
