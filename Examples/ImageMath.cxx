@@ -133,11 +133,18 @@ bool from_string(T& t,
   iss >> f >> t;
 
   // Check to see that there is nothing left over
-  if (!iss.eof()) return false;  
-   
+  if (!iss.eof()) return false;
+
   return true;
 }
 
+template<class T>
+std::string ants_to_string(T t)
+{
+  std::stringstream istream;
+  istream << t;
+  return istream.str();
+}
 
 std::string ANTSGetFilePrefix(const char *str){
 
@@ -1752,7 +1759,7 @@ int TimeSeriesToMatrix(int argc, char *argv[])
       std::string colname=std::string("V")+ants_to_string<unsigned int>(voxct);
       ColumnHeaders.push_back( colname );
       voxct++;
-      }// check mask 
+      }// check mask
     }
 
     // write out the array2D object
