@@ -2708,7 +2708,7 @@ int TensorFunctions(int argc, char *argv[])
     std::string fn1yz = fn1 + std::string( "yz" ) + extension;
     std::string fn1zz = fn1 + std::string( "zz" ) + extension;
 
-    ReadImage<ImageType>( xx, fn1xx.c_str() );
+    ReadImage<ImageType>( xx, fn1.c_str() );
     ReadImage<ImageType>( xy, fn1xy.c_str() );
     ReadImage<ImageType>( xz, fn1xz.c_str() );
     ReadImage<ImageType>( yy, fn1yy.c_str() );
@@ -2734,6 +2734,69 @@ int TensorFunctions(int argc, char *argv[])
       pix6[5] = zz->GetPixel( ind );
 
       tIter.Set( pix6 );
+      }
+    WriteTensorImage<TensorImageType>( timage, outname.c_str() ,false );
+    return 0;
+    }
+
+  if( strcmp(operation.c_str(), "ExtractComponentFrom3DTensor") == 0 )
+    {
+    ReadImage<TensorImageType>( timage, fn1.c_str() );
+
+    unsigned int which = 0;
+    if( argc > argct )
+      {
+      std::string component = std::string( argv[argct++] );
+      if( component.find( "xx" ) != std::string::npos )
+        {
+        which = 0;
+        }
+      else if( component.find( "xy" ) != std::string::npos )
+        {
+        which = 1;
+        }
+      else if( component.find( "xz" ) != std::string::npos )
+        {
+        which = 2;
+        }
+      else if( component.find( "yy" ) != std::string::npos )
+        {
+        which = 3;
+        }
+      else if( component.find( "yz" ) != std::string::npos )
+        {
+        which = 4;
+        }
+      else if( component.find( "zz" ) != std::string::npos )
+        {
+        which = 5;
+        }
+      else
+        {
+        std::cerr << "Unrecognized component.  Need to specify " <<
+          "xx, xy, xz, yy, yz, or zz";
+        return EXIT_FAILURE;
+        }
+      }
+    else
+      {
+      std::cerr << "Error:  need to specify component (xx, xy, xz, yy, yz, zz)";
+      return EXIT_FAILURE;
+      }
+
+    typename ImageType::Pointer componentImage = ImageType::New();
+    componentImage->CopyInformation( timage );
+    componentImage->SetRegions( timage->GetLargestPossibleRegion() );
+    componentImage->Allocate();
+    componentImage->FillBuffer( 0.0 );
+
+    Iterator tIter( timage, timage->GetLargestPossibleRegion() );
+    for( tIter.GoToBegin(); !tIter.IsAtEnd(); ++tIter )
+      {
+      typename TensorImageType::IndexType ind = tIter.GetIndex();
+      TensorType pix6 = tIter.Get();
+
+      componentImage->SetPixel( ind, pix6[which] );
       }
     WriteTensorImage<TensorImageType>( timage, outname.c_str() ,false );
     return 0;
@@ -7313,6 +7376,8 @@ int main(int argc, char *argv[])
     std::cout << "    Usage		: 4DTensorTo3DTensor 4D_DTImage.ext" << std::endl;
     std::cout << "  ComponentTo3DTensor	: Outputs a 3D_DT_Image with the same information as component images. " << std::endl;
     std::cout << "    Usage		: ComponentTo3DTensor component_image_prefix[xx,xy,xz,yy,yz,zz] extension" << std::endl;
+    std::cout << "  ExtractComponentFrom3DTensor	: Outputs a component images. " << std::endl;
+    std::cout << "    Usage		: ExtractComponentFrom3DTensor dtImage.ext which={xx,xy,xz,yy,yz,zz}" << std::endl;
     std::cout << "  ExtractVectorComponent: Produces the WhichVec component of the vector " << std::endl;
     std::cout << "    Usage		: ExtractVectorComponent VecImage WhichVec" << std::endl;
     std::cout << "  TensorColor		: Produces RGB values identifying principal directions " << std::endl;
@@ -7590,6 +7655,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"TensorFADenominator") == 0 )  TensorFunctions<3>(argc,argv);
      else if (strcmp(operation.c_str(),"4DTensorTo3DTensor") == 0 )  TensorFunctions<3>(argc,argv);
      else if (strcmp(operation.c_str(),"ComponentTo3DTensor") == 0 )  TensorFunctions<3>(argc,argv);
+     else if (strcmp(operation.c_str(),"ExtractComponentFrom3DTensor") == 0 )  TensorFunctions<3>(argc,argv);
      else if (strcmp(operation.c_str(),"TensorIOTest") == 0 )  TensorFunctions<3>(argc,argv);
      else if (strcmp(operation.c_str(),"TensorMeanDiffusion") == 0 )  TensorFunctions<3>(argc,argv);
      else if (strcmp(operation.c_str(),"TensorColor") == 0) TensorFunctions<3>(argc,argv);
