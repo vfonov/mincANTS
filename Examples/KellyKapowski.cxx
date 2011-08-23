@@ -59,12 +59,13 @@ void ConvertToLowerCase( std::string& str )
 // other compilers
 }
 
-template <unsigned int ImageDimension>
+template<unsigned int ImageDimension>
 int DiReCT( itk::ants::CommandLineParser *parser )
 {
-  typedef double RealType;
+  typedef float RealType;
+  typedef unsigned char LabelType;
 
-  typedef itk::Image<unsigned int, ImageDimension> LabelImageType;
+  typedef itk::Image<LabelType, ImageDimension> LabelImageType;
   typename LabelImageType::Pointer segmentationImage = NULL;
 
   typedef itk::Image<RealType, ImageDimension> ImageType;
@@ -108,12 +109,12 @@ int DiReCT( itk::ants::CommandLineParser *parser )
         segmentationImage->DisconnectPipeline();
         if( segmentationImageOption->GetNumberOfParameters() > 1 )
           {
-          direct->SetGrayMatterLabel( parser->Convert<unsigned int>(
+          direct->SetGrayMatterLabel( parser->Convert<LabelType>(
             segmentationImageOption->GetParameter( 1 ) ) );
           }
         if( segmentationImageOption->GetNumberOfParameters() > 2 )
           {
-          direct->SetWhiteMatterLabel( parser->Convert<unsigned int>(
+          direct->SetWhiteMatterLabel( parser->Convert<LabelType>(
             segmentationImageOption->GetParameter( 2 ) ) );
           }
         }
@@ -294,7 +295,8 @@ int DiReCT( itk::ants::CommandLineParser *parser )
     threadOption = parser->GetOption( "maximum-number-of-threads" );
   if( threadOption )
     {
-    unsigned int numThreads = parser->Convert<int>( debugOption->GetValue() );
+    unsigned int numThreads = parser->Convert<unsigned int>(
+      debugOption->GetValue() );
     direct->SetNumberOfThreads( numThreads );
     }
 
