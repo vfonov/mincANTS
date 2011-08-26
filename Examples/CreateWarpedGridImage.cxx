@@ -6,7 +6,7 @@
 #include "itkWarpImageMultiTransformFilter.h"
 #include "itkGridImageSource.h"
 
-template<class TValue> 
+template<class TValue>
 TValue Convert( std::string optionString )
 			{
 			TValue value;
@@ -20,7 +20,7 @@ std::vector<TValue> ConvertVector( std::string optionString )
 			{
 			std::vector<TValue> values;
 			std::string::size_type crosspos = optionString.find( 'x', 0 );
-			
+
 			if ( crosspos == std::string::npos )
 					{
 					values.push_back( Convert<TValue>( optionString ) );
@@ -31,7 +31,7 @@ std::vector<TValue> ConvertVector( std::string optionString )
 					TValue value;
 					std::istringstream iss( element );
 					iss >> value;
-					values.push_back( value );  
+					values.push_back( value );
 					while ( crosspos != std::string::npos )
 							{
 							std::string::size_type crossposfrom = crosspos;
@@ -46,15 +46,15 @@ std::vector<TValue> ConvertVector( std::string optionString )
 									}
 							std::istringstream iss( element );
 							iss >> value;
-							values.push_back( value );  
-							}           
-					}   
+							values.push_back( value );
+							}
+					}
 			return values;
 			}
 
 
 template <unsigned int ImageDimension>
-int CreateWarpedGridImage( int argc, char *argv[] )        
+int CreateWarpedGridImage( int argc, char *argv[] )
 {
 
   typedef float RealType;
@@ -69,7 +69,7 @@ int CreateWarpedGridImage( int argc, char *argv[] )
   typename ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[2] );
   reader->Update();
-  
+
   typedef itk::GridImageSource<RealImageType> GridSourceType;
   typename GridSourceType::Pointer gridder = GridSourceType::New();
   gridder->SetSpacing( reader->GetOutput()->GetSpacing() );
@@ -87,11 +87,11 @@ int CreateWarpedGridImage( int argc, char *argv[] )
 
   if( argc > 4 )
     {
-    std::vector<unsigned int> directions 
+    std::vector<unsigned int> directions
       = ConvertVector<unsigned int>( std::string( argv[4] ) );
     if( directions.size() != ImageDimension )
       {
-      std::cerr << "Incorrect direction size." << std::endl; 
+      std::cerr << "Incorrect direction size." << std::endl;
       return EXIT_FAILURE;
       }
     else
@@ -100,9 +100,9 @@ int CreateWarpedGridImage( int argc, char *argv[] )
         {
         which[i] = static_cast<bool>( directions[i] );
         }
-      }    
+      }
     }
-    
+
   for ( unsigned int i = 0; i < ImageDimension; i++ )
     {
     gridSpacing[i] = reader->GetOutput()->GetLargestPossibleRegion().GetSize()[i]
@@ -111,11 +111,11 @@ int CreateWarpedGridImage( int argc, char *argv[] )
     }
   if( argc > 5 )
     {
-    std::vector<RealType> spacing 
+    std::vector<RealType> spacing
       = ConvertVector<RealType>( std::string( argv[5] ) );
     if( spacing.size() != ImageDimension )
       {
-      std::cerr << "Incorrect spacing size." << std::endl; 
+      std::cerr << "Incorrect spacing size." << std::endl;
       return EXIT_FAILURE;
       }
     else
@@ -125,7 +125,7 @@ int CreateWarpedGridImage( int argc, char *argv[] )
         gridSpacing[i] = spacing[i];
         gridSigma[i] = gridSpacing[i]/10.0;
         }
-      }    
+      }
     }
   if( argc > 6 )
     {
@@ -133,7 +133,7 @@ int CreateWarpedGridImage( int argc, char *argv[] )
       = ConvertVector<RealType>( std::string( argv[6] ) );
     if( sigma.size() != ImageDimension )
       {
-      std::cerr << "Incorrect sigma size." << std::endl; 
+      std::cerr << "Incorrect sigma size." << std::endl;
       return EXIT_FAILURE;
       }
     else
@@ -142,31 +142,31 @@ int CreateWarpedGridImage( int argc, char *argv[] )
         {
         gridSigma[i] = sigma[i]/10.0;
         }
-      }    
+      }
     }
-    
+
   gridder->SetGridSpacing( gridSpacing );
   gridder->SetSigma( gridSigma );
   gridder->SetWhichDimensions( which );
-  gridder->Update(); 
+  gridder->Update();
   typename RealImageType::Pointer grid=gridder->GetOutput();
   grid->SetDirection(reader->GetOutput()->GetDirection());
   grid->SetOrigin(reader->GetOutput()->GetOrigin());
   grid->SetSpacing(reader->GetOutput()->GetSpacing());
 
-    typedef itk::MatrixOffsetTransformBase< double, ImageDimension, ImageDimension > TransformType;    
+    typedef itk::MatrixOffsetTransformBase< double, ImageDimension, ImageDimension > TransformType;
     typedef itk::WarpImageMultiTransformFilter<RealImageType,RealImageType, VectorImageType, TransformType> WarperType;
     typename WarperType::Pointer  warper = WarperType::New();
     warper->SetInput(grid);
-    warper->SetEdgePaddingValue( 0); 
+    warper->SetEdgePaddingValue( 0);
     warper->SetSmoothScale(1);
-    warper->PushBackDeformationFieldTransform(reader->GetOutput()); 
+    warper->PushBackDisplacementFieldTransform(reader->GetOutput());
     warper->SetOutputOrigin(reader->GetOutput()->GetOrigin());
     warper->SetOutputSize(reader->GetOutput()->GetLargestPossibleRegion().GetSize());
     warper->SetOutputSpacing(reader->GetOutput()->GetSpacing());
     warper->SetOutputDirection(reader->GetOutput()->GetDirection());
     warper->Update();
-  
+
   std::string file = std::string( argv[3] );
   typedef itk::ImageFileWriter<RealImageType> ImageWriterType;
   typename ImageWriterType::Pointer gridWriter = ImageWriterType::New();
@@ -182,12 +182,12 @@ int main( int argc, char *argv[] )
   if ( argc < 4 )
     {
     std::cout << "Usage: " << argv[0] << " ImageDimension deformationField "
-      << "outputImage [directions,e.g. 1x0x0] [gridSpacing] [gridSigma]" 
+      << "outputImage [directions,e.g. 1x0x0] [gridSpacing] [gridSigma]"
       << std::endl;
     exit( 1 );
     }
 
-  switch( atoi( argv[1] ) ) 
+  switch( atoi( argv[1] ) )
    {
    case 2:
      CreateWarpedGridImage<2>( argc, argv );

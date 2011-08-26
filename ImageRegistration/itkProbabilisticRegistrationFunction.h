@@ -7,11 +7,11 @@
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -34,8 +34,8 @@ namespace itk {
 /**
  * \class ProbabilisticRegistrationFunction
  *
- * This class encapsulate the PDE which drives the demons registration 
- * algorithm. It is used by ProbabilisticRegistrationFilter to compute the 
+ * This class encapsulate the PDE which drives the demons registration
+ * algorithm. It is used by ProbabilisticRegistrationFilter to compute the
  * output deformation field which will map a moving image onto a
  * a fixed image.
  *
@@ -54,16 +54,16 @@ namespace itk {
  * \sa ProbabilisticRegistrationFilter
  * \ingroup FiniteDifferenceFunctions
  */
-template<class TFixedImage, class TMovingImage, class TDeformationField>
-class ITK_EXPORT ProbabilisticRegistrationFunction : 
+template<class TFixedImage, class TMovingImage, class TDisplacementField>
+class ITK_EXPORT ProbabilisticRegistrationFunction :
   public AvantsPDEDeformableRegistrationFunction< TFixedImage,
-    TMovingImage, TDeformationField>
+    TMovingImage, TDisplacementField>
 {
 public:
   /** Standard class typedefs. */
   typedef ProbabilisticRegistrationFunction    Self;
   typedef AvantsPDEDeformableRegistrationFunction< TFixedImage,
-    TMovingImage, TDeformationField >    Superclass;
+    TMovingImage, TDisplacementField >    Superclass;
   typedef SmartPointer<Self> Pointer;
   typedef SmartPointer<const Self> ConstPointer;
 
@@ -71,7 +71,7 @@ public:
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( ProbabilisticRegistrationFunction, 
+  itkTypeMacro( ProbabilisticRegistrationFunction,
     AvantsPDEDeformableRegistrationFunction );
 
   /** MovingImage image type. */
@@ -85,20 +85,20 @@ public:
   typedef typename Superclass::FixedImagePointer  FixedImagePointer;
   typedef typename FixedImageType::IndexType      IndexType;
   typedef typename FixedImageType::SizeType       SizeType;
-  
+
   /** Deformation field type. */
-  typedef typename Superclass::DeformationFieldType    DeformationFieldType;
-  typedef typename Superclass::DeformationFieldTypePointer   
-    DeformationFieldTypePointer;
-  typedef typename TDeformationField::PixelType VectorType;
-  
+  typedef typename Superclass::DisplacementFieldType    DisplacementFieldType;
+  typedef typename Superclass::DisplacementFieldTypePointer
+    DisplacementFieldTypePointer;
+  typedef typename TDisplacementField::PixelType VectorType;
+
   typedef CovariantVector<float,
           itkGetStaticConstMacro(ImageDimension)> GradientPixelType;
   typedef Image<GradientPixelType,
                itkGetStaticConstMacro(ImageDimension)> GradientImageType;
   typedef SmartPointer<GradientImageType>     GradientImagePointer;
-  typedef GradientRecursiveGaussianImageFilter< MetricImageType,GradientImageType > 
-          GradientImageFilterType;   
+  typedef GradientRecursiveGaussianImageFilter< MetricImageType,GradientImageType >
+          GradientImageFilterType;
   typedef typename GradientImageFilterType::Pointer GradientImageFilterPointer;
   typedef Image<float,itkGetStaticConstMacro(ImageDimension)> BinaryImageType;
   typedef typename BinaryImageType::Pointer BinaryImagePointer;
@@ -137,10 +137,10 @@ public:
   InterpolatorType * GetMovingImageInterpolator(void)
     { return m_MovingImageInterpolator; }
 
-  typename TDeformationField::PixelType ComputeMetricAtPairB(IndexType fixedindex,
-    typename TDeformationField::PixelType vec );
-  typename TDeformationField::PixelType ComputeMetricAtPairC(IndexType fixedindex,
-    typename TDeformationField::PixelType vec );
+  typename TDisplacementField::PixelType ComputeMetricAtPairB(IndexType fixedindex,
+    typename TDisplacementField::PixelType vec );
+  typename TDisplacementField::PixelType ComputeMetricAtPairC(IndexType fixedindex,
+    typename TDisplacementField::PixelType vec );
 
   /** This class uses a constant timestep of 1. */
   virtual TimeStepType ComputeGlobalTimeStep(void *GlobalData) const
@@ -192,8 +192,8 @@ public:
   virtual VectorType  OpticalFlowUpdate(const NeighborhoodType &neighborhood)
   {
   // Get fixed image related information
-  IndexType index=neighborhood.GetIndex();    
-  typename TDeformationField::PixelType vec = Superclass::m_DeformationField->GetPixel(index);
+  IndexType index=neighborhood.GetIndex();
+  typename TDisplacementField::PixelType vec = Superclass::m_DisplacementField->GetPixel(index);
   VectorType update;
   update.Fill(0.0);
   double fixedValue;
@@ -205,13 +205,13 @@ public:
   for( j = 0; j < ImageDimension; j++ )
     {
     fixedGradientSquaredMagnitude += vnl_math_sqr( fixedGradient[j] );
-    } 
+    }
   double movingValue;
-  
+
   PointType mappedPoint;
   for( j = 0; j < ImageDimension; j++ )
     {
-    mappedPoint[j] = double( index[j] ) * m_FixedImageSpacing[j] + 
+    mappedPoint[j] = double( index[j] ) * m_FixedImageSpacing[j] +
       m_FixedImageOrigin[j];
     mappedPoint[j] += vec[j];
     }
@@ -229,11 +229,11 @@ public:
     }
   double speedValue = fixedValue - movingValue;
   if (fabs(speedValue) < this->m_RobustnessParameter) speedValue=0;
-  double denominator = vnl_math_sqr( speedValue ) / m_Normalizer + 
+  double denominator = vnl_math_sqr( speedValue ) / m_Normalizer +
     fixedGradientSquaredMagnitude;
   double m_DenominatorThreshold = 1e-9;
-  double m_IntensityDifferenceThreshold = 0.001;  
-  if ( vnl_math_abs(speedValue) < m_IntensityDifferenceThreshold || 
+  double m_IntensityDifferenceThreshold = 0.001;
+  if ( vnl_math_abs(speedValue) < m_IntensityDifferenceThreshold ||
        denominator < m_DenominatorThreshold )
     {
     for( j = 0; j < ImageDimension; j++ )
@@ -247,7 +247,7 @@ public:
     update[j] = speedValue * fixedGradient[j] / denominator;
     }
     return update;
-  }			 
+  }
 
 
   void SetFixedImageMask( MetricImageType* img) {m_FixedImageMask=img; }
@@ -257,31 +257,31 @@ public:
                                    const FloatOffsetType &offset = FloatOffsetType(0.0))
   {
     VectorType update;
-    update.Fill(0.0);  
+    update.Fill(0.0);
     IndexType oindex = neighborhood.GetIndex();
-    FixedImageType* img =const_cast<FixedImageType *>(Superclass::m_FixedImage.GetPointer()); 
+    FixedImageType* img =const_cast<FixedImageType *>(Superclass::m_FixedImage.GetPointer());
     if (!img) return update;
     update=this->ComputeMetricAtPairB(oindex,update);
-   
+
     return update;
 
   }
-	
+
   virtual VectorType ComputeUpdateInv(const NeighborhoodType &neighborhood,
                                    void *globalData,
                                    const FloatOffsetType &offset = FloatOffsetType(0.0))
   {
     VectorType update;
-    update.Fill(0.0);  
+    update.Fill(0.0);
     IndexType oindex = neighborhood.GetIndex();
-    FixedImageType* img =const_cast<FixedImageType *>(Superclass::m_FixedImage.GetPointer()); 
+    FixedImageType* img =const_cast<FixedImageType *>(Superclass::m_FixedImage.GetPointer());
     if (!img) return update;
     update=this->ComputeMetricAtPairC(oindex,update);
-   
+
     return update;
 
   }
-	
+
 
   void SetFullyRobust(bool b){m_FullyRobust=b;}
   void GetProbabilities();
@@ -303,31 +303,31 @@ protected:
    FixedImageNeighborhoodIteratorType   m_FixedImageIterator;
    };
 
-  MetricImagePointer MakeImage() 
+  MetricImagePointer MakeImage()
   {
     typedef ImageRegionIteratorWithIndex<MetricImageType> ittype;
     typedef ImageRegionIteratorWithIndex<BinaryImageType> ittype2;
-    FixedImageType* img =const_cast<FixedImageType *>(Superclass::m_FixedImage.GetPointer()); 
+    FixedImageType* img =const_cast<FixedImageType *>(Superclass::m_FixedImage.GetPointer());
     typename FixedImageType::SizeType imagesize=img->GetLargestPossibleRegion().GetSize();
-    
+
       this->m_MetricImage = MetricImageType::New();
       this->m_MetricImage->SetLargestPossibleRegion(img->GetLargestPossibleRegion()  );
       this->m_MetricImage->SetBufferedRegion(img->GetLargestPossibleRegion());
       this->m_MetricImage->SetSpacing(img->GetSpacing());
       this->m_MetricImage->SetOrigin(img->GetOrigin());
-      this->m_MetricImage->Allocate();   
-      this->m_MetricImage->FillBuffer(0);   
-    
+      this->m_MetricImage->Allocate();
+      this->m_MetricImage->FillBuffer(0);
+
     bool makebinimg=false;
     if (makebinimg)
-      { 
+      {
 	m_Iteration=0;
 	binaryimage = BinaryImageType::New();
 	binaryimage->SetLargestPossibleRegion(img->GetLargestPossibleRegion()  );
 	binaryimage->SetBufferedRegion(img->GetLargestPossibleRegion());
 	binaryimage->SetSpacing(img->GetSpacing());
 	binaryimage->SetOrigin(img->GetOrigin());
-	binaryimage->Allocate();   
+	binaryimage->Allocate();
 	ittype2 it(binaryimage,binaryimage->GetLargestPossibleRegion().GetSize());
 	for( it.GoToBegin(); !it.IsAtEnd(); ++it ) it.Set(1);
       }
@@ -338,7 +338,7 @@ protected:
 private:
   ProbabilisticRegistrationFunction(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
-  
+
   /** Cache fixed image information. */
   typename TFixedImage::SpacingType                  m_FixedImageSpacing;
   typename TFixedImage::PointType                  m_FixedImageOrigin;
@@ -365,7 +365,7 @@ private:
   mutable float                    m_MaxMag;
   mutable float                    m_AvgMag;
   mutable float                    m_Thresh;
-  
+
   GradientImagePointer             m_MetricGradientImage;
 
 
@@ -376,7 +376,7 @@ private:
   MetricImagePointer m_FixedImageMask;
   MetricImagePointer m_MovingImageMask;
 
-  typedef itk::AvantsMutualInformationRegistrationFunction<FixedImageType,MovingImageType,DeformationFieldType> MetricType2;
+  typedef itk::AvantsMutualInformationRegistrationFunction<FixedImageType,MovingImageType,DisplacementFieldType> MetricType2;
   typename MetricType2::Pointer m_MIFunct;
   unsigned int m_NumberOfHistogramBins;
   bool m_FullyRobust;

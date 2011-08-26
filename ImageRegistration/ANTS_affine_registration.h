@@ -40,33 +40,33 @@ template<class TransformPointerType, class StringType>
 void write_transform_file(TransformPointerType &transform, StringType str);
 
 template<class ImagePointerType, class MaskImagePointerType, class TransformPointerType>
-void compute_single_affine_transform_3d(ImagePointerType I_fixed, ImagePointerType I_moving, MaskImagePointerType mask_fixed, 
+void compute_single_affine_transform_3d(ImagePointerType I_fixed, ImagePointerType I_moving, MaskImagePointerType mask_fixed,
         TransformPointerType &transform, TransformPointerType &transform_initial);
 
 template<class ImagePointerType, class MaskImagePointerType, class TransformPointerType>
-void compute_single_affine_transform_2d(ImagePointerType I_fixed, ImagePointerType I_moving, MaskImagePointerType mask_fixed, 
+void compute_single_affine_transform_2d(ImagePointerType I_fixed, ImagePointerType I_moving, MaskImagePointerType mask_fixed,
         TransformPointerType &transform, TransformPointerType &transform_initial);
 
 template<class ImagePointerType, class MaskImagePointerType, class TransformPointerType>
-void compute_single_affine_transform(ImagePointerType fixedImage, ImagePointerType movingImage, MaskImagePointerType maskImage, 
+void compute_single_affine_transform(ImagePointerType fixedImage, ImagePointerType movingImage, MaskImagePointerType maskImage,
         TransformPointerType &transform, TransformPointerType &transform_initial);
 
-//void compute_single_affine_transform_2d(itk::Image<float, 2>::Pointer I_fixed, 
-//        itk::Image<float, 2>::Pointer I_moving, 
-//        itk::Image<float, 2>::Pointer mask_fixed, 
+//void compute_single_affine_transform_2d(itk::Image<float, 2>::Pointer I_fixed,
+//        itk::Image<float, 2>::Pointer I_moving,
+//        itk::Image<float, 2>::Pointer mask_fixed,
 //        itk::CenteredAffine2DTransform<double>::Pointer &transform);
-template<class DeformationFieldPointerType>
-void create_deformation_field_byref(const DeformationFieldPointerType &ref, DeformationFieldPointerType &field);
+template<class DisplacementFieldPointerType>
+void create_deformation_field_byref(const DisplacementFieldPointerType &ref, DisplacementFieldPointerType &field);
 
 // this is obsolet, use itkWarpImageWAffineFilter
-template<class TransformPointerType, class DeformationFieldPointerType>
-void compose_affine_with_field(const TransformPointerType &aff, const DeformationFieldPointerType &field, DeformationFieldPointerType &field_output);
+template<class TransformPointerType, class DisplacementFieldPointerType>
+void compose_affine_with_field(const TransformPointerType &aff, const DisplacementFieldPointerType &field, DisplacementFieldPointerType &field_output);
 
-template<class ImagePointerType, class DeformationFieldPointerType>
-void warp_image_field(const ImagePointerType &img_input, const DeformationFieldPointerType &field, ImagePointerType &img_output);
+template<class ImagePointerType, class DisplacementFieldPointerType>
+void warp_image_field(const ImagePointerType &img_input, const DisplacementFieldPointerType &field, ImagePointerType &img_output);
 
-template<class ImagePointerType, class TransformPointerType, class DeformationFieldPointerType>
-void warp_image_field_waffine(const ImagePointerType &img_input, const TransformPointerType &aff, const DeformationFieldPointerType &field, ImagePointerType &img_output);
+template<class ImagePointerType, class TransformPointerType, class DisplacementFieldPointerType>
+void warp_image_field_waffine(const ImagePointerType &img_input, const TransformPointerType &aff, const DisplacementFieldPointerType &field, ImagePointerType &img_output);
 
 template<class ImageTypePointer, class RefImageTypePointer, class TransformTypePointer>
 void affine_image(const ImageTypePointer &input_image, const TransformTypePointer &transform, const RefImageTypePointer &ref_image, ImageTypePointer &img_aff );
@@ -85,7 +85,7 @@ void write_transform_file(TransformPointerType &transform, StringType filename){
         transform_writer->Update();
     }
     catch( itk::ExceptionObject &err){
-        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl 
+        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
         <<"Exception in writing tranform file: " << std::endl
         << filename << std::endl;
         return;
@@ -114,7 +114,7 @@ void read_transform_file(StringType filename, CastTransformPointerType &transfor
     }
     catch( itk::ExceptionObject &err) {
         std::cerr << err << std::endl;
-        std::cerr << "Exception caught in reading tran para file: " 
+        std::cerr << "Exception caught in reading tran para file: "
         << filename << std::endl;
         return;
     }
@@ -127,8 +127,8 @@ void read_transform_file(StringType filename, CastTransformPointerType &transfor
 
 
 
-template<class TransformPointerType, class DeformationFieldType>
-void convert_affine_para_to_deformation_field(TransformPointerType &transform, DeformationFieldType &def){
+template<class TransformPointerType, class DisplacementFieldType>
+void convert_affine_para_to_deformation_field(TransformPointerType &transform, DisplacementFieldType &def){
     return;
 }
 
@@ -140,7 +140,7 @@ public:
     ParaType para1; // local optimal parameter
     itk::Point<double, Dimension> center; // transformation center
     double rval;  // registered value
-    unsigned int index; // the index in the list, //for sorting 
+    unsigned int index; // the index in the list, //for sorting
     int number_of_iteration; // the number of iteration used for gradient descent
 };
 
@@ -165,16 +165,16 @@ bool register_image_cxyz(ImagePointerType fixed_image, ImagePointerType moving_i
 
 // use an optional mask for the fixed image
 template<class ImagePointerType, class ImageMaskSpatialObjectPointerType, class ParaType>
-bool register_image_affine3d_mres_mask(ImagePointerType fixed_image, 
-        ImagePointerType moving_image, 
+bool register_image_affine3d_mres_mask(ImagePointerType fixed_image,
+        ImagePointerType moving_image,
         ImageMaskSpatialObjectPointerType mask_fixed_object,
         ParaType para0, itk::Point<double,3> center, int number_of_iteration,
         int MI_bins, int MI_samples,
         ParaType &para1, double &rval);
 
 template<class ImagePointerType, class ImageMaskSpatialObjectPointerType, class ParaType>
-bool register_image_affine2d_mres_mask(ImagePointerType fixed_image, 
-        ImagePointerType moving_image, 
+bool register_image_affine2d_mres_mask(ImagePointerType fixed_image,
+        ImagePointerType moving_image,
         ImageMaskSpatialObjectPointerType mask_fixed_object,
         ParaType para0, itk::Point<double,2> center, int number_of_iteration,
         int MI_bins, int MI_samples,
@@ -195,7 +195,7 @@ bool compare_search_point(const SEARCH_POINT& lhs, const SEARCH_POINT& rhs){
 
 
 template<class ImagePointerType, class MaskImagePointerType, class TransformPointerType>
-void compute_single_affine_transform_3d(ImagePointerType I_fixed, ImagePointerType I_moving, MaskImagePointerType mask_fixed, 
+void compute_single_affine_transform_3d(ImagePointerType I_fixed, ImagePointerType I_moving, MaskImagePointerType mask_fixed,
         TransformPointerType &transform, TransformPointerType &transform_initial){
 
     typedef typename ImagePointerType::ObjectType ImageType;
@@ -212,7 +212,7 @@ void compute_single_affine_transform_3d(ImagePointerType I_fixed, ImagePointerTy
 
     // option parameters
     int number_of_seeds = 0;
-    int number_of_iteration = 10000;  
+    int number_of_iteration = 10000;
     int MI_bins = 32;
     int MI_samples = 6000;
     unsigned int time_seed = (unsigned int) time(NULL) ;
@@ -297,7 +297,7 @@ void compute_single_affine_transform_3d(ImagePointerType I_fixed, ImagePointerTy
                 para0[4] = 1.0; para0[5] = 1.0;   para0[6] = 1.0;
                 para0[7] = 0.0;  para0[8] = 0.0;     para0[9] = 0.0;
                 para0[10] = 0.0; para0[11] = 0.0;   para0[12] = 0.0;
-            } 
+            }
             else { // use input as intial
                 for(unsigned int i=0; i<transform_initial->GetParameters().Size(); i++){
                     para0[i] = transform_initial->GetParameters()[i];
@@ -383,7 +383,7 @@ void generate_search_seed_3d(SEARCH_LIST &search_list, ParaType &para){
     bool b_found = 0;
     double s1, s2, s3, k1, k2, k3 = 0;
     double a=0; // rotation alpha
-    double u=0, v=0, w=0; // rotation axis 
+    double u=0, v=0, w=0; // rotation axis
 
     // ParaType para(13);
 
@@ -601,9 +601,9 @@ bool register_image_cxy(ImagePointerType fixed_image, ImagePointerType moving_im
     typename TransformType_Rigid2D::Pointer  transform = TransformType_Rigid2D::New();
 
 
-    typedef itk::CenteredTransformInitializer< 
-    TransformType_Rigid2D, 
-    ImageType, 
+    typedef itk::CenteredTransformInitializer<
+    TransformType_Rigid2D,
+    ImageType,
     ImageType >  TransformInitializerType;
 
     typename TransformInitializerType::Pointer initializer = TransformInitializerType::New();
@@ -644,9 +644,9 @@ bool register_image_cxyz(ImagePointerType fixed_image, ImagePointerType moving_i
 
     TransformType_Euler3D::Pointer transform = TransformType_Euler3D::New();
 
-    typedef itk::CenteredTransformInitializer< 
-    TransformType_Euler3D, 
-    ImageType, 
+    typedef itk::CenteredTransformInitializer<
+    TransformType_Euler3D,
+    ImageType,
     ImageType >  TransformInitializerType;
 
     typename TransformInitializerType::Pointer initializer = TransformInitializerType::New();
@@ -676,8 +676,8 @@ bool register_image_cxyz(ImagePointerType fixed_image, ImagePointerType moving_i
 }
 
 template<class ImagePointerType, class ImageMaskSpatialObjectPointerType, class ParaType>
-bool register_image_affine3d_mres_mask(ImagePointerType fixed_image, 
-        ImagePointerType moving_image, 
+bool register_image_affine3d_mres_mask(ImagePointerType fixed_image,
+        ImagePointerType moving_image,
         ImageMaskSpatialObjectPointerType mask_fixed_object,
         ParaType para0, itk::Point<double,3> center, int number_of_iteration,
         int MI_bins, int MI_samples,
@@ -753,7 +753,7 @@ bool register_image_affine3d_mres_mask(ImagePointerType fixed_image,
     optimizerScales_a[12] = translationScale;
     optimizer->SetScales( optimizerScales_a );
 
-    optimizer->SetMaximumStepLength(0.1);  
+    optimizer->SetMaximumStepLength(0.1);
     optimizer->SetMinimumStepLength( 1.e-5 );
     //  optimizer->SetNumberOfIterations( 1000 );
     //  optimizer->SetNumberOfIterations( 500 );
@@ -794,20 +794,20 @@ bool register_image_affine3d_mres_mask(ImagePointerType fixed_image,
     // rval = metric->GetValue(para0);
 
     bool bsuc = 1;
-    try 
-    { 
-        registration->StartRegistration(); 
-    } 
-    catch( itk::ExceptionObject & err ) 
-    { 
-        std::cerr << "ExceptionObject caught !" << std::endl; 
-        std::cerr << err << std::endl; 
+    try
+    {
+        registration->StartRegistration();
+    }
+    catch( itk::ExceptionObject & err )
+    {
+        std::cerr << "ExceptionObject caught !" << std::endl;
+        std::cerr << err << std::endl;
         bsuc = 0;
         // exit(-1);
-    } 
+    }
 
     if (bsuc){
-        // OptimizerType::ParametersType 
+        // OptimizerType::ParametersType
         // finalParameters = registration->GetLastTransformParameters();
         para1 = registration->GetLastTransformParameters();
         //  para1 = finalParameters;
@@ -815,14 +815,14 @@ bool register_image_affine3d_mres_mask(ImagePointerType fixed_image,
         // rval = metric->GetValue(para1);
         // rval = registration->GetMetric()->GetValue(para1);
 
-        rval = get_cost_value_mmi(fixed_image, moving_image, para1, center, transform_a);  
+        rval = get_cost_value_mmi(fixed_image, moving_image, para1, center, transform_a);
         // double rval2 = optimizer->GetValue();
         // std::cout << "measure value: rval2 = " << rval2 << std::endl;
     }
     else{
         // register failed
         para1 = para0; // registration->GetLastTransformParameters();
-        rval = get_cost_value_mmi(fixed_image, moving_image, para1, center, transform_a);  
+        rval = get_cost_value_mmi(fixed_image, moving_image, para1, center, transform_a);
     }
 
 
@@ -841,8 +841,8 @@ bool register_image_affine3d_mres_mask(ImagePointerType fixed_image,
 
 
 template<class ImagePointerType, class ImageMaskSpatialObjectPointerType, class ParaType>
-bool register_image_affine2d_mres_mask(ImagePointerType fixed_image, 
-        ImagePointerType moving_image, 
+bool register_image_affine2d_mres_mask(ImagePointerType fixed_image,
+        ImagePointerType moving_image,
         ImageMaskSpatialObjectPointerType mask_fixed_object,
         ParaType para0, itk::Point<double,2> center, int number_of_iteration,
         int MI_bins, int MI_samples,
@@ -915,7 +915,7 @@ bool register_image_affine2d_mres_mask(ImagePointerType fixed_image,
     optimizerScales_a[7] = translationScale;
     optimizer->SetScales( optimizerScales_a );
 
-    optimizer->SetMaximumStepLength( 0.1    ); 
+    optimizer->SetMaximumStepLength( 0.1    );
     optimizer->SetMinimumStepLength( 0.01 );
     optimizer->SetNumberOfIterations( number_of_iteration );
     optimizer->MinimizeOn();
@@ -955,20 +955,20 @@ bool register_image_affine2d_mres_mask(ImagePointerType fixed_image,
     // rval = metric->GetValue(para0);
 
     bool bsuc = 1;
-    try 
-    { 
-        registration->StartRegistration(); 
-    } 
-    catch( itk::ExceptionObject & err ) 
-    { 
-        std::cerr << "ExceptionObject caught !" << std::endl; 
-        std::cerr << err << std::endl; 
+    try
+    {
+        registration->StartRegistration();
+    }
+    catch( itk::ExceptionObject & err )
+    {
+        std::cerr << "ExceptionObject caught !" << std::endl;
+        std::cerr << err << std::endl;
         bsuc = 0;
         // exit(-1);
-    } 
+    }
 
     if (bsuc){
-        // OptimizerType::ParametersType 
+        // OptimizerType::ParametersType
         // finalParameters = registration->GetLastTransformParameters();
         para1 = registration->GetLastTransformParameters();
         //  para1 = finalParameters;
@@ -976,14 +976,14 @@ bool register_image_affine2d_mres_mask(ImagePointerType fixed_image,
         // rval = metric->GetValue(para1);
         // rval = registration->GetMetric()->GetValue(para1);
 
-        rval = get_cost_value_mmi(fixed_image, moving_image, para1, center, transform_a);  
+        rval = get_cost_value_mmi(fixed_image, moving_image, para1, center, transform_a);
         // double rval2 = optimizer->GetValue();
         // std::cout << "measure value: rval2 = " << rval2 << std::endl;
     }
     else{
         // register failed
         para1 = para0; // registration->GetLastTransformParameters();
-        rval = get_cost_value_mmi(fixed_image, moving_image, para1, center, transform_a);  
+        rval = get_cost_value_mmi(fixed_image, moving_image, para1, center, transform_a);
     }
 
 
@@ -1001,7 +1001,7 @@ bool register_image_affine2d_mres_mask(ImagePointerType fixed_image,
 
 
 template<class ImagePointerType, class MaskImagePointerType, class TransformPointerType>
-void compute_single_affine_transform_2d(ImagePointerType I_fixed, ImagePointerType I_moving, MaskImagePointerType mask_fixed, 
+void compute_single_affine_transform_2d(ImagePointerType I_fixed, ImagePointerType I_moving, MaskImagePointerType mask_fixed,
         TransformPointerType &transform, TransformPointerType &transform_initial){
 
 
@@ -1018,7 +1018,7 @@ void compute_single_affine_transform_2d(ImagePointerType I_fixed, ImagePointerTy
 
     // option parameters
     int number_of_seeds = 0;
-    int number_of_iteration = 500;  
+    int number_of_iteration = 500;
     int MI_bins = 32;
     int MI_samples = 6000;
     unsigned int time_seed = (unsigned int) time(NULL) ;
@@ -1088,7 +1088,7 @@ void compute_single_affine_transform_2d(ImagePointerType I_fixed, ImagePointerTy
 
         center[0] = para_cxy[1];
         center[1] = para_cxy[2];
-        
+
         std::cout << "is_ok=" << is_ok << "para_cxy:" << para_cxy << std::endl;
     }
     else {
@@ -1113,7 +1113,7 @@ void compute_single_affine_transform_2d(ImagePointerType I_fixed, ImagePointerTy
                 para0[5] = center[1]; // para1[2]; //c2
                 para0[6] = para_cxy[3]; // 0;//para1[3]; //t1
                 para0[7] = para_cxy[4]; //0; //para1[4]; //t2
-                
+
                 std::cout << "ABC: " << std::endl;
             }
             else {
@@ -1129,7 +1129,7 @@ void compute_single_affine_transform_2d(ImagePointerType I_fixed, ImagePointerTy
         }
 
         // main registration using affine transform
-        is_ok = register_image_affine2d_mres_mask(I_fixed, I_moving, mask_fixed_object, para0, 
+        is_ok = register_image_affine2d_mres_mask(I_fixed, I_moving, mask_fixed_object, para0,
                 center, number_of_iteration, MI_bins, MI_samples, para1, rval);
         if (!is_ok){
             std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
@@ -1178,7 +1178,7 @@ void compute_single_affine_transform_2d(ImagePointerType I_fixed, ImagePointerTy
 }
 
 template<class ImagePointerType, class MaskImagePointerType, class TransformPointerType>
-void compute_single_affine_transform(ImagePointerType fixedImage, ImagePointerType movingImage, MaskImagePointerType maskImage, 
+void compute_single_affine_transform(ImagePointerType fixedImage, ImagePointerType movingImage, MaskImagePointerType maskImage,
         TransformPointerType &transform, TransformPointerType &transform_initial){
 
     typedef typename ImagePointerType::ObjectType ImageType;
@@ -1189,21 +1189,21 @@ void compute_single_affine_transform(ImagePointerType fixedImage, ImagePointerTy
     typedef typename TransformPointerType::ObjectType TransformType;
 
     std::cout << "transform_initial: IsNotNull():" << transform_initial.IsNotNull() << std::endl;
-    
-    
+
+
     if (ImageDimension==2) {
         typedef itk::ANTSCenteredAffine2DTransform<double> RunningAffineTransformType;
         RunningAffineTransformType::Pointer transform_running = RunningAffineTransformType::New();
         RunningAffineTransformType::Pointer transform_running_initial; // = RunningAffineTransformType::New();
 
         std::cout << "1: transform_running_initial: IsNotNull():" << transform_running_initial.IsNotNull() << std::endl;
-        
+
         if (transform_initial.IsNotNull()) {
-            transform_running_initial->SetCenter(*(reinterpret_cast<typename RunningAffineTransformType::InputPointType *> 
+            transform_running_initial->SetCenter(*(reinterpret_cast<typename RunningAffineTransformType::InputPointType *>
             (const_cast<typename TransformType::InputPointType*> (&(transform_initial->GetCenter())))));
-            transform_running_initial->SetMatrix(*(reinterpret_cast<typename RunningAffineTransformType::MatrixType *> 
+            transform_running_initial->SetMatrix(*(reinterpret_cast<typename RunningAffineTransformType::MatrixType *>
             (const_cast<typename TransformType::MatrixType*> (&(transform_initial->GetMatrix())))));
-            transform_running_initial->SetTranslation(*(reinterpret_cast<typename RunningAffineTransformType::OutputVectorType *> 
+            transform_running_initial->SetTranslation(*(reinterpret_cast<typename RunningAffineTransformType::OutputVectorType *>
             (const_cast<typename TransformType::OutputVectorType*> (&(transform_initial->GetTranslation())))));
         }
 
@@ -1213,17 +1213,17 @@ void compute_single_affine_transform(ImagePointerType fixedImage, ImagePointerTy
         R_ImagePointerType & R_fixedImage = reinterpret_cast<R_ImagePointerType &> (fixedImage);
         R_ImagePointerType & R_movingImage = reinterpret_cast<R_ImagePointerType &> (movingImage);
         R_ImagePointerType & R_maskImage = reinterpret_cast<R_ImagePointerType &> (maskImage);
-        
-        std::cout << "2: transform_running_initial: IsNotNull():" << transform_running_initial.IsNotNull() << std::endl;     
-        
+
+        std::cout << "2: transform_running_initial: IsNotNull():" << transform_running_initial.IsNotNull() << std::endl;
+
         compute_single_affine_transform_2d(R_fixedImage, R_movingImage, R_maskImage, transform_running, transform_running_initial);
 
         //TODO:
-        transform->SetCenter(*(reinterpret_cast<typename TransformType::InputPointType *> 
+        transform->SetCenter(*(reinterpret_cast<typename TransformType::InputPointType *>
         (const_cast<typename RunningAffineTransformType::InputPointType*> (&(transform_running->GetCenter())))));
-        transform->SetTranslation(*(reinterpret_cast<typename TransformType::OutputVectorType *> 
+        transform->SetTranslation(*(reinterpret_cast<typename TransformType::OutputVectorType *>
         (const_cast<typename RunningAffineTransformType::OutputVectorType*> (&(transform_running->GetTranslation())))));
-        transform->SetMatrix(*(reinterpret_cast<typename TransformType::MatrixType *> 
+        transform->SetMatrix(*(reinterpret_cast<typename TransformType::MatrixType *>
         (const_cast<typename RunningAffineTransformType::MatrixType*> (&(transform_running->GetMatrix())))));
 
         // transform->SetFixedParameters(transform_running->GetFixedParameters());
@@ -1232,15 +1232,15 @@ void compute_single_affine_transform(ImagePointerType fixedImage, ImagePointerTy
     else if (ImageDimension==3){
         typedef itk::ANTSAffine3DTransform<double> RunningAffineTransformType;
         RunningAffineTransformType::Pointer transform_running = RunningAffineTransformType::New();
-        RunningAffineTransformType::Pointer transform_running_initial = RunningAffineTransformType::New();; 
+        RunningAffineTransformType::Pointer transform_running_initial = RunningAffineTransformType::New();;
         // compute_single_affine_transform_3d(fixedImage, movingImage, maskImage, transform_running);
 
         if (transform_initial.IsNotNull()) {
-            transform_running_initial->SetCenter(*(reinterpret_cast<typename RunningAffineTransformType::InputPointType *> 
+            transform_running_initial->SetCenter(*(reinterpret_cast<typename RunningAffineTransformType::InputPointType *>
             (const_cast<typename TransformType::InputPointType*> (&(transform_initial->GetCenter())))));
-            transform_running_initial->SetMatrix(*(reinterpret_cast<typename RunningAffineTransformType::MatrixType *> 
+            transform_running_initial->SetMatrix(*(reinterpret_cast<typename RunningAffineTransformType::MatrixType *>
             (const_cast<typename TransformType::MatrixType*> (&(transform_initial->GetMatrix())))));
-            transform_running_initial->SetTranslation(*(reinterpret_cast<typename RunningAffineTransformType::OutputVectorType *> 
+            transform_running_initial->SetTranslation(*(reinterpret_cast<typename RunningAffineTransformType::OutputVectorType *>
             (const_cast<typename TransformType::OutputVectorType*> (&(transform_initial->GetTranslation())))));
         }
 
@@ -1252,17 +1252,17 @@ void compute_single_affine_transform(ImagePointerType fixedImage, ImagePointerTy
         R_ImagePointerType & R_movingImage = reinterpret_cast<R_ImagePointerType &> (movingImage);
         R_ImagePointerType & R_maskImage = reinterpret_cast<R_ImagePointerType &> (maskImage);
 
-        
+
 
         compute_single_affine_transform_3d(R_fixedImage, R_movingImage, R_maskImage, transform_running, transform_running_initial);
 
 
         //TODO:
-        transform->SetCenter(*(reinterpret_cast<typename TransformType::InputPointType *> 
+        transform->SetCenter(*(reinterpret_cast<typename TransformType::InputPointType *>
         (const_cast<typename RunningAffineTransformType::InputPointType*> (&(transform_running->GetCenter())))));
-        transform->SetTranslation(*(reinterpret_cast<typename TransformType::OutputVectorType *> 
+        transform->SetTranslation(*(reinterpret_cast<typename TransformType::OutputVectorType *>
         (const_cast<typename RunningAffineTransformType::OutputVectorType*> (&(transform_running->GetTranslation())))));
-        transform->SetMatrix(*(reinterpret_cast<typename TransformType::MatrixType *> 
+        transform->SetMatrix(*(reinterpret_cast<typename TransformType::MatrixType *>
         (const_cast<typename RunningAffineTransformType::MatrixType*> (&(transform_running->GetMatrix())))));
 
         //        transform->SetFixedParameters(transform_running->GetFixedParameters());
@@ -1279,12 +1279,12 @@ void compute_single_affine_transform(ImagePointerType fixedImage, ImagePointerTy
 
 
 
-template<class DeformationFieldPointerType>
-void create_deformation_field_byref(const DeformationFieldPointerType &ref, DeformationFieldPointerType &field){
-    typedef typename DeformationFieldPointerType::ObjectType DeformationFieldType;
-    // field = DeformationFieldType::New();
+template<class DisplacementFieldPointerType>
+void create_deformation_field_byref(const DisplacementFieldPointerType &ref, DisplacementFieldPointerType &field){
+    typedef typename DisplacementFieldPointerType::ObjectType DisplacementFieldType;
+    // field = DisplacementFieldType::New();
 
-    typename DeformationFieldType::RegionType region;
+    typename DisplacementFieldType::RegionType region;
     region.SetSize(ref->GetLargestPossibleRegion().GetSize() );
     region.SetIndex(ref->GetLargestPossibleRegion().GetIndex() );
     field->SetRegions( region );
@@ -1297,18 +1297,18 @@ void create_deformation_field_byref(const DeformationFieldPointerType &ref, Defo
 // compose affine transform (in a matrix format A: (Ax+b)) with a deformation field F:
 // the new field is: F_new (x)  = F ( A (x) )
 // output should be allocated outside
-template<class TransformPointerType, class DeformationFieldPointerType>
-void compose_affine_with_field(const TransformPointerType &aff, const DeformationFieldPointerType &field, DeformationFieldPointerType &field_output){
+template<class TransformPointerType, class DisplacementFieldPointerType>
+void compose_affine_with_field(const TransformPointerType &aff, const DisplacementFieldPointerType &field, DisplacementFieldPointerType &field_output){
 
-    typedef typename DeformationFieldPointerType::ObjectType DeformationFieldType;
-    typedef itk::ImageRegionIteratorWithIndex<DeformationFieldType>         FieldIterator;
-    typedef typename DeformationFieldType::IndexType IndexType;
-    typedef typename DeformationFieldType::PointType PointType;
-    typedef typename DeformationFieldType::PixelType VectorType;
+    typedef typename DisplacementFieldPointerType::ObjectType DisplacementFieldType;
+    typedef itk::ImageRegionIteratorWithIndex<DisplacementFieldType>         FieldIterator;
+    typedef typename DisplacementFieldType::IndexType IndexType;
+    typedef typename DisplacementFieldType::PointType PointType;
+    typedef typename DisplacementFieldType::PixelType VectorType;
 
-    const unsigned int ImageDimension = DeformationFieldType::ImageDimension;
+    const unsigned int ImageDimension = DisplacementFieldType::ImageDimension;
 
-    //    PointType zeroorigin; 
+    //    PointType zeroorigin;
     //    zeroorigin.Fill(0);
     //    field->SetOrigin(zeroorigin);
     //    field_output->SetOrigin(zeroorigin);
@@ -1317,7 +1317,7 @@ void compose_affine_with_field(const TransformPointerType &aff, const Deformatio
     PointType pointIn2;
     PointType pointIn3;
 
-    // iterate through field_output finding the points that it maps to via field.  
+    // iterate through field_output finding the points that it maps to via field.
     // then take the difference from the original point and put it in the output field.
     // std::cout << " begin iteration " << std::endl;
     FieldIterator iter_field(field, field->GetLargestPossibleRegion());
@@ -1345,18 +1345,18 @@ void compose_affine_with_field(const TransformPointerType &aff, const Deformatio
 }
 
 // this is obsolet, use itkWarpImageWAffineFilter
-template<class ImagePointerType, class DeformationFieldPointerType>
-void warp_image_field(const ImagePointerType &img_input, const DeformationFieldPointerType &field, ImagePointerType &img_output){
+template<class ImagePointerType, class DisplacementFieldPointerType>
+void warp_image_field(const ImagePointerType &img_input, const DisplacementFieldPointerType &field, ImagePointerType &img_output){
 
     typedef typename ImagePointerType::ObjectType ImageType;
-    typedef typename DeformationFieldPointerType::ObjectType DeformationFieldType;
+    typedef typename DisplacementFieldPointerType::ObjectType DisplacementFieldType;
 
 
-    typedef typename itk::WarpImageFilter<ImageType,ImageType, DeformationFieldType> WarperType;
+    typedef typename itk::WarpImageFilter<ImageType,ImageType, DisplacementFieldType> WarperType;
     typename WarperType::Pointer  warper = WarperType::New();
 
     warper->SetInput(img_input);
-    warper->SetDeformationField(field);
+    warper->SetDisplacementField(field);
     warper->SetEdgePaddingValue( 0);
     warper->SetOutputSpacing(field->GetSpacing() );
     warper->SetOutputOrigin( field->GetOrigin() );
@@ -1390,12 +1390,12 @@ void affine_image(const ImageTypePointer &input_image,  const TransformPointerTy
 
 }
 
-template<class ImagePointerType, class TransformPointerType, class DeformationFieldPointerType>
-void warp_image_field_waffine(const ImagePointerType &img_input, const TransformPointerType &aff, const DeformationFieldPointerType &field, ImagePointerType &img_output){
+template<class ImagePointerType, class TransformPointerType, class DisplacementFieldPointerType>
+void warp_image_field_waffine(const ImagePointerType &img_input, const TransformPointerType &aff, const DisplacementFieldPointerType &field, ImagePointerType &img_output){
     // TODO: add a new WarpImageFilter to support affine as an input
-    // temporary solution: 
-    typedef typename DeformationFieldPointerType::ObjectType DeformationFieldType;
-    typename DeformationFieldType::Pointer field_comp = DeformationFieldType::New();
+    // temporary solution:
+    typedef typename DisplacementFieldPointerType::ObjectType DisplacementFieldType;
+    typename DisplacementFieldType::Pointer field_comp = DisplacementFieldType::New();
 
     //    create_deformation_field_byref(field, field_comp);
     //    compose_affine_with_field(aff, field, field_comp);
@@ -1403,11 +1403,11 @@ void warp_image_field_waffine(const ImagePointerType &img_input, const Transform
 
     typedef typename TransformPointerType::ObjectType TransformType;
     typedef typename ImagePointerType::ObjectType ImageType;
-    typedef itk::WarpImageWAffineFilter<ImageType,ImageType, DeformationFieldType, TransformType> WarperType;
+    typedef itk::WarpImageWAffineFilter<ImageType,ImageType, DisplacementFieldType, TransformType> WarperType;
     typename WarperType::Pointer  warper = WarperType::New();
 
     warper->SetInput(img_input);
-    warper->SetDeformationField(field);
+    warper->SetDisplacementField(field);
     warper->SetAffineTransform(aff);
     warper->SetEdgePaddingValue( 0);
     warper->SetOutputSpacing(field->GetSpacing() );

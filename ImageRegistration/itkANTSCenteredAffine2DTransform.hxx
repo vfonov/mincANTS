@@ -7,11 +7,11 @@
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -37,7 +37,7 @@ namespace itk
 template<class TScalarType>
 ANTSCenteredAffine2DTransform<TScalarType>::
 ANTSCenteredAffine2DTransform():
-    Superclass(OutputSpaceDimension, ParametersDimension)
+    Superclass(ParametersDimension)
     {
     m_Angle = NumericTraits< TScalarType >::Zero;
     m_S1 = NumericTraits< TScalarType >::One;
@@ -49,7 +49,7 @@ ANTSCenteredAffine2DTransform():
 // Constructor with arguments
 template<class TScalarType>
 ANTSCenteredAffine2DTransform<TScalarType>::
-ANTSCenteredAffine2DTransform( unsigned int spaceDimension, 
+ANTSCenteredAffine2DTransform( unsigned int spaceDimension,
         unsigned int parametersDimension):
             Superclass(spaceDimension,parametersDimension)
             {
@@ -89,14 +89,14 @@ PrintSelf(std::ostream &os, Indent indent) const
 // ANTSCenteredAffine2DTransform<TScalarType>::
 // SetMatrix(const MatrixType & matrix )
 // {
-//   itkDebugMacro("setting  m_Matrix  to " << matrix ); 
+//   itkDebugMacro("setting  m_Matrix  to " << matrix );
 //   // The matrix must be orthogonal otherwise it is not
 //   // representing a valid rotaion in 2D space
-//   typename MatrixType::InternalMatrixType test = 
+//   typename MatrixType::InternalMatrixType test =
 //     matrix.GetVnlMatrix() * matrix.GetTranspose();
 
 //   const double tolerance = 1e-10;
-//   if( !test.is_identity( tolerance ) ) 
+//   if( !test.is_identity( tolerance ) )
 //     {
 //     itk::ExceptionObject ex(__FILE__,__LINE__,"Attempt to set a Non-Orthogonal matrix",ITK_LOCATION);
 //     throw ex;
@@ -117,7 +117,7 @@ ANTSCenteredAffine2DTransform<TScalarType>
 ::ComputeMatrixParameters( void )
 {
 
-    typedef vnl_matrix<TScalarType> TMatrix; 
+    typedef vnl_matrix<TScalarType> TMatrix;
 
     TMatrix A,Q,R;
 
@@ -140,7 +140,7 @@ ANTSCenteredAffine2DTransform<TScalarType>
 //    std::cout << "R=" << R << std::endl;
 //    std::cout << "dq=" << dq << std::endl;
 
-    m_Angle = vcl_acos(R[0][0]); 
+    m_Angle = vcl_acos(R[0][0]);
 
     if(this->GetMatrix()[1][0]<0.0)
     {
@@ -155,7 +155,7 @@ ANTSCenteredAffine2DTransform<TScalarType>
 
     if(this->GetMatrix()[1][0]-sin(m_Angle) > 0.000001)
     {
-        itkWarningMacro("Bad Rotation Matrix " << this->GetMatrix() ); 
+        itkWarningMacro("Bad Rotation Matrix " << this->GetMatrix() );
     }
 }
 
@@ -200,11 +200,11 @@ CloneTo( Pointer & result ) const
 }
 
 
-// Reset the transform to an identity transform 
+// Reset the transform to an identity transform
 template<class TScalarType >
 void
 ANTSCenteredAffine2DTransform< TScalarType >::
-SetIdentity( void ) 
+SetIdentity( void )
 {
     this->Superclass::SetIdentity();
     m_Angle = NumericTraits< TScalarType >::Zero;
@@ -320,7 +320,7 @@ SetParameters( const ParametersType & parameters )
 
     // Set the center
     InputPointType center;
-    for(unsigned int i=0; i < OutputSpaceDimension; i++) 
+    for(unsigned int i=0; i < OutputSpaceDimension; i++)
     {
         center[i] = parameters[i+4];
     }
@@ -328,7 +328,7 @@ SetParameters( const ParametersType & parameters )
 
     // Set translation
     OutputVectorType translation;
-    for(unsigned int i=0; i < OutputSpaceDimension; i++) 
+    for(unsigned int i=0; i < OutputSpaceDimension; i++)
     {
         translation[i] = parameters[i+6];
     }
@@ -359,14 +359,14 @@ GetParameters( void ) const
     this->m_Parameters[2] = this->GetS2();
     this->m_Parameters[3] = this->GetK();
 
-    // Get the center 
-    for(unsigned int i=0; i < OutputSpaceDimension; i++) 
+    // Get the center
+    for(unsigned int i=0; i < OutputSpaceDimension; i++)
     {
         this->m_Parameters[i+4] = this->GetCenter()[i];
     }
 
     // Get the translation
-    for(unsigned int i=0; i < OutputSpaceDimension; i++) 
+    for(unsigned int i=0; i < OutputSpaceDimension; i++)
     {
         this->m_Parameters[i+6] = this->GetTranslation()[i];
     }
@@ -396,7 +396,7 @@ GetJacobian( const InputPointType & p ) const
 
     // derivatives with respect to the angle
     // this->m_Jacobian[0][0] = -sa * ( p[0] - cx ) - ca * ( p[1] - cy );
-    // this->m_Jacobian[1][0] =  ca * ( p[0] - cx ) - sa * ( p[1] - cy ); 
+    // this->m_Jacobian[1][0] =  ca * ( p[0] - cx ) - sa * ( p[1] - cy );
 
     double pxoff = (p[0]-cx)+k*(p[1]-cy);
     double pyoff = p[1]-cy;
@@ -428,8 +428,8 @@ GetJacobian( const InputPointType & p ) const
     this->m_Jacobian[1][7] = 1.0;
 
     // compute derivatives for the translation part
-    // unsigned int blockOffset = 1;  
-    // for(unsigned int dim=0; dim < OutputSpaceDimension; dim++ ) 
+    // unsigned int blockOffset = 1;
+    // for(unsigned int dim=0; dim < OutputSpaceDimension; dim++ )
     //  {
     //  this->m_Jacobian[ dim ][ blockOffset + dim ] = 1.0;
     //  }
@@ -442,7 +442,7 @@ GetJacobian( const InputPointType & p ) const
 template<class TScalarType>
 typename ANTSCenteredAffine2DTransform<TScalarType>::InputPointType
 ANTSCenteredAffine2DTransform<TScalarType>::
-BackTransform(const OutputPointType &point) const 
+BackTransform(const OutputPointType &point) const
 {
     itkWarningMacro(<<"BackTransform(): This method is slated to be removed from ITK.  Instead, please use GetInverse() to generate an inverse transform and then perform the transform using that inverted transform.");
     return this->GetInverseMatrix() * (point - this->GetOffset());
@@ -452,7 +452,7 @@ BackTransform(const OutputPointType &point) const
 template<class TScalarType>
 typename ANTSCenteredAffine2DTransform<TScalarType>::InputVectorType
 ANTSCenteredAffine2DTransform<TScalarType>::
-BackTransform(const OutputVectorType &vect ) const 
+BackTransform(const OutputVectorType &vect ) const
 {
     itkWarningMacro(<<"BackTransform(): This method is slated to be removed from ITK.  Instead, please use GetInverse() to generate an inverse transform and then perform the transform using that inverted transform.");
     return this->GetInverseMatrix() * vect;
@@ -462,7 +462,7 @@ BackTransform(const OutputVectorType &vect ) const
 template<class TScalarType>
 typename ANTSCenteredAffine2DTransform<TScalarType>::InputVnlVectorType
 ANTSCenteredAffine2DTransform<TScalarType>::
-BackTransform(const OutputVnlVectorType &vect ) const 
+BackTransform(const OutputVnlVectorType &vect ) const
 {
     itkWarningMacro(<<"BackTransform(): This method is slated to be removed from ITK.  Instead, please use GetInverse() to generate an inverse transform and then perform the transform using that inverted transform.");
     return this->GetInverseMatrix() * vect;
@@ -473,7 +473,7 @@ BackTransform(const OutputVnlVectorType &vect ) const
 template<class TScalarType>
 typename ANTSCenteredAffine2DTransform<TScalarType>::InputCovariantVectorType
 ANTSCenteredAffine2DTransform<TScalarType>::
-BackTransform(const OutputCovariantVectorType &vect) const 
+BackTransform(const OutputCovariantVectorType &vect) const
 {
     itkWarningMacro(<<"BackTransform(): This method is slated to be removed from ITK.  Instead, please use GetInverse() to generate an inverse transform and then perform the transform using that inverted transform.");
     return this->GetMatrix() * vect;

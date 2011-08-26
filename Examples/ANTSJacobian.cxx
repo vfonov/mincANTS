@@ -1,6 +1,6 @@
 //#include "DoSomethingToImage.cxx"
-#include "itkVectorIndexSelectionCastImageFilter.h"    
-#include "itkImageRegionIteratorWithIndex.h" 
+#include "itkVectorIndexSelectionCastImageFilter.h"
+#include "itkImageRegionIteratorWithIndex.h"
 #include "vnl/algo/vnl_determinant.h"
 
 #include "ReadWriteImage.h"
@@ -19,11 +19,11 @@
 template <class TImage>
 typename TImage::Pointer VectorAniDiff(typename TImage::Pointer img, unsigned int iters)
 {
-  
+
   double timeStep = 0.065;
   typedef TImage VectorImageType;
   typedef itk::VectorCurvatureAnisotropicDiffusionImageFilter< VectorImageType, VectorImageType >  FilterType;
-  
+
   typename FilterType::Pointer filter = FilterType::New();
   filter->SetInput( img );
   filter->SetNumberOfIterations( iters );
@@ -41,50 +41,50 @@ typename TImage::Pointer VectorAniDiff(typename TImage::Pointer img, unsigned in
 template <class TImage>
 typename TImage::Pointer GenerateGridImage(TImage* img, unsigned int gridsize)
   {
-     
+
   typedef TImage ImageType;
   enum { ImageDimension = TImage::ImageDimension };
 
   itk::ImageRegionIteratorWithIndex<ImageType> wimIter( img, img->GetLargestPossibleRegion()  );
-    wimIter.GoToBegin();  
+    wimIter.GoToBegin();
     for( ; !wimIter.IsAtEnd(); ++wimIter ) wimIter.Set(2);
 
-    wimIter.GoToBegin();  
-    for( ; !wimIter.IsAtEnd(); ++wimIter )           
+    wimIter.GoToBegin();
+    for( ; !wimIter.IsAtEnd(); ++wimIter )
       {
       typename ImageType::IndexType ind=wimIter.GetIndex();
 
       for (int i=0; i<2; i++)
-        {     
+        {
           if (ind[i] % gridsize == 0) wimIter.Set(0);
 //          if (ind[i] % (gridsize+1) == 0) wimIter.Set(0);// tartan
         }
 
       }
 
-    wimIter.GoToBegin();  
-    for( ; !wimIter.IsAtEnd(); ++wimIter )           
+    wimIter.GoToBegin();
+    for( ; !wimIter.IsAtEnd(); ++wimIter )
       {
       typename ImageType::IndexType ind=wimIter.GetIndex();
       typename ImageType::IndexType ind2=wimIter.GetIndex();
-      for (int i=0; i<2; i++) 
+      for (int i=0; i<2; i++)
 	  {
 	    ind2[i]=ind[i]-1;
 	    if (ind2[i] < 0) ind2[i]=0;
 	  }
 
       for (int i=0; i<2; i++)
-        {     
-          //this creates a 3-d effect 
+        {
+          //this creates a 3-d effect
 	  //if (ind[i] % gridsize == 0) img->SetPixel(ind2,2);
-          //this gives double thickness 
+          //this gives double thickness
 	  if (ind[i] % gridsize == 0) img->SetPixel(ind2,0);
         }
 
       }
 
     return img;
-  }   
+  }
 
 template <class ImageType>
 typename ImageType::Pointer ReadAnImage(char* fn)
@@ -104,13 +104,13 @@ typename ImageType::Pointer ReadAnImage(char* fn)
  return reffilter->GetOutput();
 }
 
-template <class TImage, class TDeformationField>
-typename TDeformationField::PixelType 
-TransformVector(TDeformationField* field, typename TImage::IndexType index )
+template <class TImage, class TDisplacementField>
+typename TDisplacementField::PixelType
+TransformVector(TDisplacementField* field, typename TImage::IndexType index )
 {
   enum { ImageDimension = TImage::ImageDimension };
-  typename TDeformationField::PixelType vec=field->GetPixel(index);
-  typename TDeformationField::PixelType newvec; 
+  typename TDisplacementField::PixelType vec=field->GetPixel(index);
+  typename TDisplacementField::PixelType newvec;
   newvec.Fill(0);
 
   for (unsigned int row=0; row<ImageDimension; row++)
@@ -120,26 +120,26 @@ TransformVector(TDeformationField* field, typename TImage::IndexType index )
   return newvec;
 }
 
-template <class TImage, class TDeformationField>
+template <class TImage, class TDisplacementField>
 void
-ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=false, bool norm=false, bool use2ndorder=false)
+ComputeJacobian(TDisplacementField* field,char* fnm, char* maskfn, bool uselog=false, bool norm=false, bool use2ndorder=false)
 {
   typedef TImage ImageType;
-  typedef TDeformationField FieldType;
+  typedef TDisplacementField FieldType;
   enum { ImageDimension = TImage::ImageDimension };
   typedef itk::Image<float,ImageDimension> FloatImageType;
   typename FloatImageType::RegionType m_JacobianRegion;
   typename FloatImageType::Pointer mask=NULL;
 
   mask=ReadAnImage<FloatImageType>(maskfn);
-  
-  if (!field) 
-  { 
+
+  if (!field)
+  {
     return;
   }
   typename TImage::SizeType s= field->GetLargestPossibleRegion().GetSize();
   typename TImage::SpacingType sp= field->GetSpacing();
-   
+
   typename FloatImageType::Pointer m_FloatImage=NULL;
   m_FloatImage = FloatImageType::New();
   m_FloatImage->SetLargestPossibleRegion( field->GetLargestPossibleRegion() );
@@ -147,20 +147,20 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
   m_FloatImage->SetSpacing(field->GetSpacing());
   m_FloatImage->SetDirection( field->GetDirection() );
   m_FloatImage->SetOrigin(field->GetOrigin());
-  m_FloatImage->Allocate(); 
+  m_FloatImage->Allocate();
   m_FloatImage->FillBuffer(0);
-  
+
   typename ImageType::Pointer grid = GenerateGridImage<ImageType>(m_FloatImage,7);
-  
+
   if (grid)
   {
-    typedef itk::MatrixOffsetTransformBase< double, ImageDimension, ImageDimension > TransformType;    
+    typedef itk::MatrixOffsetTransformBase< double, ImageDimension, ImageDimension > TransformType;
     typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, FieldType, TransformType> WarperType;
     typename WarperType::Pointer  warper = WarperType::New();
     warper->SetInput(grid);
-    warper->SetEdgePaddingValue( 0); 
+    warper->SetEdgePaddingValue( 0);
     warper->SetSmoothScale(1);
-    warper->PushBackDeformationFieldTransform(field); 
+    warper->PushBackDisplacementFieldTransform(field);
     warper->SetOutputOrigin(field->GetOrigin());
     warper->SetOutputSize(field->GetLargestPossibleRegion().GetSize());
     warper->SetOutputSpacing(field->GetSpacing());
@@ -171,31 +171,31 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
     typename writertype::Pointer writer = writertype::New();
     std::string fng=std::string(fnm)+"grid.nii.gz";
     writer->SetFileName(fng.c_str());
-    writer->SetInput(grid); 
-    writer->Write();   
+    writer->SetInput(grid);
+    writer->Write();
     std::cout << " Grid done ";
   }
   typename FloatImageType::SizeType m_FieldSize = field->GetLargestPossibleRegion().GetSize();
-  
-  typedef itk::ImageRegionIteratorWithIndex<FloatImageType>        Iterator; 
+
+  typedef itk::ImageRegionIteratorWithIndex<FloatImageType>        Iterator;
   Iterator wimIter( m_FloatImage, m_FloatImage->GetLargestPossibleRegion()  );
-  wimIter.GoToBegin();  
+  wimIter.GoToBegin();
   for( ; !wimIter.IsAtEnd(); ++wimIter ) wimIter.Set(1.0);
-  
- 
+
+
   typedef  vnl_matrix<double> MatrixType;
   MatrixType jMatrix,idMatrix,avgMatrix;
   jMatrix.set_size(ImageDimension,ImageDimension);
   avgMatrix.set_size(ImageDimension,ImageDimension);
   avgMatrix.fill(0);
-  itk::ImageRegionIteratorWithIndex<TDeformationField>
+  itk::ImageRegionIteratorWithIndex<TDisplacementField>
     m_FieldIter( field, field->GetLargestPossibleRegion() );
   typename TImage::IndexType rindex;
   typename TImage::IndexType ddrindex;
   typename TImage::IndexType ddlindex;
 
   typename TImage::IndexType difIndex[ImageDimension][2];
-  
+
   double det=0.0;
   unsigned int posoff=1;
   float difspace=1.0;
@@ -203,7 +203,7 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
   if (posoff == 0) difspace=1.0;
 
     typedef itk::Vector<float,ImageDimension>         VectorType;
-  
+
   typename FieldType::PixelType dPix;
   typename FieldType::PixelType lpix;
   typename FieldType::PixelType llpix;
@@ -230,7 +230,7 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
   if (total == 0.0) total = 1.0;
 
   unsigned long ct =0;
-  
+
 
  for(  m_FieldIter.GoToBegin() ; !m_FieldIter.IsAtEnd(); ++m_FieldIter )
   {
@@ -240,7 +240,7 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
     float dist=100.0;
     for (unsigned int row=0; row<ImageDimension; row++)
     {
-      dist=fabs((float)rindex[row]);      
+      dist=fabs((float)rindex[row]);
       if (dist < mindist) oktosample=false;
       dist = fabs((float)s[row]-(float)rindex[row]);
       if (dist < mindist) oktosample=false;
@@ -256,7 +256,7 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
 	    difIndex[row][1]=rindex;
 	    ddrindex=rindex;
 	    ddlindex=rindex;
-	    if ((unsigned int) rindex[row] < (unsigned int) m_FieldSize[row]-2) 
+	    if ((unsigned int) rindex[row] < (unsigned int) m_FieldSize[row]-2)
 	      {
 		difIndex[row][0][row]=rindex[row]+posoff;
 		ddrindex[row]=rindex[row]+posoff*2;
@@ -266,16 +266,16 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
 		difIndex[row][1][row]=rindex[row]-1;
 		ddlindex[row]=rindex[row]-2;
 	      }
-	    
+
 	    float h=1;
 	    space=1.0; // should use image spacing here?
-	    
+
 	    rpix = TransformVector<ImageType,FieldType>(field,difIndex[row][1]);
 	    rpix = rpix*h+cpix*(1.-h);
 	    lpix = TransformVector<ImageType,FieldType>(field,difIndex[row][0]);
 	    lpix = lpix*h+cpix*(1.-h);
 	    //    dPix = ( rpix - lpix)*(1.0)/(2.0);
-	    
+
 	    rrpix = TransformVector<ImageType,FieldType>(field,ddrindex);
       rrpix = rrpix*h+rpix*(1.-h);
       llpix = TransformVector<ImageType,FieldType>(field,ddlindex);
@@ -292,7 +292,7 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
 	      avgMatrix.put(col,row,avgMatrix.get(col,row)+val);
 	    }
 	  }
-	
+
 	//the determinant of the jacobian matrix
 	// std::cout << " get det " << std::endl;
 	det = vnl_determinant(jMatrix);
@@ -301,7 +301,7 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
 
 
 	m_FloatImage->SetPixel(rindex,  det );
-	
+
       //totaljac+=det;
       }//oktosample if
   }
@@ -340,13 +340,13 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
       for(  m_FieldIter.GoToBegin() ; !m_FieldIter.IsAtEnd(); ++m_FieldIter )
 	{
 	  rindex=m_FieldIter.GetIndex();
-	  if (mask->GetPixel(rindex) > 0 ) 
+	  if (mask->GetPixel(rindex) > 0 )
 	    {
 	      total+=m_FloatImage->GetPixel(rindex);
 	      ct++;
 	    }
 	  else m_FloatImage->SetPixel(rindex,0);
-	} 
+	}
       total /= (double) ct;
       for(  m_FieldIter.GoToBegin() ; !m_FieldIter.IsAtEnd(); ++m_FieldIter )
 	{
@@ -355,9 +355,9 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
           if (mask->GetPixel(rindex) > 0 ) m_FloatImage->SetPixel(rindex,val);
 	  else m_FloatImage->SetPixel(rindex,0);
 	}
-			     
+
     }
-   
+
     for(  m_FieldIter.GoToBegin() ; !m_FieldIter.IsAtEnd(); ++m_FieldIter )
         {
           rindex=m_FieldIter.GetIndex();
@@ -374,24 +374,24 @@ ComputeJacobian(TDeformationField* field,char* fnm, char* maskfn, bool uselog=fa
   std::string fn=std::string(fnm)+"jacobian.nii.gz";
   if (uselog) fn=std::string(fnm)+"logjacobian.nii.gz";
   writer->SetFileName(fn.c_str());
-  writer->SetInput(m_FloatImage); 
-  writer->Write();   
-  
+  writer->SetInput(m_FloatImage);
+  writer->Write();
+
   return;
 
 }
 
 
 template <unsigned int ImageDimension>
-int Jacobian(int argc, char *argv[])        
+int Jacobian(int argc, char *argv[])
 {
-   
+
   //  std::cout << " enter " << ImageDimension << std::endl;
-  if ( argc < 3 )     
-  { 
+  if ( argc < 3 )
+  {
     std::cout << "Usage:   Jacobian gWarp outfile uselog maskfn normbytotalbool  " << std::endl;
     return 1;
-  }           
+  }
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
   typedef itk::Image<VectorType,ImageDimension>     FieldType;
@@ -404,18 +404,18 @@ int Jacobian(int argc, char *argv[])
   typedef itk::LinearInterpolateImageFunction<ImageType,double>  InterpolatorType;
 
   typedef itk::ImageFileReader<FieldType> ReaderType;
-  //std::cout << "read warp " << std::string(argv[1]) << std::endl; 
+  //std::cout << "read warp " << std::string(argv[1]) << std::endl;
   typename ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[1] );
   //  reader->SetUseAvantsNamingConvention( true );
   reader->Update();
   typename FieldType::Pointer gWarp=reader->GetOutput();
   //
-  //std::cout << "read warp 2 " << std::endl; 
+  //std::cout << "read warp 2 " << std::endl;
   // typename FieldType::Pointer gWarp = ReadWarpFromFile<ImageType,FieldType>(argv[1],"vec.nii");
 
   // here hWarp is changed in place to be fWarp
-//  Jacobian<ImageType,FieldType>(gWarp,argv[2]);  
+//  Jacobian<ImageType,FieldType>(gWarp,argv[2]);
 //  std::cout << " vecanidiff " << std::endl;
 //  gWarp = VectorAniDiff<FieldType>(gWarp , atoi(argv[3]) );
 //  std::cout << " vecanidiffdone " << std::endl;
@@ -427,28 +427,28 @@ int Jacobian(int argc, char *argv[])
   if (argc > 6) use2ndorder=(bool)atoi(argv[6]);
   //  std::cout << " name "<< argv[2] <<  " mask " << argv[4] << " norm " << norm << " Log " << uselog << std::endl;
   ComputeJacobian<ImageType,FieldType>(gWarp,argv[2],argv[4],uselog,norm,use2ndorder);
-//  DiffeomorphicJacobian<ImageType,ImageType,FieldType>(gWarp,1,argv[2]);  
+//  DiffeomorphicJacobian<ImageType,ImageType,FieldType>(gWarp,1,argv[2]);
   //  if (argc > 3) DiffeomorphicMetric<ImageType,ImageType,FieldType>(gWarp,argv[2]);
 
 
   return 0;
- 
-}     
+
+}
 
 
 
-int main(int argc, char *argv[])        
+int main(int argc, char *argv[])
 {
 
-  if ( argc < 3 )     
-  { 
+  if ( argc < 3 )
+  {
     std::cout << "Usage: " << argv[0] << " ImageDim gWarp outfile uselog maskfn normbytotalbool use-2nd-order-central-difference-boolean " << std::endl;
     std::cout <<" for example " << std::endl << " ANTSJacobian 3  myWarp.nii   Output  1   templatebrainmask.nii   1  " << std::endl;
     std::cout << " the last 1 normalizes the jacobian by the total in the mask.  use this to adjust for head size.  " << std::endl;
     return 1;
-  }       
+  }
 
-  switch( atoi( argv[1] ) ) 
+  switch( atoi( argv[1] ) )
    {
    case 2:
      Jacobian<2>(argc-1,argv+1);
@@ -460,14 +460,14 @@ int main(int argc, char *argv[])
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
    }
-	
+
   return EXIT_SUCCESS;
 
 
   return 1;
- 
-}     
-       
+
+}
+
 
 
 

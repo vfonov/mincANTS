@@ -75,7 +75,7 @@ public:
   itkGetObjectMacro( Interpolator, InterpolatorType );
 
   /** Set the deformation field */
-  void SetDeformationField( const InputFieldType *field )
+  void SetDisplacementField( const InputFieldType *field )
     {
     itkDebugMacro( "setting deformation field to " << field );
     if ( field != this->GetInput( 0 ) )
@@ -92,7 +92,7 @@ public:
   /**
    * Get the deformation field.
    */
-  const InputFieldType* GetDeformationField() const
+  const InputFieldType* GetDisplacementField() const
     {
     return this->GetInput( 0 );
     }

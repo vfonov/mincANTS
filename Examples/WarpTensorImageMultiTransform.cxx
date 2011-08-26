@@ -475,9 +475,9 @@ void
 DirectionCorrect( typename TensorImageType::Pointer img_out, typename TensorImageType::Pointer img_mov )
 {
   itk::ImageRegionIteratorWithIndex<TensorImageType> it(img_out, img_out->GetLargestPossibleRegion() );
-  
+
   typename TensorImageType::DirectionType directionSwap = img_out->GetDirection() * img_mov->GetDirection();
-  
+
   while( !it.IsAtEnd() )
     {
     typename TensorImageType::DirectionType::InternalMatrixType  dt;
@@ -487,18 +487,18 @@ DirectionCorrect( typename TensorImageType::Pointer img_out, typename TensorImag
     dt(1,1) = it.Value()[3];
     dt(1,2) = dt(2,1) = it.Value()[4];
     dt(2,2) = it.Value()[5];
-   
-    dt = directionSwap * dt * directionSwap.GetTranspose();   
-    
+
+    dt = directionSwap * dt * directionSwap.GetTranspose();
+
     typename TensorImageType::PixelType outDt;
-    
+
     outDt[0] = dt(0,0);
     outDt[1] = dt(0,1);
     outDt[2] = dt(0,2);
     outDt[3] = dt(1,1);
     outDt[4] = dt(1,2);
     outDt[5] = dt(2,2);
-    
+
     it.Set( outDt );
 
     ++it;
@@ -513,13 +513,13 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
         TRAN_OPT_QUEUE &opt_queue, MISC_OPT &misc_opt){
 
   //typedef itk::Vector<float,6> PixelType;
-  typedef itk::SymmetricSecondRankTensor< float, 3 >  PixelType; 
+  typedef itk::SymmetricSecondRankTensor< float, 3 >  PixelType;
   typedef itk::Image<PixelType, ImageDimension> TensorImageType;
   typedef itk::Image<float, ImageDimension> ImageType;
   typedef itk::Vector<float, ImageDimension>         VectorType;
-  typedef itk::Image<VectorType, ImageDimension>     DeformationFieldType;
+  typedef itk::Image<VectorType, ImageDimension>     DisplacementFieldType;
   typedef itk::MatrixOffsetTransformBase< double, ImageDimension, ImageDimension > AffineTransformType;
-  typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DeformationFieldType, AffineTransformType> WarperType;
+  typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DisplacementFieldType, AffineTransformType> WarperType;
 
     itk::TransformFactory<AffineTransformType>::RegisterTransform();
 
@@ -545,7 +545,7 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
     img_output->SetLargestPossibleRegion( img_ref->GetLargestPossibleRegion() );
     img_output->SetBufferedRegion( img_ref->GetLargestPossibleRegion() );
     img_output->SetLargestPossibleRegion( img_ref->GetLargestPossibleRegion() );
-    img_output->Allocate(); 
+    img_output->Allocate();
     img_output->SetSpacing(img_ref->GetSpacing());
     img_output->SetOrigin(img_ref->GetOrigin());
     img_output->SetDirection(img_ref->GetDirection());
@@ -557,7 +557,7 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
       typedef itk::VectorIndexSelectionCastImageFilter<TensorImageType,ImageType> IndexSelectCasterType;
       typename IndexSelectCasterType::Pointer fieldCaster = IndexSelectCasterType::New();
       fieldCaster->SetInput( img_mov );
-      fieldCaster->SetIndex( tensdim );  
+      fieldCaster->SetIndex( tensdim );
       fieldCaster->Update();
       typename ImageType::Pointer tenscomponent=fieldCaster->GetOutput();
       tenscomponent->SetSpacing(img_mov->GetSpacing());
@@ -577,12 +577,12 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
         typename NNInterpolateType::Pointer interpolator_NN = NNInterpolateType::New();
         std::cout << "Haha" << std::endl;
         warper->SetInterpolator(interpolator_NN);
-    } 
+    }
 
     typedef itk::TransformFileReader TranReaderType;
-    typedef itk::ImageFileReader<DeformationFieldType> FieldReaderType;
+    typedef itk::ImageFileReader<DisplacementFieldType> FieldReaderType;
 
-    
+
 
     unsigned int   transcount=0;
     const int kOptQueueSize = opt_queue.size();
@@ -657,9 +657,9 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
             typename FieldReaderType::Pointer field_reader = FieldReaderType::New();
             field_reader->SetFileName( opt.filename );
             field_reader->Update();
-            typename DeformationFieldType::Pointer field = field_reader->GetOutput();
+            typename DisplacementFieldType::Pointer field = field_reader->GetOutput();
 
-            warper->PushBackDeformationFieldTransform(field);
+            warper->PushBackDisplacementFieldTransform(field);
             warper->SetOutputSize(field->GetLargestPossibleRegion().GetSize());
             warper->SetOutputOrigin(field->GetOrigin());
             warper->SetOutputSpacing(field->GetSpacing());
@@ -712,21 +712,21 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
 
 
     typedef itk::ImageRegionIteratorWithIndex<TensorImageType> Iterator;
-    Iterator vfIter2( img_output, img_output->GetLargestPossibleRegion() );  
-    for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 ) 
+    Iterator vfIter2( img_output, img_output->GetLargestPossibleRegion() );
+    for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
       {
-	PixelType  tens=vfIter2.Get(); 
+	PixelType  tens=vfIter2.Get();
 	tens[tensdim]=warper->GetOutput()->GetPixel(vfIter2.GetIndex());
 	vfIter2.Set(tens);
       }
 
-  
+
 
     }
-   
-  
+
+
    DirectionCorrect<TensorImageType>(img_output, img_mov);
-     
+
    WriteTensorImage<TensorImageType>(img_output, output_image_filename,true);
 }
 

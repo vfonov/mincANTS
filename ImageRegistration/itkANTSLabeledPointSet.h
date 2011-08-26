@@ -7,11 +7,11 @@
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -27,7 +27,7 @@
 
 namespace itk
 {
-template<unsigned int TDimension = 3> 
+template<unsigned int TDimension = 3>
 class ITK_EXPORT ANTSLabeledPointSet
 : public Object
 {
@@ -39,17 +39,17 @@ public:
   typedef SmartPointer<const Self>                         ConstPointer;
 
   /** Method for creation through the object factory. */
-  itkNewMacro( Self ); 
+  itkNewMacro( Self );
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( ANTSLabeledPointSet, Object ); 
+  itkTypeMacro( ANTSLabeledPointSet, Object );
   itkStaticConstMacro( Dimension, unsigned int, TDimension );
 
-  typedef float                                           RealType; 
+  typedef float                                           RealType;
   typedef Image<RealType,  itkGetStaticConstMacro( Dimension )>                   ImageType;
   typedef typename ImageType::Pointer                      ImagePointer;
   typedef Vector<RealType, itkGetStaticConstMacro( Dimension )>                   VectorType;
-  typedef Image<VectorType, itkGetStaticConstMacro( Dimension )>                   DeformationFieldType;
+  typedef Image<VectorType, itkGetStaticConstMacro( Dimension )>                   DisplacementFieldType;
 
   /** Point Types  for landmarks and labeled point-sets */
   typedef long PointDataVectorType;
@@ -62,14 +62,14 @@ public:
   itkSetMacro( PointSet, PointSetPointer );
   itkGetConstMacro( PointSet, PointSetPointer );
 
-  PointType  GetPoint( unsigned long ii) 
-  { 
+  PointType  GetPoint( unsigned long ii)
+  {
      PointType point;
      this->m_PointSet->GetPoint(ii,&point);
      return point;
   }
-  PointDataType  GetPointData( unsigned long ii) 
-  { 
+  PointDataType  GetPointData( unsigned long ii)
+  {
      PointDataType data;
      this->m_PointSet->GetPointData(ii,&data);
      return data;
@@ -91,11 +91,11 @@ public:
 
 
 private:
-  
-  
+
+
   PointSetPointer                                             m_PointSet;
-  
-  
+
+
 };
 
 } // end namespace itk

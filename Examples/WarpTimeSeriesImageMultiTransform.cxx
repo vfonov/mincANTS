@@ -474,15 +474,15 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
         TRAN_OPT_QUEUE &opt_queue, MISC_OPT &misc_opt)
 {
 
-  typedef itk::Image<float, ImageDimension> VectorImageType;  // 4D contains functional image 
-  typedef itk::Image<float, ImageDimension-1> ImageType; // 3D image domain -R option 
+  typedef itk::Image<float, ImageDimension> VectorImageType;  // 4D contains functional image
+  typedef itk::Image<float, ImageDimension-1> ImageType; // 3D image domain -R option
   typedef itk::Vector<float, ImageDimension-1>         VectorType; // 3D warp
-  typedef itk::Image<VectorType, ImageDimension-1>     DeformationFieldType; // 3D Field 
+  typedef itk::Image<VectorType, ImageDimension-1>     DisplacementFieldType; // 3D Field
   typedef itk::MatrixOffsetTransformBase< double, ImageDimension-1, ImageDimension-1> AffineTransformType;
-  typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DeformationFieldType, AffineTransformType> WarperType;
-  
+  typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DisplacementFieldType, AffineTransformType> WarperType;
+
   itk::TransformFactory<AffineTransformType>::RegisterTransform();
-  
+
   typedef itk::ImageFileReader<ImageType> ImageFileReaderType;
   //typename ImageFileReaderType::Pointer reader_img = ImageFileReaderType::New();
   //reader_img->SetFileName(moving_image_filename);
@@ -490,7 +490,7 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
   //typename ImageType::Pointer img_mov = ImageType::New();
   //img_mov = reader_img->GetOutput();
   typename VectorImageType::Pointer img_mov;
-  
+
     ReadImage<VectorImageType>(img_mov,moving_image_filename);
     std::cout << " Four-D image size: " << img_mov->GetLargestPossibleRegion().GetSize() << std::endl;
     typename ImageType::Pointer img_ref; // = ImageType::New();
@@ -506,7 +506,7 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
   typedef itk::ImageRegionIteratorWithIndex<VectorImageType> ImageIt;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> SliceIt;
 
-  // allocate output image 
+  // allocate output image
   typename VectorImageType::Pointer transformedvecimage = VectorImageType::New();
   typename VectorImageType::RegionType region =img_mov->GetLargestPossibleRegion();
   for (unsigned int i=0; i<ImageDimension-1; i++) {
@@ -548,16 +548,16 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
 
     typename WarperType::Pointer  warper = WarperType::New();
     warper->SetEdgePaddingValue(0);
-   
+
     if (misc_opt.use_NN_interpolator){
         typedef typename itk::NearestNeighborInterpolateImageFunction<ImageType, typename WarperType::CoordRepType> NNInterpolateType;
         typename NNInterpolateType::Pointer interpolator_NN = NNInterpolateType::New();
         std::cout <<  " Use Nearest Neighbor interpolation " << std::endl;
         warper->SetInterpolator(interpolator_NN);
-    } 
+    }
 
     typedef itk::TransformFileReader TranReaderType;
-    typedef itk::ImageFileReader<DeformationFieldType> FieldReaderType;
+    typedef itk::ImageFileReader<DisplacementFieldType> FieldReaderType;
 
     unsigned int   transcount=0;
     const int kOptQueueSize = opt_queue.size();
@@ -632,9 +632,9 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
             typename FieldReaderType::Pointer field_reader = FieldReaderType::New();
             field_reader->SetFileName( opt.filename );
             field_reader->Update();
-            typename DeformationFieldType::Pointer field = field_reader->GetOutput();
+            typename DisplacementFieldType::Pointer field = field_reader->GetOutput();
 
-            warper->PushBackDeformationFieldTransform(field);
+            warper->PushBackDisplacementFieldTransform(field);
             warper->SetOutputSize(field->GetLargestPossibleRegion().GetSize());
             warper->SetOutputOrigin(field->GetOrigin());
             warper->SetOutputSpacing(field->GetSpacing());
@@ -683,13 +683,13 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
     if ( timedim % vnl_math_max(timedims / 10, static_cast<unsigned int>(1)) == 0 ) std::cout << (float) timedim/(float)timedims*100 << " % done ... " << std::flush; // << std::endl;
     typename VectorImageType::RegionType extractRegion = img_mov->GetLargestPossibleRegion();
     extractRegion.SetSize(ImageDimension-1, 0);
-    extractRegion.SetIndex(ImageDimension-1, timedim );    
+    extractRegion.SetIndex(ImageDimension-1, timedim );
     typename ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
     extractFilter->SetInput( img_mov );
     extractFilter->SetDirectionCollapseToSubmatrix();
     extractFilter->SetExtractionRegion( extractRegion );
     extractFilter->Update();
-    typename ImageType::Pointer warpthisimage=extractFilter->GetOutput(); 
+    typename ImageType::Pointer warpthisimage=extractFilter->GetOutput();
     typename ImageType::SpacingType qspc=warpthisimage->GetSpacing();
     typename ImageType::PointType qorg=warpthisimage->GetOrigin();
     typename ImageType::DirectionType qdir=warpthisimage->GetDirection();
@@ -710,14 +710,14 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
     warper->Update();
 
     typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-    Iterator vfIter2(  warper->GetOutput(), warper->GetOutput()->GetLargestPossibleRegion() );  
-    for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 ) 
+    Iterator vfIter2(  warper->GetOutput(), warper->GetOutput()->GetLargestPossibleRegion() );
+    for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
       {
-        typename ImageType::PixelType  fval=vfIter2.Get(); 
+        typename ImageType::PixelType  fval=vfIter2.Get();
         typename VectorImageType::IndexType ind;
-        for (unsigned int xx=0; xx<ImageDimension-1; xx++) ind[xx]=vfIter2.GetIndex()[xx]; 
+        for (unsigned int xx=0; xx<ImageDimension-1; xx++) ind[xx]=vfIter2.GetIndex()[xx];
         ind[ImageDimension-1]=timedim;
-        transformedvecimage->SetPixel(ind,fval); 
+        transformedvecimage->SetPixel(ind,fval);
 	//	if ( ind[0] == 53 && ind[1] == 19 && ind[2] == 30 ) std::cout << " fval " << fval << " td " << timedim << std::endl;
       }
 
@@ -726,8 +726,8 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
    }
   std::cout << " 100 % complete " << std::endl;
   WriteImage<VectorImageType>( transformedvecimage , output_image_filename);
- 
-  
+
+
 
 }
 
@@ -740,9 +740,9 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
     typedef itk::VectorImage<float, ImageDimension> VectorImageType;
     typedef itk::Image<float, ImageDimension> ImageType;
     typedef itk::Vector<float, ImageDimension>         VectorType;
-    typedef itk::Image<VectorType, ImageDimension>     DeformationFieldType;
+    typedef itk::Image<VectorType, ImageDimension>     DisplacementFieldType;
     typedef itk::MatrixOffsetTransformBase< double, ImageDimension, ImageDimension > AffineTransformType;
-    typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DeformationFieldType, AffineTransformType> WarperType;
+    typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DisplacementFieldType, AffineTransformType> WarperType;
 
     itk::TransformFactory<AffineTransformType>::RegisterTransform();
 
@@ -754,11 +754,11 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
     //img_mov = reader_img->GetOutput();
     typename VectorImageType::Pointer img_mov;
 
-    typename itk::ImageIOBase::Pointer imageIO = 
+    typename itk::ImageIOBase::Pointer imageIO =
       itk::ImageIOFactory::CreateImageIO(moving_image_filename, itk::ImageIOFactory::ReadMode);
     imageIO->SetFileName(moving_image_filename);
     imageIO->ReadImageInformation();
-    //    std::cout << " Dimension " << imageIO->GetNumberOfDimensions()  << " Components " <<imageIO->GetNumberOfComponents() << std::endl; 
+    //    std::cout << " Dimension " << imageIO->GetNumberOfDimensions()  << " Components " <<imageIO->GetNumberOfComponents() << std::endl;
     unsigned int veclength=imageIO->GetNumberOfComponents();
     std::cout <<" read veclength as:: " << veclength << std::endl;
     ReadImage<VectorImageType>(img_mov,moving_image_filename);
@@ -776,11 +776,11 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
     img_output->SetLargestPossibleRegion( img_ref->GetLargestPossibleRegion() );
     img_output->SetBufferedRegion( img_ref->GetLargestPossibleRegion() );
     img_output->SetLargestPossibleRegion( img_ref->GetLargestPossibleRegion() );
-    img_output->Allocate(); 
+    img_output->Allocate();
     img_output->SetSpacing(img_ref->GetSpacing());
     img_output->SetOrigin(img_ref->GetOrigin());
     img_output->SetDirection(img_ref->GetDirection());
-    typename ImageType::IndexType index; 
+    typename ImageType::IndexType index;
     index.Fill(0);
     typename VectorImageType::PixelType vec=img_mov->GetPixel(index);
     vec.Fill(0);
@@ -791,7 +791,7 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
       typedef itk::VectorIndexSelectionCastImageFilter<VectorImageType,ImageType> IndexSelectCasterType;
       typename IndexSelectCasterType::Pointer fieldCaster = IndexSelectCasterType::New();
       fieldCaster->SetInput( img_mov );
-      fieldCaster->SetIndex( tensdim );  
+      fieldCaster->SetIndex( tensdim );
       fieldCaster->Update();
       typename ImageType::Pointer tenscomponent=fieldCaster->GetOutput();
       tenscomponent->SetSpacing(img_mov->GetSpacing());
@@ -811,12 +811,12 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
         typename NNInterpolateType::Pointer interpolator_NN = NNInterpolateType::New();
         std::cout << "Haha" << std::endl;
         warper->SetInterpolator(interpolator_NN);
-    } 
+    }
 
     typedef itk::TransformFileReader TranReaderType;
-    typedef itk::ImageFileReader<DeformationFieldType> FieldReaderType;
+    typedef itk::ImageFileReader<DisplacementFieldType> FieldReaderType;
 
-    
+
 
     unsigned int   transcount=0;
     const int kOptQueueSize = opt_queue.size();
@@ -891,9 +891,9 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
             typename FieldReaderType::Pointer field_reader = FieldReaderType::New();
             field_reader->SetFileName( opt.filename );
             field_reader->Update();
-            typename DeformationFieldType::Pointer field = field_reader->GetOutput();
+            typename DisplacementFieldType::Pointer field = field_reader->GetOutput();
 
-            warper->PushBackDeformationFieldTransform(field);
+            warper->PushBackDisplacementFieldTransform(field);
             warper->SetOutputSize(field->GetLargestPossibleRegion().GetSize());
             warper->SetOutputOrigin(field->GetOrigin());
             warper->SetOutputSpacing(field->GetSpacing());
@@ -939,19 +939,19 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
     warper->Update();
 
     typedef itk::ImageRegionIteratorWithIndex<VectorImageType> Iterator;
-    Iterator vfIter2( img_output, img_output->GetLargestPossibleRegion() );  
-    for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 ) 
+    Iterator vfIter2( img_output, img_output->GetLargestPossibleRegion() );
+    for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
       {
-        typename VectorImageType::PixelType  tens=vfIter2.Get(); 
+        typename VectorImageType::PixelType  tens=vfIter2.Get();
         tens[tensdim]=warper->GetOutput()->GetPixel(vfIter2.GetIndex());
         vfIter2.Set(tens);
       }
 
-  
+
 
     }
-   
-  
+
+
     WriteImage<VectorImageType>(img_output, output_image_filename);
 
 }

@@ -64,7 +64,7 @@ TRAN_FILE_TYPE CheckFileType(const char *str){
 bool IsInverseDeformation(const char *str){
     std::string filename = str;
     std::string::size_type pos = filename.rfind( "Inverse" );
-    if ( pos == std::string::npos ) return false; 
+    if ( pos == std::string::npos ) return false;
     else return true;
 }
 
@@ -492,9 +492,9 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
     typedef itk::Image<PixelType, ImageDimension> ImageType;
     typedef itk::VectorImage<RealType, ImageDimension> RefImageType;
     typedef itk::Vector<RealType, ImageDimension>         VectorType;
-    typedef itk::Image<VectorType, ImageDimension>     DeformationFieldType;
+    typedef itk::Image<VectorType, ImageDimension>     DisplacementFieldType;
     typedef itk::MatrixOffsetTransformBase< double, ImageDimension, ImageDimension > AffineTransformType;
-    typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DeformationFieldType, AffineTransformType> WarperType;
+    typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DisplacementFieldType, AffineTransformType> WarperType;
 
     itk::TransformFactory<AffineTransformType>::RegisterTransform();
 
@@ -550,7 +550,7 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
 
 
     typedef itk::TransformFileReader TranReaderType;
-    typedef itk::ImageFileReader<DeformationFieldType> FieldReaderType;
+    typedef itk::ImageFileReader<DisplacementFieldType> FieldReaderType;
     bool takeaffinv=false;
     unsigned int   transcount=0;
     const int kOptQueueSize = opt_queue.size();
@@ -627,9 +627,9 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
             typename FieldReaderType::Pointer field_reader = FieldReaderType::New();
             field_reader->SetFileName( opt.filename );
             field_reader->Update();
-            typename DeformationFieldType::Pointer field = field_reader->GetOutput();
+            typename DisplacementFieldType::Pointer field = field_reader->GetOutput();
 
-            warper->PushBackDeformationFieldTransform(field);
+            warper->PushBackDisplacementFieldTransform(field);
             warper->SetOutputSize(field->GetLargestPossibleRegion().GetSize());
             warper->SetOutputOrigin(field->GetOrigin());
             warper->SetOutputSpacing(field->GetSpacing());
@@ -650,25 +650,25 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
         const TRAN_OPT &opt2 = opt_queue[1];
 
 	if ( opt1.file_type == AFFINE_FILE  && opt2.file_type == DEFORMATION_FILE   ) {
-	  bool defisinv=IsInverseDeformation(opt2.filename.c_str()); 
+	  bool defisinv=IsInverseDeformation(opt2.filename.c_str());
 	  if ( ! takeaffinv ) {
 	    std::cout << " Your 1st parameter should be an inverse affine map and the 2nd an InverseWarp  --- exiting without applying warp.  Check that , if using an inverse affine map, you pass the -i option before the Affine.txt." << std::endl;
-	    return ; 
+	    return ;
 	  }
 	  if ( ! defisinv ) {
 	    std::cout << " Your 2nd  parameter should be an InverseWarp when your 1st parameter is an inverse affine map  --- exiting without applying warp.  " << std::endl;
-	    return ; 
+	    return ;
 	  }
 	}
 	if ( opt2.file_type == AFFINE_FILE  && opt1.file_type == DEFORMATION_FILE   ) {
-	  bool defisinv=IsInverseDeformation(opt1.filename.c_str()); 
+	  bool defisinv=IsInverseDeformation(opt1.filename.c_str());
 	  if (  defisinv ) {
 	    std::cout << " Your 1st parameter should be a Warp (not Inverse) when your 2nd parameter is an affine map --- exiting without applying warp.  " << std::endl;
-	    return ; 
+	    return ;
 	  }
 	  if (  takeaffinv ) {
 	    std::cout << " Your 2nd parameter should be a regular affine map (not inverted) if the 1st is a Warp --- exiting without applying warp. " << std::endl;
-	    return ; 
+	    return ;
 	  }
 	}
 	std::cout <<" syntax probably ok. " << std::endl;
@@ -755,10 +755,10 @@ int main(int argc, char **argv){
 	//	std::cout << argv[0] <<  " ImageDimension moving_image output_image [-R reference_image | --tightest-bounding-box] (--reslice-by-header) [--use-NN]"
         //<< "[--ANTS-prefix prefix-name | --ANTS-prefix-invert prefix-name] {[deformation_field | [-i] InverseAffineTransform.txt | --Id | [-i] --moving-image-header / -mh  | [-i] --reference-image-header / -rh]} \n" << std::endl;
 	std::cout << argv[0] <<  " ImageDimension moving_image output_image  -R reference_image --use-NN   SeriesOfTransformations--(See Below) " << std::endl;
-	std::cout <<" SeriesOfTransformations --- " << argv[0] <<  " can apply, via concatenation, an unlimited number of transformations to your data ." << std::endl; 
+	std::cout <<" SeriesOfTransformations --- " << argv[0] <<  " can apply, via concatenation, an unlimited number of transformations to your data ." << std::endl;
 	std::cout << " Thus, SeriesOfTransformations may be  an Affine transform followed by a warp  another affine and then another warp. " << std::endl;
 	std::cout << "  Inverse affine transformations are invoked by calling   -i MyAffine.txt " << std::endl;
-	std::cout << " InverseWarps are invoked by passing the InverseWarp.nii.gz  filename (see below for a note about this).  " << std::endl; 
+	std::cout << " InverseWarps are invoked by passing the InverseWarp.nii.gz  filename (see below for a note about this).  " << std::endl;
 	std::cout << std::endl;
         std::cout << " Example 1: Mapping a warped image into the reference_image domain by applying abcdWarp.nii.gz and then abcdAffine.txt\n" << std::endl;
 
@@ -782,7 +782,7 @@ int main(int argc, char **argv){
 
 	std::cout << " -R: reference_image space that you wish to warp INTO." << std::endl;
 	std::cout << "	   --tightest-bounding-box: Computes the tightest bounding box using all the affine transformations. It will be overrided by -R reference_image if given." << std::endl;
-	std::cout << "	   --reslice-by-header: equivalient to -i -mh, or -fh -i -mh if used together with -R. It uses the orientation matrix and origin encoded in the image file header. " << std::endl; 
+	std::cout << "	   --reslice-by-header: equivalient to -i -mh, or -fh -i -mh if used together with -R. It uses the orientation matrix and origin encoded in the image file header. " << std::endl;
 	std::cout << "	   It can be used together with -R. This is typically not used together with any other transforms.\n " << std::endl;
 
 	std::cout << " --use-NN: Use Nearest Neighbor Interpolation. \n " << std::endl;
@@ -832,7 +832,7 @@ int main(int argc, char **argv){
      imageIO->SetFileName(moving_image_filename);
      imageIO->ReadImageInformation();
      unsigned int ncomponents=imageIO->GetNumberOfComponents();
-     
+
      std::cout << "moving_image_filename: " << moving_image_filename << " components " << ncomponents << std::endl;
      std::cout << "output_image_filename: " << output_image_filename << std::endl;
      std::cout << "reference_image_filename: ";

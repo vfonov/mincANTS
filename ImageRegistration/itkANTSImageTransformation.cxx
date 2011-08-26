@@ -7,7 +7,7 @@
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -43,8 +43,8 @@ template<unsigned int TDimension, class TReal>
 ANTSImageTransformation<TDimension, TReal>
 ::ANTSImageTransformation()
 {
-    this->m_DeformationField=NULL;
-    this->m_InverseDeformationField=NULL;
+    this->m_DisplacementField=NULL;
+    this->m_InverseDisplacementField=NULL;
     this->m_AffineTransform=NULL;
     this->m_WriteComponentImages = false;
     m_DeformationRegionOfInterestSize.Fill(0);
@@ -73,22 +73,22 @@ ANTSImageTransformation<TDimension, TReal>
     std::string::size_type pos = filePrefix.rfind( "." );
     std::string extension;
     std::string gzExtension( "" );
-    if ( pos != std::string::npos 
+    if ( pos != std::string::npos
       && std::string( filePrefix, pos, pos+2 ) != std::string( "./" ) )
       {
       filePrefix = std::string( filePrefix, 0, pos );
-      extension = std::string( this->m_NamingConvention, pos, 
+      extension = std::string( this->m_NamingConvention, pos,
         this->m_NamingConvention.length()-1 );
       if ( extension == std::string( ".gz" ) )
         {
         gzExtension = std::string( ".gz" );
     				pos = filePrefix.rfind( "." );
-    				extension = std::string( filePrefix, pos, 
+    				extension = std::string( filePrefix, pos,
     				  filePrefix.length()-1 );
         filePrefix = std::string( filePrefix, 0, pos );
-        } 
+        }
 
-      //GetSupportedWriteExtensions 
+      //GetSupportedWriteExtensions
       typedef itk::ImageIOBase                        IOBaseType;
       typedef std::list<itk::LightObject::Pointer>    ArrayOfImageIOType;
       typedef typename IOBaseType::ArrayOfExtensionsType       ArrayOfExtensionsType;
@@ -127,65 +127,65 @@ ANTSImageTransformation<TDimension, TReal>
       }
     else
       {
-      extension = std::string( ".nii.gz" ); 
-      }  
+      extension = std::string( ".nii.gz" );
+      }
     //Added by songgang
     if (this->m_AffineTransform) {
         std::cout << " writing " << filePrefix << " affine " << std::endl;
         std::string filename = filePrefix + std::string( "Affine.txt" );
         WriteAffineTransformFile(this->m_AffineTransform, filename);
     }
-    
-    if ( this->m_DeformationField )
-    {  
+
+    if ( this->m_DisplacementField )
+    {
         std::cout <<" writing " << filePrefix << " def " <<  std::endl;
         if ( extension != std::string( ".mha" ) )
         {
             std::string filename = filePrefix + std::string( "Warp" )
               + extension + gzExtension;
 
-            typedef ImageFileWriter<DeformationFieldType> WriterType;
+            typedef ImageFileWriter<DisplacementFieldType> WriterType;
             typename WriterType::Pointer writer = WriterType::New();
             std::cout << "filename " << filename << std::endl;
             writer->SetFileName( filename );
 	    //            writer->SetUseAvantsNamingConvention( true );
-            writer->SetInput( this->m_DeformationField );
+            writer->SetInput( this->m_DisplacementField );
             writer->Update();
         }
         else
         {
             std::string filename = filePrefix + std::string( "Warp.nii.gz" );
-            typedef ImageFileWriter<DeformationFieldType> WriterType;
+            typedef ImageFileWriter<DisplacementFieldType> WriterType;
             typename WriterType::Pointer writer = WriterType::New();
             writer->SetFileName( filename );
-            writer->SetInput( this->m_DeformationField );
+            writer->SetInput( this->m_DisplacementField );
             writer->Update();
         }
-    }         
+    }
 
-    if ( this->m_InverseDeformationField )
-    {  
+    if ( this->m_InverseDisplacementField )
+    {
         if ( extension != std::string( ".mha" ) )
         {
             std::string filename = filePrefix + std::string( "InverseWarp" )
               + extension + gzExtension;
-            typedef ImageFileWriter<DeformationFieldType> WriterType;
+            typedef ImageFileWriter<DisplacementFieldType> WriterType;
             typename WriterType::Pointer writer = WriterType::New();
             writer->SetFileName( filename );
 	    //            writer->SetUseAvantsNamingConvention( true );
-            writer->SetInput( this->m_InverseDeformationField );
+            writer->SetInput( this->m_InverseDisplacementField );
             writer->Update();
         }
         else
         {
             std::string filename = filePrefix + std::string( "InverseWarp.mha" );
-            typedef ImageFileWriter<DeformationFieldType> WriterType;
+            typedef ImageFileWriter<DisplacementFieldType> WriterType;
             typename WriterType::Pointer writer = WriterType::New();
             writer->SetFileName( filename );
-            writer->SetInput( this->m_InverseDeformationField );
+            writer->SetInput( this->m_InverseDisplacementField );
             writer->Update();
         }
-    }         
+    }
 
 
 }

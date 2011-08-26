@@ -36,8 +36,8 @@ namespace itk
 /**
  * Constructor
  */
-template < class TFixedImage, class TMovingImage , class TDeformationField >
-AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+template < class TFixedImage, class TMovingImage , class TDisplacementField >
+AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::AvantsMutualInformationRegistrationFunction()
 {
 
@@ -96,9 +96,9 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
 /**
  * Print out internal information about this class
  */
-template < class TFixedImage, class TMovingImage  , class TDeformationField>
+template < class TFixedImage, class TMovingImage  , class TDisplacementField>
 void
-AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
 
@@ -133,9 +133,9 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
 /**
  * Initialize
  */
-  template <class TFixedImage, class TMovingImage, class TDeformationField>
+  template <class TFixedImage, class TMovingImage, class TDisplacementField>
 void
-AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::InitializeIteration()
 {
   m_CubicBSplineKernel = CubicBSplineFunctionType::New();
@@ -351,9 +351,9 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
 /**
  * Get the both Value and Derivative Measure
  */
-template < class TFixedImage, class TMovingImage  , class TDeformationField>
+template < class TFixedImage, class TMovingImage  , class TDisplacementField>
 void
-AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::GetProbabilities()
 {
   typedef ImageRegionConstIteratorWithIndex<FixedImageType> RandomIterator;
@@ -495,9 +495,9 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
 /**
  * Get the both Value and Derivative Measure
  */
-template < class TFixedImage, class TMovingImage  , class TDeformationField>
+template < class TFixedImage, class TMovingImage  , class TDisplacementField>
 double
-AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::GetValueAndDerivative(IndexType oindex,
 			MeasureType& valuei,
 			DerivativeType& derivative1,DerivativeType& derivative2)
@@ -509,19 +509,19 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
 
   double movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( oindex )  );
   double fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( oindex )  );
-  
+
   double dJPDF=0,dFmPDF=0,jointPDFValue=0,fixedImagePDFValue=0;
 
     JointPDFPointType pdfind;
     this->ComputeJointPDFPoint(fixedImageValue,movingImageValue, pdfind);
     jointPDFValue=pdfinterpolator->Evaluate(pdfind);
     dJPDF = this->ComputeJointPDFDerivative( pdfind, 0 , 0 );
-  
+
     typename   pdfintType2::ContinuousIndexType  mind;
     mind[0]=pdfind[0];
     fixedImagePDFValue = pdfinterpolator2->Evaluate(mind);
     dFmPDF = this->ComputeFixedImageMarginalPDFDerivative( mind , 0 );
-  
+
     double term1=0,term2=0,eps=1.e-16;
     if( jointPDFValue > eps &&  (fixedImagePDFValue) > 0 )
     {
@@ -535,9 +535,9 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformatio
 }
 
 
-template < class TFixedImage, class TMovingImage  , class TDeformationField>
+template < class TFixedImage, class TMovingImage  , class TDisplacementField>
 double
-AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::GetValueAndDerivativeInv(IndexType oindex,
 			MeasureType& valuei,
 			DerivativeType& derivative1,DerivativeType& derivative2)

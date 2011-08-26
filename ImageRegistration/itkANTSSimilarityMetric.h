@@ -7,11 +7,11 @@
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -28,7 +28,7 @@
 
 namespace itk
 {
-template<unsigned int TDimension = 3, class TReal = float> 
+template<unsigned int TDimension = 3, class TReal = float>
 class ITK_EXPORT ANTSSimilarityMetric
 : public Object
 {
@@ -40,22 +40,22 @@ public:
   typedef SmartPointer<const Self>                         ConstPointer;
 
   /** Method for creation through the object factory. */
-  itkNewMacro( Self ); 
+  itkNewMacro( Self );
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( ANTSSimilarityMetric, Object ); 
+  itkTypeMacro( ANTSSimilarityMetric, Object );
   itkStaticConstMacro( Dimension, unsigned int, TDimension );
 
-  typedef TReal                                            RealType; 
-  typedef Image<RealType, 
+  typedef TReal                                            RealType;
+  typedef Image<RealType,
     itkGetStaticConstMacro( Dimension )>                   ImageType;
   typedef typename ImageType::Pointer                      ImagePointer;
-  typedef Vector<RealType, 
+  typedef Vector<RealType,
     itkGetStaticConstMacro( Dimension )>                   VectorType;
   typedef Image<VectorType,
-    itkGetStaticConstMacro( Dimension )>                   DeformationFieldType;
+    itkGetStaticConstMacro( Dimension )>                   DisplacementFieldType;
 
-  /** Point Types  for landmarks and labeled point-sets */ 
+  /** Point Types  for landmarks and labeled point-sets */
   typedef itk::ANTSLabeledPointSet<Dimension>  LabeledPointSetType;
   typedef typename LabeledPointSetType::Pointer  LabeledPointSetPointer;
   typedef typename LabeledPointSetType::PointSetType PointSetType;
@@ -64,24 +64,24 @@ public:
   typedef typename PointSetType::PixelType PointDataType;
   typedef typename ImageType::PointType ImagePointType;
 
-  /** Typedefs for similarity metrics */			    
+  /** Typedefs for similarity metrics */
   typedef AvantsPDEDeformableRegistrationFunction
-    <ImageType, ImageType, DeformationFieldType>           MetricType;
+    <ImageType, ImageType, DisplacementFieldType>           MetricType;
   typedef typename MetricType::Pointer                     MetricPointer;
   typedef typename MetricType::RadiusType                  RadiusType;
 
 
   itkSetMacro( FixedImage, ImagePointer );
   itkGetConstMacro( FixedImage, ImagePointer );
-  itkSetMacro( MovingImage, ImagePointer ); 
+  itkSetMacro( MovingImage, ImagePointer );
   itkGetConstMacro( MovingImage, ImagePointer );
   itkSetMacro( FixedPointSet, PointSetPointer );
   itkGetConstMacro( FixedPointSet, PointSetPointer );
-  itkSetMacro( MovingPointSet, PointSetPointer ); 
+  itkSetMacro( MovingPointSet, PointSetPointer );
   itkGetConstMacro( MovingPointSet, PointSetPointer );
-  itkSetMacro( WeightImage, ImagePointer ); 
+  itkSetMacro( WeightImage, ImagePointer );
   itkGetConstMacro( WeightImage, ImagePointer );
-  itkSetClampMacro( WeightScalar, RealType, 0.0, NumericTraits<RealType>::max() ); 
+  itkSetClampMacro( WeightScalar, RealType, 0.0, NumericTraits<RealType>::max() );
   itkGetConstMacro( WeightScalar, RealType );
 
 
@@ -93,19 +93,19 @@ public:
   itkBooleanMacro( MaximizeMetric );
 
 private:
-  
-  MetricPointer                                            m_Metric;    
+
+  MetricPointer                                            m_Metric;
   bool                                                     m_MaximizeMetric;
-  
+
   ImagePointer                                             m_FixedImage;
   ImagePointer                                             m_MovingImage;
-  
+
   PointSetPointer                                          m_FixedPointSet;
   PointSetPointer                                          m_MovingPointSet;
-  
+
   ImagePointer                                             m_WeightImage;
   RealType                                                 m_WeightScalar;
-  
+
 };
 
 } // end namespace itk

@@ -11,7 +11,7 @@
 #include "itkTransformFactory.h"
 #include "vtkPolyDataReader.h"
 //#include "itkWarpImageMultiTransformFilter.h"
-#include "itkDeformationFieldFromMultiTransformFilter.h"
+#include "itkDisplacementFieldFromMultiTransformFilter.h"
 #include "itkTransformFileReader.h"
 #include "itkTransformFileWriter.h"
 
@@ -37,24 +37,24 @@ typedef struct {
 
 typedef std::vector<TRAN_OPT> TRAN_OPT_QUEUE;
 
-template <class TImage, class TDeformationField>
+template <class TImage, class TDisplacementField>
 typename TImage::PointType
-TransformPoint(TDeformationField* field, typename TImage::PointType point )
+TransformPoint(TDisplacementField* field, typename TImage::PointType point )
 {
   enum { ImageDimension = TImage::ImageDimension };
-  typename TImage::PointType newpoint; 
+  typename TImage::PointType newpoint;
   newpoint.Fill(0);
 
   for (unsigned int row=0; row<ImageDimension; row++)
-    for (unsigned int col=0; col<ImageDimension; col++) 
+    for (unsigned int col=0; col<ImageDimension; col++)
       newpoint[row]+=point[col]*field->GetDirection()[row][col];
 
- 
+
   return newpoint;
 }
 
 vnl_matrix_fixed<double,4,4> ConstructNiftiSform(
-  vnl_matrix<double> m_dir, 
+  vnl_matrix<double> m_dir,
   vnl_vector<double> v_origin,
   vnl_vector<double> v_spacing)
 {
@@ -85,12 +85,12 @@ vnl_matrix_fixed<double,4,4> ConstructNiftiSform(
 }
 
 vnl_matrix_fixed<double,4,4> ConstructVTKtoNiftiTransform(
-  vnl_matrix<double> m_dir, 
+  vnl_matrix<double> m_dir,
   vnl_vector<double> v_origin,
   vnl_vector<double> v_spacing)
 {
   vnl_matrix_fixed<double,4,4> vox2nii = ConstructNiftiSform(m_dir, v_origin, v_spacing);
-  vnl_matrix_fixed<double,4,4> vtk2vox; 
+  vnl_matrix_fixed<double,4,4> vtk2vox;
   vtk2vox.set_identity();
   for(size_t i = 0; i < 3; i++)
     {
@@ -122,7 +122,7 @@ TRAN_FILE_TYPE CheckFileType(char *str) {
     return AFFINE_FILE;
 }
 
-bool ParseInput(int argc, char **argv, char *&input_vtk_filename, 
+bool ParseInput(int argc, char **argv, char *&input_vtk_filename,
         char *&output_vtk_filename,
         char *&reference_image_filename, TRAN_OPT_QUEUE &opt_queue) {
 
@@ -203,12 +203,12 @@ void WarpLabeledPointSetFileMultiTransform(char *input_vtk_filename, char *outpu
 
     typedef itk::Image<float, ImageDimension> ImageType;
     typedef itk::Vector<float, ImageDimension> VectorType;
-    typedef itk::Image<VectorType, ImageDimension> DeformationFieldType;
+    typedef itk::Image<VectorType, ImageDimension> DisplacementFieldType;
     typedef itk::MatrixOffsetTransformBase<double, ImageDimension,
     ImageDimension> AffineTransformType;
-    // typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DeformationFieldType, AffineTransformType> WarperType;
-    typedef itk::DeformationFieldFromMultiTransformFilter<DeformationFieldType,
-    DeformationFieldType, AffineTransformType> WarperType;
+    // typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DisplacementFieldType, AffineTransformType> WarperType;
+    typedef itk::DisplacementFieldFromMultiTransformFilter<DisplacementFieldType,
+    DisplacementFieldType, AffineTransformType> WarperType;
     typedef itk::LinearInterpolateImageFunction<ImageType> FuncType;
 
     itk::TransformFactory<AffineTransformType>::RegisterTransform();
@@ -240,7 +240,7 @@ void WarpLabeledPointSetFileMultiTransform(char *input_vtk_filename, char *outpu
 
     typedef itk::TransformFileReader TranReaderType;
 
-    typedef itk::ImageFileReader<DeformationFieldType>
+    typedef itk::ImageFileReader<DisplacementFieldType>
     FieldReaderType;
 
     const int kOptQueueSize = opt_queue.size();
@@ -267,10 +267,10 @@ void WarpLabeledPointSetFileMultiTransform(char *input_vtk_filename, char *outpu
                 FieldReaderType::New();
             field_reader->SetFileName(opt.filename);
             field_reader->Update();
-            typename DeformationFieldType::Pointer field =
+            typename DisplacementFieldType::Pointer field =
                 field_reader->GetOutput();
             // std::cout << field << std::endl;
-            warper->PushBackDeformationFieldTransform(field);
+            warper->PushBackDisplacementFieldTransform(field);
             break;
         }
         default:
@@ -290,8 +290,8 @@ void WarpLabeledPointSetFileMultiTransform(char *input_vtk_filename, char *outpu
     warper->DetermineFirstDeformNoInterp();
     warper->Update();
 
-    typename DeformationFieldType::Pointer field_output =
-        DeformationFieldType::New();
+    typename DisplacementFieldType::Pointer field_output =
+        DisplacementFieldType::New();
     field_output = warper->GetOutput();
 
  /**
@@ -316,7 +316,7 @@ void WarpLabeledPointSetFileMultiTransform(char *input_vtk_filename, char *outpu
 
   while( It != vtkreader->GetOutput()->GetPoints()->End() )
     {
-    point.CastFrom( It.Value() ); 
+    point.CastFrom( It.Value() );
   */
   vnl_matrix_fixed<double, 4, 4> ijk2ras, vtk2ras, lps2ras;
     vtk2ras = ConstructVTKtoNiftiTransform(
@@ -327,7 +327,7 @@ void WarpLabeledPointSetFileMultiTransform(char *input_vtk_filename, char *outpu
     vtk2ras.set_identity();
     lps2ras.set_identity();
     lps2ras(0,0) = -1; lps2ras(1,1) = -1;
-    
+
     // Set up the transforms
     ijk2ras = ConstructNiftiSform(
       field_output->GetDirection().GetVnlMatrix(),
@@ -338,7 +338,7 @@ void WarpLabeledPointSetFileMultiTransform(char *input_vtk_filename, char *outpu
       field_output->GetDirection().GetVnlMatrix(),
       field_output->GetOrigin().GetVnlVector(),
       field_output->GetSpacing().GetVnlVector());
-    
+
   vnl_matrix_fixed<double, 4, 4> ras2ijk = vnl_inverse(ijk2ras);
   vnl_matrix_fixed<double, 4, 4> ras2vtk = vnl_inverse(vtk2ras);
   vnl_matrix_fixed<double, 4, 4> ras2lps = vnl_inverse(lps2ras);
@@ -373,7 +373,7 @@ void WarpLabeledPointSetFileMultiTransform(char *input_vtk_filename, char *outpu
       // if ( isInside ) std::cout << " point-w " << warpedPoint << std::endl;
     if( isInside )
       {
-      typename MeshType::PointType newPoint; 
+      typename MeshType::PointType newPoint;
       newPoint.CastFrom( warpedPoint );
       //      vtkreader->GetOutput()->SetPoint( It.Index(), newPoint );
       if ( ImageDimension == 3 ) {
@@ -410,7 +410,7 @@ void WarpLabeledPointSetFileMultiTransform(char *input_vtk_filename, char *outpu
 //    std::cout << "output extension is: " << extension << std::endl;
 //
 //    if (extension != std::string(".mha")) {
-//        typedef itk::VectorImageFileWriter<DeformationFieldType, ImageType>
+//        typedef itk::VectorImageFileWriter<DisplacementFieldType, ImageType>
 //        WriterType;
 //        typename WriterType::Pointer writer = WriterType::New();
 //        writer->SetFileName(output_vtk_filename);
@@ -418,7 +418,7 @@ void WarpLabeledPointSetFileMultiTransform(char *input_vtk_filename, char *outpu
 //        writer->SetInput(field_output);
 //        writer->Update();
 //    } else {
-//        typedef itk::ImageFileWriter<DeformationFieldType> WriterType;
+//        typedef itk::ImageFileWriter<DisplacementFieldType> WriterType;
 //        typename WriterType::Pointer writer = WriterType::New();
 //        writer->SetFileName(output_vtk_filename);
 //        writer->SetInput(field_output);
@@ -434,11 +434,11 @@ void ComposeMultiAffine(char *input_affine_txt, char *output_affine_txt,
 
     typedef itk::Image<float, ImageDimension> ImageType;
     typedef itk::Vector<float, ImageDimension> VectorType;
-    typedef itk::Image<VectorType, ImageDimension> DeformationFieldType;
+    typedef itk::Image<VectorType, ImageDimension> DisplacementFieldType;
     typedef itk::MatrixOffsetTransformBase<double, ImageDimension, ImageDimension> AffineTransformType;
-    typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DeformationFieldType, AffineTransformType> WarperType;
-    // typedef itk::DeformationFieldFromMultiTransformFilter<DeformationFieldType,
-    // DeformationFieldType, AffineTransformType> WarperType;
+    typedef itk::WarpImageMultiTransformFilter<ImageType,ImageType, DisplacementFieldType, AffineTransformType> WarperType;
+    // typedef itk::DisplacementFieldFromMultiTransformFilter<DisplacementFieldType,
+    // DisplacementFieldType, AffineTransformType> WarperType;
 
     itk::TransformFactory<AffineTransformType>::RegisterTransform();
 
@@ -458,7 +458,7 @@ void ComposeMultiAffine(char *input_affine_txt, char *output_affine_txt,
 
     typedef itk::TransformFileReader TranReaderType;
 
-    typedef itk::ImageFileReader<DeformationFieldType>
+    typedef itk::ImageFileReader<DisplacementFieldType>
     FieldReaderType;
 
     int cnt_affine = 0;
@@ -579,13 +579,13 @@ int main(int argc, char **argv) {
 
             switch (kImageDim) {
             case 2: {
-                WarpLabeledPointSetFileMultiTransform<2> (input_vtk_filename, 
+                WarpLabeledPointSetFileMultiTransform<2> (input_vtk_filename,
                         output_vtk_filename,
                         reference_image_filename, opt_queue);
                 break;
             }
             case 3: {
-                WarpLabeledPointSetFileMultiTransform<3> (input_vtk_filename, 
+                WarpLabeledPointSetFileMultiTransform<3> (input_vtk_filename,
                         output_vtk_filename,
                         reference_image_filename, opt_queue);
                 break;

@@ -5,7 +5,7 @@
 
 #include "itkWarpImageFilter.h"
 #include "itkWarpImageMultiTransformFilter.h"
-#include "itkDeformationFieldFromMultiTransformFilter.h"
+#include "itkDisplacementFieldFromMultiTransformFilter.h"
 #include "itkFastMarchingUpwindGradientImageFilter.h"
 #include "itkFastMarchingUpwindGradientImageFilter.h"
 #include "itkImageFileWriter.h"
@@ -175,9 +175,9 @@ SmoothDeformation(typename TImage::Pointer vectorimage, double sig)
 }
 
 
-template <class TImage, class TDeformationField>
+template <class TImage, class TDisplacementField>
 typename TImage::Pointer
-CopyImage(TDeformationField* field )
+CopyImage(TDisplacementField* field )
 {
   typedef TImage ImageType;
   enum { ImageDimension = TImage::ImageDimension };
@@ -405,14 +405,14 @@ typename TField::Pointer
 ExpDiffMap(typename TField::Pointer velofield,  typename TImage::Pointer wm,  double sign, unsigned int numtimepoints )
 {
   typedef TImage ImageType;
-  typedef TField DeformationFieldType;
+  typedef TField DisplacementFieldType;
   typedef typename TField::PixelType PixelType;
   typename TField::PixelType zero,disp;
   enum { ImageDimension = TImage::ImageDimension };
   disp.Fill(0);
   zero.Fill(0);
 
-  typename DeformationFieldType::Pointer incrfield=DeformationFieldType::New();
+  typename DisplacementFieldType::Pointer incrfield=DisplacementFieldType::New();
   incrfield->SetSpacing( velofield->GetSpacing() );
   incrfield->SetOrigin( velofield->GetOrigin() );
   incrfield->SetDirection( velofield->GetDirection() );
@@ -432,7 +432,7 @@ ExpDiffMap(typename TField::Pointer velofield,  typename TImage::Pointer wm,  do
     }
       // generate phi
     typedef itk::MatrixOffsetTransformBase<PixelType, ImageDimension,ImageDimension> AffineTransformType;
-    typedef itk::DeformationFieldFromMultiTransformFilter<TField,TField,AffineTransformType> WarperType;
+    typedef itk::DisplacementFieldFromMultiTransformFilter<TField,TField,AffineTransformType> WarperType;
     typename WarperType::Pointer warper = WarperType::New();
     warper->SetOutputSize(velofield->GetLargestPossibleRegion().GetSize());
     warper->SetOutputSpacing(velofield->GetSpacing());
@@ -444,7 +444,7 @@ ExpDiffMap(typename TField::Pointer velofield,  typename TImage::Pointer wm,  do
       while( ttiter < numtimepoints )  // 10 time integration points
 	{
 	  ttiter++;
-	  warper->PushBackDeformationFieldTransform(incrfield);
+	  warper->PushBackDisplacementFieldTransform(incrfield);
 	}
       warper->Update();
       return warper->GetOutput();
@@ -455,7 +455,7 @@ typename TField::Pointer
 DiReCTCompose(typename TField::Pointer velofield, typename TField::Pointer diffmap )
 {
   typedef TImage ImageType;
-  typedef TField DeformationFieldType;
+  typedef TField DisplacementFieldType;
   typedef typename TField::PixelType PixelType;
   typename TField::PixelType zero,disp;
   enum { ImageDimension = TImage::ImageDimension };
@@ -463,15 +463,15 @@ DiReCTCompose(typename TField::Pointer velofield, typename TField::Pointer diffm
   zero.Fill(0);
 
     typedef itk::MatrixOffsetTransformBase<PixelType, ImageDimension,ImageDimension> AffineTransformType;
-    typedef itk::DeformationFieldFromMultiTransformFilter<TField,TField,AffineTransformType> WarperType;
+    typedef itk::DisplacementFieldFromMultiTransformFilter<TField,TField,AffineTransformType> WarperType;
     typename WarperType::Pointer warper = WarperType::New();
     warper->SetOutputSize(velofield->GetLargestPossibleRegion().GetSize());
     warper->SetOutputSpacing(velofield->GetSpacing());
     warper->SetOutputOrigin(velofield->GetOrigin());
     warper->SetOutputDirection(velofield->GetDirection());
     warper->DetermineFirstDeformNoInterp();
-	  warper->PushBackDeformationFieldTransform(diffmap);
-	  warper->PushBackDeformationFieldTransform(velofield);
+	  warper->PushBackDisplacementFieldTransform(diffmap);
+	  warper->PushBackDisplacementFieldTransform(velofield);
       warper->Update();
       return warper->GetOutput();
 
@@ -488,8 +488,8 @@ InvertField( typename TField::Pointer field,
 {
 
   enum { ImageDimension = TImage::ImageDimension };
-  typedef TField DeformationFieldType;
-  typedef typename TField::Pointer DeformationFieldPointer;
+  typedef TField DisplacementFieldType;
+  typedef typename TField::Pointer DisplacementFieldPointer;
   typedef typename TField::PixelType VectorType;
   typedef TImage ImageType;
   typedef typename TImage::Pointer ImagePointer;
@@ -507,15 +507,15 @@ InvertField( typename TField::Pointer field,
   realImage->SetDirection(field->GetDirection());
   realImage->Allocate();
 
-  typedef typename DeformationFieldType::PixelType VectorType;
-  typedef typename DeformationFieldType::IndexType IndexType;
+  typedef typename DisplacementFieldType::PixelType VectorType;
+  typedef typename DisplacementFieldType::IndexType IndexType;
   typedef typename VectorType::ValueType           ScalarType;
-  typedef itk::ImageRegionIteratorWithIndex<DeformationFieldType> Iterator;
+  typedef itk::ImageRegionIteratorWithIndex<DisplacementFieldType> Iterator;
 
   typedef itk::ANTSImageRegistrationOptimizer<ImageDimension, double>  ROType;
   typename ROType::Pointer m_MFR=ROType::New();
 
-  DeformationFieldPointer inverseField=DeformationFieldType::New();
+  DisplacementFieldPointer inverseField=DisplacementFieldType::New();
   inverseField->SetSpacing( field->GetSpacing() );
   inverseField->SetOrigin( field->GetOrigin() );
   inverseField->SetDirection( field->GetDirection() );
@@ -525,7 +525,7 @@ InvertField( typename TField::Pointer field,
   inverseField->Allocate();
   inverseField->FillBuffer(zero);
 
-  DeformationFieldPointer lagrangianInitCond=DeformationFieldType::New();
+  DisplacementFieldPointer lagrangianInitCond=DisplacementFieldType::New();
   lagrangianInitCond->SetSpacing( field->GetSpacing() );
   lagrangianInitCond->SetOrigin( field->GetOrigin() );
   lagrangianInitCond->SetDirection( field->GetDirection() );
@@ -533,7 +533,7 @@ InvertField( typename TField::Pointer field,
   lagrangianInitCond->SetRequestedRegion(field->GetRequestedRegion() );
   lagrangianInitCond->SetBufferedRegion( field->GetLargestPossibleRegion() );
   lagrangianInitCond->Allocate();
-  DeformationFieldPointer eulerianInitCond=DeformationFieldType::New();
+  DisplacementFieldPointer eulerianInitCond=DisplacementFieldType::New();
   eulerianInitCond->SetSpacing( field->GetSpacing() );
   eulerianInitCond->SetOrigin( field->GetOrigin() );
   eulerianInitCond->SetDirection( field->GetDirection() );
@@ -542,7 +542,7 @@ InvertField( typename TField::Pointer field,
   eulerianInitCond->SetBufferedRegion( field->GetLargestPossibleRegion() );
   eulerianInitCond->Allocate();
 
-  typedef typename DeformationFieldType::SizeType SizeType;
+  typedef typename DisplacementFieldType::SizeType SizeType;
   SizeType size=field->GetLargestPossibleRegion().GetSize();
 
 
@@ -682,7 +682,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   std::cout <<" smooth " << smoothingsigma << " thp " << thickprior << " gs " << gradstep << std::endl;
   typedef RealType  PixelType;
   typedef itk::Vector<RealType,ImageDimension>         VectorType;
-  typedef itk::Image<VectorType,ImageDimension>     DeformationFieldType;
+  typedef itk::Image<VectorType,ImageDimension>     DisplacementFieldType;
   typedef itk::Image<PixelType,ImageDimension> ImageType;
   typedef itk::ImageFileReader<ImageType> readertype;
   typedef itk::ImageFileWriter<ImageType> writertype;
@@ -714,13 +714,13 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   wm->SetDirection(fmat);
   segmentationimage->SetDirection(fmat);
   SpacingType spacing=wm->GetSpacing();
-  typename DeformationFieldType::Pointer lapgrad;
+  typename DisplacementFieldType::Pointer lapgrad;
   typename ImageType::Pointer gmb=BinaryThreshold<ImageType>(2,2,1,segmentationimage);  // fixme
   typename ImageType::Pointer wmb=BinaryThreshold<ImageType>(3,3,1,segmentationimage);  // fixme
   typename ImageType::Pointer laplacian= SmoothImage<ImageType>(wm,smoothingsigma);
-  lapgrad=LaplacianGrad<ImageType,DeformationFieldType>(wmb,gmb,1);
+  lapgrad=LaplacianGrad<ImageType,DisplacementFieldType>(wmb,gmb,1);
 
-  typename DeformationFieldType::Pointer corrfield=DeformationFieldType::New();
+  typename DisplacementFieldType::Pointer corrfield=DisplacementFieldType::New();
   corrfield->SetSpacing( wm->GetSpacing() );
   corrfield->SetOrigin( wm->GetOrigin() );
   corrfield->SetDirection( wm->GetDirection() );
@@ -731,7 +731,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
     VectorType zero;
     zero.Fill(0);
   corrfield->FillBuffer(zero);
-  typename DeformationFieldType::Pointer incrfield=DeformationFieldType::New();
+  typename DisplacementFieldType::Pointer incrfield=DisplacementFieldType::New();
   incrfield->SetSpacing( wm->GetSpacing() );
   incrfield->SetOrigin( wm->GetOrigin() );
   incrfield->SetDirection( wm->GetDirection() );
@@ -741,7 +741,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   incrfield->Allocate();
   incrfield->FillBuffer(zero);
 
-  typename DeformationFieldType::Pointer invfield=DeformationFieldType::New();
+  typename DisplacementFieldType::Pointer invfield=DisplacementFieldType::New();
   invfield->SetSpacing( wm->GetSpacing() );
   invfield->SetOrigin( wm->GetOrigin() );
   invfield->SetDirection( wm->GetDirection() );
@@ -751,7 +751,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   invfield->Allocate();
   invfield->FillBuffer(zero);
 
-  typename DeformationFieldType::Pointer incrinvfield=DeformationFieldType::New();
+  typename DisplacementFieldType::Pointer incrinvfield=DisplacementFieldType::New();
   incrinvfield->SetSpacing( wm->GetSpacing() );
   incrinvfield->SetOrigin( wm->GetOrigin() );
   incrinvfield->SetDirection( wm->GetDirection() );
@@ -761,7 +761,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   incrinvfield->Allocate();
   incrinvfield->FillBuffer(zero);
 
-  typename DeformationFieldType::Pointer velofield=DeformationFieldType::New();
+  typename DisplacementFieldType::Pointer velofield=DisplacementFieldType::New();
   velofield->SetSpacing( wm->GetSpacing() );
   velofield->SetOrigin( wm->GetOrigin() );
   velofield->SetDirection( wm->GetDirection() );
@@ -790,15 +790,15 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   //  WriteImage<ImageType>(bsurf,"surfdefwm.nii.gz");
 
   typename ImageType::SizeType s= wm->GetLargestPossibleRegion().GetSize();
-  typename DeformationFieldType::IndexType velind;  velind.Fill(0);
-    typedef   DeformationFieldType TimeVaryingVelocityFieldType;
-    typedef itk::ImageRegionIteratorWithIndex<DeformationFieldType>         FieldIterator;
-    typedef typename DeformationFieldType::IndexType DIndexType;
-    typedef typename DeformationFieldType::PointType DPointType;
+  typename DisplacementFieldType::IndexType velind;  velind.Fill(0);
+    typedef   DisplacementFieldType TimeVaryingVelocityFieldType;
+    typedef itk::ImageRegionIteratorWithIndex<DisplacementFieldType>         FieldIterator;
+    typedef typename DisplacementFieldType::IndexType DIndexType;
+    typedef typename DisplacementFieldType::PointType DPointType;
     typedef typename TimeVaryingVelocityFieldType::IndexType VIndexType;
     typedef typename TimeVaryingVelocityFieldType::PointType VPointType;
     typedef itk::VectorLinearInterpolateImageFunction<TimeVaryingVelocityFieldType,RealType> DefaultInterpolatorType;
-    typedef itk::VectorLinearInterpolateImageFunction<DeformationFieldType,RealType> DefaultInterpolatorType2;
+    typedef itk::VectorLinearInterpolateImageFunction<DisplacementFieldType,RealType> DefaultInterpolatorType2;
     typename DefaultInterpolatorType::Pointer vinterp =  DefaultInterpolatorType::New();
     vinterp->SetInputImage(lapgrad);
     typedef itk::LinearInterpolateImageFunction<ImageType,RealType> ScalarInterpolatorType;
@@ -815,7 +815,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 
   typename ImageType::Pointer surfdef;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> IteratorType;
-  typedef itk::ImageRegionIteratorWithIndex<DeformationFieldType> VIteratorType;
+  typedef itk::ImageRegionIteratorWithIndex<DisplacementFieldType> VIteratorType;
   VIteratorType VIterator( lapgrad, lapgrad->GetLargestPossibleRegion().GetSize() );
   VIterator.GoToBegin();
   while(  !VIterator.IsAtEnd()  )
@@ -831,7 +831,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
     }
 
 
-  //  m_MFR->SmoothDeformationFieldGauss(lapgrad,1.7);
+  //  m_MFR->SmoothDisplacementFieldGauss(lapgrad,1.7);
   std::cout << " Scaling done " << std::endl;
 
   //  RealType thislength=0;
@@ -895,7 +895,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 
 	  if (debug) std::cout <<" exp " << std::endl;
 	  // Integrate the negative velocity field to generate diffeomorphism corrfield step 3(a)
-	  //	  corrfield=ExpDiffMap<ImageType,DeformationFieldType>( velofield,  wm, -1, numtimepoints-ttiter);
+	  //	  corrfield=ExpDiffMap<ImageType,DisplacementFieldType>( velofield,  wm, -1, numtimepoints-ttiter);
 	  //	  std::cout  << " corrf len " << m_MFR->MeasureDeformation( corrfield ) << std::endl;
 	  if (debug) std::cout <<" gmdef " << std::endl;
 	  typename ImageType::Pointer gmdef = gm; // m_MFR->WarpImageBackward(gm,corrfield);
@@ -908,7 +908,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	  typename ImageType::Pointer thindef =m_MFR->WarpImageBackward(bsurf,invfield);
 	  if (spatprior) wpriorim=m_MFR->WarpImageBackward(priorim,invfield);
 
-	  typedef DeformationFieldType GradientImageType;
+	  typedef DisplacementFieldType GradientImageType;
 	  typedef itk::GradientRecursiveGaussianImageFilter< ImageType,GradientImageType >
 	    GradientImageFilterType;
   	  typedef typename GradientImageFilterType::Pointer GradientImageFilterPointer;
@@ -916,11 +916,11 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	  gfilter->SetInput(  surfdef );
 	  gfilter->SetSigma( smoothingsigma );
 	  gfilter->Update();
-	  typename DeformationFieldType::Pointer   lapgrad2=gfilter->GetOutput();
+	  typename DisplacementFieldType::Pointer   lapgrad2=gfilter->GetOutput();
 
 
 	  // this is the "speed" image
-	  typename ImageType::Pointer speed_image=CopyImage<ImageType,DeformationFieldType>(invfield);
+	  typename ImageType::Pointer speed_image=CopyImage<ImageType,DisplacementFieldType>(invfield);
 	  IteratorType xxIterator( speed_image, speed_image->GetLargestPossibleRegion().GetSize() );
 	  xxIterator.GoToBegin();
 	  RealType maxlapgrad2mag=0;
@@ -1021,10 +1021,10 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	    }
 	  if ( ttiter == 0 ) corrfield->FillBuffer(zero);
 
-	  InvertField<ImageType,DeformationFieldType>( invfield, corrfield, 1.0,0.1,20,true);
-	  InvertField<ImageType,DeformationFieldType>( corrfield, invfield, 1.0,0.1,20,true);
-	  //	  InvertField<ImageType,DeformationFieldType>( invfield, corrfield, 1.0,0.1,20,true);
-	  //  InvertField<ImageType,DeformationFieldType>( corrfield, invfield, 1.0,0.1,20,true);
+	  InvertField<ImageType,DisplacementFieldType>( invfield, corrfield, 1.0,0.1,20,true);
+	  InvertField<ImageType,DisplacementFieldType>( corrfield, invfield, 1.0,0.1,20,true);
+	  //	  InvertField<ImageType,DisplacementFieldType>( invfield, corrfield, 1.0,0.1,20,true);
+	  //  InvertField<ImageType,DisplacementFieldType>( corrfield, invfield, 1.0,0.1,20,true);
 	  ttiter++;
 	}
 
@@ -1051,14 +1051,14 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 	    ++Iterator;
 	  }
       if (debug)  std::cout << " now smooth " << std::endl;
-    m_MFR->SmoothDeformationFieldGauss(velofield,smoothingsigma);
-    WriteImage<DeformationFieldType>(corrfield,"corrfield.nii.gz");
-    WriteImage<DeformationFieldType>(invfield,"invfield.nii.gz");
+    m_MFR->SmoothDisplacementFieldGauss(velofield,smoothingsigma);
+    WriteImage<DisplacementFieldType>(corrfield,"corrfield.nii.gz");
+    WriteImage<DisplacementFieldType>(invfield,"invfield.nii.gz");
 
     //    std::string velofieldname = outname + "velofield";
-    //WriteDisplacementField<DeformationFieldType>(velofield,velofieldname.c_str());
+    //WriteDisplacementField<DisplacementFieldType>(velofield,velofieldname.c_str());
     //std::string incrfieldname = outname + "incrfield";
-    //WriteDisplacementField<DeformationFieldType>(incrfield,incrfieldname.c_str());
+    //WriteDisplacementField<DisplacementFieldType>(incrfield,incrfieldname.c_str());
 
 
     //std::string tname = outname + "dork1.nii.gz";
@@ -1070,7 +1070,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 //    std::string sulcthickname =outname + "sulcthick.nii";
     //    if (ImageDimension==2) WriteJpg<ImageType>(finalthickimage,"thick.jpg");
     //    std::string velofieldname = outname + "velofield";
-    //WriteDisplacementField<DeformationFieldType>(velofield,velofieldname.c_str());
+    //WriteDisplacementField<DisplacementFieldType>(velofield,velofieldname.c_str());
     if (debug)std::cout << "outside it " << its << std::endl;
     //std::cin.get();
 

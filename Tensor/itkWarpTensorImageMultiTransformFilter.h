@@ -7,11 +7,11 @@
   Version:   $Revision: 1.1 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -48,14 +48,14 @@ namespace itk
  * any holes and overlaps in the output image.
  *
  * Each vector in the deformation field represent the distance between
- * a geometric point in the input space and a point in the output space such 
+ * a geometric point in the input space and a point in the output space such
  * that:
  *
  * \f[ p_{in} = p_{out} + d \f]
  *
- * Typically the mapped position does not correspond to an integer pixel 
+ * Typically the mapped position does not correspond to an integer pixel
  * position in the input image. Interpolation via an image function
- * is used to compute values at non-integer positions. The default 
+ * is used to compute values at non-integer positions. The default
  * interpolation typed used is the LinearInterpolateImageFunction.
  * The user can specify a particular interpolation function via
  * SetInterpolator(). Note that the input interpolator must derive
@@ -64,16 +64,16 @@ namespace itk
  * Position mapped to outside of the input image buffer are assigned
  * a edge padding value.
  *
- * The LargetPossibleRegion for the output is inherited from the 
- * input deformation field. The output image spacing and origin may be set 
- * via SetOutputSpacing, SetOutputOrigin. The default are respectively a 
+ * The LargetPossibleRegion for the output is inherited from the
+ * input deformation field. The output image spacing and origin may be set
+ * via SetOutputSpacing, SetOutputOrigin. The default are respectively a
  * vector of 1's and a vector of 0's.
  *
  * This class is templated over the type of the input image, the
  * type of the output image and the type of the deformation field.
  *
  * The input image is set via SetInput. The input deformation field
- * is set via SetDeformationField.
+ * is set via SetDisplacementField.
  *
  * This filter is implemented as a multithreaded filter.
  *
@@ -85,7 +85,7 @@ namespace itk
 template <
 class TInputImage,
 class TOutputImage,
-class TDeformationField,
+class TDisplacementField,
 class TTransform
 >
 class ITK_EXPORT WarpTensorImageMultiTransformFilter :
@@ -95,7 +95,7 @@ public:
     /** transform order type **/
     // typedef enum _TransformOrderType {AffineFirst=0, AffineLast} TransformOrderType;
     /** transform type **/
-    typedef enum _SingleTransformType {EnumAffineType=0, EnumDeformationFieldType} SingleTransformType;
+    typedef enum _SingleTransformType {EnumAffineType=0, EnumDisplacementFieldType} SingleTransformType;
 
     /** Standard class typedefs. */
     typedef WarpTensorImageMultiTransformFilter      Self;
@@ -129,15 +129,15 @@ public:
             TOutputImage::ImageDimension );
     itkStaticConstMacro(InputImageDimension, unsigned int,
             TInputImage::ImageDimension );
-    itkStaticConstMacro(DeformationFieldDimension, unsigned int,
-            TDeformationField::ImageDimension );
+    itkStaticConstMacro(DisplacementFieldDimension, unsigned int,
+            TDisplacementField::ImageDimension );
 
     /** Deformation field typedef support. */
-    typedef TDeformationField    DeformationFieldType;
-    typedef typename DeformationFieldType::Pointer  DeformationFieldPointer;
-    typedef typename DeformationFieldType::PixelType DisplacementType;
+    typedef TDisplacementField    DisplacementFieldType;
+    typedef typename DisplacementFieldType::Pointer  DisplacementFieldPointer;
+    typedef typename DisplacementFieldType::PixelType DisplacementType;
     typedef typename DisplacementType::ValueType DisplacementScalarValueType;
-    
+
 
     /** songgang: Affine transform typedef support. */
     typedef TTransform TransformType;
@@ -149,28 +149,28 @@ public:
     typedef VectorInterpolateImageFunction<InputImageType,CoordRepType>   InterpolatorType;
     typedef typename InterpolatorType::Pointer   InterpolatorPointer;
     typedef VectorLinearInterpolateImageFunction<InputImageType,CoordRepType> DefaultInterpolatorType;
-    typedef VectorLinearInterpolateImageFunction<DeformationFieldType,CoordRepType> DefaultVectorInterpolatorType;
+    typedef VectorLinearInterpolateImageFunction<DisplacementFieldType,CoordRepType> DefaultVectorInterpolatorType;
     typedef typename DefaultVectorInterpolatorType::Pointer VectorInterpolatorPointer;
-    
-    
+
+
     /** Point type */
     typedef Point<CoordRepType,itkGetStaticConstMacro(ImageDimension)> PointType;
-    
+
     typedef struct _DeformationTypeEx{
-        DeformationFieldPointer field;
-        VectorInterpolatorPointer vinterp; 
+        DisplacementFieldPointer field;
+        VectorInterpolatorPointer vinterp;
     } DeformationTypeEx;
-    
+
     typedef struct _AffineTypeEx{
         TransformTypePointer aff;
     } AffineTypeEx;
-    
+
     typedef struct _VarTransformType{
         AffineTypeEx aex;
         DeformationTypeEx dex;
     } VarTransformType;
-        
-    
+
+
     typedef std::pair<SingleTransformType, VarTransformType> SingleTransformItemType;
     typedef std::list<SingleTransformItemType> TransformListType;
 
@@ -190,20 +190,20 @@ public:
 
     /** Set the output image spacing. */
     itkSetMacro(OutputDirection, DirectionType);
-    
+
     /** Get the output image spacing. */
     itkGetConstReferenceMacro(OutputDirection, DirectionType);
 
     /** Set the output image origin. */
     itkSetMacro(OutputOrigin, PointType);
     virtual void SetOutputOrigin( const double* values);
-    
+
     /** Get the output image origin. */
     itkGetConstReferenceMacro(OutputOrigin, PointType);
 
     /** Set the output image size. */
     itkSetMacro(OutputSize, SizeType);
-    
+
     // virtual void SetOutputSize( const double *values);
     itkGetConstReferenceMacro(OutputSize, SizeType);
 
@@ -218,9 +218,9 @@ public:
     TransformListType & GetTransformList(){
         return m_TransformList;
     }
-    
 
-    
+
+
     void PrintTransformList();
 
     /** WarpTensorImageMultiTransformFilter produces an image which is a different
@@ -238,74 +238,74 @@ public:
      * set to be the same as that of the output requested region. */
     virtual void GenerateInputRequestedRegion();
 
-    /** This method is used to set the state of the filter before 
+    /** This method is used to set the state of the filter before
      * multi-threading. */
     virtual void BeforeThreadedGenerateData();
 
-    /** This method is used to set the state of the filter after 
+    /** This method is used to set the state of the filter after
      * multi-threading. */
     virtual void AfterThreadedGenerateData();
 
     /** precompute the smoothed image if necessary **/
     void SetSmoothScale(double scale);
     double GetSmoothScale() {return m_SmoothScale;};
-    
+
     // void UpdateSizeByScale();
 
     void PushBackAffineTransform(const TransformType* t);
-    void PushBackDeformationFieldTransform(const DeformationFieldType* t);
-    
+    void PushBackDisplacementFieldTransform(const DisplacementFieldType* t);
+
     bool MultiInverseAffineOnlySinglePoint(const PointType &point1, PointType &point2);
     bool MultiTransformSinglePoint(const PointType &point1, PointType &point2);
     bool MultiTransformPoint(const PointType &point1, PointType &point2, bool bFisrtDeformNoInterp, const IndexType &index);
     void DetermineFirstDeformNoInterp();
     inline bool IsOutOfNumericBoundary(const PointType &p);
-    
+
     // set interpolator from outside
     // virtual void SetInterpolator(InterpolatorPointer interp);
-    
+
 
 #ifdef ITK_USE_CONCEPT_CHECKING
     /** Begin concept checking */
     itkConceptMacro(SameDimensionCheck1,
             (Concept::SameDimension<ImageDimension, InputImageDimension>));
     itkConceptMacro(SameDimensionCheck2,
-            (Concept::SameDimension<ImageDimension, DeformationFieldDimension>));
-    
-//removed to be compatible with vector form input image    
+            (Concept::SameDimension<ImageDimension, DisplacementFieldDimension>));
+
+//removed to be compatible with vector form input image
 //    itkConceptMacro(InputHasNumericTraitsCheck,
 //            (Concept::HasNumericTraits<typename TInputImage::PixelType>));
-    itkConceptMacro(DeformationFieldHasNumericTraitsCheck,
-            (Concept::HasNumericTraits<typename TDeformationField::PixelType::ValueType>));
+    itkConceptMacro(DisplacementFieldHasNumericTraitsCheck,
+            (Concept::HasNumericTraits<typename TDisplacementField::PixelType::ValueType>));
     /** End concept checking */
 #endif
 
     bool                       m_bFirstDeformNoInterp;
-    
+
 protected:
     WarpTensorImageMultiTransformFilter();
     ~WarpTensorImageMultiTransformFilter() {};
     void PrintSelf(std::ostream& os, Indent indent) const;
 
     /** WarpTensorImageMultiTransformFilter is implemented as a multi-threaded filter.
-     * As such, it needs to provide and implementation for 
+     * As such, it needs to provide and implementation for
      * ThreadedGenerateData(). */
     void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
             int threadId );
-    
+
     InterpolatorPointer        m_Interpolator;
-    
+
     PixelType                  m_EdgePaddingValue;
     SpacingType                m_OutputSpacing;
     PointType                  m_OutputOrigin;
     SizeType                   m_OutputSize;
     DirectionType         m_OutputDirection;
     TransformListType          m_TransformList;
-    DeformationFieldPointer    m_FullWarp;
+    DisplacementFieldPointer    m_FullWarp;
 
-   
-    double                     m_SmoothScale; 
-    
+
+    double                     m_SmoothScale;
+
     InputImagePointer          m_CachedSmoothImage;
 
 private:
@@ -313,7 +313,7 @@ private:
     void operator=(const Self&); //purposely not implemented
 
 
-    
+
 
 
 

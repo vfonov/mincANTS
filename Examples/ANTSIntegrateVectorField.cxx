@@ -1,5 +1,5 @@
-#include "itkVectorIndexSelectionCastImageFilter.h"    
-#include "itkImageRegionIteratorWithIndex.h" 
+#include "itkVectorIndexSelectionCastImageFilter.h"
+#include "itkImageRegionIteratorWithIndex.h"
 #include "vnl/algo/vnl_determinant.h"
 
 #include "itkWarpImageFilter.h"
@@ -26,29 +26,29 @@
 
 template <class TImage>
 typename TImage::Pointer BinaryThreshold(
-										 typename TImage::PixelType low, 
+										 typename TImage::PixelType low,
 										 typename TImage::PixelType high,
 										 typename TImage::PixelType replaceval, typename TImage::Pointer input)
 {
 	//std::cout << " Binary Thresh " << std::endl;
-	
+
 	typedef typename TImage::PixelType PixelType;
 	// Begin Threshold Image
 	typedef itk::BinaryThresholdImageFilter<TImage,TImage>  InputThresholderType;
-	typename InputThresholderType::Pointer inputThresholder = 
+	typename InputThresholderType::Pointer inputThresholder =
 		InputThresholderType::New();
-	
+
 	inputThresholder->SetInput( input );
 	inputThresholder->SetInsideValue(  replaceval );
 	int outval=0;
 	if ((float) replaceval == (float) -1) outval=1;
 	inputThresholder->SetOutsideValue( outval );
-	
+
 	if (high < low) high=255;
 	inputThresholder->SetLowerThreshold((PixelType) low );
 	inputThresholder->SetUpperThreshold((PixelType) high);
 	inputThresholder->Update();
-	
+
 	return inputThresholder->GetOutput();
 }
 
@@ -65,17 +65,17 @@ GetVectorComponent(typename TField::Pointer field, unsigned int index)
   sfield->SetSpacing( field->GetSpacing() );
   sfield->SetOrigin( field->GetOrigin() );
   sfield->SetDirection( field->GetDirection() );
-  sfield->SetLargestPossibleRegion(field->GetLargestPossibleRegion() );      
+  sfield->SetLargestPossibleRegion(field->GetLargestPossibleRegion() );
   sfield->SetRequestedRegion(field->GetRequestedRegion() );
   sfield->SetBufferedRegion( field->GetBufferedRegion() );
   sfield->Allocate();
 
 
-  typedef itk::ImageRegionIteratorWithIndex<TField> Iterator;    
-  Iterator vfIter( field,  field->GetLargestPossibleRegion() );    
-  for( vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter)    
-  {      
-    typename TField::PixelType v1=vfIter.Get();   
+  typedef itk::ImageRegionIteratorWithIndex<TField> Iterator;
+  Iterator vfIter( field,  field->GetLargestPossibleRegion() );
+  for( vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter)
+  {
+    typename TField::PixelType v1=vfIter.Get();
     sfield->SetPixel(vfIter.GetIndex(),v1[index]);
   }
 
@@ -88,7 +88,7 @@ template <class TImage>
 typename TImage::Pointer
 SmoothImage(typename TImage::Pointer image, float sig)
 {
-// find min value 
+// find min value
   typedef itk::ImageRegionIteratorWithIndex<TImage> Iterator;
   Iterator vfIter(image,image->GetLargestPossibleRegion() );
   for( vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter)
@@ -125,7 +125,7 @@ SmoothDeformation(typename TImage::Pointer vectorimage, float sig)
 
   typedef itk::ImageRegionIteratorWithIndex<TImage> IteratorType;
   IteratorType Iterator( vectorimage, vectorimage->GetLargestPossibleRegion().GetSize() );
-  Iterator.GoToBegin();	
+  Iterator.GoToBegin();
   while(  !Iterator.IsAtEnd()  )
   {
     VectorType vec;
@@ -133,7 +133,7 @@ SmoothDeformation(typename TImage::Pointer vectorimage, float sig)
     vec[1]=subimgy->GetPixel(Iterator.GetIndex());
     vec[2]=subimgz->GetPixel(Iterator.GetIndex());
     Iterator.Set(vec);
-    ++Iterator; 
+    ++Iterator;
   }
 
 
@@ -144,7 +144,7 @@ SmoothDeformation(typename TImage::Pointer vectorimage, float sig)
 
 
 template <class TImage,class TField, class TInterp, class TInterp2>
-float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointer thickimage, typename TImage::IndexType velind,  typename TField::Pointer lapgrad,  float itime, float starttime, float finishtime, bool timedone, float deltaTime, typename TInterp::Pointer vinterp , typename TImage::SpacingType spacing, float vecsign, float timesign, float gradsign ) 
+float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointer thickimage, typename TImage::IndexType velind,  typename TField::Pointer lapgrad,  float itime, float starttime, float finishtime, bool timedone, float deltaTime, typename TInterp::Pointer vinterp , typename TImage::SpacingType spacing, float vecsign, float timesign, float gradsign )
 {
   typedef   TField TimeVaryingVelocityFieldType;
   typedef typename TField::PixelType VectorType;
@@ -152,15 +152,15 @@ float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointe
   typedef typename TField::IndexType DIndexType;
   typedef typename TField::PointType DPointType;
   typedef itk::VectorLinearInterpolateImageFunction<TField,float> DefaultInterpolatorType;
-  
-  VectorType zero; 
+
+  VectorType zero;
   zero.Fill(0);
   VectorType disp;
   disp.Fill(0);
   unsigned int ct=0;
   DPointType pointIn1;
   DPointType pointIn2;
-  typename DefaultInterpolatorType::ContinuousIndexType  vcontind; 
+  typename DefaultInterpolatorType::ContinuousIndexType  vcontind;
   DPointType pointIn3;
   enum { ImageDimension = TImage::ImageDimension };
   typedef typename TImage::IndexType IndexType;
@@ -185,7 +185,7 @@ float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointe
       if (itimetn1 < 0 ) itimetn1=0;
       if (itimetn1 > m_NumberOfTimePoints-1 ) itimetn1=m_NumberOfTimePoints-1;
 
-       // first get current position of particle 
+       // first get current position of particle
        IndexType index;
        for (unsigned int jj=0; jj<ImageDimension; jj++)
 	 {
@@ -193,20 +193,20 @@ float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointe
 	 pointIn1[jj]=velind[jj]*lapgrad->GetSpacing()[jj];
 	 }
        //      std::cout << " ind " << index  << std::endl;
-       // now index the time varying field at that position.  
+       // now index the time varying field at that position.
        typename DefaultInterpolatorType::OutputType f1;  f1.Fill(0);
        typename DefaultInterpolatorType::OutputType f2;  f2.Fill(0);
        typename DefaultInterpolatorType::OutputType f3;  f3.Fill(0);
-       typename DefaultInterpolatorType::OutputType f4;  f4.Fill(0);  
-       typename DefaultInterpolatorType::ContinuousIndexType  Y1; 
-       typename DefaultInterpolatorType::ContinuousIndexType  Y2; 
-       typename DefaultInterpolatorType::ContinuousIndexType  Y3; 
+       typename DefaultInterpolatorType::OutputType f4;  f4.Fill(0);
+       typename DefaultInterpolatorType::ContinuousIndexType  Y1;
+       typename DefaultInterpolatorType::ContinuousIndexType  Y2;
+       typename DefaultInterpolatorType::ContinuousIndexType  Y3;
        typename DefaultInterpolatorType::ContinuousIndexType  Y4;
        for (unsigned int jj=0; jj<ImageDimension; jj++)
 	 {
 	 pointIn2[jj]=disp[jj]+pointIn1[jj];
 	 vcontind[jj]=pointIn2[jj]/lapgrad->GetSpacing()[jj];
-	 Y1[jj]=vcontind[jj];  
+	 Y1[jj]=vcontind[jj];
 	 Y2[jj]=vcontind[jj];
 	 Y3[jj]=vcontind[jj];
 	 Y4[jj]=vcontind[jj];
@@ -215,7 +215,7 @@ float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointe
        //Y2[ImageDimension]=itimetn1h;
        //Y3[ImageDimension]=itimetn1h;
        //      Y4[ImageDimension]=itime;
-       
+
        f1 = vinterp->EvaluateAtContinuousIndex( Y1 );
        for (unsigned int jj=0; jj<ImageDimension; jj++) Y2[jj]+=f1[jj]*deltaTime*0.5;
        bool isinside=true;
@@ -229,49 +229,49 @@ float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointe
        isinside=true;
        for (unsigned int jj=0; jj<ImageDimension; jj++) if (Y4[jj] < 1 || Y4[jj] > lapgrad->GetLargestPossibleRegion().GetSize()[jj] -2 ) isinside=false;
        if (isinside)      f4 = vinterp->EvaluateAtContinuousIndex( Y4 );
-       
-       for (unsigned int jj=0; jj<ImageDimension; jj++) 
+
+       for (unsigned int jj=0; jj<ImageDimension; jj++)
 	 pointIn3[jj] = pointIn2[jj] + gradsign*vecsign*deltaTime/6.0 * ( f1[jj] + 2.0*f2[jj] + 2.0*f3[jj] + f4[jj] );
-       
+
 
        VectorType out;
        float mag=0, dmag=0,voxmag=0;
-       for (unsigned int jj=0; jj<ImageDimension; jj++) 
-	 { 
-	 out[jj]=pointIn3[jj]-pointIn1[jj];  
-	 mag+=(pointIn3[jj] - pointIn2[jj])*(pointIn3[jj] - pointIn2[jj]); 
-	 voxmag+=(pointIn3[jj] - pointIn2[jj])/spacing[jj]*(pointIn3[jj] - pointIn2[jj])/spacing[jj]; 
-	 dmag+=(pointIn3[jj] - pointIn1[jj])*(pointIn3[jj] - pointIn1[jj]); 
+       for (unsigned int jj=0; jj<ImageDimension; jj++)
+	 {
+	 out[jj]=pointIn3[jj]-pointIn1[jj];
+	 mag+=(pointIn3[jj] - pointIn2[jj])*(pointIn3[jj] - pointIn2[jj]);
+	 voxmag+=(pointIn3[jj] - pointIn2[jj])/spacing[jj]*(pointIn3[jj] - pointIn2[jj])/spacing[jj];
+	 dmag+=(pointIn3[jj] - pointIn1[jj])*(pointIn3[jj] - pointIn1[jj]);
 	 disp[jj]=out[jj];
 	 }
        voxmag=sqrt(voxmag);
        dmag=sqrt(dmag);
-       totalmag+=sqrt(mag);  
-       
+       totalmag+=sqrt(mag);
+
        ct++;
        //      if (!propagate) //thislength=dmag;//
 //         thislength += totalmag;
        itime = itime + deltaTime*timesign;
        IndexType myind;
        for (unsigned int qq=0; qq<  ImageDimension; qq++) myind[qq]=(unsigned long)(pointIn3[qq]/spacing[qq]+0.5);
-       
-       
+
+
        if ( gmsurf->GetPixel(myind) < 1 )  { timedone=true; }
        if ( ct >  1000 ) { std::cout << " stopping b/c exceed 1000 points " << voxmag <<  std::endl;  timedone=true;}
        if ( voxmag < 0.1 ) {  timedone=true;}
-       
+
        }
      return totalmag;
 }
 
 
 template <unsigned int ImageDimension>
-int IntegrateVectorField(int argc, char *argv[])        
-{       
+int IntegrateVectorField(int argc, char *argv[])
+{
 
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
-  typedef itk::Image<VectorType,ImageDimension>     DeformationFieldType;
+  typedef itk::Image<VectorType,ImageDimension>     DisplacementFieldType;
   typedef itk::Image<PixelType,ImageDimension> ImageType;
   typedef itk::ImageFileReader<ImageType> readertype;
   typedef itk::ImageFileWriter<ImageType> writertype;
@@ -285,7 +285,7 @@ int IntegrateVectorField(int argc, char *argv[])
   std::string roifn = std::string(argv[2]);
   int argct=3;
   std::string outname=std::string(argv[argct]); argct++;
-  std::string lenoutname=std::string(""); 
+  std::string lenoutname=std::string("");
   if (argc > argct) lenoutname=std::string(argv[argct]); argct++;
   if (argc > argct) gradstep*=atof(argv[argct]); argct++;
 
@@ -294,42 +294,42 @@ int IntegrateVectorField(int argc, char *argv[])
   typename ImageType::Pointer thickimage;
   ReadImage<ImageType>(thickimage,roifn.c_str());
   thickimage->FillBuffer(0);
-  typename DeformationFieldType::Pointer VECimage;
-  ReadImage<DeformationFieldType>(VECimage,vectorfn.c_str());
+  typename DisplacementFieldType::Pointer VECimage;
+  ReadImage<DisplacementFieldType>(VECimage,vectorfn.c_str());
   SpacingType spacing=ROIimage->GetSpacing();
   typedef itk::ImageRegionIteratorWithIndex<ImageType> IteratorType;
   IteratorType Iterator( ROIimage, ROIimage->GetLargestPossibleRegion().GetSize() );
-  
+
   double timezero=0; //1
   typename ImageType::SizeType s= ROIimage->GetLargestPossibleRegion().GetSize();
   double timeone=1;//(s[ImageDimension]-1-timezero);
   float starttime=timezero;//timezero;
   float finishtime=timeone;//s[ImageDimension]-1;//timeone;
 
-  typename DeformationFieldType::IndexType velind;
+  typename DisplacementFieldType::IndexType velind;
   float timesign=1.0;
   if (starttime  >  finishtime ) timesign= -1.0;
-  typedef   DeformationFieldType TimeVaryingVelocityFieldType;
-  typedef itk::ImageRegionIteratorWithIndex<DeformationFieldType>         FieldIterator;
-  typedef typename DeformationFieldType::IndexType DIndexType;
-  typedef typename DeformationFieldType::PointType DPointType;
+  typedef   DisplacementFieldType TimeVaryingVelocityFieldType;
+  typedef itk::ImageRegionIteratorWithIndex<DisplacementFieldType>         FieldIterator;
+  typedef typename DisplacementFieldType::IndexType DIndexType;
+  typedef typename DisplacementFieldType::PointType DPointType;
   typedef typename TimeVaryingVelocityFieldType::IndexType VIndexType;
   typedef typename TimeVaryingVelocityFieldType::PointType VPointType;
   typedef itk::VectorLinearInterpolateImageFunction<TimeVaryingVelocityFieldType,float> DefaultInterpolatorType;
-  typedef itk::VectorLinearInterpolateImageFunction<DeformationFieldType,float> DefaultInterpolatorType2;
+  typedef itk::VectorLinearInterpolateImageFunction<DisplacementFieldType,float> DefaultInterpolatorType2;
   typename DefaultInterpolatorType::Pointer vinterp =  DefaultInterpolatorType::New();
   typedef itk::LinearInterpolateImageFunction<ImageType,float> ScalarInterpolatorType;
-  VectorType zero; 
+  VectorType zero;
   zero.Fill(0);
 
   DPointType pointIn1;
   DPointType pointIn2;
-  typename DefaultInterpolatorType::ContinuousIndexType  vcontind; 
+  typename DefaultInterpolatorType::ContinuousIndexType  vcontind;
   DPointType pointIn3;
 
-  typedef itk::ImageRegionIteratorWithIndex<DeformationFieldType> VIteratorType;
+  typedef itk::ImageRegionIteratorWithIndex<DisplacementFieldType> VIteratorType;
   VIteratorType VIterator( VECimage, VECimage->GetLargestPossibleRegion().GetSize() );
-  VIterator.GoToBegin();	
+  VIterator.GoToBegin();
   while(  !VIterator.IsAtEnd()  )
     {
       VectorType vec=VIterator.Get();
@@ -341,54 +341,54 @@ int IntegrateVectorField(int argc, char *argv[])
       ++VIterator;
     }
 
-  Iterator.GoToBegin();	
+  Iterator.GoToBegin();
   while(  !Iterator.IsAtEnd()  )
     {
-      velind=Iterator.GetIndex();  
-      float itime = starttime;  
+      velind=Iterator.GetIndex();
+      float itime = starttime;
       bool timedone = false;
       VectorType disp;
       disp.Fill(0.0);
       double deltaTime=dT,vecsign=1.0;
       float gradsign=1.0;
-      if ( ROIimage->GetPixel(velind) == 2 ) 
+      if ( ROIimage->GetPixel(velind) == 2 )
 	{
 	  vinterp->SetInputImage(VECimage);
 	  gradsign=-1.0; vecsign=-1.0;
-	  float len1=IntegrateLength<ImageType,DeformationFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
+	  float len1=IntegrateLength<ImageType,DisplacementFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
 	    (ROIimage, thickimage, velind, VECimage,  itime, starttime, finishtime,  timedone,  deltaTime,  vinterp, spacing,vecsign, gradsign, timesign);
-      
+
 	  gradsign=1.0;  vecsign=1;
-	  float len2=IntegrateLength<ImageType,DeformationFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
+	  float len2=IntegrateLength<ImageType,DisplacementFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
 	    (ROIimage, thickimage, velind, VECimage,  itime, starttime, finishtime,  timedone,  deltaTime,  vinterp, spacing,vecsign, gradsign, timesign );
-	  
+
 	  float totalength=len1+len2;
 	  thickimage->SetPixel(velind,totalength);
 	  if ( (totalength)> 0 ) std::cout << " len1 " << len1 << " len2 " << len2 << " ind " << velind << std::endl;
 	}
       ++Iterator;
     }
-  
+
   WriteImage<ImageType>(thickimage,lenoutname.c_str());
-  
+
   return 0;
-  
-}     
+
+}
 
 
 
-int main(int argc, char *argv[])        
+int main(int argc, char *argv[])
 {
-  
-  if ( argc < 4)     
-    { 
+
+  if ( argc < 4)
+    {
       std::cout << "Usage:   " << argv[0] << "  VecImageIN.nii.gz ROIMaskIN.nii.gz FibersOUT.vtk  LengthImageOUT.nii.gz   " << std::endl;
       std::cout << " The vector field should have vectors as voxels , the ROI is an integer image, fibers out will be vtk text files .... " << std::endl;
-      std::cout << "  ROI-Mask controls where the integration is performed and the start point region ... " << std::endl; 
+      std::cout << "  ROI-Mask controls where the integration is performed and the start point region ... " << std::endl;
       std::cout << " e.g. the brain will have value 1 , the ROI has value 2 , then all starting seed points " << std::endl;
       std::cout << " for the integration will start in the region labeled 2 and be constrained to the region labeled 1. "  << std::endl;
       return 1;
-    }       
+    }
 
   std::string ifn = std::string(argv[1]);
    itk::ImageIOBase::Pointer imageIO =
@@ -411,14 +411,14 @@ int main(int argc, char *argv[])
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
    }
-	
+
   return EXIT_SUCCESS;
 
 
   return 1;
- 
-}     
-       
+
+}
+
 
 
 

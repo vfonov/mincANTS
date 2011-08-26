@@ -9,7 +9,7 @@ namespace itk {
 // Constructor with default arguments
 template<class TScalarType>
 ANTSAffine3DTransform<TScalarType>::ANTSAffine3DTransform() :
-        Superclass(SpaceDimension, ParametersDimension) {
+        Superclass(ParametersDimension) {
     m_Rotation = VnlQuaternionType(0, 0, 0, 1); // axis * vcl_sin(t/2), vcl_cos(t/2)
     m_S1 = NumericTraits<TScalarType>::One;
     m_S2 = NumericTraits<TScalarType>::One;
@@ -338,13 +338,13 @@ ANTSAffine3DTransform<TScalarType>::GetJacobian(
     //   const TScalarType z = p[2] - this->GetCenter()[2];
 
     //   // compute Jacobian with respect to quaternion parameters
-    //   this->m_Jacobian[0][0] =   2.0 * (  m_Rotation.x() * x + m_Rotation.y() * y 
+    //   this->m_Jacobian[0][0] =   2.0 * (  m_Rotation.x() * x + m_Rotation.y() * y
     //                               + m_Rotation.z() * z );
-    //   this->m_Jacobian[0][1] =   2.0 * (- m_Rotation.y() * x + m_Rotation.x() * y 
+    //   this->m_Jacobian[0][1] =   2.0 * (- m_Rotation.y() * x + m_Rotation.x() * y
     //                               + m_Rotation.r() * z );
-    //   this->m_Jacobian[0][2] =   2.0 * (- m_Rotation.z() * x - m_Rotation.r() * y 
+    //   this->m_Jacobian[0][2] =   2.0 * (- m_Rotation.z() * x - m_Rotation.r() * y
     //                               + m_Rotation.x() * z );
-    //   this->m_Jacobian[0][3] = - 2.0 * (- m_Rotation.r() * x + m_Rotation.z() * y 
+    //   this->m_Jacobian[0][3] = - 2.0 * (- m_Rotation.r() * x + m_Rotation.z() * y
     //                               - m_Rotation.y() * z );
 
     //   this->m_Jacobian[1][0] = - this->m_Jacobian[0][1];
@@ -358,8 +358,8 @@ ANTSAffine3DTransform<TScalarType>::GetJacobian(
     //   this->m_Jacobian[2][3] =   this->m_Jacobian[0][1];
 
     //   // compute derivatives for the translation part
-    //   unsigned int blockOffset = 4;  
-    //   for(unsigned int dim=0; dim < SpaceDimension; dim++ ) 
+    //   unsigned int blockOffset = 4;
+    //   for(unsigned int dim=0; dim < SpaceDimension; dim++ )
     //     {
     //     this->m_Jacobian[ dim ][ blockOffset + dim ] = 1.0;
     //     }

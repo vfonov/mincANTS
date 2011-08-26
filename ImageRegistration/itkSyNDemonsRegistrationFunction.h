@@ -7,7 +7,7 @@
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -50,17 +50,17 @@ namespace itk {
 * \sa SyNDemonsRegistrationFilter
 * \ingroup FiniteDifferenceFunctions
 */
-template<class TFixedImage, class TMovingImage, class TDeformationField>
+template<class TFixedImage, class TMovingImage, class TDisplacementField>
 class ITK_EXPORT SyNDemonsRegistrationFunction :
     public AvantsPDEDeformableRegistrationFunction< TFixedImage,
-                                              TMovingImage, 
-TDeformationField>
+                                              TMovingImage,
+TDisplacementField>
 {
 public:
   /** Standard class typedefs. */
   typedef SyNDemonsRegistrationFunction    Self;
   typedef PDEDeformableRegistrationFunction< TFixedImage,
-                                             TMovingImage, TDeformationField 
+                                             TMovingImage, TDisplacementField
  >    Superclass;
   typedef SmartPointer<Self> Pointer;
   typedef SmartPointer<const Self> ConstPointer;
@@ -84,12 +84,12 @@ public:
   typedef typename FixedImageType::SpacingType    SpacingType;
 
   /** Deformation field type. */
-  typedef typename Superclass::DeformationFieldType    DeformationFieldType;
-  typedef typename Superclass::DeformationFieldTypePointer
-  DeformationFieldTypePointer;
+  typedef typename Superclass::DisplacementFieldType    DisplacementFieldType;
+  typedef typename Superclass::DisplacementFieldTypePointer
+  DisplacementFieldTypePointer;
 
   /** Inherit some enums from the superclass. */
-  itkStaticConstMacro(ImageDimension, unsigned 
+  itkStaticConstMacro(ImageDimension, unsigned
 int,Superclass::ImageDimension);
 
   /** Inherit some enums from the superclass. */
@@ -108,11 +108,11 @@ int,Superclass::ImageDimension);
   DefaultInterpolatorType;
 
   /** Covariant vector type. */
-  typedef CovariantVector<double,itkGetStaticConstMacro(ImageDimension)> 
+  typedef CovariantVector<double,itkGetStaticConstMacro(ImageDimension)>
 CovariantVectorType;
 
   /** Fixed image gradient calculator type. */
-  typedef CentralDifferenceImageFunction<FixedImageType> 
+  typedef CentralDifferenceImageFunction<FixedImageType>
     GradientCalculatorType;
   typedef typename GradientCalculatorType::Pointer  GradientCalculatorPointer;
 
@@ -131,7 +131,7 @@ CovariantVectorType;
   { return m_MovingImageInterpolator; }
 
   /** This class uses a constant timestep of 1. */
-  virtual TimeStepType ComputeGlobalTimeStep(void * itkNotUsed(GlobalData)) 
+  virtual TimeStepType ComputeGlobalTimeStep(void * itkNotUsed(GlobalData))
 const
   { return m_TimeStep; }
 
@@ -156,18 +156,18 @@ const
    * each pixel that does not lie on a data set boundary */
   virtual PixelType  ComputeUpdate(const NeighborhoodType &neighborhood,
                                    void *globalData,
-                                   const FloatOffsetType &offset = 
+                                   const FloatOffsetType &offset =
 FloatOffsetType(0.0));
 
   virtual PixelType  ComputeUpdateInv(const NeighborhoodType &neighborhood,
                                    void *globalData,
-                                   const FloatOffsetType &offset = 
+                                   const FloatOffsetType &offset =
 FloatOffsetType(0.0));
 
 
   void SetUseSSD( bool b ) { this->m_UseSSD=b; }
-  /** Get the metric value. The metric value is the mean square difference 
-   * in intensity between the fixed image and transforming moving image 
+  /** Get the metric value. The metric value is the mean square difference
+   * in intensity between the fixed image and transforming moving image
    * computed over the the overlapping region between the two images. */
   virtual double GetMetric() const
     { return m_Metric; }
@@ -190,14 +190,14 @@ FloatOffsetType(0.0));
    * iteration) will be the zero vector. Default is 0.001. */
   virtual void SetIntensityDifferenceThreshold(double);
   virtual double GetIntensityDifferenceThreshold() const;
-  
+
 protected:
   SyNDemonsRegistrationFunction();
   ~SyNDemonsRegistrationFunction() {}
   void PrintSelf(std::ostream& os, Indent indent) const;
 
   /** FixedImage image neighborhood iterator type. */
-  typedef ConstNeighborhoodIterator<FixedImageType> 
+  typedef ConstNeighborhoodIterator<FixedImageType>
 FixedImageNeighborhoodIteratorType;
 
   /** A global data type for this class of equation. Used to store
@@ -238,7 +238,7 @@ private:
   double                          m_IntensityDifferenceThreshold;
 
   /** The metric value is the mean square difference in intensity between
-   * the fixed image and transforming moving image computed over the 
+   * the fixed image and transforming moving image computed over the
    * the overlapping region between the two images. */
   mutable double                  m_Metric;
   mutable double                  m_SumOfSquaredDifference;
@@ -246,7 +246,7 @@ private:
   mutable double                  m_RMSChange;
   mutable double                  m_SumOfSquaredChange;
 
-  bool m_UseSSD; 
+  bool m_UseSSD;
 
 };
 

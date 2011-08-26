@@ -7,11 +7,11 @@
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -32,8 +32,8 @@ namespace itk {
 /*
  * Default constructor
  */
-template <class TFixedImage, class TMovingImage, class TDeformationField>
-ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+template <class TFixedImage, class TMovingImage, class TDisplacementField>
+ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::ProbabilisticRegistrationFunction()
 {
   m_AvgMag=0;
@@ -67,7 +67,7 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 
   for (int i=0; i<5; i++) finitediffimages[i]=NULL;
 
-  m_NumberOfHistogramBins=32; 
+  m_NumberOfHistogramBins=32;
 
   m_FixedImageMask=NULL;
   m_MovingImageMask=NULL;
@@ -78,12 +78,12 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 /*
  * Standard "PrintSelf" method.
  */
-template <class TFixedImage, class TMovingImage, class TDeformationField>
+template <class TFixedImage, class TMovingImage, class TDisplacementField>
 void
-ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
-  
+
   Superclass::PrintSelf(os, indent);
 /*
   os << indent << "MovingImageIterpolator: ";
@@ -101,9 +101,9 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 /*
  * Set the function state values before each iteration
  */
-template <class TFixedImage, class TMovingImage, class TDeformationField>
+template <class TFixedImage, class TMovingImage, class TDisplacementField>
 void
-ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::InitializeIteration()
 {
   typedef ImageRegionIteratorWithIndex<MetricImageType> ittype;
@@ -186,7 +186,7 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   // The following change was made to speed up the correlation calculation.
   //
 
-  // first round 
+  // first round
   {
   typedef std::deque<float> SumQueueType;
 
@@ -384,7 +384,7 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 
 
 
-  // second round 
+  // second round
   {
   typedef std::deque<float> SumQueueType;
 
@@ -592,9 +592,9 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 /*
  * Set the function state values before each iteration
  */
-template <class TFixedImage, class TMovingImage, class TDeformationField>
+template <class TFixedImage, class TMovingImage, class TDisplacementField>
 void
-ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::InitializeIterationOld()
 {
   typedef ImageRegionIteratorWithIndex<MetricImageType> ittype;
@@ -611,7 +611,7 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   // setup gradient calculator
   m_FixedImageGradientCalculator->SetInputImage( Superclass::m_FixedImage );
   m_MovingImageGradientCalculator->SetInputImage( Superclass::m_MovingImage  );
-  
+
   // setup moving image interpolator
   m_MovingImageInterpolator->SetInputImage( Superclass::m_MovingImage );
 
@@ -626,8 +626,8 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 //  typedef itk::DiscreteGaussianImageFilter<BinaryImageType, BinaryImageType> dgf;
   typedef itk::MeanImageFilter<BinaryImageType, BinaryImageType> dgf;
   typedef itk::MedianImageFilter<BinaryImageType, BinaryImageType> dgf2;
-  
- 
+
+
   // compute the normalizer
   m_Normalizer      = 0.0;
   for( unsigned int k = 0; k < ImageDimension; k++ )
@@ -635,33 +635,33 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
     m_Normalizer += m_FixedImageSpacing[k] * m_FixedImageSpacing[k];
     }
   m_Normalizer /= static_cast<double>( ImageDimension );
-  
+
   typename FixedImageType::SpacingType spacing=this->GetFixedImage()->GetSpacing();
 
   bool makeimg=false;
   if ( m_Iteration==0 ) makeimg=true;
   else if (!finitediffimages[0] ) makeimg=true;
-  else 
+  else
     {
       for (unsigned int dd=0; dd<ImageDimension; dd++)
 	{
-	  if ( finitediffimages[0]->GetLargestPossibleRegion().GetSize()[dd] != 
+	  if ( finitediffimages[0]->GetLargestPossibleRegion().GetSize()[dd] !=
 	    this->GetFixedImage()->GetLargestPossibleRegion().GetSize()[dd] ) makeimg=true;
 	}
     }
 
 
   if (makeimg)
-    {  
+    {
       finitediffimages[0]=this->MakeImage();
       finitediffimages[1]=this->MakeImage();
       finitediffimages[2]=this->MakeImage();
       finitediffimages[3]=this->MakeImage();
       finitediffimages[4]=this->MakeImage();
     }
-  
+
   //float sig=15.;
-  
+
   RadiusType r;
   for( int j = 0; j < ImageDimension; j++ )    r[j] = this->GetRadius()[j];
 
@@ -669,7 +669,7 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   Iterator tIter(this->GetFixedImage(),this->GetFixedImage()->GetLargestPossibleRegion() );
 
   typename FixedImageType::SizeType imagesize=this->GetFixedImage()->GetLargestPossibleRegion().GetSize();
- 
+
   // compute local means
   //  typedef itk::ImageRegionIteratorWithIndex<MetricImageType> Iterator;
   Iterator outIter(this->finitediffimages[0],this->finitediffimages[0]->GetLargestPossibleRegion() );
@@ -677,29 +677,29 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
     {
 
 
-      bool takesample = true;  
+      bool takesample = true;
       if (this->m_FixedImageMask) if (this->m_FixedImageMask->GetPixel( outIter.GetIndex() ) < 0.25 ) takesample=false;
-	
+
       if (takesample)
        {
 
-      NeighborhoodIterator<MetricImageType> 
+      NeighborhoodIterator<MetricImageType>
 	hoodIt( this->GetRadius() ,this->finitediffimages[0] , this->finitediffimages[0]->GetLargestPossibleRegion());
       IndexType oindex = outIter.GetIndex();
       hoodIt.SetLocation(oindex);
-  
+
       double fixedMean=0;
       double movingMean=0;
-     
+
       PointType mappedPoint;
       unsigned int indct;
       unsigned int hoodlen=hoodIt.Size();
-      
+
 //      unsigned int inct=0;
       double sumj=0,sumi=0;
       unsigned int cter=0;
       for(indct=0; indct<hoodlen; indct++)
-	{	  
+	{
 	  IndexType index=hoodIt.GetIndex(indct);
 	  bool inimage=true;
 	  for (unsigned int dd=0; dd<ImageDimension; dd++)
@@ -708,23 +708,23 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 	    }
 	  if (inimage && this->m_FixedImageMask) if (this->m_FixedImageMask->GetPixel( index ) < 0.25 ) inimage=false;
 	  if (inimage)
-	    { 
+	    {
 	      sumj+=this->GetMovingImage()->GetPixel(index);
 	      sumi+=this->GetFixedImage()->GetPixel(index);
 	      cter++;
 	    }
 	}
-      
+
       if (cter > 0) movingMean=sumj/(float)cter;
       if (cter > 0) fixedMean=sumi/(float)cter;
-       
+
       float val = this->GetFixedImage()->GetPixel(oindex) - fixedMean;
       this->finitediffimages[0]->SetPixel( oindex, val );
       val = this->GetMovingImage()->GetPixel(oindex) - movingMean;
       this->finitediffimages[1]->SetPixel( oindex, val );
        }
     }
-     
+
 
   for( outIter.GoToBegin(); !outIter.IsAtEnd(); ++outIter )
     {
@@ -733,20 +733,20 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
       if (this->m_FixedImageMask) if (this->m_FixedImageMask->GetPixel( oindex  ) < 0.25 ) takesample=false;
       if (takesample)
        {
-      NeighborhoodIterator<MetricImageType> 
+      NeighborhoodIterator<MetricImageType>
 	hoodIt( this->GetRadius() ,this->finitediffimages[0] , this->finitediffimages[0]->GetLargestPossibleRegion());
       hoodIt.SetLocation(oindex);
       double sff=0.0;
       double smm=0.0;
-      double sfm=0.0;     
+      double sfm=0.0;
       PointType mappedPoint;
       unsigned int indct;
       unsigned int hoodlen=hoodIt.Size();
 //      unsigned int inct=0;
-      	  
+
       for(indct=0; indct<hoodlen; indct++)
 	{
-	  
+
 	  IndexType index=hoodIt.GetIndex(indct);
 	  bool inimage=true;
 	  for (unsigned int dd=0; dd<ImageDimension; dd++)
@@ -760,27 +760,27 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 	      double movingValue=(double)this->finitediffimages[1]->GetPixel( index );
 //	      double ofixedValue =(double)this->GetFixedImage()->GetPixel( index );
 //	      double omovingValue=(double)this->GetMovingImage()->GetPixel( index );
-	      
+
 	      sff+=fixedValue*fixedValue;
 	      smm+=movingValue*movingValue;
 	      sfm+=fixedValue*movingValue;
 	    }
-	  
+
 	}
-      
+
       this->finitediffimages[2]->SetPixel( oindex, sfm );//A
       this->finitediffimages[3]->SetPixel( oindex, sff );//B
       this->finitediffimages[4]->SetPixel( oindex, smm );//C
       //         this->finitediffimages[5]->SetPixel( oindex , sumi);//B*C
       //    this->finitediffimages[6]->SetPixel( oindex , sumj);//B*C
        }
-    }  
-  
-  //m_FixedImageGradientCalculator->SetInputImage(finitediffimages[0]); 
-  
+    }
+
+  //m_FixedImageGradientCalculator->SetInputImage(finitediffimages[0]);
+
   m_MaxMag=0.0;
   m_MinMag=9.e9;
-  m_AvgMag=0.0;  
+  m_AvgMag=0.0;
   m_Iteration++;
 
 }
@@ -789,13 +789,13 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 /*
  * Compute the ncc metric everywhere
  */
-template <class TFixedImage, class TMovingImage, class TDeformationField>
-typename TDeformationField::PixelType
-ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
-::ComputeMetricAtPairB(IndexType oindex, typename TDeformationField::PixelType vec)
+template <class TFixedImage, class TMovingImage, class TDisplacementField>
+typename TDisplacementField::PixelType
+ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
+::ComputeMetricAtPairB(IndexType oindex, typename TDisplacementField::PixelType vec)
 {
-  
-  typename TDeformationField::PixelType deriv;
+
+  typename TDisplacementField::PixelType deriv;
   deriv.Fill(0.0);
   double sff=0.0;
   double smm=0.0;
@@ -807,9 +807,9 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   sfm=0.0;
   PointType mappedPoint;
   CovariantVectorType gradI,gradJ;
-  if (this->m_FixedImageMask) if (this->m_FixedImageMask->GetPixel( oindex ) < 0.25 ) 
+  if (this->m_FixedImageMask) if (this->m_FixedImageMask->GetPixel( oindex ) < 0.25 )
     return deriv;
-  
+
   sfm=finitediffimages[2]->GetPixel(oindex);
   sff=finitediffimages[3]->GetPixel(oindex);
   smm=finitediffimages[4]->GetPixel(oindex);
@@ -820,24 +820,24 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 //      bool inimage=true;
       if (sff == 0.0) sff=1.0;
       if (smm == 0.0) smm=1.0;
-      gradI = m_FixedImageGradientCalculator->EvaluateAtIndex( index ); 
-      //	gradJ = m_MovingImageGradientCalculator->EvaluateAtIndex( index ); 
-      
+      gradI = m_FixedImageGradientCalculator->EvaluateAtIndex( index );
+      //	gradJ = m_MovingImageGradientCalculator->EvaluateAtIndex( index );
+
       float  Ji=finitediffimages[1]->GetPixel(index);
       float  Ii=finitediffimages[0]->GetPixel(index);
-      
+
       m_TEMP=2.0*sfm/(sff*smm)*( Ji - sfm/sff*Ii );
-      for (int qq=0; qq<ImageDimension; qq++) 
+      for (int qq=0; qq<ImageDimension; qq++)
 	{
 	  deriv[qq]   -=2.0*sfm/(sff*smm)*( Ji - sfm/sff*Ii )*gradI[qq];
 	  //	    derivinv[qq]-=2.0*sfm/(sff*smm)*( Ii - sfm/smm*Ji )*gradJ[qq];
 	}
-	
+
   if (sff*smm !=0.0) localProbabilistic = sfm*sfm / ( sff * smm );
   else if (sff == 0.0 && smm == 0) localProbabilistic = 1.0;
   else localProbabilistic = 1.0;
   if ( localProbabilistic*(-1.0) < this->m_RobustnessParameter) deriv.Fill(0);
-  
+
 //  if ( localProbabilistic*(-1.0) < this->m_RobustnessParameter) {
 //  std::cout << " localC " << localProbabilistic << std::endl; }
 
@@ -850,13 +850,13 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 /*
  * Compute the ncc metric everywhere
  */
-template <class TFixedImage, class TMovingImage, class TDeformationField>
-typename TDeformationField::PixelType
-ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
-::ComputeMetricAtPairC(IndexType oindex, typename TDeformationField::PixelType vec)
+template <class TFixedImage, class TMovingImage, class TDisplacementField>
+typename TDisplacementField::PixelType
+ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
+::ComputeMetricAtPairC(IndexType oindex, typename TDisplacementField::PixelType vec)
 {
-  
-  typename TDeformationField::PixelType deriv;
+
+  typename TDisplacementField::PixelType deriv;
   deriv.Fill(0.0);
   double sff=0.0;
   double smm=0.0;
@@ -868,27 +868,27 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   sfm=0.0;
   PointType mappedPoint;
   CovariantVectorType gradI,gradJ;
-  if (this->m_FixedImageMask) if (this->m_FixedImageMask->GetPixel( oindex ) < 0.25 ) 
+  if (this->m_FixedImageMask) if (this->m_FixedImageMask->GetPixel( oindex ) < 0.25 )
     return deriv;
 
   sfm=finitediffimages[2]->GetPixel(oindex);
   sff=finitediffimages[3]->GetPixel(oindex);
   smm=finitediffimages[4]->GetPixel(oindex);
-  
+
   if ( sff == 0.0 || smm == 0.0) return deriv;
-      
+
   IndexType index=oindex;//hoodIt.GetIndex(indct);
   if (sff == 0.0) sff=1.0;
   if (smm == 0.0) smm=1.0;
-  
-  ///gradI = m_FixedImageGradientCalculator->EvaluateAtIndex( index ); 
-  gradJ = m_MovingImageGradientCalculator->EvaluateAtIndex( index ); 
+
+  ///gradI = m_FixedImageGradientCalculator->EvaluateAtIndex( index );
+  gradJ = m_MovingImageGradientCalculator->EvaluateAtIndex( index );
 
   float  Ji=finitediffimages[1]->GetPixel(index);
   float  Ii=finitediffimages[0]->GetPixel(index);
 
 
-  for (int qq=0; qq<ImageDimension; qq++) 
+  for (int qq=0; qq<ImageDimension; qq++)
     {
       //deriv[qq]   -=2.0*sfm/(sff*smm)*( Ji - sfm/sff*Ii )*gradI[qq];
       deriv[qq]-=2.0*sfm/(sff*smm)*( Ii - sfm/smm*Ji )*gradJ[qq];
@@ -899,7 +899,7 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   else if (sff == 0.0 && smm == 0) localProbabilistic = 1.0;
   else localProbabilistic = 1.0;
   if ( localProbabilistic*(-1.0) < this->m_RobustnessParameter) deriv.Fill(0);
-    
+
   return deriv;//localProbabilistic;
 
 }

@@ -7,11 +7,11 @@
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -27,8 +27,8 @@ namespace itk {
 /*
  * Default constructor
  */
-template <class TFixedImage, class TMovingImage, class TDeformationField>
-SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+template <class TFixedImage, class TMovingImage, class TDisplacementField>
+SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::SyNDemonsRegistrationFunction()
 {
 
@@ -73,9 +73,9 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 /*
  * Standard "PrintSelf" method.
  */
-template <class TFixedImage, class TMovingImage, class TDeformationField>
+template <class TFixedImage, class TMovingImage, class TDisplacementField>
 void
-SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
@@ -109,9 +109,9 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 /**
  *
  */
-template <class TFixedImage, class TMovingImage, class TDeformationField>
+template <class TFixedImage, class TMovingImage, class TDisplacementField>
 void
-SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::SetIntensityDifferenceThreshold(double threshold)
 {
   m_IntensityDifferenceThreshold = threshold;
@@ -120,9 +120,9 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 /**
  *
  */
-template <class TFixedImage, class TMovingImage, class TDeformationField>
+template <class TFixedImage, class TMovingImage, class TDisplacementField>
 double
-SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::GetIntensityDifferenceThreshold() const
 {
   return m_IntensityDifferenceThreshold;
@@ -132,9 +132,9 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 /*
  * Set the function state values before each iteration
  */
-template <class TFixedImage, class TMovingImage, class TDeformationField>
+template <class TFixedImage, class TMovingImage, class TDisplacementField>
 void
-SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::InitializeIteration()
 {
 
@@ -169,7 +169,7 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   m_NumberOfPixelsProcessed = 0L;
   m_SumOfSquaredChange      = 0.0;
 
-  
+
 
 }
 
@@ -177,10 +177,10 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 /*
  * Compute update at a specify neighbourhood
  */
-template <class TFixedImage, class TMovingImage, class TDeformationField>
-typename SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+template <class TFixedImage, class TMovingImage, class TDisplacementField>
+typename SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::PixelType
-SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::ComputeUpdate(const NeighborhoodType &it, void * gd,
                 const FloatOffsetType& itkNotUsed(offset))
 {
@@ -202,23 +202,23 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   double movingValue = (double)this->GetMovingImage()->GetPixel( index );
 
   //  if (fixedValue > 0)std::cout << " fxv  " << fixedValue << " movingValue " << movingValue << std::endl;
- 
+
     gradient = m_FixedImageGradientCalculator->EvaluateAtIndex( index );
- 
+
     mgradient = m_MovingImageGradientCalculator->EvaluateAtIndex( index );
-   
+
 
   for( j = 0; j < ImageDimension; j++ )
     {
       if ( this->m_UseMovingImageGradient)  gradient[j]=gradient[j]+mgradient[j];
       gradientSquaredMagnitude += vnl_math_sqr( gradient[j] );
-    } 
+    }
 
 
   /**
    * Compute Update.
    * In the original equation the denominator is defined as (g-f)^2 + grad_mag^2.
-   * However there is a mismatch in units between the two terms. 
+   * However there is a mismatch in units between the two terms.
    * The units for the second term is intensity^2/mm^2 while the
    * units for the first term is intensity^2. This mismatch is particularly
    * problematic when the fixed image does not have unit spacing.
@@ -237,11 +237,11 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
     globalData->m_NumberOfPixelsProcessed += 1;
     }
 
-  double denominator = vnl_math_sqr( speedValue ) / m_Normalizer + 
+  double denominator = vnl_math_sqr( speedValue ) / m_Normalizer +
     gradientSquaredMagnitude;
   this->m_Energy+=speedValue*speedValue;
   if ( m_UseSSD ) denominator=1;
-  if ( vnl_math_abs(speedValue) < m_IntensityDifferenceThreshold || 
+  if ( vnl_math_abs(speedValue) < m_IntensityDifferenceThreshold ||
        denominator < m_DenominatorThreshold )
     {
     for( j = 0; j < ImageDimension; j++ )
@@ -267,10 +267,10 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 /*
  * Compute update at a specify neighbourhood
  */
-template <class TFixedImage, class TMovingImage, class TDeformationField>
-typename SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+template <class TFixedImage, class TMovingImage, class TDisplacementField>
+typename SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::PixelType
-SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::ComputeUpdateInv(const NeighborhoodType &it, void * gd,
                 const FloatOffsetType& itkNotUsed(offset))
 {
@@ -292,22 +292,22 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   double movingValue = (double)this->GetMovingImage()->GetPixel( index );
 
   //  if (fixedValue > 0)std::cout << " fxv  " << fixedValue << " movingValue " << movingValue << std::endl;
- 
+
   //    gradient = m_FixedImageGradientCalculator->EvaluateAtIndex( index );
- 
+
      gradient = m_MovingImageGradientCalculator->EvaluateAtIndex( index );
-   
+
 
   for( j = 0; j < ImageDimension; j++ )
     {
     gradientSquaredMagnitude += vnl_math_sqr( gradient[j] );
-    } 
+    }
 
 
   /**
    * Compute Update.
    * In the original equation the denominator is defined as (g-f)^2 + grad_mag^2.
-   * However there is a mismatch in units between the two terms. 
+   * However there is a mismatch in units between the two terms.
    * The units for the second term is intensity^2/mm^2 while the
    * units for the first term is intensity^2. This mismatch is particularly
    * problematic when the fixed image does not have unit spacing.
@@ -317,7 +317,7 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
    */
   double speedValue = movingValue - fixedValue;
   if ( fabs(speedValue) < this->m_RobustnessParameter) speedValue=0;
-  
+
   // update the metric
   GlobalDataStruct *globalData = (GlobalDataStruct *)gd;
   if ( globalData )
@@ -326,10 +326,10 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
     globalData->m_NumberOfPixelsProcessed += 1;
     }
 
-  double denominator = vnl_math_sqr( speedValue ) / m_Normalizer + 
+  double denominator = vnl_math_sqr( speedValue ) / m_Normalizer +
     gradientSquaredMagnitude;
 
-  if ( vnl_math_abs(speedValue) < m_IntensityDifferenceThreshold || 
+  if ( vnl_math_abs(speedValue) < m_IntensityDifferenceThreshold ||
        denominator < m_DenominatorThreshold )
     {
     for( j = 0; j < ImageDimension; j++ )
@@ -357,9 +357,9 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
 /*
  * Update the metric and release the per-thread-global data.
  */
-template <class TFixedImage, class TMovingImage, class TDeformationField>
+template <class TFixedImage, class TMovingImage, class TDisplacementField>
 void
-SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::ReleaseGlobalDataPointer( void *gd ) const
 {
   GlobalDataStruct * globalData = (GlobalDataStruct *) gd;
@@ -369,10 +369,10 @@ SyNDemonsRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
   m_SumOfSquaredChange += globalData->m_SumOfSquaredChange;
   if ( m_NumberOfPixelsProcessed )
     {
-    m_Metric = m_SumOfSquaredDifference / 
-               static_cast<double>( m_NumberOfPixelsProcessed ); 
-    m_RMSChange = vcl_sqrt( m_SumOfSquaredChange / 
-               static_cast<double>( m_NumberOfPixelsProcessed ) ); 
+    m_Metric = m_SumOfSquaredDifference /
+               static_cast<double>( m_NumberOfPixelsProcessed );
+    m_RMSChange = vcl_sqrt( m_SumOfSquaredChange /
+               static_cast<double>( m_NumberOfPixelsProcessed ) );
     }
 
   delete globalData;

@@ -35,8 +35,8 @@ namespace itk
 /**
  * Constructor
  */
-template < class TFixedImage, class TMovingImage , class TDeformationField >
-SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+template < class TFixedImage, class TMovingImage , class TDisplacementField >
+SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::SpatialMutualInformationRegistrationFunction()
 {
 
@@ -95,9 +95,9 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformati
 /**
  * Print out internal information about this class
  */
-template < class TFixedImage, class TMovingImage  , class TDeformationField>
+template < class TFixedImage, class TMovingImage  , class TDisplacementField>
 void
-SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
 
@@ -132,9 +132,9 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformati
 /**
  * Initialize
  */
-  template <class TFixedImage, class TMovingImage, class TDeformationField>
+  template <class TFixedImage, class TMovingImage, class TDisplacementField>
 void
-SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::InitializeIteration()
 {
   m_CubicBSplineKernel = CubicBSplineFunctionType::New();
@@ -419,9 +419,9 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformati
 /**
  * Get the both Value and Derivative Measure
  */
-template < class TFixedImage, class TMovingImage  , class TDeformationField>
+template < class TFixedImage, class TMovingImage  , class TDisplacementField>
 void
-SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::GetProbabilities()
 {
 
@@ -709,9 +709,9 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformati
 /**
  * Get the both Value and Derivative Measure
  */
-template < class TFixedImage, class TMovingImage  , class TDeformationField>
+template < class TFixedImage, class TMovingImage  , class TDisplacementField>
 double
-SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::GetValueAndDerivative(IndexType oindex, MeasureType& valuei,
 			DerivativeType& derivative1,DerivativeType& derivative2)
 {
@@ -778,9 +778,9 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformati
 }
 
 
-template < class TFixedImage, class TMovingImage  , class TDeformationField>
+template < class TFixedImage, class TMovingImage  , class TDisplacementField>
 double
-SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDeformationField>
+SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::GetValueAndDerivativeInv(IndexType oindex,
 			MeasureType& valuei,
 			DerivativeType& derivative1,DerivativeType& derivative2)

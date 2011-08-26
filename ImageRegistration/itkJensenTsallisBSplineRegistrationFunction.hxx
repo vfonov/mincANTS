@@ -28,9 +28,9 @@ namespace itk {
 
 template<class TFixedImage, class TFixedPointSet,
          class TMovingImage, class TMovingPointSet,
-         class TDeformationField>
+         class TDisplacementField>
 JensenTsallisBSplineRegistrationFunction<TFixedImage,
-  TFixedPointSet, TMovingImage, TMovingPointSet, TDeformationField>
+  TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>
 ::JensenTsallisBSplineRegistrationFunction()
 {
   this->m_UseRegularizationTerm = false;
@@ -69,10 +69,10 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
 
 template<class TFixedImage, class TFixedPointSet,
          class TMovingImage, class TMovingPointSet,
-         class TDeformationField>
+         class TDisplacementField>
 void
 JensenTsallisBSplineRegistrationFunction<TFixedImage,
-  TFixedPointSet, TMovingImage, TMovingPointSet, TDeformationField>
+  TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>
 ::InitializeIteration( void )
 {
   if( this->m_FixedKernelSigma == 0 )
@@ -424,11 +424,11 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
 
 template<class TFixedImage, class TFixedPointSet,
          class TMovingImage, class TMovingPointSet,
-         class TDeformationField>
+         class TDisplacementField>
 typename JensenTsallisBSplineRegistrationFunction<TFixedImage,
-  TFixedPointSet, TMovingImage, TMovingPointSet, TDeformationField>::VectorType
+  TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>::VectorType
 JensenTsallisBSplineRegistrationFunction<TFixedImage,
-  TFixedPointSet, TMovingImage, TMovingPointSet, TDeformationField>
+  TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>
 ::ComputeUpdate( const NeighborhoodType &neighborhood,
     void *globalData, const FloatOffsetType &offset )
 {
@@ -443,7 +443,7 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
 
 /*
   typedef BSplineControlPointImageFilter<ControlPointLatticeType,
-    DeformationFieldType> BSplineControlPointImageFilterType;
+    DisplacementFieldType> BSplineControlPointImageFilterType;
 
   typename BSplineControlPointImageFilterType::Pointer movingBSpliner
     = BSplineControlPointImageFilterType::New();
@@ -464,11 +464,11 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
 
 template<class TFixedImage, class TFixedPointSet,
          class TMovingImage, class TMovingPointSet,
-         class TDeformationField>
+         class TDisplacementField>
 typename JensenTsallisBSplineRegistrationFunction<TFixedImage,
-  TFixedPointSet, TMovingImage, TMovingPointSet, TDeformationField>::VectorType
+  TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>::VectorType
 JensenTsallisBSplineRegistrationFunction<TFixedImage,
-  TFixedPointSet, TMovingImage, TMovingPointSet, TDeformationField>
+  TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>
 ::ComputeUpdateInv( const NeighborhoodType &neighborhood,
     void *globalData, const FloatOffsetType &offset )
 {
@@ -484,7 +484,7 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
 
 /*
   typedef BSplineControlPointImageFilter<ControlPointLatticeType,
-    DeformationFieldType> BSplineControlPointImageFilterType;
+    DisplacementFieldType> BSplineControlPointImageFilterType;
 
   typename BSplineControlPointImageFilterType::Pointer fixedBSpliner
     = BSplineControlPointImageFilterType::New();
@@ -505,10 +505,10 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
 
 template<class TFixedImage, class TFixedPointSet,
          class TMovingImage, class TMovingPointSet,
-         class TDeformationField>
+         class TDisplacementField>
 void
 JensenTsallisBSplineRegistrationFunction<TFixedImage,
-  TFixedPointSet, TMovingImage, TMovingPointSet, TDeformationField>
+  TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>
 ::PrintSelf( std::ostream& os, Indent indent ) const
 {
   Superclass::PrintSelf( os, indent );

@@ -7,11 +7,11 @@
   Version:   $Revision: 1.1 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -24,7 +24,7 @@
 #include "itkMatrix.h"
 #include "itkNumericTraits.h"
 #include "itkVector.h"
-#include "itkSymmetricSecondRankTensor.h" 
+#include "itkSymmetricSecondRankTensor.h"
 
 namespace itk
 {
@@ -34,27 +34,27 @@ namespace itk
  * Computes an image where a given pixel is the mean value of the
  * the pixels in a neighborhood about the corresponding input pixel.
  *
- * A mean filter is one of the family of linear filters.  
+ * A mean filter is one of the family of linear filters.
  *
  * \sa Image
  * \sa Neighborhood
  * \sa NeighborhoodOperator
  * \sa NeighborhoodIterator
- * 
+ *
  * \ingroup IntensityImageFilters
  */
-template <typename TTensorImage, typename TVectorImage> 
+template <typename TTensorImage, typename TVectorImage>
 class ITK_EXPORT PreservationOfPrincipalDirectionTensorReorientationImageFilter :
-    public ImageToImageFilter< TTensorImage, TTensorImage >    
+    public ImageToImageFilter< TTensorImage, TTensorImage >
 {
 public:
   typedef TTensorImage InputImageType;
   typedef TTensorImage OutputImageType;
-  typedef TVectorImage DeformationFieldType;
+  typedef TVectorImage DisplacementFieldType;
 
-  typedef typename DeformationFieldType::Pointer DeformationFieldPointer;
-  typedef typename DeformationFieldType::PixelType VectorType;
-  typedef typename VectorType::RealValueType RealType; 
+  typedef typename DisplacementFieldType::Pointer DisplacementFieldPointer;
+  typedef typename DisplacementFieldType::PixelType VectorType;
+  typedef typename VectorType::RealValueType RealType;
 
   typedef Matrix<RealType,3,3> MatrixType;
   //typedef Vector<RealType, 3> VectorType;
@@ -66,24 +66,24 @@ public:
   typedef itk::Image<RealType,ImageDimension> RealTypeImageType;
 
   typedef itk::MatrixOffsetTransformBase< RealType, ImageDimension, ImageDimension > AffineTransformType;
-  
+
   typedef typename AffineTransformType::Pointer AffineTransformPointer;
-  
+
   typedef typename AffineTransformType::InputVectorType TransformInputVectorType;
-  
+
   typedef typename AffineTransformType::OutputVectorType TransformOutputVectorType;
-  
+
   typedef typename AffineTransformType::InverseTransformBaseType InverseTransformType;
-  
+
   typedef typename InverseTransformType::Pointer InverseTransformPointer;
 
   //  typedef Vector<RealType, 6> TensorType;
-  // typedef itk::SymmetricSecondRankTensor< RealType, 3 >  TensorType; 
+  // typedef itk::SymmetricSecondRankTensor< RealType, 3 >  TensorType;
   // typedef Image<TensorType, ImageDimension> TensorImageType;
   // typedef typename TensorImageType::Pointer TensorImagePointer;
   typedef typename InputImageType::PixelType InputImagePixelType;
   typedef InputImagePixelType TensorType;
-  
+
   typedef vnl_matrix<RealType> VnlMatrixType;
   typedef vnl_vector<RealType> VnlVectorType;
   typedef vnl_vector<RealType> vvec;
@@ -97,31 +97,31 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  itkSetMacro(DeformationField, DeformationFieldPointer);
-  itkGetMacro(DeformationField, DeformationFieldPointer);
+  itkSetMacro(DisplacementField, DisplacementFieldPointer);
+  itkGetMacro(DisplacementField, DisplacementFieldPointer);
 
   void SetAffineTransform( AffineTransformPointer aff )
-    { 
+    {
     this->m_AffineTransform = aff;
     this->m_UseAffine = true;
     }
   itkGetMacro( AffineTransform, AffineTransformPointer );
-  
+
   itkSetMacro( UseImageDirection, bool );
   itkGetMacro( UseImageDirection, bool );
-  
-    
+
+
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(PreservationOfPrincipalDirectionTensorReorientationImageFilter, ImageToImageFilter);
-  
+
   /** Image typedef support. */
   typedef typename InputImageType::ConstPointer InputImagePointer;
   typedef typename OutputImageType::Pointer OutputImagePointer;
   typedef typename InputImageType::PixelType InputPixelType;
   typedef typename OutputImageType::PixelType OutputPixelType;
   typedef typename InputPixelType::ValueType InputRealType;
-  
+
   typedef typename InputImageType::RegionType InputImageRegionType;
   typedef typename OutputImageType::RegionType OutputImageRegionType;
 
@@ -148,7 +148,7 @@ protected:
   void GenerateData( void );
 
 
-  typename DeformationFieldType::PixelType TransformVectorByDirection( typename DeformationFieldType::PixelType cpix ) 
+  typename DisplacementFieldType::PixelType TransformVectorByDirection( typename DisplacementFieldType::PixelType cpix )
     {
       typedef itk::Vector<double, ImageDimension> locVectorType;
       if (this->m_UseImageDirection)
@@ -166,27 +166,27 @@ private:
   PreservationOfPrincipalDirectionTensorReorientationImageFilter(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
 
-  AffineTransformPointer GetLocalDeformation(DeformationFieldPointer, typename DeformationFieldType::IndexType );
-  
+  AffineTransformPointer GetLocalDeformation(DisplacementFieldPointer, typename DisplacementFieldType::IndexType );
+
   TensorType ApplyReorientation(InverseTransformPointer, TensorType );
-  
+
   void DirectionCorrectTransform( AffineTransformPointer, AffineTransformPointer );
-  
-  DeformationFieldPointer m_DeformationField;
-  
+
+  DisplacementFieldPointer m_DisplacementField;
+
   AffineTransformPointer m_DirectionTransform;
-  
+
   AffineTransformPointer m_AffineTransform;
-  
+
   InverseTransformPointer m_InverseAffineTransform;
-  
+
   bool m_UseAffine;
-  
+
   bool m_UseImageDirection;
-  
+
 
 };
-  
+
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION

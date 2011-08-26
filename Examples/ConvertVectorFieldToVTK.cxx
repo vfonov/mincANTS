@@ -1,19 +1,19 @@
 /*=========================================================================
- 
+
   Program:   Advanced Normalization Tools
   Module:    $RCSfile: ConvertVectorFieldToVTK.cxx,v $
-  Language:  C++      
+  Language:  C++
   Date:      $Date: 2009/01/27 23:25:24 $
   Version:   $Revision: 1.00 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
-  
+
 =========================================================================*/
 
 #include "itkImageFileReader.h"
@@ -32,7 +32,7 @@ int main( int argc, char *argv[] )
 {
   if ( argc < 3 )
     {
-    std::cout << "Usage: " << argv[0] << " inputDeformationField outputVTKFile maskImage(optional) slice(optional) whichAxis(optional)" << std::endl;
+    std::cout << "Usage: " << argv[0] << " inputDisplacementField outputVTKFile maskImage(optional) slice(optional) whichAxis(optional)" << std::endl;
     exit( 1 );
     }
 
@@ -41,17 +41,17 @@ int main( int argc, char *argv[] )
 
   typedef itk::Image<PixelType, ImageDimension> ImageType;
   typedef itk::Image<int, ImageDimension> MaskImageType;
-  
+
   typedef double RealType;
   typedef itk::Vector<RealType, ImageDimension> VectorType;
-  typedef itk::Image<VectorType, ImageDimension> DeformationFieldType;
-  
-  typedef itk::ImageFileReader<DeformationFieldType> ReaderType;
+  typedef itk::Image<VectorType, ImageDimension> DisplacementFieldType;
+
+  typedef itk::ImageFileReader<DisplacementFieldType> ReaderType;
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( argv[1] );
   //  reader->SetUseAvantsNamingConvention( true );
   reader->Update();
-  
+
   MaskImageType::Pointer mask = MaskImageType::New();
   if ( argc >= 4 )
     {
@@ -68,7 +68,7 @@ int main( int argc, char *argv[] )
     mask->SetRegions( reader->GetOutput()->GetLargestPossibleRegion() );
     mask->Allocate();
     mask->FillBuffer( 1 );
-    }  
+    }
 
   double origin[ImageDimension];
   double spacing[ImageDimension];
@@ -83,7 +83,7 @@ int main( int argc, char *argv[] )
     if ( argc > 4 && atoi( argv[5] ) == (int) i )
       {
       size[i] = 1;
-      }              
+      }
     totalsize *= size[i];
     }
 
@@ -103,22 +103,22 @@ int main( int argc, char *argv[] )
     ( mask, mask->GetLargestPossibleRegion() );
   for ( It.GoToBegin(); !It.IsAtEnd(); ++It )
     {
-    DeformationFieldType::IndexType idx = It.GetIndex();
-    
+    DisplacementFieldType::IndexType idx = It.GetIndex();
+
     if ( ( argc > 4 && idx[atoi( argv[5] )] != atoi( argv[4] ) ) || It.Get() == 0 )
       {
-      continue;  
-      }              
-    DeformationFieldType::PointType point;
-    reader->GetOutput()->TransformIndexToPhysicalPoint( idx, point ); 
- 
-    VectorType V = reader->GetOutput()->GetPixel( idx ); 
+      continue;
+      }
+    DisplacementFieldType::PointType point;
+    reader->GetOutput()->TransformIndexToPhysicalPoint( idx, point );
+
+    VectorType V = reader->GetOutput()->GetPixel( idx );
     for ( unsigned int i = 0; i < ImageDimension; i++ )
       {
       x[i] = point[i];
-      v[i] = V[i]; 
+      v[i] = V[i];
       }
-//    offset = idx[0] + idx[1]*(size[1]+1) + idx[2]*(size[1]+1)*(size[3]+1);       
+//    offset = idx[0] + idx[1]*(size[1]+1) + idx[2]*(size[1]+1)*(size[3]+1);
     points->InsertPoint( offset, x );
     vectors->InsertTuple( offset++, v );
     }
