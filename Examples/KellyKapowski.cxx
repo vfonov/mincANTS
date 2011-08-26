@@ -296,7 +296,7 @@ int DiReCT( itk::ants::CommandLineParser *parser )
   if( threadOption )
     {
     unsigned int numThreads = parser->Convert<unsigned int>(
-      debugOption->GetValue() );
+      threadOption->GetValue() );
     direct->SetNumberOfThreads( numThreads );
     }
 
