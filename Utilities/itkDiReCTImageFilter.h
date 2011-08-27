@@ -71,8 +71,11 @@ public:
   typedef typename InputImageType::Pointer      InputImagePointer;
   typedef typename InputImageType::PixelType    InputPixelType;
   typedef typename InputImageType::RegionType   RegionType;
+  typedef typename InputImageType::IndexType    IndexType;
+  typedef typename IndexType::IndexValueType    IndexValueType;
   typedef TOutputImage                          OutputImageType;
   typedef TOutputImage                          RealImageType;
+
 
   typedef typename OutputImageType::PixelType   RealType;
   typedef typename RealImageType::Pointer       RealImagePointer;
@@ -85,10 +88,14 @@ public:
   typedef typename VectorImageType::PointType   PointType;
 
 
-  typedef PointSet<RealType, 1>                    SparseImageType;
+  typedef PointSet<RealType,
+    itkGetStaticConstMacro( ImageDimension )>      SparseImageType;
   typedef typename SparseImageType::Pointer        SparseImagePointer;
-  typedef PointSet<VectorType, 1>                  SparseVectorImageType;
+  typedef PointSet<VectorType,
+    itkGetStaticConstMacro( ImageDimension )>      SparseVectorImageType;
   typedef typename SparseVectorImageType::Pointer  SparseVectorImagePointer;
+  typedef typename SparseImageType::PointType      SparseIndexType;
+
 
   /**
    * Set the segmentation image.  The segmentation image is a labeled image
@@ -284,37 +291,39 @@ private:
   RealImagePointer WarpImage( const RealImageType *, const VectorImageType * );
 
   /**
-   * Private function for warping an image.
-   */
-  SparseImagePointer WarpImage( const SparseImageType *, const VectorImageType * );
-
-  /**
    * Private function for inverting the deformation field.
    */
   void InvertDisplacementField( const VectorImageType *, VectorImageType * );
-
-  /**
-   * Private function for converting a scalar image to a sparse image
-   */
-  SparseImagePointer ConvertRealImageToSparseImage( const RealImageType * );
-
-  /**
-   * Private function for converting a sparse image to a scalar image
-   */
-  RealImagePointer ConvertSparseImageToRealImage( const SparseImageType * );
-
-  /**
-   * Private function for converting a vector image to a sparse vector image
-   */
-  SparseVectorImagePointer ConvertVectorImageToSparseVectorImage(
-    const VectorImageType * );
-
 
   /**
    * Private function for smoothing the deformation field.
    */
   VectorImagePointer SmoothDisplacementField( const VectorImageType *,
     const RealType );
+
+  /**
+   * Private function for converting a scalar image to a sparse image
+   */
+  SparseImagePointer ConvertRealImageToSparseImage( const RealImageType *,
+    const InputImageType * );
+
+  /**
+   * Private function for converting a sparse image to a scalar image
+   */
+  RealImagePointer ConvertSparseImageToRealImage( const SparseImageType *,
+    const InputImageType * );
+
+  /**
+   * Private function for converting a vector image to a sparse vector image
+   */
+  SparseVectorImagePointer ConvertVectorImageToSparseVectorImage(
+    const VectorImageType *, const InputImageType * );
+
+  /**
+   * Private function for converting a sparse vector image to a vector image
+   */
+  VectorImagePointer ConvertSparseVectorImageToVectorImage(
+    const SparseVectorImageType *, const InputImageType * );
 
   RealType                                       m_ThicknessPriorEstimate;
   RealType                                       m_SmoothingSigma;

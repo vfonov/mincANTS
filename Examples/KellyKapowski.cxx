@@ -471,7 +471,7 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
 
   OptionType::Pointer option = OptionType::New();
   option->SetLongName( "print-debug-information" );
-  option->SetShortName( 'd' );
+  option->SetShortName( 'p' );
   option->SetUsageOption( 0, "1" );
   option->SetDescription( description );
   parser->AddOption( option );
