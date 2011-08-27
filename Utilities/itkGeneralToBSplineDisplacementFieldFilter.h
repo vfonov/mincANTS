@@ -1,13 +1,13 @@
 /*=========================================================================
 
   Program:   Advanced Normalization Tools
-  Module:    $RCSfile: itkGeneralToBSplineDeformationFieldFilter.h,v $
+  Module:    $RCSfile: itkGeneralToBSplineDisplacementFieldFilter.h,v $
   Language:  C++
   Date:      $Date: 2008/11/15 23:46:06 $
   Version:   $Revision: 1.16 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -15,8 +15,8 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef __itkGeneralToBSplineDeformationFieldFilter_h
-#define __itkGeneralToBSplineDeformationFieldFilter_h
+#ifndef __itkGeneralToBSplineDisplacementFieldFilter_h
+#define __itkGeneralToBSplineDisplacementFieldFilter_h
 
 #include "itkImageToImageFilter.h"
 
@@ -27,14 +27,14 @@ namespace itk
 {
 
 template <class TInputImage, class TOutputImage = TInputImage>
-class GeneralToBSplineDeformationFieldFilter :
+class GeneralToBSplineDisplacementFieldFilter :
     public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
   /** Standard class typedefs. */
-  typedef GeneralToBSplineDeformationFieldFilter   Self;
+  typedef GeneralToBSplineDisplacementFieldFilter   Self;
   typedef ImageToImageFilter<
-                       TInputImage, 
+                       TInputImage,
                        TOutputImage>           Superclass;
 
   typedef SmartPointer<Self>                   Pointer;
@@ -60,11 +60,11 @@ public:
   typedef InputPixelComponentType               RealType;
   typedef Image<RealType, ImageDimension>       RealImageType;
 
-  typedef PointSet<InputPixelType, 
+  typedef PointSet<InputPixelType,
     itkGetStaticConstMacro( ImageDimension )>   PointSetType;
   typedef BSplineScatteredDataPointSetToImageFilter
     <PointSetType, OutputImageType>             BSplineFilterType;
-  typedef typename BSplineFilterType::ArrayType ArrayType;  
+  typedef typename BSplineFilterType::ArrayType ArrayType;
 
 //  itkSetMacro( ConfidenceImage, RealImageType );
 //  itkGetConstMacro( ConfidenceImage, RealImageType );
@@ -83,16 +83,16 @@ public:
 
 protected:
 
-  GeneralToBSplineDeformationFieldFilter();
-  virtual ~GeneralToBSplineDeformationFieldFilter();
-  
+  GeneralToBSplineDisplacementFieldFilter();
+  virtual ~GeneralToBSplineDisplacementFieldFilter();
+
   void PrintSelf( std::ostream& os, Indent indent ) const;
 
   void GenerateData();
 
 private:
 //   typename RealImageType::Pointer              m_ConfidenceImage;
- 
+
    InputPixelType                               m_IgnorePixelValue;
    unsigned int                                 m_NumberOfLevels;
    unsigned int                                 m_SplineOrder;
@@ -102,7 +102,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGeneralToBSplineDeformationFieldFilter.hxx"
+#include "itkGeneralToBSplineDisplacementFieldFilter.hxx"
 #endif
 
 #endif
