@@ -6584,15 +6584,48 @@ cortroimap[45]=std::string("White Matter");
   vnl_vector<double> pvals5(maxlab+1,1.0);
   vnl_vector<double> clusters(maxlab+1,0.0);
   vnl_vector<double> masses(maxlab+1,0.0);
-  typename ImageType::PointType mycomlist[33];
-  std::cout <<" csv b " << std::endl;
+  //  typename ImageType::PointType mycomlist[33];
   std::ofstream logfile;
   logfile.open(outname.c_str() );
 
   std::sort(myLabelSet.begin(),myLabelSet.end());
   typename LabelSetType::const_iterator it;
   unsigned long labelcount=0;
-  for( it = myLabelSet.begin(); it != myLabelSet.end(); ++it ) labelcount++;
+  for( it = myLabelSet.begin(); it != myLabelSet.end(); ++it )
+    { 
+      if ( roimap.size() > *it )
+        std::cout <<" label " << *it <<" name " << roimap[*it] << std::endl;
+      labelcount++;
+    }
+
+
+  typedef itk::LinearInterpolateImageFunction<ImageType,float> ScalarInterpolatorType;
+  typename ScalarInterpolatorType::Pointer interp =  ScalarInterpolatorType::New();
+  interp->SetInputImage(valimage);
+  // iterate over the label image and index into the stat image 
+  for( It.GoToBegin(); !It.IsAtEnd(); ++It )
+  {
+    PixelType label = It.Get();
+    typename ImageType::PointType point;
+    image->TransformIndexToPhysicalPoint(It.GetIndex(), point);
+    float vv=interp->Evaluate( point );
+    //    float vv = valimage->GetPixel(It.GetIndex());
+    if(  label > 0  && fabs(vv) > 1.e-9 )
+      {
+        clusters[(unsigned long) label-1]=clusters[(unsigned long) label-1]+1;
+        masses[(unsigned long) label-1]=masses[(unsigned long) label-1]+vv;
+      }
+  }
+  logfile<<"ROIName,ClusterSize,Mass"<<std::endl;
+  for (unsigned int roi=0; roi < roimap.size() ; roi++)
+      {
+	std::cout << roimap[roi]<<","<<clusters[roi] << ","<<masses[roi]<<std::endl;
+	if (roi < maxlab )
+	  logfile << roimap[roi]<<","<<clusters[roi] << ","<<masses[roi]<<std::endl;
+      }
+    logfile.close();
+
+  return 0;
 
   float temp=sqrt((float)labelcount);
   unsigned int squareimagesize=(unsigned int)(temp+1);
@@ -6616,7 +6649,7 @@ cortroimap[45]=std::string("White Matter");
   labelcount=0;
   typename ImageType::PointType myCenterOfMass;
   myCenterOfMass.Fill(0);
-  for (unsigned int i=0; i<=maxlab; i++) mycomlist[i]=myCenterOfMass;
+  //  for (unsigned int i=0; i<=maxlab; i++) mycomlist[i]=myCenterOfMass;
   for( it = myLabelSet.begin(); it != myLabelSet.end(); ++it )
     {
     float currentlabel= *it ;
@@ -6657,7 +6690,7 @@ cortroimap[45]=std::string("White Matter");
 	for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]+=point[i];
 	}
       }
-
+    if ( totalct == 0 ) totalct=1;
     for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]/=(float)totalct;
 
     clusters[(unsigned long)*it]=totalvolume;
@@ -6666,14 +6699,11 @@ cortroimap[45]=std::string("White Matter");
     pvals3[(unsigned long)*it]=maxoneminuspval3;
     pvals4[(unsigned long)*it]=1.0-maxoneminuspval4;
     pvals5[(unsigned long)*it]=1.0-maxoneminuspval5;
-    mycomlist[(unsigned long)*it]=myCenterOfMass;
+    // mycomlist[(unsigned long)*it]=myCenterOfMass;
 // square image
     squareimage->GetBufferPointer()[labelcount]=totalmass/totalct;
     labelcount++;
     }
-    bool iswm=false;
-    //   if (maxlab > 13 ) iswm=false;
-    //    unsigned int roi=(unsigned int) *it;
 
     for (unsigned int roi=1; roi <=maxlab ; roi++)
       {
@@ -6706,10 +6736,8 @@ cortroimap[45]=std::string("White Matter");
 	//unsigned int resol=5000;
 	//unsigned int intpvalue=resol*totalmass/totalct;
 	//	float pvalue=1.0-(float)intpvalue/(float)resol;// average pvalue
-	myCenterOfMass=mycomlist[roi];
-	if( roimap.find(roi) != roimap.end() && iswm )
- 	  std::cout << roimap.find(roi)->second << " & " << clusters[roi] << " , "  << pvals[roi] << "  & xy & yz  \\ " << std::endl;
-	else if( roimap.find(roi) != roimap.end() && ! iswm )
+	//	myCenterOfMass=mycomlist[roi];
+        if( roimap.find(roi) != roimap.end()  )
  	  std::cout << roimap.find(roi)->second << " & " << clusters[roi] << " , "  << pvals[roi] << "  & " <<  pvals3[roi]  << " &  " << pvals4[roi]   << " &  " << (float)((int)(myCenterOfMass[0]*10))/10. << " " << (float)((int)(myCenterOfMass[1]*10))/10.  << " " <<  (float)((int)(myCenterOfMass[2]*10))/10.  << "   \\ " << std::endl;
     }
 
@@ -7508,7 +7536,7 @@ int main(int argc, char *argv[])
     std::cout << "\n  RemoveLabelInterfaces: " << std::endl;
     std::cout << "      Usage		: RemoveLabelInterfaces ImageIn" << std::endl;
 
-    std::cout << "\n  ROIStatistics		: See the code" << std::endl;
+    std::cout << "\n  ROIStatistics		: computes anatomical locations, cluster size and mass of a stat image which should be in the same physical space (but not nec same resolution) as the label image." << std::endl;
     std::cout << "      Usage		: ROIStatistics LabelNames.txt labelimage.ext valueimage.nii" << std::endl;
 
     std::cout << "\n  SetOrGetPixel	: "  << std::endl;
