@@ -247,7 +247,7 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
   unsigned int totalMaskVolume = 0;
   for( unsigned int n = 0; n < labels.size(); n++ )
     {
-    totalMaskVolume += static_cast<RealType>( labelGeometry->GetVolume(
+    totalMaskVolume += static_cast<unsigned int>( labelGeometry->GetVolume(
         labels[n] ) );
     }
 
