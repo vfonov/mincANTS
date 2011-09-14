@@ -1463,12 +1463,12 @@ int main( int argc, char *argv[] )
      {
      switch( whichDiReCTVersion )
        {
-       case 0: default:
+       case 0:
          {
          DiReCT0<2>( parser );
          break;
          }
-       case 926:
+       case 926: default:
          {
          DiReCT1<2>( parser );
          break;
@@ -1484,17 +1484,18 @@ int main( int argc, char *argv[] )
          break;
          }
        }
+     break;
      }
    case 3:
      {
      switch( whichDiReCTVersion )
        {
-       case 0: default:
+       case 0:
          {
          DiReCT0<3>( parser );
          break;
          }
-       case 926:
+       case 926: default:
          {
          DiReCT1<3>( parser );
          break;
@@ -1510,6 +1511,7 @@ int main( int argc, char *argv[] )
          break;
          }
        }
+     break;
      }
    default:
      {
