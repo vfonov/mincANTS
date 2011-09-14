@@ -79,6 +79,22 @@ int DiReCT0( itk::ants::CommandLineParser *parser )
   typename DiReCTFilterType::Pointer direct = DiReCTFilterType::New();
 
   //
+  // debugging information
+  //
+  typename itk::ants::CommandLineParser::OptionType::Pointer
+    debugOption = parser->GetOption( "print-debug-information" );
+  if( debugOption && debugOption->GetNumberOfValues() > 0 )
+    {
+    std::string value = debugOption->GetValue();
+    ConvertToLowerCase( value );
+    if( std::strcmp( value.c_str(), "true" ) ||
+      parser->Convert<int>( debugOption->GetValue() ) != 0 )
+      {
+      direct->DebugOn();
+      }
+    }
+
+  //
   // segmentation image
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
@@ -247,7 +263,7 @@ int DiReCT0( itk::ants::CommandLineParser *parser )
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     thicknessPriorOption = parser->GetOption( "thickness-prior-estimate" );
-  if( thicknessPriorOption )
+  if( thicknessPriorOption && thicknessPriorOption->GetNumberOfValues() > 0 )
     {
     direct->SetThicknessPriorEstimate( parser->Convert<RealType>(
       thicknessPriorOption->GetValue() ) );
@@ -258,7 +274,7 @@ int DiReCT0( itk::ants::CommandLineParser *parser )
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     gradientStepOption = parser->GetOption( "gradient-step" );
-  if( gradientStepOption )
+  if( gradientStepOption && gradientStepOption->GetNumberOfValues() > 0 )
     {
     direct->SetGradientStep( parser->Convert<RealType>(
       gradientStepOption->GetValue() ) );
@@ -269,26 +285,10 @@ int DiReCT0( itk::ants::CommandLineParser *parser )
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     smoothingSigmaOption = parser->GetOption( "smoothing-sigma" );
-  if( smoothingSigmaOption )
+  if( smoothingSigmaOption && smoothingSigmaOption->GetNumberOfValues() > 0 )
     {
     direct->SetSmoothingSigma( parser->Convert<RealType>(
       smoothingSigmaOption->GetValue() ) );
-    }
-
-  //
-  // debugging information
-  //
-  typename itk::ants::CommandLineParser::OptionType::Pointer
-    debugOption = parser->GetOption( "print-debug-information" );
-  if( debugOption )
-    {
-    std::string value = debugOption->GetValue();
-    ConvertToLowerCase( value );
-    if( std::strcmp( value.c_str(), "true" ) ||
-      parser->Convert<int>( debugOption->GetValue() ) != 0 )
-      {
-      direct->DebugOn();
-      }
     }
 
   //
@@ -296,7 +296,7 @@ int DiReCT0( itk::ants::CommandLineParser *parser )
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     threadOption = parser->GetOption( "maximum-number-of-threads" );
-  if( threadOption )
+  if( threadOption && threadOption->GetNumberOfValues() > 0 )
     {
     unsigned int numThreads = parser->Convert<unsigned int>(
       threadOption->GetValue() );
@@ -358,6 +358,22 @@ int DiReCT1( itk::ants::CommandLineParser *parser )
   typename DiReCTFilterType::Pointer direct = DiReCTFilterType::New();
 
   //
+  // debugging information
+  //
+  typename itk::ants::CommandLineParser::OptionType::Pointer
+    debugOption = parser->GetOption( "print-debug-information" );
+  if( debugOption && debugOption->GetNumberOfValues() > 0 )
+    {
+    std::string value = debugOption->GetValue();
+    ConvertToLowerCase( value );
+    if( std::strcmp( value.c_str(), "true" ) ||
+      parser->Convert<int>( debugOption->GetValue() ) != 0 )
+      {
+      direct->DebugOn();
+      }
+    }
+
+  //
   // segmentation image
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
@@ -526,7 +542,7 @@ int DiReCT1( itk::ants::CommandLineParser *parser )
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     thicknessPriorOption = parser->GetOption( "thickness-prior-estimate" );
-  if( thicknessPriorOption )
+  if( thicknessPriorOption && thicknessPriorOption->GetNumberOfValues() > 0 )
     {
     direct->SetThicknessPriorEstimate( parser->Convert<RealType>(
       thicknessPriorOption->GetValue() ) );
@@ -537,7 +553,7 @@ int DiReCT1( itk::ants::CommandLineParser *parser )
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     gradientStepOption = parser->GetOption( "gradient-step" );
-  if( gradientStepOption )
+  if( gradientStepOption && gradientStepOption->GetNumberOfValues() > 0 )
     {
     direct->SetGradientStep( parser->Convert<RealType>(
       gradientStepOption->GetValue() ) );
@@ -548,26 +564,10 @@ int DiReCT1( itk::ants::CommandLineParser *parser )
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     smoothingSigmaOption = parser->GetOption( "smoothing-sigma" );
-  if( smoothingSigmaOption )
+  if( smoothingSigmaOption && smoothingSigmaOption->GetNumberOfValues() > 0 )
     {
     direct->SetSmoothingSigma( parser->Convert<RealType>(
       smoothingSigmaOption->GetValue() ) );
-    }
-
-  //
-  // debugging information
-  //
-  typename itk::ants::CommandLineParser::OptionType::Pointer
-    debugOption = parser->GetOption( "print-debug-information" );
-  if( debugOption )
-    {
-    std::string value = debugOption->GetValue();
-    ConvertToLowerCase( value );
-    if( std::strcmp( value.c_str(), "true" ) ||
-      parser->Convert<int>( debugOption->GetValue() ) != 0 )
-      {
-      direct->DebugOn();
-      }
     }
 
   //
@@ -575,7 +575,7 @@ int DiReCT1( itk::ants::CommandLineParser *parser )
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     threadOption = parser->GetOption( "maximum-number-of-threads" );
-  if( threadOption )
+  if( threadOption && threadOption->GetNumberOfValues() > 0 )
     {
     unsigned int numThreads = parser->Convert<unsigned int>(
       threadOption->GetValue() );
@@ -637,6 +637,22 @@ int DiReCT2( itk::ants::CommandLineParser *parser )
   typename DiReCTFilterType::Pointer direct = DiReCTFilterType::New();
 
   //
+  // debugging information
+  //
+  typename itk::ants::CommandLineParser::OptionType::Pointer
+    debugOption = parser->GetOption( "print-debug-information" );
+  if( debugOption && debugOption->GetNumberOfValues() > 0 )
+    {
+    std::string value = debugOption->GetValue();
+    ConvertToLowerCase( value );
+    if( std::strcmp( value.c_str(), "true" ) ||
+      parser->Convert<int>( debugOption->GetValue() ) != 0 )
+      {
+      direct->DebugOn();
+      }
+    }
+
+  //
   // segmentation image
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
@@ -799,13 +815,12 @@ int DiReCT2( itk::ants::CommandLineParser *parser )
 					    convergenceOption->GetParameter( 2 ) ) );
       }
     }
-
   //
   // thickness prior estimate
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     thicknessPriorOption = parser->GetOption( "thickness-prior-estimate" );
-  if( thicknessPriorOption )
+  if( thicknessPriorOption && thicknessPriorOption->GetNumberOfValues() > 0 )
     {
     direct->SetThicknessPriorEstimate( parser->Convert<RealType>(
       thicknessPriorOption->GetValue() ) );
@@ -816,7 +831,7 @@ int DiReCT2( itk::ants::CommandLineParser *parser )
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     gradientStepOption = parser->GetOption( "gradient-step" );
-  if( gradientStepOption )
+  if( gradientStepOption && gradientStepOption->GetNumberOfValues() > 0 )
     {
     direct->SetGradientStep( parser->Convert<RealType>(
       gradientStepOption->GetValue() ) );
@@ -827,26 +842,10 @@ int DiReCT2( itk::ants::CommandLineParser *parser )
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     smoothingSigmaOption = parser->GetOption( "smoothing-sigma" );
-  if( smoothingSigmaOption )
+  if( smoothingSigmaOption && smoothingSigmaOption->GetNumberOfValues() > 0 )
     {
     direct->SetSmoothingSigma( parser->Convert<RealType>(
       smoothingSigmaOption->GetValue() ) );
-    }
-
-  //
-  // debugging information
-  //
-  typename itk::ants::CommandLineParser::OptionType::Pointer
-    debugOption = parser->GetOption( "print-debug-information" );
-  if( debugOption )
-    {
-    std::string value = debugOption->GetValue();
-    ConvertToLowerCase( value );
-    if( std::strcmp( value.c_str(), "true" ) ||
-      parser->Convert<int>( debugOption->GetValue() ) != 0 )
-      {
-      direct->DebugOn();
-      }
     }
 
   //
@@ -854,7 +853,7 @@ int DiReCT2( itk::ants::CommandLineParser *parser )
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     threadOption = parser->GetOption( "maximum-number-of-threads" );
-  if( threadOption )
+  if( threadOption && threadOption->GetNumberOfValues() > 0 )
     {
     unsigned int numThreads = parser->Convert<unsigned int>(
       threadOption->GetValue() );
@@ -916,6 +915,22 @@ int DiReCT3( itk::ants::CommandLineParser *parser )
   typename DiReCTFilterType::Pointer direct = DiReCTFilterType::New();
 
   //
+  // debugging information
+  //
+  typename itk::ants::CommandLineParser::OptionType::Pointer
+    debugOption = parser->GetOption( "print-debug-information" );
+  if( debugOption && debugOption->GetNumberOfValues() > 0 )
+    {
+    std::string value = debugOption->GetValue();
+    ConvertToLowerCase( value );
+    if( std::strcmp( value.c_str(), "true" ) ||
+      parser->Convert<int>( debugOption->GetValue() ) != 0 )
+      {
+      direct->DebugOn();
+      }
+    }
+
+  //
   // segmentation image
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
@@ -1084,7 +1099,7 @@ int DiReCT3( itk::ants::CommandLineParser *parser )
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     thicknessPriorOption = parser->GetOption( "thickness-prior-estimate" );
-  if( thicknessPriorOption )
+  if( thicknessPriorOption && thicknessPriorOption->GetNumberOfValues() > 0 )
     {
     direct->SetThicknessPriorEstimate( parser->Convert<RealType>(
       thicknessPriorOption->GetValue() ) );
@@ -1095,7 +1110,7 @@ int DiReCT3( itk::ants::CommandLineParser *parser )
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     gradientStepOption = parser->GetOption( "gradient-step" );
-  if( gradientStepOption )
+  if( gradientStepOption && gradientStepOption->GetNumberOfValues() > 0 )
     {
     direct->SetGradientStep( parser->Convert<RealType>(
       gradientStepOption->GetValue() ) );
@@ -1106,26 +1121,10 @@ int DiReCT3( itk::ants::CommandLineParser *parser )
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     smoothingSigmaOption = parser->GetOption( "smoothing-sigma" );
-  if( smoothingSigmaOption )
+  if( smoothingSigmaOption && smoothingSigmaOption->GetNumberOfValues() > 0 )
     {
     direct->SetSmoothingSigma( parser->Convert<RealType>(
       smoothingSigmaOption->GetValue() ) );
-    }
-
-  //
-  // debugging information
-  //
-  typename itk::ants::CommandLineParser::OptionType::Pointer
-    debugOption = parser->GetOption( "print-debug-information" );
-  if( debugOption )
-    {
-    std::string value = debugOption->GetValue();
-    ConvertToLowerCase( value );
-    if( std::strcmp( value.c_str(), "true" ) ||
-      parser->Convert<int>( debugOption->GetValue() ) != 0 )
-      {
-      direct->DebugOn();
-      }
     }
 
   //
@@ -1133,7 +1132,7 @@ int DiReCT3( itk::ants::CommandLineParser *parser )
   //
   typename itk::ants::CommandLineParser::OptionType::Pointer
     threadOption = parser->GetOption( "maximum-number-of-threads" );
-  if( threadOption )
+  if( threadOption && threadOption->GetNumberOfValues() > 0 )
     {
     unsigned int numThreads = parser->Convert<unsigned int>(
       threadOption->GetValue() );
@@ -1331,6 +1330,25 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
   }
 
   {
+  std::string description =
+    std::string( "Option to set the DiReCT Image Filter svn revision " ) +
+    std::string( "(0, 926, 949, 953).  Version 926 is most likely the " ) +
+    std::string( "but it comes at the cost of a huge memory footprint. " ) +
+    std::string( "Memory-saving strategies were employed for version " ) +
+    std::string( "949 but at a computational speed cost.  Additional " ) +
+    std::string( "memory-saving strategies were used in version 953." ) +
+    std::string( "If this option is not set, it defaults to the latest " ) +
+    std::string( "DiReCT revision (0)." );
+
+  OptionType::Pointer option = OptionType::New();
+  option->SetLongName( "DiReCT-revision" );
+  option->SetShortName( 'z' );
+  option->SetUsageOption( 0, "0, 926, 949, or 953" );
+  option->SetDescription( description );
+  parser->AddOption( option );
+  }
+
+  {
   std::string description = std::string( "Print the help menu (short version)." );
 
   OptionType::Pointer option = OptionType::New();
@@ -1347,25 +1365,6 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
   option->SetLongName( "help" );
   option->SetDescription( description );
   option->AddValue( std::string( "0" ) );
-  parser->AddOption( option );
-  }
-
-  {
-  std::string description =
-    std::string( "Option to set the DiReCT Image Filter svn revision " ) +
-    std::string( "(0, 926, 949, 953).  Version 926 is most likely the " ) +
-    std::string( "but it comes at the cost of a huge memory footprint. " ) +
-    std::string( "Memory-saving strategies were employed for version " ) +
-    std::string( "949 but at a computational speed cost.  Additional " ) +
-    std::string( "memory-saving strategies were used in version 953." ) +
-    std::string( "If this option is not set, it defaults to the latest " ) +
-    std::string( "DiReCT revision (0)." );
-
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "DiReCT-Image-Filter-Revision" );
-  option->SetShortName( 'z' );
-  option->SetUsageOption( 0, "itkDiReCTImageFilterRevision" );
-  option->SetDescription( description );
   parser->AddOption( option );
   }
 
@@ -1440,23 +1439,23 @@ int main( int argc, char *argv[] )
     dimension = imageIO->GetNumberOfDimensions();
     }
 
-  std::cout << std::endl << "Running DiReCT for "
-    << dimension << "-dimensional images." << std::endl << std::endl;
-
   unsigned int whichDiReCTVersion = 0;
   itk::ants::CommandLineParser::OptionType::Pointer directOption =
-    parser->GetOption( "DiReCT-Image-Filter-Revision" );
+    parser->GetOption( "DiReCT-revision" );
   if( directOption && directOption->GetNumberOfValues() > 0 )
     {
     whichDiReCTVersion = parser->Convert<unsigned int>( directOption->GetValue() );
-    if( whichDiReCTVersion != 953 || whichDiReCTVersion != 949 ||
-      whichDiReCTVersion != 926 || whichDiReCTVersion != 0 )
+    if( whichDiReCTVersion != 953 && whichDiReCTVersion != 949 &&
+      whichDiReCTVersion != 926 && whichDiReCTVersion != 0 )
       {
       std::cerr << "Unknown requested DiReCT version. See long help menu "
         << "for the description of the different versions (i.e. --help )." << std::endl;
       exit( EXIT_FAILURE );
       }
     }
+
+  std::cout << std::endl << "Running DiReCT (revision " << whichDiReCTVersion
+    << ") for " << dimension << "-dimensional images." << std::endl << std::endl;
 
   switch( dimension )
    {
@@ -1513,8 +1512,10 @@ int main( int argc, char *argv[] )
        }
      }
    default:
-      std::cerr << "Unsupported dimension" << std::endl;
-      exit( EXIT_FAILURE );
+     {
+     std::cerr << "Unsupported dimension" << std::endl;
+     exit( EXIT_FAILURE );
+     }
    }
 }
 
