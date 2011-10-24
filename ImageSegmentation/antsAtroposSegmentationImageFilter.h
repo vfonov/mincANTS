@@ -155,11 +155,6 @@ public:
   /** Posterior probability formulation typedefs */
   enum PosteriorProbabilityFormulationType { Socrates, Plato, Aristotle };
 
-  typedef SymmetricSecondRankTensor<RealType, ImageDimension>  MRFNeighborhoodTensorType;
-  typedef Image<MRFNeighborhoodTensorType, ImageDimension>     MRFNeighborhoodDefiningImageType;
-  typedef typename MRFNeighborhoodDefiningImageType::Pointer   MRFNeighborhoodDefiningImagePointer;
-
-
   // ivars Set/Get functionality
 
   /**
@@ -276,12 +271,12 @@ public:
   /**
    * Set the MRF neighborhood-defining image.
    */
-  itkSetObjectMacro( MRFNeighborhoodDefiningImage, MRFNeighborhoodDefiningImageType );
+  itkSetObjectMacro( MRFCoefficientImage, RealImageType );
 
   /**
    * Get the MRF neighborhood-defining image.
    */
-  itkGetConstObjectMacro( MRFNeighborhoodDefiningImage, MRFNeighborhoodDefiningImageType );
+  itkGetConstObjectMacro( MRFCoefficientImage, RealImageType );
 
   /**
    * Set the annealing temperature for ICM asynchronous updating.  For values
@@ -836,7 +831,7 @@ private:
 
   ArrayType                                      m_MRFRadius;
   RealType                                       m_MRFSmoothingFactor;
-  MRFNeighborhoodDefiningImagePointer            m_MRFNeighborhoodDefiningImage;
+  RealImagePointer                               m_MRFCoefficientImage;
 
   unsigned int                                   m_MaximumICMCode;
   ClassifiedImagePointer                         m_ICMCodeImage;
