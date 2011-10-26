@@ -43,7 +43,7 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
   this->m_MaximumEigenvalue2 = 0;
   this->m_MinimumEigenvalue1 = 1;
   this->m_MinimumEigenvalue2 = 1;
-  this->m_Interpolator=InterpolatorType::New();    
+  this->m_Interpolator=InterpolatorType::New();
   this->m_Interpolator->SetSplineOrder( 3 );
   this->m_JointHistogramImages[0] = NULL;
   this->m_JointHistogramImages[1] = NULL;
@@ -107,13 +107,14 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
   this->m_JointHistogramImages[0]->TransformPhysicalPointToContinuousIndex(
     shapePoint, shapeCidx );
 
-  typename JointHistogramImageType::IndexType shapeIdx;
+  typedef typename JointHistogramImageType::IndexType JointHistogramImageIndexType;
+  JointHistogramImageIndexType shapeIdx;
 
   /** Nearest neighbor increment to JH */
   if( this->m_UseNearestNeighborIncrements )
     {
-    shapeIdx[0] = vcl_floor( shapeCidx[0] + 0.5);
-    shapeIdx[1] = vcl_floor( shapeCidx[1] + 0.5 );
+    shapeIdx[0] = static_cast<typename JointHistogramImageIndexType::IndexValueType>( vcl_floor( shapeCidx[0] + 0.5 ) );
+    shapeIdx[1] = static_cast<typename JointHistogramImageIndexType::IndexValueType>( vcl_floor( shapeCidx[1] + 0.5 ) );
     if( this->m_JointHistogramImages[0]->
       GetLargestPossibleRegion().IsInside( shapeIdx ) )
       {
@@ -218,13 +219,13 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
   tp[1] = 0.0;
 
   // If eigenvector has negative x, we reflect it about the origin.
-  // We do this to avoid redundancy in representation of the eigenvectors, 
-  // because they are all redundant.  
+  // We do this to avoid redundancy in representation of the eigenvectors,
+  // because they are all redundant.
 
-  if ( x < 0 ) 
-   {  
-     x*=-1; 
-     y*=-1; 
+  if ( x < 0 )
+   {
+     x*=-1;
+     y*=-1;
      z*=-1;
    }
 
@@ -285,7 +286,7 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
    RealType psi = tp[0];
    RealType theta = tp[1];
 
-  
+
 // note, if a point maps to 0 or 2*pi then it should contribute to both bins -- pretty much only difference between this function and matlab code is the next 15 or so lines, as far as we see
   orientPoint[0] = psi / (vnl_math::pi ) *
     ( this->m_NumberOfJointHistogramBins - 1) + 1;
@@ -296,13 +297,14 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
   this->m_JointHistogramImages[whichHistogram]->
     TransformPhysicalPointToContinuousIndex( orientPoint, orientCidx );
 
-  typename JointHistogramImageType::IndexType orientIdx;
+  typedef typename JointHistogramImageType::IndexType JointHistogramImageIndexType;
+  JointHistogramImageIndexType orientIdx;
 
   /** Nearest neighbor interpolation */
   if( this->m_UseNearestNeighborIncrements )
     {
-    orientIdx[0] = vcl_floor( orientCidx[0] + 0.5 );
-    orientIdx[1] = vcl_floor( orientCidx[1] + 0.5 );
+    orientIdx[0] = static_cast<typename JointHistogramImageIndexType::IndexValueType>( vcl_floor( orientCidx[0] + 0.5 ) );
+    orientIdx[1] = static_cast<typename JointHistogramImageIndexType::IndexValueType>( vcl_floor( orientCidx[1] + 0.5 ) );
     if( this->m_JointHistogramImages[whichHistogram]->
       GetLargestPossibleRegion().IsInside( orientIdx ) )
       {
@@ -558,8 +560,8 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
 
     ++It;
     }
-    
-    
+
+
 
   for( unsigned int d = 0; d < 3; d++ )
     {
@@ -584,8 +586,8 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
     divider->SetConstant( stats->GetSum() );
     divider->Update();
     this->m_JointHistogramImages[d] = divider->GetOutput();
-        
-    }    
+
+    }
 }
 
 template <class TListSample, class TOutput, class TCoordRep>
