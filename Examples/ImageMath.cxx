@@ -39,6 +39,10 @@
 #include "itkLabeledPointSetFileReader.h"
 #include "itkLabeledPointSetFileWriter.h"
 #include "itkImageRandomConstIteratorWithIndex.h"
+#include "itkListSample.h"
+#include "itkHistogram.h"
+#include "itkSampleToHistogramFilter.h"
+
 //#include "itkBinaryMorphologicalClosingImageFilter.h"
 //#include "itkBinaryMorphologicalOpeningImageFilter.h"
 #include "itkGrayscaleErodeImageFilter.h"
@@ -164,6 +168,31 @@ std::string ANTSGetFilePrefix(const char *str){
     //      return INVALID_FILE;
     //}
     return filepre;
+}
+
+template <class TImage>
+typename TImage::Pointer BinaryThreshold(typename TImage::PixelType low, typename TImage::PixelType high,typename TImage::PixelType replaceval, typename TImage::Pointer input)
+{
+	//std::cout << " Binary Thresh " << std::endl;
+
+	typedef typename TImage::PixelType PixelType;
+	// Begin Threshold Image
+	typedef itk::BinaryThresholdImageFilter<TImage,TImage>  InputThresholderType;
+	typename InputThresholderType::Pointer inputThresholder =
+		InputThresholderType::New();
+
+	inputThresholder->SetInput( input );
+	inputThresholder->SetInsideValue(  replaceval );
+	int outval=0;
+	if ((float) replaceval == (float) -1) outval=1;
+	inputThresholder->SetOutsideValue( outval );
+
+	if (high < low) high=255;
+	inputThresholder->SetLowerThreshold((PixelType) low );
+	inputThresholder->SetUpperThreshold((PixelType) high);
+	inputThresholder->Update();
+
+	return inputThresholder->GetOutput();
 }
 
 template<unsigned int ImageDimension>
@@ -1801,7 +1830,7 @@ int CompCorr(int argc, char *argv[])
   typedef typename ImageType::SpacingType SpacingType;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
 
-  typedef double Scalar;
+  typedef float Scalar;
   typedef itk::ants::antsMatrixUtilities<ImageType,Scalar>  matrixOpType;
   typename matrixOpType::Pointer matrixOps=matrixOpType::New();
 
@@ -1810,6 +1839,8 @@ int CompCorr(int argc, char *argv[])
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
   std::string fn_label = std::string(argv[argct]);   argct++;
+  float compcorr_sigma = 0; 
+  if ( argc > argct ) compcorr_sigma = atof(argv[argct]);   argct++;
   std::string::size_type idx;
   idx = outname.find_first_of('.');
   std::string tempname = outname.substr(0,idx);
@@ -1819,6 +1850,7 @@ int CompCorr(int argc, char *argv[])
   typename OutImageType::Pointer outimage = NULL;
   typename OutImageType::Pointer outimage2 = NULL;
   typename OutImageType::Pointer label_image = NULL;
+  typename OutImageType::Pointer var_image = NULL;
 
   typedef itk::ImageRegionIteratorWithIndex<ImageType> ImageIt;
   typedef itk::ImageRegionIteratorWithIndex<OutImageType> SliceIt;
@@ -1829,6 +1861,8 @@ int CompCorr(int argc, char *argv[])
   else return 1;
   if (fn_label.length() > 3)   ReadImage<OutImageType>(outimage, fn_label.c_str());
   if (fn_label.length() > 3)   ReadImage<OutImageType>(outimage2, fn_label.c_str());
+  if (fn_label.length() > 3)   ReadImage<OutImageType>(var_image, fn_label.c_str());
+  var_image->FillBuffer(0);
   outimage->FillBuffer(0);
   outimage2->FillBuffer(0);
   std::cout << " read images " << std::endl;
@@ -1841,7 +1875,7 @@ int CompCorr(int argc, char *argv[])
   unsigned long ct_nuis=0;
   unsigned long ct_ref=0;
   unsigned long ct_gm=0;
-  std::cout << " iterate " << std::endl;
+  std::cout << " verify input " << std::endl;
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       OutIndexType ind=vfIter2.GetIndex();
@@ -1855,23 +1889,131 @@ int CompCorr(int argc, char *argv[])
 	ct_gm++;
       }
     }
-
-
+  std::cout << " counted " << ct_gm << " gm voxels " << ct_ref << " reference region voxels " << std::endl;
+  if ( ct_gm == 0 ) 
+    {
+      std::cout << ct_gm << " not enough voxels labeled as gm (or brain) " << ct_gm <<std::endl;
+      return 1;
+    }
+  if ( ct_ref == 0 ) 
+    {
+      std::cout << ct_ref << " not enough voxels labeled as reference region " <<std::endl;
+      return 1;
+    }
   // step 1.  compute , in label 3 ( the nuisance region ), the representative value of the time series over the region.  at the same time, compute the average value in label 2 ( the reference region ).
   // step 2.  factor out the nuisance region from the activation at each voxel in the ROI (nonzero labels).
   // step 3.  compute the correlation of the reference region with every voxel in the roi.
   typedef vnl_matrix<Scalar>      timeMatrixType;
   typedef vnl_vector<Scalar>      timeVectorType;
-  timeMatrixType mNuisance(timedims,ct_nuis,0);
   timeMatrixType mReference(timedims,ct_ref,0);
   timeMatrixType mSample(timedims,ct_gm,0);
   unsigned long nuis_vox=0;
   unsigned long ref_vox=0;
   unsigned long gm_vox=0;
+  timeVectorType smoother(timedims,0);
+  timeVectorType smoother_out(timedims,0);
+  //  FIRST -- get high variance (in time) voxels 
+  float maxvar=0;
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       OutIndexType ind=vfIter2.GetIndex();
-      if ( vfIter2.Get() == 3 ) { // nuisance
+      if ( vfIter2.Get() > 0 ) { // in-brain
+	IndexType tind;
+	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
+	float total=0;
+	for (unsigned int t=0; t<timedims; t++){
+          tind[ImageDimension-1]=t;
+	  Scalar pix=image1->GetPixel(tind);
+          smoother(t)=pix;
+	  total+=pix;
+	}
+	float mean=total/(float)timedims;
+	float var=0;
+	for (unsigned int t=0; t<timedims; t++){
+	  var+=((smoother(t)-mean)*(smoother(t)-mean));
+	}
+	var/=(float)(timedims);
+	var=sqrt(var);
+	if ( var > maxvar ) maxvar=var;
+	var_image->SetPixel(ind,var);
+      }
+    }
+  std::cout << " got var " << std::endl;
+  // now build the histogram
+  unsigned int histsize=50;
+  float binsize=maxvar/histsize;
+  timeVectorType varhist(histsize,0);
+  float varhistsum=0;
+  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+    {
+      OutIndexType ind=vfIter2.GetIndex();
+      float var=var_image->GetPixel(ind);
+      if ( vfIter2.Get() > 0 && var > 0 ) { // in-brain
+	int bin=(int)( var/binsize )-1;
+	if ( bin < 0 ) bin=0;
+	varhist[bin]+=1;
+	varhistsum+=1;
+      }
+    }
+  varhist=varhist/varhistsum;
+  std::cout << " got var hist " << std::endl;
+  float temp=0;
+  float varval_csf=0;
+  for (unsigned int j=0; j<histsize; j++)
+    {
+      temp+=varhist(j);
+      float varth=(float)j/(float)histsize*maxvar;
+      std::cout <<" j " << j << " temp " << temp << " varth " << varth << std::endl;
+      if ( temp >= 0.95 && varval_csf <=  0 ) varval_csf=(float)j*binsize;
+    }
+
+  std::cout <<" maxvar " << maxvar << " varval_csf " << varval_csf << std::endl;
+  //  WriteImage<OutImageType>(var_image,"varimage.nii.gz");
+  //
+  ct_nuis=0;
+  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+    {
+      OutIndexType ind=vfIter2.GetIndex();
+      if ( var_image->GetPixel(ind) > varval_csf  ) { // nuisance
+	ct_nuis++;
+      }
+    } 
+  timeMatrixType mNuisance(timedims,ct_nuis,0);
+  std::cout <<" begin smoothing " << std::endl;
+  if ( compcorr_sigma > 1.e-5 )
+  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+    {
+      OutIndexType ind=vfIter2.GetIndex();
+      if ( vfIter2.Get() > 0 ) { // in-brain
+	IndexType tind;
+	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
+	for (unsigned int t=0; t<timedims; t++){
+          tind[ImageDimension-1]=t;
+	  Scalar pix=image1->GetPixel(tind);
+          smoother(t)=pix;
+	}
+	for (unsigned int t=0; t<timedims; t++){
+	  int offset=25;
+	  int lo=t-offset; if ( lo < 0 ) lo=0; 
+          int hi=t+offset; if ( hi > timedims-1 ) hi=timedims-1; 
+	  float total=0;
+  	  for (unsigned int s=lo; s<hi; s++){
+	    float diff=(float)s-(float)t;
+            float wt=exp(-1.0*diff*diff/(2.0*compcorr_sigma*compcorr_sigma));
+	    total+=wt;
+	    smoother_out(t)+=wt*smoother(s);
+	  }
+	  smoother_out(t)/=total;
+	}
+      }
+    }
+  std::cout <<" smooth done " << std::endl;
+  ref_vox=0; nuis_vox=0; gm_vox=0;
+  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+    {
+      OutIndexType ind=vfIter2.GetIndex();
+      //      if ( vfIter2.Get() == 3 ) { // nuisance
+      if ( var_image->GetPixel(ind) > varval_csf  ) { // nuisance
 	IndexType tind;
 	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
 	for (unsigned int t=0; t<timedims; t++){
@@ -1903,7 +2045,7 @@ int CompCorr(int argc, char *argv[])
       }
     }
   // factor out the nuisance variables by OLS
-  unsigned int nnuis=2;
+  unsigned int nnuis=3;
   if ( ct_nuis <= 0 ) nnuis=1;
   timeMatrixType reducedNuisance(timedims,nnuis);
   for (unsigned int i=0; i<nnuis;i++) {
@@ -1945,7 +2087,7 @@ int CompCorr(int argc, char *argv[])
 	gm_vox++;
       }
     }
-
+  std::cout<<"write results"<<std::endl;
   std::string kname=tempname+std::string("first_evec")+extension;
   WriteImage<OutImageType>(outimage,kname.c_str());
   //  kname=tempname+std::string("second_evec")+extension;
@@ -1953,6 +2095,8 @@ int CompCorr(int argc, char *argv[])
   WriteImage<OutImageType>(outimage2,kname.c_str());
   kname=tempname+std::string("_corrected")+extension;
   WriteImage<ImageType>(image1,kname.c_str());
+  kname=tempname+std::string("_variance")+extension;
+  WriteImage<OutImageType>(var_image,kname.c_str());
   return 0;
 
 }
@@ -3163,30 +3307,6 @@ int CompareHeadersAndImages(int argc, char *argv[])
 
 
 
-template <class TImage>
-typename TImage::Pointer BinaryThreshold(typename TImage::PixelType low, typename TImage::PixelType high,typename TImage::PixelType replaceval, typename TImage::Pointer input)
-{
-	//std::cout << " Binary Thresh " << std::endl;
-
-	typedef typename TImage::PixelType PixelType;
-	// Begin Threshold Image
-	typedef itk::BinaryThresholdImageFilter<TImage,TImage>  InputThresholderType;
-	typename InputThresholderType::Pointer inputThresholder =
-		InputThresholderType::New();
-
-	inputThresholder->SetInput( input );
-	inputThresholder->SetInsideValue(  replaceval );
-	int outval=0;
-	if ((float) replaceval == (float) -1) outval=1;
-	inputThresholder->SetOutsideValue( outval );
-
-	if (high < low) high=255;
-	inputThresholder->SetLowerThreshold((PixelType) low );
-	inputThresholder->SetUpperThreshold((PixelType) high);
-	inputThresholder->Update();
-
-	return inputThresholder->GetOutput();
-}
 
 // template<class TImage>
 // typename TImage::Pointer
@@ -7486,7 +7606,7 @@ int main(int argc, char *argv[])
 
     std::cout << "\nTime Series Operations:" << std::endl;
     std::cout << " CompCorr : Outputs a comp-corr corrected 4D image as well as a 3D image measuring the correlation of a time series voxel/region with a reference voxel/region factored out.  Requires a label image with 1=overall region of interest,  2=reference voxel, 3=region to factor out.  If there is no 3rd label, then only the global signal is factored out." << std::endl;
-    std::cout << "    Usage		: CompCorr 4D_TimeSeries.nii.gz LabeLimage.nii.gz " << std::endl;
+    std::cout << "    Usage		: CompCorr 4D_TimeSeries.nii.gz LabeLimage.nii.gz  Sigma-for-temporal-smoothing " << std::endl;
     std::cout << " TimeSeriesSubset : Outputs n 3D image sub-volumes extracted uniformly from the input time-series 4D image." << std::endl;
     std::cout << "    Usage		: TimeSeriesSubset 4D_TimeSeries.nii.gz n " << std::endl;
     std::cout << " TimeSeriesToMatrix : Converts a 4D image + mask to matrix (stored as csv file) where rows are time and columns are space ." << std::endl;
@@ -7673,7 +7793,6 @@ int main(int argc, char *argv[])
 
   switch ( atoi(argv[1]) )
    {
-
    case 2:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<2>(argc,argv);
      else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<2>(argc,argv);
@@ -7814,7 +7933,6 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<3>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
       break;
-
  case 4:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<4>(argc,argv);
      else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<4>(argc,argv);
