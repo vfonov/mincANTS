@@ -50,6 +50,7 @@
 #include "itkRegistrationParameterScalesFromShift.h"
 #include "itkResampleImageFilter.h"
 #include "itkShrinkImageFilter.h"
+#include "itkTimeProbe.h"
 #include "itkTransformFileReader.h"
 #include "itkTransformFileWriter.h"
 #include "itkVector.h"
@@ -118,6 +119,9 @@ void ConvertToLowerCase( std::string& str )
 template<unsigned int ImageDimension>
 int hormigita( itk::ants::CommandLineParser *parser )
 {
+  itk::TimeProbe totalTimer;
+  totalTimer.Start();
+
   // We infer the number of stages by the number of transformations
   // specified by the user which should match the number of metrics.
 
@@ -193,6 +197,9 @@ int hormigita( itk::ants::CommandLineParser *parser )
 
   for( int currentStage = numberOfStages - 1; currentStage >= 0; currentStage-- )
     {
+    itk::TimeProbe timer;
+    timer.Start();
+
     typedef itk::SimpleImageRegistrationMethod<FixedImageType, MovingImageType> AffineRegistrationType;
 
     std::cout << std::endl << "Stage " << numberOfStages - currentStage << std::endl;
@@ -589,7 +596,7 @@ int hormigita( itk::ants::CommandLineParser *parser )
       writer->SetFileName( filename.c_str() );
       writer->Update();
       }
-    else if( std::strcmp( whichTransform.c_str(), "bsplinedeformationfield" ) == 0 || std::strcmp( whichTransform.c_str(), "dmffd" ) == 0 )
+    else if( std::strcmp( whichTransform.c_str(), "bsplinedisplacementfield" ) == 0 || std::strcmp( whichTransform.c_str(), "dmffd" ) == 0 )
       {
       typedef itk::Vector<RealType, ImageDimension> VectorType;
       VectorType zeroVector( 0.0 );
@@ -983,6 +990,8 @@ int hormigita( itk::ants::CommandLineParser *parser )
       std::cerr << "ERROR:  Unrecognized transform option - " << whichTransform << std::endl;
       return EXIT_FAILURE;
       }
+    timer.Stop();
+    std::cout << "  Elapsed time (stage " << currentStage+1 << "): " << timer.GetMeanTime() << std::endl << std::endl;
     }
 
   // Write out warped image(s), if requested.
@@ -1053,6 +1062,8 @@ int hormigita( itk::ants::CommandLineParser *parser )
       }
     }
 
+  totalTimer.Stop();
+  std::cout << std::endl << "Total elapsed time: " << totalTimer.GetMeanTime() << std::endl;
 
   return EXIT_SUCCESS;
 }
