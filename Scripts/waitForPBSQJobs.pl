@@ -33,8 +33,7 @@ elsif( $delay > 3600 )
 
 print "  Waiting for " . scalar( @jobIDs ) . " jobs: @jobIDs\n";
 
-# my $user=`whoami`;
-my $user='xw2u'; 
+my $user=`whoami`;
 
 my $qstatOutput = `qstat -u $user`;
 
@@ -77,41 +76,41 @@ my $jobsIncomplete = 1;
 # Set to 1 for any job in an error state
 my $haveErrors = 0;
 
-while( $jobsIncomplete ) 
+while( $jobsIncomplete )
   {
 
   # Jobs that are still showing up in qstat
   $jobsIncomplete = 0;
 
-  foreach my $job (@jobIDs) 
+  foreach my $job (@jobIDs)
     {
     # iterate over all user jobs in the queue
-    qstatLine: foreach my $line ( @qstatLines ) 
+    qstatLine: foreach my $line ( @qstatLines )
       {
       # trim string for trailing white space so that the tokens are in the correct sequence
       # We are being paranoid by matching tokens to job-IDs this way. Less elegant than a
       # match but also less chance of a false-positive match
-    
+
       my @tokens = split( '\s+', trim( $line ) );
- 
+
       # The qstat command only prints the first 15 characters of the job
       # so we only compare the first 15 characters
 
-      my $job_short = substr( $job, 0, 15 );  
- 
+      my $job_short = substr( $job, 0, 15 );
+
       if( @tokens > 0 && ( $tokens[$jobID_Pos] =~ m/$job_short/ ) )
         {
 	# Check status - there's no error state in PBS
         # so we simply skip over this check
-#        if( $tokens[$statePos] =~ m/E/ ) 
+#        if( $tokens[$statePos] =~ m/E/ )
 #         {
 #         $haveErrors = 1;
 #         }
-#       else 
+#       else
 #         {
           $jobsIncomplete = $jobsIncomplete + 1;
 #	  }
-        if( $verbose ) 
+        if( $verbose )
           {
 	  print "    Job $job is in state $tokens[$statePos]\n";
 	  }
@@ -121,7 +120,7 @@ while( $jobsIncomplete )
     }
 
 
-  if( $jobsIncomplete ) 
+  if( $jobsIncomplete )
     {
     if( $verbose )
       {
