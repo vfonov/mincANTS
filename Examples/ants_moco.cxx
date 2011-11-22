@@ -43,6 +43,7 @@
 #include "itkTimeVaryingVelocityFieldTransformParametersAdaptor.h"
 
 #include "itkGradientDescentObjectOptimizer.h"
+#include "itkQuasiNewtonObjectOptimizer.h"
 
 #include "itkHistogramMatchingImageFilter.h"
 #include "itkImageFileReader.h"
@@ -100,9 +101,10 @@ public:
     std::cout << "    smoothing sigma = " << smoothingSigmas[currentLevel] << std::endl;
     std::cout << "    required fixed parameters = " << adaptors[currentLevel]->GetRequiredFixedParameters() << std::endl;
 
-    typedef itk::GradientDescentObjectOptimizer GradientDescentObjectOptimizerType;
+    typedef itk::GradientDescentObjectOptimizer OptimizerType;
+    typedef itk::QuasiNewtonObjectOptimizer OptimizerType2;
 
-    GradientDescentObjectOptimizerType * optimizer = reinterpret_cast<GradientDescentObjectOptimizerType *>(
+    OptimizerType * optimizer = reinterpret_cast<OptimizerType *>(
       const_cast<typename TFilter::OptimizerType *>( filter->GetOptimizer() ) );
     optimizer->SetNumberOfIterations( this->m_NumberOfIterations[currentLevel] );
     }
@@ -210,7 +212,6 @@ int ants_moco( itk::ants::CommandLineParser *parser )
 
     std::string fixedImageFileName = metricOption->GetParameter( currentStage, 0 );
     std::string movingImageFileName = metricOption->GetParameter( currentStage, 1 );
-
     std::cout << "  fixed image: " << fixedImageFileName << std::endl;
     std::cout << "  moving image: " << movingImageFileName << std::endl;
 
@@ -231,6 +232,14 @@ int ants_moco( itk::ants::CommandLineParser *parser )
     typename MovingImageType::Pointer movingImage = movingImageReader->GetOutput();
     movingImage->Update();
     movingImage->DisconnectPipeline();
+
+
+    typename MovingImageReaderType::Pointer outputImageReader = MovingImageReaderType::New();
+    outputImageReader->SetFileName( movingImageFileName.c_str() );
+    outputImageReader->Update();
+    typename MovingImageType::Pointer outputImage = outputImageReader->GetOutput();
+    outputImage->Update();
+    outputImage->DisconnectPipeline();
 
     // Get the number of iterations and use that information to specify the number of levels
 
@@ -283,7 +292,7 @@ int ants_moco( itk::ants::CommandLineParser *parser )
     //
     // Set up the image metric and scales estimator
     unsigned int timedims=movingImage->GetLargestPossibleRegion().GetSize()[ImageDimension];
-    for (unsigned int timedim=0;  timedim < timedims-1 ;  timedim++ ) 
+    for (unsigned int timedim=0;  timedim < timedims ;  timedim++ ) 
     {
     typename CompositeTransformType::Pointer compositeTransform = CompositeTransformType::New();
     typedef itk::IdentityTransform<RealType, ImageDimension> IdentityTransformType;
@@ -292,21 +301,48 @@ int ants_moco( itk::ants::CommandLineParser *parser )
     typedef itk::ExtractImageFilter<MovingImageType,FixedImageType> ExtractFilterType;
     typename MovingImageType::RegionType extractRegion = movingImage->GetLargestPossibleRegion();
     extractRegion.SetSize(ImageDimension, 0);
-    extractRegion.SetIndex(ImageDimension, timedim );
-    typename ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
-    extractFilter->SetInput( movingImage );
-    extractFilter->SetDirectionCollapseToSubmatrix();
-    extractFilter->SetExtractionRegion( extractRegion );
-    extractFilter->Update();
-    typename FixedImageType::Pointer fixed_time_slice=extractFilter->GetOutput();
-
-    extractRegion.SetIndex(ImageDimension, timedim+1 );
-    typename ExtractFilterType::Pointer extractFilter2 = ExtractFilterType::New();
-    extractFilter2->SetInput( movingImage );
-    extractFilter2->SetDirectionCollapseToSubmatrix();
-    extractFilter2->SetExtractionRegion( extractRegion );
-    extractFilter2->Update();
-    typename FixedImageType::Pointer moving_time_slice=extractFilter2->GetOutput();
+    typename FixedImageType::Pointer fixed_time_slice=NULL;
+    typename FixedImageType::Pointer moving_time_slice=NULL;
+    bool maptoneighbor=true;
+    typename OptionType::Pointer fixedOption = parser->GetOption( "useFixedReferenceImage" );
+    if( fixedOption && fixedOption->GetNumberOfValues() > 0 )
+      {
+      std::string fixedValue = fixedOption->GetValue( 0 );
+      ConvertToLowerCase( fixedValue );
+      if( fixedValue.compare( "1" ) == 0 || fixedValue.compare( "true" ) == 0 )
+        {
+	  if (timedim==0) std::cout << "using fixed reference image for all frames " << std::endl;
+          fixed_time_slice=fixedImage;
+	  extractRegion.SetIndex(ImageDimension, timedim );
+	  typename ExtractFilterType::Pointer extractFilter2 = ExtractFilterType::New();
+	  extractFilter2->SetInput( movingImage );
+	  extractFilter2->SetDirectionCollapseToSubmatrix();
+	  extractFilter2->SetExtractionRegion( extractRegion );
+	  extractFilter2->Update();
+          moving_time_slice=extractFilter2->GetOutput();	  
+	  maptoneighbor=false;
+	}
+      }
+    
+    if ( maptoneighbor )
+      {
+	extractRegion.SetIndex(ImageDimension, timedim );
+	typename ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
+	extractFilter->SetInput( movingImage );
+	extractFilter->SetDirectionCollapseToSubmatrix();
+	extractFilter->SetExtractionRegion( extractRegion );
+	extractFilter->Update();
+	fixed_time_slice=extractFilter->GetOutput();	  
+	unsigned int td=timedim+1;
+	if (td>timedims-1) td=timedims-1;
+	extractRegion.SetIndex(ImageDimension, td );
+	typename ExtractFilterType::Pointer extractFilter2 = ExtractFilterType::New();
+	extractFilter2->SetInput( movingImage );
+	extractFilter2->SetDirectionCollapseToSubmatrix();
+	extractFilter2->SetExtractionRegion( extractRegion );
+	extractFilter2->Update();
+	moving_time_slice=extractFilter2->GetOutput();	  
+      }
 
     typedef itk::ImageToImageObjectMetric<FixedImageType, FixedImageType> MetricType;
     typename MetricType::Pointer metric;
@@ -387,18 +423,31 @@ int ants_moco( itk::ants::CommandLineParser *parser )
     typename ScalesEstimatorType::Pointer scalesEstimator = ScalesEstimatorType::New();
     scalesEstimator->SetMetric( metric );
     scalesEstimator->SetTransformForward( true );
-    scalesEstimator->SetSamplingStrategy(ScalesEstimatorType::CornerSampling);
+    //scalesEstimator->SetSamplingStrategy(ScalesEstimatorType::CornerSampling);
 
     float learningRate = parser->Convert<float>( transformOption->GetParameter( currentStage, 0 ) );
 
-    typedef itk::GradientDescentObjectOptimizer GradientDescentObjectOptimizerType;
-    typename GradientDescentObjectOptimizerType::Pointer optimizer = GradientDescentObjectOptimizerType::New();
+    typedef itk::GradientDescentObjectOptimizer OptimizerType;
+    typedef itk::QuasiNewtonObjectOptimizer OptimizerType2;
+    typename OptimizerType::Pointer optimizer = OptimizerType::New();
     optimizer->SetLearningRate( learningRate );
     optimizer->SetNumberOfIterations( iterations[0] );
-    optimizer->SetScalesEstimator( scalesEstimator );
+    typename OptionType::Pointer scalesOption = parser->GetOption( "useScalesEstimator" );
+    if( scalesOption && scalesOption->GetNumberOfValues() > 0 )
+      {
+      std::string scalesValue = scalesOption->GetValue( 0 );
+      ConvertToLowerCase( scalesValue );
+      if( scalesValue.compare( "1" ) == 0 || scalesValue.compare( "true" ) == 0 )
+        {
+	  std::cout << " employing scales estimator " << std::endl;
+	  optimizer->SetScalesEstimator( scalesEstimator );
+	}
+      else std::cout << " not employing scales estimator " <<scalesValue<< std::endl;
+      }
     double small_step=0;
     for (unsigned int i=0;i<ImageDimension;i++) small_step+=fixed_time_slice->GetSpacing()[i]*fixed_time_slice->GetSpacing()[i];
-    optimizer->SetMaximumStepSizeInPhysicalSpaceUnits(sqrt(small_step)*0.1);
+    optimizer->SetMaximumStepSizeInPhysicalUnits(sqrt(small_step)*learningRate);
+    //    optimizer->SetMaximumNewtonStepSizeInPhysicalUnits(sqrt(small_step)*learningR);
 
     // Set up the image registration methods along with the transforms
     std::string whichTransform = transformOption->GetValue( currentStage );
@@ -408,8 +457,16 @@ int ants_moco( itk::ants::CommandLineParser *parser )
       typename AffineRegistrationType::Pointer affineRegistration = AffineRegistrationType::New();
       typedef itk::AffineTransform<double, ImageDimension> AffineTransformType;
       typename AffineTransformType::Pointer affineTransform = AffineTransformType::New();
-      nparams=affineTransform->GetNumberOfParameters()+2;
       affineTransform->SetIdentity();
+      nparams=affineTransform->GetNumberOfParameters()+2;
+      typename ScalesEstimatorType::ScalesType scales(affineTransform->GetNumberOfParameters());
+      metric->SetFixedImage( fixed_time_slice );
+      metric->SetVirtualDomainImage( fixed_time_slice );
+      metric->SetMovingImage( moving_time_slice );
+      metric->SetTransform( affineTransform );
+      scalesEstimator->SetMetric(metric);
+      scalesEstimator->EstimateScales(scales);
+      optimizer->SetScales(scales);
       affineRegistration->SetFixedImage( fixed_time_slice );
       affineRegistration->SetMovingImage( moving_time_slice );
       affineRegistration->SetNumberOfLevels( numberOfLevels );
@@ -457,8 +514,17 @@ int ants_moco( itk::ants::CommandLineParser *parser )
       typedef itk::SimpleImageRegistrationMethod<FixedImageType, FixedImageType,RigidTransformType> RigidRegistrationType;
       typename RigidRegistrationType::Pointer rigidRegistration = RigidRegistrationType::New();
       typename RigidTransformType::Pointer rigidTransform = RigidTransformType::New();
-      nparams=rigidTransform->GetNumberOfParameters()+2;
       rigidTransform->SetIdentity();
+      nparams=rigidTransform->GetNumberOfParameters()+2;
+      typename ScalesEstimatorType::ScalesType scales(rigidTransform->GetNumberOfParameters());
+      metric->SetFixedImage( fixed_time_slice );
+      metric->SetVirtualDomainImage( fixed_time_slice );
+      metric->SetMovingImage( moving_time_slice );
+      metric->SetTransform( rigidTransform );
+      scalesEstimator->SetMetric(metric);
+      scalesEstimator->EstimateScales(scales);
+      optimizer->SetScales(scales);
+
       rigidRegistration->SetFixedImage( fixed_time_slice );
       rigidRegistration->SetMovingImage( moving_time_slice );
       rigidRegistration->SetNumberOfLevels( numberOfLevels );
@@ -502,6 +568,38 @@ int ants_moco( itk::ants::CommandLineParser *parser )
       return EXIT_FAILURE;
       }
     param_values(timedim,1)=metric->GetValue();
+
+    // resample the moving image and then put it in its place
+    typedef itk::ResampleImageFilter<FixedImageType, FixedImageType> ResampleFilterType;
+    typename ResampleFilterType::Pointer resampler = ResampleFilterType::New();
+    resampler->SetTransform( compositeTransform );
+    resampler->SetInput( moving_time_slice );
+    resampler->SetSize(  moving_time_slice->GetLargestPossibleRegion().GetSize() );
+    resampler->SetOutputOrigin(   moving_time_slice->GetOrigin() );
+    resampler->SetOutputSpacing(  moving_time_slice->GetSpacing() );
+    resampler->SetOutputDirection(  moving_time_slice->GetDirection() );
+    resampler->SetDefaultPixelValue( 0 );
+    resampler->Update();
+    typedef itk::ImageRegionIteratorWithIndex<FixedImageType> Iterator;
+    Iterator vfIter2(  resampler->GetOutput(), resampler->GetOutput()->GetLargestPossibleRegion() );
+    for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+      {
+        typename FixedImageType::PixelType  fval=vfIter2.Get();
+        typename MovingImageType::IndexType ind;
+        for (unsigned int xx=0; xx<ImageDimension; xx++) ind[xx]=vfIter2.GetIndex()[xx];
+        ind[ImageDimension]=timedim;
+        outputImage->SetPixel(ind,fval);
+      }
+
+    }
+    if( outputOption && outputOption->GetNumberOfParameters( 0 ) > 1 )
+    {
+    std::string fileName = outputOption->GetParameter( 0, 1 );
+    typedef itk::ImageFileWriter<MovingImageType> WriterType;
+    typename WriterType::Pointer writer = WriterType::New();
+    writer->SetFileName( fileName.c_str() );
+    writer->SetInput( outputImage );
+    writer->Update();
     }
     }
   // Write out warped image(s), if requested.
@@ -530,6 +628,7 @@ int ants_moco( itk::ants::CommandLineParser *parser )
   writer->SetInput( &param_values );
   writer->Write();
   }
+
   return EXIT_SUCCESS;
 }
 
@@ -568,6 +667,26 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
   option->SetDescription( description );
   parser->AddOption( option );
   }
+
+  {
+  std::string description = std::string( "use a fixed reference image instead of the neighor in the time series." );
+  OptionType::Pointer option = OptionType::New();
+  option->SetLongName( "useFixedReferenceImage" );
+  option->SetShortName( 'u' );
+  option->SetDescription( description );
+  parser->AddOption( option );
+  }
+
+  {
+  std::string description = std::string( "use the scale estimator to control optimization." );
+  OptionType::Pointer option = OptionType::New();
+  option->SetLongName( "useScalesEstimator" );
+  option->SetShortName( 'e' );
+  option->SetDescription( description );
+  parser->AddOption( option );
+  }
+
+
 
   {
   std::string description = std::string( "Several transform options are available.  The gradientStep or" ) +
@@ -693,7 +812,7 @@ int main( int argc, char *argv[] )
     exit( EXIT_FAILURE );
     }
 
-  std::cout << std::endl << "Running hormigita for " << dimension << "-dimensional images." << std::endl << std::endl;
+  std::cout << std::endl << "Running " << argv[0] << "  for " << dimension << "-dimensional images." << std::endl << std::endl;
 
   switch( dimension )
    {
