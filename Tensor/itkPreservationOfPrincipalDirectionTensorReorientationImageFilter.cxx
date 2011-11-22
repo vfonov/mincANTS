@@ -327,7 +327,7 @@ PreservationOfPrincipalDirectionTensorReorientationImageFilter<TTensorImage,TVec
     this->m_DisplacementTransform->SetDisplacementField( m_DisplacementField );
 
     }
-  
+
   ImageRegionIteratorWithIndex< OutputImageType > outputIt( output, output->GetLargestPossibleRegion() );
 
   VariableMatrixType jMatrixAvg;
@@ -382,21 +382,21 @@ PreservationOfPrincipalDirectionTensorReorientationImageFilter<TTensorImage,TVec
     else
       {
       //outTensor = inTensor;
-      //InverseTransformPointer localDeformation;    
+      //InverseTransformPointer localDeformation;
       if (this->m_UseAffine)
         {
-        outTensor = this->m_AffineTransform->TransformDiffusionTensor( inTensor );
+        outTensor = this->m_AffineTransform->TransformDiffusionTensor3D( inTensor );
         //localDeformation = this->m_InverseAffineTransform;
         }
       else
-        {  
+        {
         typename DisplacementFieldType::PointType pt;
         this->m_DisplacementField->TransformIndexToPhysicalPoint( outputIt.GetIndex(), pt );
-        outTensor = this->m_DisplacementTransform->TransformDiffusionTensor( inTensor, pt );
+        outTensor = this->m_DisplacementTransform->TransformDiffusionTensor3D( inTensor, pt );
         //AffineTransformPointer deformation = this->GetLocalDeformation( this->m_DeformationField, outputIt.GetIndex() );
         //localDeformation = deformation->GetInverseTransform();
         }
-       
+
       /*
       std::cout << "apply";
       outTensor = this->ApplyReorientation( localDeformation, inTensor );
