@@ -506,15 +506,16 @@ int ants_moco( itk::ants::CommandLineParser *parser )
         param_values.set_size(timedims,nparams);
         param_values.fill(0);
         }
-      for (unsigned int i=0; i<nparams; i++) param_values(timedim,i+2)=affineRegistration->GetOutput()->Get()->GetParameters()[i];
+      for (unsigned int i=0; i<nparams-2; i++) 
+	param_values(timedim,i+2)=affineRegistration->GetOutput()->Get()->GetParameters()[i];
       }
     else if( std::strcmp( whichTransform.c_str(), "rigid" ) == 0 )
       {
-      typedef itk::Euler3DTransform<double> RigidTransformType;
+      typedef itk::Euler2DTransform<double> RigidTransformType;
       typedef itk::SimpleImageRegistrationMethod<FixedImageType, FixedImageType,RigidTransformType> RigidRegistrationType;
       typename RigidRegistrationType::Pointer rigidRegistration = RigidRegistrationType::New();
       typename RigidTransformType::Pointer rigidTransform = RigidTransformType::New();
-      rigidTransform->SetIdentity();
+      rigidTransform->SetIdentity(); 
       nparams=rigidTransform->GetNumberOfParameters()+2;
       typename ScalesEstimatorType::ScalesType scales(rigidTransform->GetNumberOfParameters());
       metric->SetFixedImage( fixed_time_slice );
@@ -560,7 +561,8 @@ int ants_moco( itk::ants::CommandLineParser *parser )
         param_values.set_size(timedims,nparams);
         param_values.fill(0);
         }
-      for (unsigned int i=0; i<nparams; i++) param_values(timedim,i+2)=rigidRegistration->GetOutput()->Get()->GetParameters()[i];
+      for (unsigned int i=0; i<nparams-2; i++) 
+	param_values(timedim,i+2)=rigidRegistration->GetOutput()->Get()->GetParameters()[i];
       }
     else
       {
@@ -590,7 +592,6 @@ int ants_moco( itk::ants::CommandLineParser *parser )
         ind[ImageDimension]=timedim;
         outputImage->SetPixel(ind,fval);
       }
-
     }
     if( outputOption && outputOption->GetNumberOfParameters( 0 ) > 1 )
     {
@@ -602,7 +603,6 @@ int ants_moco( itk::ants::CommandLineParser *parser )
     writer->Update();
     }
     }
-  // Write out warped image(s), if requested.
   totalTimer.Stop();
   for (unsigned int i=0; i<nparams; i++) 
     param_values(param_values.rows()-1,i)=param_values(param_values.rows()-2,i);
@@ -816,12 +816,12 @@ int main( int argc, char *argv[] )
 
   switch( dimension )
    {
-     //   case 2:
-     //  hormigita<2>( parser );
-     //  break;
-   case 3:
-     ants_moco<3>( parser );
+   case 2:
+     ants_moco<2>( parser );
      break;
+     //case 3:
+     //ants_moco<3>( parser );
+     //break;
    default:
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
