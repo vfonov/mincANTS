@@ -127,10 +127,42 @@ void ConvertToLowerCase( std::string& str )
 // other compilers
 }
 
-template<unsigned int ImageDimension>
+
+
+template <class TImageIn, class TImageOut>
+void 
+AverageTimeImages( typename TImageIn::Pointer image_in ,  typename TImageOut::Pointer image_avg , unsigned int time_dims )       
+{
+  std::cout <<" averaging images " << std::endl;
+  typedef TImageIn ImageType;
+  typedef TImageOut OutImageType;
+  enum { ImageDimension = ImageType::ImageDimension };
+  typedef float  PixelType;
+  typedef itk::ImageRegionIteratorWithIndex<OutImageType> Iterator;
+  image_avg->FillBuffer(0);
+  Iterator vfIter2(  image_avg,image_avg->GetLargestPossibleRegion() );
+  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+    {
+      typename OutImageType::PixelType  fval=0;
+      typename ImageType::IndexType ind;
+      for (unsigned int xx=0; xx<time_dims; xx++)
+	{
+	  for (unsigned int yy=0; yy<ImageDimension-1; yy++)
+	    {
+	      ind[yy]=vfIter2.GetIndex()[yy];
+	    }
+	  ind[ImageDimension]=xx;
+	  fval+=image_in->GetPixel(ind);
+	}
+      fval/=(double)time_dims;
+      image_avg->SetPixel(vfIter2.GetIndex(),fval);
+    }
+  return;
+}
+
+template<unsigned int ImageDimension, class TRigid>
 int ants_moco( itk::ants::CommandLineParser *parser )
 {
-
   // We infer the number of stages by the number of transformations
   // specified by the user which should match the number of metrics.
 
@@ -214,8 +246,8 @@ int ants_moco( itk::ants::CommandLineParser *parser )
     std::string movingImageFileName = metricOption->GetParameter( currentStage, 1 );
     std::cout << "  fixed image: " << fixedImageFileName << std::endl;
     std::cout << "  moving image: " << movingImageFileName << std::endl;
-
-
+    typename FixedImageType::Pointer fixed_time_slice=NULL;
+    typename FixedImageType::Pointer moving_time_slice=NULL;
 
     typedef itk::ImageFileReader<FixedImageType> FixedImageReaderType;
     typename FixedImageReaderType::Pointer fixedImageReader = FixedImageReaderType::New();
@@ -301,8 +333,6 @@ int ants_moco( itk::ants::CommandLineParser *parser )
     typedef itk::ExtractImageFilter<MovingImageType,FixedImageType> ExtractFilterType;
     typename MovingImageType::RegionType extractRegion = movingImage->GetLargestPossibleRegion();
     extractRegion.SetSize(ImageDimension, 0);
-    typename FixedImageType::Pointer fixed_time_slice=NULL;
-    typename FixedImageType::Pointer moving_time_slice=NULL;
     bool maptoneighbor=true;
     typename OptionType::Pointer fixedOption = parser->GetOption( "useFixedReferenceImage" );
     if( fixedOption && fixedOption->GetNumberOfValues() > 0 )
@@ -511,7 +541,7 @@ int ants_moco( itk::ants::CommandLineParser *parser )
       }
     else if( std::strcmp( whichTransform.c_str(), "rigid" ) == 0 )
       {
-      typedef itk::Euler2DTransform<double> RigidTransformType;
+      typedef TRigid RigidTransformType;
       typedef itk::SimpleImageRegistrationMethod<FixedImageType, FixedImageType,RigidTransformType> RigidRegistrationType;
       typename RigidRegistrationType::Pointer rigidRegistration = RigidRegistrationType::New();
       typename RigidTransformType::Pointer rigidTransform = RigidTransformType::New();
@@ -600,6 +630,17 @@ int ants_moco( itk::ants::CommandLineParser *parser )
     typename WriterType::Pointer writer = WriterType::New();
     writer->SetFileName( fileName.c_str() );
     writer->SetInput( outputImage );
+    writer->Update();
+    }
+    if( outputOption && outputOption->GetNumberOfParameters( 0 ) > 2 && outputImage )
+    {
+    std::string fileName = outputOption->GetParameter( 0, 2 );
+    typename FixedImageType::Pointer avgImage=moving_time_slice;
+    AverageTimeImages<MovingImageType,FixedImageType>( outputImage, avgImage, timedims );
+    typedef itk::ImageFileWriter<FixedImageType> WriterType;
+    typename WriterType::Pointer writer = WriterType::New();
+    writer->SetFileName( fileName.c_str() );
+    writer->SetInput( avgImage );
     writer->Update();
     }
     }
@@ -745,7 +786,7 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
   OptionType::Pointer option = OptionType::New();
   option->SetLongName( "output" );
   option->SetShortName( 'o' );
-  option->SetUsageOption( 0, "[outputTransformPrefix,<outputWarpedImage>,<outputInverseWarpedImage>]" );
+  option->SetUsageOption( 0, "[outputTransformPrefix,<outputWarpedImage>,<outputAverageImage>]" );
   option->SetDescription( description );
   parser->AddOption( option );
   }
@@ -773,6 +814,9 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
 
 int main( int argc, char *argv[] )
 {
+  typedef itk::Euler2DTransform<double> Euler2D;
+  typedef itk::Euler3DTransform<double> Euler3D;
+
   itk::ants::CommandLineParser::Pointer parser = itk::ants::CommandLineParser::New();
   parser->SetCommand( argv[0] );
 
@@ -817,11 +861,11 @@ int main( int argc, char *argv[] )
   switch( dimension )
    {
    case 2:
-     ants_moco<2>( parser );
+     ants_moco<2,Euler2D>( parser );
      break;
-     //case 3:
-     //ants_moco<3>( parser );
-     //break;
+     case 3:
+     ants_moco<3,Euler3D>( parser );
+     break;
    default:
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
