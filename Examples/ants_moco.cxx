@@ -334,7 +334,11 @@ int ants_moco( itk::ants::CommandLineParser *parser )
     compositeTransform = CompositeTransformType::New();
     CompositeTransformVector.push_back(compositeTransform);
     }
-    else if ( CompositeTransformVector.size() == timedims ) compositeTransform=CompositeTransformVector[timedim];
+    else if ( CompositeTransformVector.size() == timedims && !CompositeTransformVector[timedim].IsNull() )
+      {
+      compositeTransform=CompositeTransformVector[timedim];
+      std::cout <<" use existing transform " << compositeTransform->GetParameters() << std::endl;
+      }
     typedef itk::IdentityTransform<RealType, ImageDimension> IdentityTransformType;
     typename IdentityTransformType::Pointer identityTransform = IdentityTransformType::New();
     //
@@ -538,7 +542,7 @@ int ants_moco( itk::ants::CommandLineParser *parser )
       typename TransformWriterType::Pointer transformWriter = TransformWriterType::New();
       transformWriter->SetInput( affineRegistration->GetOutput()->Get() );
       transformWriter->SetFileName( filename.c_str() );
-      transformWriter->Update();
+      //      transformWriter->Update();
       if ( timedim==0 )
         {
         param_values.set_size(timedims,nparams);
@@ -593,7 +597,7 @@ int ants_moco( itk::ants::CommandLineParser *parser )
       typename TransformWriterType::Pointer transformWriter = TransformWriterType::New();
       transformWriter->SetInput( rigidRegistration->GetOutput()->Get() );
       transformWriter->SetFileName( filename.c_str() );
-      transformWriter->Update();
+      //      transformWriter->Update();
       if ( timedim==0 )
         {
         param_values.set_size(timedims,nparams);
@@ -668,7 +672,7 @@ int ants_moco( itk::ants::CommandLineParser *parser )
       try
         {
         std::cout << std::endl << "*** Running gaussian displacement field registration (sigmaForUpdateField = "
-          << sigmaForUpdateField << ", sigmaForTotalField = " << sigmaForTotalField << ") ***" << std::endl << std::endl;
+		  << sigmaForUpdateField << ", sigmaForTotalField = " << sigmaForTotalField << ") ***" << " timedim " << timedim << std::endl << std::endl;
         displacementFieldRegistration->StartRegistration();
         }
       catch( itk::ExceptionObject &e )
