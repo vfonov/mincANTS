@@ -130,8 +130,8 @@ void ConvertToLowerCase( std::string& str )
 
 
 template <class TImageIn, class TImageOut>
-void 
-AverageTimeImages( typename TImageIn::Pointer image_in ,  typename TImageOut::Pointer image_avg , unsigned int time_dims )       
+void
+AverageTimeImages( typename TImageIn::Pointer image_in ,  typename TImageOut::Pointer image_avg , unsigned int time_dims )
 {
   std::cout <<" averaging images " << std::endl;
   typedef TImageIn ImageType;
@@ -225,7 +225,7 @@ int ants_moco( itk::ants::CommandLineParser *parser )
   typedef itk::Image<PixelType, ImageDimension> FixedImageType;
   typedef itk::Image<PixelType, ImageDimension+1> MovingImageType;
   typedef vnl_matrix<double> vMatrix;
-  vMatrix param_values;  
+  vMatrix param_values;
   typedef itk::CompositeTransform<RealType, ImageDimension> CompositeTransformType;
   std::vector<typename CompositeTransformType::Pointer> CompositeTransformVector;
 
@@ -321,15 +321,15 @@ int ants_moco( itk::ants::CommandLineParser *parser )
       std::cout << "  smoothing sigmas per level: " << smoothingSigmasPerLevel << std::endl;
       }
 
-    // the fixed image is a reference image in 3D while the moving is a 4D image 
-    // loop over every time point and register image_i+1 to image_i 
+    // the fixed image is a reference image in 3D while the moving is a 4D image
+    // loop over every time point and register image_i+1 to image_i
     //
     // Set up the image metric and scales estimator
     unsigned int timedims=movingImage->GetLargestPossibleRegion().GetSize()[ImageDimension];
-    for (unsigned int timedim=0;  timedim < timedims ;  timedim++ ) 
+    for (unsigned int timedim=0;  timedim < timedims ;  timedim++ )
     {
     typename CompositeTransformType::Pointer compositeTransform=NULL;
-    if (  currentStage == (numberOfStages - 1) ) 
+    if (  currentStage == (numberOfStages - 1) )
     {
     compositeTransform = CompositeTransformType::New();
     CompositeTransformVector.push_back(compositeTransform);
@@ -361,11 +361,11 @@ int ants_moco( itk::ants::CommandLineParser *parser )
 	  extractFilter2->SetDirectionCollapseToSubmatrix();
 	  extractFilter2->SetExtractionRegion( extractRegion );
 	  extractFilter2->Update();
-          moving_time_slice=extractFilter2->GetOutput();	  
+          moving_time_slice=extractFilter2->GetOutput();
 	  maptoneighbor=false;
 	}
       }
-    
+
     if ( maptoneighbor )
       {
 	extractRegion.SetIndex(ImageDimension, timedim );
@@ -374,7 +374,7 @@ int ants_moco( itk::ants::CommandLineParser *parser )
 	extractFilter->SetDirectionCollapseToSubmatrix();
 	extractFilter->SetExtractionRegion( extractRegion );
 	extractFilter->Update();
-	fixed_time_slice=extractFilter->GetOutput();	  
+	fixed_time_slice=extractFilter->GetOutput();
 	unsigned int td=timedim+1;
 	if (td>timedims-1) td=timedims-1;
 	extractRegion.SetIndex(ImageDimension, td );
@@ -383,7 +383,7 @@ int ants_moco( itk::ants::CommandLineParser *parser )
 	extractFilter2->SetDirectionCollapseToSubmatrix();
 	extractFilter2->SetExtractionRegion( extractRegion );
 	extractFilter2->Update();
-	moving_time_slice=extractFilter2->GetOutput();	  
+	moving_time_slice=extractFilter2->GetOutput();
       }
 
     typedef itk::ImageToImageObjectMetric<FixedImageType, FixedImageType> MetricType;
@@ -548,7 +548,7 @@ int ants_moco( itk::ants::CommandLineParser *parser )
         param_values.set_size(timedims,nparams);
         param_values.fill(0);
         }
-      for (unsigned int i=0; i<nparams-2; i++) 
+      for (unsigned int i=0; i<nparams-2; i++)
 	param_values(timedim,i+2)=affineRegistration->GetOutput()->Get()->GetParameters()[i];
       }
     else if( std::strcmp( whichTransform.c_str(), "rigid" ) == 0 )
@@ -557,7 +557,7 @@ int ants_moco( itk::ants::CommandLineParser *parser )
       typedef itk::SimpleImageRegistrationMethod<FixedImageType, FixedImageType,RigidTransformType> RigidRegistrationType;
       typename RigidRegistrationType::Pointer rigidRegistration = RigidRegistrationType::New();
       typename RigidTransformType::Pointer rigidTransform = RigidTransformType::New();
-      rigidTransform->SetIdentity(); 
+      rigidTransform->SetIdentity();
       nparams=rigidTransform->GetNumberOfParameters()+2;
       typename ScalesEstimatorType::ScalesType scales(rigidTransform->GetNumberOfParameters());
       metric->SetFixedImage( fixed_time_slice );
@@ -603,7 +603,7 @@ int ants_moco( itk::ants::CommandLineParser *parser )
         param_values.set_size(timedims,nparams);
         param_values.fill(0);
         }
-      for (unsigned int i=0; i<nparams-2; i++) 
+      for (unsigned int i=0; i<nparams-2; i++)
 	param_values(timedim,i+2)=rigidRegistration->GetOutput()->Get()->GetParameters()[i];
       }
     else if( std::strcmp( whichTransform.c_str(), "gaussiandisplacementfield" ) == 0 ||  std::strcmp( whichTransform.c_str(), "gdf" ) == 0 )
@@ -735,7 +735,7 @@ int ants_moco( itk::ants::CommandLineParser *parser )
     extractRegion.SetIndex(ImageDimension, td );
     extractFilter->SetExtractionRegion( extractRegion );
     extractFilter->Update();
-    avgImage=extractFilter->GetOutput();	  
+    avgImage=extractFilter->GetOutput();
     AverageTimeImages<MovingImageType,FixedImageType>( outputImage, avgImage, timedims );
     typedef itk::ImageFileWriter<FixedImageType> WriterType;
     typename WriterType::Pointer writer = WriterType::New();
@@ -745,16 +745,16 @@ int ants_moco( itk::ants::CommandLineParser *parser )
     }
     }
   totalTimer.Stop();
-  for (unsigned int i=0; i<nparams; i++) 
+  for (unsigned int i=0; i<nparams; i++)
     param_values(param_values.rows()-1,i)=param_values(param_values.rows()-2,i);
   std::cout << std::endl << "Total elapsed time: " << totalTimer.GetMeanTime() << std::endl;
   {
   std::vector<std::string> ColumnHeaders;
   std::string colname;
   colname=std::string("MetricPre");
-  ColumnHeaders.push_back( colname );    
+  ColumnHeaders.push_back( colname );
   colname=std::string("MetricPost");
-  ColumnHeaders.push_back( colname );    
+  ColumnHeaders.push_back( colname );
   for (unsigned int nv=2; nv<nparams; nv++)
     {
       std::string colname=std::string("MOCOparam")+ants_moco_to_string<unsigned int>(nv-2);
