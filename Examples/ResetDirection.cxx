@@ -106,6 +106,9 @@ int main(int argc, char *argv[])
    case 3:
      ResetDirection<3>(argc,argv);
       break;
+   case 4:
+     ResetDirection<4>(argc,argv);
+      break;
    default:
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
