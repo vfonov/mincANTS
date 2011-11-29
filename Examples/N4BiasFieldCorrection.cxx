@@ -7,7 +7,7 @@
 #include "itkImageFileWriter.h"
 #include "itkImageRegionIterator.h"
 #include "itkImageRegionIteratorWithIndex.h"
-#include "itkN4MRIBiasFieldCorrectionImageFilter.h"
+#include "itkN4BiasFieldCorrectionImageFilter.h"
 #include "itkOtsuThresholdImageFilter.h"
 #include "itkShrinkImageFilter.h"
 
@@ -67,7 +67,7 @@ int N4( itk::ants::CommandLineParser *parser )
   typedef itk::Image<unsigned char, ImageDimension> MaskImageType;
   typename MaskImageType::Pointer maskImage = NULL;
 
-  typedef itk::N4MRIBiasFieldCorrectionImageFilter<ImageType, MaskImageType,
+  typedef itk::N4BiasFieldCorrectionImageFilter<ImageType, MaskImageType,
 						   ImageType> CorrecterType;
   typename CorrecterType::Pointer correcter = CorrecterType::New();
 
