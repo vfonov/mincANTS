@@ -54,7 +54,7 @@ class DiReCTImageFilter926 :
 {
 public:
   /** Standard class typedefs. */
-  typedef DiReCTImageFilter926                               Self;
+  typedef DiReCTImageFilter926                            Self;
   typedef ImageToImageFilter<TInputImage, TOutputImage>   Superclass;
   typedef SmartPointer<Self>                              Pointer;
   typedef SmartPointer<const Self>                        ConstPointer;
