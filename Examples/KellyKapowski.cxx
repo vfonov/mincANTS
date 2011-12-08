@@ -276,7 +276,7 @@ int DiReCT0( itk::ants::CommandLineParser *parser )
     gradientStepOption = parser->GetOption( "gradient-step" );
   if( gradientStepOption && gradientStepOption->GetNumberOfValues() > 0 )
     {
-    direct->SetGradientStep( parser->Convert<RealType>(
+    direct->SetInitialGradientStep( parser->Convert<RealType>(
       gradientStepOption->GetValue() ) );
     }
 
@@ -320,6 +320,7 @@ int DiReCT0( itk::ants::CommandLineParser *parser )
     std::cerr << "Exception caught: " << e << std::endl;
     return EXIT_FAILURE;
     }
+
   direct->Print( std::cout, 3 );
 
   std::cout << "DiReCT elapsed time: " << timer.GetMeanTime() << std::endl;
