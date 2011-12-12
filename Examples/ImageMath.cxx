@@ -6778,9 +6778,10 @@ int LabelStats(      int argc, char *argv[])
 //int is the key, string the return value
 std::map<unsigned int,std::string> RoiList(std::string file)
 {
-  unsigned int wordindex=1;
+  unsigned int wordindex=0;
   std::string tempstring="";
   std::map<unsigned int,std::string> RoiList;
+  //  RoiList[0]=std::string("Background");
   char str[2000];
   std::fstream file_op(file.c_str(),std::ios::in);
   while(file_op >> str)
@@ -6788,7 +6789,6 @@ std::map<unsigned int,std::string> RoiList(std::string file)
     tempstring=std::string(str);
     RoiList[wordindex]=tempstring;
     wordindex++;
-    std::cout << tempstring << std::endl;
   }
   return RoiList; //returns the maximum index
 }
@@ -6885,8 +6885,16 @@ cortroimap[45]=std::string("White Matter");
   //  if(grade_list.find("Tim") == grade_list.end()) {  std::cout<<"Tim is not in the map!"<<endl; }
   //mymap.find('a')->second
   int argct=2;
+  if ( argc < 6 ) 
+    {
+      std::cout<<" not enough parameters --- usage example 1 :"<<"" <<std::endl;
+      std::cout<< argv[0] << " ImageMath  3 output.csv ROIStatistics roinames.txt LabelImage.nii.gz ValueImage.nii.gz  " << std::endl;
+      exit(1);
+    }
   std::string outname=std::string(argv[argct]); argct++;
   std::string imagename=ANTSGetFilePrefix(outname.c_str())+std::string(".nii.gz");
+  std::string csvname=ANTSGetFilePrefix(outname.c_str())+std::string(".csv");
+  typedef vnl_matrix<double>      MatrixType;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn0 = std::string(argv[argct]);   argct++;
   std::cout <<"  fn0 " << fn0 << std::endl;
@@ -6931,6 +6939,12 @@ cortroimap[45]=std::string("White Matter");
 	if (label > maxlab) maxlab=(unsigned long)label;
       }
     }
+  // define the output matrix
+  // for a csv file of  n_regions for rows
+  // with columns of   Volume,CenterOfMassX,CenterOfMassY,CenterOfMassZ,CenterOfMassTime,
+  MatrixType mCSVMatrix(maxlab,ImageDimension+1,0);
+
+
   //  maxlab=32; // for cortical analysis
   // compute the voxel volume
   typename ImageType::SpacingType spacing=image->GetSpacing();
@@ -6952,15 +6966,15 @@ cortroimap[45]=std::string("White Matter");
   unsigned long labelcount=0;
   for( it = myLabelSet.begin(); it != myLabelSet.end(); ++it )
     { 
-      if ( roimap.size() > *it )
-        std::cout <<" label " << *it <<" name " << roimap[*it] << std::endl;
       labelcount++;
     }
 
 
   typedef itk::LinearInterpolateImageFunction<ImageType,float> ScalarInterpolatorType;
   typename ScalarInterpolatorType::Pointer interp =  ScalarInterpolatorType::New();
-  interp->SetInputImage(valimage);
+  if (valimage) 
+    interp->SetInputImage(valimage);
+  else interp->SetInputImage(image);
   // iterate over the label image and index into the stat image 
   for( It.GoToBegin(); !It.IsAtEnd(); ++It )
   {
@@ -6975,15 +6989,50 @@ cortroimap[45]=std::string("White Matter");
         masses[(unsigned long) label]=masses[(unsigned long) label]+vv;
       }
   }
-  logfile<<"ROIName,ClusterSize,Mass"<<std::endl;
-  for (unsigned int roi=1; roi < roimap.size() ; roi++)
-      {
-	std::cout << roimap[roi]<<","<<clusters[roi] << ","<<masses[roi]<<std::endl;
-	if (roi < maxlab )
-	  logfile << roimap[roi]<<","<<clusters[roi] << ","<<masses[roi]<<std::endl;
-      }
-    logfile.close();
+  logfile<<"ROIName,ROINumber,ClusterSize,Mass,comX,comY,comZ,comT"<<std::endl;
+  //  for( it = myLabelSet.begin(); it != myLabelSet.end(); ++it )
+  for (unsigned int mylabel=1; mylabel<maxlab+1; mylabel++)
+    { 
+      unsigned int roi=mylabel-1;
+      /* first count which roi it is by iterating through the label sets
+      it = myLabelSet.begin();
+      while (  (*it) != mylabel && it != myLabelSet.end() ) 
+	{
+	  std::cout << " it " << *it << " roi " << roi << " mylabel " << mylabel << std::endl;
+	  roi++;
+	  ++it;
+	  }*/
 
+      typename ImageType::PointType myCenterOfMass;
+      myCenterOfMass.Fill(0);
+      unsigned long totalct=0;
+      if ( clusters[mylabel] > 0 )
+	{
+        for( It.GoToBegin(); !It.IsAtEnd(); ++It )
+	{
+	  PixelType label = It.Get();
+	  if(  label == mylabel )
+	    {
+	      totalct+=1;
+	      // compute center of mass
+	      typename ImageType::PointType point;
+	      image->TransformIndexToPhysicalPoint(It.GetIndex(), point);
+	      for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]+=point[i];
+	    }
+  	}
+	}// if clusters big enough 
+      if ( totalct == 0 ) totalct=1;
+      for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]/=(float)totalct;
+      double comx=0,comy=0,comz=0,comt=0;
+      comx=myCenterOfMass[0];
+      if (ImageDimension>=2) comy=myCenterOfMass[1];
+      if (ImageDimension>=3) comz=myCenterOfMass[2];
+      if (ImageDimension==4) comt=myCenterOfMass[3];
+      if ( roi < roimap.size() )
+	logfile << roimap[roi]<<","<<roi+1<<","<<clusters[roi+1] << ","<<masses[roi+1]<<","<<comx<<","<<comy<<","<<comz<<","<<comt<<std::endl;
+    }
+  logfile.close();
+  
   return 0;
 
   float temp=sqrt((float)labelcount);
@@ -7098,9 +7147,46 @@ cortroimap[45]=std::string("White Matter");
 	//	myCenterOfMass=mycomlist[roi];
         if( roimap.find(roi) != roimap.end()  )
  	  std::cout << roimap.find(roi)->second << " & " << clusters[roi] << " , "  << pvals[roi] << "  & " <<  pvals3[roi]  << " &  " << pvals4[roi]   << " &  " << (float)((int)(myCenterOfMass[0]*10))/10. << " " << (float)((int)(myCenterOfMass[1]*10))/10.  << " " <<  (float)((int)(myCenterOfMass[2]*10))/10.  << "   \\ " << std::endl;
+
+	mCSVMatrix(roi,0)=clusters[roi];
+	for (unsigned int mydim=0;mydim<ImageDimension;mydim++)
+	  mCSVMatrix(roi,mydim+1)=myCenterOfMass[mydim];
     }
 
   //  WriteImage<TwoDImageType>(squareimage,imagename.c_str());
+
+    // write out the array2D object
+    std::vector<std::string> ColumnHeaders;
+    std::string colname=std::string("ClusterSize");
+    ColumnHeaders.push_back( colname );
+    colname=std::string("comX");
+    ColumnHeaders.push_back( colname );
+    colname=std::string("comY");
+    if (ImageDimension >= 2)
+      ColumnHeaders.push_back( colname );
+    colname=std::string("comZ");
+    if (ImageDimension >= 3)
+      ColumnHeaders.push_back( colname );
+    colname=std::string("comT");
+    if (ImageDimension >= 4)
+      ColumnHeaders.push_back( colname );
+
+    typedef itk::CSVNumericObjectFileWriter<double> WriterType;
+    WriterType::Pointer writer = WriterType::New();
+    writer->SetFileName( csvname );
+    writer->SetInput( &mCSVMatrix );
+    writer->SetColumnHeaders( ColumnHeaders );
+    try
+    {
+      writer->Write();
+    }
+    catch (itk::ExceptionObject& exp)
+    {
+      std::cerr << "Exception caught!" << std::endl;
+      std::cerr << exp << std::endl;
+      return EXIT_FAILURE;
+    }
+
 
   return 0;
 
@@ -8000,6 +8086,7 @@ int main(int argc, char *argv[])
     std::cout << "\n  ROIStatistics		: computes anatomical locations, cluster size and mass of a stat image which should be in the same physical space (but not nec same resolution) as the label image." << std::endl;
     std::cout << "      Usage		: ROIStatistics LabelNames.txt labelimage.ext valueimage.nii" << std::endl;
 
+
     std::cout << "\n  SetOrGetPixel	: "  << std::endl;
     std::cout << "      Usage		: SetOrGetPixel ImageIn Get/Set-Value IndexX IndexY {IndexZ}" << std::endl;
     std::cout << "      Example 1		: ImageMath 2 outimage.nii SetOrGetPixel Image Get 24 34; Gets the value at 24, 34" << std::endl;
@@ -8034,6 +8121,7 @@ int main(int argc, char *argv[])
 
   switch ( atoi(argv[1]) )
    {
+     /*
    case 2:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<2>(argc,argv);
      else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<2>(argc,argv);
@@ -8098,10 +8186,11 @@ int main(int argc, char *argv[])
      //     else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<2>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
      break;
-
+     */
    case 3:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<3>(argc,argv);
-     else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<3>(argc,argv);
+
+     /*     else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"+") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"-") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"/") == 0)  ImageMath<3>(argc,argv);
@@ -8126,7 +8215,9 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"CenterImage2inImage1") == 0 )  CenterImage2inImage1<3>(argc,argv);
      else if (strcmp(operation.c_str(),"Byte") == 0 )  ByteImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"LabelStats") == 0 )  LabelStats<3>(argc,argv);
+*/
      else if (strcmp(operation.c_str(),"ROIStatistics") == 0 )  ROIStatistics<3>(argc,argv);
+   /*
      else if (strcmp(operation.c_str(),"DiceAndMinDistSum") == 0 )  DiceAndMinDistSum<3>(argc,argv);
      else if (strcmp(operation.c_str(),"Lipschitz") == 0 )  Lipschitz<3>(argc,argv);
      else if (strcmp(operation.c_str(),"InvId") == 0 )  InvId<3>(argc,argv);
@@ -8249,6 +8340,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"CompCorrAuto") == 0)  CompCorrAuto<4>(argc,argv);
      else if (strcmp(operation.c_str(),"ComputeTimeSeriesLeverage") == 0)  ComputeTimeSeriesLeverage<4>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
+   */
       break;
 
    default:
