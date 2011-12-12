@@ -8121,7 +8121,6 @@ int main(int argc, char *argv[])
 
   switch ( atoi(argv[1]) )
    {
-     /*
    case 2:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<2>(argc,argv);
      else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<2>(argc,argv);
@@ -8186,11 +8185,10 @@ int main(int argc, char *argv[])
      //     else if (strcmp(operation.c_str(),"ConvertLandmarkFile") == 0)  ConvertLandmarkFile<2>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
      break;
-     */
    case 3:
      if (strcmp(operation.c_str(),"m") == 0)  ImageMath<3>(argc,argv);
 
-     /*     else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<3>(argc,argv);
+     else if (strcmp(operation.c_str(),"mresample") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"+") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"-") == 0)  ImageMath<3>(argc,argv);
      else if (strcmp(operation.c_str(),"/") == 0)  ImageMath<3>(argc,argv);
@@ -8215,9 +8213,7 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"CenterImage2inImage1") == 0 )  CenterImage2inImage1<3>(argc,argv);
      else if (strcmp(operation.c_str(),"Byte") == 0 )  ByteImage<3>(argc,argv);
      else if (strcmp(operation.c_str(),"LabelStats") == 0 )  LabelStats<3>(argc,argv);
-*/
      else if (strcmp(operation.c_str(),"ROIStatistics") == 0 )  ROIStatistics<3>(argc,argv);
-   /*
      else if (strcmp(operation.c_str(),"DiceAndMinDistSum") == 0 )  DiceAndMinDistSum<3>(argc,argv);
      else if (strcmp(operation.c_str(),"Lipschitz") == 0 )  Lipschitz<3>(argc,argv);
      else if (strcmp(operation.c_str(),"InvId") == 0 )  InvId<3>(argc,argv);
@@ -8340,7 +8336,6 @@ int main(int argc, char *argv[])
      else if (strcmp(operation.c_str(),"CompCorrAuto") == 0)  CompCorrAuto<4>(argc,argv);
      else if (strcmp(operation.c_str(),"ComputeTimeSeriesLeverage") == 0)  ComputeTimeSeriesLeverage<4>(argc,argv);
      else std::cout << " cannot find operation : " << operation << std::endl;
-   */
       break;
 
    default:
