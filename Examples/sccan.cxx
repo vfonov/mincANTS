@@ -129,7 +129,22 @@ inline std::string sccan_to_string (const T& t)
 {
   std::stringstream ss;
   ss << t;
-  return ss.str();
+  std::string stringout=ss.str();
+  if ( t < 100 )
+    {
+      std::stringstream ss0;
+      ss0 << 0;
+      std::string extend=ss0.str();
+      stringout=std::string(stringout+extend);
+    }
+  if ( t < 10 )
+    {
+      std::stringstream ss0;
+      ss0 << 0;
+      std::string extend=ss0.str();
+      stringout=std::string(stringout+extend);
+    }
+  return stringout;
 }
 
 template <class TImage,class TComp>
@@ -156,7 +171,7 @@ void WriteVariatesToSpatialImage( std::string filename , std::string post , vnl_
       std::string colname=std::string("Variate")+sccan_to_string<unsigned int>(nv);
       ColumnHeaders.push_back( colname );
     }
-  typedef itk::CSVNumericObjectFileWriter<double,1,1> WriterType;
+  typedef itk::CSVNumericObjectFileWriter<double> WriterType;
   WriterType::Pointer writer = WriterType::New();
   writer->SetFileName( fnmp.c_str() );
   writer->SetColumnHeaders(ColumnHeaders);
@@ -188,7 +203,7 @@ void WriteVariatesToSpatialImage( std::string filename , std::string post , vnl_
       std::string colname=std::string("Variate")+sccan_to_string<unsigned int>(nv);
       ColumnHeaders.push_back( colname );
       }
-    typedef itk::CSVNumericObjectFileWriter<double,1,1> WriterType;
+    typedef itk::CSVNumericObjectFileWriter<double> WriterType;
     WriterType::Pointer writer = WriterType::New();
     writer->SetFileName( fnmp.c_str() );
     writer->SetColumnHeaders(ColumnHeaders);
@@ -440,7 +455,7 @@ ConvertImageListToMatrix( std::string imagelist, std::string maskfn , std::strin
       }
     }
     // write out the array2D object
-    typedef itk::CSVNumericObjectFileWriter<double,1,1> WriterType;
+    typedef itk::CSVNumericObjectFileWriter<double> WriterType;
     WriterType::Pointer writer = WriterType::New();
     writer->SetFileName( outname );
     writer->SetInput( &matrix );
@@ -623,7 +638,7 @@ ConvertTimeSeriesImageToMatrix( std::string imagefn, std::string maskfn , std::s
       }// check mask
     }
 
-    typedef itk::CSVNumericObjectFileWriter<double,1,1> WriterType;
+    typedef itk::CSVNumericObjectFileWriter<double> WriterType;
     WriterType::Pointer writer = WriterType::New();
     writer->SetFileName( outname );
     writer->SetInput( &matrix );
