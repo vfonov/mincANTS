@@ -1024,7 +1024,7 @@ template<class TInputImage, class TOutputImage>
 typename DiReCTImageFilter953<TInputImage, TOutputImage>::SparseVectorImagePointer
 DiReCTImageFilter953<TInputImage, TOutputImage>
 ::ConvertVectorImageToSparseVectorImage( const VectorImageType *inputImage,
-  const InputImageType *maskImage = NULL )
+  const InputImageType *maskImage )
 {
   SparseVectorImagePointer sparseVectorImage = SparseVectorImageType::New();
   sparseVectorImage->Initialize();
@@ -1073,7 +1073,7 @@ template<class TInputImage, class TOutputImage>
 typename DiReCTImageFilter953<TInputImage, TOutputImage>::VectorImagePointer
 DiReCTImageFilter953<TInputImage, TOutputImage>
 ::ConvertSparseVectorImageToVectorImage( const SparseVectorImageType *inputImage,
-  const InputImageType *maskImage = NULL )
+  const InputImageType *maskImage )
 {
   VectorType zeroVector( 0.0 );
 
