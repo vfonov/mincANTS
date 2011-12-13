@@ -145,7 +145,7 @@ public:
       // linear list of labels, but probably not a huge deal compared to
       // having to evaluate the erf function
       typedef std::map<OutputType, double, TPixelCompare> WeightMap;
-      typedef typename std::map<OutputType, double>::iterator WeightIter;
+      typedef typename std::map<OutputType, double, TPixelCompare>::iterator WeightIter;
       WeightMap wm;
 
       // Variables to keep track of the largest current weight

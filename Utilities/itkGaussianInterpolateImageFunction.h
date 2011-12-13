@@ -255,7 +255,8 @@ private:
   double sigma[VDim], alpha;
 
 
-  friend class LabelImageGaussianInterpolateImageFunction;
+  template <class TInputImage, class TCoordRep, class TPixelCompare>
+    friend class LabelImageGaussianInterpolateImageFunction;
 
 };
 

@@ -317,13 +317,13 @@ private:
    * Private function for converting a vector image to a sparse vector image
    */
   SparseVectorImagePointer ConvertVectorImageToSparseVectorImage(
-    const VectorImageType *, const InputImageType * );
+    const VectorImageType *, const InputImageType * = NULL);
 
   /**
    * Private function for converting a sparse vector image to a vector image
    */
   VectorImagePointer ConvertSparseVectorImageToVectorImage(
-    const SparseVectorImageType *, const InputImageType * );
+    const SparseVectorImageType *, const InputImageType * = NULL );
 
   RealType                                       m_ThicknessPriorEstimate;
   RealType                                       m_SmoothingSigma;
