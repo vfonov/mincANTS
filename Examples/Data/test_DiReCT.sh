@@ -1,5 +1,9 @@
 #!/bin/bash 
 SEGOUT=test_image_seg.nii.gz
+if [ ! -s $SEGOUT ] ; then 
+  echo run from the directory containing $SEGOUT
+  exit
+fi
 GM=segger_prob_02.nii.gz 
 WM=segger_prob_03.nii.gz 
 GT=test_image_ground_truth.nii.gz
