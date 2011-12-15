@@ -18,13 +18,13 @@
 
 #include "antsCommandLineParser.h"
 
-#include "itkSimpleImageRegistrationMethod.h"
-#include "itkTimeVaryingVelocityFieldImageRegistrationMethod.h"
+#include "itkImageRegistrationMethodv4.h"
+#include "itkTimeVaryingVelocityFieldImageRegistrationMethodv4.h"
 
-#include "itkANTSNeighborhoodCorrelationImageToImageObjectMetric.h"
-#include "itkDemonsImageToImageObjectMetric.h"
-#include "itkImageToImageObjectMetric.h"
-#include "itkJointHistogramMutualInformationImageToImageObjectMetric.h"
+#include "itkANTSNeighborhoodCorrelationImageToImageMetricv4.h"
+#include "itkDemonsImageToImageMetricv4.h"
+#include "itkImageToImageMetricv4.h"
+#include "itkJointHistogramMutualInformationImageToImageMetricv4.h"
 
 #include "itkAffineTransform.h"
 #include "itkBSplineTransform.h"
@@ -40,8 +40,9 @@
 #include "itkBSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor.h"
 #include "itkGaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor.h"
 #include "itkTimeVaryingVelocityFieldTransformParametersAdaptor.h"
+#include "itkTimeVaryingBSplineVelocityFieldTransformParametersAdaptor.h"
 
-#include "itkGradientDescentObjectOptimizer.h"
+#include "itkGradientDescentOptimizerv4.h"
 
 #include "itkHistogramMatchingImageFilter.h"
 #include "itkImageFileReader.h"
@@ -91,9 +92,9 @@ public:
     std::cout << "    smoothing sigma = " << smoothingSigmas[currentLevel] << std::endl;
     std::cout << "    required fixed parameters = " << adaptors[currentLevel]->GetRequiredFixedParameters() << std::endl;
 
-    typedef itk::GradientDescentObjectOptimizer GradientDescentObjectOptimizerType;
+    typedef itk::GradientDescentOptimizerv4 GradientDescentOptimizerType;
 
-    GradientDescentObjectOptimizerType * optimizer = reinterpret_cast<GradientDescentObjectOptimizerType *>(
+    GradientDescentOptimizerType * optimizer = reinterpret_cast<GradientDescentOptimizerType *>(
       const_cast<typename TFilter::OptimizerType *>( filter->GetOptimizer() ) );
     optimizer->SetNumberOfIterations( this->m_NumberOfIterations[currentLevel] );
     }
@@ -226,7 +227,7 @@ int hormigita( itk::ants::CommandLineParser *parser )
     itk::TimeProbe timer;
     timer.Start();
 
-    typedef itk::SimpleImageRegistrationMethod<FixedImageType, MovingImageType> AffineRegistrationType;
+    typedef itk::ImageRegistrationMethodv4<FixedImageType, MovingImageType> AffineRegistrationType;
 
     std::cout << std::endl << "Stage " << numberOfStages - currentStage << std::endl;
     std::stringstream currentStageString;
@@ -328,7 +329,7 @@ int hormigita( itk::ants::CommandLineParser *parser )
 
     // Set up the image metric and scales estimator
 
-    typedef itk::ImageToImageObjectMetric<FixedImageType, MovingImageType> MetricType;
+    typedef itk::ImageToImageMetricv4<FixedImageType, MovingImageType> MetricType;
     typename MetricType::Pointer metric;
 
     std::string whichMetric = metricOption->GetValue( currentStage );
@@ -338,7 +339,7 @@ int hormigita( itk::ants::CommandLineParser *parser )
       unsigned int radiusOption = parser->Convert<unsigned int>( metricOption->GetParameter( currentStage, 3 ) );
 
       std::cout << "  using the CC metric (radius = " << radiusOption << ")." << std::endl;
-      typedef itk::ANTSNeighborhoodCorrelationImageToImageObjectMetric<FixedImageType, MovingImageType> CorrelationMetricType;
+      typedef itk::ANTSNeighborhoodCorrelationImageToImageMetricv4<FixedImageType, MovingImageType> CorrelationMetricType;
       typename CorrelationMetricType::Pointer correlationMetric = CorrelationMetricType::New();
       typename CorrelationMetricType::RadiusType radius;
       radius.Fill( radiusOption );
@@ -355,7 +356,7 @@ int hormigita( itk::ants::CommandLineParser *parser )
       unsigned int binOption = parser->Convert<unsigned int>( metricOption->GetParameter( currentStage, 3 ) );
 
       std::cout << "  using the MI metric (number of bins = " << binOption << ")" << std::endl;
-      typedef itk::JointHistogramMutualInformationImageToImageObjectMetric<FixedImageType, MovingImageType> MutualInformationMetricType;
+      typedef itk::JointHistogramMutualInformationImageToImageMetricv4<FixedImageType, MovingImageType> MutualInformationMetricType;
       typename MutualInformationMetricType::Pointer mutualInformationMetric = MutualInformationMetricType::New();
       mutualInformationMetric = mutualInformationMetric;
       mutualInformationMetric->SetNumberOfHistogramBins( binOption );
@@ -371,7 +372,7 @@ int hormigita( itk::ants::CommandLineParser *parser )
       {
       std::cout << "  using the Demons metric." << std::endl;
 
-      typedef itk::DemonsImageToImageObjectMetric<FixedImageType, MovingImageType> DemonsMetricType;
+      typedef itk::DemonsImageToImageMetricv4<FixedImageType, MovingImageType> DemonsMetricType;
       typename DemonsMetricType::Pointer demonsMetric = DemonsMetricType::New();
       demonsMetric = demonsMetric;
       demonsMetric->SetDoFixedImagePreWarp( true );
@@ -394,8 +395,8 @@ int hormigita( itk::ants::CommandLineParser *parser )
 
     float learningRate = parser->Convert<float>( transformOption->GetParameter( currentStage, 0 ) );
 
-    typedef itk::GradientDescentObjectOptimizer GradientDescentObjectOptimizerType;
-    typename GradientDescentObjectOptimizerType::Pointer optimizer = GradientDescentObjectOptimizerType::New();
+    typedef itk::GradientDescentOptimizerv4 GradientDescentOptimizerType;
+    typename GradientDescentOptimizerType::Pointer optimizer = GradientDescentOptimizerType::New();
     optimizer->SetLearningRate( learningRate );
     optimizer->SetNumberOfIterations( iterations[0] );
     optimizer->SetScalesEstimator( scalesEstimator );
@@ -453,7 +454,7 @@ int hormigita( itk::ants::CommandLineParser *parser )
       typedef typename RigidTransformTraits<ImageDimension>::TransformType RigidTransformType;
       typename RigidTransformType::Pointer rigidTransform = RigidTransformType::New();
 
-      typedef itk::SimpleImageRegistrationMethod<FixedImageType, MovingImageType, RigidTransformType> RigidRegistrationType;
+      typedef itk::ImageRegistrationMethodv4<FixedImageType, MovingImageType, RigidTransformType> RigidRegistrationType;
       typename RigidRegistrationType::Pointer rigidRegistration = RigidRegistrationType::New();
 
       rigidRegistration->SetFixedImage( fixedImage );
@@ -496,7 +497,7 @@ int hormigita( itk::ants::CommandLineParser *parser )
 
       typedef itk::GaussianSmoothingOnUpdateDisplacementFieldTransform<RealType, ImageDimension> DisplacementFieldTransformType;
 
-      typedef itk::SimpleImageRegistrationMethod<FixedImageType, MovingImageType, DisplacementFieldTransformType> DisplacementFieldRegistrationType;
+      typedef itk::ImageRegistrationMethodv4<FixedImageType, MovingImageType, DisplacementFieldTransformType> DisplacementFieldRegistrationType;
 
       // Create the transform adaptors
 
@@ -596,7 +597,7 @@ int hormigita( itk::ants::CommandLineParser *parser )
       typedef itk::BSplineSmoothingOnUpdateDisplacementFieldTransform<RealType, ImageDimension> DisplacementFieldTransformType;
       typename DisplacementFieldTransformType::Pointer bsplineFieldTransform = DisplacementFieldTransformType::New();
 
-      typedef itk::SimpleImageRegistrationMethod<FixedImageType, MovingImageType, DisplacementFieldTransformType> DisplacementFieldRegistrationType;
+      typedef itk::ImageRegistrationMethodv4<FixedImageType, MovingImageType, DisplacementFieldTransformType> DisplacementFieldRegistrationType;
 
       // Create the transform adaptors
 
@@ -716,7 +717,7 @@ int hormigita( itk::ants::CommandLineParser *parser )
       typedef itk::BSplineTransform<RealType, ImageDimension, SplineOrder> BSplineTransformType;
       typename BSplineTransformType::Pointer bsplineTransform = BSplineTransformType::New();
 
-      typedef itk::SimpleImageRegistrationMethod<FixedImageType, MovingImageType, BSplineTransformType> BSplineRegistrationType;
+      typedef itk::ImageRegistrationMethodv4<FixedImageType, MovingImageType, BSplineTransformType> BSplineRegistrationType;
 
       std::vector<unsigned int> size = parser->ConvertVector<unsigned int>( transformOption->GetParameter( currentStage, 1 ) );
 
@@ -863,7 +864,7 @@ int hormigita( itk::ants::CommandLineParser *parser )
       RealType sigmaForTotalField = parser->Convert<float>( transformOption->GetParameter( currentStage, 4 ) );
       RealType sigmaForTotalFieldTime = parser->Convert<float>( transformOption->GetParameter( currentStage, 5 ) );
 
-      typedef itk::TimeVaryingVelocityFieldImageRegistrationMethod<FixedImageType, MovingImageType> VelocityFieldRegistrationType;
+      typedef itk::TimeVaryingVelocityFieldImageRegistrationMethodv4<FixedImageType, MovingImageType> VelocityFieldRegistrationType;
       typename VelocityFieldRegistrationType::Pointer velocityFieldRegistration = VelocityFieldRegistrationType::New();
       velocityFieldRegistration->SetFixedImage( fixedImage );
       velocityFieldRegistration->SetMovingImage( movingImage );
