@@ -766,19 +766,19 @@ void antsSCCANObject<TInputImage, TRealType>
     }
   }}
   //  for (unsigned int i=0; i<evals.size(); i++) {
-  //  std::cout << " sorted " << i << " is " << sorted_indices[i] << " ev " << evals[i] <<" oev "<<oevals[i]<< std::endl;
-  // }
+  //    std::cout << " sorted " << i << " is " << sorted_indices[i] << " ev " << evals[i] <<" oev "<<oevals[i]<< std::endl;
+  //  }
   //std::cout<<"sort-c"<<std::endl;
   VectorType newcorrs(n_vecs,0);
   MatrixType varp(this->m_MatrixP.cols(),n_vecs,0);
   MatrixType varq(this->m_MatrixQ.cols(),n_vecs,0);
   //std::cout<<"sort-d"<<std::endl;
   for (unsigned int i=0; i<n_vecs; i++) {
-    if ( sorted_indices[i] > 0 ) {
+    // if ( sorted_indices[i] > 0 ) {
       varp.set_column(i,this->m_VariatesP.get_column( sorted_indices[i] ));
       if ( varq.columns() > i ) varq.set_column(i,this->m_VariatesQ.get_column( sorted_indices[i] ));
       newcorrs[i]=(this->m_CanonicalCorrelations[sorted_indices[i]]);
-    }
+      // }
   }
   //  std::cout<<"sort-e"<<std::endl;
   for (unsigned int i=0; i<n_vecs; i++) {
@@ -892,7 +892,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
   double avgdifffromevec=0;
   double evalsum=0;
   // we estimate variance explained by  \sum_i eigenvalue_i / trace(A) ...
-
+  
   // shen and huang 
   //  MatrixType kcovmat=this->VNLPseudoInverse( this->m_VariatesP.transpose()*this->m_VariatesP )*this->m_VariatesP.transpose();
   // kcovmat=(this->m_MatrixP*this->m_VariatesP)*kcovmat;
@@ -919,7 +919,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 	double p2n=proj.two_norm();
 	if ( vn > this->m_Epsilon && p2n >  this->m_Epsilon  ) ip=1-inner_product( proj/p2n ,  v/vn );
 	//if ( vn > this->m_Epsilon) ip=1-inner_product( u/unorm ,  v/vn );
-	eigenvalue_i*=ip;
+	//	eigenvalue_i*=ip;
       }
     if ( i < mind-1 ) evalsum+=eigenvalue_i;
     VectorType diff=u*eigenvalue_i-m;
