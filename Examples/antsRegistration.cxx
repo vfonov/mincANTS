@@ -543,7 +543,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         typename PointSetType::Pointer               pset(PointSetType::New());
 	unsigned long modct=fixedImage->GetBufferedRegion().GetNumberOfPixels();
         unsigned long ind=0,ct=0;
-        if ( std::strcmp(SamplingStrategy.c_str(), "Regular" ) )
+        if ( std::strcmp(SamplingStrategy.c_str(), "Regular" ) == 0 )
           {
   	  modct=(unsigned long)( (float)1/SamplingPercent+0.5);
           itk::ImageRegionIteratorWithIndex<FixedImageType> It(fixedImage, fixedImage->GetLargestPossibleRegion() );
@@ -554,12 +554,13 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
                 PointType pt;
                 fixedImage->TransformIndexToPhysicalPoint( It.GetIndex(), pt);
 		// randomly perturb the point within a voxel (approximately)
-  	        for ( unsigned int d=0; d<ImageDimension; d++) pt[d]+=twister->GetNormalVariate()/3.0*fixedImage->GetSpacing()[d];
+		for ( unsigned int d=0; d<ImageDimension; d++) pt[d]+=twister->GetNormalVariate()/3.0*fixedImage->GetSpacing()[d];
                 pset->SetPoint(ind, pt);
                 ind++;
                 }
              ct++;
              }
+  	  std::cout <<" sampling every " << modct << "th point to get total of : " << ind << std::endl;
 	  }
         if ( std::strcmp( SamplingStrategy.c_str(), "Random" ) == 0 )
 	  {
