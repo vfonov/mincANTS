@@ -498,11 +498,36 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
     std::string whichMetric = metricOption->GetValue( currentStage );
     ConvertToLowerCase( whichMetric );
+
+    float samplingPercentage = 1.0;
+    if( metricOption->GetNumberOfParameters() > 5 )
+      {
+      samplingPercentage = parser->Convert<float>( metricOption->GetParameter( currentStage, 5 ) );
+      }
+
+    std::string samplingStrategy = "";
+    if( metricOption->GetNumberOfParameters() > 4 )
+      {
+      samplingStrategy = metricOption->GetParameter( currentStage, 4 );
+      }
+    ConvertToLowerCase( samplingStrategy );
+    typename AffineRegistrationType::MetricSamplingStrategyType metricSamplingStrategy = AffineRegistrationType::NONE;
+    if( std::strcmp( samplingStrategy.c_str(), "random" ) == 0 )
+      {
+      std::cout << "  random sampling (percentage = " << samplingPercentage << ")" << std::endl;
+      metricSamplingStrategy = AffineRegistrationType::RANDOM;
+      }
+    if( std::strcmp( samplingStrategy.c_str(), "regular" ) == 0 )
+      {
+      std::cout << "  regular sampling (percentage = " << samplingPercentage << ")" << std::endl;
+      metricSamplingStrategy = AffineRegistrationType::REGULAR;
+      }
+
     if( std::strcmp( whichMetric.c_str(), "cc" ) == 0 )
       {
       unsigned int radiusOption = parser->Convert<unsigned int>( metricOption->GetParameter( currentStage, 3 ) );
 
-      std::cout << "  using the CC metric (radius = " << radiusOption << ")." << std::endl;
+      std::cout << "  using the CC metric (radius = " << radiusOption << ")" << std::endl;
       typedef itk::ANTSNeighborhoodCorrelationImageToImageMetricv4<FixedImageType, MovingImageType> CorrelationMetricType;
       typename CorrelationMetricType::Pointer correlationMetric = CorrelationMetricType::New();
       typename CorrelationMetricType::RadiusType radius;
@@ -518,19 +543,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
     else if( std::strcmp( whichMetric.c_str(), "mi" ) == 0 )
       {
       unsigned int binOption = parser->Convert<unsigned int>( metricOption->GetParameter( currentStage, 3 ) );
-      std::string samplingStrategy = "";
-      if( metricOption->GetNumberOfParameters() > 4 )
-        {
-        samplingStrategy = metricOption->GetParameter( currentStage, 4 );
-        }
-      float samplingPercent = 0.1;
-      if( metricOption->GetNumberOfParameters() > 5 )
-        {
-        samplingPercent = parser->Convert<float>( metricOption->GetParameter( currentStage, 5 ) );
-        }
 
-      std::cout << "  using the MI metric (number of bins = " << binOption << ", SamplingStrategy " << samplingStrategy
-        << ", FractionToUse " << samplingPercent << std::endl;
+      std::cout << "  using the MI metric (number of bins = " << binOption << ")" << std::endl;
       typedef itk::JointHistogramMutualInformationImageToImageMetricv4<FixedImageType, MovingImageType> MutualInformationMetricType;
       typename MutualInformationMetricType::Pointer mutualInformationMetric = MutualInformationMetricType::New();
       mutualInformationMetric = mutualInformationMetric;
@@ -540,63 +554,6 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       mutualInformationMetric->SetUseMovingImageGradientFilter( false );
       mutualInformationMetric->SetUseFixedImageGradientFilter( false );
       mutualInformationMetric->SetUseFixedSampledPointSet( false );
-      if( std::strcmp( samplingStrategy.c_str(), "Regular" ) == 0 || std::strcmp( samplingStrategy.c_str(), "Random" ) == 0 )
-       	{
-        mutualInformationMetric->SetDoMovingImagePreWarp( false );
-        typedef itk::Statistics::MersenneTwisterRandomVariateGenerator Twister;
-        Twister::GetInstance()->SetSeed( 1234 );
-        Twister::Pointer twister = Twister::New();
-        typedef typename MutualInformationMetricType::FixedSampledPointSetType                                                              PointSetType;
-        typedef typename PointSetType::PointType PointType;
-        typename PointSetType::Pointer pointSet( PointSetType::New());
-       	unsigned long sampleCount = fixedImage->GetBufferedRegion().GetNumberOfPixels();
-        unsigned long index = 0;
-        unsigned long count = 0;
-        if( std::strcmp( samplingStrategy.c_str(), "Regular" ) == 0 )
-          {
-  	       sampleCount = static_cast<unsigned long>( static_cast<float>( 1 ) / samplingPercent + 0.5 );
-          itk::ImageRegionIteratorWithIndex<FixedImageType> It( fixedImage, fixedImage->GetLargestPossibleRegion() );
-          for( It.GoToBegin(); !It.IsAtEnd(); ++It )
-            {
-            if( count % sampleCount == 0  )
-              {
-              PointType point;
-              fixedImage->TransformIndexToPhysicalPoint( It.GetIndex(), point );
-
-              // randomly perturb the point within a voxel (approximately)
-              for( unsigned int d = 0; d < ImageDimension; d++ )
-                {
-                point[d] += twister->GetNormalVariate() / 3.0 * fixedImage->GetSpacing()[d];
-                }
-              pointSet->SetPoint( index, point );
-              index++;
-              }
-            count++;
-            }
-  	       std::cout << " sampling every " << sampleCount << "th point to get total of " << index << std::endl;
-        	 }
-        if( std::strcmp( samplingStrategy.c_str(), "Random" ) == 0 )
-	         {
-       	  sampleCount = static_cast<unsigned long>( static_cast<float>( sampleCount ) * samplingPercent );
-          itk::ImageRandomConstIteratorWithIndex<FixedImageType> ItR( fixedImage, fixedImage->GetLargestPossibleRegion() );
-          ItR.SetNumberOfSamples( sampleCount );
-          for( ItR.GoToBegin(); !ItR.IsAtEnd(); ++ItR )
-       	    {
-            PointType point;
-            fixedImage->TransformIndexToPhysicalPoint( ItR.GetIndex(), point );
-
-            // randomly perturb the point within a voxel (approximately)
-	           for ( unsigned int d=0; d < ImageDimension; d++ )
-	             {
-	             point[d] += twister->GetNormalVariate() / 3.0 * fixedImage->GetSpacing()[d];
-	             }
-            pointSet->SetPoint( index, point );
-            index++;
-	           }
-  	       }
-        mutualInformationMetric->SetFixedSampledPointSet( pointSet );
-        mutualInformationMetric->SetUseFixedSampledPointSet( true );
-	       }
       metric = mutualInformationMetric;
       }
     else if( std::strcmp( whichMetric.c_str(), "demons" ) == 0 )
@@ -649,6 +606,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       affineRegistration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
       affineRegistration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
       affineRegistration->SetMetric( metric );
+      affineRegistration->SetMetricSamplingStrategy( metricSamplingStrategy );
+      affineRegistration->SetMetricSamplingPercentage( samplingPercentage );
       affineRegistration->SetOptimizer( optimizer );
       affineRegistration->SetTransform( affineTransform );
       affineRegistration->SetCompositeTransform( compositeTransform );
@@ -694,6 +653,9 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       rigidRegistration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
       rigidRegistration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
       rigidRegistration->SetMetric( metric );
+      rigidRegistration->SetMetricSamplingStrategy(
+        static_cast<typename RigidRegistrationType::MetricSamplingStrategyType>( metricSamplingStrategy ) );
+      rigidRegistration->SetMetricSamplingPercentage( samplingPercentage );
       rigidRegistration->SetOptimizer( optimizer );
       rigidRegistration->SetTransform( rigidTransform );
       rigidRegistration->SetCompositeTransform( compositeTransform );
@@ -738,6 +700,9 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       similarityRegistration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
       similarityRegistration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
       similarityRegistration->SetMetric( metric );
+      similarityRegistration->SetMetricSamplingStrategy(
+        static_cast<typename SimilarityRegistrationType::MetricSamplingStrategyType>( metricSamplingStrategy ) );
+      similarityRegistration->SetMetricSamplingPercentage( samplingPercentage );
       similarityRegistration->SetOptimizer( optimizer );
       similarityRegistration->SetTransform( similarityTransform );
       similarityRegistration->SetCompositeTransform( compositeTransform );
@@ -782,6 +747,9 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       translationRegistration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
       translationRegistration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
       translationRegistration->SetMetric( metric );
+      translationRegistration->SetMetricSamplingStrategy(
+        static_cast<typename TranslationRegistrationType::MetricSamplingStrategyType>( metricSamplingStrategy ) );
+      translationRegistration->SetMetricSamplingPercentage( samplingPercentage );
       translationRegistration->SetOptimizer( optimizer );
       translationRegistration->SetTransform( translationTransform );
       translationRegistration->SetCompositeTransform( compositeTransform );
@@ -880,6 +848,9 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       displacementFieldRegistration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
       displacementFieldRegistration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
       displacementFieldRegistration->SetMetric( metric );
+      displacementFieldRegistration->SetMetricSamplingStrategy(
+        static_cast<typename DisplacementFieldRegistrationType::MetricSamplingStrategyType>( metricSamplingStrategy ) );
+      displacementFieldRegistration->SetMetricSamplingPercentage( samplingPercentage );
       displacementFieldRegistration->SetOptimizer( optimizer );
       displacementFieldRegistration->SetTransformParametersAdaptorsPerLevel( adaptors );
 
@@ -1008,6 +979,9 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       displacementFieldRegistration->SetCompositeTransform( compositeTransform );
       displacementFieldRegistration->SetTransform( bsplineFieldTransform );
       displacementFieldRegistration->SetMetric( metric );
+      displacementFieldRegistration->SetMetricSamplingStrategy(
+        static_cast<typename DisplacementFieldRegistrationType::MetricSamplingStrategyType>( metricSamplingStrategy ) );
+      displacementFieldRegistration->SetMetricSamplingPercentage( samplingPercentage );
       displacementFieldRegistration->SetOptimizer( optimizer );
       displacementFieldRegistration->SetTransformParametersAdaptorsPerLevel( adaptors );
 
@@ -1102,6 +1076,9 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       bsplineRegistration->SetCompositeTransform( compositeTransform );
       bsplineRegistration->SetTransform( bsplineTransform );
       bsplineRegistration->SetMetric( metric );
+      bsplineRegistration->SetMetricSamplingStrategy(
+        static_cast<typename BSplineRegistrationType::MetricSamplingStrategyType>( metricSamplingStrategy ) );
+      bsplineRegistration->SetMetricSamplingPercentage( samplingPercentage );
       bsplineRegistration->SetOptimizer( optimizer );
       bsplineRegistration->SetTransformParametersAdaptorsPerLevel( adaptors );
 
@@ -1199,6 +1176,9 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       velocityFieldRegistration->SetNumberOfLevels( numberOfLevels );
       velocityFieldRegistration->SetCompositeTransform( compositeTransform );
       velocityFieldRegistration->SetMetric( metric );
+      velocityFieldRegistration->SetMetricSamplingStrategy(
+        static_cast<typename VelocityFieldRegistrationType::MetricSamplingStrategyType>( metricSamplingStrategy ) );
+      velocityFieldRegistration->SetMetricSamplingPercentage( samplingPercentage );
       velocityFieldRegistration->SetLearningRate( learningRate );
       velocityFieldRegistration->SetNumberOfIntegrationStepsPerTimeIndex( 5 );
       velocityFieldRegistration->GetTransform()->SetGaussianSpatialSmoothingVarianceForTheTotalField( sigmaForTotalField );
@@ -1375,6 +1355,9 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       velocityFieldRegistration->SetNumberOfTimePointSamples( numberOfTimePointSamples );
       velocityFieldRegistration->SetCompositeTransform( compositeTransform );
       velocityFieldRegistration->SetMetric( metric );
+      velocityFieldRegistration->SetMetricSamplingStrategy(
+        static_cast<typename VelocityFieldRegistrationType::MetricSamplingStrategyType>( metricSamplingStrategy ) );
+      velocityFieldRegistration->SetMetricSamplingPercentage( samplingPercentage );
       velocityFieldRegistration->SetLearningRate( learningRate );
       velocityFieldRegistration->GetTransform()->SetSplineOrder( splineOrder );
       velocityFieldRegistration->GetTransform()->SetLowerTimeBound( 0.0 );
@@ -1628,17 +1611,19 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
     std::string( "Note that the metricWeight is currently not used.  " ) +
     std::string( "Rather, it is a temporary place holder until multivariate metrics " ) +
     std::string( "are available for a single stage. " )+
-    std::string( "Mutual information also takes the SubSamplingStrategy and FractionToUse options. " )+
-    std::string( "SubSamplingStrategy defaults to dense, otherwise it defines a point set over which to optimize MI. " )+
-    std::string( "The point set can be on a regular lattice or a random lattice of points. " )+
-    std::string( "FractionToUse defines the fraction of points to select from the domain. " );
+    std::string( "The metrics can also employ a sampling strategy defined by a " ) +
+    std::string( "sampling percentage. The sampling strategy defaults to dense, otherwise " ) +
+    std::string( "it defines a point set over which to optimize the metric. " ) +
+    std::string( "The point set can be on a regular lattice or a random lattice of points slightly " ) +
+    std::string( "perturbed to minimize aliasing artifacts. samplingPercentage defines the " ) +
+    std::string( "fraction of points to select from the domain. " );
 
   OptionType::Pointer option = OptionType::New();
   option->SetLongName( "metric" );
   option->SetShortName( 'm' );
-  option->SetUsageOption( 0, "CC[fixedImage,movingImage,metricWeight,radius]" );
-  option->SetUsageOption( 1, "MI[fixedImage,movingImage,metricWeight,numberOfBins,SubSamplingStrategy={Regular,Random},FractionToUse]" );
-  option->SetUsageOption( 2, "Demons[fixedImage,movingImage,metricWeight]" );
+  option->SetUsageOption( 0, "CC[fixedImage,movingImage,metricWeight,radius,samplingStrategy={Regular,Random},samplingPercentage=[0,1]]" );
+  option->SetUsageOption( 1, "MI[fixedImage,movingImage,metricWeight,numberOfBins,samplingStrategy={Regular,Random},samplingPercentage=[0,1]]" );
+  option->SetUsageOption( 2, "Demons[fixedImage,movingImage,metricWeight,radius,samplingStrategy={Regular,Random},samplingPercentage=[0,1]]" );
   option->SetDescription( description );
   parser->AddOption( option );
   }
