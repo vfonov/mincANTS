@@ -273,7 +273,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
     std::deque<std::string> initialTransformNames;
     std::deque<std::string> initialTransformTypes;
 
-    for( unsigned int n = 0; n < transformOption->GetNumberOfValues(); n++ )
+    for( unsigned int n = 0; n < initialTransformOption->GetNumberOfValues(); n++ )
       {
       std::string initialTransformName;
       std::string initialTransformType;
@@ -515,11 +515,11 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
     else if( std::strcmp( whichMetric.c_str(), "mi" ) == 0 )
       {
       unsigned int binOption = parser->Convert<unsigned int>( metricOption->GetParameter( currentStage, 3 ) );
-      std::string SamplingStrategy=""; 
-      if (  metricOption->GetNumberOfParameters() > 4 ) 
+      std::string SamplingStrategy="";
+      if (  metricOption->GetNumberOfParameters() > 4 )
         SamplingStrategy = metricOption->GetParameter( currentStage, 4 );
       float SamplingPercent = 0.1;
-      if (  metricOption->GetNumberOfParameters() > 5 ) 
+      if (  metricOption->GetNumberOfParameters() > 5 )
       SamplingPercent = parser->Convert<float>( metricOption->GetParameter( currentStage, 5 ) );
 
       std::cout << "  using the MI metric (number of bins = " << binOption << ")" << " SamplingStrategy " << SamplingStrategy <<" FractionToUse "<< SamplingPercent << std::endl;
@@ -549,7 +549,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
           itk::ImageRegionIteratorWithIndex<FixedImageType> It(fixedImage, fixedImage->GetLargestPossibleRegion() );
           for( It.GoToBegin(); !It.IsAtEnd(); ++It )
             {
-              if ( ct % modct == 0  ) 
+              if ( ct % modct == 0  )
                 {
                 PointType pt;
                 fixedImage->TransformIndexToPhysicalPoint( It.GetIndex(), pt);
@@ -612,7 +612,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
     typedef itk::GradientDescentOptimizerv4 GradientDescentOptimizerType;
     typename GradientDescentOptimizerType::Pointer optimizer = GradientDescentOptimizerType::New();
     optimizer->SetLearningRate( learningRate );
-    optimizer->SetMaximumStepSizeInPhysicalUnits(learningRate);
+    optimizer->SetMaximumStepSizeInPhysicalUnits( learningRate );
     optimizer->SetNumberOfIterations( iterations[0] );
     optimizer->SetScalesEstimator( scalesEstimator );
 
