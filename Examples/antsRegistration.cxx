@@ -98,6 +98,9 @@ public:
     std::cout << "  Current level = " << currentLevel << std::endl;
     std::cout << "    number of iterations = " << this->m_NumberOfIterations[currentLevel] << std::endl;
     std::cout << "    shrink factor = " << shrinkFactors[currentLevel] << std::endl;
+    std::cout << "      virtual domain size = " << filter->GetMetric()->GetVirtualDomainImage()->GetRequestedRegion().GetSize() << std::endl;
+    std::cout << "      virtual domain spacing = " << filter->GetMetric()->GetVirtualDomainImage()->GetSpacing() << std::endl;
+    std::cout << "      virtual domain origin = " << filter->GetMetric()->GetVirtualDomainImage()->GetOrigin() << std::endl;
     std::cout << "    smoothing sigma = " << smoothingSigmas[currentLevel] << std::endl;
     std::cout << "    required fixed parameters = " << adaptors[currentLevel]->GetRequiredFixedParameters() << std::endl;
 
@@ -515,14 +518,19 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
     else if( std::strcmp( whichMetric.c_str(), "mi" ) == 0 )
       {
       unsigned int binOption = parser->Convert<unsigned int>( metricOption->GetParameter( currentStage, 3 ) );
-      std::string SamplingStrategy="";
-      if (  metricOption->GetNumberOfParameters() > 4 )
-        SamplingStrategy = metricOption->GetParameter( currentStage, 4 );
-      float SamplingPercent = 0.1;
-      if (  metricOption->GetNumberOfParameters() > 5 )
-      SamplingPercent = parser->Convert<float>( metricOption->GetParameter( currentStage, 5 ) );
+      std::string samplingStrategy = "";
+      if( metricOption->GetNumberOfParameters() > 4 )
+        {
+        samplingStrategy = metricOption->GetParameter( currentStage, 4 );
+        }
+      float samplingPercent = 0.1;
+      if( metricOption->GetNumberOfParameters() > 5 )
+        {
+        samplingPercent = parser->Convert<float>( metricOption->GetParameter( currentStage, 5 ) );
+        }
 
-      std::cout << "  using the MI metric (number of bins = " << binOption << ")" << " SamplingStrategy " << SamplingStrategy <<" FractionToUse "<< SamplingPercent << std::endl;
+      std::cout << "  using the MI metric (number of bins = " << binOption << ", SamplingStrategy " << samplingStrategy
+        << ", FractionToUse " << samplingPercent << std::endl;
       typedef itk::JointHistogramMutualInformationImageToImageMetricv4<FixedImageType, MovingImageType> MutualInformationMetricType;
       typename MutualInformationMetricType::Pointer mutualInformationMetric = MutualInformationMetricType::New();
       mutualInformationMetric = mutualInformationMetric;
@@ -532,55 +540,63 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       mutualInformationMetric->SetUseMovingImageGradientFilter( false );
       mutualInformationMetric->SetUseFixedImageGradientFilter( false );
       mutualInformationMetric->SetUseFixedSampledPointSet( false );
-      if ( std::strcmp(SamplingStrategy.c_str(), "Regular" ) == 0 || std::strcmp( SamplingStrategy.c_str(), "Random" ) == 0 )
-	{
+      if( std::strcmp( samplingStrategy.c_str(), "Regular" ) == 0 || std::strcmp( samplingStrategy.c_str(), "Random" ) == 0 )
+       	{
         mutualInformationMetric->SetDoMovingImagePreWarp( false );
         typedef itk::Statistics::MersenneTwisterRandomVariateGenerator Twister;
-        Twister::GetInstance()->SetSeed ( 1234 );
+        Twister::GetInstance()->SetSeed( 1234 );
         Twister::Pointer twister = Twister::New();
         typedef typename MutualInformationMetricType::FixedSampledPointSetType                                                              PointSetType;
-        typedef typename PointSetType::PointType     PointType;
-        typename PointSetType::Pointer               pset(PointSetType::New());
-	unsigned long modct=fixedImage->GetBufferedRegion().GetNumberOfPixels();
-        unsigned long ind=0,ct=0;
-        if ( std::strcmp(SamplingStrategy.c_str(), "Regular" ) == 0 )
+        typedef typename PointSetType::PointType PointType;
+        typename PointSetType::Pointer pointSet( PointSetType::New());
+       	unsigned long sampleCount = fixedImage->GetBufferedRegion().GetNumberOfPixels();
+        unsigned long index = 0;
+        unsigned long count = 0;
+        if( std::strcmp( samplingStrategy.c_str(), "Regular" ) == 0 )
           {
-  	  modct=(unsigned long)( (float)1/SamplingPercent+0.5);
-          itk::ImageRegionIteratorWithIndex<FixedImageType> It(fixedImage, fixedImage->GetLargestPossibleRegion() );
+  	       sampleCount = static_cast<unsigned long>( static_cast<float>( 1 ) / samplingPercent + 0.5 );
+          itk::ImageRegionIteratorWithIndex<FixedImageType> It( fixedImage, fixedImage->GetLargestPossibleRegion() );
           for( It.GoToBegin(); !It.IsAtEnd(); ++It )
             {
-              if ( ct % modct == 0  )
+            if( count % sampleCount == 0  )
+              {
+              PointType point;
+              fixedImage->TransformIndexToPhysicalPoint( It.GetIndex(), point );
+
+              // randomly perturb the point within a voxel (approximately)
+              for( unsigned int d = 0; d < ImageDimension; d++ )
                 {
-                PointType pt;
-                fixedImage->TransformIndexToPhysicalPoint( It.GetIndex(), pt);
-		// randomly perturb the point within a voxel (approximately)
-		for ( unsigned int d=0; d<ImageDimension; d++) pt[d]+=twister->GetNormalVariate()/3.0*fixedImage->GetSpacing()[d];
-                pset->SetPoint(ind, pt);
-                ind++;
+                point[d] += twister->GetNormalVariate() / 3.0 * fixedImage->GetSpacing()[d];
                 }
-             ct++;
-             }
-  	  std::cout <<" sampling every " << modct << "th point to get total of : " << ind << std::endl;
-	  }
-        if ( std::strcmp( SamplingStrategy.c_str(), "Random" ) == 0 )
-	  {
-  	  modct=(unsigned long)( (float)modct*SamplingPercent);
-          typedef itk::ImageRandomConstIteratorWithIndex<FixedImageType> RandIterator;
-          RandIterator mIter( fixedImage,fixedImage->GetLargestPossibleRegion() );
-          mIter.SetNumberOfSamples(modct);
-          for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
-	    {
-            PointType pt;
-            fixedImage->TransformIndexToPhysicalPoint( mIter.GetIndex(), pt);
+              pointSet->SetPoint( index, point );
+              index++;
+              }
+            count++;
+            }
+  	       std::cout << " sampling every " << sampleCount << "th point to get total of " << index << std::endl;
+        	 }
+        if( std::strcmp( samplingStrategy.c_str(), "Random" ) == 0 )
+	         {
+       	  sampleCount = static_cast<unsigned long>( static_cast<float>( sampleCount ) * samplingPercent );
+          itk::ImageRandomConstIteratorWithIndex<FixedImageType> ItR( fixedImage, fixedImage->GetLargestPossibleRegion() );
+          ItR.SetNumberOfSamples( sampleCount );
+          for( ItR.GoToBegin(); !ItR.IsAtEnd(); ++ItR )
+       	    {
+            PointType point;
+            fixedImage->TransformIndexToPhysicalPoint( ItR.GetIndex(), point );
+
             // randomly perturb the point within a voxel (approximately)
-	    for ( unsigned int d=0; d<ImageDimension; d++) pt[d]+=twister->GetNormalVariate()/3.0*fixedImage->GetSpacing()[d];
-            pset->SetPoint(ind, pt);
-            ind++;
-	    }
-	  }
-        mutualInformationMetric->SetFixedSampledPointSet( pset );
+	           for ( unsigned int d=0; d < ImageDimension; d++ )
+	             {
+	             point[d] += twister->GetNormalVariate() / 3.0 * fixedImage->GetSpacing()[d];
+	             }
+            pointSet->SetPoint( index, point );
+            index++;
+	           }
+  	       }
+        mutualInformationMetric->SetFixedSampledPointSet( pointSet );
         mutualInformationMetric->SetUseFixedSampledPointSet( true );
-	}
+	       }
       metric = mutualInformationMetric;
       }
     else if( std::strcmp( whichMetric.c_str(), "demons" ) == 0 )
