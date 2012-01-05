@@ -591,6 +591,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
     optimizer->SetMaximumStepSizeInPhysicalUnits( learningRate );
     optimizer->SetNumberOfIterations( iterations[0] );
     optimizer->SetScalesEstimator( scalesEstimator );
+    optimizer->SetMinimumConvergenceValue( 1e-6 );
+    optimizer->SetConvergenceWindowSize( 10 );
 
     // Set up the image registration methods along with the transforms
 
@@ -1587,7 +1589,8 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
   OptionType::Pointer option = OptionType::New();
   option->SetLongName( "output" );
   option->SetShortName( 'o' );
-  option->SetUsageOption( 0, "[outputTransformPrefix,<outputWarpedImage>,<outputInverseWarpedImage>]" );
+  option->SetUsageOption( 0, "outputTransformPrefix" );
+  option->SetUsageOption( 1, "[outputTransformPrefix,<outputWarpedImage>,<outputInverseWarpedImage>]" );
   option->SetDescription( description );
   parser->AddOption( option );
   }
@@ -1602,7 +1605,8 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
   OptionType::Pointer option = OptionType::New();
   option->SetLongName( "initialTransform" );
   option->SetShortName( 'r' );
-  option->SetUsageOption( 0, "[initialTransform,useInverse]" );
+  option->SetUsageOption( 0, "initialTransform" );
+  option->SetUsageOption( 1, "[initialTransform,<useInverse>]" );
   option->SetDescription( description );
   parser->AddOption( option );
   }
@@ -1624,9 +1628,9 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
   OptionType::Pointer option = OptionType::New();
   option->SetLongName( "metric" );
   option->SetShortName( 'm' );
-  option->SetUsageOption( 0, "CC[fixedImage,movingImage,metricWeight,radius,samplingStrategy={Regular,Random},samplingPercentage=[0,1]]" );
-  option->SetUsageOption( 1, "MI[fixedImage,movingImage,metricWeight,numberOfBins,samplingStrategy={Regular,Random},samplingPercentage=[0,1]]" );
-  option->SetUsageOption( 2, "Demons[fixedImage,movingImage,metricWeight,radius,samplingStrategy={Regular,Random},samplingPercentage=[0,1]]" );
+  option->SetUsageOption( 0, "CC[fixedImage,movingImage,metricWeight,radius,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
+  option->SetUsageOption( 1, "MI[fixedImage,movingImage,metricWeight,numberOfBins,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
+  option->SetUsageOption( 2, "Demons[fixedImage,movingImage,metricWeight,radius,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
   option->SetDescription( description );
   parser->AddOption( option );
   }
