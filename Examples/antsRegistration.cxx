@@ -108,7 +108,10 @@ public:
 
     GradientDescentOptimizerType * optimizer = reinterpret_cast<GradientDescentOptimizerType *>(
       const_cast<typename TFilter::OptimizerType *>( filter->GetOptimizer() ) );
-    optimizer->SetNumberOfIterations( this->m_NumberOfIterations[currentLevel] );
+    if( currentLevel + 1 < this->m_NumberOfIterations.size() )
+      {
+      optimizer->SetNumberOfIterations( this->m_NumberOfIterations[currentLevel + 1] );
+      }
     }
 
   void SetNumberOfIterations( std::vector<unsigned int> iterations )
