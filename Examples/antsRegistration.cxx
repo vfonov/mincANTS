@@ -272,10 +272,14 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
   compositeTransform->AddTransform( identityTransform );
 
   // Load an initial initialTransform if requested
+  unsigned int numberOfInitialTransforms = 0;
+
   typename itk::ants::CommandLineParser::OptionType::Pointer initialTransformOption =
     parser->GetOption( "initialTransform" );
   if( initialTransformOption && initialTransformOption->GetNumberOfValues() > 0 )
     {
+    numberOfInitialTransforms = initialTransformOption->GetNumberOfValues();
+
     std::deque<std::string> initialTransformNames;
     std::deque<std::string> initialTransformTypes;
 
@@ -387,6 +391,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       }
     }
 
+
   // We iterate backwards because the command line options are stored as a stack (first in last out)
 
   for( int currentStage = numberOfStages - 1; currentStage >= 0; currentStage-- )
@@ -396,9 +401,9 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
     typedef itk::ImageRegistrationMethodv4<FixedImageType, MovingImageType> AffineRegistrationType;
 
-    std::cout << std::endl << "Stage " << ( numberOfStages - currentStage - 1 ) << std::endl;
+    std::cout << std::endl << "Stage " << ( numberOfInitialTransforms + numberOfStages - currentStage - 1 ) << std::endl;
     std::stringstream currentStageString;
-    currentStageString << ( numberOfStages - currentStage - 1 );
+    currentStageString << ( numberOfInitialTransforms + numberOfStages - currentStage - 1 );
 
     // Get the fixed and moving images
 
@@ -1582,7 +1587,7 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
   }
 
   {
-  std::string description = std::string( "Specify the output transform prefix (output format is .nii.gz )." ) +
+  std::string description = std::string( "Specify the output transform prefix (output format is .nii.gz ). " ) +
     std::string( "Optionally, one can choose to warp the moving image to the fixed space and, if the " ) +
     std::string( "inverse transform exists, one can also output the warped fixed image." );
 
@@ -1596,10 +1601,10 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
   }
 
   {
-  std::string description = std::string( "Specify the initial transform(s) which get immediately" ) +
+  std::string description = std::string( "Specify the initial transform(s) which get immediately " ) +
     std::string( "incorporated into the composite transform.  The order of the " ) +
-    std::string( "transforms is stack-esque in that the last transform specified on" ) +
-    std::string( "the command line is the first to be applied.  See antsApplyTransforms" ) +
+    std::string( "transforms is stack-esque in that the last transform specified on " ) +
+    std::string( "the command line is the first to be applied.  See antsApplyTransforms " ) +
     std::string( "for additional information." );
 
   OptionType::Pointer option = OptionType::New();
