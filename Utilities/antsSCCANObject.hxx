@@ -984,13 +984,15 @@ TRealType antsSCCANObject<TInputImage, TRealType>
   for ( unsigned int loop=0; loop<maxloop; loop++) {
   RealType frac=((RealType)maxloop-(RealType)loop-(RealType)10)/(RealType)maxloop;
   if ( frac < 0 ) frac=0;
-  RealType fnp=fabs(this->m_FractionNonZeroP)+(1.0-this->m_FractionNonZeroP)*frac;
-  RealType fnq=fabs(this->m_FractionNonZeroQ)+(1.0-this->m_FractionNonZeroQ)*frac;
+  //  RealType fnp=fabs(this->m_FractionNonZeroP)+(1.0-this->m_FractionNonZeroP)*frac;
+  //  RealType fnq=fabs(this->m_FractionNonZeroQ)+(1.0-this->m_FractionNonZeroQ)*frac;
+  RealType fnp=this->m_FractionNonZeroP;
+  RealType fnq=this->m_FractionNonZeroQ;
   if ( loop < 10 ) { fnp=1; fnq=1; }
-  if ( this->m_FractionNonZeroP  < 0 ) fnp*=(-1);
-  if ( this->m_FractionNonZeroQ  < 0 ) fnq*=(-1);
-  if ( fabs(fnp) < fabs(this->m_FractionNonZeroP) ) fnp=this->m_FractionNonZeroP;
-  if ( fabs(fnq) < fabs(this->m_FractionNonZeroQ) ) fnq=this->m_FractionNonZeroQ;
+  //  if ( this->m_FractionNonZeroP  < 0 ) fnp*=(-1);
+  //  if ( this->m_FractionNonZeroQ  < 0 ) fnq*=(-1);
+  //  if ( fabs(fnp) < fabs(this->m_FractionNonZeroP) ) fnp=this->m_FractionNonZeroP;
+  // if ( fabs(fnq) < fabs(this->m_FractionNonZeroQ) ) fnq=this->m_FractionNonZeroQ;
   if ( this->m_MatrixP.cols() == 1 || this->m_MatrixQ.cols() == 1  ) {
     fnp=this->m_FractionNonZeroP;
     fnq=this->m_FractionNonZeroQ;
@@ -1029,11 +1031,13 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       hjk=inner_product(pmqj,qveck)/ip;
       qveck=qveck-hjk*qj; 
     }
-    this->ReSoftThreshold( pveck , fnp , this->m_KeepPositiveP );
-    this->ReSoftThreshold( qveck , fnq , this->m_KeepPositiveQ );
-    //    this->ConstantProbabilityThreshold( pveck , fnp , !this->m_KeepPositiveP );
-    //    this->ConstantProbabilityThreshold( qveck , fnq , !this->m_KeepPositiveQ );
-    if ( loop > 2 ) {
+    if ( this->m_KeepPositiveP ) 
+      this->ConstantProbabilityThreshold( pveck , fnp , this->m_KeepPositiveP );   
+    else this->ReSoftThreshold( pveck , fnp , !this->m_KeepPositiveP );
+    if ( this->m_KeepPositiveQ ) 
+      this->ConstantProbabilityThreshold( qveck , fnq , this->m_KeepPositiveQ );
+    else this->ReSoftThreshold( qveck , fnq , !this->m_KeepPositiveQ );
+    if ( loop > 10 ) {
       this->ClusterThresholdVariate( pveck , this->m_MaskImageP, this->m_MinClusterSizeP );
       this->ClusterThresholdVariate( qveck , this->m_MaskImageQ, this->m_MinClusterSizeQ );
     }
@@ -1041,7 +1045,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     if ( hkkm1 > this->m_Epsilon ) this->m_VariatesP.set_column(k,pveck/hkkm1);
              hkkm1=qveck.two_norm();
     if ( hkkm1 > this->m_Epsilon ) this->m_VariatesQ.set_column(k,qveck/hkkm1);
-    this->NormalizeWeightsByCovariance(k); 
+    //    this->NormalizeWeightsByCovariance(k); 
     this->m_CanonicalCorrelations[k]=this->PearsonCorr(  this->m_MatrixP*this->m_VariatesP.get_column(k)   , this->m_MatrixQ*this->m_VariatesQ.get_column(k)  ); 
   }
   if ( loop > 0 ) this->SortResults(n_vecs);  
