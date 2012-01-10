@@ -268,6 +268,7 @@ antsSCCANObject<TInputImage, TRealType>
 ::ReSoftThreshold( typename antsSCCANObject<TInputImage, TRealType>::VectorType&
  v_in, TRealType fractional_goal , bool keep_positive )
 {
+  //  std::cout <<" resoft " << fractional_goal << std::endl;
   if ( fabs(fractional_goal) >= 1 || fabs((float)(v_in.size())*fractional_goal) <= 1 ) return ;
   RealType minv=v_in.min_value();
   RealType maxv=v_in.max_value();
@@ -323,7 +324,7 @@ antsSCCANObject<TInputImage, TRealType>
   double tmaxv=v_in.max_value();
   //  std::cout << " post minv " << tminv << " post maxv " << tmaxv <<  std::endl;
   frac=(float)(v_in.size()-ct)/(float)v_in.size();
-  // std::cout << " frac non-zero " << frac << " wanted " << fractional_goal << std::endl;
+  //  std::cout << " frac non-zero " << frac << " wanted " << fractional_goal << std::endl;
   if ( v_in.two_norm() > this->m_Epsilon ) v_in=v_in/v_in.two_norm();
   //  std::cout << v_in <<std::endl;
   return;
@@ -830,10 +831,10 @@ TRealType antsSCCANObject<TInputImage, TRealType>
   for ( unsigned int k=0; k<n_vecs; k++) {
     if (debug) std::cout<<"kloopstart"<<std::endl;
     VectorType ptemp=this->m_VariatesP.get_column(k);
-    //    vnl_diag_matrix<TRealType> indicator(this->m_MatrixP.cols(),1);
-    // don't use the indicator function if you are not even close to the solution 
-    //    if (loop > 5 ) for ( unsigned int j=0; j< ptemp.size(); j++) if ( fabs(ptemp(j)) < this->m_Epsilon ) indicator(j,j)=0; 
-    MatrixType pmod=this->m_MatrixP;//*indicator; 
+    vnl_diag_matrix<TRealType> indicator(this->m_MatrixP.cols(),1);
+    //don't use the indicator function if you are not even close to the solution 
+    if (loop > 10 && !this->m_KeepPositiveP ) for ( unsigned int j=0; j< ptemp.size(); j++) if ( fabs(ptemp(j)) < this->m_Epsilon ) indicator(j,j)=0; 
+    MatrixType pmod=this->m_MatrixP*indicator; 
     VectorType pveck=pmod.transpose()*(pmod*ptemp);      
     //  X^T X x
     RealType hkkm1=pveck.two_norm();
@@ -1006,11 +1007,11 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     VectorType ptemp=this->m_VariatesP.get_column(k);
     VectorType qtemp=this->m_VariatesQ.get_column(k);
     vnl_diag_matrix<TRealType> indicatorp(this->m_MatrixP.cols(),1);
-        vnl_diag_matrix<TRealType> indicatorq(this->m_MatrixQ.cols(),1);
-	// if (loop > 50000 ) {
+    vnl_diag_matrix<TRealType> indicatorq(this->m_MatrixQ.cols(),1);
+	if (false /*loop > 10*/ ) {
       for ( unsigned int j=0; j< ptemp.size(); j++) if ( fabs(ptemp(j)) < this->m_Epsilon ) indicatorp(j,j)=0; 
       for ( unsigned int j=0; j< qtemp.size(); j++) if ( fabs(qtemp(j)) < this->m_Epsilon ) indicatorq(j,j)=0; 
-      //  }
+    }
     MatrixType pmod=this->m_MatrixP*indicatorp; 
     MatrixType qmod=this->m_MatrixQ*indicatorq; 
     VectorType pveck=qmod*qtemp;      
@@ -1040,8 +1041,10 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       this->ConstantProbabilityThreshold( qveck , fnq , this->m_KeepPositiveQ );
     else this->ReSoftThreshold( qveck , fnq , !this->m_KeepPositiveQ );
     if ( loop > 10 ) {
-      this->ClusterThresholdVariate( pveck , this->m_MaskImageP, this->m_MinClusterSizeP );
-      this->ClusterThresholdVariate( qveck , this->m_MaskImageQ, this->m_MinClusterSizeQ );
+      if ( this->m_MaskImageP ) 
+        this->ClusterThresholdVariate( pveck , this->m_MaskImageP, this->m_MinClusterSizeP );
+      if ( this->m_MaskImageQ ) 
+	this->ClusterThresholdVariate( qveck , this->m_MaskImageQ, this->m_MinClusterSizeQ );
     }
     RealType hkkm1=pveck.two_norm();
     if ( hkkm1 > this->m_Epsilon ) this->m_VariatesP.set_column(k,pveck/hkkm1);
