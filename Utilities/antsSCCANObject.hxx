@@ -800,6 +800,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
   this->m_CanonicalCorrelations.fill(0); 
   std::cout <<" arnoldi sparse svd " << std::endl;
   this->m_MatrixP=this->NormalizeMatrix(this->m_OriginalMatrixP);  
+  //  this->m_MatrixP=this->m_OriginalMatrixP;  
   this->m_MatrixQ=this->m_MatrixP;
   std::cout << " this->m_OriginalMatrixR.size() " << this->m_OriginalMatrixR.size() << std::endl;
   if ( this->m_OriginalMatrixR.size() > 0 ) {
@@ -969,6 +970,9 @@ TRealType antsSCCANObject<TInputImage, TRealType>
   this->m_CanonicalCorrelations.fill(0); 
   std::cout <<" arnoldi sparse partial cca " << std::endl;
   std::cout << "  pos-p " << this->GetKeepPositiveP() << " pos-q "<< this->GetKeepPositiveQ() << std::endl;
+  this->m_MatrixP=this->m_OriginalMatrixP;//this->NormalizeMatrix(this->m_OriginalMatrixP);  
+  this->m_MatrixQ=this->m_OriginalMatrixQ;//this->NormalizeMatrix(this->m_OriginalMatrixQ);
+  this->m_MatrixR=this->m_OriginalMatrixR;//this->NormalizeMatrix(this->m_OriginalMatrixR);
   this->m_MatrixP=this->NormalizeMatrix(this->m_OriginalMatrixP);  
   this->m_MatrixQ=this->NormalizeMatrix(this->m_OriginalMatrixQ);
   this->m_MatrixR=this->NormalizeMatrix(this->m_OriginalMatrixR);
@@ -988,6 +992,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     this->m_VariatesQ.set_column(kk,this->InitializeV(this->m_MatrixQ));
   }
   unsigned int maxloop=this->m_MaximumNumberOfIterations;
+  if ( maxloop < 25 ) maxloop=25;
   for ( unsigned int loop=0; loop<maxloop; loop++) {
   RealType frac=((RealType)maxloop-(RealType)loop-(RealType)10)/(RealType)maxloop;
   if ( frac < 0 ) frac=0;
@@ -1010,9 +1015,11 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     VectorType qtemp=this->m_VariatesQ.get_column(k);
     vnl_diag_matrix<TRealType> indicatorp(this->m_MatrixP.cols(),1);
     vnl_diag_matrix<TRealType> indicatorq(this->m_MatrixQ.cols(),1);
-    if (loop > 10 ) {
+    if (loop > 20  ) {
       if ( !  this->m_KeepPositiveP ) for ( unsigned int j=0; j< ptemp.size(); j++) if ( fabs(ptemp(j)) < this->m_Epsilon ) indicatorp(j,j)=0; 
       if ( !  this->m_KeepPositiveQ ) for ( unsigned int j=0; j< qtemp.size(); j++) if ( fabs(qtemp(j)) < this->m_Epsilon ) indicatorq(j,j)=0; 
+      if (    this->m_KeepPositiveP ) { for ( unsigned int j=0; j< ptemp.size(); j++) if ( fabs(ptemp(j)) < this->m_Epsilon ) indicatorp(j,j)=0; fnp=1 ;}
+      if (    this->m_KeepPositiveQ ) { for ( unsigned int j=0; j< qtemp.size(); j++) if ( fabs(qtemp(j)) < this->m_Epsilon ) indicatorq(j,j)=0; fnp=1 ;}
     }
     MatrixType pmod=this->m_MatrixP*indicatorp; 
     MatrixType qmod=this->m_MatrixQ*indicatorq; 
@@ -1042,6 +1049,8 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     if ( this->m_KeepPositiveQ ) 
       this->ConstantProbabilityThreshold( qveck , fnq , this->m_KeepPositiveQ );
     else this->ReSoftThreshold( qveck , fnq , !this->m_KeepPositiveQ );
+    if (loop > 20 && this->m_KeepPositiveP ) pveck=indicatorp*pveck; 
+    if (loop > 20 && this->m_KeepPositiveQ ) qveck=indicatorq*qveck; 
     if ( loop > 10 ) {
       if ( this->m_MaskImageP ) 
         this->ClusterThresholdVariate( pveck , this->m_MaskImageP, this->m_MinClusterSizeP );
@@ -1052,7 +1061,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     if ( hkkm1 > this->m_Epsilon ) this->m_VariatesP.set_column(k,pveck/hkkm1);
              hkkm1=qveck.two_norm();
     if ( hkkm1 > this->m_Epsilon ) this->m_VariatesQ.set_column(k,qveck/hkkm1);
-    //    this->NormalizeWeightsByCovariance(k); 
+    this->NormalizeWeightsByCovariance(k); 
     this->m_CanonicalCorrelations[k]=this->PearsonCorr(  this->m_MatrixP*this->m_VariatesP.get_column(k)   , this->m_MatrixQ*this->m_VariatesQ.get_column(k)  ); 
   }
   if ( loop > 0 ) this->SortResults(n_vecs);  
@@ -1060,7 +1069,8 @@ TRealType antsSCCANObject<TInputImage, TRealType>
   } // outer loop 
   this->SortResults(n_vecs);  
   //  this->RunDiagnostics(n_vecs);
-  if ( n_vecs_in > 1 ) return fabs(this->m_CanonicalCorrelations[1])+fabs(this->m_CanonicalCorrelations[0]);
+  double ccasum=0; for (unsigned int i=0; i<this->m_CanonicalCorrelations.size(); i++) ccasum+=fabs(this->m_CanonicalCorrelations[i]);
+  if ( n_vecs_in > 1 ) return ccasum; // fabs(this->m_CanonicalCorrelations[1])+fabs(this->m_CanonicalCorrelations[0]);
   else return fabs(this->m_CanonicalCorrelations[0]);
 
 
