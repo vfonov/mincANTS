@@ -833,9 +833,10 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     VectorType ptemp=this->m_VariatesP.get_column(k);
     vnl_diag_matrix<TRealType> indicator(this->m_MatrixP.cols(),1);
     //don't use the indicator function if you are not even close to the solution 
-    if (loop > 10 && !this->m_KeepPositiveP ) for ( unsigned int j=0; j< ptemp.size(); j++) if ( fabs(ptemp(j)) < this->m_Epsilon ) indicator(j,j)=0; 
+    if (loop > 20 && !this->m_KeepPositiveP ) for ( unsigned int j=0; j< ptemp.size(); j++) if ( fabs(ptemp(j)) < this->m_Epsilon ) indicator(j,j)=0; 
+    if (loop > 20 && this->m_KeepPositiveP ) { for ( unsigned int j=0; j< ptemp.size(); j++) if ( fabs(ptemp(j)) < this->m_Epsilon ) indicator(j,j)=0; fnp=1 ;}
     MatrixType pmod=this->m_MatrixP*indicator; 
-    VectorType pveck=pmod.transpose()*(pmod*ptemp);      
+    VectorType pveck=(pmod.transpose()*(pmod*ptemp))*indicator;
     //  X^T X x
     RealType hkkm1=pveck.two_norm();
     if ( hkkm1 > this->m_Epsilon /* && k == 0 */  ) pveck=pveck/hkkm1;
@@ -855,6 +856,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       this->ClusterThresholdVariate( pveck_temp , this->m_MaskImageP, this->m_MinClusterSizeP );
       if ( pveck_temp.two_norm() > 0 ) pveck=pveck_temp;
     }
+    if (loop > 20 && this->m_KeepPositiveP ) pveck=indicator*pveck; 
     double pveckabssum=0;
     for (unsigned int pp=0;pp<pveck.size();pp++) 
       {
@@ -1008,9 +1010,9 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     VectorType qtemp=this->m_VariatesQ.get_column(k);
     vnl_diag_matrix<TRealType> indicatorp(this->m_MatrixP.cols(),1);
     vnl_diag_matrix<TRealType> indicatorq(this->m_MatrixQ.cols(),1);
-	if (false /*loop > 10*/ ) {
-      for ( unsigned int j=0; j< ptemp.size(); j++) if ( fabs(ptemp(j)) < this->m_Epsilon ) indicatorp(j,j)=0; 
-      for ( unsigned int j=0; j< qtemp.size(); j++) if ( fabs(qtemp(j)) < this->m_Epsilon ) indicatorq(j,j)=0; 
+    if (loop > 10 ) {
+      if ( !  this->m_KeepPositiveP ) for ( unsigned int j=0; j< ptemp.size(); j++) if ( fabs(ptemp(j)) < this->m_Epsilon ) indicatorp(j,j)=0; 
+      if ( !  this->m_KeepPositiveQ ) for ( unsigned int j=0; j< qtemp.size(); j++) if ( fabs(qtemp(j)) < this->m_Epsilon ) indicatorq(j,j)=0; 
     }
     MatrixType pmod=this->m_MatrixP*indicatorp; 
     MatrixType qmod=this->m_MatrixQ*indicatorq; 
