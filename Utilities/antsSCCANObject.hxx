@@ -836,7 +836,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     if (loop > 20 && !this->m_KeepPositiveP ) for ( unsigned int j=0; j< ptemp.size(); j++) if ( fabs(ptemp(j)) < this->m_Epsilon ) indicator(j,j)=0; 
     if (loop > 20 && this->m_KeepPositiveP ) { for ( unsigned int j=0; j< ptemp.size(); j++) if ( fabs(ptemp(j)) < this->m_Epsilon ) indicator(j,j)=0; fnp=1 ;}
     MatrixType pmod=this->m_MatrixP*indicator; 
-    VectorType pveck=(pmod.transpose()*(pmod*ptemp))*indicator;
+    VectorType pveck=(pmod.transpose()*(pmod*ptemp));
     //  X^T X x
     RealType hkkm1=pveck.two_norm();
     if ( hkkm1 > this->m_Epsilon /* && k == 0 */  ) pveck=pveck/hkkm1;
