@@ -35,6 +35,11 @@
 #include "itkGradientDifferenceImageToImageMetric.h"
 #include "itkNormalizedCorrelationImageToImageMetric.h" 
 
+#include "itkImageRegionIterator.h"
+#include "itkRandomImageSource.h"
+#include "itkAddImageFilter.h"
+
+
 typedef enum{AffineWithMutualInformation=1, AffineWithMeanSquareDifference , AffineWithHistogramCorrelation, AffineWithNormalizedCorrelation , AffineWithGradientDifference } AffineMetricType;
 
 template<class TAffineTransformPointer, class TMaskImagePointer>
@@ -470,7 +475,34 @@ void InitialzeImageMask(MaskImagePointerType &mask_fixed, ImageMaskSpatialObject
 
 
 ///////////////////////////////////////////////////////////////////////////////
+template<class ImagePointerType>
+ImagePointerType
+AddRandomNoise(ImagePointerType &I)
+{
+  typedef typename ImagePointerType::ObjectType ImageType;
 
+  typename itk::RandomImageSource<ImageType>::Pointer randomImageSource =
+      itk::RandomImageSource<ImageType>::New();
+
+  randomImageSource->SetOrigin(I->GetOrigin());
+  randomImageSource->SetSpacing(I->GetSpacing());
+    randomImageSource->SetSize(I->GetBufferedRegion().GetSize());
+    randomImageSource->SetMin(0);
+    randomImageSource->SetMax(0.001);
+    randomImageSource->Update();
+    randomImageSource->GetOutput()->SetDirection(I->GetDirection());
+
+    typedef itk::AddImageFilter <ImageType, ImageType >
+        AddImageFilterType;
+
+      typename AddImageFilterType::Pointer addFilter
+        = AddImageFilterType::New ();
+      addFilter->SetInput1(I);
+      addFilter->SetInput2(randomImageSource->GetOutput());
+      addFilter->Update();
+
+      return addFilter->GetOutput();
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 template<class ImagePointerType, class PointType, class VectorType>
@@ -483,13 +515,39 @@ void ComputeInitialPosition(ImagePointerType &I_fixed, ImagePointerType &I_movin
 
   typename ImageCalculatorType::Pointer calculator = ImageCalculatorType::New();
 
-  calculator->SetImage(  I_fixed );
-  calculator->Compute();
-  typename ImageCalculatorType::VectorType fixed_center = calculator->GetCenterOfGravity();
 
-  calculator->SetImage(  I_moving );
-  calculator->Compute();
-  typename ImageCalculatorType::VectorType moving_center = calculator->GetCenterOfGravity();
+  typename ImageCalculatorType::VectorType fixed_center;
+  typename ImageCalculatorType::VectorType moving_center;
+
+  // a dirty fix to handle the constant/blank images after preprocessing
+  try {
+        calculator->SetImage(  I_fixed );
+        calculator->Compute();
+        fixed_center = calculator->GetCenterOfGravity();
+
+        calculator->SetImage(  I_moving );
+        calculator->Compute();
+        moving_center = calculator->GetCenterOfGravity();
+
+  }
+  catch (...) {
+      // try to add a small amount of noise to avoid exception from computing moments
+      std::cout << "try to add a small amount of noise to avoid exception"
+          " from computing moments" << std::endl;
+      ImagePointerType If1 = AddRandomNoise(I_fixed);
+      ImagePointerType Im1 = AddRandomNoise(I_moving);
+
+    //  calculator->SetImage(  I_fixed );
+      calculator->SetImage(  If1 );
+      calculator->Compute();
+      fixed_center = calculator->GetCenterOfGravity();
+
+    //  calculator->SetImage(  I_moving );
+      calculator->SetImage(  Im1 );
+      calculator->Compute();
+      moving_center = calculator->GetCenterOfGravity();
+
+  }
 
 
   for( unsigned int i=0; i<ImageDimension; i++)
