@@ -24,8 +24,8 @@
 
 #include "itkANTSNeighborhoodCorrelationImageToImageMetricv4.h"
 #include "itkDemonsImageToImageMetricv4.h"
+#include "itkCorrelationImageToImageMetricv4.h"
 #include "itkImageToImageMetricv4.h"
-#include "itkJointHistogramMutualInformationImageToImageMetricv4.h"
 #include "itkMattesMutualInformationImageToImageMetricv4.h"
 
 #include "itkAffineTransform.h"
@@ -585,14 +585,14 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       typename CorrelationMetricType::RadiusType radius;
       radius.Fill( radiusOption );
       correlationMetric->SetRadius( radius );
-      correlationMetric->SetDoFixedImagePreWarp( true );
-      correlationMetric->SetDoMovingImagePreWarp( true );
+      correlationMetric->SetDoFixedImagePreWarp( false );
+      correlationMetric->SetDoMovingImagePreWarp( false );
       correlationMetric->SetUseMovingImageGradientFilter( false );
       correlationMetric->SetUseFixedImageGradientFilter( false );
 
       metric = correlationMetric;
       }
-    else if( std::strcmp( whichMetric.c_str(), "mattes" ) == 0 )
+    else if( std::strcmp( whichMetric.c_str(), "mi" ) == 0 )
       {
       unsigned int binOption = parser->Convert<unsigned int>( metricOption->GetParameter( currentStage, 3 ) );
       std::cout << "  using the Mattes MI metric (number of bins = " << binOption << ")" << std::endl;
@@ -600,14 +600,14 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       typename MutualInformationMetricType::Pointer mutualInformationMetric = MutualInformationMetricType::New();
       mutualInformationMetric = mutualInformationMetric;
       mutualInformationMetric->SetNumberOfHistogramBins( binOption );
-      mutualInformationMetric->SetDoFixedImagePreWarp( true );
-      mutualInformationMetric->SetDoMovingImagePreWarp( true );
+      mutualInformationMetric->SetDoFixedImagePreWarp( false );
+      mutualInformationMetric->SetDoMovingImagePreWarp( false );
       mutualInformationMetric->SetUseMovingImageGradientFilter( false );
       mutualInformationMetric->SetUseFixedImageGradientFilter( false );
       mutualInformationMetric->SetUseFixedSampledPointSet( false );
       metric = mutualInformationMetric;
       }
-    else if( std::strcmp( whichMetric.c_str(), "mi" ) == 0 )
+    else if( std::strcmp( whichMetric.c_str(), "mi2" ) == 0 )
       {
       unsigned int binOption = parser->Convert<unsigned int>( metricOption->GetParameter( currentStage, 3 ) );
 
@@ -616,8 +616,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       typename MutualInformationMetricType::Pointer mutualInformationMetric = MutualInformationMetricType::New();
       mutualInformationMetric = mutualInformationMetric;
       mutualInformationMetric->SetNumberOfHistogramBins( binOption );
-      mutualInformationMetric->SetDoFixedImagePreWarp( true );
-      mutualInformationMetric->SetDoMovingImagePreWarp( true );
+      mutualInformationMetric->SetDoFixedImagePreWarp( false );
+      mutualInformationMetric->SetDoMovingImagePreWarp( false );
       mutualInformationMetric->SetUseMovingImageGradientFilter( false );
       mutualInformationMetric->SetUseFixedImageGradientFilter( false );
       mutualInformationMetric->SetUseFixedSampledPointSet( false );
@@ -631,10 +631,19 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       typedef itk::DemonsImageToImageMetricv4<FixedImageType, MovingImageType> DemonsMetricType;
       typename DemonsMetricType::Pointer demonsMetric = DemonsMetricType::New();
       demonsMetric = demonsMetric;
-      demonsMetric->SetDoFixedImagePreWarp( true );
-      demonsMetric->SetDoMovingImagePreWarp( true );
+      demonsMetric->SetDoFixedImagePreWarp( false );
+      demonsMetric->SetDoMovingImagePreWarp( false );
 
       metric = demonsMetric;
+      }
+    else if( std::strcmp( whichMetric.c_str(), "gc" ) == 0 )
+      {
+      std::cout << "  using the global correlation metric." << std::endl;
+      typedef itk::CorrelationImageToImageMetricv4<FixedImageType, MovingImageType> corrMetricType;
+      typename corrMetricType::Pointer corrMetric = corrMetricType::New();
+      corrMetric->SetDoFixedImagePreWarp( false );
+      corrMetric->SetDoMovingImagePreWarp( false );
+      metric = corrMetric;
       }
     else
       {
@@ -1852,9 +1861,10 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
   }
 
   {
-  std::string description = std::string( "Three image metrics are available--- " ) +
+  std::string description = std::string( "These image metrics are available--- " ) +
     std::string( "CC:  ANTS neighborhood cross correlation, MI:  Mutual information, and " ) +
     std::string( "Demons:  Thirion's Demons (modified mean-squares). " ) +
+    std::string( "GC, Global Correlation. " ) +
     std::string( "Note that the metricWeight is currently not used.  " ) +
     std::string( "Rather, it is a temporary place holder until multivariate metrics " ) +
     std::string( "are available for a single stage. " )+
@@ -1872,6 +1882,7 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
   option->SetUsageOption( 1, "MI[fixedImage,movingImage,metricWeight,numberOfBins,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
   option->SetUsageOption( 1, "Mattes[fixedImage,movingImage,metricWeight,numberOfBins,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
   option->SetUsageOption( 2, "Demons[fixedImage,movingImage,metricWeight,radius,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
+  option->SetUsageOption( 3, "GC[fixedImage,movingImage,metricWeight,radius,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
   option->SetDescription( description );
   parser->AddOption( option );
   }
