@@ -648,7 +648,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       {
       std::cerr << "ERROR: Unrecognized image metric: " << whichMetric << std::endl;
       }
-    /** Can really impact performance */ 
+    /** Can really impact performance */
     bool gaussian = false;
     metric->SetUseMovingImageGradientFilter( gaussian );
     metric->SetUseFixedImageGradientFilter( gaussian );
@@ -1936,7 +1936,7 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
   std::string description = std::string( "Specify the amount of smoothing at each level." );
 
   OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "smoothingSigmas" );
+  option->SetLongName( "smoothing-sigmas" );
   option->SetShortName( 's' );
   option->SetUsageOption( 0, "MxNx0..." );
   option->SetDescription( description );
@@ -1947,7 +1947,7 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
   std::string description = std::string( "Specify the shrink factor for the virtual domain (typically the fixed image) at each level." );
 
   OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "shrinkFactors" );
+  option->SetLongName( "shrink-factors" );
   option->SetShortName( 'f' );
   option->SetUsageOption( 0, "MxNx0..." );
   option->SetDescription( description );
@@ -1958,7 +1958,7 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
   std::string description = std::string( "Histogram match the images before registration." );
 
   OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "useHistogramMatching" );
+  option->SetLongName( "use-histogram-matching" );
   option->SetShortName( 'u' );
   option->SetDescription( description );
   parser->AddOption( option );
