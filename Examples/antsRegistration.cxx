@@ -648,6 +648,10 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       {
       std::cerr << "ERROR: Unrecognized image metric: " << whichMetric << std::endl;
       }
+    /** Can really impact performance */ 
+    bool gaussian = false;
+    metric->SetUseMovingImageGradientFilter( gaussian );
+    metric->SetUseFixedImageGradientFilter( gaussian );
 
     // Set up the optimizer.  To change the iteration number for each level we rely
     // on the command observer.
@@ -664,8 +668,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
     optimizer->SetMaximumStepSizeInPhysicalUnits( learningRate );
     optimizer->SetNumberOfIterations( iterations[0] );
     optimizer->SetScalesEstimator( scalesEstimator );
-//    optimizer->SetMinimumConvergenceValue( 1e-6 );
-//    optimizer->SetConvergenceWindowSize( 10 );
+    //    optimizer->SetMinimumConvergenceValue( -1 );
+    //    optimizer->SetConvergenceWindowSize( 10 );
 
     // Set up the image registration methods along with the transforms
 
@@ -911,6 +915,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       }
     else if( std::strcmp( whichTransform.c_str(), "gaussiandisplacementfield" ) == 0 ||  std::strcmp( whichTransform.c_str(), "gdf" ) == 0 )
       {
+      metric->SetDoFixedImagePreWarp( true );
+      metric->SetDoMovingImagePreWarp( true );
       typedef itk::Vector<RealType, ImageDimension> VectorType;
       VectorType zeroVector( 0.0 );
       typedef itk::Image<VectorType, ImageDimension> DisplacementFieldType;
@@ -1243,6 +1249,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       }
     else if( std::strcmp( whichTransform.c_str(), "timevaryingvelocityfield" ) == 0 || std::strcmp( whichTransform.c_str(), "tvf" ) == 0 )
       {
+//      metric->SetDoFixedImagePreWarp( true );
+//      metric->SetDoMovingImagePreWarp( true );
       typedef itk::Vector<RealType, ImageDimension> VectorType;
       VectorType zeroVector( 0.0 );
 
@@ -1611,6 +1619,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       }
     else if( std::strcmp( whichTransform.c_str(), "syn" ) == 0 ||  std::strcmp( whichTransform.c_str(), "symmetricnormalization" ) == 0 )
       {
+//      metric->SetDoFixedImagePreWarp( true );
+//      metric->SetDoMovingImagePreWarp( true );
       typedef itk::Vector<RealType, ImageDimension> VectorType;
       VectorType zeroVector( 0.0 );
       typedef itk::Image<VectorType, ImageDimension> DisplacementFieldType;
