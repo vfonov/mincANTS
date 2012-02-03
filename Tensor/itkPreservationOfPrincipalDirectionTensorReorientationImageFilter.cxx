@@ -408,7 +408,7 @@ PreservationOfPrincipalDirectionTensorReorientationImageFilter<TTensorImage,TVec
       {
       if ( vnl_math_isnan( outTensor[jj] ) || vnl_math_isinf( outTensor[jj]) )
         {
-	  outTensor[jj]=0;
+      outTensor[jj]=0;
         }
       }
 

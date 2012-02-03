@@ -1,14 +1,14 @@
 #ifndef __ReadWriteImage_h_
 #define __ReadWriteImage_h_
 
-#include <iostream>           
-#include <fstream>       
-#include <stdio.h>                    
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
 #include "itkVector.h"
-#include "itkImage.h"                   
-#include "itkImageFileWriter.h"                   
-#include "itkImageFileReader.h"       
-#include "itkImageRegionIteratorWithIndex.h"        
+#include "itkImage.h"
+#include "itkImageFileWriter.h"
+#include "itkImageFileReader.h"
+#include "itkImageRegionIteratorWithIndex.h"
 #include "itkWarpImageFilter.h"
 //#include "itkInverseWarpImageFilter.h"
 #include "itkAffineTransform.h"
@@ -20,30 +20,30 @@
 #include "itkVectorIndexSelectionCastImageFilter.h"
 #include "itkLogTensorImageFilter.h"
 #include "itkExpTensorImageFilter.h"
-#include <sys/stat.h> 
+#include <sys/stat.h>
 
-bool ANTSFileExists(std::string strFilename) { 
-  struct stat stFileInfo; 
-  bool blnReturn; 
-  int intStat; 
+bool ANTSFileExists(std::string strFilename) {
+  struct stat stFileInfo;
+  bool blnReturn;
+  int intStat;
 
-  // Attempt to get the file attributes 
-  intStat = stat(strFilename.c_str(),&stFileInfo); 
-  if(intStat == 0) { 
-    // We were able to get the file attributes 
-    // so the file obviously exists. 
-    blnReturn = true; 
-  } else { 
-    // We were not able to get the file attributes. 
-    // This may mean that we don't have permission to 
-    // access the folder which contains this file. If you 
-    // need to do that level of checking, lookup the 
-    // return values of stat which will give you 
-    // more details on why stat failed. 
-    blnReturn = false; 
-  } 
-   
-  return(blnReturn); 
+  // Attempt to get the file attributes
+  intStat = stat(strFilename.c_str(),&stFileInfo);
+  if(intStat == 0) {
+    // We were able to get the file attributes
+    // so the file obviously exists.
+    blnReturn = true;
+  } else {
+    // We were not able to get the file attributes.
+    // This may mean that we don't have permission to
+    // access the folder which contains this file. If you
+    // need to do that level of checking, lookup the
+    // return values of stat which will give you
+    // more details on why stat failed.
+    blnReturn = false;
+  }
+
+  return(blnReturn);
 }
 
 // Nifti stores DTI values in lower tri format but itk uses upper tri
@@ -54,15 +54,15 @@ template <class TImageType>
 void NiftiDTICheck(itk::SmartPointer<TImageType> &target, const char *file, bool makeLower)
 {
   typedef typename TImageType::PixelType PixType;
-  
-  return; 
-  
+
+  return;
+
   //typedef itk::ImageFileWriter<TImageType> Writer;
   //typename Writer::Pointer writer = Writer::New();
   //writer->SetInput( target );
   //writer->SetFileName( "testdt.nii" );
   //writer->Update();
-  
+
 
   // Check for nifti file
   std::string filename = file;
@@ -70,16 +70,16 @@ void NiftiDTICheck(itk::SmartPointer<TImageType> &target, const char *file, bool
   std::string::size_type pos2 = filename.find( ".nia" );
   if ((pos1 == std::string::npos) && (pos2 == std::string::npos))
     return;
-    
+
   if (PixType::Length != 6)
     return;
-    
+
   std::cout << "Performing lower/upper triangular format check for Nifti DTI" << std::endl;
-    
-  // swap elements 2 and 3 for lower<->upper conversion  
-  itk::ImageRegionIteratorWithIndex<TImageType> 
+
+  // swap elements 2 and 3 for lower<->upper conversion
+  itk::ImageRegionIteratorWithIndex<TImageType>
   iter(target,target->GetLargestPossibleRegion());
- 
+
   unsigned int looksLikeLower = 0;
   unsigned int looksLikeUpper = 0;
   unsigned int nBadVoxels = 0;
@@ -92,7 +92,7 @@ void NiftiDTICheck(itk::SmartPointer<TImageType> &target, const char *file, bool
 
   while (!iter.IsAtEnd())
   {
-  
+
     bool isValid = true;
     for (unsigned int i=0; i<6; i++)
     {
@@ -108,7 +108,7 @@ void NiftiDTICheck(itk::SmartPointer<TImageType> &target, const char *file, bool
 
     if (el2 < 0) ++el2Neg;
     if (el3 < 0) ++el3Neg;
-    
+
     if (isValid) {
     if (el2 > el3)
     {
@@ -117,9 +117,9 @@ void NiftiDTICheck(itk::SmartPointer<TImageType> &target, const char *file, bool
     else
     {
       ++looksLikeUpper;
-    } 
     }
-    
+    }
+
     ++count;
     ++iter;
   }
@@ -127,12 +127,12 @@ void NiftiDTICheck(itk::SmartPointer<TImageType> &target, const char *file, bool
   //std::cout << "Invalid: " << nBadVoxels << "/" << count << std::endl;
   //std::cout << "Lower: " << looksLikeLower << ", Upper: " << looksLikeUpper << std::endl;
   //std::cout << "el2Neg: " << el2Neg << ", el3Neg: " << el3Neg << std::endl;
-  
-  
+
+
   if ( ((looksLikeUpper > looksLikeLower) && makeLower) || ( (looksLikeLower > looksLikeUpper) && !makeLower) )
   {
     std::cout << "Performing lower/upper triangular format swap for Nifti DTI" << std::endl;
-  
+
     iter.GoToBegin();
     while (!iter.IsAtEnd())
     {
@@ -145,7 +145,7 @@ void NiftiDTICheck(itk::SmartPointer<TImageType> &target, const char *file, bool
       ++iter;
     }
   }
-  
+
 }
 
 template <class TImageType>
@@ -157,9 +157,9 @@ void ReadTensorImage(itk::SmartPointer<TImageType> &target, const char *file, bo
   typedef TImageType ImageType;
   typedef itk::ImageFileReader< ImageType >      FileSourceType;
   typedef typename ImageType::PixelType PixType;
-  
+
   typedef itk::LogTensorImageFilter<ImageType, ImageType> LogFilterType;
-  
+
   typename FileSourceType::Pointer reffilter = FileSourceType::New();
   reffilter->SetFileName( file );
   try
@@ -173,23 +173,23 @@ void ReadTensorImage(itk::SmartPointer<TImageType> &target, const char *file, bo
     target=NULL;
     return;
     }
-    
+
   target=reffilter->GetOutput();
 
-  NiftiDTICheck<ImageType>(target, file, false); 
-  
+  NiftiDTICheck<ImageType>(target, file, false);
+
   if (takelog)
-    {        
+    {
     typename LogFilterType::Pointer logFilter = LogFilterType::New();
     logFilter->SetInput( reffilter->GetOutput() );
     logFilter->Update();
     target = logFilter->GetOutput();
-    std::cout << "Returning Log(D) for log-euclidean math ops" << std::endl;      
+    std::cout << "Returning Log(D) for log-euclidean math ops" << std::endl;
     }
-  
+
 }
 
-template <class TImageType> 
+template <class TImageType>
 //void ReadImage(typename TImageType::Pointer target, const char *file)
 void ReadImage(itk::SmartPointer<TImageType> &target, const char *file)
 {
@@ -199,8 +199,8 @@ if ( ! ANTSFileExists(std::string(file)) ) { std::cout << " file " << std::strin
   /*//  std::cout << " reading b " << std::string(file) << std::endl;
   typedef itk::ImageFileReader<TImageType> readertype;
   typename readertype::Pointer reader = readertype::New();
-  reader->SetFileName(file); 
-  reader->Update();   
+  reader->SetFileName(file);
+  reader->Update();
   target=(reader->GetOutput());
 */
   //  std::cout << " Entering Read " << file << std::endl;
@@ -225,7 +225,7 @@ if ( ! ANTSFileExists(std::string(file)) ) { std::cout << " file " << std::strin
       return;
     }
 
-  //typename ImageType::DirectionType dir; 
+  //typename ImageType::DirectionType dir;
   //dir.SetIdentity();
   //  reffilter->GetOutput()->SetDirection(dir);
 
@@ -233,7 +233,7 @@ if ( ! ANTSFileExists(std::string(file)) ) { std::cout << " file " << std::strin
    target=reffilter->GetOutput();
    //   reffilter->GetOutput()->Print( std::cout );
    //   std::cout << " read direction " <<  << std::endl;
-   
+
    //if (reffilter->GetImageIO()->GetNumberOfComponents() ==  6)
    //NiftiDTICheck<ImageType>(target,file);
 
@@ -260,7 +260,7 @@ typename ImageType::Pointer ReadImage(char* fn )
    return NULL;
     }
 
-  typename ImageType::DirectionType dir; 
+  typename ImageType::DirectionType dir;
   dir.SetIdentity();
   //  reffilter->GetOutput()->SetDirection(dir);
 
@@ -269,7 +269,7 @@ typename ImageType::Pointer ReadImage(char* fn )
   //NiftiDTICheck<ImageType>(target,fn);
 
    return target;
-  
+
 }
 
 template <class ImageType>
@@ -292,7 +292,7 @@ typename ImageType::Pointer ReadTensorImage(char* fn, bool takelog=true )
     std::cerr << e << std::endl;
    return NULL;
     }
-  
+
   typename ImageType::Pointer target = reffilter->GetOutput();
 
   NiftiDTICheck<ImageType>(target, fn, false);
@@ -306,48 +306,48 @@ typename ImageType::Pointer ReadTensorImage(char* fn, bool takelog=true )
     }
 
   return target;
-  
+
 }
 
 
-template <class TImageType> 
+template <class TImageType>
 void WriteImage(itk::SmartPointer<TImageType> image, const char *file)
 {
-  if ( std::string(file).length() < 3 ) return; 
+  if ( std::string(file).length() < 3 ) return;
 
-  typename itk::ImageFileWriter<TImageType>::Pointer writer = 
+  typename itk::ImageFileWriter<TImageType>::Pointer writer =
     itk::ImageFileWriter<TImageType>::New();
   writer->SetFileName(file);
-  if (!image) 
+  if (!image)
     {
       std::cout <<" file " << file << " does not exist " << std::endl;
       exit(1);
     }
-  //  typename TImageType::DirectionType dir; 
+  //  typename TImageType::DirectionType dir;
   //dir.SetIdentity();
   //image->SetDirection(dir);
   //  std::cout << " now Write direction " << image->GetOrigin() << std::endl;
-  
+
   //if (writer->GetImageIO->GetNumberOfComponents() == 6)
   //NiftiDTICheck<TImageType>(image,file);
-  
+
   writer->SetInput(image);
   writer->Update();
 
 }
 
-template <class TImageType> 
+template <class TImageType>
 void WriteTensorImage(itk::SmartPointer<TImageType> image, const char *file, bool takeexp=true)
 {
 
   typedef typename TImageType::PixelType PixType;
   typedef itk::ExpTensorImageFilter<TImageType, TImageType> ExpFilterType;
-  typename itk::ImageFileWriter<TImageType>::Pointer writer = 
+  typename itk::ImageFileWriter<TImageType>::Pointer writer =
     itk::ImageFileWriter<TImageType>::New();
   writer->SetFileName(file);
 
-   typename TImageType::Pointer writeImage = image; 
-     
+   typename TImageType::Pointer writeImage = image;
+
   if (takeexp)
   {
     typename ExpFilterType::Pointer expFilter = ExpFilterType::New();
@@ -356,10 +356,10 @@ void WriteTensorImage(itk::SmartPointer<TImageType> image, const char *file, boo
     writeImage = expFilter->GetOutput();
     std::cout << "Taking Exp(D) before writing" << std::endl;
   }
-  
+
   // convert from upper tri to lower tri
   NiftiDTICheck<TImageType>(writeImage, file, true);// BA May 30 2009 -- remove b/c ITK fixed NIFTI reader
-  
+
   writer->SetInput(writeImage);
   writer->Update();
 
@@ -367,7 +367,7 @@ void WriteTensorImage(itk::SmartPointer<TImageType> image, const char *file, boo
 
 
 template <class TImage,class TField>
-typename TField::Pointer 
+typename TField::Pointer
 ReadWarpFromFile( std::string warpfn, std::string ext)
 {
 
@@ -381,7 +381,7 @@ ReadWarpFromFile( std::string warpfn, std::string ext)
 //  typedef itk::Vector<float,itkGetStaticConstMacro(ImageDimension)>         VectorType;
 //  typedef itk::Image<VectorType,itkGetStaticConstMacro(ImageDimension)>     FieldType;
   // std::cout << " warp file name " << warpfn + ext << std::endl;
-     
+
   std::string fn="";
 
 // First - read the vector fields
@@ -405,32 +405,32 @@ ReadWarpFromFile( std::string warpfn, std::string ext)
   field->SetBufferedRegion( xvec->GetLargestPossibleRegion() );
   field->SetLargestPossibleRegion( xvec->GetLargestPossibleRegion() );
   field->SetOrigin(xvec->GetOrigin());
-  field->SetDirection(xvec->GetDirection());  
-  field->Allocate(); 
+  field->SetDirection(xvec->GetDirection());
+  field->Allocate();
 
 
-  itk::ImageRegionIteratorWithIndex<RealImageType> 
+  itk::ImageRegionIteratorWithIndex<RealImageType>
     it( xvec, xvec->GetLargestPossibleRegion() );
 
-  //  std::cout << " spacing xv " << xvec->GetSpacing()[0] 
+  //  std::cout << " spacing xv " << xvec->GetSpacing()[0]
   //<< " field " << field->GetSpacing()[0] << std::endl;
 
   field->SetSpacing(xvec->GetSpacing());
   field->SetOrigin(xvec->GetOrigin());
 
 
- 
+
   unsigned int ct = 0;
   for (it.GoToBegin(); !it.IsAtEnd(); ++it)
   {
     ct++;
     typename ImageType::IndexType index=it.GetIndex();
 
-    VectorType disp;  
+    VectorType disp;
     disp[0]=xvec->GetPixel(index);
     disp[1]=yvec->GetPixel(index);
     if (ImageDimension == 3)disp[2]=zvec->GetPixel(index);
-  
+
     field->SetPixel(index,disp);
 
     //    if (ct == 10000) std::cout << " 10000th pix " << disp << std::endl;
@@ -443,21 +443,21 @@ ReadWarpFromFile( std::string warpfn, std::string ext)
 
 
 template <class TImage>
-typename TImage::Pointer 
+typename TImage::Pointer
 MakeNewImage(typename TImage::Pointer image1, typename TImage::PixelType initval )
 {
-  
+
   typedef itk::ImageRegionIteratorWithIndex<TImage> Iterator;
   typename TImage::Pointer varimage=TImage::New();
   varimage->SetLargestPossibleRegion( image1->GetLargestPossibleRegion() );
   varimage->SetBufferedRegion( image1->GetLargestPossibleRegion() );
   varimage->SetLargestPossibleRegion( image1->GetLargestPossibleRegion() );
-  varimage->Allocate(); 
+  varimage->Allocate();
   varimage->SetSpacing(image1->GetSpacing());
   varimage->SetOrigin(image1->GetOrigin());
   varimage->SetDirection(image1->GetDirection());
-  Iterator vfIter2( varimage,  varimage->GetLargestPossibleRegion() );  
-  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 ) 
+  Iterator vfIter2( varimage,  varimage->GetLargestPossibleRegion() );
+  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       if (initval >= 0) vfIter2.Set(initval);
       else vfIter2.Set(image1->GetPixel(vfIter2.GetIndex()));
@@ -468,7 +468,7 @@ MakeNewImage(typename TImage::Pointer image1, typename TImage::PixelType initval
 
 
 template <class TField>
-void 
+void
 WriteDisplacementField(TField* field,std::string filename)
 {
 
@@ -481,19 +481,19 @@ WriteDisplacementField(TField* field,std::string filename)
   // Initialize the caster to the displacement field
   typedef itk::VectorIndexSelectionCastImageFilter<FieldType,RealImageType> IndexSelectCasterType;
 
-  
+
   for (unsigned int dim=0; dim<ImageDimension;dim++)
   {
 
     typename IndexSelectCasterType::Pointer fieldCaster = IndexSelectCasterType::New();
     fieldCaster->SetInput( field );
-  
-    fieldCaster->SetIndex( dim );  
+
+    fieldCaster->SetIndex( dim );
     fieldCaster->Update();
-  
+
   // Set up the output filename
     std::string outfile=filename+static_cast<char>('x'+dim)+std::string("vec.nii.gz");
-    std::cout << "Writing displacements to " << outfile << " spacing " << 
+    std::cout << "Writing displacements to " << outfile << " spacing " <<
       field->GetSpacing()[0] << std::endl;
     typename RealImageType::Pointer fieldcomponent=fieldCaster->GetOutput();
     fieldcomponent->SetSpacing(field->GetSpacing());
@@ -508,7 +508,7 @@ WriteDisplacementField(TField* field,std::string filename)
 }
 
 template <class TField>
-void 
+void
 WriteDisplacementField2(TField* field, std::string filename, std::string app)
 {
 
@@ -521,19 +521,19 @@ WriteDisplacementField2(TField* field, std::string filename, std::string app)
   // Initialize the caster to the displacement field
   typedef itk::VectorIndexSelectionCastImageFilter<FieldType,RealImageType> IndexSelectCasterType;
 
-  
+
   for (unsigned int dim=0; dim<ImageDimension;dim++)
   {
 
     typename IndexSelectCasterType::Pointer fieldCaster = IndexSelectCasterType::New();
     fieldCaster->SetInput( field );
-  
-    fieldCaster->SetIndex( dim );  
+
+    fieldCaster->SetIndex( dim );
     fieldCaster->Update();
-  
+
   // Set up the output filename
     std::string outfile=filename+static_cast<char>('x'+dim)+std::string(app);
-    std::cout << "Writing displacements to " << outfile << " spacing " << 
+    std::cout << "Writing displacements to " << outfile << " spacing " <<
       field->GetSpacing()[0] << std::endl;
     typename RealImageType::Pointer fieldcomponent=fieldCaster->GetOutput();
     fieldcomponent->SetSpacing(field->GetSpacing());

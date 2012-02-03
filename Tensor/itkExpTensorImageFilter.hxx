@@ -7,11 +7,11 @@
   Version:   $Revision: 1.1 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -48,7 +48,7 @@ ExpTensorImageFilter< TInputImage, TOutputImage >
 
   InputImagePointer input = this->GetInput();
   OutputImagePointer output = this->GetOutput();
-  
+
   ImageRegionConstIterator< InputImageType > inputIt( input, input->GetLargestPossibleRegion() );
 
   InputSizeType inputSize = input->GetLargestPossibleRegion().GetSize();
@@ -57,17 +57,17 @@ ExpTensorImageFilter< TInputImage, TOutputImage >
 
   ImageRegionIterator< OutputImageType > outputIt( output, output->GetLargestPossibleRegion() );
 
-  for ( inputIt.GoToBegin(), outputIt.GoToBegin(); 
+  for ( inputIt.GoToBegin(), outputIt.GoToBegin();
     !inputIt.IsAtEnd() && !outputIt.IsAtEnd(); ++inputIt, ++outputIt)
   {
     InputPixelType result = TensorLogAndExp<InputPixelType>(inputIt.Value(), false);
     outputIt.Set( result );
   }
-      
+
 }
 
 
-  
+
 
 /**
  * Standard "PrintSelf" method
@@ -76,7 +76,7 @@ template <class TInputImage, class TOutput>
 void
 ExpTensorImageFilter<TInputImage, TOutput>
 ::PrintSelf(
-std::ostream& os, 
+std::ostream& os,
 Indent indent) const
 {
   Superclass::PrintSelf( os, indent );

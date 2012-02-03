@@ -7,11 +7,11 @@
   Version:   $Revision: 1.16 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -28,7 +28,7 @@ namespace itk
  */
 template <typename TInputImage,
           typename TRealType = float,
-          typename TOutput = 
+          typename TOutput =
             itk::VariableSizeMatrix<TRealType>
 >
 class ITK_EXPORT VectorFieldGradientImageFunction :
@@ -46,7 +46,7 @@ public:
 
   /** Run-time type information (and related methods) */
   itkTypeMacro( VectorFieldGradientImageFunction, ImageFunction );
-  
+
   /** Extract some information from the image types.  Dimensionality
    * of the two images is assumed to be the same. */
   typedef TInputImage                                          InputImageType;
@@ -61,7 +61,7 @@ public:
   /** The dimensionality of the input and output images. */
   itkStaticConstMacro( ImageDimension, unsigned int,
                        TInputImage::ImageDimension );
-  
+
   /** Length of the vector pixel type of the input image. */
   itkStaticConstMacro( VectorDimension, unsigned int,
                        VectorType::Dimension );
@@ -80,18 +80,18 @@ public:
     {
     PointType point;
     this->GetInputImage()->TransformContinuousIndexToPhysicalPoint( idx, point );
-    return this->EvaluateDeformationGradientTensor( point );   
+    return this->EvaluateDeformationGradientTensor( point );
     }
 
   /**
    * Evaluate Jacobian
    */
   virtual MatrixType Evaluate( const PointType &point ) const
-    { 
+    {
     return this->EvaluateJacobian( point );
     }
   virtual MatrixType EvaluateAtIndex( const IndexType &idx ) const
-    { 
+    {
     return this->EvaluateJacobianAtIndex( idx );
     }
   virtual MatrixType EvaluateAtContinuousIndex( const ContinuousIndexType &idx ) const
@@ -104,9 +104,9 @@ public:
     {
     PointType point;
     this->GetInputImage()->TransformContinuousIndexToPhysicalPoint( idx, point );
-    return this->EvaluateJacobian( point );   
+    return this->EvaluateJacobian( point );
     }
-  
+
   /**
    * Evaluate Jacobian determinant
    */
@@ -116,7 +116,7 @@ public:
     {
     PointType point;
     this->GetInputImage()->TransformContinuousIndexToPhysicalPoint( idx, point );
-    return this->EvaluateJacobianDeterminant( point );   
+    return this->EvaluateJacobianDeterminant( point );
     }
 
   /**
@@ -128,7 +128,7 @@ public:
     {
     PointType point;
     this->GetInputImage()->TransformContinuousIndexToPhysicalPoint( idx, point );
-    return this->EvaluateLagrangianStrainTensor( point );   
+    return this->EvaluateLagrangianStrainTensor( point );
     }
 
   /**
@@ -140,7 +140,7 @@ public:
     {
     PointType point;
     this->GetInputImage()->TransformContinuousIndexToPhysicalPoint( idx, point );
-    return this->EvaluateLagrangianDirectionalStrain( point, V );   
+    return this->EvaluateLagrangianDirectionalStrain( point, V );
     }
 
   /**
@@ -152,7 +152,7 @@ public:
     {
     PointType point;
     this->GetInputImage()->TransformContinuousIndexToPhysicalPoint( idx, point );
-    return this->EvaluateEulerianStrainTensor( point );   
+    return this->EvaluateEulerianStrainTensor( point );
     }
   /**
    * Evaluate Eulerian directional strain
@@ -163,7 +163,7 @@ public:
     {
     PointType point;
     this->GetInputImage()->TransformContinuousIndexToPhysicalPoint( idx, point );
-    return this->EvaluateEulerianDirectionalStrain( point, V );   
+    return this->EvaluateEulerianDirectionalStrain( point, V );
     }
 
   /**
@@ -175,7 +175,7 @@ public:
     {
     PointType point;
     this->GetInputImage()->TransformContinuousIndexToPhysicalPoint( idx, point );
-    return this->EvaluateRightCauchyGreenDeformationTensor( point );   
+    return this->EvaluateRightCauchyGreenDeformationTensor( point );
     }
 
   /**
@@ -187,7 +187,7 @@ public:
     {
     PointType point;
     this->GetInputImage()->TransformContinuousIndexToPhysicalPoint( idx, point );
-    return this->EvaluateLeftCauchyGreenDeformationTensor( point );   
+    return this->EvaluateLeftCauchyGreenDeformationTensor( point );
     }
 
   /**
@@ -199,7 +199,7 @@ public:
     {
     PointType point;
     this->GetInputImage()->TransformContinuousIndexToPhysicalPoint( idx, point );
-    return this->EvaluateLeftStretchTensor( point );   
+    return this->EvaluateLeftStretchTensor( point );
     }
 
   /**
@@ -211,7 +211,7 @@ public:
     {
     PointType point;
     this->GetInputImage()->TransformContinuousIndexToPhysicalPoint( idx, point );
-    return this->EvaluateRightStretchTensor( point );   
+    return this->EvaluateRightStretchTensor( point );
     }
 
 
@@ -227,7 +227,7 @@ private:
   MatrixType operator=(const Self&); //purposely not implemented
 
 };
-  
+
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION

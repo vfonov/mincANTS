@@ -26,30 +26,30 @@
 
 template <class TImage>
 typename TImage::Pointer BinaryThreshold(
-										 typename TImage::PixelType low,
-										 typename TImage::PixelType high,
-										 typename TImage::PixelType replaceval, typename TImage::Pointer input)
+                                         typename TImage::PixelType low,
+                                         typename TImage::PixelType high,
+                                         typename TImage::PixelType replaceval, typename TImage::Pointer input)
 {
-	//std::cout << " Binary Thresh " << std::endl;
+    //std::cout << " Binary Thresh " << std::endl;
 
-	typedef typename TImage::PixelType PixelType;
-	// Begin Threshold Image
-	typedef itk::BinaryThresholdImageFilter<TImage,TImage>  InputThresholderType;
-	typename InputThresholderType::Pointer inputThresholder =
-		InputThresholderType::New();
+    typedef typename TImage::PixelType PixelType;
+    // Begin Threshold Image
+    typedef itk::BinaryThresholdImageFilter<TImage,TImage>  InputThresholderType;
+    typename InputThresholderType::Pointer inputThresholder =
+        InputThresholderType::New();
 
-	inputThresholder->SetInput( input );
-	inputThresholder->SetInsideValue(  replaceval );
-	int outval=0;
-	if ((float) replaceval == (float) -1) outval=1;
-	inputThresholder->SetOutsideValue( outval );
+    inputThresholder->SetInput( input );
+    inputThresholder->SetInsideValue(  replaceval );
+    int outval=0;
+    if ((float) replaceval == (float) -1) outval=1;
+    inputThresholder->SetOutsideValue( outval );
 
-	if (high < low) high=255;
-	inputThresholder->SetLowerThreshold((PixelType) low );
-	inputThresholder->SetUpperThreshold((PixelType) high);
-	inputThresholder->Update();
+    if (high < low) high=255;
+    inputThresholder->SetLowerThreshold((PixelType) low );
+    inputThresholder->SetUpperThreshold((PixelType) high);
+    inputThresholder->Update();
 
-	return inputThresholder->GetOutput();
+    return inputThresholder->GetOutput();
 }
 
 
@@ -188,10 +188,10 @@ float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointe
        // first get current position of particle
        IndexType index;
        for (unsigned int jj=0; jj<ImageDimension; jj++)
-	 {
-	 index[jj]= velind[jj];
-	 pointIn1[jj]=velind[jj]*lapgrad->GetSpacing()[jj];
-	 }
+     {
+     index[jj]= velind[jj];
+     pointIn1[jj]=velind[jj]*lapgrad->GetSpacing()[jj];
+     }
        //      std::cout << " ind " << index  << std::endl;
        // now index the time varying field at that position.
        typename DefaultInterpolatorType::OutputType f1;  f1.Fill(0);
@@ -203,14 +203,14 @@ float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointe
        typename DefaultInterpolatorType::ContinuousIndexType  Y3;
        typename DefaultInterpolatorType::ContinuousIndexType  Y4;
        for (unsigned int jj=0; jj<ImageDimension; jj++)
-	 {
-	 pointIn2[jj]=disp[jj]+pointIn1[jj];
-	 vcontind[jj]=pointIn2[jj]/lapgrad->GetSpacing()[jj];
-	 Y1[jj]=vcontind[jj];
-	 Y2[jj]=vcontind[jj];
-	 Y3[jj]=vcontind[jj];
-	 Y4[jj]=vcontind[jj];
-	 }
+     {
+     pointIn2[jj]=disp[jj]+pointIn1[jj];
+     vcontind[jj]=pointIn2[jj]/lapgrad->GetSpacing()[jj];
+     Y1[jj]=vcontind[jj];
+     Y2[jj]=vcontind[jj];
+     Y3[jj]=vcontind[jj];
+     Y4[jj]=vcontind[jj];
+     }
        //Y1[ImageDimension]=itimetn1;
        //Y2[ImageDimension]=itimetn1h;
        //Y3[ImageDimension]=itimetn1h;
@@ -231,19 +231,19 @@ float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointe
        if (isinside)      f4 = vinterp->EvaluateAtContinuousIndex( Y4 );
 
        for (unsigned int jj=0; jj<ImageDimension; jj++)
-	 pointIn3[jj] = pointIn2[jj] + gradsign*vecsign*deltaTime/6.0 * ( f1[jj] + 2.0*f2[jj] + 2.0*f3[jj] + f4[jj] );
+     pointIn3[jj] = pointIn2[jj] + gradsign*vecsign*deltaTime/6.0 * ( f1[jj] + 2.0*f2[jj] + 2.0*f3[jj] + f4[jj] );
 
 
        VectorType out;
        float mag=0, dmag=0,voxmag=0;
        for (unsigned int jj=0; jj<ImageDimension; jj++)
-	 {
-	 out[jj]=pointIn3[jj]-pointIn1[jj];
-	 mag+=(pointIn3[jj] - pointIn2[jj])*(pointIn3[jj] - pointIn2[jj]);
-	 voxmag+=(pointIn3[jj] - pointIn2[jj])/spacing[jj]*(pointIn3[jj] - pointIn2[jj])/spacing[jj];
-	 dmag+=(pointIn3[jj] - pointIn1[jj])*(pointIn3[jj] - pointIn1[jj]);
-	 disp[jj]=out[jj];
-	 }
+     {
+     out[jj]=pointIn3[jj]-pointIn1[jj];
+     mag+=(pointIn3[jj] - pointIn2[jj])*(pointIn3[jj] - pointIn2[jj]);
+     voxmag+=(pointIn3[jj] - pointIn2[jj])/spacing[jj]*(pointIn3[jj] - pointIn2[jj])/spacing[jj];
+     dmag+=(pointIn3[jj] - pointIn1[jj])*(pointIn3[jj] - pointIn1[jj]);
+     disp[jj]=out[jj];
+     }
        voxmag=sqrt(voxmag);
        dmag=sqrt(dmag);
        totalmag+=sqrt(mag);
@@ -352,20 +352,20 @@ int IntegrateVectorField(int argc, char *argv[])
       double deltaTime=dT,vecsign=1.0;
       float gradsign=1.0;
       if ( ROIimage->GetPixel(velind) == 2 )
-	{
-	  vinterp->SetInputImage(VECimage);
-	  gradsign=-1.0; vecsign=-1.0;
-	  float len1=IntegrateLength<ImageType,DisplacementFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
-	    (ROIimage, thickimage, velind, VECimage,  itime, starttime, finishtime,  timedone,  deltaTime,  vinterp, spacing,vecsign, gradsign, timesign);
+    {
+      vinterp->SetInputImage(VECimage);
+      gradsign=-1.0; vecsign=-1.0;
+      float len1=IntegrateLength<ImageType,DisplacementFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
+        (ROIimage, thickimage, velind, VECimage,  itime, starttime, finishtime,  timedone,  deltaTime,  vinterp, spacing,vecsign, gradsign, timesign);
 
-	  gradsign=1.0;  vecsign=1;
-	  float len2=IntegrateLength<ImageType,DisplacementFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
-	    (ROIimage, thickimage, velind, VECimage,  itime, starttime, finishtime,  timedone,  deltaTime,  vinterp, spacing,vecsign, gradsign, timesign );
+      gradsign=1.0;  vecsign=1;
+      float len2=IntegrateLength<ImageType,DisplacementFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
+        (ROIimage, thickimage, velind, VECimage,  itime, starttime, finishtime,  timedone,  deltaTime,  vinterp, spacing,vecsign, gradsign, timesign );
 
-	  float totalength=len1+len2;
-	  thickimage->SetPixel(velind,totalength);
-	  if ( (totalength)> 0 ) std::cout << " len1 " << len1 << " len2 " << len2 << " ind " << velind << std::endl;
-	}
+      float totalength=len1+len2;
+      thickimage->SetPixel(velind,totalength);
+      if ( (totalength)> 0 ) std::cout << " len1 " << len1 << " len2 " << len2 << " ind " << velind << std::endl;
+    }
       ++Iterator;
     }
 

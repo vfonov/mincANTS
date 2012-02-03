@@ -7,11 +7,11 @@
   Version:   $Revision: 1.2 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -31,7 +31,7 @@ namespace itk
  * highlights regions of rapid intensity change and therefore
  * highlights or enhances the edges.  The result is an image that
  * appears more in focus.
- * 
+ *
  * \par The OptimalSharpening at each pixel location is computed by
  * convolution with the itk::LaplacianOperator.
  *
@@ -46,8 +46,8 @@ namespace itk
  *
  * \ingroup ImageFeatureExtraction */
 template <class TInputImage, class TOutputImage>
-class ITK_EXPORT OptimalSharpeningImageFilter : 
-    public ImageToImageFilter< TInputImage, TOutputImage > 
+class ITK_EXPORT OptimalSharpeningImageFilter :
+    public ImageToImageFilter< TInputImage, TOutputImage >
 {
 public:
   /** Standard "Self" & Superclass typedef.   */
@@ -63,7 +63,7 @@ public:
   typedef typename TInputImage::InternalPixelType           InputInternalPixelType;
   itkStaticConstMacro(ImageDimension, unsigned int,
                       TOutputImage::ImageDimension);
-  
+
   /** Image typedef support. */
   typedef TInputImage                      InputImageType;
   typedef TOutputImage                     OutputImageType;
@@ -72,10 +72,10 @@ public:
   /** Smart pointer typedef support.   */
   typedef SmartPointer<Self>        Pointer;
   typedef SmartPointer<const Self>  ConstPointer;
-  
+
   /** Run-time type information (and related methods)  */
   itkTypeMacro(OptimalSharpeningImageFilter, ImageToImageFilter);
-  
+
   /** Method for creation through the object factory.  */
   itkNewMacro(Self);
 
@@ -94,18 +94,18 @@ public:
    *  want derivatives in physical space. Default is UseImageSpacingOn. */
   void SetUseImageSpacingOn()
     { this->SetUseImageSpacing(true); }
-  
+
   /** Ignore the image spacing. Use this option if you want derivatives in
       isotropic pixel space.  Default is UseImageSpacingOn. */
   void SetUseImageSpacingOff()
     { this->SetUseImageSpacing(false); }
-  
+
   /** Set/Get whether or not the filter will use the spacing of the input
       image in its calculations */
   itkSetMacro(UseImageSpacing, bool);
   itkGetMacro(UseImageSpacing, bool);
-  
-  
+
+
 protected:
   OptimalSharpeningImageFilter()
     {
@@ -127,9 +127,9 @@ private:
   void operator=(const Self&); //purposely not implemented
   bool m_UseImageSpacing;
   float m_SValue;
-  
+
 };
-  
+
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION

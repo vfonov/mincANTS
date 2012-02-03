@@ -158,7 +158,7 @@ protected:
       typedef itk::Vector<double, ImageDimension> locVectorType;
       if (this->m_UseImageDirection)
       {
-	locVectorType outpix;
+    locVectorType outpix;
         for (unsigned int d=0; d<ImageDimension; d++) outpix[d]=cpix[d];
         outpix = m_DirectionTransform->TransformVector( outpix );
         for (unsigned int d=0; d<ImageDimension; d++) cpix[d]=outpix[d];

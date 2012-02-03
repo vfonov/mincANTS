@@ -156,10 +156,10 @@ CrossCorrelationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField
   else
     {
       for (unsigned int dd=0; dd<ImageDimension; dd++)
-	{
-	  if ( finitediffimages[0]->GetLargestPossibleRegion().GetSize()[dd] !=
-	    this->GetFixedImage()->GetLargestPossibleRegion().GetSize()[dd] ) makeimg=true;
-	}
+    {
+      if ( finitediffimages[0]->GetLargestPossibleRegion().GetSize()[dd] !=
+        this->GetFixedImage()->GetLargestPossibleRegion().GetSize()[dd] ) makeimg=true;
+    }
     }
 
   if (makeimg)
@@ -424,17 +424,17 @@ CrossCorrelationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField
   if (sff*smm > 1.e-5) this->localCrossCorrelation = sfm*sfm / ( sff * smm );
       IndexType index=oindex;//hoodIt.GetIndex(indct);
       gradI = m_FixedImageGradientCalculator->EvaluateAtIndex( index );
-      //	gradJ = m_MovingImageGradientCalculator->EvaluateAtIndex( index );
+      //    gradJ = m_MovingImageGradientCalculator->EvaluateAtIndex( index );
 
       float  Ji=finitediffimages[1]->GetPixel(index);
       float  Ii=finitediffimages[0]->GetPixel(index);
 
       m_TEMP=2.0*sfm/(sff*smm)*( Ji - sfm/sff*Ii );
       for (int qq=0; qq<ImageDimension; qq++)
-	{
-	  deriv[qq]   -=2.0*sfm/(sff*smm)*( Ji - sfm/sff*Ii )*gradI[qq];
-	  //	    derivinv[qq]-=2.0*sfm/(sff*smm)*( Ii - sfm/smm*Ji )*gradJ[qq];
-	}
+    {
+      deriv[qq]   -=2.0*sfm/(sff*smm)*( Ji - sfm/sff*Ii )*gradI[qq];
+      //        derivinv[qq]-=2.0*sfm/(sff*smm)*( Ii - sfm/smm*Ji )*gradJ[qq];
+    }
 
   //  if ( this->localCrossCorrelation*(-1.0) < this->m_RobustnessParameter) deriv.Fill(0);
 //  if ( this->localCrossCorrelation*(-1.0) < this->m_RobustnessParameter) {

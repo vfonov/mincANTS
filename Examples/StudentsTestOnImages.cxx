@@ -10,7 +10,7 @@
 #include <float.h>
 #include <assert.h>
 #include "ReadWriteImage.h"
-//#include "itkSampleFalseDiscoveryRateCorrectionFilter.h"  
+//#include "itkSampleFalseDiscoveryRateCorrectionFilter.h"
 
 #include <vnl/algo/vnl_symmetric_eigensystem.h>
 
@@ -22,7 +22,7 @@
 #include "vnl/vnl_math.h"
 #include "vnl/vnl_erf.h"
 
-// for computing F distribution 
+// for computing F distribution
 extern "C" double dbetai_(double *x, double *pin, double *qin);
 extern "C" double dgamma_(double *x);
 
@@ -42,23 +42,23 @@ int smallerStatElem(StatElement * elem1, StatElement * elem2)
 
 
 
-template <class TImageType> 
+template <class TImageType>
 void ReadImage(itk::SmartPointer<TImageType> &target, const char *file, bool copy)
 {
   //  std::cout << " reading b " << std::string(file) << std::endl;
   typedef itk::ImageFileReader<TImageType> readertype;
   typename readertype::Pointer reader = readertype::New();
-  reader->SetFileName(file); 
-  reader->Update();   
-  if (!copy) target=(reader->GetOutput() ); 
+  reader->SetFileName(file);
+  reader->Update();
+  if (!copy) target=(reader->GetOutput() );
    else
     {
       typedef itk::ImageRegionIteratorWithIndex<TImageType> Iterator;
-      Iterator vfIter2( target,  target->GetLargestPossibleRegion() );  
+      Iterator vfIter2( target,  target->GetLargestPossibleRegion() );
       for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
-	{
-	  vfIter2.Set( reader->GetOutput()->GetPixel(vfIter2.GetIndex() ));
-	}
+    {
+      vfIter2.Set( reader->GetOutput()->GetPixel(vfIter2.GetIndex() ));
+    }
     }
 
 }
@@ -82,7 +82,7 @@ int smallerPermElem(PermElement * elem1, PermElement * elem2);
 
 static int first = 0;
 
-void generatePermGroup(int * groupID, int lengthGroupA, int lengthGroupB, 
+void generatePermGroup(int * groupID, int lengthGroupA, int lengthGroupB,
                  int * genGroupID)
 // generate a permutation of group assignments
 {
@@ -96,7 +96,7 @@ void generatePermGroup(int * groupID, int lengthGroupA, int lengthGroupB,
   for (int i=0; i<numSubjects; i++) {
     genGroupID[i]=groupID[newPerm[i]];
   }
-  
+
   delete newPerm;
 
 }
@@ -114,7 +114,7 @@ void generatePerm(int length, int * genPerm)
      newPerm[cnt].randNum = rand();
      newPerm[cnt].index = cnt;
     }
-    qsort(newPerm, length, sizeof(PermElement), 
+    qsort(newPerm, length, sizeof(PermElement),
        (int (*) (const void *, const void *)) smallerPermElem);
 
     for (cnt = 0; cnt < length; cnt++) {
@@ -134,11 +134,11 @@ int smallerPermElem(PermElement * elem1, PermElement * elem2)
 
 
 double computeQuantile(int numObs, double * stat, double quantile)
-// computes the value in the provided statistic for the given quantile value 
+// computes the value in the provided statistic for the given quantile value
 //
 // numObs = Number of Observations
 // stat = double array[numObs ] contains the test statisticss
-{ 
+{
   static int first = 0;
     if (!first) {
      first = 1;
@@ -151,24 +151,24 @@ double computeQuantile(int numObs, double * stat, double quantile)
      sortStat[perm].statVal = stat[perm];
      sortStat[perm].index = perm;
     }
-    
+
     // sort, smallest first
-    qsort(sortStat, numObs, sizeof(StatElement), 
+    qsort(sortStat, numObs, sizeof(StatElement),
        (int (*) (const void *, const void *)) smallerStatElem);
 
     // index at value
     double quantindex = (double) numObs * quantile;
     if (quantile == 1.0 ) quantindex = numObs;
-    
+
     double retval = stat[sortStat[(int) quantindex].index];
-    
+
     delete sortStat;
 
     return retval;
 
 }
 
-void computePermStatPval(int numFeatures, int numPerms, 
+void computePermStatPval(int numFeatures, int numPerms,
                 double * permStat, double * permStatPval)
 // computes the Pval for all permutation statistics
 // the p-val is computed as the percentual ordered rank over all permutations
@@ -195,22 +195,22 @@ void computePermStatPval(int numFeatures, int numPerms,
          sortPermStat[perm].statVal = permStat[perm * numFeatures + feat];
          sortPermStat[perm].index = perm;
      }
-     
+
      // sort, smallest first
-     qsort(sortPermStat, numPerms, sizeof(StatElement), 
+     qsort(sortPermStat, numPerms, sizeof(StatElement),
            (int (*) (const void *, const void *)) smallerStatElem);
-     
+
      double prevPval = 0;
      double curPval = 0;
      for (perm = 0 ; perm < numPerms; perm++) {
 
        // percentual rank 0..1 -> cumulative probability -> p-val
-       double nextPval = 1.0 - (double) (perm+1) / (double) numPerms; 
-       
+       double nextPval = 1.0 - (double) (perm+1) / (double) numPerms;
+
        int curIndex = sortPermStat[perm].index;
-       
+
        if ((perm == 0) || (sortPermStat[perm].statVal != sortPermStat[perm-1].statVal)) {
-         // current value is different from previous value (or first value), 
+         // current value is different from previous value (or first value),
          // thus step up p-value
          prevPval = curPval;
          curPval = nextPval;
@@ -292,7 +292,7 @@ return value;
 
 double factorial( double x)
 {
-  
+
   if ( x <= 1) return 1;
   double fac=x;
   double n=fac-1;
@@ -303,7 +303,7 @@ double factorial( double x)
     }
 
   return fac;
-  
+
 }
 
 
@@ -322,7 +322,7 @@ double TTest(int numSubjects,   int* groupLabel, double * featureValue )
   double meanA=0,meanB=0;
   //  unsigned int GROUPALABEL=0;
   //unsigned int GROUPBLABEL=1;
-  
+
   for (int subj = 0; subj < numSubjects; subj++) {
     if (groupLabel[subj] == GROUPALABEL) {
       numSubjA++;
@@ -331,7 +331,7 @@ double TTest(int numSubjects,   int* groupLabel, double * featureValue )
     else if (groupLabel[subj] == GROUPBLABEL) {
       numSubjB++;
       meanB += featureValue[subj];
-    } 
+    }
     else {
       std::cerr << " group label " << groupLabel[subj] << " does not exist" << std::endl;
     }
@@ -343,10 +343,10 @@ double TTest(int numSubjects,   int* groupLabel, double * featureValue )
 
   for (int subj = 0; subj < numSubjects; subj++) {
       if (groupLabel[subj] == GROUPALABEL) {
-	varA += (featureValue[subj] - meanA)*(featureValue[subj] - meanA);
+    varA += (featureValue[subj] - meanA)*(featureValue[subj] - meanA);
       }
       else if (groupLabel[subj] == GROUPBLABEL) {
-	varB += (featureValue[subj] - meanB)*(featureValue[subj] - meanB);
+    varB += (featureValue[subj] - meanB)*(featureValue[subj] - meanB);
       }
   }
 
@@ -361,10 +361,10 @@ double TTest(int numSubjects,   int* groupLabel, double * featureValue )
   // unequal vars
   float denom = varA/n1 + varB/n2;
   // for equal vars
-  //	float var =  ( (n1-1.)*newvar1 + (n2-1.)*newvar2 ) / df;
-  //	denom = var*(1.0/n1+1.0/n2);
+  //    float var =  ( (n1-1.)*newvar1 + (n2-1.)*newvar2 ) / df;
+  //    denom = var*(1.0/n1+1.0/n2);
   double tt=0;
-  if ( denom > 0) 
+  if ( denom > 0)
     tt =  (meanA - meanB)/sqrt(denom);
 
   return tt;
@@ -372,7 +372,7 @@ double TTest(int numSubjects,   int* groupLabel, double * featureValue )
 }
 
 template <unsigned int ImageDimension>
-int StudentsTestOnImages(int argc, char *argv[])        
+int StudentsTestOnImages(int argc, char *argv[])
 {
 
   typedef float  PixelType;
@@ -381,15 +381,15 @@ int StudentsTestOnImages(int argc, char *argv[])
   typename ImageType::Pointer mask=NULL;
 //  ReadImage<ImageType>(mask, argv[1], false);
 
-  unsigned int numSubjectsA=atoi(argv[3]); 
-  unsigned int numSubjectsB=atoi(argv[4]); 
+  unsigned int numSubjectsA=atoi(argv[3]);
+  unsigned int numSubjectsB=atoi(argv[4]);
   unsigned int numSubjects= numSubjectsA+numSubjectsB;
   std::string outname=std::string(argv[2]);
   unsigned int numvals=numSubjects;
-  int* groupLabel = new int [numSubjects]; 
+  int* groupLabel = new int [numSubjects];
   for (unsigned int i=0; i < numSubjectsA; i++) groupLabel[i]=0;
   for (unsigned int i=numSubjectsA; i < numSubjects; i++) groupLabel[i]=1;
-  double* feature = new double [numvals]; 
+  double* feature = new double [numvals];
   for (unsigned int i=0; i < numvals; i++) feature[i]=0;
 
   std::cout << " Numvals " << numvals << std::endl;
@@ -407,26 +407,26 @@ int StudentsTestOnImages(int argc, char *argv[])
   for(unsigned int i=0; i<ImageDimension; i++)
      {
        size[i] = imageIO->GetDimensions(i);
-//       if (size[i] !=  mask->GetLargestPossibleRegion().GetSize()[i]) 
+//       if (size[i] !=  mask->GetLargestPossibleRegion().GetSize()[i])
        // {
        //  std::cout <<  " mask not same size as data !! " << std::endl;
        //  exit(0);
-       //}	 
+       //}
 
        spacing[i] = imageIO->GetSpacing(i);
        origin[i]  = imageIO->GetOrigin(i);
        axis= imageIO->GetDirection(i);
        for (unsigned j=0; j<ImageDimension; j++)
-	 {
-	   if (j < imageIO->GetNumberOfDimensions())
-	     {
-	       direction[j][i] = axis[j];
-	     }
-	   else
-	     {
-	       direction[j][i] = 0.0;
-	     }  
-	 }
+     {
+       if (j < imageIO->GetNumberOfDimensions())
+         {
+           direction[j][i] = axis[j];
+         }
+       else
+         {
+           direction[j][i] = 0.0;
+         }
+     }
      }
   std::cout << " size " << size << std::endl;
    typename ImageType::RegionType region;
@@ -438,7 +438,7 @@ int StudentsTestOnImages(int argc, char *argv[])
    StatImage->SetRequestedRegion( region );
    StatImage->SetBufferedRegion( region );
    StatImage->Allocate();
-   StatImage->FillBuffer(0); 
+   StatImage->FillBuffer(0);
    typename ImageType::Pointer PImage=ImageType::New();
    PImage->SetSpacing( spacing );
    PImage->SetOrigin( origin );
@@ -462,10 +462,10 @@ int StudentsTestOnImages(int argc, char *argv[])
 
 
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-  Iterator vfIter(PImage , PImage->GetLargestPossibleRegion() ); 
+  Iterator vfIter(PImage , PImage->GetLargestPossibleRegion() );
   unsigned long nvox=1;
   for (unsigned int i=0; i<ImageDimension; i++) nvox*=PImage->GetLargestPossibleRegion().GetSize()[i];
-     
+
   unsigned long ct=0;
   unsigned long  prog = nvox/20;
   std::cout << " NVals " << numvals << " NSub " << numSubjects <<  std::endl;
@@ -473,14 +473,14 @@ int StudentsTestOnImages(int argc, char *argv[])
     {
       typename ImageType::IndexType index=vfIter.GetIndex();
 
-      for (unsigned int subj=0; subj<numSubjects; subj++) 
+      for (unsigned int subj=0; subj<numSubjects; subj++)
        {
           feature[subj]=imagestack[subj]->GetPixel(index);
        }
       if (ct % prog == 0) std::cout << " % " << (float) ct / (float) nvox << std::endl;
 
       double stat=0;
-//      if (mask->GetPixel(index) >= 0.5) 
+//      if (mask->GetPixel(index) >= 0.5)
       if (true) stat=TTest(numSubjects,groupLabel,feature);
       ct++;
       StatImage->SetPixel(  index ,   stat);
@@ -490,38 +490,38 @@ int StudentsTestOnImages(int argc, char *argv[])
   typedef itk::Statistics::TDistribution DistributionType;
   typename DistributionType::Pointer distributionFunction = DistributionType::New();
 //  unsigned long dof=numSubjects-2;
-     
- 
+
+
   WriteImage(StatImage,outname.c_str());
   std::string soutname=std::string("PVAL")+outname;
   //WriteImage(PImage,soutname.c_str());
- 
-  
+
+
   return 1;
 
 }
 
 
-int main(int argc, char *argv[])        
+int main(int argc, char *argv[])
 {
-std::cout <<  " df 	P = 0.05  P = 0.01   P = 0.001  " << std::endl;
-std::cout <<" 1             12.71 	63.66 	636.61  " << std::endl;
-std::cout << " 2	4.30 	9.92 	31.60    " << std::endl;
-std::cout << " 3	3.18 	5.84 	12.92" << std::endl; 
-std::cout << " 4	2.78 	4.60 	8.61" << std::endl; 
-std::cout << " 5	2.57 	4.03 	6.87" << std::endl; 
-std::cout << " 6 	2.45 	3.71 	5.96" << std::endl; 
-std::cout << " 7	2.36 	3.50 	5.41" << std::endl; 
-std::cout << " 8	2.31 	3.36 	5.04" << std::endl; 
-std::cout << " 9	2.26 	3.25 	4.78" << std::endl; 
-std::cout << " 10	2.23 	3.17 	4.59" << std::endl; 
-std::cout << " 15	2.13 	2.95 	4.07" << std::endl; 
-std::cout << " 20	2.09 	2.85 	3.85" << std::endl; 
-std::cout << " 30	2.04 	2.75 	3.65" << std::endl; 
-std::cout << " 50	2.01 	2.68 	3.50" << std::endl; 
-std::cout << " 100	1.98 	2.63 	3.39  " << std::endl;
+std::cout <<  " df     P = 0.05  P = 0.01   P = 0.001  " << std::endl;
+std::cout <<" 1             12.71     63.66     636.61  " << std::endl;
+std::cout << " 2    4.30     9.92     31.60    " << std::endl;
+std::cout << " 3    3.18     5.84     12.92" << std::endl;
+std::cout << " 4    2.78     4.60     8.61" << std::endl;
+std::cout << " 5    2.57     4.03     6.87" << std::endl;
+std::cout << " 6     2.45     3.71     5.96" << std::endl;
+std::cout << " 7    2.36     3.50     5.41" << std::endl;
+std::cout << " 8    2.31     3.36     5.04" << std::endl;
+std::cout << " 9    2.26     3.25     4.78" << std::endl;
+std::cout << " 10    2.23     3.17     4.59" << std::endl;
+std::cout << " 15    2.13     2.95     4.07" << std::endl;
+std::cout << " 20    2.09     2.85     3.85" << std::endl;
+std::cout << " 30    2.04     2.75     3.65" << std::endl;
+std::cout << " 50    2.01     2.68     3.50" << std::endl;
+std::cout << " 100    1.98     2.63     3.39  " << std::endl;
 
-if ( argc < 6 )     
+if ( argc < 6 )
   {
   std::cout << "Usage: " << argv[0] <<  " ImageDimension  OutName NGroup1 NGroup2 ControlV1*   SubjectV1*   " << std::endl;
   std::cout << " Assume all images the same size " << std::endl;
@@ -529,7 +529,7 @@ if ( argc < 6 )
   std::cout <<  " \n example call \n  \n ";
   std::cout << argv[0] << "  2  TEST.nii.gz 4 8 FawtJandADCcon/*SUB.nii  FawtJandADCsub/*SUB.nii  \n ";
   return 1;
-  }           
+  }
 
   switch ( atoi(argv[1]) )
    {
@@ -543,7 +543,7 @@ if ( argc < 6 )
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
    }
-	
+
   return 0;
-} 
+}
 

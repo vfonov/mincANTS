@@ -388,8 +388,8 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
       {
       index2[0] = this->m_NumberOfJointHistogramBins;
       index2[1] = index[1];
-     	tIter.Set(
-     	  this->m_JointHistogramImages[whichHistogram]->GetPixel( index2 ) );
+         tIter.Set(
+           this->m_JointHistogramImages[whichHistogram]->GetPixel( index2 ) );
       }
     if( index[0] == this->m_NumberOfJointHistogramBins + 1 )
       {

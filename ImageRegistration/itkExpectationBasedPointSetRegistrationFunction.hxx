@@ -178,46 +178,46 @@ ExpectationBasedPointSetRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
       if (!convok) std::cout <<" fpt " << fpt << std::endl;
       // if whichdirection is true, then the fixed direction, else moving
       for (unsigned long jj=0; jj<sz2; jj++)
-	{
-	  VectorType distance;
-	  IndexType fixedindex;
-	  IndexType movingindex;
-	  PointType movingpoint;
-	  if (whichdirection) this->m_MovingPointSet->GetPoint(jj,&movingpoint);
-	  else this->m_FixedPointSet->GetPoint(jj,&movingpoint);
+    {
+      VectorType distance;
+      IndexType fixedindex;
+      IndexType movingindex;
+      PointType movingpoint;
+      if (whichdirection) this->m_MovingPointSet->GetPoint(jj,&movingpoint);
+      else this->m_FixedPointSet->GetPoint(jj,&movingpoint);
 
-	  ImagePointType mpt;
-	  for (int j=0; j<ImageDimension; j++) { mpt[j]=movingpoint[j]; movinglms(jj,j)=movingpoint[j]; }
+      ImagePointType mpt;
+      for (int j=0; j<ImageDimension; j++) { mpt[j]=movingpoint[j]; movinglms(jj,j)=movingpoint[j]; }
 
-	  if (ii == sz1-2 && jj == sz2-2) std::cout << " fpt " << fpt << " mpt " << mpt << std::endl;
+      if (ii == sz1-2 && jj == sz2-2) std::cout << " fpt " << fpt << " mpt " << mpt << std::endl;
 
 
-	  this->GetMovingImage()->TransformPhysicalPointToIndex(mpt,movingindex);
-	  double prob=0;
-	  if (convok)
-	    {
-	    float mag=0.0;
-	    VectorType force;
-	    for (int j=0; j<ImageDimension; j++)
-	      {
-	      distance[j]=movingpoint[j]-fixedpoint[j];
-	      mag+=distance[j]/spacing[j]*distance[j]/spacing[j];
-	      force[j]=distance[j]*inweight;
-	      }
-	    float sigma=this->m_FixedPointSetSigma;
-	    if (!whichdirection) sigma=this->m_MovingPointSetSigma;
-	    double prob=1.0/sqrt(3.14186*2.0*sigma*sigma)*exp(-1.0*mag/(2.0*sigma*sigma));
-	    force=force*prob;
-	    PointDataType movinglabel=0;
-	    if (whichdirection) this->m_MovingPointSet->GetPointData(jj,&movinglabel);
-	    else this->m_FixedPointSet->GetPointData(jj,&movinglabel);
-//	    if (ii == 2 && jj==2) std::cout << "prob " << prob << " sigma " << sigma << "  " << mag << " fl " << fixedlabel << " ml " << movinglabel << std::endl;
-	    if ( fixedlabel != movinglabel) prob=0;
+      this->GetMovingImage()->TransformPhysicalPointToIndex(mpt,movingindex);
+      double prob=0;
+      if (convok)
+        {
+        float mag=0.0;
+        VectorType force;
+        for (int j=0; j<ImageDimension; j++)
+          {
+          distance[j]=movingpoint[j]-fixedpoint[j];
+          mag+=distance[j]/spacing[j]*distance[j]/spacing[j];
+          force[j]=distance[j]*inweight;
+          }
+        float sigma=this->m_FixedPointSetSigma;
+        if (!whichdirection) sigma=this->m_MovingPointSetSigma;
+        double prob=1.0/sqrt(3.14186*2.0*sigma*sigma)*exp(-1.0*mag/(2.0*sigma*sigma));
+        force=force*prob;
+        PointDataType movinglabel=0;
+        if (whichdirection) this->m_MovingPointSet->GetPointData(jj,&movinglabel);
+        else this->m_FixedPointSet->GetPointData(jj,&movinglabel);
+//        if (ii == 2 && jj==2) std::cout << "prob " << prob << " sigma " << sigma << "  " << mag << " fl " << fixedlabel << " ml " << movinglabel << std::endl;
+        if ( fixedlabel != movinglabel) prob=0;
 // || fixedlabel !=4) prob=0;
-	    mag=sqrt(mag);
-	    }
-	  EucDist(ii,jj)=prob;
-	}
+        mag=sqrt(mag);
+        }
+      EucDist(ii,jj)=prob;
+    }
       if (min < 1.e5) this->m_LandmarkEnergy+=min;
     }
 
@@ -229,27 +229,27 @@ ExpectationBasedPointSetRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
       {
       float total=0;
       for (unsigned int ii=0; ii<sz1; ii++)
-	{
-	total+=sinkhorn(ii,jj);
-	}
+    {
+    total+=sinkhorn(ii,jj);
+    }
       if (total <= 0) total=1;
       for (unsigned int ii=0; ii<sz1; ii++)
-	{
-	sinkhorn(ii,jj)/=total;
-	}
+    {
+    sinkhorn(ii,jj)/=total;
+    }
       }
     for (unsigned int ii=0; ii<sz1; ii++)
       {
       float total=0;
       for (unsigned int jj=0; jj<sz2; jj++)
-	{
-	total+=sinkhorn(ii,jj);
-	}
+    {
+    total+=sinkhorn(ii,jj);
+    }
       if (total <=0) total=1;
       for (unsigned int jj=0; jj<sz2; jj++)
-	{
-	sinkhorn(ii,jj)/=total;
-	}
+    {
+    sinkhorn(ii,jj)/=total;
+    }
       }
 
     }
@@ -285,11 +285,11 @@ ExpectationBasedPointSetRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
       float mag=0.0;
       VectorType force;
       for (int j=0; j<ImageDimension; j++)
-	{
-	distance[j]=mpt[j]-fixedpoint[j];
-	mag+=distance[j]/spacing[j]*distance[j]/spacing[j];
-	force[j]=distance[j]*inweight;
-	}
+    {
+    distance[j]=mpt[j]-fixedpoint[j];
+    mag+=distance[j]/spacing[j]*distance[j]/spacing[j];
+    force[j]=distance[j]*inweight;
+    }
       float sigma=this->m_FixedPointSetSigma;
       if (!whichdirection) sigma=this->m_MovingPointSetSigma;
       double prob=1.0/sqrt(3.14186*2.0*sigma*sigma)*exp(-1.0*mag/(2.0*sigma*sigma));
@@ -298,13 +298,13 @@ ExpectationBasedPointSetRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
 //      if (fixedlabel !=4 ) force.Fill(0);
 /*
       if (mag > 50)
-	{
-	float tot=0;
-	for (int k=0; k < sz2; k++) { tot+=sinkhorn(ii,k); }
-	std::cout << "TOT " << tot << std::endl;
-	force.Fill(0);
-	mag=0;
-	}
+    {
+    float tot=0;
+    for (int k=0; k < sz2; k++) { tot+=sinkhorn(ii,k); }
+    std::cout << "TOT " << tot << std::endl;
+    force.Fill(0);
+    mag=0;
+    }
 */
       if (mag > maxerr) maxerr=mag;
       energy+=mag;
@@ -392,7 +392,7 @@ ExpectationBasedPointSetRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
       if ( label > 0 )
         {
         if ( find( this->m_LabelSet.begin(), this->m_LabelSet.end(), label )
-	     == this->m_LabelSet.end() )
+         == this->m_LabelSet.end() )
           {
           this->m_LabelSet.push_back( label );
           }
@@ -556,7 +556,7 @@ void
 ExpectationBasedPointSetRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField,TPointSet>
 ::FastExpectationLandmarkField(float weight, bool whichdirection, long whichlabel, bool dobspline)
 {
-	  /**
+      /**
    * BSpline typedefs
    */
   /** Typedefs for B-spline filter */
@@ -633,39 +633,39 @@ ExpectationBasedPointSetRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
       mkdtree->GetOutput()->Search( fixedpoint, static_cast<unsigned int>( KNeighbors ), neighbors );
       double probtotal=0.0;
       for (unsigned int dd=0;   dd<KNeighbors; dd++)
-	{
-	PointType movingpoint;
-	unsigned long wpt=neighbors[dd];
-	MeasurementVectorType npt=mkdtree->GetOutput()->GetMeasurementVector(wpt);
-	float mag=0;
-	for (unsigned int qq=0; qq<ImageDimension; qq++)
-	  mag+=(fixedpoint[qq]-npt[qq])*(fixedpoint[qq]-npt[qq]);
-	float sigma=this->m_FixedPointSetSigma;
-	if (!whichdirection) sigma=this->m_MovingPointSetSigma;
+    {
+    PointType movingpoint;
+    unsigned long wpt=neighbors[dd];
+    MeasurementVectorType npt=mkdtree->GetOutput()->GetMeasurementVector(wpt);
+    float mag=0;
+    for (unsigned int qq=0; qq<ImageDimension; qq++)
+      mag+=(fixedpoint[qq]-npt[qq])*(fixedpoint[qq]-npt[qq]);
+    float sigma=this->m_FixedPointSetSigma;
+    if (!whichdirection) sigma=this->m_MovingPointSetSigma;
         double prob=1.0/sqrt(3.14186*2.0*sigma*sigma)*exp(-1.0*mag/(2.0*sigma*sigma));
-	probtotal+=prob;
-	probabilities(dd)=prob;
-	}
+    probtotal+=prob;
+    probabilities(dd)=prob;
+    }
       if (probtotal  > 0)
       for (unsigned int dd=0;   dd<KNeighbors; dd++)
-	{
-	PointType movingpoint;
-	unsigned long wpt=neighbors[dd];
-	MeasurementVectorType npt=mkdtree->GetOutput()->GetMeasurementVector(wpt);
-	double pp=probabilities(dd)/probtotal;
-	if (pp > 0)for (int j=0; j<ImageDimension; j++) mpt[j]+=pp*npt[j];
-	//
-//	if (ii % 245 && pp > 1.e-3) std::cout << " prob " << pp <<  " mpt " << mpt << " dd " << dd <<" wpt " << wpt << " movinpoint " << movingpoint << " ptot " << probtotal <<  std::endl;
-	}
+    {
+    PointType movingpoint;
+    unsigned long wpt=neighbors[dd];
+    MeasurementVectorType npt=mkdtree->GetOutput()->GetMeasurementVector(wpt);
+    double pp=probabilities(dd)/probtotal;
+    if (pp > 0)for (int j=0; j<ImageDimension; j++) mpt[j]+=pp*npt[j];
+    //
+//    if (ii % 245 && pp > 1.e-3) std::cout << " prob " << pp <<  " mpt " << mpt << " dd " << dd <<" wpt " << wpt << " movinpoint " << movingpoint << " ptot " << probtotal <<  std::endl;
+    }
 
     typename BSplinePointSetType::PointType bpoint;
       for (int j=0; j<ImageDimension; j++)
-	{
-	distance[j]=mpt[j]-fixedpoint[j];
-	mag+=distance[j]/spacing[j]*distance[j]/spacing[j];
-	force[j]=distance[j]*inweight;
-	bpoint[j]=fixedpoint[j];
-	}
+    {
+    distance[j]=mpt[j]-fixedpoint[j];
+    mag+=distance[j]/spacing[j]*distance[j]/spacing[j];
+    force[j]=distance[j]*inweight;
+    bpoint[j]=fixedpoint[j];
+    }
       float sigma=this->m_FixedPointSetSigma;
       if (!whichdirection) sigma=this->m_MovingPointSetSigma;
       double prob=1.0/sqrt(3.14186*2.0*sigma*sigma)*exp(-1.0*mag/(2.0*sigma*sigma));

@@ -36,7 +36,7 @@ template <class TListSample, class TOutput, class TCoordRep>
 HistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
 ::HistogramParzenWindowsListSampleFunction()
 {
-  this->m_Interpolator=InterpolatorType::New();    
+  this->m_Interpolator=InterpolatorType::New();
   this->m_Interpolator->SetSplineOrder( 3 );
 
   this->m_NumberOfHistogramBins = 32;

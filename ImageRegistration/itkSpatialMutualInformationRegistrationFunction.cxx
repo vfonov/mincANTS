@@ -243,24 +243,24 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
       double fsample = static_cast<double>( this->m_FixedImage->GetPixel( movingImageIterator.GetIndex() ));
 
       if ( sample < movingImageMin )
-	{
-	  movingImageMin = sample;
-	}
+    {
+      movingImageMin = sample;
+    }
 
       if ( sample > movingImageMax )
-	{
-	  movingImageMax = sample;
-	}
+    {
+      movingImageMax = sample;
+    }
 
       if ( fsample < fixedImageMin )
-	{
-	  fixedImageMin = fsample;
-	}
+    {
+      fixedImageMin = fsample;
+    }
 
       if ( fsample > fixedImageMax )
-	{
-	  fixedImageMax = fsample;
-	}
+    {
+      fixedImageMax = fsample;
+    }
       }
     }
   this->m_MovingImageTrueMax=movingImageMax;
@@ -304,14 +304,14 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
    * The joint PDF and joint PDF derivatives are store as itk::Image.
    */
   this->m_JointPDF = JointPDFType::New();
-	this->m_JointPDFXuY = JointPDFType::New();
-	this->m_JointPDFXYu = JointPDFType::New();
-	this->m_JointPDFXlY = JointPDFType::New();
-	this->m_JointPDFXYl = JointPDFType::New();
-	this->m_JointPDFXuYl = JointPDFType::New();
-	this->m_JointPDFXlYu = JointPDFType::New();
-	this->m_JointPDFXrYu = JointPDFType::New();
-	this->m_JointPDFXuYr = JointPDFType::New();
+    this->m_JointPDFXuY = JointPDFType::New();
+    this->m_JointPDFXYu = JointPDFType::New();
+    this->m_JointPDFXlY = JointPDFType::New();
+    this->m_JointPDFXYl = JointPDFType::New();
+    this->m_JointPDFXuYl = JointPDFType::New();
+    this->m_JointPDFXlYu = JointPDFType::New();
+    this->m_JointPDFXrYu = JointPDFType::New();
+    this->m_JointPDFXuYr = JointPDFType::New();
 
  // std::cout << " D " << std::endl;
 
@@ -458,124 +458,124 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
 
       if (takesample)
       {
-		  // Get sampled index
-		  FixedImageIndexType index = iter.GetIndex();
-		  FixedImageIndexType IndexU = index;
-		  FixedImageIndexType IndexL = index;
-		  FixedImageIndexType IndexR = index;
+          // Get sampled index
+          FixedImageIndexType index = iter.GetIndex();
+          FixedImageIndexType IndexU = index;
+          FixedImageIndexType IndexL = index;
+          FixedImageIndexType IndexR = index;
 
-		  // check the neighboring voxel to be in the image
-		  typename FixedImageType::SizeType imagesize=this->m_FixedImage->GetLargestPossibleRegion().GetSize();
-		  bool inimage=true;
-		  for (unsigned int dd=0; dd<ImageDimension; dd++)
-		  {
-		    if ( index[dd] < 1 || index[dd] > static_cast<typename IndexType::IndexValueType>(imagesize[dd]-2) )
-		      inimage=false;
-		  }
+          // check the neighboring voxel to be in the image
+          typename FixedImageType::SizeType imagesize=this->m_FixedImage->GetLargestPossibleRegion().GetSize();
+          bool inimage=true;
+          for (unsigned int dd=0; dd<ImageDimension; dd++)
+          {
+            if ( index[dd] < 1 || index[dd] > static_cast<typename IndexType::IndexValueType>(imagesize[dd]-2) )
+              inimage=false;
+          }
 
-//      	  std::cout << " Image size? " << imagesize << std::endl;
+//            std::cout << " Image size? " << imagesize << std::endl;
 
-		  if (inimage)
-		  {
-		    IndexU[0] = index[0] - 1;
-		    IndexL[1] = index[1] - 1;
-		    IndexR[1] = index[1] + 1;
+          if (inimage)
+          {
+            IndexU[0] = index[0] - 1;
+            IndexL[1] = index[1] - 1;
+            IndexR[1] = index[1] + 1;
 
-			  double movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( index )  );
-			  double fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( index )  );
-			  unsigned int movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
-			  unsigned int fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
+              double movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( index )  );
+              double fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( index )  );
+              unsigned int movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
+              unsigned int fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
 
-			  JointPDFValueType *pdfPtr = m_JointPDF->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
-			  int pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
-			  pdfPtr += pdfMovingIndex;
-			  *(pdfPtr) += static_cast<PDFValueType>( 1 );
+              JointPDFValueType *pdfPtr = m_JointPDF->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
+              int pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
+              pdfPtr += pdfMovingIndex;
+              *(pdfPtr) += static_cast<PDFValueType>( 1 );
 
-			  movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( index )  );
-			  fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( IndexU )  );
-			  movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
-			  fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
+              movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( index )  );
+              fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( IndexU )  );
+              movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
+              fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
 
-			  pdfPtr = m_JointPDFXuY->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
-			  pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
-			  pdfPtr += pdfMovingIndex;
-			  *(pdfPtr) += static_cast<PDFValueType>( 1 );
+              pdfPtr = m_JointPDFXuY->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
+              pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
+              pdfPtr += pdfMovingIndex;
+              *(pdfPtr) += static_cast<PDFValueType>( 1 );
 
-			  movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( IndexU )  );
-			  fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( index )  );
-			  movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
-			  fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
+              movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( IndexU )  );
+              fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( index )  );
+              movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
+              fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
 
-			  pdfPtr = m_JointPDFXYu->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
-			  pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
-			  pdfPtr += pdfMovingIndex;
-			  *(pdfPtr) += static_cast<PDFValueType>( 1 );
+              pdfPtr = m_JointPDFXYu->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
+              pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
+              pdfPtr += pdfMovingIndex;
+              *(pdfPtr) += static_cast<PDFValueType>( 1 );
 
-			  movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( index )  );
-			  fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( IndexL )  );
-			  movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
-			  fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
+              movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( index )  );
+              fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( IndexL )  );
+              movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
+              fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
 
-			  pdfPtr = m_JointPDFXlY->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
-			  pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
-			  pdfPtr += pdfMovingIndex;
-			  *(pdfPtr) += static_cast<PDFValueType>( 1 );
+              pdfPtr = m_JointPDFXlY->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
+              pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
+              pdfPtr += pdfMovingIndex;
+              *(pdfPtr) += static_cast<PDFValueType>( 1 );
 
-			  movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( IndexL )  );
-			  fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( index )  );
-			  movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
-			  fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
+              movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( IndexL )  );
+              fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( index )  );
+              movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
+              fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
 
-			  pdfPtr = m_JointPDFXYl->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
-			  pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
-			  pdfPtr += pdfMovingIndex;
-			  *(pdfPtr) += static_cast<PDFValueType>( 1 );
+              pdfPtr = m_JointPDFXYl->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
+              pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
+              pdfPtr += pdfMovingIndex;
+              *(pdfPtr) += static_cast<PDFValueType>( 1 );
 
-			  movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( IndexL )  );
-			  fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( IndexU )  );
-			  movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
-			  fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
+              movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( IndexL )  );
+              fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( IndexU )  );
+              movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
+              fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
 
-			  pdfPtr = m_JointPDFXuYl->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
-			  pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
-			  pdfPtr += pdfMovingIndex;
-			  *(pdfPtr) += static_cast<PDFValueType>( 1 );
+              pdfPtr = m_JointPDFXuYl->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
+              pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
+              pdfPtr += pdfMovingIndex;
+              *(pdfPtr) += static_cast<PDFValueType>( 1 );
 
-			  movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( IndexU )  );
-			  fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( IndexL )  );
-			  movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
-			  fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
+              movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( IndexU )  );
+              fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( IndexL )  );
+              movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
+              fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
 
-			  pdfPtr = m_JointPDFXlYu->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
-			  pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
-			  pdfPtr += pdfMovingIndex;
-			  *(pdfPtr) += static_cast<PDFValueType>( 1 );
+              pdfPtr = m_JointPDFXlYu->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
+              pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
+              pdfPtr += pdfMovingIndex;
+              *(pdfPtr) += static_cast<PDFValueType>( 1 );
 
-			  movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( IndexU )  );
-			  fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( IndexR )  );
-			  movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
-			  fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
+              movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( IndexU )  );
+              fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( IndexR )  );
+              movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
+              fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
 
-			  pdfPtr = m_JointPDFXrYu->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
-			  pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
-			  pdfPtr += pdfMovingIndex;
-			  *(pdfPtr) += static_cast<PDFValueType>( 1 );
+              pdfPtr = m_JointPDFXrYu->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
+              pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
+              pdfPtr += pdfMovingIndex;
+              *(pdfPtr) += static_cast<PDFValueType>( 1 );
 
-			  movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( IndexR )  );
-			  fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( IndexU )  );
-			  movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
-			  fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
+              movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( IndexR )  );
+              fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( IndexU )  );
+              movingImageParzenWindowIndex=this->FitIndexInBins(  movingImageValue );
+              fixedImageParzenWindowIndex=this->FitIndexInBins( fixedImageValue  );
 
-			  pdfPtr = m_JointPDFXuYr->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
-			  pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
-			  pdfPtr += pdfMovingIndex;
-			  *(pdfPtr) += static_cast<PDFValueType>( 1 );
+              pdfPtr = m_JointPDFXuYr->GetBufferPointer() + ( fixedImageParzenWindowIndex* m_NumberOfHistogramBins );
+              pdfMovingIndex = static_cast<int>( movingImageParzenWindowIndex );
+              pdfPtr += pdfMovingIndex;
+              *(pdfPtr) += static_cast<PDFValueType>( 1 );
 
-			  ++nSamples;
-		  }
+              ++nSamples;
+          }
       }
   }
-//	std::cout << " Image Rotation Number " << nSamples << std::endl;
+//    std::cout << " Image Rotation Number " << nSamples << std::endl;
 
   /**
    * Normalize the PDFs, compute moving image marginal PDF
@@ -583,14 +583,14 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
    */
   typedef ImageRegionIterator<JointPDFType> JointPDFIteratorType;
   JointPDFIteratorType jointPDFIterator ( m_JointPDF, m_JointPDF->GetBufferedRegion() );
-  	JointPDFIteratorType jointPDFXuYIterator ( m_JointPDFXuY, m_JointPDFXuY->GetBufferedRegion() );
-	JointPDFIteratorType jointPDFXYuIterator ( m_JointPDFXYu, m_JointPDFXYu->GetBufferedRegion() );
-	JointPDFIteratorType jointPDFXlYIterator ( m_JointPDFXlY, m_JointPDFXlY->GetBufferedRegion() );
-	JointPDFIteratorType jointPDFXYlIterator ( m_JointPDFXYl, m_JointPDFXYl->GetBufferedRegion() );
-	JointPDFIteratorType jointPDFXuYlIterator ( m_JointPDFXuYl, m_JointPDFXuYl->GetBufferedRegion() );
-	JointPDFIteratorType jointPDFXlYuIterator ( m_JointPDFXlYu, m_JointPDFXlYu->GetBufferedRegion() );
-	JointPDFIteratorType jointPDFXrYuIterator ( m_JointPDFXrYu, m_JointPDFXrYu->GetBufferedRegion() );
-	JointPDFIteratorType jointPDFXuYrIterator ( m_JointPDFXuYr, m_JointPDFXuYr->GetBufferedRegion() );
+      JointPDFIteratorType jointPDFXuYIterator ( m_JointPDFXuY, m_JointPDFXuY->GetBufferedRegion() );
+    JointPDFIteratorType jointPDFXYuIterator ( m_JointPDFXYu, m_JointPDFXYu->GetBufferedRegion() );
+    JointPDFIteratorType jointPDFXlYIterator ( m_JointPDFXlY, m_JointPDFXlY->GetBufferedRegion() );
+    JointPDFIteratorType jointPDFXYlIterator ( m_JointPDFXYl, m_JointPDFXYl->GetBufferedRegion() );
+    JointPDFIteratorType jointPDFXuYlIterator ( m_JointPDFXuYl, m_JointPDFXuYl->GetBufferedRegion() );
+    JointPDFIteratorType jointPDFXlYuIterator ( m_JointPDFXlYu, m_JointPDFXlYu->GetBufferedRegion() );
+    JointPDFIteratorType jointPDFXrYuIterator ( m_JointPDFXrYu, m_JointPDFXrYu->GetBufferedRegion() );
+    JointPDFIteratorType jointPDFXuYrIterator ( m_JointPDFXuYr, m_JointPDFXuYr->GetBufferedRegion() );
 
 
   // Compute joint PDF normalization factor (to ensure joint PDF sum adds to 1.0)
@@ -604,7 +604,7 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
       ++jointPDFIterator;
     }
 
-//	std::cout << " Joint PDF Summation? " << jointPDFSum << std::endl;
+//    std::cout << " Joint PDF Summation? " << jointPDFSum << std::endl;
 
   // of derivatives
   if ( jointPDFSum == 0.0 )
@@ -615,36 +615,36 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
 
   // Normalize the PDF bins
   jointPDFIterator.GoToEnd();
-	jointPDFXuYIterator.GoToEnd();
-	jointPDFXYuIterator.GoToEnd();
-	jointPDFXlYIterator.GoToEnd();
-	jointPDFXYlIterator.GoToEnd();
-	jointPDFXuYlIterator.GoToEnd();
-	jointPDFXlYuIterator.GoToEnd();
-	jointPDFXrYuIterator.GoToEnd();
-	jointPDFXuYrIterator.GoToEnd();
+    jointPDFXuYIterator.GoToEnd();
+    jointPDFXYuIterator.GoToEnd();
+    jointPDFXlYIterator.GoToEnd();
+    jointPDFXYlIterator.GoToEnd();
+    jointPDFXuYlIterator.GoToEnd();
+    jointPDFXlYuIterator.GoToEnd();
+    jointPDFXrYuIterator.GoToEnd();
+    jointPDFXuYrIterator.GoToEnd();
 
   while( !jointPDFIterator.IsAtBegin() )
     {
     --jointPDFIterator;
-		--jointPDFXuYIterator;
-		--jointPDFXYuIterator;
-		--jointPDFXlYIterator;
-		--jointPDFXYlIterator;
-		--jointPDFXuYlIterator;
-		--jointPDFXlYuIterator;
-		--jointPDFXrYuIterator;
-		--jointPDFXuYrIterator;
+        --jointPDFXuYIterator;
+        --jointPDFXYuIterator;
+        --jointPDFXlYIterator;
+        --jointPDFXYlIterator;
+        --jointPDFXuYlIterator;
+        --jointPDFXlYuIterator;
+        --jointPDFXrYuIterator;
+        --jointPDFXuYrIterator;
 
     jointPDFIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
-		jointPDFXuYIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
-		jointPDFXYuIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
-		jointPDFXlYIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
-		jointPDFXYlIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
-		jointPDFXuYlIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
-		jointPDFXlYuIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
-		jointPDFXrYuIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
-		jointPDFXuYrIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
+        jointPDFXuYIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
+        jointPDFXYuIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
+        jointPDFXlYIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
+        jointPDFXYlIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
+        jointPDFXuYlIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
+        jointPDFXlYuIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
+        jointPDFXrYuIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
+        jointPDFXuYrIterator.Value() /= static_cast<PDFValueType>( jointPDFSum );
 
     }
 
@@ -673,10 +673,10 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
     {
       double sum = 0.0;
       while( !linearIter.IsAtEndOfLine() )
-	{
-	  sum += linearIter.Get();
-	  ++linearIter;
-	}
+    {
+      sum += linearIter.Get();
+      ++linearIter;
+    }
       MarginalPDFIndexType mind;
       mind[0]=fixedIndex;
       m_FixedImageMarginalPDF->SetPixel(mind,static_cast<PDFValueType>(sum));
@@ -691,10 +691,10 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
     {
       double sum = 0.0;
       while( !linearIter.IsAtEndOfLine() )
-	{
-	  sum += linearIter.Get();
-	  ++linearIter;
-	}
+    {
+      sum += linearIter.Get();
+      ++linearIter;
+    }
       MarginalPDFIndexType mind;
       mind[0]=movingIndex;
       m_MovingImageMarginalPDF->SetPixel(mind,static_cast<PDFValueType>(sum));
@@ -713,7 +713,7 @@ template < class TFixedImage, class TMovingImage  , class TDisplacementField>
 double
 SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::GetValueAndDerivative(IndexType oindex, MeasureType& valuei,
-			DerivativeType& derivative1,DerivativeType& derivative2)
+            DerivativeType& derivative1,DerivativeType& derivative2)
 {
   double value=0;
   DerivativeType zero(ImageDimension);
@@ -729,47 +729,47 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
 
 
   double jointPDFValueXuY = 0, dJPDFXuY = 0, jointPDFValueXYu = 0, dJPDFXYu = 0, jointPDFValueXlY = 0, dJPDFXlY = 0, jointPDFValueXYl = 0;
-  double dJPDFXYl = 0, jointPDFValueXuYl = 0, dJPDFXuYl = 0, jointPDFValueXlYu = 0,	dJPDFXlYu = 0, jointPDFValueXuYr = 0, dJPDFXuYr = 0, jointPDFValueXrYu = 0,	dJPDFXrYu = 0;
+  double dJPDFXYl = 0, jointPDFValueXuYl = 0, dJPDFXuYl = 0, jointPDFValueXlYu = 0,    dJPDFXlYu = 0, jointPDFValueXuYr = 0, dJPDFXuYr = 0, jointPDFValueXrYu = 0,    dJPDFXrYu = 0;
 
-	{
-		/** take derivative of joint pdf with respect to the b-spline */
-		typename  pdfintType::ContinuousIndexType pdfind;
-		pdfind[1]= fixedImageParzenWindowContIndex;
-		pdfind[0]= movingImageParzenWindowContIndex;
-		jointPDFValue = pdfinterpolator->EvaluateAtContinuousIndex(pdfind);
-		dJPDF = (1.0)*(pdfinterpolator->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
+    {
+        /** take derivative of joint pdf with respect to the b-spline */
+        typename  pdfintType::ContinuousIndexType pdfind;
+        pdfind[1]= fixedImageParzenWindowContIndex;
+        pdfind[0]= movingImageParzenWindowContIndex;
+        jointPDFValue = pdfinterpolator->EvaluateAtContinuousIndex(pdfind);
+        dJPDF = (1.0)*(pdfinterpolator->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
 
-		jointPDFValueXuY = pdfinterpolatorXuY->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXuY = (1.0)*(pdfinterpolatorXuY->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
+        jointPDFValueXuY = pdfinterpolatorXuY->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXuY = (1.0)*(pdfinterpolatorXuY->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
 
-		jointPDFValueXYu = pdfinterpolatorXYu->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXYu = (1.0)*(pdfinterpolatorXYu->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
+        jointPDFValueXYu = pdfinterpolatorXYu->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXYu = (1.0)*(pdfinterpolatorXYu->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
 
-		jointPDFValueXlY = pdfinterpolatorXlY->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXlY = (1.0)*(pdfinterpolatorXlY->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
+        jointPDFValueXlY = pdfinterpolatorXlY->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXlY = (1.0)*(pdfinterpolatorXlY->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
 
-		jointPDFValueXYl = pdfinterpolatorXYl->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXYl = (1.0)*(pdfinterpolatorXYl->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
+        jointPDFValueXYl = pdfinterpolatorXYl->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXYl = (1.0)*(pdfinterpolatorXYl->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
 
-		jointPDFValueXuYl = pdfinterpolatorXuYl->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXuYl = (1.0)*(pdfinterpolatorXuYl->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
+        jointPDFValueXuYl = pdfinterpolatorXuYl->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXuYl = (1.0)*(pdfinterpolatorXuYl->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
 
-		jointPDFValueXlYu = pdfinterpolatorXlYu->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXlYu = (1.0)*(pdfinterpolatorXlYu->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
+        jointPDFValueXlYu = pdfinterpolatorXlYu->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXlYu = (1.0)*(pdfinterpolatorXlYu->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
 
-		jointPDFValueXuYr = pdfinterpolatorXuYr->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXuYr = (1.0)*(pdfinterpolatorXuYr->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
+        jointPDFValueXuYr = pdfinterpolatorXuYr->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXuYr = (1.0)*(pdfinterpolatorXuYr->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
 
-		jointPDFValueXrYu = pdfinterpolatorXrYu->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXrYu = (1.0)*(pdfinterpolatorXrYu->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
+        jointPDFValueXrYu = pdfinterpolatorXrYu->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXrYu = (1.0)*(pdfinterpolatorXrYu->EvaluateDerivativeAtContinuousIndex( pdfind ))[1];
 
-	}
+    }
 
     double eps=1.e-12;
     if( jointPDFValue > eps &&  jointPDFValueXuY > eps && jointPDFValueXYu > eps && jointPDFValueXlY > eps && jointPDFValueXYl > eps && jointPDFValueXuYl > eps && jointPDFValueXlYu > eps && jointPDFValueXrYu > eps && jointPDFValueXuYr > eps)
       {
-		  value = 4 * dJPDF / jointPDFValue + dJPDFXuYl / jointPDFValueXuYl +  dJPDFXlYu / jointPDFValueXlYu + dJPDFXuYr / jointPDFValueXuYr + dJPDFXrYu / jointPDFValueXrYu
-		  - 2 * dJPDFXYu / jointPDFValueXYu - 2 * dJPDFXuY / jointPDFValueXuY - 2 * dJPDFXYl / jointPDFValueXYl - 2 * dJPDFXlY / jointPDFValueXlY;
+          value = 4 * dJPDF / jointPDFValue + dJPDFXuYl / jointPDFValueXuYl +  dJPDFXlYu / jointPDFValueXlYu + dJPDFXuYr / jointPDFValueXuYr + dJPDFXrYu / jointPDFValueXrYu
+          - 2 * dJPDFXYu / jointPDFValueXYu - 2 * dJPDFXuY / jointPDFValueXuY - 2 * dJPDFXYl / jointPDFValueXYl - 2 * dJPDFXlY / jointPDFValueXlY;
 
       }  // end if-block to check non-zero bin contribution
     else value = 0;
@@ -782,8 +782,8 @@ template < class TFixedImage, class TMovingImage  , class TDisplacementField>
 double
 SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::GetValueAndDerivativeInv(IndexType oindex,
-			MeasureType& valuei,
-			DerivativeType& derivative1,DerivativeType& derivative2)
+            MeasureType& valuei,
+            DerivativeType& derivative1,DerivativeType& derivative2)
 {
   double value=0;
   DerivativeType zero(ImageDimension);
@@ -796,50 +796,50 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
 
   double dJPDF=0,jointPDFValue=0;
 
-	double jointPDFValueXuY = 0, dJPDFXuY = 0, jointPDFValueXYu = 0, dJPDFXYu = 0, jointPDFValueXlY = 0, dJPDFXlY = 0, jointPDFValueXYl = 0;
-	double dJPDFXYl = 0, jointPDFValueXuYl = 0, dJPDFXuYl = 0, jointPDFValueXlYu = 0,	dJPDFXlYu = 0, jointPDFValueXuYr = 0, dJPDFXuYr = 0, jointPDFValueXrYu = 0,	dJPDFXrYu = 0;
+    double jointPDFValueXuY = 0, dJPDFXuY = 0, jointPDFValueXYu = 0, dJPDFXYu = 0, jointPDFValueXlY = 0, dJPDFXlY = 0, jointPDFValueXYl = 0;
+    double dJPDFXYl = 0, jointPDFValueXuYl = 0, dJPDFXuYl = 0, jointPDFValueXlYu = 0,    dJPDFXlYu = 0, jointPDFValueXuYr = 0, dJPDFXuYr = 0, jointPDFValueXrYu = 0,    dJPDFXrYu = 0;
 
-	{
-		/** take derivative of joint pdf with respect to the b-spline */
-		typename  pdfintType::ContinuousIndexType pdfind;
-		pdfind[1]= fixedImageParzenWindowContIndex;
-		pdfind[0]= movingImageParzenWindowContIndex;
-		jointPDFValue = pdfinterpolator->EvaluateAtContinuousIndex(pdfind);
-		dJPDF = (1.0)*(pdfinterpolator->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
+    {
+        /** take derivative of joint pdf with respect to the b-spline */
+        typename  pdfintType::ContinuousIndexType pdfind;
+        pdfind[1]= fixedImageParzenWindowContIndex;
+        pdfind[0]= movingImageParzenWindowContIndex;
+        jointPDFValue = pdfinterpolator->EvaluateAtContinuousIndex(pdfind);
+        dJPDF = (1.0)*(pdfinterpolator->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
 
-		jointPDFValueXuY = pdfinterpolatorXuY->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXuY = (1.0)*(pdfinterpolatorXuY->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
+        jointPDFValueXuY = pdfinterpolatorXuY->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXuY = (1.0)*(pdfinterpolatorXuY->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
 
-		jointPDFValueXYu = pdfinterpolatorXYu->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXYu = (1.0)*(pdfinterpolatorXYu->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
+        jointPDFValueXYu = pdfinterpolatorXYu->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXYu = (1.0)*(pdfinterpolatorXYu->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
 
-		jointPDFValueXlY = pdfinterpolatorXlY->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXlY = (1.0)*(pdfinterpolatorXlY->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
+        jointPDFValueXlY = pdfinterpolatorXlY->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXlY = (1.0)*(pdfinterpolatorXlY->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
 
-		jointPDFValueXYl = pdfinterpolatorXYl->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXYl = (1.0)*(pdfinterpolatorXYl->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
+        jointPDFValueXYl = pdfinterpolatorXYl->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXYl = (1.0)*(pdfinterpolatorXYl->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
 
-		jointPDFValueXuYl = pdfinterpolatorXuYl->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXuYl = (1.0)*(pdfinterpolatorXuYl->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
+        jointPDFValueXuYl = pdfinterpolatorXuYl->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXuYl = (1.0)*(pdfinterpolatorXuYl->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
 
-		jointPDFValueXlYu = pdfinterpolatorXlYu->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXlYu = (1.0)*(pdfinterpolatorXlYu->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
+        jointPDFValueXlYu = pdfinterpolatorXlYu->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXlYu = (1.0)*(pdfinterpolatorXlYu->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
 
-		jointPDFValueXuYr = pdfinterpolatorXuYr->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXuYr = (1.0)*(pdfinterpolatorXuYr->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
+        jointPDFValueXuYr = pdfinterpolatorXuYr->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXuYr = (1.0)*(pdfinterpolatorXuYr->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
 
-		jointPDFValueXrYu = pdfinterpolatorXrYu->EvaluateAtContinuousIndex(pdfind);
-		dJPDFXrYu = (1.0)*(pdfinterpolatorXrYu->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
+        jointPDFValueXrYu = pdfinterpolatorXrYu->EvaluateAtContinuousIndex(pdfind);
+        dJPDFXrYu = (1.0)*(pdfinterpolatorXrYu->EvaluateDerivativeAtContinuousIndex( pdfind ))[0];
 
-	}
+    }
 
     double eps=1.e-12;
     if( jointPDFValue > eps &&  jointPDFValueXuY > eps && jointPDFValueXYu > eps && jointPDFValueXlY > eps && jointPDFValueXYl > eps && jointPDFValueXuYl > eps && jointPDFValueXlYu > eps && jointPDFValueXrYu > eps && jointPDFValueXuYr > eps)
-	{
-		value = 4 * dJPDF / jointPDFValue + dJPDFXuYl / jointPDFValueXuYl +  dJPDFXlYu / jointPDFValueXlYu + dJPDFXuYr / jointPDFValueXuYr + dJPDFXrYu / jointPDFValueXrYu
-		- 2 * dJPDFXYu / jointPDFValueXYu - 2 * dJPDFXuY / jointPDFValueXuY - 2 * dJPDFXYl / jointPDFValueXYl - 2 * dJPDFXlY / jointPDFValueXlY;
+    {
+        value = 4 * dJPDF / jointPDFValue + dJPDFXuYl / jointPDFValueXuYl +  dJPDFXlYu / jointPDFValueXlYu + dJPDFXuYr / jointPDFValueXuYr + dJPDFXrYu / jointPDFValueXrYu
+        - 2 * dJPDFXYu / jointPDFValueXYu - 2 * dJPDFXuY / jointPDFValueXuY - 2 * dJPDFXYl / jointPDFValueXYl - 2 * dJPDFXlY / jointPDFValueXlY;
 
-	}  // end if-block to check non-zero bin contribution
+    }  // end if-block to check non-zero bin contribution
     else value = 0;
     // return 0;
     return (value/4)*(0);

@@ -7,7 +7,7 @@
   Version:   $Revision: 1.17 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -36,7 +36,7 @@ namespace itk
  *
  */
 template <class TOutputMesh>
-class LabeledPointSetFileReader 
+class LabeledPointSetFileReader
 : public MeshSource<TOutputMesh>
 {
 public:
@@ -65,19 +65,19 @@ public:
   typedef typename MeshTraits::PixelType          PixelType;
   typedef Array<PixelType>                        MultiComponentScalarType;
   typedef Array<unsigned long>                    LineType;
-  typedef VectorContainer<long, 
-    MultiComponentScalarType>                     MultiComponentScalarSetType; 
-  typedef VectorContainer<long, LineType>         LineSetType; 
- 
-  typedef Image<PixelType, 
+  typedef VectorContainer<long,
+    MultiComponentScalarType>                     MultiComponentScalarSetType;
+  typedef VectorContainer<long, LineType>         LineSetType;
+
+  typedef Image<PixelType,
     itkGetStaticConstMacro( Dimension )>          LabeledPointSetImageType;
 
   typedef std::vector<PixelType>                  LabelSetType;
 
   /** Set/Get the name of the file to be read. */
   itkSetStringMacro( FileName );
-  itkGetStringMacro( FileName );   
-  
+  itkGetStringMacro( FileName );
+
   itkSetMacro( ExtractBoundaryPoints, bool );
   itkGetMacro( ExtractBoundaryPoints, bool );
   itkBooleanMacro( ExtractBoundaryPoints );
@@ -88,14 +88,14 @@ public:
   itkSetClampMacro( RandomPercentage, double, 0.0, 1.0 );
   itkGetConstMacro( RandomPercentage, double );
 
-  LabelSetType* GetLabelSet() { return &this->m_LabelSet; }  
-  unsigned int GetNumberOfLabels() { return this->m_LabelSet.size(); }  
+  LabelSetType* GetLabelSet() { return &this->m_LabelSet; }
+  unsigned int GetNumberOfLabels() { return this->m_LabelSet.size(); }
 
-  MultiComponentScalarSetType* GetMultiComponentScalars() 
-    { return this->m_MultiComponentScalars.GetPointer(); }  
+  MultiComponentScalarSetType* GetMultiComponentScalars()
+    { return this->m_MultiComponentScalars.GetPointer(); }
 
-  LineSetType* GetLines() 
-    { return this->m_Lines.GetPointer(); }  
+  LineSetType* GetLines()
+    { return this->m_Lines.GetPointer(); }
 
 protected:
   LabeledPointSetFileReader();
@@ -107,17 +107,17 @@ protected:
 
   bool                                            m_ExtractBoundaryPoints;
 
-  std::string                                     m_FileName;  
+  std::string                                     m_FileName;
   double                                          m_RandomPercentage;
   LabelSetType                                    m_LabelSet;
   typename MultiComponentScalarSetType::Pointer   m_MultiComponentScalars;
   typename LineSetType::Pointer                   m_Lines;
-  
+
 
 private:
   LabeledPointSetFileReader( const Self& ); // purposely not implemented
   void operator=( const Self& ); // purposely not implemented
-  
+
   void ReadPointsFromImageFile();
   void ReadPointsFromAvantsFile();
 

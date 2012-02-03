@@ -7,11 +7,11 @@
   Version:   $Revision: 1.16 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -33,7 +33,7 @@ namespace itk
  *
  * PointSetFunction is a baseclass for all objects that evaluates
  * a function of an image at index, continuous index or point.
- * This class is templated over the input image type, the type 
+ * This class is templated over the input image type, the type
  * of the function output and the coordinate representation type
  * (e.g. float or double).
  *
@@ -44,7 +44,7 @@ namespace itk
  *
  * \warning Image BufferedRegion information is cached during
  * in SetInputPointSet( image ). If the image BufferedRegion has changed
- * one must call SetInputPointSet( image ) again to update the cache 
+ * one must call SetInputPointSet( image ) again to update the cache
  * to the current values.
  *
  * \sa Point
@@ -54,12 +54,12 @@ namespace itk
  * \ingroup PointSetFunctions
  */
 template <
-class TInputPointSet, 
+class TInputPointSet,
 class TOutput,
-class TCoordRep = float 
+class TCoordRep = float
 >
-class ITK_EXPORT PointSetFunction : 
-    public FunctionBase<typename TInputPointSet::PointType, TOutput> 
+class ITK_EXPORT PointSetFunction :
+    public FunctionBase<typename TInputPointSet::PointType, TOutput>
 {
 public:
   /** Dimension underlying input point set. */
@@ -72,7 +72,7 @@ public:
     <typename TInputPointSet::PointType, TOutput>       Superclass;
   typedef SmartPointer<Self>                            Pointer;
   typedef SmartPointer<const Self>                      ConstPointer;
-  
+
   /** Run-time type information (and related methods). */
   itkTypeMacro( PointSetFunction, FunctionBase );
 
@@ -83,7 +83,7 @@ public:
   typedef typename InputPointSetType::PointType         InputPointType;
   typedef typename InputPointSetType::PixelType         InputPixelType;
 
-  /** InputPointSetPointer typedef support */ 
+  /** InputPointSetPointer typedef support */
   typedef typename InputPointSetType::ConstPointer InputPointSetConstPointer;
 
   /** OutputType typedef support. */
@@ -117,7 +117,7 @@ protected:
 private:
   PointSetFunction(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
-  
+
 };
 
 } // end namespace itk

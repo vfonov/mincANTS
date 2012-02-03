@@ -25,30 +25,30 @@
 #include "itkGradientRecursiveGaussianImageFilter.h"
 template <class TImage>
 typename TImage::Pointer BinaryThreshold(
-										 typename TImage::PixelType low,
-										 typename TImage::PixelType high,
-										 typename TImage::PixelType replaceval, typename TImage::Pointer input)
+                                         typename TImage::PixelType low,
+                                         typename TImage::PixelType high,
+                                         typename TImage::PixelType replaceval, typename TImage::Pointer input)
 {
-	//std::cout << " Binary Thresh " << std::endl;
+    //std::cout << " Binary Thresh " << std::endl;
 
-	typedef typename TImage::PixelType PixelType;
-	// Begin Threshold Image
-	typedef itk::BinaryThresholdImageFilter<TImage,TImage>  InputThresholderType;
-	typename InputThresholderType::Pointer inputThresholder =
-		InputThresholderType::New();
+    typedef typename TImage::PixelType PixelType;
+    // Begin Threshold Image
+    typedef itk::BinaryThresholdImageFilter<TImage,TImage>  InputThresholderType;
+    typename InputThresholderType::Pointer inputThresholder =
+        InputThresholderType::New();
 
-	inputThresholder->SetInput( input );
-	inputThresholder->SetInsideValue(  replaceval );
-	int outval=0;
-	if ((float) replaceval == (float) -1) outval=1;
-	inputThresholder->SetOutsideValue( outval );
+    inputThresholder->SetInput( input );
+    inputThresholder->SetInsideValue(  replaceval );
+    int outval=0;
+    if ((float) replaceval == (float) -1) outval=1;
+    inputThresholder->SetOutsideValue( outval );
 
-	if (high < low) high=255;
-	inputThresholder->SetLowerThreshold((PixelType) low );
-	inputThresholder->SetUpperThreshold((PixelType) high);
-	inputThresholder->Update();
+    if (high < low) high=255;
+    inputThresholder->SetLowerThreshold((PixelType) low );
+    inputThresholder->SetUpperThreshold((PixelType) high);
+    inputThresholder->Update();
 
-	return inputThresholder->GetOutput();
+    return inputThresholder->GetOutput();
 }
 
 
@@ -144,7 +144,7 @@ SmoothDeformation(typename TImage::Pointer vectorimage, float sig)
 template <class TImage>
 typename TImage::Pointer
   LabelSurface(typename TImage::PixelType foreground,
-	       typename TImage::PixelType newval, typename TImage::Pointer input, float distthresh )
+           typename TImage::PixelType newval, typename TImage::Pointer input, float distthresh )
 {
 std::cout << " Label Surf " << std::endl;
   typedef TImage ImageType;
@@ -180,7 +180,7 @@ std::cout << " Label Surf " << std::endl;
         for (int j=0; j<ImageDimension; j++)
           dist+=(float)(ind[j]-ind2[j])*(float)(ind[j]-ind2[j]);
         dist=sqrt(dist);
-  	    if (GHood.GetPixel(i) != foreground && dist <  distthresh  )
+          if (GHood.GetPixel(i) != foreground && dist <  distthresh  )
         {
           atedge=true;
         }
@@ -258,7 +258,7 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input,float ra
   while ( !o_iter.IsAtEnd() )
     {
       if (o_iter.Get() > 0.5 && input->GetPixel(o_iter.GetIndex()) > 0.5)
-	o_iter.Set(1);
+    o_iter.Set(1);
       else o_iter.Set(0);
       ++o_iter;
     }
@@ -287,59 +287,59 @@ FMMGrad(typename TImage::Pointer wm,typename TImage::Pointer gm )
   typename ImageType::Pointer surf = LabelSurface<ImageType>(1,1,wm, 1.9 );
 
           typedef itk::FastMarchingUpwindGradientImageFilter<ImageType,ImageType> FloatFMType;
-	  typename FloatFMType::Pointer marcher = FloatFMType::New();
-	  typedef typename FloatFMType::NodeType NodeType;
-	  typedef typename FloatFMType::NodeContainer NodeContainer;
-	  // setup alive points
-	  typename NodeContainer::Pointer alivePoints = NodeContainer::New();
-	  typename NodeContainer::Pointer targetPoints = NodeContainer::New();
-	  typename NodeContainer::Pointer trialPoints = NodeContainer::New();
-	  typedef itk::ImageRegionIteratorWithIndex<TImage> IteratorType;
-	  IteratorType thIt( wm,wm->GetLargestPossibleRegion().GetSize() );
-	  thIt.GoToBegin();
-	  unsigned long bb=0,cc=0,dd=0;
-	  while(  !thIt.IsAtEnd()  ){
-	    if ( thIt.Get() > 0.1 && surf->GetPixel(thIt.GetIndex()) == 0 ) {
- 	    NodeType node;
-  	    node.SetValue( 0 );
-	    node.SetIndex(thIt.GetIndex());
-	    alivePoints->InsertElement(bb, node);
-	    bb++;
-	    }
-	    if ( gm->GetPixel(thIt.GetIndex()) == 0 && wm->GetPixel(thIt.GetIndex()) == 0  ) {
- 	    NodeType node;
-  	    node.SetValue( 0 );
-	    node.SetIndex(thIt.GetIndex());
-	    targetPoints->InsertElement(cc, node);
-	    cc++;
-	    }
-	    if ( surf->GetPixel(thIt.GetIndex()) == 1 ) {
- 	    NodeType node;
-  	    node.SetValue( 0 );
-	    node.SetIndex(thIt.GetIndex());
-	    trialPoints->InsertElement(cc, node);
-	    dd++;
-	    }
-	    ++thIt;
-	  }
-	  marcher->SetTargetReachedModeToAllTargets();
-	  marcher->SetAlivePoints( alivePoints );
-	  marcher->SetTrialPoints( trialPoints );
-	  marcher->SetTargetPoints( targetPoints );
-	  marcher->SetInput( gm );
-	  double stoppingValue = 1000.0;
-	  marcher->SetStoppingValue( stoppingValue );
-	  marcher->GenerateGradientImageOn();
-	  marcher->Update();
-	  WriteImage<ImageType>(marcher->GetOutput(),"marcher.nii.gz");
+      typename FloatFMType::Pointer marcher = FloatFMType::New();
+      typedef typename FloatFMType::NodeType NodeType;
+      typedef typename FloatFMType::NodeContainer NodeContainer;
+      // setup alive points
+      typename NodeContainer::Pointer alivePoints = NodeContainer::New();
+      typename NodeContainer::Pointer targetPoints = NodeContainer::New();
+      typename NodeContainer::Pointer trialPoints = NodeContainer::New();
+      typedef itk::ImageRegionIteratorWithIndex<TImage> IteratorType;
+      IteratorType thIt( wm,wm->GetLargestPossibleRegion().GetSize() );
+      thIt.GoToBegin();
+      unsigned long bb=0,cc=0,dd=0;
+      while(  !thIt.IsAtEnd()  ){
+        if ( thIt.Get() > 0.1 && surf->GetPixel(thIt.GetIndex()) == 0 ) {
+         NodeType node;
+          node.SetValue( 0 );
+        node.SetIndex(thIt.GetIndex());
+        alivePoints->InsertElement(bb, node);
+        bb++;
+        }
+        if ( gm->GetPixel(thIt.GetIndex()) == 0 && wm->GetPixel(thIt.GetIndex()) == 0  ) {
+         NodeType node;
+          node.SetValue( 0 );
+        node.SetIndex(thIt.GetIndex());
+        targetPoints->InsertElement(cc, node);
+        cc++;
+        }
+        if ( surf->GetPixel(thIt.GetIndex()) == 1 ) {
+         NodeType node;
+          node.SetValue( 0 );
+        node.SetIndex(thIt.GetIndex());
+        trialPoints->InsertElement(cc, node);
+        dd++;
+        }
+        ++thIt;
+      }
+      marcher->SetTargetReachedModeToAllTargets();
+      marcher->SetAlivePoints( alivePoints );
+      marcher->SetTrialPoints( trialPoints );
+      marcher->SetTargetPoints( targetPoints );
+      marcher->SetInput( gm );
+      double stoppingValue = 1000.0;
+      marcher->SetStoppingValue( stoppingValue );
+      marcher->GenerateGradientImageOn();
+      marcher->Update();
+      WriteImage<ImageType>(marcher->GetOutput(),"marcher.nii.gz");
 
-	  thIt.GoToBegin();
-	  while(  !thIt.IsAtEnd()  ){
-	    typename TField::PixelType vec;
-	    for (unsigned int dd=0; dd<ImageDimension; dd++)
-	      vec[dd]=marcher->GetGradientImage()->GetPixel(thIt.GetIndex())[dd];
-	    ++thIt;
-	  }
+      thIt.GoToBegin();
+      while(  !thIt.IsAtEnd()  ){
+        typename TField::PixelType vec;
+        for (unsigned int dd=0; dd<ImageDimension; dd++)
+          vec[dd]=marcher->GetGradientImage()->GetPixel(thIt.GetIndex())[dd];
+        ++thIt;
+      }
 
  return sfield;
 }
@@ -470,10 +470,10 @@ float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointe
        // first get current position of particle
        IndexType index;
        for (unsigned int jj=0; jj<ImageDimension; jj++)
-	 {
-	 index[jj]= velind[jj];
-	 pointIn1[jj]=velind[jj]*lapgrad->GetSpacing()[jj];
-	 }
+     {
+     index[jj]= velind[jj];
+     pointIn1[jj]=velind[jj]*lapgrad->GetSpacing()[jj];
+     }
        //      std::cout << " ind " << index  << std::endl;
        // now index the time varying field at that position.
        typename DefaultInterpolatorType::OutputType f1;  f1.Fill(0);
@@ -485,14 +485,14 @@ float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointe
        typename DefaultInterpolatorType::ContinuousIndexType  Y3;
        typename DefaultInterpolatorType::ContinuousIndexType  Y4;
        for (unsigned int jj=0; jj<ImageDimension; jj++)
-	 {
-	 pointIn2[jj]=disp[jj]+pointIn1[jj];
-	 vcontind[jj]=pointIn2[jj]/lapgrad->GetSpacing()[jj];
-	 Y1[jj]=vcontind[jj];
-	 Y2[jj]=vcontind[jj];
-	 Y3[jj]=vcontind[jj];
-	 Y4[jj]=vcontind[jj];
-	 }
+     {
+     pointIn2[jj]=disp[jj]+pointIn1[jj];
+     vcontind[jj]=pointIn2[jj]/lapgrad->GetSpacing()[jj];
+     Y1[jj]=vcontind[jj];
+     Y2[jj]=vcontind[jj];
+     Y3[jj]=vcontind[jj];
+     Y4[jj]=vcontind[jj];
+     }
        //Y1[ImageDimension]=itimetn1;
        //Y2[ImageDimension]=itimetn1h;
        //Y3[ImageDimension]=itimetn1h;
@@ -513,18 +513,18 @@ float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointe
        if (isinside)      f4 = vinterp->EvaluateAtContinuousIndex( Y4 );
 
        for (unsigned int jj=0; jj<ImageDimension; jj++)
-	 pointIn3[jj] = pointIn2[jj] + gradsign*vecsign*deltaTime/6.0 * ( f1[jj] + 2.0*f2[jj] + 2.0*f3[jj] + f4[jj] );
+     pointIn3[jj] = pointIn2[jj] + gradsign*vecsign*deltaTime/6.0 * ( f1[jj] + 2.0*f2[jj] + 2.0*f3[jj] + f4[jj] );
 
 
        VectorType out;
        float mag=0, dmag=0;
        for (unsigned int jj=0; jj<ImageDimension; jj++)
-	 {
-	 out[jj]=pointIn3[jj]-pointIn1[jj];
-	 mag+=(pointIn3[jj] - pointIn2[jj])*(pointIn3[jj] - pointIn2[jj]);
-	 dmag+=(pointIn3[jj] - pointIn1[jj])*(pointIn3[jj] - pointIn1[jj]);
-	 disp[jj]=out[jj];
-	 }
+     {
+     out[jj]=pointIn3[jj]-pointIn1[jj];
+     mag+=(pointIn3[jj] - pointIn2[jj])*(pointIn3[jj] - pointIn2[jj]);
+     dmag+=(pointIn3[jj] - pointIn1[jj])*(pointIn3[jj] - pointIn1[jj]);
+     disp[jj]=out[jj];
+     }
        dmag=sqrt(dmag);
        totalmag+=sqrt(mag);
 
@@ -636,22 +636,22 @@ int LaplacianThickness(int argc, char *argv[])
 
       Iterator.GoToBegin();
       while(  !Iterator.IsAtEnd()  )
-	{
+    {
 //    std::cout << " a good value for use sulcus prior is 0.002  -- in a function :  1/(1.+exp(-0.1*(sulcprob-0.275)/use-sulcus-prior)) " << std::endl;
 //
-	float gmprob=gm->GetPixel(Iterator.GetIndex());
-	if (gmprob == 0) gmprob=0.05;
-	float sprob=sulci->GetPixel(Iterator.GetIndex());
-	sprob=1/(1.+exp(-0.1*(sprob-0.5)/dosulc));
-	sulci->SetPixel(Iterator.GetIndex(),sprob );
-//	if (gmprob > 0) std::cout << " gmp " << gmprob << std::endl;
-	++Iterator;
-	}
+    float gmprob=gm->GetPixel(Iterator.GetIndex());
+    if (gmprob == 0) gmprob=0.05;
+    float sprob=sulci->GetPixel(Iterator.GetIndex());
+    sprob=1/(1.+exp(-0.1*(sprob-0.5)/dosulc));
+    sulci->SetPixel(Iterator.GetIndex(),sprob );
+//    if (gmprob > 0) std::cout << " gmp " << gmprob << std::endl;
+    ++Iterator;
+    }
       std::cout << " modified gm prior by sulcus prior " << std::endl;
       WriteImage<ImageType>(sulci,"sulcigm.nii");
 
       typedef itk::GradientRecursiveGaussianImageFilter< ImageType,DisplacementFieldType >
-	GradientImageFilterType;
+    GradientImageFilterType;
       typedef typename GradientImageFilterType::Pointer GradientImageFilterPointer;
       GradientImageFilterPointer filter=GradientImageFilterType::New();
       filter->SetInput(  distwm );
@@ -727,14 +727,14 @@ int LaplacianThickness(int argc, char *argv[])
       if (mag > 0)     vec=vec/mag;
       VIterator.Set(vec*gradstep);
       if (lapgrad2)
-	{
-	vec=lapgrad2->GetPixel(VIterator.GetIndex());
-	mag=0;
-	for (unsigned int qq=0; qq<ImageDimension;qq++) mag+=vec[qq]*vec[qq];
-	mag=sqrt(mag);
-	if (mag > 0)     vec=vec/mag;
-	lapgrad2->SetPixel(VIterator.GetIndex(), vec*gradstep);
-	}
+    {
+    vec=lapgrad2->GetPixel(VIterator.GetIndex());
+    mag=0;
+    for (unsigned int qq=0; qq<ImageDimension;qq++) mag+=vec[qq]*vec[qq];
+    mag=sqrt(mag);
+    if (mag > 0)     vec=vec/mag;
+    lapgrad2->SetPixel(VIterator.GetIndex(), vec*gradstep);
+    }
       ++VIterator;
     }
   bool propagate=false;
@@ -749,73 +749,73 @@ int LaplacianThickness(int argc, char *argv[])
       //      float thislength=0;
 
       for (unsigned int task=0; task<1; task++)
-	{
-	float itime = starttime;
-	float inverr=0;
+    {
+    float itime = starttime;
+    float inverr=0;
 
-	unsigned long ct = 0;
-	bool timedone = false;
+    unsigned long ct = 0;
+    bool timedone = false;
 
-	inverr=1110;
+    inverr=1110;
 
-	VectorType disp;
-	disp.Fill(0.0);
-	double deltaTime=dT,vecsign=1.0;
-	bool domeasure=false;
-	float gradsign=1.0;
-	bool printprobability=false;
-//	std::cout << " wmb " << wmb->GetPixel(velind) << " gm " << gm->GetPixel(velind) << std::endl;
-//	if (surf->GetPixel(velind) != 0) printprobability=true;
-	if ( gm->GetPixel(velind) > 0.25 )//&& wmb->GetPixel(velind) < 1 )
-	  {
-	  cter++;
-	  domeasure=true;
-	  }
-	vinterp->SetInputImage(lapgrad);
-	gradsign=-1.0; vecsign=-1.0;
-	float len1=IntegrateLength<ImageType,DisplacementFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
-	  (gmsurf, thickimage, velind, lapgrad,  itime, starttime, finishtime,  timedone,  deltaTime,  vinterp, sinterp,task,propagate,domeasure,m_NumberOfTimePoints,spacing,vecsign, gradsign, timesign, ct, wm,gm, priorthickval , smooththick , printprobability , sulci );
+    VectorType disp;
+    disp.Fill(0.0);
+    double deltaTime=dT,vecsign=1.0;
+    bool domeasure=false;
+    float gradsign=1.0;
+    bool printprobability=false;
+//    std::cout << " wmb " << wmb->GetPixel(velind) << " gm " << gm->GetPixel(velind) << std::endl;
+//    if (surf->GetPixel(velind) != 0) printprobability=true;
+    if ( gm->GetPixel(velind) > 0.25 )//&& wmb->GetPixel(velind) < 1 )
+      {
+      cter++;
+      domeasure=true;
+      }
+    vinterp->SetInputImage(lapgrad);
+    gradsign=-1.0; vecsign=-1.0;
+    float len1=IntegrateLength<ImageType,DisplacementFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
+      (gmsurf, thickimage, velind, lapgrad,  itime, starttime, finishtime,  timedone,  deltaTime,  vinterp, sinterp,task,propagate,domeasure,m_NumberOfTimePoints,spacing,vecsign, gradsign, timesign, ct, wm,gm, priorthickval , smooththick , printprobability , sulci );
 
-	gradsign=1.0;  vecsign=1;
-	float len2=IntegrateLength<ImageType,DisplacementFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
-	  (gmsurf, thickimage, velind, lapgrad,  itime, starttime, finishtime,  timedone,  deltaTime,  vinterp, sinterp,task,propagate,domeasure,m_NumberOfTimePoints,spacing,vecsign, gradsign, timesign, ct,wm,gm , priorthickval-len1 , smooththick , printprobability , sulci );
+    gradsign=1.0;  vecsign=1;
+    float len2=IntegrateLength<ImageType,DisplacementFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
+      (gmsurf, thickimage, velind, lapgrad,  itime, starttime, finishtime,  timedone,  deltaTime,  vinterp, sinterp,task,propagate,domeasure,m_NumberOfTimePoints,spacing,vecsign, gradsign, timesign, ct,wm,gm , priorthickval-len1 , smooththick , printprobability , sulci );
 
-	float len3=1.e9,len4=1.e9;
-	if (lapgrad2)
-	  {
-	  vinterp->SetInputImage(lapgrad2);
-	  gradsign=-1.0; vecsign=-1.0;
-	  len3=IntegrateLength<ImageType,DisplacementFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
-	    (gmsurf, thickimage, velind, lapgrad2,  itime, starttime, finishtime,  timedone,  deltaTime,  vinterp, sinterp,task,propagate,domeasure,m_NumberOfTimePoints,spacing,vecsign, gradsign, timesign, ct, wm,gm, priorthickval , smooththick , printprobability , sulci );
+    float len3=1.e9,len4=1.e9;
+    if (lapgrad2)
+      {
+      vinterp->SetInputImage(lapgrad2);
+      gradsign=-1.0; vecsign=-1.0;
+      len3=IntegrateLength<ImageType,DisplacementFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
+        (gmsurf, thickimage, velind, lapgrad2,  itime, starttime, finishtime,  timedone,  deltaTime,  vinterp, sinterp,task,propagate,domeasure,m_NumberOfTimePoints,spacing,vecsign, gradsign, timesign, ct, wm,gm, priorthickval , smooththick , printprobability , sulci );
 
-	gradsign=1.0;  vecsign=1;
-	  len4=IntegrateLength<ImageType,DisplacementFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
-	  (gmsurf, thickimage, velind, lapgrad2,  itime, starttime, finishtime,  timedone,  deltaTime,  vinterp, sinterp,task,propagate,domeasure,m_NumberOfTimePoints,spacing,vecsign, gradsign, timesign, ct,wm,gm , priorthickval-len3, smooththick , printprobability , sulci );
-	  }
-	float totalength=len1+len2;
-//	if (totalength > 5 && totalength <  8) std::cout<< " t1 " << len3+len4 << " t2 " << len1+len2 << std::endl;
-	if (len3+len4 < totalength) totalength=len3+len4;
+    gradsign=1.0;  vecsign=1;
+      len4=IntegrateLength<ImageType,DisplacementFieldType,DefaultInterpolatorType,ScalarInterpolatorType>
+      (gmsurf, thickimage, velind, lapgrad2,  itime, starttime, finishtime,  timedone,  deltaTime,  vinterp, sinterp,task,propagate,domeasure,m_NumberOfTimePoints,spacing,vecsign, gradsign, timesign, ct,wm,gm , priorthickval-len3, smooththick , printprobability , sulci );
+      }
+    float totalength=len1+len2;
+//    if (totalength > 5 && totalength <  8) std::cout<< " t1 " << len3+len4 << " t2 " << len1+len2 << std::endl;
+    if (len3+len4 < totalength) totalength=len3+len4;
 
-	if (smoothit==0)
-	  {
-	if ( thickimage2->GetPixel(velind) == 0  )
-	  {
-	  thickimage2->SetPixel(velind,totalength);
-	  }
-	else if ( (totalength) > 0 &&  thickimage2->GetPixel(velind) < (totalength) )
-	  {
-	  thickimage2->SetPixel(velind,totalength);
-	  }
-	  }
-	if ( smoothit > 0 && smooththick )
-	  {
-	  thickimage2->SetPixel(velind, (totalength)*0.5 + smooththick->GetPixel(velind)*0.5 );
-	  }
+    if (smoothit==0)
+      {
+    if ( thickimage2->GetPixel(velind) == 0  )
+      {
+      thickimage2->SetPixel(velind,totalength);
+      }
+    else if ( (totalength) > 0 &&  thickimage2->GetPixel(velind) < (totalength) )
+      {
+      thickimage2->SetPixel(velind,totalength);
+      }
+      }
+    if ( smoothit > 0 && smooththick )
+      {
+      thickimage2->SetPixel(velind, (totalength)*0.5 + smooththick->GetPixel(velind)*0.5 );
+      }
 
 
-	if (domeasure && (totalength)> 0 && cter % 10000 == 0) std::cout << " len1 " << len1 << " len2 " << len2 << " ind " << velind << std::endl;
+    if (domeasure && (totalength)> 0 && cter % 10000 == 0) std::cout << " len1 " << len1 << " len2 " << len2 << " ind " << velind << std::endl;
 
-	}
+    }
       ++Iterator;
       }
 

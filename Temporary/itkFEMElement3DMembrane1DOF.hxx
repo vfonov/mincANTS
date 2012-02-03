@@ -9,8 +9,8 @@
   Copyright (c) 2002 Insight Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -43,7 +43,7 @@ void
 Element3DMembrane1DOF<TBaseClass>
 ::GetStrainDisplacementMatrix(MatrixType& B, const MatrixType& shapeDgl) const
 {
- 
+
 }
 
 
@@ -70,7 +70,7 @@ void
 Element3DMembrane1DOF<TBaseClass>
 ::GetMaterialMatrix(MatrixType& D) const
 {
-  unsigned int d=3;  
+  unsigned int d=3;
   D.set_size(d,d);
 
   D.fill(0.0);
@@ -78,7 +78,7 @@ Element3DMembrane1DOF<TBaseClass>
   // This is the main difference from the linear elasticity problem.
   /* Material properties matrix.  Simpler than linear elasticity. */
   Float disot = m_mat->E;
-    
+
   for (unsigned int i=0; i<d; i++) D[i][i] = disot;
 
 }
@@ -130,7 +130,7 @@ Element3DMembrane1DOF<TBaseClass>
 out:
 
   if( !f )
-  { 
+  {
     throw FEMExceptionIO(__FILE__,__LINE__,"Element3DMembrane1DOF::Read()","Error reading FEM element!");
   }
 
@@ -157,7 +157,7 @@ Element3DMembrane1DOF<TBaseClass>
 
   // check for errors
   if (!f)
-  { 
+  {
     throw FEMExceptionIO(__FILE__,__LINE__,"Element3DMembrane1DOF::Write()","Error writing FEM element!");
   }
 }

@@ -153,10 +153,10 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
   else
     {
       for (unsigned int dd=0; dd<ImageDimension; dd++)
-	{
-	  if ( finitediffimages[0]->GetLargestPossibleRegion().GetSize()[dd] !=
-	    this->GetFixedImage()->GetLargestPossibleRegion().GetSize()[dd] ) makeimg=true;
-	}
+    {
+      if ( finitediffimages[0]->GetLargestPossibleRegion().GetSize()[dd] !=
+        this->GetFixedImage()->GetLargestPossibleRegion().GetSize()[dd] ) makeimg=true;
+    }
     }
 
   if (makeimg)
@@ -513,8 +513,8 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
         IndexType oindex = outIter.GetIndex();
 
         // float val = this->GetFixedImage()->GetPixel( oindex ) - fixedMean;
-	//        this->finitediffimages[0]->SetPixel( oindex, val );
-	// val = this->GetMovingImage()->GetPixel( oindex ) - movingMean;
+    //        this->finitediffimages[0]->SetPixel( oindex, val );
+    // val = this->GetMovingImage()->GetPixel( oindex ) - movingMean;
         // this->finitediffimages[1]->SetPixel( oindex, val );
         this->finitediffimages[2]->SetPixel( oindex, sfm );//A
         this->finitediffimages[3]->SetPixel( oindex, sff );//B
@@ -644,10 +644,10 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
   else
     {
       for (unsigned int dd=0; dd<ImageDimension; dd++)
-	{
-	  if ( finitediffimages[0]->GetLargestPossibleRegion().GetSize()[dd] !=
-	    this->GetFixedImage()->GetLargestPossibleRegion().GetSize()[dd] ) makeimg=true;
-	}
+    {
+      if ( finitediffimages[0]->GetLargestPossibleRegion().GetSize()[dd] !=
+        this->GetFixedImage()->GetLargestPossibleRegion().GetSize()[dd] ) makeimg=true;
+    }
     }
 
 
@@ -684,7 +684,7 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
        {
 
       NeighborhoodIterator<MetricImageType>
-	hoodIt( this->GetRadius() ,this->finitediffimages[0] , this->finitediffimages[0]->GetLargestPossibleRegion());
+    hoodIt( this->GetRadius() ,this->finitediffimages[0] , this->finitediffimages[0]->GetLargestPossibleRegion());
       IndexType oindex = outIter.GetIndex();
       hoodIt.SetLocation(oindex);
 
@@ -699,21 +699,21 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
       double sumj=0,sumi=0;
       unsigned int cter=0;
       for(indct=0; indct<hoodlen; indct++)
-	{
-	  IndexType index=hoodIt.GetIndex(indct);
-	  bool inimage=true;
-	  for (unsigned int dd=0; dd<ImageDimension; dd++)
-	    {
-	      if ( index[dd] < 0 || index[dd] > static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) ) inimage=false;
-	    }
-	  if (inimage && this->m_FixedImageMask) if (this->m_FixedImageMask->GetPixel( index ) < 0.25 ) inimage=false;
-	  if (inimage)
-	    {
-	      sumj+=this->GetMovingImage()->GetPixel(index);
-	      sumi+=this->GetFixedImage()->GetPixel(index);
-	      cter++;
-	    }
-	}
+    {
+      IndexType index=hoodIt.GetIndex(indct);
+      bool inimage=true;
+      for (unsigned int dd=0; dd<ImageDimension; dd++)
+        {
+          if ( index[dd] < 0 || index[dd] > static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) ) inimage=false;
+        }
+      if (inimage && this->m_FixedImageMask) if (this->m_FixedImageMask->GetPixel( index ) < 0.25 ) inimage=false;
+      if (inimage)
+        {
+          sumj+=this->GetMovingImage()->GetPixel(index);
+          sumi+=this->GetFixedImage()->GetPixel(index);
+          cter++;
+        }
+    }
 
       if (cter > 0) movingMean=sumj/(float)cter;
       if (cter > 0) fixedMean=sumi/(float)cter;
@@ -734,7 +734,7 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
       if (takesample)
        {
       NeighborhoodIterator<MetricImageType>
-	hoodIt( this->GetRadius() ,this->finitediffimages[0] , this->finitediffimages[0]->GetLargestPossibleRegion());
+    hoodIt( this->GetRadius() ,this->finitediffimages[0] , this->finitediffimages[0]->GetLargestPossibleRegion());
       hoodIt.SetLocation(oindex);
       double sff=0.0;
       double smm=0.0;
@@ -745,28 +745,28 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 //      unsigned int inct=0;
 
       for(indct=0; indct<hoodlen; indct++)
-	{
+    {
 
-	  IndexType index=hoodIt.GetIndex(indct);
-	  bool inimage=true;
-	  for (unsigned int dd=0; dd<ImageDimension; dd++)
-	    {
-	      if ( index[dd] < 0 || index[dd] > static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) ) inimage=false;
-	    }
-	  if (inimage && this->m_FixedImageMask) if (this->m_FixedImageMask->GetPixel( index ) < 0.25 ) inimage=false;
-	  if (inimage)
-	    {
-	      double fixedValue =(double)this->finitediffimages[0]->GetPixel( index );
-	      double movingValue=(double)this->finitediffimages[1]->GetPixel( index );
-//	      double ofixedValue =(double)this->GetFixedImage()->GetPixel( index );
-//	      double omovingValue=(double)this->GetMovingImage()->GetPixel( index );
+      IndexType index=hoodIt.GetIndex(indct);
+      bool inimage=true;
+      for (unsigned int dd=0; dd<ImageDimension; dd++)
+        {
+          if ( index[dd] < 0 || index[dd] > static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) ) inimage=false;
+        }
+      if (inimage && this->m_FixedImageMask) if (this->m_FixedImageMask->GetPixel( index ) < 0.25 ) inimage=false;
+      if (inimage)
+        {
+          double fixedValue =(double)this->finitediffimages[0]->GetPixel( index );
+          double movingValue=(double)this->finitediffimages[1]->GetPixel( index );
+//          double ofixedValue =(double)this->GetFixedImage()->GetPixel( index );
+//          double omovingValue=(double)this->GetMovingImage()->GetPixel( index );
 
-	      sff+=fixedValue*fixedValue;
-	      smm+=movingValue*movingValue;
-	      sfm+=fixedValue*movingValue;
-	    }
+          sff+=fixedValue*fixedValue;
+          smm+=movingValue*movingValue;
+          sfm+=fixedValue*movingValue;
+        }
 
-	}
+    }
 
       this->finitediffimages[2]->SetPixel( oindex, sfm );//A
       this->finitediffimages[3]->SetPixel( oindex, sff );//B
@@ -821,17 +821,17 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
       if (sff == 0.0) sff=1.0;
       if (smm == 0.0) smm=1.0;
       gradI = m_FixedImageGradientCalculator->EvaluateAtIndex( index );
-      //	gradJ = m_MovingImageGradientCalculator->EvaluateAtIndex( index );
+      //    gradJ = m_MovingImageGradientCalculator->EvaluateAtIndex( index );
 
       float  Ji=finitediffimages[1]->GetPixel(index);
       float  Ii=finitediffimages[0]->GetPixel(index);
 
       m_TEMP=2.0*sfm/(sff*smm)*( Ji - sfm/sff*Ii );
       for (int qq=0; qq<ImageDimension; qq++)
-	{
-	  deriv[qq]   -=2.0*sfm/(sff*smm)*( Ji - sfm/sff*Ii )*gradI[qq];
-	  //	    derivinv[qq]-=2.0*sfm/(sff*smm)*( Ii - sfm/smm*Ji )*gradJ[qq];
-	}
+    {
+      deriv[qq]   -=2.0*sfm/(sff*smm)*( Ji - sfm/sff*Ii )*gradI[qq];
+      //        derivinv[qq]-=2.0*sfm/(sff*smm)*( Ii - sfm/smm*Ji )*gradJ[qq];
+    }
 
   if (sff*smm !=0.0) localProbabilistic = sfm*sfm / ( sff * smm );
   else if (sff == 0.0 && smm == 0) localProbabilistic = 1.0;

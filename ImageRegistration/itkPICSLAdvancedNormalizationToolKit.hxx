@@ -177,17 +177,17 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
         std::cout << "Loading affine registration from: " << fixed_initial_affine_filename << std::endl;
         fixed_aff_init = TransformationModelType::AffineTransformType::New();
         ReadAffineTransformFile(fixed_initial_affine_filename, fixed_aff_init);
-	std::cout << " FIXME!  currently, if one passes a fixed initial affine mapping, then NO affine mapping will be performed subsequently! " << std::endl;
-	std::string refheader=this->m_Parser->GetOption( "fixed-image-initial-affine-ref-image" )->GetValue();
-	if ( refheader != "" ){
-	  std::cout << " Setting reference deformation space by " << refheader << std::endl;
+    std::cout << " FIXME!  currently, if one passes a fixed initial affine mapping, then NO affine mapping will be performed subsequently! " << std::endl;
+    std::string refheader=this->m_Parser->GetOption( "fixed-image-initial-affine-ref-image" )->GetValue();
+    if ( refheader != "" ){
+      std::cout << " Setting reference deformation space by " << refheader << std::endl;
           typedef ImageFileReader<ImageType> ReaderType;
           typename ReaderType::Pointer fixedImageFileReader = ReaderType::New();
           fixedImageFileReader->SetFileName( refheader.c_str() );
           fixedImageFileReader->Update();
           ImagePointer temp = fixedImageFileReader->GetOutput();
           this->m_RegistrationOptimizer->SetReferenceSpaceImage(temp);
-	}
+    }
     }
     else{
         std::cout << "Use identity affine transform as initial fixed affine para." << std::endl;
@@ -221,7 +221,7 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
             affine_opt.MI_bins = mi_option[0];
             affine_opt.MI_samples = mi_option[1];
             temp=this->m_Parser->GetOption( "rigid-affine" )->GetValue();
-	    std::string temp2=this->m_Parser->GetOption( "do-rigid" )->GetValue();
+        std::string temp2=this->m_Parser->GetOption( "do-rigid" )->GetValue();
             affine_opt.is_rigid = (
               ( temp=="true" )  || ( temp2=="true" ) ||
               ( temp == "1" ) || ( temp2 == "1" ) );
@@ -539,7 +539,7 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
                    whichMetric == "PSE" )
                 {
                 typedef itk::ExpectationBasedPointSetRegistrationFunction
-              		  <ImageType, ImageType, DisplacementFieldType, PointSetType> MetricType;
+                        <ImageType, ImageType, DisplacementFieldType, PointSetType> MetricType;
                 typename MetricType::Pointer metric = MetricType::New();
                 metric->SetRadius( radius );
                 metric->SetFixedPointSet( fixedPointSetReader->GetOutput() );
@@ -567,7 +567,7 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
 //                        whichMetric == "JTB" )
 //                {
 //                typedef itk::JensenTsallisBSplineRegistrationFunction
-//              		  <ImageType, PointSetType, ImageType, PointSetType, DisplacementFieldType> MetricType;
+//                        <ImageType, PointSetType, ImageType, PointSetType, DisplacementFieldType> MetricType;
 //                typename MetricType::Pointer metric = MetricType::New();
 //                metric->SetRadius( radius );
 //                metric->SetFixedPointSet( fixedPointSetReader->GetOutput() );
@@ -722,7 +722,7 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
                   typedef SyNDemonsRegistrationFunction
                   <ImageType, ImageType, DisplacementFieldType> MetricType;
                   typename MetricType::Pointer metric = MetricType::New();
-		  if ( radius[0] > 0) metric->SetUseMovingImageGradient( true );
+          if ( radius[0] > 0) metric->SetUseMovingImageGradient( true );
                   metric->SetIntensityDifferenceThreshold( extraparam );
                   metric->SetRobustnessParameter( extraparam );
                   //        metric->SetRobust( true );
@@ -747,15 +747,15 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
                   filter->ThresholdAtMeanIntensityOn();
                   filter->Update();   std::cout <<  " use Histogram Matching " << std::endl;
                   movingImage=filter->GetOutput();
-		}
+        }
                 similarityMetric->SetMovingImage( movingImage );
                   typedef SyNDemonsRegistrationFunction
                   <ImageType, ImageType, DisplacementFieldType> MetricType;
                   typename MetricType::Pointer metric = MetricType::New();
-		  if ( radius[0] > 0) metric->SetUseMovingImageGradient( true );
+          if ( radius[0] > 0) metric->SetUseMovingImageGradient( true );
                   metric->SetIntensityDifferenceThreshold( extraparam );
                   metric->SetRobustnessParameter( extraparam );
-		  metric->SetUseSSD(true);
+          metric->SetUseSSD(true);
                   metric->SetRadius( radius );
                   similarityMetric->SetMetric( metric );
                   similarityMetric->SetMaximizeMetric( true );
@@ -1021,8 +1021,8 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
         option->SetLongName( "Restrict-Deformation" );
         option->SetDescription( "restrict the gradient that drives the deformation by scalar factors along specified dimensions -- a TReal 'vector' of length ImageDimension to multiply against the similarity metric's gradient values ---  e.g. in 3D : 0.1x1x0 --- will set the z gradient to zero and scale the x gradient by 0.1 and y by 1 (no change). Thus, you get a 2.5-Dimensional registration as there is still 3D continuity in the mapping. " );
         std::string nitdefault;
-	if (TDimension == 2) nitdefault=std::string("1x1");
-	if (TDimension == 3) nitdefault=std::string("1x1x1");
+    if (TDimension == 2) nitdefault=std::string("1x1");
+    if (TDimension == 3) nitdefault=std::string("1x1x1");
         /** set up a default parameter */
         option->AddValue(nitdefault);
         this->m_Parser->AddOption( option );

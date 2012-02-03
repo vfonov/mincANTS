@@ -7,11 +7,11 @@
   Version:   $Revision: 1.2 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -32,7 +32,7 @@ namespace itk
 template< class TInputImage, class TOutputImage >
 void
 OptimalSharpeningImageFilter< TInputImage, TOutputImage >
-::PrintSelf(std::ostream& os, Indent indent) const  
+::PrintSelf(std::ostream& os, Indent indent) const
 {
   Superclass::PrintSelf(os,indent);
   os << indent << "UseImageSpacing = " << m_UseImageSpacing << std::endl;
@@ -40,18 +40,18 @@ OptimalSharpeningImageFilter< TInputImage, TOutputImage >
 
 
 template <class TInputImage, class TOutputImage>
-void 
+void
 OptimalSharpeningImageFilter<TInputImage,TOutputImage>
 ::GenerateInputRequestedRegion() throw (InvalidRequestedRegionError)
 {
   // call the superclass' implementation of this method. this should
   // copy the output requested region to the input requested region
   Superclass::GenerateInputRequestedRegion();
-  
+
   // get pointers to the input and output
-  InputImagePointer  inputPtr = 
+  InputImagePointer  inputPtr =
     const_cast< TInputImage * > ( this->GetInput() );
-  
+
   if ( !inputPtr )
     {
     return;
@@ -82,7 +82,7 @@ OptimalSharpeningImageFilter<TInputImage,TOutputImage>
 
     // store what we tried to request (prior to trying to crop)
     inputPtr->SetRequestedRegion( inputRequestedRegion );
-    
+
     // build an exception
     InvalidRequestedRegionError e(__FILE__, __LINE__);
     e.SetLocation(ITK_LOCATION);
@@ -118,7 +118,7 @@ OptimalSharpeningImageFilter< TInputImage, TOutputImage >
   typedef Image<RealType, ImageDimension> RealImageType;
   typedef NeighborhoodOperatorImageFilter<InputImageType, RealImageType> NOIF;
   ZeroFluxNeumannBoundaryCondition<InputImageType> nbc;
-  
+
   typename NOIF::Pointer filter = NOIF::New();
   filter->OverrideBoundaryCondition(static_cast<typename NOIF::ImageBoundaryConditionPointerType>(&nbc));
 
@@ -140,7 +140,7 @@ OptimalSharpeningImageFilter< TInputImage, TOutputImage >
 
   // execute the mini-pipeline
   filter->Update();
-  
+
   // determine how the data will need to scaled to be properly combined
   typename MinimumMaximumImageCalculator<InputImageType>::Pointer inputCalculator
     = MinimumMaximumImageCalculator<InputImageType>::New();
@@ -150,7 +150,7 @@ OptimalSharpeningImageFilter< TInputImage, TOutputImage >
   inputCalculator->SetImage(this->GetInput());
   inputCalculator->SetRegion(this->GetOutput()->GetRequestedRegion());
   inputCalculator->Compute();
-    
+
   filteredCalculator->SetImage(filter->GetOutput());
   filteredCalculator->SetRegion(this->GetOutput()->GetRequestedRegion());
   filteredCalculator->Compute();
@@ -188,7 +188,7 @@ OptimalSharpeningImageFilter< TInputImage, TOutputImage >
     invalue = static_cast<RealType>(inIt.Get());
     value = invalue - value*this->m_SValue;
     it.Set( value );
-    
+
     inputSum += invalue;
     enhancedSum += value;
     ++it;
@@ -203,7 +203,7 @@ OptimalSharpeningImageFilter< TInputImage, TOutputImage >
 
   // update progress
   this->UpdateProgress( 0.9 );
-  
+
   // copy and cast the output
   typename TOutputImage::Pointer output = this->GetOutput();
   output->SetBufferedRegion(output->GetRequestedRegion());

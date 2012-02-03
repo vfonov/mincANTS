@@ -7,11 +7,11 @@
   Version:   $Revision: 1.6 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -24,7 +24,7 @@
 
 namespace itk
 {
-  
+
 /** \class AddConstantToImageFilter
  *
  * \brief Add a constant to all input pixels.
@@ -40,8 +40,8 @@ namespace itk
  * \ingroup IntensityImageFilters  Multithreaded
  * \sa UnaryFunctorImageFilter
  */
-namespace Functor {  
-  
+namespace Functor {
+
 template< class TInput, class TConstant, class TOutput>
 class AddConstantTo
 {
@@ -64,7 +64,7 @@ public:
     }
   void SetConstant(TConstant ct) {this->m_Constant = ct; }
   const TConstant & GetConstant() const { return m_Constant; }
-  
+
   TConstant m_Constant;
 };
 }
@@ -72,8 +72,8 @@ public:
 template <class TInputImage, class TConstant, class TOutputImage>
 class ITK_EXPORT AddConstantToImageFilter :
       public
-UnaryFunctorImageFilter<TInputImage,TOutputImage, 
-                        Functor::AddConstantTo< 
+UnaryFunctorImageFilter<TInputImage,TOutputImage,
+                        Functor::AddConstantTo<
    typename TInputImage::PixelType, TConstant,
    typename TOutputImage::PixelType> >
 {
@@ -81,8 +81,8 @@ public:
   /** Standard class typedefs. */
   typedef AddConstantToImageFilter                 Self;
   typedef UnaryFunctorImageFilter<
-    TInputImage,TOutputImage, 
-    Functor::AddConstantTo< 
+    TInputImage,TOutputImage,
+    Functor::AddConstantTo<
       typename TInputImage::PixelType, TConstant,
       typename TOutputImage::PixelType>   >             Superclass;
 
@@ -95,7 +95,7 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(AddConstantToImageFilter, UnaryFunctorImageFilter);
 
-  
+
   /** Set the constant that will be used to multiply all the image
     * pixels */
   void SetConstant(TConstant ct)
@@ -126,11 +126,11 @@ public:
 protected:
   AddConstantToImageFilter() {};
   virtual ~AddConstantToImageFilter() {};
-   
+
   void PrintSelf(std::ostream &os, Indent indent) const
     {
     Superclass::PrintSelf(os, indent);
-    os << indent << "Constant: " 
+    os << indent << "Constant: "
        << static_cast<typename NumericTraits<TConstant>::PrintType>(this->GetConstant())
        << std::endl;
     }

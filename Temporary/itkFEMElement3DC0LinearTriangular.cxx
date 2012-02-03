@@ -9,8 +9,8 @@
   Copyright (c) Insight Software Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -33,16 +33,16 @@ namespace fem {
 
 const Element3DC0LinearTriangular::Float
 Element3DC0LinearTriangular
-::trigGaussRuleInfo[6][7][4] = 
+::trigGaussRuleInfo[6][7][4] =
 {
   { // order=0, never used
-    { 0.0 } 
+    { 0.0 }
   },
   { // order=1
     //<-------------------------- point ---------------------------> <-------weight----->
     {  0.33333333333333333, 0.33333333333333333, 0.33333333333333333, 1.00000000000000000}
   },
-  
+
   { // order=2
     {  0.66666666666666667, 0.16666666666666667, 0.16666666666666667, 0.33333333333333333},
     {  0.16666666666666667, 0.66666666666666667, 0.16666666666666667, 0.33333333333333333},
@@ -75,7 +75,7 @@ Element3DC0LinearTriangular
   }
 };
 
-const unsigned int 
+const unsigned int
 Element3DC0LinearTriangular
 ::Nip[6]=
 {
@@ -170,7 +170,7 @@ Element3DC0LinearTriangular
 ::GetLocalFromGlobalCoordinates( const VectorType& globalPt , VectorType& localPt) const
 {
 
-  Float x, x1, x2, x3, 
+  Float x, x1, x2, x3,
         y, y1, y2, y3,
         z, z1, z2, z3,
         A;
@@ -307,18 +307,18 @@ Element3DC0LinearTriangular
 #ifdef FEM_BUILD_VISUALIZATION
 void
 Element3DC0LinearTriangular
-::Draw(CDC* pDC, Solution::ConstPointer sol) const 
+::Draw(CDC* pDC, Solution::ConstPointer sol) const
 {
 
   int x1=m_node[0]->GetCoordinates()[0]*DC_Scale;
   int y1=m_node[0]->GetCoordinates()[1]*DC_Scale;
-  
+
   int x2=m_node[1]->GetCoordinates()[0]*DC_Scale;
   int y2=m_node[1]->GetCoordinates()[1]*DC_Scale;
-  
+
   int x3=m_node[2]->GetCoordinates()[0]*DC_Scale;
   int y3=m_node[2]->GetCoordinates()[1]*DC_Scale;
-  
+
   x1+=sol->GetSolutionValue(this->m_node[0]->GetDegreeOfFreedom(0))*DC_Scale;
   y1+=sol->GetSolutionValue(this->m_node[0]->GetDegreeOfFreedom(1))*DC_Scale;
   x2+=sol->GetSolutionValue(this->m_node[1]->GetDegreeOfFreedom(0))*DC_Scale;

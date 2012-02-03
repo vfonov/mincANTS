@@ -715,9 +715,9 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
     Iterator vfIter2( img_output, img_output->GetLargestPossibleRegion() );
     for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
       {
-	PixelType  tens=vfIter2.Get();
-	tens[tensdim]=warper->GetOutput()->GetPixel(vfIter2.GetIndex());
-	vfIter2.Set(tens);
+    PixelType  tens=vfIter2.Get();
+    tens[tensdim]=warper->GetOutput()->GetPixel(vfIter2.GetIndex());
+    vfIter2.Set(tens);
       }
 
 

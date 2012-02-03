@@ -7,7 +7,7 @@
   Version:   $Revision: 1.19 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -57,41 +57,41 @@ int main(int argc, char *argv[] )
     std::cout << argv[0] <<  " ImageDimension -m MI[fixedimage.nii.gz,movingimage.nii.gz,1,32] -o Outputfname.nii.gz -i 30x20x0 -r Gauss[3,1] -t Elast[3] \n \n " << std::endl;
     std::cout << " Compulsory arguments:\n " << std::endl;
     std::cout << " ImageDimension: 2 or 3 (for 2 or 3 Dimensional registration)\n " << std::endl;
-    std::cout << " -m:	Type of similarity model used for registration. \n " << std::endl;
-    std::cout << "	For intramodal image registration, use: " << std::endl;
-    std::cout << "		CC = cross-correlation " << std::endl;
-    std::cout << "		MI = mutual information " << std::endl;
-    std::cout << "		PR = probability mapping " << std::endl;
-    std::cout << "		MSQ = mean square difference " << std::endl;
+    std::cout << " -m:    Type of similarity model used for registration. \n " << std::endl;
+    std::cout << "    For intramodal image registration, use: " << std::endl;
+    std::cout << "        CC = cross-correlation " << std::endl;
+    std::cout << "        MI = mutual information " << std::endl;
+    std::cout << "        PR = probability mapping " << std::endl;
+    std::cout << "        MSQ = mean square difference " << std::endl;
     std::cout << " \n " << std::endl;
-    std::cout << "	For intermodal image registration, use: " << std::endl;
-    std::cout << "		MI = mutual information " << std::endl;
-    std::cout << "		PR = probability mapping " << std::endl;
+    std::cout << "    For intermodal image registration, use: " << std::endl;
+    std::cout << "        MI = mutual information " << std::endl;
+    std::cout << "        PR = probability mapping " << std::endl;
     std::cout << " \n " << std::endl;
-    std::cout << " -o 	Outputfname.nii.gz: the name of the resulting image.\n " << std::endl;
-    std::cout << " -i 	Max-iterations in format: JxKxL, where: " << std::endl;
-    std::cout << "		J = max iterations at coarsest resolution (here, reduce by power of 2^2) " << std::endl;
-    std::cout << "		K = middle resolution iterations (here,reduce by power of 2) " << std::endl;
-    std::cout << "		L = fine resolution iterations (here, full resolution). This level takes much more time per iteration!\n " << std::endl;
-    std::cout << "    	Adding an extra value before JxKxL (i.e. resulting in IxJxKxL) would add another iteration level.\n " << std::endl;
-    std::cout << " -r 	Regularization \n" << std::endl;
-    std::cout << " -t 	Type of transformation model used for registration \n" << std::endl;
-    std::cout << "	For elastic image registration, use: " << std::endl;
-    std::cout << "		Elast = elastic transformation model (less deformation possible)\n " << std::endl;
-    std::cout << "	For diffeomorphic image registration, use: " << std::endl;
-    std::cout << "		Syn[GradStep,TimePoints,IntegrationStep] --geodesic 2 = SyN with time with arbitrary number of time points in time discretization  " << std::endl;
-    std::cout << "		SyN[GradStep,2,IntegrationStep] = SyN with time optimized specifically for 2 time points in the time discretization " << std::endl;
-    std::cout << "		SyN[GradStep] = Greedy SyN, typicall GradStep=0.25  " << std::endl;
-    std::cout << "		Exp[GradStep,TimePoints] = Exponential " << std::endl;
-    std::cout << "		GreedyExp = Diffeomorphic Demons style exponential mapping " << std::endl;
+    std::cout << " -o     Outputfname.nii.gz: the name of the resulting image.\n " << std::endl;
+    std::cout << " -i     Max-iterations in format: JxKxL, where: " << std::endl;
+    std::cout << "        J = max iterations at coarsest resolution (here, reduce by power of 2^2) " << std::endl;
+    std::cout << "        K = middle resolution iterations (here,reduce by power of 2) " << std::endl;
+    std::cout << "        L = fine resolution iterations (here, full resolution). This level takes much more time per iteration!\n " << std::endl;
+    std::cout << "        Adding an extra value before JxKxL (i.e. resulting in IxJxKxL) would add another iteration level.\n " << std::endl;
+    std::cout << " -r     Regularization \n" << std::endl;
+    std::cout << " -t     Type of transformation model used for registration \n" << std::endl;
+    std::cout << "    For elastic image registration, use: " << std::endl;
+    std::cout << "        Elast = elastic transformation model (less deformation possible)\n " << std::endl;
+    std::cout << "    For diffeomorphic image registration, use: " << std::endl;
+    std::cout << "        Syn[GradStep,TimePoints,IntegrationStep] --geodesic 2 = SyN with time with arbitrary number of time points in time discretization  " << std::endl;
+    std::cout << "        SyN[GradStep,2,IntegrationStep] = SyN with time optimized specifically for 2 time points in the time discretization " << std::endl;
+    std::cout << "        SyN[GradStep] = Greedy SyN, typicall GradStep=0.25  " << std::endl;
+    std::cout << "        Exp[GradStep,TimePoints] = Exponential " << std::endl;
+    std::cout << "        GreedyExp = Diffeomorphic Demons style exponential mapping " << std::endl;
     std::cout << " \n " << std::endl;
     std::cout << " Please use the `ANTS -h ` call or refer to the ANTS.pdf manual or antsIntroduction.sh script for additional information and typical values for transformation models\n " << std::endl;
     return 1;
     }
     else  dim = atoi( argv[1] );
 
-      
-    if ( dim <= 1 || dim > 3 ) 
+
+    if ( dim <= 1 || dim > 3 )
       {
       std::cout <<" You passed ImageDimension: " << dim << " . Please use only 2 or 3 (for 2 or 3 Dimensional registration)  " << std::endl;
       argv[1]=(char*)("--help");
@@ -143,8 +143,8 @@ int main(int argc, char *argv[] )
       /**
        * After the checking, we can add the default parameters;
        */
-      std::string arguments; 
-       
+      std::string arguments;
+
       std::string transformation( " -t SyN[1.0] ");
       std::string regularization( " -r Gauss[3,0.5] ");
       std::string metric = std::string( " -m PR[" ) + std::string( argv[1] )
@@ -165,7 +165,7 @@ int main(int argc, char *argv[] )
 
       unsigned int numberOfLevels = static_cast<unsigned int>(
         vcl_log( (double)maxSize / 32 ) / vcl_log( (double) 2 ) ) + 1;
-      std::string iterations( " -i " );  
+      std::string iterations( " -i " );
       for( int n = numberOfLevels; n > 0; n-- )
         {
         std::ostringstream buf;
@@ -173,18 +173,18 @@ int main(int argc, char *argv[] )
         buf << numberOfIterations << "x";
         iterations += buf.str();
         }
-      iterations = iterations.substr( 0, iterations.length()-1 );  
-      
+      iterations = iterations.substr( 0, iterations.length()-1 );
+
       std::ostringstream dimBuf;
       dimBuf << fdim;
       arguments.clear();
-      arguments = std::string( " ANTS " ) + dimBuf.str() + iterations + 
-        transformation + regularization + metric + outputNaming;  
- 
+      arguments = std::string( " ANTS " ) + dimBuf.str() + iterations +
+        transformation + regularization + metric + outputNaming;
+
       dim = fdim;
 
       std::cout << arguments << std::endl;
-      
+
       unsigned int my_argc = 0;
       std::string::size_type delimPos = 0;
       std::string::size_type tokenPos = 0;
@@ -196,23 +196,23 @@ int main(int argc, char *argv[] )
         if( std::string::npos != delimPos &&
           std::string::npos != tokenPos && tokenPos < delimPos )
           {
-          my_argc++; 
-          } 
+          my_argc++;
+          }
         else if( std::string::npos == delimPos )
-          { 
+          {
           if( std::string::npos != tokenPos )
             {
-            my_argc++; 
+            my_argc++;
             }
           else
-            {  
+            {
             break;
             }
-          } 
+          }
         pos = delimPos + 1;
         }
 
-      unsigned int arg_count = 0;  
+      unsigned int arg_count = 0;
       char **my_argv = new char*[my_argc];
       delimPos = 0;
       tokenPos = 0;
@@ -228,9 +228,9 @@ int main(int argc, char *argv[] )
           my_argv[arg_count] = new char[arg.size() + 1];
           strcpy( my_argv[arg_count], arg.c_str() );
           arg_count++;
-          } 
+          }
         else if( std::string::npos == delimPos )
-          { 
+          {
           if( std::string::npos != tokenPos )
             {
             std::string arg = arguments.substr( pos );
@@ -239,10 +239,10 @@ int main(int argc, char *argv[] )
             arg_count++;
             }
           else
-            {  
+            {
             break;
             }
-          } 
+          }
         pos = delimPos + 1;
         }
 
@@ -256,7 +256,7 @@ int main(int argc, char *argv[] )
         }
       }
     else
-      {  
+      {
       switch ( dim )
         {
         case 3:
@@ -265,7 +265,7 @@ int main(int argc, char *argv[] )
         default:
           ANTSex<2>( argc, argv );
         }
-      }  
+      }
 
 
     return EXIT_SUCCESS;

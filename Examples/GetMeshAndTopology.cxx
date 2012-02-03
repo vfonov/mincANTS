@@ -9,7 +9,7 @@
 #include "itkImage.h"
 #include "itkBinaryThresholdImageFilter.h"
 
-#include "itkImageFileReader.h" 
+#include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkImageRegionIterator.h"
 #include "itkMesh.h"
@@ -59,34 +59,34 @@
 #include "vtkSmoothPolyDataFilter.h"
 #include "vtkSTLWriter.h"
 #include "vtkUnstructuredGridToPolyDataFilter.h"
-#include "itkSurfaceImageCurvature.h"   
+#include "itkSurfaceImageCurvature.h"
 #include "itkImageRegionConstIterator.h"
 #include "itkImageRegionConstIteratorWithIndex.h"
 #include "itkImageRegionIterator.h"
 #include "itkPointSet.h"
 
 
-                       
+
 template <class TImage>
 typename TImage::Pointer BinaryThreshold(
-  typename TImage::PixelType bkg, 
+  typename TImage::PixelType bkg,
    typename TImage::PixelType foreground,
    typename TImage::PixelType replaceval, typename TImage::Pointer input)
 {
 
   typedef typename TImage::PixelType PixelType;
-  // Begin Threshold Image        
-  typedef itk::BinaryThresholdImageFilter<TImage,TImage> 
+  // Begin Threshold Image
+  typedef itk::BinaryThresholdImageFilter<TImage,TImage>
     InputThresholderType;
-  typename InputThresholderType::Pointer inputThresholder = 
+  typename InputThresholderType::Pointer inputThresholder =
     InputThresholderType::New();
 
   inputThresholder->SetInput( input );
   inputThresholder->SetInsideValue(  replaceval );
   int outval=0;
-  if ((float) replaceval == (float) -1) outval=1;   
+  if ((float) replaceval == (float) -1) outval=1;
   inputThresholder->SetOutsideValue( outval );
-  
+
   float low=bkg;
   float high=foreground;
   if (high < low) high=255;
@@ -110,11 +110,11 @@ float ComputeGenus(vtkPolyData* pd1)
     vtkIdType nedg=edg1->GetNumberOfCells();
     vtkIdType vers = pd1->GetNumberOfPoints();
     int nfac = pd1->GetNumberOfPolys();
-    
+
     float g = 0.5 * (2.0 - vers + nedg - nfac);
     std::cout << " Genus " << g << std::endl;
 
-    std::cout << " face " << nfac << " edg " << nedg <<  " vert " << vers << std::endl; 
+    std::cout << " face " << nfac << " edg " << nedg <<  " vert " << vers << std::endl;
 
     return g;
 }
@@ -124,7 +124,7 @@ float vtkComputeTopology(vtkPolyData* pd)
 {
 
     // Marching cubes
-//    std::cout << " Marching Cubes ";    
+//    std::cout << " Marching Cubes ";
 //    vtkMarchingCubes *marchingCubes = vtkMarchingCubes::New();
 //    vtkContourFilter *marchingCubes = vtkContourFilter::New();
 //    vtkKitwareContourFilter *marchingCubes = vtkKitwareContourFilter::New();
@@ -140,7 +140,7 @@ float vtkComputeTopology(vtkPolyData* pd)
       con->SetExtractionModeToLargestRegion();
 //    con->SetInput(marchingCubes->GetOutput());
     con->SetInput(pd);
-    con->Update(); 
+    con->Update();
     float g = ComputeGenus(con->GetOutput());
     return g;
 //    vtkUnstructuredGridToPolyDataFilter* gp = vtkUnstructuredGridToPolyDataFilter::New();
@@ -168,14 +168,14 @@ float vtkComputeTopology(vtkPolyData* pd)
   extractEdges->Update();
 
   int extractNumberOfLines = extractEdges->GetOutput()->GetNumberOfLines();
-  
+
   extractEdges->Delete();
 
   int EulerCharacteristic = inputNumberOfPoints - extractNumberOfLines +
     inputNumberOfPolys;
 
   double genus = 0.5 * ( 2 * connectivityNumberOfExtractedRegions -
-			 EulerCharacteristic );
+             EulerCharacteristic );
 
   std::cout << "EulerCharacteristic " << EulerCharacteristic << std::endl;
   std::cout << "genus " << genus << std::endl;
@@ -186,7 +186,7 @@ float vtkComputeTopology(vtkPolyData* pd)
 
 
 
-  
+
 template <class TImage>
 void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image2,  std::string outfn, const char* paramname, float scaledata, float aaParm )
 {
@@ -194,7 +194,7 @@ void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image
   typedef TImage ImageType;
   typedef ImageType itype;
   typedef vtkPolyData MeshType;
-  
+
   typedef itk::DiscreteGaussianImageFilter<ImageType, ImageType> dgf;
   typename dgf::Pointer filter = dgf::New();
   filter->SetVariance(0.8);
@@ -241,10 +241,10 @@ void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image
     typename ImageType::IndexType index;
     typename ImageType::PointType point;
     for (int j=0;j<3;j++) point[j]=(vtkpoints->GetPoint(i)[j]);
-    image2->TransformPhysicalPointToIndex(point,index); 
+    image2->TransformPhysicalPointToIndex(point,index);
     float temp=image2->GetPixel(index);
-	if (fabs(temp)>mx) mx=fabs(temp);
-	if (fabs(temp)<mn && mn > 0) mn=fabs(temp);
+    if (fabs(temp)>mx) mx=fabs(temp);
+    if (fabs(temp)<mn && mn > 0) mn=fabs(temp);
   meank+=fabs(temp);
   }
   std::cout <<" max kap " << mx <<" mn k " << mn <<  std::endl;
@@ -252,7 +252,7 @@ void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image
 //  mx=1.3;
 //  mx=2.0;
 
-  vtkFloatArray* param; 
+  vtkFloatArray* param;
 
   //while (!done)
   {
@@ -267,33 +267,33 @@ void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image
     typename ImageType::IndexType index;
     typename ImageType::PointType point;
     for (int j=0;j<3;j++) point[j]=(vtkpoints->GetPoint(i)[j]);
-    image2->TransformPhysicalPointToIndex(point,index); 
+    image2->TransformPhysicalPointToIndex(point,index);
     float temp=image2->GetPixel(index);
     //    param->InsertNextValue(temp);
-    //	float temp=surfk->CurvatureAtIndex(index);
+    //    float temp=surfk->CurvatureAtIndex(index);
     if (i % 1000 == 0) std::cout << " kappa " << temp << std::endl;
     //=fabs(manifoldIntegrator->GetGraphNode(i)->GetTotalCost());
-    
+
     temp=fabs(temp);
     float vvv=(temp-mn2)*255./dif;
     /*
-    if (vvv > 128) 
+    if (vvv > 128)
       {
-	float dif=255-vvv;
-	vvv = 128 - dif;
+    float dif=255-vvv;
+    vvv = 128 - dif;
       }
-    else 
+    else
       {
-	float dif=128-vvv;
-	vvv = 128 + dif;
-	}*/
+    float dif=128-vvv;
+    vvv = 128 + dif;
+    }*/
     param->InsertNextValue(vvv);
  }
   vtkmesh->GetPointData()->SetScalars(param);
   //  Display((vtkUnstructuredGrid*)vtkmesh);
 //  std::cout<<"DOne? "; std::cin >> done;
   }
-  std::cout <<" done with mesh map "; 
+  std::cout <<" done with mesh map ";
  vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
    writer->SetInput(vtkmesh);
   std::cout << " writing " << outfn << std::endl;
@@ -301,7 +301,7 @@ void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image
   writer->SetFileName(outfn.c_str());
   writer->SetFileTypeToBinary();
   writer->Update();
-  std::cout << " done writing "; 
+  std::cout << " done writing ";
   return;
 
 }
@@ -309,13 +309,13 @@ void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image
 
 
 
-  
+
 template <class TImage>
 float GetImageTopology(typename TImage::Pointer image)
 {
   typedef TImage ImageType;
   typedef vtkPolyData MeshType;
-  
+
   double aaParm = 0.024;
   typedef BinaryImageToMeshFilter<ImageType> FilterType;
   typename  FilterType::Pointer fltMesh = FilterType::New();
@@ -339,9 +339,9 @@ float GetImageTopology(typename TImage::Pointer image)
 
 
 int main(int argc, char *argv[])
-{ 
+{
 
-  if (argc < 2) 
+  if (argc < 2)
     {
       std::cout << argv[0] << " binaryimage valueimage  out paramname ValueScale AntiaAliasParm=0.001" << std::endl;
       std::cout << " outputs vtk version of input image -- assumes object is defined by non-zero values " << std::endl;
@@ -349,7 +349,7 @@ int main(int argc, char *argv[])
       std::cout <<  " the AA-Param could cause topo problems but makes nicer meshes  " << std::endl;
       std::cout << " ValueScale controls contrast in image appearance - lower increaseses -- should be <= 1 " << std::endl;
       exit(0);
-    } 
+    }
 
   // Define the dimension of the images
   const unsigned int Dimension = 3;
@@ -365,9 +365,9 @@ int main(int argc, char *argv[])
   typedef itk::ImageRegionIterator<ImageType>       IteratorType;
 
   // Declare the type of the Mesh
-  
+
   std::string outfn=std::string(argv[3]);
-    
+
   ImageType::Pointer image2;
   ImageType::Pointer image;
   ReadImage<ImageType>(image,argv[1]);
@@ -390,5 +390,5 @@ int main(int argc, char *argv[])
   //  GetImageTopology<ImageType>(image);
 
    return 0;
-  
+
 }

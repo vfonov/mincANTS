@@ -107,7 +107,7 @@ public:
 
   void SetMaskImageP( ImagePointer mask ) { this->m_MaskImageP=mask; }
   void SetMatrixP(  MatrixType matrix ) { this->m_OriginalMatrixP.set_size(matrix.rows(),matrix.cols());  this->m_MatrixP.set_size(matrix.rows(),matrix.cols()); this->m_OriginalMatrixP.update(matrix); this->m_MatrixP.update(matrix); }
-  
+
   itkSetMacro( FractionNonZeroQ, RealType );
   itkSetMacro( KeepPositiveQ, bool );
   void SetMaskImageQ( ImagePointer mask ) { this->m_MaskImageQ=mask; }
@@ -124,7 +124,7 @@ public:
   MatrixType GetOriginalMatrixP(  ) { return this->m_OriginalMatrixP; }
   MatrixType GetOriginalMatrixQ(  ) { return this->m_OriginalMatrixQ; }
   MatrixType GetOriginalMatrixR(  ) { return this->m_OriginalMatrixR; }
- 
+
   VectorType InitializeV( MatrixType p );
   MatrixType NormalizeMatrix(MatrixType p);
   MatrixType CovarianceMatrix(MatrixType p, RealType regularization=1.e-2 ) {
@@ -169,8 +169,8 @@ public:
 
   MatrixType ProjectionMatrix(MatrixType b) {
     b=this->NormalizeMatrix(b);
-    b=this->WhitenMatrix(b);  
-    return b*b.transpose(); 
+    b=this->WhitenMatrix(b);
+    return b*b.transpose();
   }
 
 
@@ -178,7 +178,7 @@ public:
   {
   unsigned int ncols=p_in.cols()-1;
   if ( col >= ncols ) ncols=p_in.cols();
-  MatrixType p(p_in.rows(),ncols);      
+  MatrixType p(p_in.rows(),ncols);
   unsigned int colct=0;
   for ( long i=0; i<p.cols(); ++i) { // loop over cols
     if ( i != col ) {
@@ -187,7 +187,7 @@ public:
     }
   }
   return p;
-  } 
+  }
 
 
   RealType PearsonCorr(VectorType v1, VectorType v2 )
@@ -205,14 +205,14 @@ public:
   }
 
 
-  antsMatrixUtilities(); 
+  antsMatrixUtilities();
   ~antsMatrixUtilities() {  }
- 
+
   void PrintSelf( std::ostream& os, Indent indent ) const
   {
     os << indent;
   }
- 
+
 
 private:
   bool m_Debug;

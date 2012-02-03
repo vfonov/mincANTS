@@ -9,8 +9,8 @@
   Author: Jeffrey T. Duda (jtduda@seas.upenn.edu)
   Institution: PICSL
 
-  This software is distributed WITHOUT ANY WARRANTY; without even 
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
   PURPOSE.
 
 =========================================================================*/
@@ -30,19 +30,19 @@
 
 
 
- 
 
- 
+
+
 int main( int argc, char *argv[] )
 {
-  
+
   // Pixel and Image typedefs
   typedef float                                 PixelType;
   typedef itk::Image<PixelType, 3>              ScalarImageType;
   typedef itk::ImageFileWriter<ScalarImageType> WriterType;
 
   //typedef itk::Vector<PixelType, 6>             TensorType;
-  typedef itk::SymmetricSecondRankTensor< float, 3 >  TensorType; 
+  typedef itk::SymmetricSecondRankTensor< float, 3 >  TensorType;
   typedef itk::Image<TensorType, 3>             TensorImageType;
   typedef itk::ImageFileReader<TensorImageType> ReaderType;
   typedef itk::RGBPixel< float >                ColorPixelType;
@@ -55,22 +55,22 @@ int main( int argc, char *argv[] )
     std::cout << "Usage: " << argv[0] << " tensorvolume outputvolume outputtype" << std::endl;
     return 1;
   }
-    
+
   // Input parameters
   char * inputName = argv[1];
   char * outputName = argv[2];
-  std::string outType = argv[3];  
+  std::string outType = argv[3];
 
   TensorImageType::Pointer dtimg;
   ReadTensorImage<TensorImageType>(dtimg, inputName, false);
-  
+
   std::cout << "tensor_image: " << inputName << std::endl;
   std::cout << "output_image: " << outputName << std::endl;
-  
-  
+
+
   ScalarImageType::Pointer outImage;
   ColorImageType::Pointer colorImage;
-  
+
   if (outType == "DEC") {
     colorImage = ColorImageType::New();
     colorImage->SetRegions(dtimg->GetLargestPossibleRegion() );
@@ -90,7 +90,7 @@ int main( int argc, char *argv[] )
 
   itk::ImageRegionIteratorWithIndex<TensorImageType> inputIt(dtimg,
     dtimg->GetLargestPossibleRegion());
-    
+
   if ( (outType == "XX") || (outType == "xx") ) outType = "0";
   if ( (outType == "XY") || (outType == "YX") || (outType == "xy") || (outType == "yx") ) outType = "1";
   if ( (outType == "XZ") || (outType == "ZX") || (outType == "xz") || (outType == "zx") ) outType = "2";
@@ -116,7 +116,7 @@ int main( int argc, char *argv[] )
         tr = 0;
       if (tr != tr)
         tr = 0;
-      if (outType == "TR") {    
+      if (outType == "TR") {
         outImage->SetPixel(inputIt.GetIndex(),tr);
       }
       else {
@@ -129,30 +129,30 @@ int main( int argc, char *argv[] )
       bool success=true;
       TensorType t = TensorLogAndExp<TensorType>(inputIt.Value(), true, success);
       int current=1;
-      if (!success) current=0;        
+      if (!success) current=0;
       outImage->SetPixel(inputIt.GetIndex(),current);
       //std::cout << "Found " << invalids << " invalid tensors" << std::endl;
     }
     else if (outType == "FA")
     {
-      float fa = GetTensorFA<TensorType>(inputIt.Value());       
+      float fa = GetTensorFA<TensorType>(inputIt.Value());
       outImage->SetPixel(inputIt.GetIndex(),fa);
     }
     else if (outType == "DEC") {
-      colorImage->SetPixel(inputIt.GetIndex(), 
+      colorImage->SetPixel(inputIt.GetIndex(),
                          GetTensorRGB<TensorType>(inputIt.Value()));
       ++inputIt;
       }
   }
-  
+
   std::cout << "Done. " << std::endl;
-  
+
   if (outType == "DEC") {
     std::cout << "output origin: " << colorImage->GetOrigin() << std::endl;
     std::cout << "output size: " << colorImage->GetLargestPossibleRegion().GetSize() << std::endl;
     std::cout << "output spacing: " << colorImage->GetSpacing() << std::endl;
     std::cout << "output direction: " << colorImage->GetDirection() << std::endl;
-  
+
   }
   else {
     std::cout << "output origin: " << outImage->GetOrigin() << std::endl;
@@ -160,7 +160,7 @@ int main( int argc, char *argv[] )
     std::cout << "output spacing: " << outImage->GetSpacing() << std::endl;
     std::cout << "output direction: " << outImage->GetDirection() << std::endl;
     }
-  
+
   if (outType == "DEC") {
     ColorWriterType::Pointer writer = ColorWriterType::New();
     writer->SetInput( colorImage );

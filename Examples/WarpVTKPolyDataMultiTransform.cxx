@@ -377,7 +377,7 @@ void WarpLabeledPointSetFileMultiTransform(char *input_vtk_filename, char *outpu
       newPoint.CastFrom( warpedPoint );
       //      vtkreader->GetOutput()->SetPoint( It.Index(), newPoint );
       if ( ImageDimension == 3 ) {
-	mesh->GetPoints()->SetPoint(k, warpedPoint[0], warpedPoint[1], warpedPoint[2]);
+    mesh->GetPoints()->SetPoint(k, warpedPoint[0], warpedPoint[1], warpedPoint[2]);
       }
       }
     //    ++It;

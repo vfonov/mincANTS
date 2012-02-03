@@ -1,28 +1,28 @@
 /*=========================================================================
-  
+
   Program:   Advanced Normalization Tools
   Module:    $RCSfile: LabelClustersUniquely.cxx,v $
-  Language:  C++      
+  Language:  C++
   Date:      $Date: 2008/11/15 23:46:06 $
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
-  
+
 =========================================================================*/
 
 #include "itkDiscreteGaussianImageFilter.h"
 
 //  RecursiveAverageImages img1  img2 weightonimg2 outputname
 
-// We divide the 2nd input image by its mean and add it to the first 
-// input image with weight 1/n.  
-//The output overwrites the 1st img with the sum.  
+// We divide the 2nd input image by its mean and add it to the first
+// input image with weight 1/n.
+//The output overwrites the 1st img with the sum.
 
 #include <list>
 #include <vector>
@@ -40,7 +40,7 @@
 
 
 template <unsigned int ImageDimension>
-int  LabelUniquely(int argc, char *argv[])        
+int  LabelUniquely(int argc, char *argv[])
 {
   typedef float  PixelType;
 //  const unsigned int ImageDimension = AvantsImageDimension;
@@ -68,31 +68,31 @@ int  LabelUniquely(int argc, char *argv[])
   typedef itk::RelabelComponentImageFilter< labelimagetype, labelimagetype > RelabelType;
 
 
-  // want the average value in each cluster as defined by the mask and the value thresh and the clust thresh 
+  // want the average value in each cluster as defined by the mask and the value thresh and the clust thresh
 
 
   std::string fn1 = std::string(argv[1]);
   std::string fn2 = std::string(argv[2]);
   float clusterthresh = atof(argv[3]);
-    
-  typename ImageType::Pointer image1 = NULL; 
-  
+
+  typename ImageType::Pointer image1 = NULL;
+
   ReadImage<ImageType>(image1,fn1.c_str());
-  
-  //  typename 
+
+  //  typename
 typename FilterType::Pointer filter = FilterType::New();
-//typename 
+//typename
 typename RelabelType::Pointer relabel = RelabelType::New();
-  
+
   typename CastFilterType::Pointer castInput = CastFilterType::New();
-  castInput->SetInput(image1);  
+  castInput->SetInput(image1);
 
   filter->SetInput( castInput->GetOutput() );
   int fullyConnected = 0;//atoi( argv[5] );
   filter->SetFullyConnected( fullyConnected );
   relabel->SetInput( filter->GetOutput() );
   relabel->SetMinimumObjectSize( (unsigned int) clusterthresh );
-    
+
   try
     {
       relabel->Update();
@@ -102,31 +102,31 @@ typename RelabelType::Pointer relabel = RelabelType::New();
       std::cerr << "Relabel: exception caught !" << std::endl;
       std::cerr << excep << std::endl;
     }
-  
-  
+
+
 //  float maximum=relabel->GetNumberOfObjects();
   WriteImage<labelimagetype>( relabel->GetOutput() , argv[2]);
 
 
   return 0;
-  
+
 }
 
 
-      
-       
 
-int main(int argc, char *argv[])        
+
+
+int main(int argc, char *argv[])
 {
 
-   
-  if ( argc < 3)     
-    { 
-      std::cout << "Usage:  "<< std::endl; 
+
+  if ( argc < 3)
+    {
+      std::cout << "Usage:  "<< std::endl;
       std::cout << argv[0] << " ImageDimension clustersin.hdr labeledclustersout.hdr   sizethresh " << std::endl;
       return 1;
-    }          
-  
+    }
+
 
   switch ( atoi(argv[1]))
    {
@@ -140,8 +140,8 @@ int main(int argc, char *argv[])
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
    }
-	
+
   return 0;
-} 
+}
 
 

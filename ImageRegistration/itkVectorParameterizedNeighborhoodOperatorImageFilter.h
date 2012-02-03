@@ -156,7 +156,7 @@ private:
   void operator=(const Self&); //purposely not implemented
 
   /** Pointer to the internal operator used to filter the image. */
-	  OperatorType m_Operator;
+      OperatorType m_Operator;
 
   /** Pointer to a persistent boundary condition object used
    * for the image iterator. */

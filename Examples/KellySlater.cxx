@@ -62,56 +62,56 @@ GetVectorComponent(typename TField::Pointer field, unsigned int index)
 }
 template <class TImage>
 typename TImage::Pointer BinaryThreshold(
-										 typename TImage::PixelType low,
-										 typename TImage::PixelType high,
-										 typename TImage::PixelType replaceval, typename TImage::Pointer input)
+                                         typename TImage::PixelType low,
+                                         typename TImage::PixelType high,
+                                         typename TImage::PixelType replaceval, typename TImage::Pointer input)
 {
-	//std::cout << " Binary Thresh " << std::endl;
+    //std::cout << " Binary Thresh " << std::endl;
 
-	typedef typename TImage::PixelType PixelType;
-	// Begin Threshold Image
-	typedef itk::BinaryThresholdImageFilter<TImage,TImage>  InputThresholderType;
-	typename InputThresholderType::Pointer inputThresholder =
-		InputThresholderType::New();
+    typedef typename TImage::PixelType PixelType;
+    // Begin Threshold Image
+    typedef itk::BinaryThresholdImageFilter<TImage,TImage>  InputThresholderType;
+    typename InputThresholderType::Pointer inputThresholder =
+        InputThresholderType::New();
 
-	inputThresholder->SetInput( input );
-	inputThresholder->SetInsideValue(  replaceval );
-	int outval=0;
-	if ((double) replaceval == (double) -1) outval=1;
-	inputThresholder->SetOutsideValue( outval );
+    inputThresholder->SetInput( input );
+    inputThresholder->SetInsideValue(  replaceval );
+    int outval=0;
+    if ((double) replaceval == (double) -1) outval=1;
+    inputThresholder->SetOutsideValue( outval );
 
-	if (high < low) high=255;
-	inputThresholder->SetLowerThreshold((PixelType) low );
-	inputThresholder->SetUpperThreshold((PixelType) high);
-	inputThresholder->Update();
+    if (high < low) high=255;
+    inputThresholder->SetLowerThreshold((PixelType) low );
+    inputThresholder->SetUpperThreshold((PixelType) high);
+    inputThresholder->Update();
 
-	return inputThresholder->GetOutput();
+    return inputThresholder->GetOutput();
 }
 
 template <class TImage>
 typename TImage::Pointer
 MaurerDistanceMap(
-				  typename TImage::PixelType pixlo,
-				  typename TImage::PixelType pixhi,
-				  typename TImage::Pointer input)
+                  typename TImage::PixelType pixlo,
+                  typename TImage::PixelType pixhi,
+                  typename TImage::Pointer input)
 {
-	//std::cout << " DDMap " << std::endl;
+    //std::cout << " DDMap " << std::endl;
 
-	typedef TImage ImageType;
+    typedef TImage ImageType;
 
-	typedef itk::SignedMaurerDistanceMapImageFilter<
-		ImageType, ImageType >  FilterType;
+    typedef itk::SignedMaurerDistanceMapImageFilter<
+        ImageType, ImageType >  FilterType;
 
-	typename  FilterType::Pointer filter = FilterType::New();
-	filter->SetSquaredDistance(false);
-	//  filter->InputIsBinaryOn();
-	filter->SetUseImageSpacing(true);
-	filter->SetBackgroundValue(0);
-	filter->SetInput(BinaryThreshold<TImage>(pixlo,pixhi,pixhi,input));
-	filter->Update();
+    typename  FilterType::Pointer filter = FilterType::New();
+    filter->SetSquaredDistance(false);
+    //  filter->InputIsBinaryOn();
+    filter->SetUseImageSpacing(true);
+    filter->SetBackgroundValue(0);
+    filter->SetInput(BinaryThreshold<TImage>(pixlo,pixhi,pixhi,input));
+    filter->Update();
 
-	//  WriteImage<ImageType>(filter->GetOutput(),"temp1.nii");
-	return filter->GetOutput();
+    //  WriteImage<ImageType>(filter->GetOutput(),"temp1.nii");
+    return filter->GetOutput();
 
 }
 
@@ -208,7 +208,7 @@ CopyImage(TDisplacementField* field )
 template <class TImage>
 typename TImage::Pointer
   LabelSurface(typename TImage::PixelType foreground,
-	       typename TImage::PixelType newval, typename TImage::Pointer input, double distthresh )
+           typename TImage::PixelType newval, typename TImage::Pointer input, double distthresh )
 {
   std::cout << " Label Surf " << std::endl;
   typedef TImage ImageType;
@@ -245,7 +245,7 @@ typename TImage::Pointer
         for (int j=0; j<ImageDimension; j++)
           dist+=(double)(ind[j]-ind2[j])*(double)(ind[j]-ind2[j]);
         dist=sqrt(dist);
-  	    if (GHood.GetPixel(i) != foreground && dist <  distthresh  )
+          if (GHood.GetPixel(i) != foreground && dist <  distthresh  )
         {
           atedge=true;
         }
@@ -325,7 +325,7 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input,double r
   while ( !o_iter.IsAtEnd() )
     {
       if (o_iter.Get() > 0.5 && input->GetPixel(o_iter.GetIndex()) > 0.5)
-	o_iter.Set(1);
+    o_iter.Set(1);
       else o_iter.Set(0);
       ++o_iter;
     }
@@ -381,10 +381,10 @@ LaplacianGrad(typename TImage::Pointer wm,typename TImage::Pointer gm, double si
     Iterator.GoToBegin();
     while(  !Iterator.IsAtEnd()  )
       {
-	ind=Iterator.GetIndex();
-	if (wm->GetPixel(ind) ) laplacian->SetPixel(ind,1);
-	else if (gm->GetPixel(ind) ==0 && wm->GetPixel(ind) == 0 ) laplacian->SetPixel(ind,0.);
-	++Iterator;
+    ind=Iterator.GetIndex();
+    if (wm->GetPixel(ind) ) laplacian->SetPixel(ind,1);
+    else if (gm->GetPixel(ind) ==0 && wm->GetPixel(ind) == 0 ) laplacian->SetPixel(ind,0.);
+    ++Iterator;
       }
   }
 
@@ -442,10 +442,10 @@ ExpDiffMap(typename TField::Pointer velofield,  typename TImage::Pointer wm,  do
 
       unsigned int ttiter=0;
       while( ttiter < numtimepoints )  // 10 time integration points
-	{
-	  ttiter++;
-	  warper->PushBackDisplacementFieldTransform(incrfield);
-	}
+    {
+      ttiter++;
+      warper->PushBackDisplacementFieldTransform(incrfield);
+    }
       warper->Update();
       return warper->GetOutput();
 }
@@ -470,8 +470,8 @@ DiReCTCompose(typename TField::Pointer velofield, typename TField::Pointer diffm
     warper->SetOutputOrigin(velofield->GetOrigin());
     warper->SetOutputDirection(velofield->GetDirection());
     warper->DetermineFirstDeformNoInterp();
-	  warper->PushBackDisplacementFieldTransform(diffmap);
-	  warper->PushBackDisplacementFieldTransform(velofield);
+      warper->PushBackDisplacementFieldTransform(diffmap);
+      warper->PushBackDisplacementFieldTransform(velofield);
       warper->Update();
       return warper->GetOutput();
 
@@ -483,8 +483,8 @@ DiReCTCompose(typename TField::Pointer velofield, typename TField::Pointer diffm
 template <class TImage,class TField>
 void
 InvertField( typename TField::Pointer field,
-		    typename TField::Pointer inverseFieldIN, double weight=1.0,
-		    double toler=0.1, int maxiter=20, bool print = false)
+            typename TField::Pointer inverseFieldIN, double weight=1.0,
+            double toler=0.1, int maxiter=20, bool print = false)
 {
 
   enum { ImageDimension = TImage::ImageDimension };
@@ -607,21 +607,21 @@ InvertField( typename TField::Pointer field,
     difmag=0.0;
     for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
       {
-	IndexType  index=vfIter.GetIndex();
-	VectorType  update=eulerianInitCond->GetPixel(index);
-	double mag=0;
-	for (int j=0; j<ImageDimension;j++)
-	  {
-	    update[j]*=(-1.0);
-	    mag+=(update[j]/spacing[j])*(update[j]/spacing[j]);
+    IndexType  index=vfIter.GetIndex();
+    VectorType  update=eulerianInitCond->GetPixel(index);
+    double mag=0;
+    for (int j=0; j<ImageDimension;j++)
+      {
+        update[j]*=(-1.0);
+        mag+=(update[j]/spacing[j])*(update[j]/spacing[j]);
                     }
-	mag=sqrt(mag);
-	meandif+=mag;
-	if (mag > difmag) {difmag=mag; }
-	//	  if (mag < 1.e-2) update.Fill(0);
+    mag=sqrt(mag);
+    meandif+=mag;
+    if (mag > difmag) {difmag=mag; }
+    //      if (mag < 1.e-2) update.Fill(0);
 
-	eulerianInitCond->SetPixel(index,update);
-	realImage->SetPixel(index,mag);
+    eulerianInitCond->SetPixel(index,update);
+    realImage->SetPixel(index,mag);
     }
     meandif/=(double)npix;
     if (ct == 0) epsilon = 0.75;
@@ -778,7 +778,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   typename ImageType::Pointer bsurf = LabelSurface<ImageType>(1,1,wmgrow , distthresh); // or wmb ?
   typename ImageType::Pointer speedprior=NULL;
   WriteImage<ImageType>(bsurf,"surf.nii.gz");
-  //	typename RealTypeImageType::Pointer distfromboundary =
+  //    typename RealTypeImageType::Pointer distfromboundary =
   //  typename ImageType::Pointer surf=MaurerDistanceMap<ImageType>(0.5,1.e9,bsurf);
   //surf= SmoothImage<ImageType>(surf,3);
   typename ImageType::Pointer finalthickimage=BinaryThreshold<ImageType>(3,3,1,segmentationimage); // fixme
@@ -882,174 +882,174 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
       bool spatprior=false;
       typename ImageType::Pointer priorim=NULL;
       if (speedprior){
-	spatprior=true;
-	priorim=speedprior;
+    spatprior=true;
+    priorim=speedprior;
       }
       typename ImageType::Pointer wpriorim=NULL;
       RealType origthickprior=thickprior;
 
       while( ttiter < numtimepoints )  // N time integration points
-	{
-	  //	  m_MFR->Compose(incrinvfield,invfield,NULL);
-	  m_MFR->ComposeDiffs(invfield,incrinvfield,invfield,1);
+    {
+      //      m_MFR->Compose(incrinvfield,invfield,NULL);
+      m_MFR->ComposeDiffs(invfield,incrinvfield,invfield,1);
 
-	  if (debug) std::cout <<" exp " << std::endl;
-	  // Integrate the negative velocity field to generate diffeomorphism corrfield step 3(a)
-	  //	  corrfield=ExpDiffMap<ImageType,DisplacementFieldType>( velofield,  wm, -1, numtimepoints-ttiter);
-	  //	  std::cout  << " corrf len " << m_MFR->MeasureDeformation( corrfield ) << std::endl;
-	  if (debug) std::cout <<" gmdef " << std::endl;
-	  typename ImageType::Pointer gmdef = gm; // m_MFR->WarpImageBackward(gm,corrfield);
-	  totalerr=0;
+      if (debug) std::cout <<" exp " << std::endl;
+      // Integrate the negative velocity field to generate diffeomorphism corrfield step 3(a)
+      //      corrfield=ExpDiffMap<ImageType,DisplacementFieldType>( velofield,  wm, -1, numtimepoints-ttiter);
+      //      std::cout  << " corrf len " << m_MFR->MeasureDeformation( corrfield ) << std::endl;
+      if (debug) std::cout <<" gmdef " << std::endl;
+      typename ImageType::Pointer gmdef = gm; // m_MFR->WarpImageBackward(gm,corrfield);
+      totalerr=0;
 
-	  typename ImageType::Pointer surfdef=m_MFR->WarpImageBackward(wm,invfield);
-	  if (debug) std::cout <<" thkdef " << std::endl;
-	  typename ImageType::Pointer thkdef =m_MFR->WarpImageBackward(thickimage,invfield);
-	  if (debug) std::cout <<" thindef " << std::endl;
-	  typename ImageType::Pointer thindef =m_MFR->WarpImageBackward(bsurf,invfield);
-	  if (spatprior) wpriorim=m_MFR->WarpImageBackward(priorim,invfield);
+      typename ImageType::Pointer surfdef=m_MFR->WarpImageBackward(wm,invfield);
+      if (debug) std::cout <<" thkdef " << std::endl;
+      typename ImageType::Pointer thkdef =m_MFR->WarpImageBackward(thickimage,invfield);
+      if (debug) std::cout <<" thindef " << std::endl;
+      typename ImageType::Pointer thindef =m_MFR->WarpImageBackward(bsurf,invfield);
+      if (spatprior) wpriorim=m_MFR->WarpImageBackward(priorim,invfield);
 
-	  typedef DisplacementFieldType GradientImageType;
-	  typedef itk::GradientRecursiveGaussianImageFilter< ImageType,GradientImageType >
-	    GradientImageFilterType;
-  	  typedef typename GradientImageFilterType::Pointer GradientImageFilterPointer;
-	  GradientImageFilterPointer gfilter=GradientImageFilterType::New();
-	  gfilter->SetInput(  surfdef );
-	  gfilter->SetSigma( smoothingsigma );
-	  gfilter->Update();
-	  typename DisplacementFieldType::Pointer   lapgrad2=gfilter->GetOutput();
+      typedef DisplacementFieldType GradientImageType;
+      typedef itk::GradientRecursiveGaussianImageFilter< ImageType,GradientImageType >
+        GradientImageFilterType;
+        typedef typename GradientImageFilterType::Pointer GradientImageFilterPointer;
+      GradientImageFilterPointer gfilter=GradientImageFilterType::New();
+      gfilter->SetInput(  surfdef );
+      gfilter->SetSigma( smoothingsigma );
+      gfilter->Update();
+      typename DisplacementFieldType::Pointer   lapgrad2=gfilter->GetOutput();
 
 
-	  // this is the "speed" image
-	  typename ImageType::Pointer speed_image=CopyImage<ImageType,DisplacementFieldType>(invfield);
-	  IteratorType xxIterator( speed_image, speed_image->GetLargestPossibleRegion().GetSize() );
-	  xxIterator.GoToBegin();
-	  RealType maxlapgrad2mag=0;
-	  while(  !xxIterator.IsAtEnd()  )
-	    {
-	    typename ImageType::IndexType speedindex=xxIterator.GetIndex();
-	    if ( segmentationimage->GetPixel(speedindex) == 2 ) // fixme
-	      {
+      // this is the "speed" image
+      typename ImageType::Pointer speed_image=CopyImage<ImageType,DisplacementFieldType>(invfield);
+      IteratorType xxIterator( speed_image, speed_image->GetLargestPossibleRegion().GetSize() );
+      xxIterator.GoToBegin();
+      RealType maxlapgrad2mag=0;
+      while(  !xxIterator.IsAtEnd()  )
+        {
+        typename ImageType::IndexType speedindex=xxIterator.GetIndex();
+        if ( segmentationimage->GetPixel(speedindex) == 2 ) // fixme
+          {
               thickprior=origthickprior;
-	      VectorType wgradval=lapgrad2->GetPixel(speedindex);
-	      RealType wmag=0;
-	      for (unsigned kq=0;kq<ImageDimension; kq++) {
-    	        wmag+= wgradval[kq]*wgradval[kq];
-	      }
-	      if (fabs(wmag) < 1.e-6) wmag=0;
-	      wmag=sqrt(wmag);
-	      if (checknans)
-	      if ( vnl_math_isnan(wmag) || vnl_math_isinf(wmag) || wmag==0 )
-		{
-		  wgradval.Fill(0);
-		  lapgrad2->SetPixel(speedindex,wgradval);
-		  wmag=0;
-		}
-	      else lapgrad2->SetPixel(speedindex,wgradval/wmag);
-	      totalerr+=fabs(surfdef->GetPixel(speedindex) - gmdef->GetPixel(speedindex));
-//	      RealType thkval=thkdef->GetPixel(speedindex);
-//	      RealType thkval=finalthickimage->GetPixel(speedindex);
-//	      RealType fval=1; //(thickprior-thkval);
-	      //	      if ( fval > 0 ) fval=1; else fval=-1;
+          VectorType wgradval=lapgrad2->GetPixel(speedindex);
+          RealType wmag=0;
+          for (unsigned kq=0;kq<ImageDimension; kq++) {
+                wmag+= wgradval[kq]*wgradval[kq];
+          }
+          if (fabs(wmag) < 1.e-6) wmag=0;
+          wmag=sqrt(wmag);
+          if (checknans)
+          if ( vnl_math_isnan(wmag) || vnl_math_isinf(wmag) || wmag==0 )
+        {
+          wgradval.Fill(0);
+          lapgrad2->SetPixel(speedindex,wgradval);
+          wmag=0;
+        }
+          else lapgrad2->SetPixel(speedindex,wgradval/wmag);
+          totalerr+=fabs(surfdef->GetPixel(speedindex) - gmdef->GetPixel(speedindex));
+//          RealType thkval=thkdef->GetPixel(speedindex);
+//          RealType thkval=finalthickimage->GetPixel(speedindex);
+//          RealType fval=1; //(thickprior-thkval);
+          //          if ( fval > 0 ) fval=1; else fval=-1;
 //speed function here IMPORTANT!!
-	      RealType dd=(surfdef->GetPixel(speedindex) - gmdef->GetPixel(speedindex))*gradstep;
-	      dd*=gm->GetPixel(speedindex);
-	      if (checknans)  if ( vnl_math_isnan(dd) || vnl_math_isinf(dd) ) dd=0;
-	      speed_image->SetPixel(speedindex, dd);
-	      if ( wmag*dd > maxlapgrad2mag ) maxlapgrad2mag=wmag*dd;
-	      } else speed_image->SetPixel(speedindex, 0);
-	      ++xxIterator;
-	    }
-	  if ( maxlapgrad2mag < 1.e-4) maxlapgrad2mag=1.e9;
-	  if ( ttiter == numtimepoints-1 ) {
-	  if (ImageDimension==2) WriteImage<ImageType>(surfdef,"surfdef.nii.gz");
-	  if (ImageDimension==2) WriteImage<ImageType>(thindef,"thindef.nii.gz");
-	  if (ImageDimension==2) WriteImage<ImageType>(gmdef,"gmdef.nii.gz");
-	  if (ImageDimension==2) WriteImage<ImageType>(thkdef,"thick2.nii.gz");
-	  }
-	  /* Now that we have the gradient image, we need to visit each voxel and compute objective function */
-	  //	  std::cout << " maxlapgrad2mag " << maxlapgrad2mag << std::endl;
-	  Iterator.GoToBegin();
-	  while(  !Iterator.IsAtEnd()  )
-	    {
-	      velind=Iterator.GetIndex();
-	      VectorType wgradval=lapgrad2->GetPixel(velind); //*5.0/(maxlapgrad2mag*(RealType)numtimepoints);
-	      disp=wgradval*speed_image->GetPixel(velind);
-	      incrfield->SetPixel(velind,incrfield->GetPixel(velind)+disp);
+          RealType dd=(surfdef->GetPixel(speedindex) - gmdef->GetPixel(speedindex))*gradstep;
+          dd*=gm->GetPixel(speedindex);
+          if (checknans)  if ( vnl_math_isnan(dd) || vnl_math_isinf(dd) ) dd=0;
+          speed_image->SetPixel(speedindex, dd);
+          if ( wmag*dd > maxlapgrad2mag ) maxlapgrad2mag=wmag*dd;
+          } else speed_image->SetPixel(speedindex, 0);
+          ++xxIterator;
+        }
+      if ( maxlapgrad2mag < 1.e-4) maxlapgrad2mag=1.e9;
+      if ( ttiter == numtimepoints-1 ) {
+      if (ImageDimension==2) WriteImage<ImageType>(surfdef,"surfdef.nii.gz");
+      if (ImageDimension==2) WriteImage<ImageType>(thindef,"thindef.nii.gz");
+      if (ImageDimension==2) WriteImage<ImageType>(gmdef,"gmdef.nii.gz");
+      if (ImageDimension==2) WriteImage<ImageType>(thkdef,"thick2.nii.gz");
+      }
+      /* Now that we have the gradient image, we need to visit each voxel and compute objective function */
+      //      std::cout << " maxlapgrad2mag " << maxlapgrad2mag << std::endl;
+      Iterator.GoToBegin();
+      while(  !Iterator.IsAtEnd()  )
+        {
+          velind=Iterator.GetIndex();
+          VectorType wgradval=lapgrad2->GetPixel(velind); //*5.0/(maxlapgrad2mag*(RealType)numtimepoints);
+          disp=wgradval*speed_image->GetPixel(velind);
+          incrfield->SetPixel(velind,incrfield->GetPixel(velind)+disp);
 
-	      if (ttiter == 0 )// make euclidean distance image
-		{
-		  dmag=0;
-		  disp=corrfield->GetPixel(velind);
-		  for (unsigned int jj=0; jj<ImageDimension; jj++) dmag+=disp[jj]*disp[jj];
-		  RealType bval=bsurf->GetPixel(velind);
-		  if (checknans)   {
-		  if ( vnl_math_isnan(dmag) || vnl_math_isinf(dmag) ) dmag=0;
-		  if ( vnl_math_isnan(bval) || vnl_math_isinf(bval) ) bval=0;
-		  }
-		  /** Change 2-26-2010 = incoporate gm prob in length ... */
-		  dmag=sqrt(dmag)*bval; //*gm->GetPixel(velind);
-		  thickimage->SetPixel(velind,dmag);
-		  totalimage->SetPixel(velind,dmag);
-		  hitimage->SetPixel(velind,bval);
-		}
-	      else if ( segmentationimage->GetPixel(velind) == 2 )  // fixme
-		{
-		  RealType thkval=thkdef->GetPixel(velind);
-		  RealType putval=thindef->GetPixel(velind);
+          if (ttiter == 0 )// make euclidean distance image
+        {
+          dmag=0;
+          disp=corrfield->GetPixel(velind);
+          for (unsigned int jj=0; jj<ImageDimension; jj++) dmag+=disp[jj]*disp[jj];
+          RealType bval=bsurf->GetPixel(velind);
+          if (checknans)   {
+          if ( vnl_math_isnan(dmag) || vnl_math_isinf(dmag) ) dmag=0;
+          if ( vnl_math_isnan(bval) || vnl_math_isinf(bval) ) bval=0;
+          }
+          /** Change 2-26-2010 = incoporate gm prob in length ... */
+          dmag=sqrt(dmag)*bval; //*gm->GetPixel(velind);
+          thickimage->SetPixel(velind,dmag);
+          totalimage->SetPixel(velind,dmag);
+          hitimage->SetPixel(velind,bval);
+        }
+          else if ( segmentationimage->GetPixel(velind) == 2 )  // fixme
+        {
+          RealType thkval=thkdef->GetPixel(velind);
+          RealType putval=thindef->GetPixel(velind);
                   hitimage->SetPixel(velind,hitimage->GetPixel(velind)+putval);
-		  totalimage->SetPixel(velind,totalimage->GetPixel(velind)+thkval);
-		}
+          totalimage->SetPixel(velind,totalimage->GetPixel(velind)+thkval);
+        }
 
-	  ++Iterator;
-	    }
+      ++Iterator;
+        }
 
-	  Iterator.GoToBegin();
-	  while(  !Iterator.IsAtEnd()  )
-	    {
+      Iterator.GoToBegin();
+      while(  !Iterator.IsAtEnd()  )
+        {
               IndexType velind=Iterator.GetIndex();
-	      bool shouldbezero=false;
-	      if ( segmentationimage->GetPixel(velind) == 0 ) shouldbezero=true;
-	      if ( !shouldbezero )
-	      if ( bsurf->GetPixel(velind) == 0 && gmsurf->GetPixel(velind) == 0 && segmentationimage->GetPixel(velind) != 2 ) shouldbezero=true;
-  	      if ( shouldbezero   ){
+          bool shouldbezero=false;
+          if ( segmentationimage->GetPixel(velind) == 0 ) shouldbezero=true;
+          if ( !shouldbezero )
+          if ( bsurf->GetPixel(velind) == 0 && gmsurf->GetPixel(velind) == 0 && segmentationimage->GetPixel(velind) != 2 ) shouldbezero=true;
+            if ( shouldbezero   ){
                 velofield->SetPixel(velind,zero);
                 corrfield->SetPixel(velind,zero);
                 invfield->SetPixel(velind,zero);
-	      }
-	      incrinvfield->SetPixel(velind,velofield->GetPixel(velind));
-	      ++Iterator;
-	    }
-	  if ( ttiter == 0 ) corrfield->FillBuffer(zero);
+          }
+          incrinvfield->SetPixel(velind,velofield->GetPixel(velind));
+          ++Iterator;
+        }
+      if ( ttiter == 0 ) corrfield->FillBuffer(zero);
 
-	  InvertField<ImageType,DisplacementFieldType>( invfield, corrfield, 1.0,0.1,20,true);
-	  InvertField<ImageType,DisplacementFieldType>( corrfield, invfield, 1.0,0.1,20,true);
-	  //	  InvertField<ImageType,DisplacementFieldType>( invfield, corrfield, 1.0,0.1,20,true);
-	  //  InvertField<ImageType,DisplacementFieldType>( corrfield, invfield, 1.0,0.1,20,true);
-	  ttiter++;
-	}
+      InvertField<ImageType,DisplacementFieldType>( invfield, corrfield, 1.0,0.1,20,true);
+      InvertField<ImageType,DisplacementFieldType>( corrfield, invfield, 1.0,0.1,20,true);
+      //      InvertField<ImageType,DisplacementFieldType>( invfield, corrfield, 1.0,0.1,20,true);
+      //  InvertField<ImageType,DisplacementFieldType>( corrfield, invfield, 1.0,0.1,20,true);
+      ttiter++;
+    }
 
-	Iterator.GoToBegin();
-	RealType maxth=0;
-	while(  !Iterator.IsAtEnd()  )
-	  {
-	    velind=Iterator.GetIndex();
-	    // increment velocity field at every voxel v = v + u, step 4
-	    velofield->SetPixel(Iterator.GetIndex(),velofield->GetPixel(Iterator.GetIndex()) + incrfield->GetPixel(Iterator.GetIndex()) );
-	    RealType hitval=hitimage->GetPixel(velind);
-	    RealType thkval=0;
-	    if ( hitval > 0.001 ) /** potential source of problem 2 -- this value could be smaller ... */
-	      thkval=totalimage->GetPixel(velind)/hitval - thickoffset;
-	    if ( thkval > 10 )
-	      {
-		std::cout << "thkval " << thkval << " hitval " << hitval << " total " << totalimage->GetPixel(velind) << std::endl;
-	      }
-	    if (thkval < 0) thkval=0;
-	    if ( segmentationimage->GetPixel(velind) == 2 ) finalthickimage->SetPixel(velind ,thkval);
-	    else finalthickimage->SetPixel(velind ,0);
-	    if (thkval > maxth) maxth=thkval;
-	    if ( finalthickimage->GetPixel(velind)  > thickprior ) finalthickimage->SetPixel(velind , thickprior );
-	    ++Iterator;
-	  }
+    Iterator.GoToBegin();
+    RealType maxth=0;
+    while(  !Iterator.IsAtEnd()  )
+      {
+        velind=Iterator.GetIndex();
+        // increment velocity field at every voxel v = v + u, step 4
+        velofield->SetPixel(Iterator.GetIndex(),velofield->GetPixel(Iterator.GetIndex()) + incrfield->GetPixel(Iterator.GetIndex()) );
+        RealType hitval=hitimage->GetPixel(velind);
+        RealType thkval=0;
+        if ( hitval > 0.001 ) /** potential source of problem 2 -- this value could be smaller ... */
+          thkval=totalimage->GetPixel(velind)/hitval - thickoffset;
+        if ( thkval > 10 )
+          {
+        std::cout << "thkval " << thkval << " hitval " << hitval << " total " << totalimage->GetPixel(velind) << std::endl;
+          }
+        if (thkval < 0) thkval=0;
+        if ( segmentationimage->GetPixel(velind) == 2 ) finalthickimage->SetPixel(velind ,thkval);
+        else finalthickimage->SetPixel(velind ,0);
+        if (thkval > maxth) maxth=thkval;
+        if ( finalthickimage->GetPixel(velind)  > thickprior ) finalthickimage->SetPixel(velind , thickprior );
+        ++Iterator;
+      }
       if (debug)  std::cout << " now smooth " << std::endl;
     m_MFR->SmoothDisplacementFieldGauss(velofield,smoothingsigma);
     WriteImage<DisplacementFieldType>(corrfield,"corrfield.nii.gz");

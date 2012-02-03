@@ -82,8 +82,8 @@ float DiffusionCoefficient( TensorType dtv, VectorType direction, bool normalize
   float fdd = (float) fddmat(0,0);
 
   if (normalized > 0) {
-	  fdd = fdd/(tensor[0][0]+tensor[1][1]+tensor[2][2]);
-	}
+      fdd = fdd/(tensor[0][0]+tensor[1][1]+tensor[2][2]);
+    }
 
   return fdd;
 }
@@ -132,27 +132,27 @@ TensorType TensorLogAndExp( TensorType dtv, bool takelog , bool success=true)
   MatrixType eigmat(3,3);
   eigmat.Fill(0);
   if (takelog)
-	{
+    {
           if ( e1 < 0 ) e1=e2;
           if ( e3 < 0 ) e3=e2;
-	  eigmat(0,0)=log(fabs(e1));
-	  eigmat(1,1)=log(fabs(e2));
-	  eigmat(2,2)=log(fabs(e3));
-	}
+      eigmat(0,0)=log(fabs(e1));
+      eigmat(1,1)=log(fabs(e2));
+      eigmat(2,2)=log(fabs(e3));
+    }
   else //take exp
-	{
-	  eigmat(0,0)=exp(e1);
-	  eigmat(1,1)=exp(e2);
-	  eigmat(2,2)=exp(e3);
-	}
+    {
+      eigmat(0,0)=exp(e1);
+      eigmat(1,1)=exp(e2);
+      eigmat(2,2)=exp(e3);
+    }
 
-	if ( vnl_math_isnan(eigmat(0,0)) ||
-	     vnl_math_isnan(eigmat(1,1)) ||
-	     vnl_math_isnan(eigmat(2,2))) {
-	  dtv.Fill(0);
+    if ( vnl_math_isnan(eigmat(0,0)) ||
+         vnl_math_isnan(eigmat(1,1)) ||
+         vnl_math_isnan(eigmat(2,2))) {
+      dtv.Fill(0);
     success=false;
-	  return dtv;
-	  }
+      return dtv;
+      }
 
 
   typedef typename MatrixType::InternalMatrixType VnlMatrixType;

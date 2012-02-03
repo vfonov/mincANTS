@@ -133,7 +133,7 @@ int CreateJacobianDeterminantImage( int argc, char *argv[] )
       try
         {
         RealType jacDet = decomposer->EvaluateDeterminant( J );
-	if (jacDet < 1.e-4 && calculateLogJacobian ) jacDet=1.e-4;
+    if (jacDet < 1.e-4 && calculateLogJacobian ) jacDet=1.e-4;
         if (vnl_math_isnan(jacDet)) jacDet=1;
         It.Set( ( calculateLogJacobian ? vcl_log( jacDet ) : jacDet ) );
         }

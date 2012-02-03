@@ -101,7 +101,7 @@ DiReCTImageFilter953<TInputImage, TOutputImage>
   // gm/wm region.  Dilate the latter region by 1 voxel.
 
   typedef LabelImageToLabelMapFilter<InputImageType> LabelImageFilterType;
-	 typedef typename LabelImageFilterType::OutputImageType LabelMapType;
+     typedef typename LabelImageFilterType::OutputImageType LabelMapType;
 
   InputImagePointer grayMatter = this->ExtractRegion(
     this->GetSegmentationImage(), this->m_GrayMatterLabel );
@@ -306,18 +306,18 @@ DiReCTImageFilter953<TInputImage, TOutputImage>
       RealImagePointer whiteMatterContoursImage =
         this->ConvertSparseImageToRealImage( whiteMatterContours,
         mattersMaskImage );
-   	  SparseImagePointer warpedWhiteMatterContours =
-   	    this->ConvertRealImageToSparseImage(
-   	    this->WarpImage( whiteMatterContoursImage, composer->GetOutput() ),
-   	    mattersMaskImage );
+         SparseImagePointer warpedWhiteMatterContours =
+           this->ConvertRealImageToSparseImage(
+           this->WarpImage( whiteMatterContoursImage, composer->GetOutput() ),
+           mattersMaskImage );
       RealImagePointer thicknessImage =
         this->ConvertSparseImageToRealImage( thicknessField,
         mattersMaskImage );
-   	  SparseImagePointer warpedThicknessField =
-   	    this->ConvertRealImageToSparseImage( this->WarpImage(
- 	      thicknessImage, composer->GetOutput() ), mattersMaskImage );
-   	  RealImagePointer warpedWhiteMatterProbabilityMap = this->WarpImage(
-   	    this->GetWhiteMatterProbabilityImage(), composer->GetOutput() );
+         SparseImagePointer warpedThicknessField =
+           this->ConvertRealImageToSparseImage( this->WarpImage(
+           thicknessImage, composer->GetOutput() ), mattersMaskImage );
+         RealImagePointer warpedWhiteMatterProbabilityMap = this->WarpImage(
+           this->GetWhiteMatterProbabilityImage(), composer->GetOutput() );
 
       inverseField = this->ConvertVectorImageToSparseVectorImage(
         composer->GetOutput() );
@@ -760,13 +760,13 @@ DiReCTImageFilter953<TInputImage, TOutputImage>
       endPoint[0] = static_cast<RealType>( this->m_ElapsedIterations - 1 );
       typename BSplinerFunctionType::GradientType gradient =
         bsplinerFunction->EvaluateGradientAtParametricPoint( endPoint );
-   	  this->m_CurrentConvergenceMeasurement = -gradient[0][0];
+         this->m_CurrentConvergenceMeasurement = -gradient[0][0];
 
-   	  if( this->m_CurrentConvergenceMeasurement < this->m_ConvergenceThreshold )
-   	    {
-   	    isConverged = true;
-   	    }
-   	  }
+         if( this->m_CurrentConvergenceMeasurement < this->m_ConvergenceThreshold )
+           {
+           isConverged = true;
+           }
+         }
 
     reporter.CompletedStep();
     }

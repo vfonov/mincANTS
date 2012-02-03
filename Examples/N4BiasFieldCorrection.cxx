@@ -68,7 +68,7 @@ int N4( itk::ants::CommandLineParser *parser )
   typename MaskImageType::Pointer maskImage = NULL;
 
   typedef itk::N4BiasFieldCorrectionImageFilter<ImageType, MaskImageType,
-						   ImageType> CorrecterType;
+                           ImageType> CorrecterType;
   typename CorrecterType::Pointer correcter = CorrecterType::New();
 
   typedef itk::ImageFileReader<ImageType> ReaderType;
@@ -171,7 +171,7 @@ int N4( itk::ants::CommandLineParser *parser )
     if( convergenceOption->GetNumberOfParameters() > 1 )
       {
       correcter->SetConvergenceThreshold( parser->Convert<float>(
-					    convergenceOption->GetParameter( 1 ) ) );
+                        convergenceOption->GetParameter( 1 ) ) );
       }
     }
   else // set default values
@@ -208,7 +208,7 @@ int N4( itk::ants::CommandLineParser *parser )
     if( bsplineOption->GetNumberOfParameters() > 1 )
       {
       correcter->SetSplineOrder( parser->Convert<unsigned int>(
-				   bsplineOption->GetParameter( 1 ) ) );
+                   bsplineOption->GetParameter( 1 ) ) );
       }
     if( bsplineOption->GetNumberOfParameters() > 0 )
       {
@@ -346,17 +346,17 @@ int N4( itk::ants::CommandLineParser *parser )
     if( histOption->GetNumberOfParameters() > 0 )
       {
       correcter->SetBiasFieldFullWidthAtHalfMaximum( parser->Convert<float>(
-						       histOption->GetParameter( 0 ) ) );
+                               histOption->GetParameter( 0 ) ) );
       }
     if( histOption->GetNumberOfParameters() > 1 )
       {
       correcter->SetWienerFilterNoise( parser->Convert<float>(
-					 histOption->GetParameter( 1 ) ) );
+                     histOption->GetParameter( 1 ) ) );
       }
     if( histOption->GetNumberOfParameters() > 2 )
       {
       correcter->SetNumberOfHistogramBins( parser->Convert<unsigned int>(
-					     histOption->GetParameter( 2 ) ) );
+                         histOption->GetParameter( 2 ) ) );
       }
     }
 
@@ -385,10 +385,10 @@ int N4( itk::ants::CommandLineParser *parser )
   if( outputOption )
     {
     /**
-					* Reconstruct the bias field at full image resolution.  Divide
-					* the original input image by the bias field to get the final
-					* corrected image.
-					*/
+                    * Reconstruct the bias field at full image resolution.  Divide
+                    * the original input image by the bias field to get the final
+                    * corrected image.
+                    */
     typedef itk::BSplineControlPointImageFilter<typename
       CorrecterType::BiasFieldControlPointLatticeType, typename
       CorrecterType::ScalarImageType> BSplinerType;
@@ -412,7 +412,7 @@ int N4( itk::ants::CommandLineParser *parser )
       bspliner->GetOutput(),
       bspliner->GetOutput()->GetLargestPossibleRegion() );
     itk::ImageRegionIterator<ImageType> ItF( logField,
-					     logField->GetLargestPossibleRegion() );
+                         logField->GetLargestPossibleRegion() );
     for( ItB.GoToBegin(), ItF.GoToBegin(); !ItB.IsAtEnd(); ++ItB, ++ItF )
       {
       ItF.Set( ItB.Get()[0] );
@@ -429,15 +429,15 @@ int N4( itk::ants::CommandLineParser *parser )
     divider->SetInput2( expFilter->GetOutput() );
     divider->Update();
 
-				if( weightImage &&
-						( maskImageOption && maskImageOption->GetNumberOfValues() > 0 ) )
-						{
-						itk::ImageRegionIteratorWithIndex<ImageType> ItD( divider->GetOutput(),
-								divider->GetOutput()->GetLargestPossibleRegion() );
+                if( weightImage &&
+                        ( maskImageOption && maskImageOption->GetNumberOfValues() > 0 ) )
+                        {
+                        itk::ImageRegionIteratorWithIndex<ImageType> ItD( divider->GetOutput(),
+                                divider->GetOutput()->GetLargestPossibleRegion() );
       for( ItD.GoToBegin(); !ItD.IsAtEnd(); ++ItD )
         {
-								if( maskImage->GetPixel( ItD.GetIndex() ) != correcter->GetMaskLabel() )
-										{
+                                if( maskImage->GetPixel( ItD.GetIndex() ) != correcter->GetMaskLabel() )
+                                        {
           ItD.Set( inputImage->GetPixel( ItD.GetIndex() ) );
           }
         }

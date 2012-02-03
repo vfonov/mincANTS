@@ -7,7 +7,7 @@
   Version:   $Revision: 1.17 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -66,9 +66,9 @@ public:
   typedef typename MeshTraits::PixelType         PixelType;
   typedef Array<PixelType>                       MultiComponentScalarType;
   typedef Array<unsigned long>                   LineType;
-  typedef VectorContainer<long, 
-    MultiComponentScalarType>                    MultiComponentScalarSetType; 
-  typedef VectorContainer<long, LineType>        LineSetType; 
+  typedef VectorContainer<long,
+    MultiComponentScalarType>                    MultiComponentScalarSetType;
+  typedef VectorContainer<long, LineType>        LineSetType;
   typedef Image<PixelType,
     itkGetStaticConstMacro( Dimension )>         LabeledPointSetImageType;
   typedef typename
@@ -91,7 +91,7 @@ public:
   /** Specify other attributes */
   itkSetMacro( Lines, typename LineSetType::Pointer );
 
-  itkSetMacro( MultiComponentScalars, 
+  itkSetMacro( MultiComponentScalars,
     typename MultiComponentScalarSetType::Pointer );
 
   /** Specify image attributes if output is an image. */

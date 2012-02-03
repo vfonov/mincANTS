@@ -82,9 +82,9 @@ ANTSImageTransformation<TDimension, TReal>
       if ( extension == std::string( ".gz" ) )
         {
         gzExtension = std::string( ".gz" );
-    				pos = filePrefix.rfind( "." );
-    				extension = std::string( filePrefix, pos,
-    				  filePrefix.length()-1 );
+                    pos = filePrefix.rfind( "." );
+                    extension = std::string( filePrefix, pos,
+                      filePrefix.length()-1 );
         filePrefix = std::string( filePrefix, 0, pos );
         }
 
@@ -107,13 +107,13 @@ ANTSImageTransformation<TDimension, TReal>
           ArrayOfExtensionsType::const_iterator writeItr = writeExtensions.begin();
           while( writeItr != writeExtensions.end() )
           {
-	    std::string test_ext=*writeItr;
-	    //	    std::cout <<" compare " << extension << " to " << test_ext << std::endl;
+        std::string test_ext=*writeItr;
+        //        std::cout <<" compare " << extension << " to " << test_ext << std::endl;
             if ( extension == test_ext )
-	    {
+        {
               is_supported=true;
-	    }
-	    //	    else std::cout <<" not the same " << std::endl;
+        }
+        //        else std::cout <<" not the same " << std::endl;
             ++writeItr;
           }
         }
@@ -148,7 +148,7 @@ ANTSImageTransformation<TDimension, TReal>
             typename WriterType::Pointer writer = WriterType::New();
             std::cout << "filename " << filename << std::endl;
             writer->SetFileName( filename );
-	    //            writer->SetUseAvantsNamingConvention( true );
+        //            writer->SetUseAvantsNamingConvention( true );
             writer->SetInput( this->m_DisplacementField );
             writer->Update();
         }
@@ -172,7 +172,7 @@ ANTSImageTransformation<TDimension, TReal>
             typedef ImageFileWriter<DisplacementFieldType> WriterType;
             typename WriterType::Pointer writer = WriterType::New();
             writer->SetFileName( filename );
-	    //            writer->SetUseAvantsNamingConvention( true );
+        //            writer->SetUseAvantsNamingConvention( true );
             writer->SetInput( this->m_InverseDisplacementField );
             writer->Update();
         }

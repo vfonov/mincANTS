@@ -1,33 +1,33 @@
 /*=========================================================================
-  
+
   Program:   Advanced Normalization Tools
   Module:    $RCSfile: SetOrigin.cxx,v $
-  Language:  C++      
+  Language:  C++
   Date:      $Date: 2008/11/15 23:46:06 $
   Version:   $Revision: 1.19 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
-  
+
 =========================================================================*/
-#include <iostream>           
-#include <fstream>       
-#include <stdio.h>                    
-#include "itkImage.h"                   
-#include "itkImageFileWriter.h"                   
-#include "itkImageFileReader.h"     
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
+#include "itkImage.h"
+#include "itkImageFileWriter.h"
+#include "itkImageFileReader.h"
 #include "itkCastImageFilter.h"
 #include "itkRescaleIntensityImageFilter.h"
 
 template <unsigned int ImageDimension>
-int SetOrigin(int argc, char *argv[])        
+int SetOrigin(int argc, char *argv[])
 {
-   
+
   typedef  float  outPixelType;
   typedef  float floatPixelType;
   typedef  float inPixelType;
@@ -38,10 +38,10 @@ int SetOrigin(int argc, char *argv[])
   typedef itk::ImageFileWriter<OutImageType> writertype;
 
   typename readertype::Pointer reader = readertype::New();
-  reader->SetFileName(argv[1]); 
-  reader->Update();   
-  
-  
+  reader->SetFileName(argv[1]);
+  reader->Update();
+
+
   typename OutImageType::Pointer outim = reader->GetOutput();
   typename OutImageType::PointType orig = outim->GetOrigin();
 
@@ -65,31 +65,31 @@ int SetOrigin(int argc, char *argv[])
   varimage->SetDirection( outim->GetDirection());
   Iterator vfIter2( varimage,  varimage->GetLargestPossibleRegion() );
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 ) vfIter2.Set(outim->GetPixel(vfIter2.GetIndex()));
-  
+
 
   typename writertype::Pointer writer = writertype::New();
   writer->SetFileName(argv[2]);
-  writer->SetInput(  varimage ); 
+  writer->SetInput(  varimage );
   writer->Update();
-  writer->Write();   
-  
+  writer->Write();
+
   return 0;
- 
-}     
 
-             
+}
 
-       
-                 
- 
-int main(int argc, char *argv[])        
+
+
+
+
+
+int main(int argc, char *argv[])
 {
 
-  if ( argc < 3 )     
+  if ( argc < 3 )
     { std::cout << "Usage:   " << argv[0] << "  Dimension infile.hdr outfile.nii  OriginX OriginY {OriginZ} " << std::endl;
     return 1;
-  }           
-   
+  }
+
    // Get the image dimension
   switch( atoi(argv[1]))
    {
@@ -103,6 +103,6 @@ int main(int argc, char *argv[])
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
    }
-	
+
   return 0;
-} 
+}

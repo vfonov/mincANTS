@@ -1,27 +1,27 @@
 /*=========================================================================
-  
+
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: CheckTopology.cxx,v $
-  Language:  C++      
+  Language:  C++
 $Date: 2008/12/07 03:06:27 $
 $Revision: 1.8 $
   Copyright (c) 2002 Insight Consortium. All rights reserved.
   See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
-  
+
 =========================================================================*/
-#include <iostream>           
-#include <fstream>       
-#include <stdio.h>  
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
 #include <time.h>
 
 #include "itkDiscreteGaussianImageFilter.h"
-#include "itkImage.h"  
-#include "itkExceptionObject.h"             
-#include "ReadWriteImage.h"    
+#include "itkImage.h"
+#include "itkExceptionObject.h"
+#include "ReadWriteImage.h"
 #include "itkVector.h"
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkRandomImageSource.h"
@@ -48,8 +48,8 @@ $Revision: 1.8 $
 #include "itkLabelStatisticsImageFilter.h"
 
 float random_range(float lowest_number, float highest_number)
-{  
-  float range = highest_number - lowest_number;   
+{
+  float range = highest_number - lowest_number;
   return lowest_number + (float)(range * (float)rand()/(float)(RAND_MAX));
 }
 
@@ -65,7 +65,7 @@ float ComputeGenus(vtkPolyData* pd1)
     int nfac = pd1->GetNumberOfPolys();
     float g = 0.5 * (2.0 - vers + nedg - nfac);
     std::cout << " Genus " << g << std::endl;
-    std::cout << " face " << nfac << " edg " << nedg <<  " vert " << vers << std::endl; 
+    std::cout << " face " << nfac << " edg " << nedg <<  " vert " << vers << std::endl;
 
     //edg1->Delete(); //caused malloc err
     edgeex->Delete(); // should be deleted b/c of New() above !!
@@ -105,17 +105,17 @@ float GetImageTopology(typename TImage::Pointer image)
 
 
 template <class TImage>
-void 
+void
 NormalizeImage(typename TImage::Pointer image)
 {
-  
+
   typedef itk::ImageRegionIteratorWithIndex<TImage> Iterator;
   float max=0;
-  Iterator vfIter2( image,  image->GetLargestPossibleRegion() );  
-  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 ) 
+  Iterator vfIter2( image,  image->GetLargestPossibleRegion() );
+  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     if (vfIter2.Get() > max) max=vfIter2.Get();
   if (max == 0) max=1;
-  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 ) 
+  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     vfIter2.Set( vfIter2.Get()/max);
 
 }
@@ -123,7 +123,7 @@ NormalizeImage(typename TImage::Pointer image)
 
 
 template <class TImage>
-typename TImage::Pointer SmoothImage( typename TImage::Pointer image, float sig )        
+typename TImage::Pointer SmoothImage( typename TImage::Pointer image, float sig )
 {
   typedef float  PixelType;
   typedef TImage ImageType;
@@ -137,8 +137,8 @@ typename TImage::Pointer SmoothImage( typename TImage::Pointer image, float sig 
       filter->SetInput(image);
       filter->Update();
       return filter->GetOutput();
- 
-}     
+
+}
 
 
 template <class TImage>
@@ -170,7 +170,7 @@ typename TImage::Pointer BinaryThreshold(
 
 
 template <class TImage>
-//std::vector<unsigned int> 
+//std::vector<unsigned int>
 typename TImage::Pointer
 GetLargestComponent(typename TImage::Pointer image)
 {
@@ -182,18 +182,18 @@ GetLargestComponent(typename TImage::Pointer image)
   typedef itk::BinaryThresholdImageFilter< TImage, InternalImageType > ThresholdFilterType;
   typedef itk::ConnectedComponentImageFilter< InternalImageType, InternalImageType > FilterType;
   typedef itk::RelabelComponentImageFilter< InternalImageType, InternalImageType > RelabelType;
-  
+
   typename ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
   typename FilterType::Pointer filter = FilterType::New();
   typename RelabelType::Pointer relabel = RelabelType::New();
-  
+
   threshold->SetInput (image);
   threshold->SetInsideValue(itk::NumericTraits<InternalPixelType>::One);
   threshold->SetOutsideValue(itk::NumericTraits<InternalPixelType>::Zero);
   threshold->SetLowerThreshold(0.499);
   threshold->SetUpperThreshold(1.001);
   threshold->Update();
-  
+
   filter->SetInput (threshold->GetOutput());
   // if (argc > 5)
     {
@@ -202,10 +202,10 @@ GetLargestComponent(typename TImage::Pointer image)
     }
     relabel->SetInput( filter->GetOutput() );
     unsigned int minSize=50;
-	std::cout << " min Size " << minSize << std::endl;
+    std::cout << " min Size " << minSize << std::endl;
     relabel->SetMinimumObjectSize( minSize );
     //    relabel->SetUseHistograms(true);
-    
+
   try
     {
     relabel->Update();
@@ -215,25 +215,25 @@ GetLargestComponent(typename TImage::Pointer image)
     std::cerr << "Relabel: exception caught !" << std::endl;
     std::cerr << excep << std::endl;
     }
-  
-  typename TImage::Pointer Clusters=TImage::New();  //typename TImage::Pointer Clusters=relabel->GetOutput();  
+
+  typename TImage::Pointer Clusters=TImage::New();  //typename TImage::Pointer Clusters=relabel->GetOutput();
   Clusters->SetLargestPossibleRegion( image->GetLargestPossibleRegion() );
   Clusters->SetBufferedRegion( image->GetLargestPossibleRegion().GetSize() );
   Clusters->SetSpacing(image->GetSpacing());
   Clusters->SetDirection( image->GetDirection() );
   Clusters->SetOrigin(image->GetOrigin());
-  Clusters->Allocate(); 
+  Clusters->Allocate();
   Clusters->FillBuffer(0);
 
 
   typedef itk::ImageRegionIteratorWithIndex<InternalImageType> Iterator;
-  Iterator vfIter( relabel->GetOutput(),  relabel->GetOutput()->GetLargestPossibleRegion() );  
-  
+  Iterator vfIter( relabel->GetOutput(),  relabel->GetOutput()->GetLargestPossibleRegion() );
+
   float maximum=relabel->GetNumberOfObjects();
   float maxtstat=0;
   std::vector<unsigned int> histogram((int)maximum+1);
   std::vector<float> clustersum((int)maximum+1);
-  for (int i=0; i<=maximum; i++) 
+  for (int i=0; i<=maximum; i++)
     {
       histogram[i]=0;
       clustersum[i]=0;
@@ -241,48 +241,48 @@ GetLargestComponent(typename TImage::Pointer image)
   for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
     {
       if (vfIter.Get() > 0 )
-	{
-	  float vox=image->GetPixel(vfIter.GetIndex());
-	  histogram[(unsigned int)vfIter.Get()]=histogram[(unsigned int)vfIter.Get()]+1;
-	  clustersum[(unsigned int)vfIter.Get()]+=vox;
-	  if (vox > maxtstat) maxtstat=vox;
-	}
+    {
+      float vox=image->GetPixel(vfIter.GetIndex());
+      histogram[(unsigned int)vfIter.Get()]=histogram[(unsigned int)vfIter.Get()]+1;
+      clustersum[(unsigned int)vfIter.Get()]+=vox;
+      if (vox > maxtstat) maxtstat=vox;
     }
-  
+    }
+
   for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
     {
-      if (vfIter.Get() > 0 ) 
-	{
-	
-	  Clusters->SetPixel( vfIter.GetIndex(), histogram[(unsigned int)vfIter.Get()]  );
-	//  if ( Clusters->GetPixel( vfIter.GetIndex() ) > maximgval ) 
+      if (vfIter.Get() > 0 )
+    {
+
+      Clusters->SetPixel( vfIter.GetIndex(), histogram[(unsigned int)vfIter.Get()]  );
+    //  if ( Clusters->GetPixel( vfIter.GetIndex() ) > maximgval )
         //    maximgval=Clusters->GetPixel( vfIter.GetIndex());
-	}
+    }
       else Clusters->SetPixel(vfIter.GetIndex(),0);
-    } 
+    }
 
 
   float maximgval=0;
   for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
-    if ( Clusters->GetPixel( vfIter.GetIndex() ) > maximgval ) 
+    if ( Clusters->GetPixel( vfIter.GetIndex() ) > maximgval )
       maximgval=Clusters->GetPixel( vfIter.GetIndex());
 
   std::cout << " max size " << maximgval << std::endl;
 
  for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
-    if ( Clusters->GetPixel( vfIter.GetIndex() ) >= maximgval )     
+    if ( Clusters->GetPixel( vfIter.GetIndex() ) >= maximgval )
       Clusters->SetPixel( vfIter.GetIndex(), 1);
     else Clusters->SetPixel( vfIter.GetIndex(), 0);
 
 
-  //  for (int i=0; i<=maximum; i++) 
+  //  for (int i=0; i<=maximum; i++)
   //  std::cout << " label " << i << " ct is: " << histogram[i] << std::endl;
 
 
   return Clusters;
-  
-  
-}  
+
+
+}
 
 
 template <class TImage>
@@ -349,30 +349,30 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input,float ra
   while ( !o_iter.IsAtEnd() )
     {
       if (o_iter.Get() > 0.5 && input->GetPixel(o_iter.GetIndex()) > 0.5)
-	o_iter.Set(1);
+    o_iter.Set(1);
       else o_iter.Set(0);
       ++o_iter;
     }
-  
+
     }
 
   return temp;
-             
+
 }
 
 
 
-int main(int argc, char *argv[])        
+int main(int argc, char *argv[])
 {
-   
-  if ( argc < 2 )     
-  {  
+
+  if ( argc < 2 )
+  {
     std::cout << "Parameter  missing" << std::endl;
-    std::cout << std::endl; 
+    std::cout << std::endl;
     std::cout << "Usage:" << argv[0] << "  image.nii  {g0image.nii}  {threshold}" << std::endl;
     std::cout << " If you put an arg for g0image then image will be smoothed and thresholded \n until it has genus zero or the smoothing kernel gets too large " << std::endl;
  return 1;
-  }        
+  }
 
   float thresh=-1;//0.0001;
   if (argc > 3) thresh=atof(argv[3]);
@@ -385,7 +385,7 @@ int main(int argc, char *argv[])
   ReadImage<ImageType>(image,argv[1]);
   image=BinaryThreshold<ImageType>(0.5,1.e9,1,image);
   float initG = GetImageTopology<ImageType>(image);
-  
+
   if (initG < 0 && argc > 2)
     {
       std::cout <<  "smoothing into a Genus Zero image with thresh " << thresh <<  std::endl;
@@ -416,36 +416,36 @@ int main(int argc, char *argv[])
          ImageType::Pointer out = Morphological<ImageType>(simage,3,0);
          ImageType::Pointer bigimage = GetLargestComponent<ImageType>(out);
          G2 = GetImageTopology<ImageType>(bigimage);
-	 typedef itk::ImageRegionIteratorWithIndex< ImageType > ImageIteratorType ;
-	 ImageIteratorType iter( bigimage, bigimage->GetLargestPossibleRegion() );
-	 iter.GoToBegin() ;
-	 while ( !iter.IsAtEnd() )
-	   {
-	     err+=fabs(iter.Get() - image->GetPixel(iter.GetIndex()));
-	     ++iter;
-	   } 
-	 mct++;
+     typedef itk::ImageRegionIteratorWithIndex< ImageType > ImageIteratorType ;
+     ImageIteratorType iter( bigimage, bigimage->GetLargestPossibleRegion() );
+     iter.GoToBegin() ;
+     while ( !iter.IsAtEnd() )
+       {
+         err+=fabs(iter.Get() - image->GetPixel(iter.GetIndex()));
+         ++iter;
+       }
+     mct++;
         derr=lasterr-err;
-	std::cout << " G2 " <<  G2 << " at morph " << mct << " err " << err << std::endl;
+    std::cout << " G2 " <<  G2 << " at morph " << mct << " err " << err << std::endl;
         if (G2==0 && derr > 0)
-	  {
-	    simage=GetLargestComponent<ImageType>(out);
-	  }
+      {
+        simage=GetLargestComponent<ImageType>(out);
+      }
       }
       WriteImage<ImageType>(simage ,argv[2]);
     }
-    else if (argc > 2 ) 
+    else if (argc > 2 )
     {
 
       WriteImage<ImageType>(image ,argv[2]);
 
     }
   return 0;
- 
-}     
 
-             
+}
 
-       
- 
+
+
+
+
 

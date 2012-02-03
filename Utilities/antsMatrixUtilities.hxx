@@ -27,7 +27,7 @@ namespace itk {
 namespace ants {
 
 template <class TInputImage, class TRealType>
-antsMatrixUtilities<TInputImage, TRealType>::antsMatrixUtilities( ) 
+antsMatrixUtilities<TInputImage, TRealType>::antsMatrixUtilities( )
 {
   this->m_Debug=false;
   this->m_PinvTolerance=1.e-2;
@@ -35,26 +35,26 @@ antsMatrixUtilities<TInputImage, TRealType>::antsMatrixUtilities( )
   this->m_MaskImageP=NULL;
   this->m_MaskImageQ=NULL;
   this->m_MaskImageR=NULL;
-} 
+}
 
 template <class TInputImage, class TRealType>
 typename antsMatrixUtilities<TInputImage, TRealType>::MatrixType
 antsMatrixUtilities<TInputImage, TRealType>
-::NormalizeMatrix( typename antsMatrixUtilities<TInputImage, TRealType>::MatrixType p ) 
+::NormalizeMatrix( typename antsMatrixUtilities<TInputImage, TRealType>::MatrixType p )
 {
   vnl_random randgen(time(0));
   MatrixType np( p.rows() , p.columns() );
   for (unsigned long i=0; i < p.columns(); i++)
-  { 
+  {
     VectorType wpcol=p.get_column(i);
     VectorType wpcol2=wpcol-wpcol.mean();
     double sd=wpcol2.squared_magnitude();
     sd=sqrt( sd/(p.rows()-1) );
     if ( sd <= 0 ) {
-      if ( this->m_Debug ) 
+      if ( this->m_Debug )
       std::cout << " bad-row " << i <<  wpcol << std::endl;
       for (unsigned long j=0; j < wpcol.size(); j++)
-	wpcol2(j)=randgen.drand32();
+    wpcol2(j)=randgen.drand32();
       wpcol2=wpcol2-wpcol2.mean();
       sd=wpcol2.squared_magnitude();
       sd=sqrt( sd/(p.rows()-1) );
@@ -76,15 +76,15 @@ antsMatrixUtilities<TInputImage, TRealType>
       unsigned int ss=dd.rows();
       if ( dd.rows() > dd.columns() ) ss=dd.columns();
       vnl_svd<RealType> eig(dd,pinvTolerance);
-      for (unsigned int j=0; j<ss; j++) 
-	{
-	  RealType eval=eig.W(j,j);
-	  if ( eval > pinvTolerance )  {// FIXME -- check tolerances against matlab pinv
-	    eig.W(j,j)=1/(eval);// need eval for inv cov 
-	    if ( take_sqrt ) eig.W(j,j)=1/sqrt(eval);
-	  }
-	  else eig.W(j,j)=0; 
-	} 
+      for (unsigned int j=0; j<ss; j++)
+    {
+      RealType eval=eig.W(j,j);
+      if ( eval > pinvTolerance )  {// FIXME -- check tolerances against matlab pinv
+        eig.W(j,j)=1/(eval);// need eval for inv cov
+        if ( take_sqrt ) eig.W(j,j)=1/sqrt(eval);
+      }
+      else eig.W(j,j)=0;
+    }
   return ( eig.recompose() ).transpose();
 }
 
@@ -93,15 +93,15 @@ template <class TInputImage, class TRealType>
 typename antsMatrixUtilities<TInputImage, TRealType>::VectorType
 antsMatrixUtilities<TInputImage, TRealType>
 ::GetCovMatEigenvector( typename antsMatrixUtilities<TInputImage, TRealType>::MatrixType rin , unsigned int which ) {
-  double pinvTolerance=this->m_PinvTolerance; 
+  double pinvTolerance=this->m_PinvTolerance;
   MatrixType dd=this->NormalizeMatrix(rin);
   MatrixType cov=dd*dd.transpose();
   cov.set_identity();
   TRealType regularization=1.e-3;
   cov=cov*regularization+rin*rin.transpose();
   vnl_svd<RealType> eig(cov,pinvTolerance);
-  VectorType vec1=eig.U().get_column(which);         
-  VectorType vec2=eig.V().get_column(which);         
+  VectorType vec1=eig.U().get_column(which);
+  VectorType vec2=eig.V().get_column(which);
 //  std::cout <<" W 1 " << eig.W(0,0) << " W 2 " << eig.W(1,1) << std::endl;
   if ( vec2.size() == rin.rows() ) return vec2;
   else return vec1;
@@ -112,16 +112,16 @@ template <class TInputImage, class TRealType>
 typename antsMatrixUtilities<TInputImage, TRealType>::MatrixType
 antsMatrixUtilities<TInputImage, TRealType>
 ::GetCovMatEigenvectors( typename antsMatrixUtilities<TInputImage, TRealType>::MatrixType rin  ) {
-  double pinvTolerance=this->m_PinvTolerance; 
+  double pinvTolerance=this->m_PinvTolerance;
   MatrixType dd=this->NormalizeMatrix(rin);
   MatrixType cov=dd*dd.transpose();
   cov.set_identity();
   TRealType regularization=1.e-3;
   cov=cov*regularization+rin*rin.transpose();
   vnl_svd<RealType> eig(cov,pinvTolerance);
-  VectorType vec1=eig.U().get_column(0);         
-  VectorType vec2=eig.V().get_column(0);         
-  double trace=vnl_trace<double>(cov); 
+  VectorType vec1=eig.U().get_column(0);
+  VectorType vec2=eig.V().get_column(0);
+  double trace=vnl_trace<double>(cov);
   double evalsum=0;
   for (unsigned int i=0; i<cov.rows(); i++) {
     evalsum+=eig.W(i,i);

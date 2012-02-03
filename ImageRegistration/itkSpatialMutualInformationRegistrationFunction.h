@@ -307,110 +307,110 @@ public:
       unsigned long ct = 0;
       typename JointPDFType::IndexType index;
 
-	//	for (unsigned int ii=this->m_Padding+1; ii<m_NumberOfHistogramBins-this->m_Padding-2; ii++)
-	  for (unsigned int ii=0; ii<m_NumberOfHistogramBins; ii++)
-	  {
-	  MarginalPDFIndexType mind;
-	  mind[0]=ii;
-	  px = m_FixedImageMarginalPDF->GetPixel(mind);
-	  //  for (unsigned int jj=this->m_Padding+1; jj<m_NumberOfHistogramBins-this->m_Padding-2; jj++)
-		for (unsigned int jj=0; jj<m_NumberOfHistogramBins; jj++)
-	    {
-	      mind[0]=jj;
-	      py = m_MovingImageMarginalPDF->GetPixel(mind);
-		  float denom = px*py;
-	      index[0]=ii;
-	      index[1]=jj;
-	      //pxy=m_JointPDF->GetPixel(index);
+    //    for (unsigned int ii=this->m_Padding+1; ii<m_NumberOfHistogramBins-this->m_Padding-2; ii++)
+      for (unsigned int ii=0; ii<m_NumberOfHistogramBins; ii++)
+      {
+      MarginalPDFIndexType mind;
+      mind[0]=ii;
+      px = m_FixedImageMarginalPDF->GetPixel(mind);
+      //  for (unsigned int jj=this->m_Padding+1; jj<m_NumberOfHistogramBins-this->m_Padding-2; jj++)
+        for (unsigned int jj=0; jj<m_NumberOfHistogramBins; jj++)
+        {
+          mind[0]=jj;
+          py = m_MovingImageMarginalPDF->GetPixel(mind);
+          float denom = px*py;
+          index[0]=ii;
+          index[1]=jj;
+          //pxy=m_JointPDF->GetPixel(index);
 
-	      JointPDFValueType *pdfPtr = m_JointPDF->GetBufferPointer() +
-		( ii* m_NumberOfHistogramBins );
-	      // Move the pointer to the first affected bin
-	      int pdfMovingIndex = static_cast<int>( jj );
-	      pdfPtr += pdfMovingIndex;
-	      pxy=*(pdfPtr);
+          JointPDFValueType *pdfPtr = m_JointPDF->GetBufferPointer() +
+        ( ii* m_NumberOfHistogramBins );
+          // Move the pointer to the first affected bin
+          int pdfMovingIndex = static_cast<int>( jj );
+          pdfPtr += pdfMovingIndex;
+          pxy=*(pdfPtr);
 
-	      mi=0;
-	      if (fabs(denom) > 0 )
-		{
-		  if (pxy/denom > 0)
-		    {
-		      //true mi
-		      mi = pxy*log(pxy/denom);
-		      //test mi
-		      //mi = 1.0 + log(pxy/denom);
-		      ct++;
-		    }
+          mi=0;
+          if (fabs(denom) > 0 )
+        {
+          if (pxy/denom > 0)
+            {
+              //true mi
+              mi = pxy*log(pxy/denom);
+              //test mi
+              //mi = 1.0 + log(pxy/denom);
+              ct++;
+            }
 
-		}
+        }
 
-	      mival += mi;
-	    }
-	//	  std::cout << " II " << ii << " JJ " << ii << " pxy " << pxy << " px " << px << std::endl;
+          mival += mi;
+        }
+    //      std::cout << " II " << ii << " JJ " << ii << " pxy " << pxy << " px " << px << std::endl;
 
-	}
-		this->m_Energy = (-1.0) * mival/log(2);
-		return this->m_Energy;
+    }
+        this->m_Energy = (-1.0) * mival/log(2);
+        return this->m_Energy;
     }
 
-	double ComputeSpatialMutualInformation()
-	{
+    double ComputeSpatialMutualInformation()
+    {
 
-		float pxy;
-		double SMI = 0;
-		double JointEntropy = 0, JointEntropyXuY = 0, JointEntropyXYu = 0, JointEntropyXlY = 0, JointEntropyXYl = 0;
-		double JointEntropyXuYl = 0, JointEntropyXlYu = 0, JointEntropyXrYu = 0, JointEntropyXuYr = 0;
+        float pxy;
+        double SMI = 0;
+        double JointEntropy = 0, JointEntropyXuY = 0, JointEntropyXYu = 0, JointEntropyXlY = 0, JointEntropyXYl = 0;
+        double JointEntropyXuYl = 0, JointEntropyXlYu = 0, JointEntropyXrYu = 0, JointEntropyXuYr = 0;
 
-		for (unsigned int ii=0; ii<m_NumberOfHistogramBins; ii++)
-		{
-			for (unsigned int jj=0; jj<m_NumberOfHistogramBins; jj++)
-			{
-				int pdfMovingIndex = static_cast<int>( jj );
-				JointPDFValueType *pdfPtr = m_JointPDF->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
-				pxy=*(pdfPtr);
-				if (fabs(pxy) > 0 )  JointEntropy -= pxy * log(pxy);
+        for (unsigned int ii=0; ii<m_NumberOfHistogramBins; ii++)
+        {
+            for (unsigned int jj=0; jj<m_NumberOfHistogramBins; jj++)
+            {
+                int pdfMovingIndex = static_cast<int>( jj );
+                JointPDFValueType *pdfPtr = m_JointPDF->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
+                pxy=*(pdfPtr);
+                if (fabs(pxy) > 0 )  JointEntropy -= pxy * log(pxy);
 
-				pdfPtr = m_JointPDFXuY->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
-				pxy=*(pdfPtr);
-				if (fabs(pxy) > 0 )  JointEntropyXuY -= pxy * log(pxy);
+                pdfPtr = m_JointPDFXuY->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
+                pxy=*(pdfPtr);
+                if (fabs(pxy) > 0 )  JointEntropyXuY -= pxy * log(pxy);
 
-				pdfPtr = m_JointPDFXYu->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
-				pxy=*(pdfPtr);
-				if (fabs(pxy) > 0 )  JointEntropyXYu -= pxy * log(pxy);
+                pdfPtr = m_JointPDFXYu->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
+                pxy=*(pdfPtr);
+                if (fabs(pxy) > 0 )  JointEntropyXYu -= pxy * log(pxy);
 
-				pdfPtr = m_JointPDFXlY->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
-				pxy=*(pdfPtr);
-				if (fabs(pxy) > 0 )  JointEntropyXlY -= pxy * log(pxy);
+                pdfPtr = m_JointPDFXlY->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
+                pxy=*(pdfPtr);
+                if (fabs(pxy) > 0 )  JointEntropyXlY -= pxy * log(pxy);
 
-				pdfPtr = m_JointPDFXYl->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
-				pxy=*(pdfPtr);
-				if (fabs(pxy) > 0 )  JointEntropyXYl -= pxy * log(pxy);
+                pdfPtr = m_JointPDFXYl->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
+                pxy=*(pdfPtr);
+                if (fabs(pxy) > 0 )  JointEntropyXYl -= pxy * log(pxy);
 
-				pdfPtr = m_JointPDFXuYl->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
-				pxy=*(pdfPtr);
-				if (fabs(pxy) > 0 )  JointEntropyXuYl -= pxy * log(pxy);
+                pdfPtr = m_JointPDFXuYl->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
+                pxy=*(pdfPtr);
+                if (fabs(pxy) > 0 )  JointEntropyXuYl -= pxy * log(pxy);
 
-				pdfPtr = m_JointPDFXlYu->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
-				pxy=*(pdfPtr);
-				if (fabs(pxy) > 0 )  JointEntropyXlYu -= pxy * log(pxy);
+                pdfPtr = m_JointPDFXlYu->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
+                pxy=*(pdfPtr);
+                if (fabs(pxy) > 0 )  JointEntropyXlYu -= pxy * log(pxy);
 
-				pdfPtr = m_JointPDFXrYu->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
-				pxy=*(pdfPtr);
-				if (fabs(pxy) > 0 )  JointEntropyXrYu -= pxy * log(pxy);
+                pdfPtr = m_JointPDFXrYu->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
+                pxy=*(pdfPtr);
+                if (fabs(pxy) > 0 )  JointEntropyXrYu -= pxy * log(pxy);
 
-				pdfPtr = m_JointPDFXuYr->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
-				pxy=*(pdfPtr);
-				if (fabs(pxy) > 0 )  JointEntropyXuYr -= pxy * log(pxy);
-			}
-		}
-		SMI = (0.5) * (JointEntropyXuY + JointEntropyXYu + JointEntropyXlY + JointEntropyXYl)
-			- (0.25) * (4 * JointEntropy + JointEntropyXuYr + JointEntropyXrYu + JointEntropyXlYu + JointEntropyXuYl);
+                pdfPtr = m_JointPDFXuYr->GetBufferPointer() + ( ii* m_NumberOfHistogramBins ) + pdfMovingIndex;
+                pxy=*(pdfPtr);
+                if (fabs(pxy) > 0 )  JointEntropyXuYr -= pxy * log(pxy);
+            }
+        }
+        SMI = (0.5) * (JointEntropyXuY + JointEntropyXYu + JointEntropyXlY + JointEntropyXYl)
+            - (0.25) * (4 * JointEntropy + JointEntropyXuYr + JointEntropyXrYu + JointEntropyXlYu + JointEntropyXuYl);
 
-	//	std::cout << " JE " << JointEntropy << " JEXuY " << JointEntropyXuY << " JEXYu " << JointEntropyXYu << " JEXuYr " << JointEntropyXuYr << std::endl;
+    //    std::cout << " JE " << JointEntropy << " JEXuY " << JointEntropyXuY << " JEXYu " << JointEntropyXYu << " JEXuYr " << JointEntropyXuYr << std::endl;
 
-		this->m_Energy = (-1.0) * fabs(SMI);
-		return this->m_Energy;
-	}
+        this->m_Energy = (-1.0) * fabs(SMI);
+        return this->m_Energy;
+    }
 
 
   virtual VectorType ComputeUpdateInv(const NeighborhoodType &neighborhood,
@@ -428,9 +428,9 @@ public:
 
     for (unsigned int dd=0; dd<ImageDimension; dd++)
       {
-	if ( oindex[dd] < 1 ||
-	     oindex[dd] >= static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) )
-	  return update;
+    if ( oindex[dd] < 1 ||
+         oindex[dd] >= static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) )
+      return update;
       }
 
     CovariantVectorType fixedGradient;
@@ -470,23 +470,23 @@ public:
 
 
   /* find the image index in the number of histogram bins */
-	unsigned int FitIndexInBins( double windowTerm )
-	{
-		unsigned int movingImageParzenWindowIndex  =
-			static_cast<unsigned int>( this->m_Padding + (unsigned int)( windowTerm * (float)(this->m_NumberOfHistogramBins - 1 - this->m_Padding + 0.5))) ;
+    unsigned int FitIndexInBins( double windowTerm )
+    {
+        unsigned int movingImageParzenWindowIndex  =
+            static_cast<unsigned int>( this->m_Padding + (unsigned int)( windowTerm * (float)(this->m_NumberOfHistogramBins - 1 - this->m_Padding + 0.5))) ;
 
-		// Make sure the extreme values are in valid bins
-		if ( movingImageParzenWindowIndex < this->m_Padding )
+        // Make sure the extreme values are in valid bins
+        if ( movingImageParzenWindowIndex < this->m_Padding )
         {
-			movingImageParzenWindowIndex = this->m_Padding -1 ;
+            movingImageParzenWindowIndex = this->m_Padding -1 ;
         }
-		else if ( movingImageParzenWindowIndex > (m_NumberOfHistogramBins - this->m_Padding ) )
+        else if ( movingImageParzenWindowIndex > (m_NumberOfHistogramBins - this->m_Padding ) )
         {
-			movingImageParzenWindowIndex = m_NumberOfHistogramBins - this->m_Padding  - 1;
+            movingImageParzenWindowIndex = m_NumberOfHistogramBins - this->m_Padding  - 1;
         }
 
-		return movingImageParzenWindowIndex;
-	}
+        return movingImageParzenWindowIndex;
+    }
 
 
   double FitContIndexInBins( double windowTerm ) {
@@ -509,9 +509,9 @@ public:
 
     for (unsigned int dd=0; dd<ImageDimension; dd++)
       {
-	if ( oindex[dd] < 1 ||
-	     oindex[dd] >= static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) )
-	  return update;
+    if ( oindex[dd] < 1 ||
+         oindex[dd] >= static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) )
+      return update;
       }
 
     CovariantVectorType movingGradient;

@@ -72,8 +72,8 @@ TTensorType LogExpTensor( TTensorType inTensor, bool doLog )
 
   //std::cout << " + " << inTensor << std::endl;
   if ( ((tensor[0][0] == 0) && (tensor[0][1] == 0) &&
-	(tensor[0][2] == 0) && (tensor[1][1] == 0) &&
-	(tensor[1][2] == 0) && (tensor[2][2] == 0)) ||
+    (tensor[0][2] == 0) && (tensor[1][1] == 0) &&
+    (tensor[1][2] == 0) && (tensor[2][2] == 0)) ||
        (tensor.has_nans()) ||
        (!tensor.is_finite())
     )
@@ -86,13 +86,13 @@ TTensorType LogExpTensor( TTensorType inTensor, bool doLog )
     for (unsigned int i=0; i<3; i++)
       {
       if (doLog)
-	{
-	eSystem.D[i] = vcl_log(vcl_fabs(eSystem.D[i]));
-	}
+    {
+    eSystem.D[i] = vcl_log(vcl_fabs(eSystem.D[i]));
+    }
       else
-	{
-	eSystem.D[i] = vcl_exp(eSystem.D[i]);
-	}
+    {
+    eSystem.D[i] = vcl_exp(eSystem.D[i]);
+    }
       }
 
     vnl_matrix<double> leTensor = eSystem.recompose();

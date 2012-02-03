@@ -1468,17 +1468,17 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 //              priorProbability =
 //                distancePriorProbabilityImage->GetPixel( ItW.GetIndex() );
 //              }
-//	           if( this->GetPriorLabelImage() )
+//               if( this->GetPriorLabelImage() )
 //              {
 //              if( priorProbability == 0.0 )
 //                {
 //                priorProbability = 1.0 / static_cast<RealType>(
 //                  this->m_NumberOfTissueClasses );
 //                }
-//	             else
-//	               {
-//	               priorProbability = 1.0;
-//	               }
+//                 else
+//                   {
+//                   priorProbability = 1.0;
+//                   }
 //              }
 //            }
 //          else
@@ -1537,8 +1537,8 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
 //                }
 //              else
 //                {
-//  	             priorProbability = 1.0;
-//  	             }
+//                   priorProbability = 1.0;
+//                   }
 //              }
 //            }
 //          else
@@ -2048,10 +2048,10 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
                 priorProbability = 1.0 / static_cast<RealType>(
                   totalNumberOfClasses );
                 }
-       	      else
-       	        {
-       	        priorProbability = 1.0;
-       	        }
+                 else
+                   {
+                   priorProbability = 1.0;
+                   }
               }
             ItS.Set( ItS.Get() + this->m_MixtureModelProportions[c]
               * priorProbability );
@@ -2159,10 +2159,10 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
                   priorProbability = 1.0 /
                     static_cast<RealType>( totalNumberOfClasses );
                   }
-       	        else
-       	          {
-       	          priorProbability = 1.0;
-       	          }
+                   else
+                     {
+                     priorProbability = 1.0;
+                     }
                 }
               RealType sumPriorProbability =
                 sumPriorProbabilityImage->GetPixel( ItO.GetIndex() );
@@ -2312,7 +2312,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
               {
               priorProbability = priorProbabilityImage->GetPixel( ItS.GetIndex() );
               }
-       	    else if( this->GetPriorLabelImage() )
+               else if( this->GetPriorLabelImage() )
               {
               if( priorProbability == 0.0 )
                 {
@@ -3211,10 +3211,10 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
             break;
             }
           }
-       	if( !hasCode )
+           if( !hasCode )
           {
           It.SetCenterPixel( this->m_MaximumICMCode );
-       	  codingComplete = false;
+             codingComplete = false;
           }
         }
       ++It;

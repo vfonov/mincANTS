@@ -1,27 +1,27 @@
 /*=========================================================================
-  
+
   Program:   Advanced Normalization Tools
   Module:    $RCSfile: SmoothImage.cxx,v $
-  Language:  C++      
+  Language:  C++
   Date:      $Date: 2008/11/15 23:46:06 $
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
-  
+
 =========================================================================*/
 
 #include "itkMedianImageFilter.h"
 #include "itkDiscreteGaussianImageFilter.h"
-#include "ReadWriteImage.h" 
+#include "ReadWriteImage.h"
 
 template<unsigned int ImageDimension>
-int SmoothImage(int argc, char *argv[])        
+int SmoothImage(int argc, char *argv[])
 {
   typedef float  PixelType;
   typedef itk::Vector<float,ImageDimension>         VectorType;
@@ -39,10 +39,10 @@ int SmoothImage(int argc, char *argv[])
 
   std::string fn1 = std::string(argv[2]);
   float sigma=atof(argv[3]);
-  typename ImageType::Pointer image1 = NULL; 
-  typename ImageType::Pointer varimage = NULL; 
+  typename ImageType::Pointer image1 = NULL;
+  typename ImageType::Pointer varimage = NULL;
   ReadImage<ImageType>(image1, argv[2]);
-  
+
   typedef itk::DiscreteGaussianImageFilter<ImageType, ImageType> dgf;
   typedef itk::MedianImageFilter<ImageType, ImageType> medf;
   typename dgf::Pointer filter = dgf::New();
@@ -72,29 +72,29 @@ int SmoothImage(int argc, char *argv[])
 
   typename writertype::Pointer writer = writertype::New();
   writer->SetFileName(argv[4]);
-  writer->SetInput( varimage ); 
-  writer->Write();   
+  writer->SetInput( varimage );
+  writer->Write();
 
   return 0;
- 
-}     
+
+}
 
 
-      
 
-       
 
-int main(int argc, char *argv[])        
+
+
+int main(int argc, char *argv[])
 {
 
-      
-  if ( argc < 4 )     
-  { 
-    std::cout << "Usage:  "<< std::endl; 
+
+  if ( argc < 4 )
+  {
+    std::cout << "Usage:  "<< std::endl;
     std::cout << argv[0] << " ImageDimension image.ext smoothingsigma outimage.ext {sigma-is-in-spacing-coordinates-0/1} {medianfilter-0/1}" << std::endl;
     std::cout <<" if median, then sigma means radius of filtering " << std::endl;
     return 1;
-  }           
+  }
 
   switch ( atoi(argv[1]) )
    {
@@ -108,6 +108,6 @@ int main(int argc, char *argv[])
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
    }
-	
+
   return 0;
-} 
+}

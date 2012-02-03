@@ -7,11 +7,11 @@
   Version:   $Revision: 1.2 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -25,8 +25,8 @@ namespace itk
 /** \class DecomposeTensorFunction2
  *
  */
-template <typename TInput, 
-          typename TRealType = float, 
+template <typename TInput,
+          typename TRealType = float,
           typename TOutput = itk::VariableSizeMatrix<TRealType>
 >
 class DecomposeTensorFunction2
@@ -46,28 +46,28 @@ public:
   typedef TRealType                                       RealType;
 
   // Wrappers for vnl routines
-  void EvaluateEigenDecomposition( InputMatrixType&, 
+  void EvaluateEigenDecomposition( InputMatrixType&,
     OutputMatrixType&, OutputMatrixType& );
 
-  void EvaluateSymmetricEigenDecomposition( InputMatrixType&, 
+  void EvaluateSymmetricEigenDecomposition( InputMatrixType&,
     OutputMatrixType&, OutputMatrixType& );
 
-  void EvaluateQRDecomposition( InputMatrixType&, 
+  void EvaluateQRDecomposition( InputMatrixType&,
     OutputMatrixType&, OutputMatrixType& );
 
-  void EvaluateSVDDecomposition( InputMatrixType&, 
+  void EvaluateSVDDecomposition( InputMatrixType&,
     OutputMatrixType&, OutputMatrixType&, OutputMatrixType& );
 
-  void EvaluateSVDEconomyDecomposition( InputMatrixType&, 
+  void EvaluateSVDEconomyDecomposition( InputMatrixType&,
     OutputMatrixType&, OutputMatrixType& );
 
-  void EvaluateLeftPolarDecomposition( InputMatrixType&, 
+  void EvaluateLeftPolarDecomposition( InputMatrixType&,
     OutputMatrixType&, OutputMatrixType& );
 
-  void EvaluateRightPolarDecomposition( InputMatrixType&, 
+  void EvaluateRightPolarDecomposition( InputMatrixType&,
     OutputMatrixType&, OutputMatrixType& );
 
-  void EvaluateCholeskyDecomposition( InputMatrixType&, 
+  void EvaluateCholeskyDecomposition( InputMatrixType&,
     OutputMatrixType& );
 
   RealType EvaluateDeterminant( InputMatrixType& );
@@ -85,7 +85,7 @@ private:
   void operator=(const Self&); //purposely not implemented
 
 };
-  
+
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION

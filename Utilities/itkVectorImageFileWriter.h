@@ -7,11 +7,11 @@
   Version:   $ $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -28,22 +28,22 @@ namespace itk
 {
 
 /** \brief Base exception class for IO problems during writing. */
-class VectorImageFileWriterException : public ExceptionObject 
+class VectorImageFileWriterException : public ExceptionObject
 {
 public:
   /** Run-time information. */
   itkTypeMacro( VectorImageFileWriterException, ExceptionObject );
 
   /** Constructor. */
-  VectorImageFileWriterException(const char *file, unsigned int line, 
+  VectorImageFileWriterException(const char *file, unsigned int line,
                            const char* message = "Error in IO",
-                           const char* loc = "Unknown" ) : 
+                           const char* loc = "Unknown" ) :
     ExceptionObject(file, line, message, loc)
   {
   }
 
   /** Constructor. */
-  VectorImageFileWriterException(const std::string &file, unsigned int line, 
+  VectorImageFileWriterException(const std::string &file, unsigned int line,
                            const char* message = "Error in IO",
                            const char* loc = "Unknown" ) :
     ExceptionObject(file, line, message, loc)
@@ -58,10 +58,10 @@ public:
  * \sa ImageSeriesReader
  * \sa ImageIOBase
  *
- * \ingroup IOFilters 
+ * \ingroup IOFilters
  */
 template <class TVectorImage, class TImage>
-class ITK_EXPORT VectorImageFileWriter : 
+class ITK_EXPORT VectorImageFileWriter :
   public ProcessObject
 {
 public:
@@ -80,25 +80,25 @@ public:
   /** Some convenient typedefs. */
   typedef TVectorImage VectorImageType;
   typedef typename VectorImageType::Pointer VectorImagePointer;
-  typedef typename VectorImageType::RegionType VectorImageRegionType; 
-  typedef typename VectorImageType::PixelType VectorImagePixelType; 
+  typedef typename VectorImageType::RegionType VectorImageRegionType;
+  typedef typename VectorImageType::PixelType VectorImagePixelType;
   typedef TImage ImageType;
   typedef typename ImageType::Pointer ImagePointer;
-  typedef typename ImageType::RegionType ImageRegionType; 
-  typedef typename ImageType::PixelType ImagePixelType; 
-  
+  typedef typename ImageType::RegionType ImageRegionType;
+  typedef typename ImageType::PixelType ImagePixelType;
+
   /** Set/Get the image input of this writer.  */
   void SetInput(const VectorImageType *input);
   const VectorImageType * GetInput(void);
   const VectorImageType * GetInput(unsigned int idx);
-  
+
   /** Specify the name of the output file to write. */
   itkSetStringMacro(FileName);
   itkGetStringMacro(FileName);
-  
+
   /** Set/Get the ImageIO helper class. Usually this is created via the object
    * factory mechanism that determines whether a particular ImageIO can
-   * write a certain file. This method provides a way to get the ImageIO 
+   * write a certain file. This method provides a way to get the ImageIO
    * instance that is created, or one can be manually set where the
    * IO factory mechanism may not work (for example, raw image files or
    * image files with non-standard filename suffix's.
@@ -116,7 +116,7 @@ public:
     m_FactorySpecifiedImageIO = false;
   }
   itkGetObjectMacro(ImageIO,ImageIOBase);
-  
+
   /** A special version of the Update() method for writers.  It
    * invokes start and end events and handles releasing data. It
    * eventually calls GenerateData() which does the actual writing.
@@ -151,10 +151,10 @@ public:
   itkGetConstReferenceMacro(UseZhangNamingConvention,bool);
   itkBooleanMacro(UseZhangNamingConvention);
 
-  /** By default the MetaDataDictionary is taken from the input image and 
-   *  passed to the ImageIO. In some cases, however, a user may prefer to 
+  /** By default the MetaDataDictionary is taken from the input image and
+   *  passed to the ImageIO. In some cases, however, a user may prefer to
    *  introduce her/his own MetaDataDictionary. This is often the case of
-   *  the ImageSeriesWriter. This flag defined whether the MetaDataDictionary 
+   *  the ImageSeriesWriter. This flag defined whether the MetaDataDictionary
    *  to use will be the one from the input image or the one already set in
    *  the ImageIO object. */
   itkSetMacro(UseInputMetaDataDictionary,bool);
@@ -169,7 +169,7 @@ protected:
 
   /** Does the real work. */
   void GenerateData(void);
-  
+
 private:
   VectorImageFileWriter(const Self&); //purposely not implemented
   void operator=(const Self&); //purposely not implemented
@@ -178,12 +178,12 @@ private:
   std::string        m_ComponentImageFileName;
   bool               m_UseAvantsNamingConvention;
   bool               m_UseZhangNamingConvention;
-  
+
   ImagePointer m_Image;
-  
+
   ImageIOBase::Pointer m_ImageIO;
   bool m_UserSpecifiedImageIO; //track whether the ImageIO is user specified
-  
+
   ImageIORegion m_IORegion;
   bool m_UserSpecifiedIORegion; //
                                 //track whether the region is user specified
@@ -192,12 +192,12 @@ private:
   bool m_UseInputMetaDataDictionary; // whether to use the MetaDataDictionary from the input or not.
 };
 
-  
+
 } // end namespace itk
-  
+
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "itkVectorImageFileWriter.hxx"
 #endif
 
 #endif // __itkVectorImageFileWriter_h
-  
+

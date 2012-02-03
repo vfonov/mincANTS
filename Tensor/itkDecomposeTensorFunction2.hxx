@@ -7,11 +7,11 @@
   Version:   $Revision: 1.2 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -49,26 +49,26 @@ DecomposeTensorFunction2<TInput, TRealType, TOutput>
   V.SetSize( RowDimensions, RowDimensions );
 
   D.Fill( 0.0 );
-		vnl_matrix<double> v( RowDimensions, ColumnDimensions );
-		for ( unsigned int j = 0; j < ColumnDimensions; j++ )
-				{
-				for ( unsigned int i = 0; i < RowDimensions; i++ )
-						{
-						v.put( i, j, M[i][j] );
-						}  
-				}
-		vnl_real_eigensystem eig( v );
-		for ( unsigned int j = 0; j < ColumnDimensions; j++ )
-				{
-				for ( unsigned int i = 0; i < RowDimensions; i++ )
-						{
-						V[i][j] = static_cast<RealType>( (eig.Vreal).get( i, j ) );
-						if ( i == j )
-								{
-								D[i][j] = static_cast<RealType>( vcl_real( eig.D(j) ) );
-								}  
-						}  
-				}
+        vnl_matrix<double> v( RowDimensions, ColumnDimensions );
+        for ( unsigned int j = 0; j < ColumnDimensions; j++ )
+                {
+                for ( unsigned int i = 0; i < RowDimensions; i++ )
+                        {
+                        v.put( i, j, M[i][j] );
+                        }
+                }
+        vnl_real_eigensystem eig( v );
+        for ( unsigned int j = 0; j < ColumnDimensions; j++ )
+                {
+                for ( unsigned int i = 0; i < RowDimensions; i++ )
+                        {
+                        V[i][j] = static_cast<RealType>( (eig.Vreal).get( i, j ) );
+                        if ( i == j )
+                                {
+                                D[i][j] = static_cast<RealType>( vcl_real( eig.D(j) ) );
+                                }
+                        }
+                }
 }
 
 template <typename TInput, typename TRealType, typename TOutput>
@@ -88,19 +88,19 @@ DecomposeTensorFunction2<TInput, TRealType, TOutput>
   V.SetSize( RowDimensions, RowDimensions );
 
   D.Fill( 0.0 );
-		vnl_symmetric_eigensystem<RealType> eig( M.GetVnlMatrix() );
+        vnl_symmetric_eigensystem<RealType> eig( M.GetVnlMatrix() );
 
-		for ( unsigned int j = 0; j < ColumnDimensions; j++ )
-				{
-				for ( unsigned int i = 0; i < RowDimensions; i++ )
-						{
-						V[i][j] = (eig.V).get( i, j );
-						if ( i == j )
-								{
-								D[i][j] = eig.D(j);
-								}  
-						}  
-				}
+        for ( unsigned int j = 0; j < ColumnDimensions; j++ )
+                {
+                for ( unsigned int i = 0; i < RowDimensions; i++ )
+                        {
+                        V[i][j] = (eig.V).get( i, j );
+                        if ( i == j )
+                                {
+                                D[i][j] = eig.D(j);
+                                }
+                        }
+                }
 }
 
 template <typename TInput, typename TRealType, typename TOutput>
@@ -120,7 +120,7 @@ DecomposeTensorFunction2<TInput, TRealType, TOutput>
 template <typename TInput, typename TRealType, typename TOutput>
 void
 DecomposeTensorFunction2<TInput, TRealType, TOutput>
-::EvaluateLeftPolarDecomposition( InputMatrixType &M, 
+::EvaluateLeftPolarDecomposition( InputMatrixType &M,
   OutputMatrixType &S, OutputMatrixType &R )
 {
   OutputMatrixType U;
@@ -144,19 +144,19 @@ DecomposeTensorFunction2<TInput, TRealType, TOutput>
   R.SetSize( ColumnDimensions, ColumnDimensions );
 
   vnl_qr<RealType> qr( M.GetVnlMatrix() );
-  
+
   for ( unsigned int i = 0; i < RowDimensions; i++ )
     {
     for ( unsigned int j = 0; j < ColumnDimensions; j++ )
       {
-      Q[i][j] = qr.Q()(i, j);  
+      Q[i][j] = qr.Q()(i, j);
       }
     }
   for ( unsigned int i = 0; i < ColumnDimensions; i++ )
     {
     for ( unsigned int j = 0; j < ColumnDimensions; j++ )
       {
-      R[i][j] = qr.R()(i, j);  
+      R[i][j] = qr.R()(i, j);
       }
     }
 }
@@ -164,7 +164,7 @@ DecomposeTensorFunction2<TInput, TRealType, TOutput>
 template <typename TInput, typename TRealType, typename TOutput>
 void
 DecomposeTensorFunction2<TInput, TRealType, TOutput>
-::EvaluateSVDDecomposition( InputMatrixType &M, 
+::EvaluateSVDDecomposition( InputMatrixType &M,
   OutputMatrixType &U, OutputMatrixType &W, OutputMatrixType &V )
 {
   unsigned int RowDimensions = M.Rows();
@@ -181,15 +181,15 @@ DecomposeTensorFunction2<TInput, TRealType, TOutput>
   {
     for ( unsigned int j = 0; j < RowDimensions; j++ )
     {
-      if (i==j) 
-	{
-	  if (fabs(M[i][j]-1.0) > tol) isidentity=false;
+      if (i==j)
+    {
+      if (fabs(M[i][j]-1.0) > tol) isidentity=false;
         }
       else
-	{
-	  if (fabs(M[i][j]) > tol) isidentity=false;
+    {
+      if (fabs(M[i][j]) > tol) isidentity=false;
         }
-    }    
+    }
   }
 
 
@@ -208,38 +208,38 @@ DecomposeTensorFunction2<TInput, TRealType, TOutput>
 
 
   vnl_svd<RealType> svd( M.GetVnlMatrix() );
-  
+
   for ( unsigned int i = 0; i < RowDimensions; i++ )
     {
     for ( unsigned int j = 0; j < RowDimensions; j++ )
       {
-      U[i][j] = svd.U(i, j);  
+      U[i][j] = svd.U(i, j);
       }
     }
   for ( unsigned int i = 0; i < ColumnDimensions; i++ )
     {
     for ( unsigned int j = 0; j < ColumnDimensions; j++ )
       {
-      V[i][j] = svd.V(i, j);  
+      V[i][j] = svd.V(i, j);
       }
     }
 
   W.Fill( 0.0 );
-		unsigned int minDimensions = ColumnDimensions;
-		if ( static_cast<unsigned int>( RowDimensions ) <static_cast<unsigned int>( ColumnDimensions ) )
-				{
-				minDimensions = RowDimensions;
-				}
-		for ( unsigned int i = 0; i < minDimensions; i++ )
-				{
-				W[i][i] = svd.W(i, i);
-				}  
+        unsigned int minDimensions = ColumnDimensions;
+        if ( static_cast<unsigned int>( RowDimensions ) <static_cast<unsigned int>( ColumnDimensions ) )
+                {
+                minDimensions = RowDimensions;
+                }
+        for ( unsigned int i = 0; i < minDimensions; i++ )
+                {
+                W[i][i] = svd.W(i, i);
+                }
 }
 
 template <typename TInput, typename TRealType, typename TOutput>
 void
 DecomposeTensorFunction2<TInput, TRealType, TOutput>
-::EvaluateSVDEconomyDecomposition( InputMatrixType &M, 
+::EvaluateSVDEconomyDecomposition( InputMatrixType &M,
   OutputMatrixType &W, OutputMatrixType &V )
 {
   /**
@@ -259,21 +259,21 @@ DecomposeTensorFunction2<TInput, TRealType, TOutput>
     {
     for ( unsigned int j = 0; j < ColumnDimensions; j++ )
       {
-      V[i][j] = svd.V()(i, j);  
+      V[i][j] = svd.V()(i, j);
       }
     }
 
   W.Fill( 0.0 );
-		unsigned int minDimensions = ColumnDimensions;
-		if ( static_cast<unsigned int>( RowDimensions ) < 
-							static_cast<unsigned int>( ColumnDimensions ) )
-				{
-				minDimensions = RowDimensions;
-				}
-		for ( unsigned int i = 0; i < minDimensions; i++ )
-				{
-				W[i][i] = svd.lambdas()[i];
-				}  
+        unsigned int minDimensions = ColumnDimensions;
+        if ( static_cast<unsigned int>( RowDimensions ) <
+                            static_cast<unsigned int>( ColumnDimensions ) )
+                {
+                minDimensions = RowDimensions;
+                }
+        for ( unsigned int i = 0; i < minDimensions; i++ )
+                {
+                W[i][i] = svd.lambdas()[i];
+                }
 }
 
 template <typename TInput, typename TRealType, typename TOutput>
@@ -282,14 +282,14 @@ DecomposeTensorFunction2<TInput, TRealType, TOutput>
 ::EvaluateCholeskyDecomposition( InputMatrixType &M, OutputMatrixType &L )
 {
   // Assumes symmetric tensor of type double
-		vnl_matrix<double> m( M.Rows(), M.Cols() );
-		for ( unsigned int j = 0; j < M.Cols(); j++ )
-				{
-				for ( unsigned int i = 0; i < M.Rows(); i++ )
-						{
-						m.put( i, j, M[i][j] );
-						}  
-				}
+        vnl_matrix<double> m( M.Rows(), M.Cols() );
+        for ( unsigned int j = 0; j < M.Cols(); j++ )
+                {
+                for ( unsigned int i = 0; i < M.Rows(); i++ )
+                        {
+                        m.put( i, j, M[i][j] );
+                        }
+                }
 
   vnl_cholesky cholesky( m, vnl_cholesky::quiet );
 
@@ -328,26 +328,26 @@ DecomposeTensorFunction2<TInput, TRealType, TOutput>
           case 4:
             m4.put( i, j, M[i][j] );
             break;
-          }  
+          }
         }
-      } 
-				switch( M.Rows() )
-						{
-						case 2:
-								return static_cast<RealType>( vnl_det( m2 ) );
-								break;
-						case 3:
-								return static_cast<RealType>( vnl_det( m3 ) );
-								break;
-						case 4:
-								return static_cast<RealType>( vnl_det( m4 ) );
-								break;
-						}  
-    }         
+      }
+                switch( M.Rows() )
+                        {
+                        case 2:
+                                return static_cast<RealType>( vnl_det( m2 ) );
+                                break;
+                        case 3:
+                                return static_cast<RealType>( vnl_det( m3 ) );
+                                break;
+                        case 4:
+                                return static_cast<RealType>( vnl_det( m4 ) );
+                                break;
+                        }
+    }
   else
     {
-				vnl_qr<RealType> qr( M.GetVnlMatrix() );
-				return static_cast<RealType>( qr.determinant() );
+                vnl_qr<RealType> qr( M.GetVnlMatrix() );
+                return static_cast<RealType>( qr.determinant() );
     }
 }
 
@@ -357,7 +357,7 @@ DecomposeTensorFunction2<TInput, TRealType, TOutput>
 ::PrintSelf( std::ostream& os, Indent indent ) const
 {
 }
-  
+
 } // end namespace itk
 
 #endif

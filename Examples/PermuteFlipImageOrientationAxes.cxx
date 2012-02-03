@@ -7,11 +7,11 @@
   Version:   $Revision: 1.19 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -44,13 +44,13 @@ int PermuteFlipImageOrientationAxes( int argc, char * argv[] )
   ReadImage<InputImageType>(inputImage,argv[1]);
 
   typename InputImageType::SpacingType inputSpacing = inputImage->GetSpacing();
-  
+
   // Create a filter
   typedef OutputImageType ShortImage;
   typename itk::PermuteAxesImageFilter< ShortImage >::Pointer permute;
   permute = itk::PermuteAxesImageFilter< ShortImage >::New();
   permute->SetInput( inputImage );
-  
+
   unsigned int upperFactors[Dimension];
   unsigned int lowerFactors[Dimension];
 
@@ -95,13 +95,13 @@ int PermuteFlipImageOrientationAxes( int argc, char * argv[] )
 }
 
 
-int main(int argc, char *argv[])        
+int main(int argc, char *argv[])
 {
 
   if( argc < 3 )
     {
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << " ImageDimension  inputImageFile  outputImageFile xperm yperm {zperm}  xflip yflip {zflip}  {FlipAboutOrigin}" << std::endl; 
+    std::cerr << argv[0] << " ImageDimension  inputImageFile  outputImageFile xperm yperm {zperm}  xflip yflip {zflip}  {FlipAboutOrigin}" << std::endl;
     std::cout << " for 3D:  " << argv[0] << " 3  in.nii out.nii   2 0 1  1 1 1  \n would map z=>x, x=>y, y=>z and flip each " << std::endl;
     std::cout << " for 2D:  " << argv[0] << " 2  in.nii out.nii   1 0  1 0  \n would map x=>y, y=>x and flip x  " << std::endl;
     std::cout << std::endl;
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     std::cout <<  std::endl << " The FlipAboutOrigin boolean lets you flip about the coordinate set in the origin " << std::endl;
     return 1;
     }
-   
+
 
    // Get the image dimension
   switch( atoi(argv[1]))
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
    }
-	
+
   return 0;
-} 
+}
 

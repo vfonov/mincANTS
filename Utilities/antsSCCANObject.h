@@ -150,14 +150,14 @@ public:
       VectorType rank=M.get_column(j);
       for ( unsigned int i=0; i<rows; i++) {
         double rankval=0;
-	RealType xi=Mvec(i);
+    RealType xi=Mvec(i);
         for ( unsigned int k=0; k<rows; k++) {
-  	  RealType yi=Mvec(k);
-	  RealType diff=fabs(xi-yi);
-	  if ( diff > 0 ) {
-	    RealType val=(xi-yi)/diff;
-    	    rankval+=val;
-	  }
+        RealType yi=Mvec(k);
+      RealType diff=fabs(xi-yi);
+      if ( diff > 0 ) {
+        RealType val=(xi-yi)/diff;
+            rankval+=val;
+      }
         }
         rank(i)=rankval/rows;
       }
@@ -171,7 +171,7 @@ public:
   itkGetMacro( KeepPositiveP, bool );
   void SetMaskImageP( ImagePointer mask ) { this->m_MaskImageP=mask; }
   void SetMatrixP(  MatrixType matrix ) { this->m_OriginalMatrixP.set_size(matrix.rows(),matrix.cols());  this->m_MatrixP.set_size(matrix.rows(),matrix.cols()); this->m_OriginalMatrixP.update(matrix); this->m_MatrixP.update(matrix); }
-  
+
   itkSetMacro( FractionNonZeroQ, RealType );
   itkSetMacro( KeepPositiveQ, bool );
   itkGetMacro( KeepPositiveQ, bool );
@@ -194,7 +194,7 @@ public:
   RealType RunSCCAN2multiple( unsigned int n_vecs );
   RealType RunSCCAN2( );
   RealType RunSCCAN3();
- 
+
   void ReSoftThreshold( VectorType& v_in, RealType fractional_goal , bool allow_negative_weights );
   void ConstantProbabilityThreshold( VectorType& v_in, RealType probability_goal , bool allow_negative_weights );
   VectorType InitializeV( MatrixType p );
@@ -216,14 +216,14 @@ public:
   }
 
   MatrixType WhitenMatrix(MatrixType p, RealType regularization=1.e-2 ) {
-    double reg=1.e-9; 
+    double reg=1.e-9;
     if ( p.rows() < p.cols() ) reg=regularization;
     MatrixType cov=this->CovarianceMatrix(p,reg);
     MatrixType invcov=this->PseudoInverse( cov, true );
     bool debug=false;
     if (debug) {
     std::cout << " cov " << std::endl;    std::cout << cov << std::endl;
-    std::cout << " invcov " << std::endl;    std::cout << invcov << std::endl; 
+    std::cout << " invcov " << std::endl;    std::cout << invcov << std::endl;
     std::cout << " id? " << std::endl;    std::cout << cov*invcov << std::endl;
     }
     if ( p.rows() < p.columns() ) return (invcov*p);
@@ -239,8 +239,8 @@ public:
 
   MatrixType ProjectionMatrix(MatrixType b) {
     b=this->NormalizeMatrix(b);
-    b=this->WhitenMatrix(b);  
-    return b*b.transpose(); 
+    b=this->WhitenMatrix(b);
+    return b*b.transpose();
   }
 
   VectorType TrueCCAPowerUpdate(RealType penaltyP, MatrixType p , VectorType w_q , MatrixType q, bool keep_pos, bool factorOutR);
@@ -253,26 +253,26 @@ public:
   VectorType GetRWeights() { return this->m_WeightsR; }
   RealType GetCorrelationForSignificanceTest() { return this->CorrelationForSignificanceTest; }
 
-  VectorType GetCanonicalCorrelations( ) 
-  { 
+  VectorType GetCanonicalCorrelations( )
+  {
     return this->m_CanonicalCorrelations;
   }
 
-  VectorType GetVariateP( unsigned int i = 0 ) 
-  { 
-    return this->m_VariatesP.get_column(i); 
+  VectorType GetVariateP( unsigned int i = 0 )
+  {
+    return this->m_VariatesP.get_column(i);
   }
-  VectorType GetVariateQ( unsigned int i = 0 ) 
-  { 
-    return this->m_VariatesQ.get_column(i); 
+  VectorType GetVariateQ( unsigned int i = 0 )
+  {
+    return this->m_VariatesQ.get_column(i);
   }
-  MatrixType GetVariatesP() 
-  { 
-    return this->m_VariatesP; 
+  MatrixType GetVariatesP()
+  {
+    return this->m_VariatesP;
   }
-  MatrixType GetVariatesQ() 
-  { 
-    return this->m_VariatesQ; 
+  MatrixType GetVariatesQ()
+  {
+    return this->m_VariatesQ;
   }
 
   RealType ComputeEnergySlope( std::vector<RealType> vexlist , unsigned int n )
@@ -288,13 +288,13 @@ public:
     }
     if ( listsize < 3 ) return 1;
     std::vector<RealType> sublist;
-    for (int i=listsize-4; i<listsize; i++) sublist.push_back( vexlist[i] ); 
+    for (int i=listsize-4; i<listsize; i++) sublist.push_back( vexlist[i] );
     /** detect a cycle in the solution space */
     bool allequal=true;
     for (int i = 4; i < listsize; ++i) {
       allequal=true;
       for (int j=0; j<4; j++) if ( sublist[j] != vexlist[i-j] ) allequal=false;
-      if (allequal) return 1.e-7;    
+      if (allequal) return 1.e-7;
     }
     return sts/stt*(-1);
   }
@@ -308,14 +308,14 @@ public:
 protected:
 
   void SortResults(unsigned int n_vecs);
-// for pscca 
+// for pscca
   void UpdatePandQbyR( );
 
   MatrixType  DeleteCol( MatrixType p_in , unsigned int col)
   {
   unsigned int ncols=p_in.cols()-1;
   if ( col >= ncols ) ncols=p_in.cols();
-  MatrixType p(p_in.rows(),ncols);      
+  MatrixType p(p_in.rows(),ncols);
   unsigned int colct=0;
   for ( long i=0; i<p.cols(); ++i) { // loop over cols
     if ( i != col ) {
@@ -324,12 +324,12 @@ protected:
     }
   }
   return p;
-  } 
+  }
 
-  RealType CountNonZero( VectorType v ) 
+  RealType CountNonZero( VectorType v )
   {
     unsigned long ct=0;
-    for ( unsigned int i=0; i<v.size(); i++) 
+    for ( unsigned int i=0; i<v.size(); i++)
       if ( v[i] != 0 ) ct++;
     return (RealType)ct/(RealType)v.size();
   }
@@ -366,11 +366,11 @@ protected:
       std::cout <<" eigen " << m(0,1) << " vnl " << m_out(0,1) << std::endl;
     }
     //    std::cout <<" eigen at (0,1) " << m(0,1) << " vnl at (0,1) " << m_out(0,1) <<  " vnl at (1,0) " << m_out(1,0)  << std::endl;
-    if ( ncols == 0 ) 
+    if ( ncols == 0 )
       return m_out;
     else return (m_out).get_n_columns(0,ncols);
     // use this if you dont set #define EIGEN_DEFAULT_TO_ROW_MAJOR (we do this)
-    if ( ncols == 0 ) 
+    if ( ncols == 0 )
       return m_out.transpose();
     else return (m_out.transpose()).get_n_columns(0,ncols);
     }*/
@@ -378,28 +378,28 @@ protected:
   eMatrix mVtoE( MatrixType m ) {
 // NOTE: Eigen matrices are the transpose of vnl matrices unless you set # define EIGEN_DEFAULT_TO_ROW_MAJOR which we do
     eMatrix m_out(m.rows(),m.cols());
-    for ( long i=0; i<m.rows(); ++i) 
-      for ( long j=0; j<m.cols(); ++j)  
-	m_out(i,j)=m(i,j); 
+    for ( long i=0; i<m.rows(); ++i)
+      for ( long j=0; j<m.cols(); ++j)
+    m_out(i,j)=m(i,j);
     return m_out;
    }
   */
-  antsSCCANObject(); 
+  antsSCCANObject();
   ~antsSCCANObject() {  }
- 
+
   void PrintSelf( std::ostream& os, Indent indent ) const
   {
     if ( this->m_MaskImageP && this->m_MaskImageQ && this->m_MaskImageR ) std::cout << " 3 matrices " << std::endl;
     else if ( this->m_MaskImageP && this->m_MaskImageQ  ) std::cout << " 2 matrices " << std::endl;
     else std::cout << " fewer than 2 matrices " << std::endl;
   }
- 
+
   void RunDiagnostics(unsigned int);
 
 private:
 
   ImagePointer ConvertVariateToSpatialImage( VectorType variate, ImagePointer mask , bool threshold_at_zero=false );
-  VectorType ClusterThresholdVariate( VectorType&, ImagePointer mask , unsigned int); 
+  VectorType ClusterThresholdVariate( VectorType&, ImagePointer mask , unsigned int);
 
   bool m_Debug;
   MatrixType m_OriginalMatrixP;

@@ -7,11 +7,11 @@
   Version:   $Revision: 1.5 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -29,16 +29,16 @@ namespace itk
  *
  * VectorGaussianInterpolateImageFunction linearly interpolates image intensity at
  * a non-integer pixel position. This class is templated
- * over the input image type and the coordinate representation type 
+ * over the input image type and the coordinate representation type
  * (e.g. float or double).
  *
  * This function works for N-dimensional images.
  *
- * \ingroup ImageFunctions ImageInterpolators 
+ * \ingroup ImageFunctions ImageInterpolators
  */
 template <class TInputImage, class TCoordRep = double>
-class ITK_EXPORT VectorGaussianInterpolateImageFunction : 
-  public InterpolateImageFunction<TInputImage,TCoordRep> 
+class ITK_EXPORT VectorGaussianInterpolateImageFunction :
+  public InterpolateImageFunction<TInputImage,TCoordRep>
 {
 public:
   /** Standard class typedefs. */
@@ -46,12 +46,12 @@ public:
   typedef InterpolateImageFunction<TInputImage,TCoordRep> Superclass;
   typedef SmartPointer<Self> Pointer;
   typedef SmartPointer<const Self>  ConstPointer;
-  
+
   /** Run-time type information (and related methods). */
   itkTypeMacro(VectorGaussianInterpolateImageFunction, InterpolateImageFunction);
 
   /** Method for creation through the object factory. */
-  itkNewMacro(Self);  
+  itkNewMacro(Self);
 
   /** OutputType typedef support. */
   typedef typename Superclass::OutputType OutputType;
@@ -117,13 +117,13 @@ public:
 
   /** Evaluate the function at a ContinuousIndex position
    *
-   * Returns the linearly interpolated image intensity at a 
+   * Returns the linearly interpolated image intensity at a
    * specified point position. No bounds checking is done.
    * The point is assume to lie within the image buffer.
    *
    * ImageFunction::IsInsideBuffer() can be used to check bounds before
    * calling the method. */
-  virtual OutputType EvaluateAtContinuousIndex( 
+  virtual OutputType EvaluateAtContinuousIndex(
     const ContinuousIndexType & index ) const
     {
     return EvaluateAtContinuousIndex(index, NULL);
@@ -143,7 +143,7 @@ public:
 
       for(size_t d = 0; d < VDim; d++)
         {
-	  if ( index[d] <= 0 || index[d] >= this->m_ImageSize[d]-1  || vnl_math_isnan(index[d]) || vnl_math_isinf(index[d]) ) return Vout; 
+      if ( index[d] <= 0 || index[d] >= this->m_ImageSize[d]-1  || vnl_math_isnan(index[d]) || vnl_math_isinf(index[d]) ) return Vout;
         double *pdx = const_cast<double *>(dx[d].data_block());
         double *pgx = grad ?  const_cast<double *>(gx[d].data_block()) : NULL;
         compute_erf_array(pdx, i0[d], i1[d], bb_start[d], nt[d], cut[d], index[d], sf[d], pgx);
@@ -151,8 +151,8 @@ public:
 
       // Get a pointer to the output value
 
-      // loop over vector length 
-      for ( unsigned int qq=0; qq < Vout.Size(); qq++ ) { 
+      // loop over vector length
+      for ( unsigned int qq=0; qq < Vout.Size(); qq++ ) {
 
       double sum_me = 0.0, sum_m = 0.0;
       vnl_vector_fixed<double, VDim> dsum_me(0.0), dsum_m(0.0), dw;
@@ -164,14 +164,14 @@ public:
         region.SetIndex(d, i0[d]);
         region.SetSize(d, i1[d] - i0[d]);
         }
-      
+
       for(
         ImageRegionConstIteratorWithIndex<InputImageType> it(this->GetInputImage(), region);
         !it.IsAtEnd(); ++it)
         {
         size_t j = it.GetIndex()[0];
         double w = dx[0][j];
-        if(grad) 
+        if(grad)
           {
           dw[0] = gx[0][j];
           for(size_t d = 1; d < VDim; d++) dw[d] = dx[0][j];
@@ -184,9 +184,9 @@ public:
             {
             for(size_t q = 0; q < VDim; q++)
               dw[q] *= (d == q) ? gx[d][j] : dx[d][j];
-            } 
+            }
           }
-        
+
         double V = it.Get()[qq];
         sum_me += V * w;
         sum_m += w;
@@ -212,9 +212,9 @@ public:
       if (vnl_math_isnan(rc)) rc=0;
       Vout[qq]=rc;
 
-	}
+    }
       //      std::cout << " gaussian " << std::endl;
-	
+
       // return sum_me / sum_m;
       return Vout;
 
@@ -231,7 +231,7 @@ private:
   void operator=( const Self& ); //purposely not implemented
 
   /** Number of neighbors used in the interpolation */
-  static const unsigned long  m_Neighbors;  
+  static const unsigned long  m_Neighbors;
   typename InputImageType::SizeType m_ImageSize;
   vnl_vector<double> dx[VDim], gx[VDim];
   double bb_start[VDim], bb_end[VDim], sf[VDim], cut[VDim];
@@ -247,7 +247,7 @@ private:
     double p,                     // the value p
     double sfac,                  // scaling factor 1 / (Sqrt[2] sigma)
     double *gx_erf = NULL         // Output derivative/erf array (optional)
-    ) const      
+    ) const
       {
       // Determine the range of voxels along the line where to evaluate erf
       k0 = (int) floor(p - b - cut);
@@ -263,7 +263,7 @@ private:
       for(int i = k0; i < k1; i++)
         {
         t += sfac;
-	//	std::cout << " t2 " << t << std::endl;
+    //    std::cout << " t2 " << t << std::endl;
         double e_now = vnl_erf(t);
         dx_erf[i] = e_now - e_last;
         if(gx_erf)

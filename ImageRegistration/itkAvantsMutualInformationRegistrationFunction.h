@@ -381,50 +381,50 @@ public:
       unsigned long ct = 0;
       typename JointPDFType::IndexType index;
 
-	  for (unsigned int ii=0; ii<m_NumberOfHistogramBins; ii++)
-	  {
-	  MarginalPDFIndexType mind;
-	  mind[0]=ii;
-	  px = m_FixedImageMarginalPDF->GetPixel(mind);
-	  for (unsigned int jj=0; jj<m_NumberOfHistogramBins; jj++)
-	    {
-	      mind[0]=jj;
-	      py = m_MovingImageMarginalPDF->GetPixel(mind);
-	      float denom = px*py;
-	      index[0]=ii;
-	      index[1]=jj;
-	      //pxy=m_JointPDF->GetPixel(index);
+      for (unsigned int ii=0; ii<m_NumberOfHistogramBins; ii++)
+      {
+      MarginalPDFIndexType mind;
+      mind[0]=ii;
+      px = m_FixedImageMarginalPDF->GetPixel(mind);
+      for (unsigned int jj=0; jj<m_NumberOfHistogramBins; jj++)
+        {
+          mind[0]=jj;
+          py = m_MovingImageMarginalPDF->GetPixel(mind);
+          float denom = px*py;
+          index[0]=ii;
+          index[1]=jj;
+          //pxy=m_JointPDF->GetPixel(index);
 
-	      JointPDFValueType *pdfPtr = m_JointPDF->GetBufferPointer() +
-		( ii* m_NumberOfHistogramBins );
-	      // Move the pointer to the first affected bin
-	      int pdfMovingIndex = static_cast<int>( jj );
-	      pdfPtr += pdfMovingIndex;
-	      pxy=*(pdfPtr);
+          JointPDFValueType *pdfPtr = m_JointPDF->GetBufferPointer() +
+        ( ii* m_NumberOfHistogramBins );
+          // Move the pointer to the first affected bin
+          int pdfMovingIndex = static_cast<int>( jj );
+          pdfPtr += pdfMovingIndex;
+          pxy=*(pdfPtr);
 
-	      mi=0;
-	      if (fabs(denom) > 0 )
-		{
-		  if (pxy/denom > 0)
-		    {
-		      //true mi
-		      mi = pxy*vcl_log(pxy/denom);
-		      //test mi
-		      //mi = 1.0 + log(pxy/denom);
-		      ct++;
-		    }
+          mi=0;
+          if (fabs(denom) > 0 )
+        {
+          if (pxy/denom > 0)
+            {
+              //true mi
+              mi = pxy*vcl_log(pxy/denom);
+              //test mi
+              //mi = 1.0 + log(pxy/denom);
+              ct++;
+            }
 
-		}
+        }
 
-	      mival += mi;
-	    }
-	//	  std::cout << " II " << ii << " JJ " << ii << " pxy " << pxy << " px " << px << std::endl;
+          mival += mi;
+        }
+    //      std::cout << " II " << ii << " JJ " << ii << " pxy " << pxy << " px " << px << std::endl;
 
-	}
-	  //GS: temp edit to make sure if this is decreasing (should be )
-	// this->m_Energy = -1.0*mival/vcl_log((double)2.0);
-	  this->m_Energy = -1.0* mival/vcl_log((double)2.0);
-	return this->m_Energy;
+    }
+      //GS: temp edit to make sure if this is decreasing (should be )
+    // this->m_Energy = -1.0*mival/vcl_log((double)2.0);
+      this->m_Energy = -1.0* mival/vcl_log((double)2.0);
+    return this->m_Energy;
     }
 
 
@@ -444,9 +444,9 @@ public:
 
     for (unsigned int dd=0; dd<ImageDimension; dd++)
       {
-	if ( oindex[dd] < 1 ||
-	     oindex[dd] >= static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) )
-	  return update;
+    if ( oindex[dd] < 1 ||
+         oindex[dd] >= static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) )
+      return update;
       }
 
     CovariantVectorType fixedGradient;
@@ -486,23 +486,23 @@ public:
 
 
   /* find the image index in the number of histogram bins */
-	unsigned int FitIndexInBins( double windowTerm )
-	{
-		unsigned int movingImageParzenWindowIndex  =
-			static_cast<unsigned int>( this->m_Padding + (unsigned int)( windowTerm * (float)(this->m_NumberOfHistogramBins - 1 - this->m_Padding) + 0.5 ) );
+    unsigned int FitIndexInBins( double windowTerm )
+    {
+        unsigned int movingImageParzenWindowIndex  =
+            static_cast<unsigned int>( this->m_Padding + (unsigned int)( windowTerm * (float)(this->m_NumberOfHistogramBins - 1 - this->m_Padding) + 0.5 ) );
 
-		// Make sure the extreme values are in valid bins
-		if ( movingImageParzenWindowIndex < this->m_Padding )
+        // Make sure the extreme values are in valid bins
+        if ( movingImageParzenWindowIndex < this->m_Padding )
         {
-			movingImageParzenWindowIndex = this->m_Padding -1 ;
+            movingImageParzenWindowIndex = this->m_Padding -1 ;
         }
-		else if ( movingImageParzenWindowIndex > (m_NumberOfHistogramBins - this->m_Padding ) )
+        else if ( movingImageParzenWindowIndex > (m_NumberOfHistogramBins - this->m_Padding ) )
         {
-			movingImageParzenWindowIndex = m_NumberOfHistogramBins - this->m_Padding  - 1;
+            movingImageParzenWindowIndex = m_NumberOfHistogramBins - this->m_Padding  - 1;
         }
 
-		return movingImageParzenWindowIndex;
-	}
+        return movingImageParzenWindowIndex;
+    }
 
 
   double FitContIndexInBins( double windowTerm ) {
@@ -525,9 +525,9 @@ public:
 
     for (unsigned int dd=0; dd<ImageDimension; dd++)
       {
-	if ( oindex[dd] < 1 ||
-	     oindex[dd] >= static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) )
-	  return update;
+    if ( oindex[dd] < 1 ||
+         oindex[dd] >= static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) )
+      return update;
       }
 
     CovariantVectorType movingGradient;

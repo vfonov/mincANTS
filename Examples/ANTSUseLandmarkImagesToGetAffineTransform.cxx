@@ -21,7 +21,7 @@ template<class PointContainerType, class TransformPointerType>
 void GetAffineTransformFromTwoPointSets3D(PointContainerType &fixedLandmarks, PointContainerType &movingLandmarks, TransformPointerType &transform);
 
 //
-// The test specifies a bunch of fixed and moving landmarks and test if the 
+// The test specifies a bunch of fixed and moving landmarks and test if the
 // fixed landmarks after transform by the computed transform coincides
 // with the moving landmarks....
 
@@ -56,7 +56,7 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
             if( find( myFixLabelSet.begin(), myFixLabelSet.end(), label )
                     == myFixLabelSet.end() )
             {
-                //	      std::cout <<" f-label " << label << std::endl;
+                //          std::cout <<" f-label " << label << std::endl;
                 myFixLabelSet.push_back( label );
             }
         }
@@ -70,7 +70,7 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
             if( find( myMovLabelSet.begin(), myMovLabelSet.end(), label )
                     == myMovLabelSet.end() )
             {
-                //	      std::cout <<" m-label " << label << std::endl;
+                //          std::cout <<" m-label " << label << std::endl;
                 myMovLabelSet.push_back( label );
             }
         }
@@ -163,9 +163,9 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
 
     }
 
-    TransformInitializerType::PointsContainerConstIterator 
+    TransformInitializerType::PointsContainerConstIterator
     fitr = fixedLandmarks.begin();
-    TransformInitializerType::PointsContainerConstIterator 
+    TransformInitializerType::PointsContainerConstIterator
     mitr = movingLandmarks.begin();
     while( mitr != movingLandmarks.end() )
     {
@@ -184,7 +184,7 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
     initializer->InitializeTransform();
 
     transform->Print(std::cout);
-    // to transform a point 
+    // to transform a point
     //         transform->TransformPoint( *fitr ) << std::endl;
 
 
@@ -396,7 +396,7 @@ int main(int argc, char *argv[])
 {
 
     if ( argc < 3 )
-    { 
+    {
         std::cout << "Usage:   " << argv[0] << " FixedImageWithLabeledLandmarks.nii.gz  MovingImageWithLabeledLandmarks.nii.gz [rigid | affine] OutAffine.txt " << std::endl;
         std::cout << " we expect the input images to be (1) N-ary  (2) in the same physical space as the images you want to " << std::endl;
         std::cout << " register and (3 ) to have the same landmark points defined within them ... " << std::endl;

@@ -6,25 +6,25 @@
 
 
 template <unsigned int ImageDimension>
-int AverageTensorImages(unsigned int argc, char *argv[])        
+int AverageTensorImages(unsigned int argc, char *argv[])
 {
 
   // typedef itk::Vector<float,6> TensorType;
-  typedef itk::SymmetricSecondRankTensor< float, 3 >  TensorType; 
+  typedef itk::SymmetricSecondRankTensor< float, 3 >  TensorType;
 
   typedef itk::Image<TensorType, ImageDimension> ImageType;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> IteratorType;
-    
+
   char * outputName = argv[2];
   int mathtype = atoi(argv[3]);
   float numberofimages = (float)argc - 4.0;
 
   std::cout << "Averaging " << numberofimages << " images " << std::endl;
 
-  typename ImageType::Pointer averageimage = NULL; 
-  typename ImageType::Pointer image2 = NULL; 
+  typename ImageType::Pointer averageimage = NULL;
+  typename ImageType::Pointer image2 = NULL;
 
-  typename ImageType::SizeType size; 
+  typename ImageType::SizeType size;
   size.Fill(0);
   unsigned int bigimage=0;
 
@@ -33,21 +33,21 @@ int AverageTensorImages(unsigned int argc, char *argv[])
     // Get the image dimension
     std::string fn = std::string(argv[j]);
     std::cout <<" fn " << fn << std::endl;
-    typename itk::ImageIOBase::Pointer imageIO = 
+    typename itk::ImageIOBase::Pointer imageIO =
       itk::ImageIOFactory::CreateImageIO(fn.c_str(), itk::ImageIOFactory::ReadMode);
     imageIO->SetFileName(fn.c_str());
     imageIO->ReadImageInformation();
     for (unsigned int i=0; i<imageIO->GetNumberOfDimensions(); i++)
-	  {
-	    if ( imageIO->GetDimensions(i) > size[i] )
-	    {
-	      size[i]=imageIO->GetDimensions(i);
-	      bigimage=j;
-	      std::cout << " bigimage " << j << " size " << size << std::endl;
-	    }       
+      {
+        if ( imageIO->GetDimensions(i) > size[i] )
+        {
+          size[i]=imageIO->GetDimensions(i);
+          bigimage=j;
+          std::cout << " bigimage " << j << " size " << size << std::endl;
+        }
     }
   }
-    
+
   std:: cout << " largest image " << size << std::endl;
 
   bool logeuc = true;
@@ -55,7 +55,7 @@ int AverageTensorImages(unsigned int argc, char *argv[])
     logeuc = false;
 
   TensorType nullTensor;
-  nullTensor[0] = nullTensor[1] = nullTensor[2] = nullTensor[3] 
+  nullTensor[0] = nullTensor[1] = nullTensor[2] = nullTensor[3]
     = nullTensor[4] = nullTensor[5] = 0;
 
   ReadTensorImage<ImageType>(averageimage,argv[bigimage],logeuc);
@@ -66,7 +66,7 @@ int AverageTensorImages(unsigned int argc, char *argv[])
     std::string fn = std::string(argv[j]);
     ReadTensorImage<ImageType>(image2,fn.c_str(),logeuc);
 
-    IteratorType vfIter( image2,  image2->GetLargestPossibleRegion() );  
+    IteratorType vfIter( image2,  image2->GetLargestPossibleRegion() );
     for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
     {
       TensorType val =  vfIter.Get() / numberofimages;
@@ -75,7 +75,7 @@ int AverageTensorImages(unsigned int argc, char *argv[])
   }
 
   WriteTensorImage<ImageType>(averageimage,outputName,logeuc);
-  
+
   return EXIT_SUCCESS;
 
 }
@@ -85,14 +85,14 @@ int AverageTensorImages(unsigned int argc, char *argv[])
 int main( int argc, char *argv[] )
 {
 
-  try 
+  try
   {
 
     int dim = atoi(argv[1]);
     //char * outputName = argv[2];
     //int mathtype = atoi(argv[3]);
     int numberofimages = argc - 4;
-    
+
     if (numberofimages < 1)
       {
       std::cout << "Basic useage ex: " << std::endl;
@@ -115,16 +115,16 @@ int main( int argc, char *argv[] )
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
    }
-	
+
   return 0;;
   }
-  catch( itk::ExceptionObject & err ) 
-    { 
-    std::cerr << "ExceptionObject caught !" << std::endl; 
-    std::cerr << err << std::endl; 
+  catch( itk::ExceptionObject & err )
+    {
+    std::cerr << "ExceptionObject caught !" << std::endl;
+    std::cerr << err << std::endl;
     return EXIT_FAILURE;
-    } 
+    }
 
 }
-   
+
 

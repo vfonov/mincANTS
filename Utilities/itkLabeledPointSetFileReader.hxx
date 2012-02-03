@@ -7,7 +7,7 @@
   Version:   $Revision: 1.23 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -139,25 +139,25 @@ LabeledPointSetFileReader<TOutputMesh>
   this->m_LabelSet.clear();
 
   /**
-   * If the number of points does not match the number of 
+   * If the number of points does not match the number of
    * point data, fill the point data with zeros
    */
-  if( !this->GetOutput()->GetPointData() || 
-    this->GetOutput()->GetPointData()->Size() != 
+  if( !this->GetOutput()->GetPointData() ||
+    this->GetOutput()->GetPointData()->Size() !=
     this->GetOutput()->GetPoints()->Size() )
     {
     itkWarningMacro( "Number of points does not match number of labels. "
-      << "Filling point data with label zero." ); 
+      << "Filling point data with label zero." );
      typename OutputMeshType::PointsContainerIterator It =
        this->GetOutput()->GetPoints()->Begin();
 
      while( It != this->GetOutput()->GetPoints()->End() )
        {
-       this->GetOutput()->SetPointData( It.Index(), 
+       this->GetOutput()->SetPointData( It.Index(),
          NumericTraits<PixelType>::Zero );
        ++It;
        }
-    } 
+    }
 
   if( this->GetOutput()->GetNumberOfPoints() > 0 )
     {
@@ -165,7 +165,7 @@ LabeledPointSetFileReader<TOutputMesh>
       this->GetOutput()->GetPointData()->Begin();
     while( ItD != this->GetOutput()->GetPointData()->End() )
       {
-      if( find( this->m_LabelSet.begin(), 
+      if( find( this->m_LabelSet.begin(),
         this->m_LabelSet.end(), ItD.Value() ) == this->m_LabelSet.end() )
         {
         this->m_LabelSet.push_back( ItD.Value() );
@@ -215,7 +215,7 @@ void
 LabeledPointSetFileReader<TOutputMesh>
 ::ReadVTKFile()
 {
-  this->ReadPointsFromVTKFile(); 
+  this->ReadPointsFromVTKFile();
   this->ReadScalarsFromVTKFile();
   this->ReadLinesFromVTKFile();
 }
@@ -230,7 +230,7 @@ LabeledPointSetFileReader<TOutputMesh>
   std::ifstream inputFile( this->m_FileName.c_str() );
 
   std::string line;
-  
+
   bool isBinary = false;
 
   while( !inputFile.eof() )
@@ -281,12 +281,12 @@ LabeledPointSetFileReader<TOutputMesh>
   if (isBinary)
     {
     itkDebugMacro( "Data is binary" );
-          
+
     float p;
     float * ptData = new float [ numberOfPoints*3 ];
     inputFile.read( reinterpret_cast< char * >( ptData ), 3 * numberOfPoints * sizeof(p) );
-    ByteSwapper<float>::SwapRangeFromSystemToBigEndian(ptData,numberOfPoints*3); 
-    
+    ByteSwapper<float>::SwapRangeFromSystemToBigEndian(ptData,numberOfPoints*3);
+
     for (long i = 0; i < numberOfPoints; i++ )
       {
       for (long j = 0; j < Dimension; j++ )
@@ -295,10 +295,10 @@ LabeledPointSetFileReader<TOutputMesh>
         }
       outputMesh->SetPoint( i, point );
       }
-      
+
     delete [] ptData;
     }
-  else 
+  else
     {
     for( long i = 0; i < numberOfPoints; i++ )
       {
@@ -337,7 +337,7 @@ LabeledPointSetFileReader<TOutputMesh>
   while( !inputFile.eof() )
     {
     std::getline( inputFile, line );
-    
+
    if (line.find( "BINARY" ) != std::string::npos )
       {
       isBinary = true;
@@ -358,21 +358,21 @@ LabeledPointSetFileReader<TOutputMesh>
   std::string::size_type pos = line.rfind( " " );
 
   std::string temp = std::string( line, pos+1, line.length()-1 );
-  
+
   unsigned int numberOfComponents = std::atoi( temp.c_str() );
 
   std::getline( inputFile, line );
 
   if (isBinary)
     {
- 
-  
+
+
     int numberOfValues = outputMesh->GetNumberOfPoints()*numberOfComponents;
     float p;
     int * scalarData = new int [ numberOfValues ];
     inputFile.read( reinterpret_cast< char * >( scalarData ), numberOfComponents * sizeof(p) );
-    ByteSwapper<int>::SwapRangeFromSystemToBigEndian(scalarData,numberOfValues); 
-  
+    ByteSwapper<int>::SwapRangeFromSystemToBigEndian(scalarData,numberOfValues);
+
     if( numberOfComponents == 1 )
       {
       //PixelType label;
@@ -384,9 +384,9 @@ LabeledPointSetFileReader<TOutputMesh>
       }
     else
       {
-      this->m_MultiComponentScalars = MultiComponentScalarSetType::New(); 
+      this->m_MultiComponentScalars = MultiComponentScalarSetType::New();
       this->m_MultiComponentScalars->Initialize();
-      
+
       for( unsigned long i = 0; i < outputMesh->GetNumberOfPoints(); i++ )
         {
         MultiComponentScalarType scalar;
@@ -397,10 +397,10 @@ LabeledPointSetFileReader<TOutputMesh>
           }
         this->m_MultiComponentScalars->InsertElement( i, scalar );
         }
-      } 
-    
+      }
+
       delete [] scalarData;
-   
+
     }
   else
     {
@@ -417,9 +417,9 @@ LabeledPointSetFileReader<TOutputMesh>
       }
     else
       {
-      this->m_MultiComponentScalars = MultiComponentScalarSetType::New(); 
+      this->m_MultiComponentScalars = MultiComponentScalarSetType::New();
       this->m_MultiComponentScalars->Initialize();
-      
+
       for( unsigned long i = 0; i < outputMesh->GetNumberOfPoints(); i++ )
         {
         MultiComponentScalarType scalar;
@@ -431,7 +431,7 @@ LabeledPointSetFileReader<TOutputMesh>
         this->m_MultiComponentScalars->InsertElement( i, scalar );
         }
       }
-    
+
     }
 
   inputFile.close();
@@ -447,7 +447,7 @@ LabeledPointSetFileReader<TOutputMesh>
   std::ifstream inputFile( this->m_FileName.c_str() );
 
   std::string line;
-  
+
   bool isBinary = false;
 
   //
@@ -456,7 +456,7 @@ LabeledPointSetFileReader<TOutputMesh>
   while( !inputFile.eof() )
     {
     std::getline( inputFile, line );
-    
+
     if (line.find( "BINARY" ) != std::string::npos )
       {
       isBinary = true;
@@ -482,26 +482,26 @@ LabeledPointSetFileReader<TOutputMesh>
   temp = std::string(line, pos, line.length()-1 );
   unsigned int numberOfValues = std::atoi( temp.c_str() );
 
-  this->m_Lines = LineSetType::New(); 
+  this->m_Lines = LineSetType::New();
   this->m_Lines->Initialize();
-  
+
   if (isBinary)
     {
     int p;
     int * lineData = new int [ numberOfValues ];
     inputFile.read( reinterpret_cast< char * >( lineData ), numberOfValues * sizeof(p) );
-    ByteSwapper<int>::SwapRangeFromSystemToBigEndian(lineData,numberOfValues); 
-    
+    ByteSwapper<int>::SwapRangeFromSystemToBigEndian(lineData,numberOfValues);
+
     unsigned long valueId = 0;
     unsigned long lineId = 0;
     while (valueId < numberOfValues)
     {
       int lineLength = lineData[valueId];
       ++valueId;
-      
+
       LineType polyLine;
       polyLine.SetSize( lineLength );
-        
+
       for (long i = 0; i < lineLength; i++)
         {
         polyLine[i] = lineData[valueId];
@@ -509,14 +509,14 @@ LabeledPointSetFileReader<TOutputMesh>
         }
       this->m_Lines->InsertElement( lineId, polyLine );
       ++lineId;
-    }  
-    
+    }
+
     delete [] lineData;
   }
-  else 
+  else
   {
-    
-    
+
+
     for( unsigned int i = 0; i < numberOfLines; i++ )
       {
       LineType line_loc;
@@ -571,9 +571,9 @@ LabeledPointSetFileReader<TOutputMesh>
     }
   else
     {
-    typedef LabelContourImageFilter<LabeledPointSetImageType, 
+    typedef LabelContourImageFilter<LabeledPointSetImageType,
       LabeledPointSetImageType> ContourFilterType;
-    typename ContourFilterType::Pointer contourFilter 
+    typename ContourFilterType::Pointer contourFilter
       = ContourFilterType::New();
     contourFilter->SetInput( imageReader->GetOutput() );
     contourFilter->SetFullyConnected( true );
@@ -582,7 +582,7 @@ LabeledPointSetFileReader<TOutputMesh>
 
     this->m_LabelSet.clear();
 
-    ImageRegionIteratorWithIndex<LabeledPointSetImageType> It ( 
+    ImageRegionIteratorWithIndex<LabeledPointSetImageType> It (
       contourFilter->GetOutput(),
       contourFilter->GetOutput()->GetLargestPossibleRegion() );
     unsigned long count = 0;
@@ -600,7 +600,7 @@ LabeledPointSetFileReader<TOutputMesh>
         outputMesh->SetPoint( count, point );
         outputMesh->SetPointData( count, It.Get() );
         count++;
-         
+
         if( find( this->m_LabelSet.begin(), this->m_LabelSet.end(), label )
                == this->m_LabelSet.end() )
           {
@@ -608,7 +608,7 @@ LabeledPointSetFileReader<TOutputMesh>
           }
         }
       }
-    }  
+    }
 }
 
 template<class TOutputMesh>

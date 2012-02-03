@@ -139,7 +139,7 @@ bool FEMConformalMap<TSurface,TImage,TDimension>
       n=new NodeType(pt[0],pt[1],pt[2]);
       n->GN=i; 
       m_Solver.node.push_back(itk::fem::FEMP<NodeType>(n));
-      foundnum++;	 
+      foundnum++;     
     }
 
   std::cout << " foundnum " << foundnum << std::endl;
@@ -429,30 +429,30 @@ void  FEMConformalMap<TSurface,TImage,TDimension>
       inimage=true;
       for (unsigned int nd=0; nd< Nnodes; nd++)
         {
-	  for(unsigned int f=0; f<ImageDimension; f++)
-	    {
-	      Float x;
-	      
-	      Sol[f]= (*elt)->GetNode(nd)->GetCoordinates()(f);
-	      m_SurfaceMesh->GetPoint((*elt)->GetNode(nd)->GN, pt_ptr);
-	      x=pt[f];
-	      
-	      long int temp;
-	      if (x !=0) temp=(long int) ((x)+0.5); else temp=0;// round 
-	      rindex[f]=temp/spacing[f];
-	      disp[f] =(Float) 1.0*Sol[f];
-	      if ( temp < 0 || temp > (long int) imageSize[f]-1)  inimage=false;
-	      
-	    }
-	  // convert the cartesian coordinates to theta and phi spherical coords
-	  phi=acos(Sol[2]);
-	  theta = acos(Sol[0]/sin(phi));
-	  s=phi/phiinc;
-	  t=theta/thetainc;
-	  gridval;
-	  if ( ( ((int)t) + ((int)s)) % 2 == 0) gridval = 100; else gridval=200;
-	  
-	  if (inimage ) m_Image->SetPixel(rindex,  gridval);//*100. +110.0);
+      for(unsigned int f=0; f<ImageDimension; f++)
+        {
+          Float x;
+          
+          Sol[f]= (*elt)->GetNode(nd)->GetCoordinates()(f);
+          m_SurfaceMesh->GetPoint((*elt)->GetNode(nd)->GN, pt_ptr);
+          x=pt[f];
+          
+          long int temp;
+          if (x !=0) temp=(long int) ((x)+0.5); else temp=0;// round 
+          rindex[f]=temp/spacing[f];
+          disp[f] =(Float) 1.0*Sol[f];
+          if ( temp < 0 || temp > (long int) imageSize[f]-1)  inimage=false;
+          
+        }
+      // convert the cartesian coordinates to theta and phi spherical coords
+      phi=acos(Sol[2]);
+      theta = acos(Sol[0]/sin(phi));
+      s=phi/phiinc;
+      t=theta/thetainc;
+      gridval;
+      if ( ( ((int)t) + ((int)s)) % 2 == 0) gridval = 100; else gridval=200;
+      
+      if (inimage ) m_Image->SetPixel(rindex,  gridval);//*100. +110.0);
         }
       
   } // end of elt array loop
@@ -827,9 +827,9 @@ void  FEMConformalMap<TSurface,TImage,TDimension>
     float theta=(CA[0]*BA[0]+CA[1]*BA[1]+CA[2]*BA[2])/bamag*bamag;
     if (theta > 1 || theta < 0) 
       {
-	//      std::cout << " ERROR : theta from non-acute angle  " << theta << std::endl;
-	//      throw;
-	//      return;
+    //      std::cout << " ERROR : theta from non-acute angle  " << theta << std::endl;
+    //      throw;
+    //      return;
       }
     VectorType E = A+BA*theta;
     VectorType CE =C-E;
@@ -893,7 +893,7 @@ std::cout << " coords on unit sphere : " << std::endl;
       c2=2.0*y/(1.0+radsq);
       c3=2.0*radsq/(1.0+radsq)-1.0;
       //      std::cout << c1 << "   " << c2 << "   " << c3 << " mag " << sqrt(c1*c1+c2*c2+c3*c3) << std::endl;
-	 
+     
       VectorType coord=(*n)->GetCoordinates();
       coord[0]=c1;
       coord[1]=c2;
@@ -998,10 +998,10 @@ void  FEMConformalMap<TSurface,TImage,TDimension>
    * Assemble the master stiffness matrix. In order to do this
    * the GFN's should already be assigned to every DOF.
    */
-	  std::cout << " assemble k " << std::endl;
+      std::cout << " assemble k " << std::endl;
   m_Solver.AssembleK();
  
-	  std::cout << " assemble k done " << std::endl;
+      std::cout << " assemble k done " << std::endl;
    if (m_Debug)
      {
   for (int i=0; i<m_Solver.GetNumberOfDegreesOfFreedom(); i++)
@@ -1041,10 +1041,10 @@ void  FEMConformalMap<TSurface,TImage,TDimension>
      }
 
      if (im == 0) this->ApplyRealForces(m_NorthPole); else this->ApplyImaginaryForces(m_NorthPole); 
-     m_Solver.AssembleF();	  
-	 std::cout << " force done " << std::endl;
+     m_Solver.AssembleF();      
+     std::cout << " force done " << std::endl;
      m_Solver.Solve();
-	  std::cout << " solve done " << std::endl;
+      std::cout << " solve done " << std::endl;
      m_Solver.UpdateDisplacements();// copies solution to nodes
 m_Debug=true;
  if (m_Debug)     std::cout<<"\nNodal displacements:\n";
@@ -1079,7 +1079,7 @@ m_Debug=false;
 template <typename TSurface, typename TImage, unsigned int TDimension>
 void  FEMConformalMap<TSurface,TImage,TDimension>
 ::BuildOutputMeshes(typename TImage::Pointer image)
-{	
+{    
   // Get the number of points in the mesh
   int numPoints = m_Solver.node.size();
 
@@ -1092,7 +1092,7 @@ void  FEMConformalMap<TSurface,TImage,TDimension>
   vtkPoints* vpoints2 = vtkPoints::New();
   vpoints1->SetNumberOfPoints(numPoints);
   vpoints2->SetNumberOfPoints(numPoints);
-	
+    
   vtkFloatArray* param = vtkFloatArray::New();
   param->SetName("angle");
   std::cout <<" start pts ";
@@ -1160,10 +1160,10 @@ void  FEMConformalMap<TSurface,TImage,TDimension>
       tris1->InsertNextCell(3);
       tris2->InsertNextCell(3);
       for (int i=0; i<(*n)->GetNumberOfNodes(); i++) 
-	{
-	  tris1->InsertCellPoint((*n)->GetNode(i)->GN);
-	  tris2->InsertCellPoint((*n)->GetNode(i)->GN);
-	}
+    {
+      tris1->InsertCellPoint((*n)->GetNode(i)->GN);
+      tris2->InsertCellPoint((*n)->GetNode(i)->GN);
+    }
     }
   std::cout << " done with tris " << std::endl;
   // Assign points and cells

@@ -9,8 +9,8 @@
   Author: Jeffrey T. Duda (jtduda@seas.upenn.edu)
   Institution: PICSL
 
-  This software is distributed WITHOUT ANY WARRANTY; without even 
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
   PURPOSE.
 
 =========================================================================*/
@@ -23,12 +23,12 @@
 #include "itkImageRegionIteratorWithIndex.h"
 #include "ReadWriteImage.h"
 /* FlipScalarVolume
- * This program takes a volume and flips it along the 
+ * This program takes a volume and flips it along the
  * indicated axes
  */
 int main( int argc, char *argv[] )
 {
-  
+
   // Pixel and Image typedefs
   typedef float                                PixelType;
 
@@ -49,13 +49,13 @@ int main( int argc, char *argv[] )
     std::cout << "Usage: " << argv[0] << " outputvolume x y z inputvolumes" << std::endl;
     return 1;
   }
-  
+
   char * stackName = argv[1];
   int dimVars[3];
   dimVars[0] = atoi(argv[2]);
   dimVars[1] = atoi(argv[3]);
   dimVars[2] = atoi(argv[4]);
-  
+
   int dim = -1;
   int slice = -1;
 
@@ -65,10 +65,10 @@ int main( int argc, char *argv[] )
     if (dimVars[i] > -1)
       {
       if ( (dim > -1) || (slice > -1) )
-	{
-	std::cerr << "Can only choose slice from 1 dimension" << std::endl;
-	return EXIT_FAILURE;
-	}
+    {
+    std::cerr << "Can only choose slice from 1 dimension" << std::endl;
+    return EXIT_FAILURE;
+    }
       dim = i;
       slice = dimVars[i];
       }
@@ -88,7 +88,7 @@ int main( int argc, char *argv[] )
   stack->SetRegions(region);
   stack->Allocate();
 
-  
+
   SliceType::SizeType size;
   size.Fill(0);
   SliceType::IndexType index2d;
@@ -125,7 +125,7 @@ int main( int argc, char *argv[] )
   while (!it1.IsAtEnd())
     {
     float val=it1.Value();
-    if (val > 0) { 
+    if (val > 0) {
     mean+=it1.Value();
       ct++;
     }
@@ -162,7 +162,7 @@ int main( int argc, char *argv[] )
     stack2->SetPixel(index2d,it1.Value()/mean);
     ++it1;
     }
-   
+
   if (nSlices == 1 ) {
     std::cout << " write slice " << std::endl;
   WriteImage<SliceType>(stack2,stackName);
@@ -183,14 +183,14 @@ int main( int argc, char *argv[] )
     extract->SetDirectionCollapseToIdentity();
     extract->SetExtractionRegion( extractRegion );
     extract->Update();
-    
+
     SliceIt it(extract->GetOutput(), extract->GetOutput()->GetLargestPossibleRegion());
     float mean = 0.0, ct=1;
     while (!it.IsAtEnd())
       {
-	mean+=it.Value();
-	ct++;
-	++it;
+    mean+=it.Value();
+    ct++;
+    ++it;
       }
     mean/=ct;
     std::cout << " Mean " << mean << std::endl;
@@ -201,35 +201,35 @@ int main( int argc, char *argv[] )
       ImageType::IndexType index;
       index.Fill(0);
       if (dim == 0)
-	{
-	index[0] = i;
-	index[1] = it.GetIndex()[0];
-	index[2] = it.GetIndex()[1];
-	}
+    {
+    index[0] = i;
+    index[1] = it.GetIndex()[0];
+    index[2] = it.GetIndex()[1];
+    }
       if (dim == 1)
-	{
-	index[0] = it.GetIndex()[0];
-	index[1] = i;
-	index[2] = it.GetIndex()[1];
-	}
+    {
+    index[0] = it.GetIndex()[0];
+    index[1] = i;
+    index[2] = it.GetIndex()[1];
+    }
       if (dim == 2)
-	{
-	index[0] = it.GetIndex()[0];
-	index[1] = it.GetIndex()[1];
-	index[2] = i;
-	}
+    {
+    index[0] = it.GetIndex()[0];
+    index[1] = it.GetIndex()[1];
+    index[2] = i;
+    }
       stack->SetPixel(index, it.Value()/mean);
       ++it;
       }
     //std::cout << i << "." << std::flush;
-    }    
+    }
   //std::cout << "Done" << std::endl;
 
   WriterType::Pointer writer = WriterType::New();
   writer->SetFileName( stackName );
   writer->SetInput( stack );
   writer->Update();
-  
+
   // Input parameters
 //   char * inputName  = argv[1];
 //   unsigned int flip_x = atoi( argv[2] );
@@ -250,7 +250,7 @@ int main( int argc, char *argv[] )
 //   flip->SetInput( reader->GetOutput() );
 //   flip->SetFlipAxes( flipOver );
 //   flip->Update();
-    
+
 //   // write output
 //   WriterType::Pointer writer = WriterType::New();
 //   writer->SetInput( flip->GetOutput() );

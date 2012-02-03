@@ -718,11 +718,11 @@ int main( int argc, char *argv[] )
     {
     if( inputOption->GetNumberOfParameters( 0 ) > 0 )
       {
-	     filename = inputOption->GetParameter( 0, 0 );
+         filename = inputOption->GetParameter( 0, 0 );
       }
     else
       {
-	     filename = inputOption->GetValue( 0 );
+         filename = inputOption->GetValue( 0 );
       }
     }
   else

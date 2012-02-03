@@ -372,7 +372,7 @@ ANTSAffine3DTransform<TScalarType>::GetParameters() const {
 template<class TScalarType>
 void ANTSAffine3DTransform<TScalarType>
 ::ComputeJacobianWithRespectToParameters(
-        const InputPointType  & p, 
+        const InputPointType  & p,
         JacobianType & j) const
 {
 
@@ -483,7 +483,7 @@ void ANTSAffine3DTransform<TScalarType>
         j[dim][blockOffset + dim] = 1.0;
     }
 
-    
+
 
     //   // compute derivatives with respect to rotation
     //   j.Fill(0.0);

@@ -7,7 +7,7 @@
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -139,7 +139,7 @@ public:
   itkBooleanMacro( UseInputAsSamples );
 
   /**
-   * If this->m_UseInputAsSamples = true, the following 
+   * If this->m_UseInputAsSamples = true, the following
    * two variables are not used.
    */
 
@@ -155,8 +155,8 @@ public:
   itkBooleanMacro( UseAnisotropicCovariances );
 
   /**
-   * If this->m_UseAnisotropicCovariances = false, the 
-   * following four variables are not used. 
+   * If this->m_UseAnisotropicCovariances = false, the
+   * following four variables are not used.
    */
 
   itkSetMacro( FixedCovarianceKNeighborhood, unsigned int );

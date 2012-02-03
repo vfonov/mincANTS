@@ -7,11 +7,11 @@
   Version:   $Revision: 1.16 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -56,11 +56,11 @@ VectorImageFileWriter<TVectorImage, TImage>
 
 //---------------------------------------------------------
 template <class TVectorImage, class TImage>
-void 
+void
 VectorImageFileWriter<TVectorImage, TImage>
 ::SetInput(const VectorImageType *input)
 {
-  this->ProcessObject::SetNthInput(0, 
+  this->ProcessObject::SetNthInput(0,
                                    const_cast<TVectorImage *>(input ) );
 }
 
@@ -75,11 +75,11 @@ VectorImageFileWriter<TVectorImage, TImage>
     {
     return 0;
     }
-  
+
   return static_cast<TVectorImage*>
     (this->ProcessObject::GetInput(0));
 }
-  
+
 //---------------------------------------------------------
 template <class TVectorImage, class TImage>
 const typename VectorImageFileWriter<TVectorImage, TImage>::VectorImageType *
@@ -92,9 +92,9 @@ VectorImageFileWriter<TVectorImage, TImage>
 
 //---------------------------------------------------------
 template <class TVectorImage, class TImage>
-void 
+void
 VectorImageFileWriter<TVectorImage, TImage>
-::SetIORegion (const ImageIORegion& region) 
+::SetIORegion (const ImageIORegion& region)
 {
   itkDebugMacro("setting IORegion to " << region );
   if ( m_IORegion != region)
@@ -103,33 +103,33 @@ VectorImageFileWriter<TVectorImage, TImage>
     this->Modified();
     m_UserSpecifiedIORegion = true;
     }
-} 
+}
 
 //---------------------------------------------------------
 template <class TVectorImage, class TImage>
-void 
+void
 VectorImageFileWriter<TVectorImage, TImage>
 ::GenerateData(void)
 {
 
   itkDebugMacro(<<"Writing file: " << m_ComponentImageFileName);
-  
-  // Make sure that the image is the right type and no more than 
+
+  // Make sure that the image is the right type and no more than
   // four components.
   typedef typename ImageType::PixelType ScalarType;
 
-  if( strcmp( m_Image->GetNameOfClass(), "VectorImage" ) == 0 ) 
+  if( strcmp( m_Image->GetNameOfClass(), "VectorImage" ) == 0 )
     {
     typedef typename ImageType::InternalPixelType VectorImageScalarType;
     //m_ImageIO->SetPixelTypeInfo( typeid(VectorImageScalarType) );
-    
+
     typedef typename ImageType::AccessorFunctorType AccessorFunctorType;
     m_ImageIO->SetNumberOfComponents( AccessorFunctorType::GetVectorLength( m_Image ) );
     }
   else
     {
     // Set the pixel and component type; the number of components.
-    //m_ImageIO->SetPixelTypeInfo(typeid(ScalarType));  
+    //m_ImageIO->SetPixelTypeInfo(typeid(ScalarType));
     }
 
   // Setup the image IO for writing.
@@ -144,7 +144,7 @@ VectorImageFileWriter<TVectorImage, TImage>
 }
 //---------------------------------------------------------
 template <class TVectorImage, class TImage>
-void 
+void
 VectorImageFileWriter<TVectorImage, TImage>
 ::Write()
 {
@@ -156,25 +156,25 @@ VectorImageFileWriter<TVectorImage, TImage>
   unsigned int dimension = itk::GetVectorDimension
       <typename VectorImageType::PixelType>::VectorDimension;
 
-  std::string filename = this->m_FileName; 
+  std::string filename = this->m_FileName;
   std::string::size_type pos = this->m_FileName.rfind( "." );
   std::string extension( this->m_FileName, pos, this->m_FileName.length()-1 );
 
-  std::string gzExtension( "" ); 
+  std::string gzExtension( "" );
   if ( extension == std::string( ".gz" ) )
     {
     gzExtension = extension;
     filename = std::string( filename, 0, pos );
-				pos = filename.rfind( "." );
-				extension = std::string( filename, pos, this->m_FileName.length()-1 );
-    } 
+                pos = filename.rfind( "." );
+                extension = std::string( filename, pos, this->m_FileName.length()-1 );
+    }
 
   for ( unsigned int i = 0; i < dimension; i++ )
     {
     selector->SetIndex( i );
     selector->Update();
 
-    std::string filename( this->m_FileName, 0, pos );    
+    std::string filename( this->m_FileName, 0, pos );
 
     if ( this->m_UseAvantsNamingConvention && dimension <= 3 )
       {
@@ -192,7 +192,7 @@ VectorImageFileWriter<TVectorImage, TImage>
         default:
           filename += std::string( "you_are_screwed_vec" );
           break;
-        }  
+        }
       }
     else if ( this->m_UseZhangNamingConvention && dimension == 6 )
       {
@@ -219,7 +219,7 @@ VectorImageFileWriter<TVectorImage, TImage>
         default:
           filename += std::string( "you_are_screwed" );
           break;
-        }  
+        }
       }
     else
       {
@@ -231,8 +231,8 @@ VectorImageFileWriter<TVectorImage, TImage>
     if ( !gzExtension.empty() )
       {
       filename += std::string( ".gz" );
-      }   
-    
+      }
+
     m_ComponentImageFileName = filename;
 
     ImageType *input = selector->GetOutput();
@@ -255,9 +255,9 @@ VectorImageFileWriter<TVectorImage, TImage>
 
     if ( m_ImageIO.IsNull() ) //try creating via factory
       {
-      itkDebugMacro(<<"Attempting factory creation of ImageIO for file: " 
+      itkDebugMacro(<<"Attempting factory creation of ImageIO for file: "
                     << filename);
-      m_ImageIO = ImageIOFactory::CreateImageIO( filename.c_str(), 
+      m_ImageIO = ImageIOFactory::CreateImageIO( filename.c_str(),
                                                  ImageIOFactory::WriteMode );
       m_FactorySpecifiedImageIO = true;
       }
@@ -265,11 +265,11 @@ VectorImageFileWriter<TVectorImage, TImage>
       {
       if( m_FactorySpecifiedImageIO && !m_ImageIO->CanWriteFile( filename.c_str() ) )
         {
-        itkDebugMacro(<<"ImageIO exists but doesn't know how to write file:" 
+        itkDebugMacro(<<"ImageIO exists but doesn't know how to write file:"
                       << m_FileName );
         itkDebugMacro(<<"Attempting creation of ImageIO with a factory for file:"
                       << m_FileName);
-        m_ImageIO = ImageIOFactory::CreateImageIO( filename.c_str(), 
+        m_ImageIO = ImageIOFactory::CreateImageIO( filename.c_str(),
                                                    ImageIOFactory::WriteMode );
         m_FactorySpecifiedImageIO = true;
         }
@@ -282,13 +282,13 @@ VectorImageFileWriter<TVectorImage, TImage>
       msg << " Could not create IO object for file "
           << filename.c_str() << std::endl;
       msg << "  Tried to create one of the following:" << std::endl;
-      std::list<LightObject::Pointer> allobjects = 
+      std::list<LightObject::Pointer> allobjects =
         ObjectFactoryBase::CreateAllInstance("itkImageIOBase");
       for(std::list<LightObject::Pointer>::iterator i = allobjects.begin();
           i != allobjects.end(); ++i)
         {
         ImageIOBase* io = dynamic_cast<ImageIOBase*>(i->GetPointer());
-        msg << "    " << io->GetNameOfClass() << std::endl; 
+        msg << "    " << io->GetNameOfClass() << std::endl;
         }
       msg << "  You probably failed to set a file suffix, or" << std::endl;
       msg << "    set the suffix to an unsupported type." << std::endl;
@@ -360,7 +360,7 @@ VectorImageFileWriter<TVectorImage, TImage>
 
     // Actually do something
     this->GenerateData();
-    
+
     // Notify end event observers
     this->InvokeEvent( EndEvent() );
 
@@ -369,22 +369,22 @@ VectorImageFileWriter<TVectorImage, TImage>
       {
       nonConstImage->ReleaseData();
       }
-    }  
+    }
 }
 
 
 //---------------------------------------------------------
 template <class TVectorImage, class TImage>
-void 
+void
 VectorImageFileWriter<TVectorImage, TImage>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
   Superclass::PrintSelf(os,indent);
 
-  os << indent << "File Name: " 
+  os << indent << "File Name: "
      << (m_FileName.data() ? m_FileName.data() : "(none)") << std::endl;
 
-  os << "Number of vector components (i.e. number of images created): " << 
+  os << "Number of vector components (i.e. number of images created): " <<
     itk::GetVectorDimension<typename VectorImageType::PixelType>::VectorDimension
     << std::endl;
 

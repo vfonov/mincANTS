@@ -1,35 +1,35 @@
 /*=========================================================================
-  
+
   Program:   Advanced Normalization Tools
   Module:    $RCSfile: ConvertToJpg.cxx,v $
-  Language:  C++      
+  Language:  C++
   Date:      $Date: 2008/11/15 23:46:06 $
   Version:   $Revision: 1.19 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
-  
+
 =========================================================================*/
-#include <iostream>           
-#include <fstream>       
-#include <stdio.h>                    
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
 #include <limits.h>
-#include "itkImage.h"                   
-#include "itkImageFileWriter.h"                   
-#include "itkImageFileReader.h"     
+#include "itkImage.h"
+#include "itkImageFileWriter.h"
+#include "itkImageFileReader.h"
 #include "itkCastImageFilter.h"
 #include "itkRescaleIntensityImageFilter.h"
 
 
 template <unsigned int ImageDimension,class TPIXELTYPE>
-int ConvertType(int argc, char *argv[]  , double MINVAL, double MAXVAL)        
+int ConvertType(int argc, char *argv[]  , double MINVAL, double MAXVAL)
 {
-   
+
   typedef  TPIXELTYPE outPixelType;
   typedef  float floatPixelType;
   typedef  float inPixelType;
@@ -40,15 +40,15 @@ int ConvertType(int argc, char *argv[]  , double MINVAL, double MAXVAL)
   typedef itk::ImageFileWriter<OutImageType> writertype;
 
   typename readertype::Pointer reader = readertype::New();
-  reader->SetFileName(argv[1]); 
-  reader->Update();   
+  reader->SetFileName(argv[1]);
+  reader->Update();
   std::cout << " Updated reader " << std::endl;
 
   typedef itk::CastImageFilter<ImageType,IntermediateType> castertype;
   typename   castertype::Pointer caster=castertype::New();
   caster->SetInput(reader->GetOutput());
   caster->Update();
-  
+
   // Rescale the image intensities so that they fall between 0 and 255
   typedef itk::RescaleIntensityImageFilter<IntermediateType,IntermediateType> FilterType;
   typename   FilterType::Pointer fixedrescalefilter = FilterType::New();
@@ -58,7 +58,7 @@ int ConvertType(int argc, char *argv[]  , double MINVAL, double MAXVAL)
   fixedrescalefilter->SetOutputMinimum( desiredMinimum );
   fixedrescalefilter->SetOutputMaximum( desiredMaximum );
   fixedrescalefilter->UpdateLargestPossibleRegion();
-  
+
   typedef itk::CastImageFilter<IntermediateType,OutImageType> castertype2;
   typename castertype2::Pointer caster2=castertype2::New();
   caster2->SetInput(fixedrescalefilter->GetOutput());
@@ -71,21 +71,21 @@ int ConvertType(int argc, char *argv[]  , double MINVAL, double MAXVAL)
   std::cout << " Dire out " << outim->GetDirection() << std::endl;
   typename   writertype::Pointer writer = writertype::New();
   writer->SetFileName(argv[2]);
-  writer->SetInput(outim); 
+  writer->SetInput(outim);
   writer->Update();
-  writer->Write();   
-  
+  writer->Write();
+
   return 0;
- 
-}     
+
+}
 
 
 
-int main(int argc, char *argv[])        
+int main(int argc, char *argv[])
 {
 
-   
-  if ( argc < 3 )     
+
+  if ( argc < 3 )
     { std::cout << "Usage:   " << argv[0] << " infile.nii out.ext TYPE-OPTION " << std::endl;
       std::cout <<" ext is the extension you want, e.g. tif.  " << std::endl;
       std::cout << " TYPE-OPTION  :  TYPE " << std::endl;
@@ -99,8 +99,8 @@ int main(int argc, char *argv[])
       std::cout << " You can easily extend this for other pixel types with a few lines of code and adding usage info. " << std::endl;
       std::cout <<" The image intensity will be scaled to the dynamic range of the pixel type.  E.g. uchar => 0  (min), 255 (max). " << std::endl;
     return 1;
-  }           
-  unsigned int typeoption=0; 
+  }
+  unsigned int typeoption=0;
   if ( argc > 3 )  { typeoption=atoi(argv[3]); }
    // Get the image dimension
   std::string fn = std::string(argv[1]);
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
    }
-   }	
+   }
    else if ( typeoption == 1 ) {
    switch ( imageIO->GetNumberOfDimensions() )
    {
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
    }
-   }	
+   }
    else if ( typeoption == 2 ) {
    switch ( imageIO->GetNumberOfDimensions() )
    {
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
    }
-   }	
+   }
    else if ( typeoption == 3 ) {
    switch ( imageIO->GetNumberOfDimensions() )
    {
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
    }
-   }	
+   }
    else if ( typeoption == 4 ) {
    switch ( imageIO->GetNumberOfDimensions() )
    {
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
    }
-   }	
+   }
    else if ( typeoption == 5 ) {
    switch ( imageIO->GetNumberOfDimensions() )
    {
@@ -196,9 +196,9 @@ int main(int argc, char *argv[])
    }
 
   return 0;
-} 
+}
 
-             
 
-       
- 
+
+
+

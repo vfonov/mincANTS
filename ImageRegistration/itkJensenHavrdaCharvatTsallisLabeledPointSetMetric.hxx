@@ -7,7 +7,7 @@
   Version:   $Revision: 1.18 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
      This software is distributed WITHOUT ANY WARRANTY; without even
@@ -198,18 +198,18 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     metric->SetNumberOfFixedSamples( this->m_NumberOfFixedSamples );
     metric->SetFixedPointSetSigma( this->m_FixedPointSetSigma );
     metric->SetFixedKernelSigma( this->m_FixedKernelSigma );
-    metric->SetFixedCovarianceKNeighborhood( 
+    metric->SetFixedCovarianceKNeighborhood(
       this->m_FixedCovarianceKNeighborhood );
-    metric->SetFixedEvaluationKNeighborhood( 
+    metric->SetFixedEvaluationKNeighborhood(
       this->m_FixedEvaluationKNeighborhood );
 
     metric->SetMovingPointSet( movingLabelPoints );
     metric->SetNumberOfMovingSamples( this->m_NumberOfMovingSamples );
     metric->SetMovingPointSetSigma( this->m_MovingPointSetSigma );
     metric->SetMovingKernelSigma( this->m_MovingKernelSigma );
-    metric->SetMovingCovarianceKNeighborhood( 
+    metric->SetMovingCovarianceKNeighborhood(
       this->m_MovingCovarianceKNeighborhood );
-    metric->SetMovingEvaluationKNeighborhood( 
+    metric->SetMovingEvaluationKNeighborhood(
       this->m_MovingEvaluationKNeighborhood );
 
     metric->SetUseRegularizationTerm( this->m_UseRegularizationTerm );
@@ -249,7 +249,7 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
         iter != this->m_FixedLabelSet.end(); ++iter )
     {
     PixelType currentLabel = *iter;
-  
+
     /**
      * check to see if the moving label set contains the same label
      */
@@ -320,18 +320,18 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     metric->SetNumberOfFixedSamples( this->m_NumberOfFixedSamples );
     metric->SetFixedPointSetSigma( this->m_FixedPointSetSigma );
     metric->SetFixedKernelSigma( this->m_FixedKernelSigma );
-    metric->SetFixedCovarianceKNeighborhood( 
+    metric->SetFixedCovarianceKNeighborhood(
       this->m_FixedCovarianceKNeighborhood );
-    metric->SetFixedEvaluationKNeighborhood( 
+    metric->SetFixedEvaluationKNeighborhood(
       this->m_FixedEvaluationKNeighborhood );
 
     metric->SetMovingPointSet( movingLabelPoints );
     metric->SetNumberOfMovingSamples( this->m_NumberOfMovingSamples );
     metric->SetMovingPointSetSigma( this->m_MovingPointSetSigma );
     metric->SetMovingKernelSigma( this->m_MovingKernelSigma );
-    metric->SetMovingCovarianceKNeighborhood( 
+    metric->SetMovingCovarianceKNeighborhood(
       this->m_MovingCovarianceKNeighborhood );
-    metric->SetMovingEvaluationKNeighborhood( 
+    metric->SetMovingEvaluationKNeighborhood(
       this->m_MovingEvaluationKNeighborhood );
 
     metric->SetUseRegularizationTerm( this->m_UseRegularizationTerm );
@@ -349,14 +349,14 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     RealType avgNorm = 0.0;
     for ( unsigned int i = 0; i < metric->GetNumberOfValues(); i++ )
       {
-      RealType norm = 0.0; 
+      RealType norm = 0.0;
       for ( unsigned int j = 0; j < PointDimension; j++ )
         {
-        norm += ( labelDerivative(i, j) * labelDerivative(i, j) ); 
-        } 
-      avgNorm += vcl_sqrt( norm );  
+        norm += ( labelDerivative(i, j) * labelDerivative(i, j) );
+        }
+      avgNorm += vcl_sqrt( norm );
       }
-    avgNorm /= static_cast<RealType>( metric->GetNumberOfValues() );   
+    avgNorm /= static_cast<RealType>( metric->GetNumberOfValues() );
     labelDerivative /= avgNorm;
 
     if ( this->m_UseWithRespectToTheMovingPointSet )
@@ -412,7 +412,7 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
         iter != this->m_FixedLabelSet.end(); ++iter )
     {
     PixelType currentLabel = *iter;
-  
+
     /**
      * check to see if the moving label set contains the same label
      */
@@ -483,18 +483,18 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     metric->SetNumberOfFixedSamples( this->m_NumberOfFixedSamples );
     metric->SetFixedPointSetSigma( this->m_FixedPointSetSigma );
     metric->SetFixedKernelSigma( this->m_FixedKernelSigma );
-    metric->SetFixedCovarianceKNeighborhood( 
+    metric->SetFixedCovarianceKNeighborhood(
       this->m_FixedCovarianceKNeighborhood );
-    metric->SetFixedEvaluationKNeighborhood( 
+    metric->SetFixedEvaluationKNeighborhood(
       this->m_FixedEvaluationKNeighborhood );
 
     metric->SetMovingPointSet( movingLabelPoints );
     metric->SetNumberOfMovingSamples( this->m_NumberOfMovingSamples );
     metric->SetMovingPointSetSigma( this->m_MovingPointSetSigma );
     metric->SetMovingKernelSigma( this->m_MovingKernelSigma );
-    metric->SetMovingCovarianceKNeighborhood( 
+    metric->SetMovingCovarianceKNeighborhood(
       this->m_MovingCovarianceKNeighborhood );
-    metric->SetMovingEvaluationKNeighborhood( 
+    metric->SetMovingEvaluationKNeighborhood(
       this->m_MovingEvaluationKNeighborhood );
 
     metric->SetUseRegularizationTerm( this->m_UseRegularizationTerm );
@@ -508,7 +508,7 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
 
     DerivativeType labelDerivative;
     MeasureType labelValue;
-    
+
     metric->GetValueAndDerivative( parameters, labelValue, labelDerivative );
 
     value[0] += labelValue[0];
@@ -516,14 +516,14 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     RealType avgNorm = 0.0;
     for ( unsigned int i = 0; i < metric->GetNumberOfValues(); i++ )
       {
-      RealType norm = 0.0; 
+      RealType norm = 0.0;
       for ( unsigned int j = 0; j < PointDimension; j++ )
         {
-        norm += ( labelDerivative(i, j) * labelDerivative(i, j) ); 
-        } 
-      avgNorm += vcl_sqrt( norm );  
+        norm += ( labelDerivative(i, j) * labelDerivative(i, j) );
+        }
+      avgNorm += vcl_sqrt( norm );
       }
-    avgNorm /= static_cast<RealType>( metric->GetNumberOfValues() );   
+    avgNorm /= static_cast<RealType>( metric->GetNumberOfValues() );
     labelDerivative /= avgNorm;
 
     if ( this->m_UseWithRespectToTheMovingPointSet )

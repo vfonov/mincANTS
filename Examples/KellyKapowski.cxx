@@ -249,12 +249,12 @@ int DiReCT0( itk::ants::CommandLineParser *parser )
     if( convergenceOption->GetNumberOfParameters() > 1 )
       {
       direct->SetConvergenceThreshold( parser->Convert<float>(
-					    convergenceOption->GetParameter( 1 ) ) );
+                        convergenceOption->GetParameter( 1 ) ) );
       }
     if( convergenceOption->GetNumberOfParameters() > 2 )
       {
       direct->SetConvergenceWindowSize( parser->Convert<unsigned int>(
-					    convergenceOption->GetParameter( 2 ) ) );
+                        convergenceOption->GetParameter( 2 ) ) );
       }
     }
 
@@ -529,12 +529,12 @@ int DiReCT1( itk::ants::CommandLineParser *parser )
     if( convergenceOption->GetNumberOfParameters() > 1 )
       {
       direct->SetConvergenceThreshold( parser->Convert<float>(
-					    convergenceOption->GetParameter( 1 ) ) );
+                        convergenceOption->GetParameter( 1 ) ) );
       }
     if( convergenceOption->GetNumberOfParameters() > 2 )
       {
       direct->SetConvergenceWindowSize( parser->Convert<unsigned int>(
-					    convergenceOption->GetParameter( 2 ) ) );
+                        convergenceOption->GetParameter( 2 ) ) );
       }
     }
 
@@ -808,12 +808,12 @@ int DiReCT2( itk::ants::CommandLineParser *parser )
     if( convergenceOption->GetNumberOfParameters() > 1 )
       {
       direct->SetConvergenceThreshold( parser->Convert<float>(
-					    convergenceOption->GetParameter( 1 ) ) );
+                        convergenceOption->GetParameter( 1 ) ) );
       }
     if( convergenceOption->GetNumberOfParameters() > 2 )
       {
       direct->SetConvergenceWindowSize( parser->Convert<unsigned int>(
-					    convergenceOption->GetParameter( 2 ) ) );
+                        convergenceOption->GetParameter( 2 ) ) );
       }
     }
   //
@@ -1086,12 +1086,12 @@ int DiReCT3( itk::ants::CommandLineParser *parser )
     if( convergenceOption->GetNumberOfParameters() > 1 )
       {
       direct->SetConvergenceThreshold( parser->Convert<float>(
-					    convergenceOption->GetParameter( 1 ) ) );
+                        convergenceOption->GetParameter( 1 ) ) );
       }
     if( convergenceOption->GetNumberOfParameters() > 2 )
       {
       direct->SetConvergenceWindowSize( parser->Convert<unsigned int>(
-					    convergenceOption->GetParameter( 2 ) ) );
+                        convergenceOption->GetParameter( 2 ) ) );
       }
     }
 

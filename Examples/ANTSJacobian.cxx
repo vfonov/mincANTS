@@ -68,17 +68,17 @@ typename TImage::Pointer GenerateGridImage(TImage* img, unsigned int gridsize)
       typename ImageType::IndexType ind=wimIter.GetIndex();
       typename ImageType::IndexType ind2=wimIter.GetIndex();
       for (int i=0; i<2; i++)
-	  {
-	    ind2[i]=ind[i]-1;
-	    if (ind2[i] < 0) ind2[i]=0;
-	  }
+      {
+        ind2[i]=ind[i]-1;
+        if (ind2[i] < 0) ind2[i]=0;
+      }
 
       for (int i=0; i<2; i++)
         {
           //this creates a 3-d effect
-	  //if (ind[i] % gridsize == 0) img->SetPixel(ind2,2);
+      //if (ind[i] % gridsize == 0) img->SetPixel(ind2,2);
           //this gives double thickness
-	  if (ind[i] % gridsize == 0) img->SetPixel(ind2,0);
+      if (ind[i] % gridsize == 0) img->SetPixel(ind2,0);
         }
 
       }
@@ -247,60 +247,60 @@ ComputeJacobian(TDisplacementField* field,char* fnm, char* maskfn, bool uselog=f
     }
     if (oktosample)
       {
-	ct++;
-	typename TImage::IndexType temp=rindex;
-	cpix=TransformVector<ImageType,FieldType>(field,rindex);
-	for(unsigned int row=0; row< ImageDimension;row++)
-	  {
-	    difIndex[row][0]=rindex;
-	    difIndex[row][1]=rindex;
-	    ddrindex=rindex;
-	    ddlindex=rindex;
-	    if ((unsigned int) rindex[row] < (unsigned int) m_FieldSize[row]-2)
-	      {
-		difIndex[row][0][row]=rindex[row]+posoff;
-		ddrindex[row]=rindex[row]+posoff*2;
-	      }
-	    if (rindex[row] > 1 )
-	      {
-		difIndex[row][1][row]=rindex[row]-1;
-		ddlindex[row]=rindex[row]-2;
-	      }
+    ct++;
+    typename TImage::IndexType temp=rindex;
+    cpix=TransformVector<ImageType,FieldType>(field,rindex);
+    for(unsigned int row=0; row< ImageDimension;row++)
+      {
+        difIndex[row][0]=rindex;
+        difIndex[row][1]=rindex;
+        ddrindex=rindex;
+        ddlindex=rindex;
+        if ((unsigned int) rindex[row] < (unsigned int) m_FieldSize[row]-2)
+          {
+        difIndex[row][0][row]=rindex[row]+posoff;
+        ddrindex[row]=rindex[row]+posoff*2;
+          }
+        if (rindex[row] > 1 )
+          {
+        difIndex[row][1][row]=rindex[row]-1;
+        ddlindex[row]=rindex[row]-2;
+          }
 
-	    float h=1;
-	    space=1.0; // should use image spacing here?
+        float h=1;
+        space=1.0; // should use image spacing here?
 
-	    rpix = TransformVector<ImageType,FieldType>(field,difIndex[row][1]);
-	    rpix = rpix*h+cpix*(1.-h);
-	    lpix = TransformVector<ImageType,FieldType>(field,difIndex[row][0]);
-	    lpix = lpix*h+cpix*(1.-h);
-	    //    dPix = ( rpix - lpix)*(1.0)/(2.0);
+        rpix = TransformVector<ImageType,FieldType>(field,difIndex[row][1]);
+        rpix = rpix*h+cpix*(1.-h);
+        lpix = TransformVector<ImageType,FieldType>(field,difIndex[row][0]);
+        lpix = lpix*h+cpix*(1.-h);
+        //    dPix = ( rpix - lpix)*(1.0)/(2.0);
 
-	    rrpix = TransformVector<ImageType,FieldType>(field,ddrindex);
+        rrpix = TransformVector<ImageType,FieldType>(field,ddrindex);
       rrpix = rrpix*h+rpix*(1.-h);
       llpix = TransformVector<ImageType,FieldType>(field,ddlindex);
       llpix = llpix*h+lpix*(1.-h);
       dPix=( rrpix*(-1.0) + rpix*8.0 - lpix*8.0 + lpix )*(-1.0)*space/(12.0*h); //4th order centered difference
       if ( use2ndorder) dPix=( lpix - rpix )*(1.0)*space/(2.0*h); //4th order centered difference
 
-	    for(unsigned int col=0; col< ImageDimension;col++){
-	      float val;
-	      if (row == col) val=dPix[col]/sp[col]+1.0;
-	      else val = dPix[col]/sp[col];
-	      //        std::cout << " row " << row << " col " << col << " val " << val << std::endl;
-	      jMatrix.put(col,row,val);
-	      avgMatrix.put(col,row,avgMatrix.get(col,row)+val);
-	    }
-	  }
+        for(unsigned int col=0; col< ImageDimension;col++){
+          float val;
+          if (row == col) val=dPix[col]/sp[col]+1.0;
+          else val = dPix[col]/sp[col];
+          //        std::cout << " row " << row << " col " << col << " val " << val << std::endl;
+          jMatrix.put(col,row,val);
+          avgMatrix.put(col,row,avgMatrix.get(col,row)+val);
+        }
+      }
 
-	//the determinant of the jacobian matrix
-	// std::cout << " get det " << std::endl;
-	det = vnl_determinant(jMatrix);
-	//    float prodval = m_FloatImage->GetPixel(rindex);
+    //the determinant of the jacobian matrix
+    // std::cout << " get det " << std::endl;
+    det = vnl_determinant(jMatrix);
+    //    float prodval = m_FloatImage->GetPixel(rindex);
       if (det < 0.0) det = 0;
 
 
-	m_FloatImage->SetPixel(rindex,  det );
+    m_FloatImage->SetPixel(rindex,  det );
 
       //totaljac+=det;
       }//oktosample if
@@ -338,23 +338,23 @@ ComputeJacobian(TDisplacementField* field,char* fnm, char* maskfn, bool uselog=f
       double total = 0.0;
       unsigned long ct = 0;
       for(  m_FieldIter.GoToBegin() ; !m_FieldIter.IsAtEnd(); ++m_FieldIter )
-	{
-	  rindex=m_FieldIter.GetIndex();
-	  if (mask->GetPixel(rindex) > 0 )
-	    {
-	      total+=m_FloatImage->GetPixel(rindex);
-	      ct++;
-	    }
-	  else m_FloatImage->SetPixel(rindex,0);
-	}
+    {
+      rindex=m_FieldIter.GetIndex();
+      if (mask->GetPixel(rindex) > 0 )
+        {
+          total+=m_FloatImage->GetPixel(rindex);
+          ct++;
+        }
+      else m_FloatImage->SetPixel(rindex,0);
+    }
       total /= (double) ct;
       for(  m_FieldIter.GoToBegin() ; !m_FieldIter.IsAtEnd(); ++m_FieldIter )
-	{
-	  rindex=m_FieldIter.GetIndex();
-	  double val = m_FloatImage->GetPixel(rindex)/total;
+    {
+      rindex=m_FieldIter.GetIndex();
+      double val = m_FloatImage->GetPixel(rindex)/total;
           if (mask->GetPixel(rindex) > 0 ) m_FloatImage->SetPixel(rindex,val);
-	  else m_FloatImage->SetPixel(rindex,0);
-	}
+      else m_FloatImage->SetPixel(rindex,0);
+    }
 
     }
 

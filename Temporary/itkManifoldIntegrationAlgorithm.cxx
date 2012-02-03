@@ -37,7 +37,7 @@ ManifoldIntegrationAlgorithm<TGraphSearchNode>::ManifoldIntegrationAlgorithm()
 
 template<class TGraphSearchNode >
 float ManifoldIntegrationAlgorithm<TGraphSearchNode>::dstarUestimate(
-	typename TGraphSearchNode::Pointer G)
+    typename TGraphSearchNode::Pointer G)
 {
   typedef itk::SurfaceMeshCurvature<TGraphSearchNode,TGraphSearchNode> surfktype;
   typename surfktype::Pointer surfk=surfktype::New();
@@ -103,21 +103,21 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::InitializeGraph3()
 
     labelType label = scs->GetTuple1(i);
     if( find( myLabelSet.begin(), myLabelSet.end(), label )
-	== myLabelSet.end() )
+    == myLabelSet.end() )
       myLabelSet.push_back( label );
 
-    //    std::cout << " label " << 	 scs->GetTuple1(i) << std::endl;
-    	 // std::cout << " set3 " << 	 scs->GetTuple3(i) << std::endl;
-    	 // std::cout << " set4 " << 	 scs->GetTuple4(i) << std::endl;
+    //    std::cout << " label " <<      scs->GetTuple1(i) << std::endl;
+         // std::cout << " set3 " <<      scs->GetTuple3(i) << std::endl;
+         // std::cout << " set4 " <<      scs->GetTuple4(i) << std::endl;
     for (int j=0; j<GraphDimension; j++) loc[j]=pt[j];
-	 G->SetLocation(loc);
-  	 G->SetPredecessor(NULL);
-	 G->m_NumberOfNeighbors=0;
-	 G->SetIdentity(i);
-	 m_GraphX[i]=G;
+     G->SetLocation(loc);
+       G->SetPredecessor(NULL);
+     G->m_NumberOfNeighbors=0;
+     G->SetIdentity(i);
+     m_GraphX[i]=G;
   }
   std::cout << " you have " << myLabelSet.size() << " labels " << std::endl;
-  for ( unsigned int i=0; i < myLabelSet.size(); i++) 
+  for ( unsigned int i=0; i < myLabelSet.size(); i++)
     std::cout <<" label " << myLabelSet[i] << std::endl;
   std::cout << " allocation of graph done ";
 
@@ -135,13 +135,13 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::InitializeGraph3()
     m_GraphX[pts[1]]->m_NumberOfNeighbors+=2;
     m_GraphX[pts[2]]->m_NumberOfNeighbors+=2;
   }
- 
+
 
   for(int i =0; i < numPoints; i++)
   {
     m_GraphX[i]->m_Neighbors.resize(m_GraphX[i]->m_NumberOfNeighbors);
-//	std::cout <<" Num Neigh " << i << " is " << m_GraphX[i]->m_NumberOfNeighbors << std::endl;
-	m_GraphX[i]->m_NumberOfNeighbors=0;
+//    std::cout <<" Num Neigh " << i << " is " << m_GraphX[i]->m_NumberOfNeighbors << std::endl;
+    m_GraphX[i]->m_NumberOfNeighbors=0;
   }
 
   for(vtkcells->InitTraversal(); vtkcells->GetNextCell(npts, pts); )
@@ -162,13 +162,13 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::InitializeGraph3()
   m_GraphX[pts[2]]->m_NumberOfNeighbors++;
   }
 
-  // now go through each node and make its list of neighbors unique 
+  // now go through each node and make its list of neighbors unique
   // had to do this b/c it's easier than fixing the junk above ... too tired!
   for(int i =0; i < numPoints; i++)
     {
       std::vector<unsigned int> neighlist;
       for ( unsigned int n=0; n<m_GraphX[i]->m_NumberOfNeighbors; n++) {
-	neighlist.push_back(m_GraphX[i]->m_Neighbors[n]->GetIdentity()); 
+    neighlist.push_back(m_GraphX[i]->m_Neighbors[n]->GetIdentity());
       }
       std::sort( neighlist.begin(), neighlist.end() );
       std::vector<unsigned int>::iterator new_end_pos;
@@ -176,7 +176,7 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::InitializeGraph3()
       neighlist.erase( new_end_pos, neighlist.end() );
       //      std::cout << " new leng " << neighlist.size() << " old " << len1 << std::endl;
     }
- 
+
 }
 
 
@@ -244,15 +244,15 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::InitializeGraph2()
   {
      NodeLocationType loc;
      double* pt = vtkpoints->GetPoint(i);
-  	 typename GraphSearchNode<PixelType,CoordRep,GraphDimension>::Pointer G=
-    		GraphSearchNode<PixelType,CoordRep,GraphDimension>::New();
-  	 G->SetUnVisited();
+       typename GraphSearchNode<PixelType,CoordRep,GraphDimension>::Pointer G=
+            GraphSearchNode<PixelType,CoordRep,GraphDimension>::New();
+       G->SetUnVisited();
      G->SetTotalCost(m_MaxCost);
      for (int j=0; j<GraphDimension; j++) loc[j]=pt[j];
-	 G->SetLocation(loc);
-  	 G->SetPredecessor(NULL);
-	 G->m_NumberOfNeighbors=0;
-	 m_GraphX[i]=G;
+     G->SetLocation(loc);
+       G->SetPredecessor(NULL);
+     G->m_NumberOfNeighbors=0;
+     m_GraphX[i]=G;
   }
 
   std::cout << " allocation of graph done ";
@@ -266,19 +266,19 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::InitializeGraph2()
     // Place the edge into the Edge structure
     assert(nPoints == 2);
     // Place the edge into the Edge structure
-//	std::cout << " nPoints " << nPoints << std::endl;
-//	std::cout << " pt " << xPoints[0] << " connects " << xPoints[1] << std::endl;
+//    std::cout << " nPoints " << nPoints << std::endl;
+//    std::cout << " pt " << xPoints[0] << " connects " << xPoints[1] << std::endl;
     assert(nPoints == 2);
-	m_GraphX[xPoints[0]]->m_NumberOfNeighbors++;
-	}
+    m_GraphX[xPoints[0]]->m_NumberOfNeighbors++;
+    }
 
-	std::cout << " counting nhood done ";
-	// second, resize the vector for each G
-	for (int i=0; i<numPoints; i++)
-	{
+    std::cout << " counting nhood done ";
+    // second, resize the vector for each G
+    for (int i=0; i<numPoints; i++)
+    {
       m_GraphX[i]->m_Neighbors.resize(m_GraphX[i]->m_NumberOfNeighbors);
-	  m_GraphX[i]->m_NumberOfNeighbors=0;
-	}
+      m_GraphX[i]->m_NumberOfNeighbors=0;
+    }
 
     for(unsigned int i=0;i<nEdges;i++)
     {
@@ -286,14 +286,14 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::InitializeGraph2()
     m_EdgePolys->GetCellPoints(i, nPoints, xPoints);
     // Place the edge into the Edge structure
     assert(nPoints == 2);
-	m_GraphX[xPoints[0]]->m_Neighbors[ m_GraphX[xPoints[0]]->m_NumberOfNeighbors ]=m_GraphX[xPoints[1]];
-	m_GraphX[xPoints[0]]->m_NumberOfNeighbors++;
-	}
+    m_GraphX[xPoints[0]]->m_Neighbors[ m_GraphX[xPoints[0]]->m_NumberOfNeighbors ]=m_GraphX[xPoints[1]];
+    m_GraphX[xPoints[0]]->m_NumberOfNeighbors++;
+    }
 
-//	vtkPolyDataConnectivityFilter* con = vtkPolyDataConnectivityFilter::New();
+//    vtkPolyDataConnectivityFilter* con = vtkPolyDataConnectivityFilter::New();
 //    con->SetExtractionModeToLargestRegion();
 //    con->SetInput(m_EdgePolys);
-//	m_SurfaceMesh=con->GetOutput();
+//    m_SurfaceMesh=con->GetOutput();
     m_SurfaceMesh=m_EdgePolys;
 
 }
@@ -303,7 +303,7 @@ template<class TGraphSearchNode >
 void ManifoldIntegrationAlgorithm<TGraphSearchNode>::InitializeGraph()
 {
 if (!m_SurfaceMesh) return;
-	std::cout << " Generate graph from surface mesh " << std::endl;
+    std::cout << " Generate graph from surface mesh " << std::endl;
 // get size of the surface mesh
 
     vtkExtractEdges* edgeex=vtkExtractEdges::New();
@@ -318,7 +318,7 @@ if (!m_SurfaceMesh) return;
     edg1->BuildCells();
 
 
-	// now cruise through all edges and add to each node's neighbor list
+    // now cruise through all edges and add to each node's neighbor list
 // first, count the num of edges for each node
 //    m_SurfaceMesh=edg1;
 
@@ -327,20 +327,20 @@ if (!m_SurfaceMesh) return;
     m_GraphX.resize(numPoints);
     for(int i =0; i < numPoints; i++)
       {
-	NodeLocationType loc;
-	double* pt = vtkpoints->GetPoint(i);
-	typename GraphSearchNode<PixelType,CoordRep,GraphDimension>::Pointer G=
-	  GraphSearchNode<PixelType,CoordRep,GraphDimension>::New();
-	G->SetUnVisited();
-	G->SetTotalCost(m_MaxCost);
-	for (int j=0; j<GraphDimension; j++) loc[j]=pt[j];
-	G->SetLocation(loc);
-  	 G->SetPredecessor(NULL);
-	 G->m_NumberOfNeighbors=0;
-	 m_GraphX[i]=G;
+    NodeLocationType loc;
+    double* pt = vtkpoints->GetPoint(i);
+    typename GraphSearchNode<PixelType,CoordRep,GraphDimension>::Pointer G=
+      GraphSearchNode<PixelType,CoordRep,GraphDimension>::New();
+    G->SetUnVisited();
+    G->SetTotalCost(m_MaxCost);
+    for (int j=0; j<GraphDimension; j++) loc[j]=pt[j];
+    G->SetLocation(loc);
+       G->SetPredecessor(NULL);
+     G->m_NumberOfNeighbors=0;
+     m_GraphX[i]=G;
       }
   std::cout << " allocation of graph done ";
-  
+
   std::cout << " begin edg iter ";
   vtkIdType nPoints = 0;
   vtkIdType *xPoints = NULL;
@@ -349,14 +349,14 @@ if (!m_SurfaceMesh) return;
       // Get the next edge
       edg1->GetCellPoints(i, nPoints, xPoints);
       // Place the edge into the Edge structure
-//	std::cout << " nPoints " << nPoints << std::endl;
-//	std::cout << " pt " << xPoints[0] << " connects " << xPoints[1] << std::endl;
+//    std::cout << " nPoints " << nPoints << std::endl;
+//    std::cout << " pt " << xPoints[0] << " connects " << xPoints[1] << std::endl;
       assert(nPoints == 2);
       m_GraphX[xPoints[0]]->m_NumberOfNeighbors++;
     }
-  
+
   std::cout << " counting nhood done ";
-	// second, resize the vector for each G
+    // second, resize the vector for each G
   for (int i=0; i<numPoints; i++)
     {
       m_GraphX[i]->m_Neighbors.resize(m_GraphX[i]->m_NumberOfNeighbors);
@@ -372,14 +372,14 @@ if (!m_SurfaceMesh) return;
     m_GraphX[xPoints[0]]->m_Neighbors[ m_GraphX[xPoints[0]]->m_NumberOfNeighbors ]=m_GraphX[xPoints[1]];
     m_GraphX[xPoints[0]]->m_NumberOfNeighbors++;
     }
-  
+
   m_SurfaceMesh=edg1;
-  
+
   return;
-  
+
 }
-  
-  
+
+
 template<class TGraphSearchNode >
 void ManifoldIntegrationAlgorithm<TGraphSearchNode>
 ::ConvertGraphBackToMesh()
@@ -401,36 +401,36 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::InitializeQueue()
   for (int i=0; i<n; i++)
   {
     typename GraphSearchNode<PixelType,CoordRep,GraphDimension>::Pointer G = m_QS->m_SourceNodes[i];
-	  G->SetPredecessor(G);
-  	m_QS->m_Q.push(G);
-  	loc=G->GetLocation();
-//  	for (int d=0;d<GraphDimension;d++) m_GraphIndex[d]=loc[d];
-//	    m_Graph->SetPixel(m_GraphIndex,G);
+      G->SetPredecessor(G);
+      m_QS->m_Q.push(G);
+      loc=G->GetLocation();
+//      for (int d=0;d<GraphDimension;d++) m_GraphIndex[d]=loc[d];
+//        m_Graph->SetPixel(m_GraphIndex,G);
   }
   for (unsigned int i=0; i<m_QS->m_SinkNodes.size(); i++)
   {
     typename GraphSearchNode<PixelType,CoordRep,GraphDimension>::Pointer G = m_QS->m_SinkNodes[i];
-	  G->SetPredecessor(NULL);
-	  loc=G->GetLocation();
-//	  for (int d=0;d<GraphDimension;d++) m_GraphIndex[d]=(long)loc[d];
-//	    m_Graph->SetPixel(m_GraphIndex,G);
+      G->SetPredecessor(NULL);
+      loc=G->GetLocation();
+//      for (int d=0;d<GraphDimension;d++) m_GraphIndex[d]=(long)loc[d];
+//        m_Graph->SetPixel(m_GraphIndex,G);
   }
   m_SearchFinished=false;
 }
 
 /**
-*  parameterize the boundary --- an estimate 
+*  parameterize the boundary --- an estimate
 */
 
 template<class TGraphSearchNode >
 bool ManifoldIntegrationAlgorithm<TGraphSearchNode>
 ::ParameterizeBoundary( ManifoldIntegrationAlgorithm<TGraphSearchNode>::SearchNodePointer rootNode )
 {
-  std::vector<SearchNodePointer>  neighborlist; 
+  std::vector<SearchNodePointer>  neighborlist;
   bool I_Am_A_Neighbor=false;
   SearchNodePointer neighbor=NULL;
   SearchNodePointer curNode=rootNode;
-  //  unsigned int rootnn=rootNode>m_NumberOfNeighbors; 
+  //  unsigned int rootnn=rootNode>m_NumberOfNeighbors;
   unsigned int ct=0;
   bool canparam=false;
   unsigned int qsz= this->m_QS->m_Q.size();
@@ -438,36 +438,36 @@ bool ManifoldIntegrationAlgorithm<TGraphSearchNode>
     unsigned int limit = curNode->m_NumberOfNeighbors;
    for (unsigned int i = 0; i < limit; i++)
      {
-	neighbor=curNode->m_Neighbors[i];
-	bool inb=false;
-	for ( unsigned int q=0; q<neighborlist.size(); q++) 
-	  {
-	    if ( neighbor == neighborlist[q] ) inb=true;
-	  }
-	if ( neighbor == rootNode && !inb && ct > 2  ) {
-	    I_Am_A_Neighbor=true; 
-	    canparam=true;
-	}
-	if (  neighbor->IsInQueue() && !inb ) { // add to border list
-	  neighborlist.push_back(neighbor);
-	  curNode=neighbor;
-	  i=limit;
-	} // add to border
-     } // neighborhood     
+    neighbor=curNode->m_Neighbors[i];
+    bool inb=false;
+    for ( unsigned int q=0; q<neighborlist.size(); q++)
+      {
+        if ( neighbor == neighborlist[q] ) inb=true;
+      }
+    if ( neighbor == rootNode && !inb && ct > 2  ) {
+        I_Am_A_Neighbor=true;
+        canparam=true;
+    }
+    if (  neighbor->IsInQueue() && !inb ) { // add to border list
+      neighborlist.push_back(neighbor);
+      curNode=neighbor;
+      i=limit;
+    } // add to border
+     } // neighborhood
    ct++;
  }// while
- 
+
  if ( neighborlist.size() >= this->m_BoundaryList.size() && canparam ) {
    neighborlist.push_back(rootNode);
    this->m_BoundaryList.clear();
    this->m_BoundaryList.assign(neighborlist.begin(),neighborlist.end());
 }
- 
+
  // if ( ct > 0 && canparam)  std::cout <<" qfrac " << this->m_BoundaryList.size()  << " canp  "<< canparam << " qsz " << qsz << " cost " << m_CurrentCost << std::endl;
  return canparam;
-  
-}  
- 
+
+}
+
 
 
 
@@ -492,7 +492,7 @@ PixelType ManifoldIntegrationAlgorithm<TGraphSearchNode>::MyLocalCost()
       if ( dL > 0.5 ) dL=this->m_MaxCost*this->m_LabelCostWeight; else dL=0;
       return (mag*this->m_DistanceCostWeight+dL);
     }
-      
+
 }
 
 template<class TGraphSearchNode >
@@ -504,9 +504,9 @@ bool ManifoldIntegrationAlgorithm<TGraphSearchNode>::TerminationCondition()
     {
       //      std::cout << " FOUND SINK ";
       m_SearchFinished=true;
-	  m_NeighborNode->SetTotalCost( m_CurrentCost + MyLocalCost());
-	  m_NeighborNode->SetPredecessor(m_CurrentNode);
-  	}
+      m_NeighborNode->SetTotalCost( m_CurrentCost + MyLocalCost());
+      m_NeighborNode->SetPredecessor(m_CurrentNode);
+      }
   }
   if (m_CurrentCost>=m_MaxCost) m_SearchFinished=true;
   return m_SearchFinished;
@@ -520,15 +520,15 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::SearchEdgeSet()
   for (i = 0; i < m_CurrentNode->m_NumberOfNeighbors; i++)
     {
       m_NeighborNode=m_CurrentNode->m_Neighbors[i];
-      //    	std::cout << " i " << i << " position " << m_NeighborNode->GetLocation() << endl;
-      //    	std::cout << " i " << i << " position " << m_NeighborNode->GetLocation() << " label " << m_CurrentNode->GetValue() << endl;
+      //        std::cout << " i " << i << " position " << m_NeighborNode->GetLocation() << endl;
+      //        std::cout << " i " << i << " position " << m_NeighborNode->GetLocation() << " label " << m_CurrentNode->GetValue() << endl;
       TerminationCondition();
       if (!m_SearchFinished && m_CurrentNode != m_NeighborNode &&
-	  !m_NeighborNode->GetDelivered())
-	{
-	  m_NewCost = m_CurrentCost + MyLocalCost();
-	  CheckNodeStatus();
-	}
+      !m_NeighborNode->GetDelivered())
+    {
+      m_NewCost = m_CurrentCost + MyLocalCost();
+      CheckNodeStatus();
+    }
   }
 }
 
@@ -536,13 +536,13 @@ template<class TGraphSearchNode >
 void ManifoldIntegrationAlgorithm<TGraphSearchNode>::GetSearchBoundary()
 {
   unsigned int gsz=this->GetGraphSize();
-  for ( unsigned int j=0; j<gsz ; j++) { 
+  for ( unsigned int j=0; j<gsz ; j++) {
     float cost=0;
     this->m_CurrentNode=this->m_GraphX[j];
     if ( this->m_CurrentNode ) {
       cost=m_CurrentNode->GetTotalCost();
       if (  cost <= this->m_MaxCost &&  (cost >= this->m_MaxCost-4) ) {
-	this->m_BoundaryList.push_back(this->m_CurrentNode);
+    this->m_BoundaryList.push_back(this->m_CurrentNode);
       }
     }
   }
@@ -555,9 +555,9 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::CheckNodeStatus()
 // checks a graph neighbor's status
 {
 
-	NodeLocationType  dif=m_CurrentNode->GetLocation()-m_NeighborNode->GetLocation();
-//	std::cout << " visited? " << m_NeighborNode->GetVisited() <<
-//		" old cost " << m_NeighborNode->GetTotalCost() << " new cost " <<m_NewCost << std::endl;
+    NodeLocationType  dif=m_CurrentNode->GetLocation()-m_NeighborNode->GetLocation();
+//    std::cout << " visited? " << m_NeighborNode->GetVisited() <<
+//        " old cost " << m_NeighborNode->GetTotalCost() << " new cost " <<m_NewCost << std::endl;
   if (!m_NeighborNode->GetVisited() && ! m_NeighborNode->GetUnVisitable() )
   {
     // set the cost and put into the queue
@@ -572,31 +572,31 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::CheckNodeStatus()
     for (int jj=0; jj<GraphDimension;jj++) mag+=dif[jj]*dif[jj];
     mag = sqrt(mag);
     m_NeighborNode->SetValue(m_CurrentNode->GetValue(2)+mag,2); // the actual manifold distance travelled
-    //    if  ( 
+    //    if  (
       m_QS->m_Q.push(m_NeighborNode);
       // }
       // else {
       //  m_NeighborNode->SetUnVisitable();
       // }
-    
-    //	std::cout << " Pushing new node on " << m_NewCost << std::endl;
+
+    //    std::cout << " Pushing new node on " << m_NewCost << std::endl;
   }
   else if (m_NewCost < m_NeighborNode->GetTotalCost()&& ! m_NeighborNode->GetUnVisitable()  )
     {
-      //	  std::cout << " Updating " << std::endl;
+      //      std::cout << " Updating " << std::endl;
       float delt=fabs(m_CurrentNode->GetValue()-m_NeighborNode->GetValue());//*dif.magnitude();
       m_NeighborNode->SetValue(m_CurrentNode->GetValue()+delt);
       m_NeighborNode->SetTotalCost(m_NewCost);
       m_NeighborNode->SetPredecessor(m_CurrentNode);
 
-      
+
       float mag = 0.0;
       for (int jj=0; jj<GraphDimension;jj++) mag+=dif[jj]*dif[jj];
       mag = sqrt(mag);
       m_NeighborNode->SetValue(m_CurrentNode->GetValue(2)+mag,2); // the actual manifold distance travelled
       m_QS->m_Q.push(m_NeighborNode);
     }
-  
+
 }
 
 
@@ -610,33 +610,33 @@ void ManifoldIntegrationAlgorithm<TGraphSearchNode>::FindPath()
     }
 
   //  std::cout << "MI start find path " << " Q size " << m_QS->m_Q.size() << " \n";
-  
+
   while ( !m_SearchFinished && !m_QS->m_Q.empty()  )
     {
       m_CurrentNode=m_QS->m_Q.top();
       m_CurrentCost=m_CurrentNode->GetTotalCost();
-         if ( this->m_ParamWhileSearching  ) 
-             this->ParameterizeBoundary( this->m_CurrentNode );  
+         if ( this->m_ParamWhileSearching  )
+             this->ParameterizeBoundary( this->m_CurrentNode );
       m_QS->m_Q.pop();
       if (!m_CurrentNode->GetDelivered()) {
-	m_QS->IncrementTimer();
-	///std::cout << " searching " << m_CurrentNode->GetLocation()   << " \n";
-	this->SearchEdgeSet();
-	  //if ( (m_CurrentNode->GetTimer() % 1.e5 ) == 0)
-	// std::cout << " searched  " << m_CurrentNode->GetTimer()   << " \n";
+    m_QS->IncrementTimer();
+    ///std::cout << " searching " << m_CurrentNode->GetLocation()   << " \n";
+    this->SearchEdgeSet();
+      //if ( (m_CurrentNode->GetTimer() % 1.e5 ) == 0)
+    // std::cout << " searched  " << m_CurrentNode->GetTimer()   << " \n";
       }
       m_CurrentNode->SetDelivered();
-      
+
     }  // end of while
-  
+
   m_NumberSearched = (unsigned long) m_QS->GetTimer();
   //  std::cout << "Done with find path " << " Q size " << m_QS->m_Q.size() <<
   //" num searched " << m_NumberSearched << " \n";
-  
+
   //  std::cout << " Max Distance " << m_CurrentCost << std::endl;
   if ( ! this->m_ParamWhileSearching )
-    this->GetSearchBoundary(); 
-  
+    this->GetSearchBoundary();
+
   return;
 
 }

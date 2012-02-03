@@ -321,15 +321,15 @@ protected:
     bool makebinimg=false;
     if (makebinimg)
       {
-	m_Iteration=0;
-	binaryimage = BinaryImageType::New();
-	binaryimage->SetLargestPossibleRegion(img->GetLargestPossibleRegion()  );
-	binaryimage->SetBufferedRegion(img->GetLargestPossibleRegion());
-	binaryimage->SetSpacing(img->GetSpacing());
-	binaryimage->SetOrigin(img->GetOrigin());
-	binaryimage->Allocate();
-	ittype2 it(binaryimage,binaryimage->GetLargestPossibleRegion().GetSize());
-	for( it.GoToBegin(); !it.IsAtEnd(); ++it ) it.Set(1);
+    m_Iteration=0;
+    binaryimage = BinaryImageType::New();
+    binaryimage->SetLargestPossibleRegion(img->GetLargestPossibleRegion()  );
+    binaryimage->SetBufferedRegion(img->GetLargestPossibleRegion());
+    binaryimage->SetSpacing(img->GetSpacing());
+    binaryimage->SetOrigin(img->GetOrigin());
+    binaryimage->Allocate();
+    ittype2 it(binaryimage,binaryimage->GetLargestPossibleRegion().GetSize());
+    for( it.GoToBegin(); !it.IsAtEnd(); ++it ) it.Set(1);
       }
     return this->m_MetricImage;
   }

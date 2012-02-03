@@ -1,35 +1,35 @@
 /*=========================================================================
-  
+
   Program:   Advanced Normalization Tools
   Module:    $RCSfile: CopyImageHeaderInformation.cxx,v $
-  Language:  C++      
+  Language:  C++
   Date:      $Date: 2009/04/30 18:32:36 $
   Version:   $Revision: 1.19 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
-  
+
 =========================================================================*/
-#include <iostream>           
-#include <fstream>       
-#include <stdio.h>                    
-#include "itkImage.h"                   
-#include "itkImageFileWriter.h"                   
-#include "itkImageFileReader.h"     
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
+#include "itkImage.h"
+#include "itkImageFileWriter.h"
+#include "itkImageFileReader.h"
 #include "itkCastImageFilter.h"
 #include "itkRescaleIntensityImageFilter.h"
 #include "ReadWriteImage.h"
 #include "TensorFunctions.h"
 
 template <unsigned int ImageDimension>
-int CopyImageHeaderInformation(int argc, char *argv[])        
+int CopyImageHeaderInformation(int argc, char *argv[])
 {
-   
+
   typedef  float  outPixelType;
   typedef  float floatPixelType;
   typedef  float inPixelType;
@@ -40,8 +40,8 @@ int CopyImageHeaderInformation(int argc, char *argv[])
   typedef itk::ImageFileWriter<OutImageType> writertype;
 
   typename readertype::Pointer reader = readertype::New();
-  reader->SetFileName(argv[1]); 
-  reader->Update();   
+  reader->SetFileName(argv[1]);
+  reader->Update();
   //  std::cout << " Spacing " << reader->GetOutput()->GetSpacing() << std::endl;
   //std::cout << " Origin " << reader->GetOutput()->GetOrigin() << std::endl;
   //std::cout << " Direction " << std::endl << reader->GetOutput()->GetDirection() << std::endl;
@@ -49,7 +49,7 @@ int CopyImageHeaderInformation(int argc, char *argv[])
 
   bool istensor=false;
   if (argc >7) if (atoi(argv[7])) istensor=true;
-  if (istensor) 
+  if (istensor)
     {
       typedef itk::Vector<float, 6> TensorType;
       typedef itk::Image<TensorType,ImageDimension>     TensorFieldType;
@@ -62,19 +62,19 @@ int CopyImageHeaderInformation(int argc, char *argv[])
 
       //      std::cout<< " tim dir " << timage->GetDirection() << std::endl;
       WriteTensorImage<TensorFieldType>( timage ,argv[3],false);
-      
+
       return 0;
     }
 
 
   typename readertype::Pointer reader2 = readertype::New();
-  reader2->SetFileName(argv[2]); 
-  reader2->Update();   
+  reader2->SetFileName(argv[2]);
+  reader2->Update();
 
-  
+
   //MakeNewImage(typename TImage::Pointer image1, typename TImage::PixelType initval)
   typename ImageType::Pointer newimage = MakeNewImage<ImageType>(reader2->GetOutput(), -1);
-  
+
   if (argc >6) if (atoi(argv[6])) newimage->SetSpacing(  reader->GetOutput()->GetSpacing()  );
   if (argc > 5) if (atoi(argv[5])) newimage->SetOrigin(  reader->GetOutput()->GetOrigin()  );
   if (argc > 4) if (atoi(argv[4])) newimage->SetDirection(  reader->GetOutput()->GetDirection()  );
@@ -84,20 +84,20 @@ int CopyImageHeaderInformation(int argc, char *argv[])
   WriteImage<ImageType>(newimage,argv[3]);
 
   return 1;
- 
-}     
+
+}
 
 
 
-int main(int argc, char *argv[])        
+int main(int argc, char *argv[])
 {
 
-   
-  if ( argc < 4  )     
+
+  if ( argc < 4  )
     { std::cout << "Usage:  " << argv[0] << " refimage.ext imagetocopyrefimageinfoto.ext imageout.ext   boolcopydirection  boolcopyorigin boolcopyspacing  {bool-Image2-IsTensor}" << std::endl;
     return 1;
-  }           
-                 
+  }
+
    // Get the image dimension
   std::string fn = std::string(argv[1]);
    itk::ImageIOBase::Pointer imageIO =
@@ -118,11 +118,11 @@ int main(int argc, char *argv[])
      std::cerr << "Unsupported dimension : " << dim<< std::endl;
       exit( EXIT_FAILURE );
    }
-	
+
   return 0;
-} 
+}
 
-             
 
-       
- 
+
+
+

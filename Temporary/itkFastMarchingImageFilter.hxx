@@ -1,5 +1,5 @@
 /*=========================================================================
- 
+
   Program:   Advanced Normalization Tools
   Module:    $RCSfile: itkFastMarchingImageFilter.hxx,v $
   Language:  C++
@@ -7,11 +7,11 @@
   Version:   $Revision: 1.1 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
   http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -396,63 +396,63 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
         {
         if( wellComposednessViolation )
           {
-										output->SetPixel( node.GetIndex(), -0.00000001 );
-										this->m_LabelImage->SetPixel( node.GetIndex(), TopologyPoint );
-										continue;
+                                        output->SetPixel( node.GetIndex(), -0.00000001 );
+                                        this->m_LabelImage->SetPixel( node.GetIndex(), TopologyPoint );
+                                        continue;
           }
         if( strictTopologyViolation )
-										{
-										// check for handles
-										typename NeighborhoodIteratorType::RadiusType radius;
-										radius.Fill( 1 );
-										NeighborhoodIteratorType ItL( radius, this->m_LabelImage,
-												this->m_LabelImage->GetBufferedRegion() );
-										ItL.SetLocation( node.GetIndex() );
-										NeighborhoodIterator<ConnectedComponentImageType> ItC(
-												radius, this->m_ConnectedComponentImage,
-												this->m_ConnectedComponentImage->GetBufferedRegion() );
-										ItC.SetLocation( node.GetIndex() );
+                                        {
+                                        // check for handles
+                                        typename NeighborhoodIteratorType::RadiusType radius;
+                                        radius.Fill( 1 );
+                                        NeighborhoodIteratorType ItL( radius, this->m_LabelImage,
+                                                this->m_LabelImage->GetBufferedRegion() );
+                                        ItL.SetLocation( node.GetIndex() );
+                                        NeighborhoodIterator<ConnectedComponentImageType> ItC(
+                                                radius, this->m_ConnectedComponentImage,
+                                                this->m_ConnectedComponentImage->GetBufferedRegion() );
+                                        ItC.SetLocation( node.GetIndex() );
 
-										typename ConnectedComponentImageType::PixelType minLabel
-												= NumericTraits<typename ConnectedComponentImageType::PixelType>::Zero;
-										typename ConnectedComponentImageType::PixelType otherLabel
-												= NumericTraits<typename ConnectedComponentImageType::PixelType>::Zero;
+                                        typename ConnectedComponentImageType::PixelType minLabel
+                                                = NumericTraits<typename ConnectedComponentImageType::PixelType>::Zero;
+                                        typename ConnectedComponentImageType::PixelType otherLabel
+                                                = NumericTraits<typename ConnectedComponentImageType::PixelType>::Zero;
 
-										bool doesChangeCreateHandle = false;
+                                        bool doesChangeCreateHandle = false;
 
-										for( unsigned int d = 0; d < SetDimension; d++ )
-												{
-												if( ItL.GetNext( d ) == AlivePoint && ItL.GetPrevious( d ) == AlivePoint )
-														{
-														if( ItC.GetNext( d ) == ItC.GetPrevious( d ) )
-																{
-																doesChangeCreateHandle = true;
-																}
-														else
-																{
-																minLabel = vnl_math_min( ItC.GetNext( d ), ItC.GetPrevious( d ) );
-																otherLabel = vnl_math_max( ItC.GetNext( d ), ItC.GetPrevious( d ) );
-																}
-														break;
-														}
-												}
-										if( doesChangeCreateHandle )
-												{
-												output->SetPixel( node.GetIndex(), -0.0001 );
-												this->m_LabelImage->SetPixel( node.GetIndex(), TopologyPoint );
-												continue;
-												}
-										else
-												{
-												for( ItC.GoToBegin(); !ItC.IsAtEnd(); ++ItC )
-														{
-														if( ItC.GetCenterPixel() == otherLabel )
-																{
-																ItC.SetCenterPixel( minLabel );
-																}
-														}
-												}
-										}
+                                        for( unsigned int d = 0; d < SetDimension; d++ )
+                                                {
+                                                if( ItL.GetNext( d ) == AlivePoint && ItL.GetPrevious( d ) == AlivePoint )
+                                                        {
+                                                        if( ItC.GetNext( d ) == ItC.GetPrevious( d ) )
+                                                                {
+                                                                doesChangeCreateHandle = true;
+                                                                }
+                                                        else
+                                                                {
+                                                                minLabel = vnl_math_min( ItC.GetNext( d ), ItC.GetPrevious( d ) );
+                                                                otherLabel = vnl_math_max( ItC.GetNext( d ), ItC.GetPrevious( d ) );
+                                                                }
+                                                        break;
+                                                        }
+                                                }
+                                        if( doesChangeCreateHandle )
+                                                {
+                                                output->SetPixel( node.GetIndex(), -0.0001 );
+                                                this->m_LabelImage->SetPixel( node.GetIndex(), TopologyPoint );
+                                                continue;
+                                                }
+                                        else
+                                                {
+                                                for( ItC.GoToBegin(); !ItC.IsAtEnd(); ++ItC )
+                                                        {
+                                                        if( ItC.GetCenterPixel() == otherLabel )
+                                                                {
+                                                                ItC.SetCenterPixel( minLabel );
+                                                                }
+                                                        }
+                                                }
+                                        }
         }
       }
 
@@ -470,7 +470,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
     // set this node as alive
     this->m_LabelImage->SetPixel( node.GetIndex(), AlivePoint );
 
-				// for topology handle checks, we need to update the connected
+                // for topology handle checks, we need to update the connected
     // component image at the current node with the appropriate label.
     if( this->m_TopologyCheck == NoHandles )
       {
@@ -497,10 +497,10 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
           break;
           }
         }
-						if( neighborhoodLabel > 0 )
-								{
-								ItC.SetCenterPixel( neighborhoodLabel );
-								}
+                        if( neighborhoodLabel > 0 )
+                                {
+                                ItC.SetCenterPixel( neighborhoodLabel );
+                                }
       }
 
     // update its neighbors

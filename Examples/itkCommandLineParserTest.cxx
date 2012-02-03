@@ -20,7 +20,7 @@ int main( int argc, char *argv[] )
     fileOption->SetLongName( "file" );
     fileOption->SetDescription( "The fixed image file used in the image registration algorithm." );
 
-    parser->AddOption( fileOption ); 
+    parser->AddOption( fileOption );
 
     typedef ParserType::OptionType OptionType;
     OptionType::Pointer metricOption = OptionType::New();
@@ -56,14 +56,14 @@ int main( int argc, char *argv[] )
 
         for ( unsigned int j = 0; j < 3; j++ )
         {
-            std::cout << parser->ConvertVector<bool>(  
+            std::cout << parser->ConvertVector<bool>(
                     parser->GetOption( "directionality" )->GetValue( 0 ) )[j] << " x ";
-        } 
-    } 
+        }
+    }
 
-    parser->PrintMenu( std::cout, 7 ); 
+    parser->PrintMenu( std::cout, 7 );
 
-    //  std::cout << std::endl << std::endl << "--------------------------------------------" 
+    //  std::cout << std::endl << std::endl << "--------------------------------------------"
     //            << std::endl << std::endl;
 
     //  parser->Print( std::cout << 7 );

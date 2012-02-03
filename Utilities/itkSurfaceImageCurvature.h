@@ -7,11 +7,11 @@
   Version:   $Revision: 1.12 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -29,14 +29,14 @@ namespace itk
 {
 
 /** \class SurfaceImageCurvature
- * 
+ *
  * This class takes a surface as input and creates a local
- * geometric frame for each surface point.  
+ * geometric frame for each surface point.
  *
  *
  */
 template < typename TSurface >
-           class SurfaceImageCurvature : 
+           class SurfaceImageCurvature :
            public SurfaceCurvatureBase < TSurface ,
              3 >
 {
@@ -57,8 +57,8 @@ public:
   /** Image related types. */
   typedef typename TSurface::PixelType     PixelType;
   enum { ImageDimension = TSurface::ImageDimension };
-  typedef Image<PixelType,itkGetStaticConstMacro(ImageDimension)>            
-    ImageType; 
+  typedef Image<PixelType,itkGetStaticConstMacro(ImageDimension)>
+    ImageType;
   typedef typename ImageType::IndexType     IndexType;
   typedef typename ImageType::SizeType      SizeType;
   typedef ImageRegionIteratorWithIndex<ImageType> ImageIteratorType;
@@ -71,32 +71,32 @@ public:
   typedef typename Superclass::PointType    PointType;
   typedef typename Superclass::MatrixType   MatrixType;
 
-  typedef  Image<RealType,itkGetStaticConstMacro(ImageDimension)>            
-    OutputImageType; 
-  typedef ImageRegionIteratorWithIndex<OutputImageType> OutputImageIteratorType; 
-  
+  typedef  Image<RealType,itkGetStaticConstMacro(ImageDimension)>
+    OutputImageType;
+  typedef ImageRegionIteratorWithIndex<OutputImageType> OutputImageIteratorType;
+
   typedef typename OutputImageType::Pointer      OutputImagePointer;
 
-  typedef Image<MatrixType,itkGetStaticConstMacro(ImageDimension)>            
+  typedef Image<MatrixType,itkGetStaticConstMacro(ImageDimension)>
     FrameImageType;
 
-  
+
   /** Gradient filtering */
   typedef CovariantVector<RealType,
           itkGetStaticConstMacro(ImageDimension)> GradientPixelType;
   typedef Image<GradientPixelType,
                itkGetStaticConstMacro(ImageDimension)> GradientImageType;
   typedef SmartPointer<GradientImageType>     GradientImagePointer;
-  typedef GradientRecursiveGaussianImageFilter< OutputImageType,GradientImageType > 
-          GradientImageFilterType;  
-  typedef GradientImageFilter< OutputImageType > 
-          GradientImageFilterType2;  
+  typedef GradientRecursiveGaussianImageFilter< OutputImageType,GradientImageType >
+          GradientImageFilterType;
+  typedef GradientImageFilter< OutputImageType >
+          GradientImageFilterType2;
   typedef typename GradientImageFilterType::Pointer GradientImageFilterPointer;
- 
+
   typedef NeighborhoodIterator<ImageType>  NeighborhoodIteratorType;
 
-  /** Find all points within some distance of the origin. 
-    * The argument gives the number of times to apply the 
+  /** Find all points within some distance of the origin.
+    * The argument gives the number of times to apply the
     * mean shift algorithm to find the best neighborhood.
     */
   void FindNeighborhood(unsigned int numMeanShifts=0);
@@ -144,7 +144,7 @@ public:
   RealType IntegrateFunctionOverSurface(bool norm=false);
 
   /** Postprocess the curvature function by, e.g., gaussian
-      smoothing of the curvature (and perhaps frame) 
+      smoothing of the curvature (and perhaps frame)
       in the local neighbhorhood. */
   void PostProcessGeometry();
 
@@ -159,28 +159,28 @@ public:
   itkSetMacro(Sigma,float);
 
   itkSetMacro(Threshold,float);
-  
+
   itkGetMacro(FunctionImage,OutputImagePointer);
   itkSetMacro(FunctionImage,OutputImagePointer);
 
   void ProcessLabelImage();
 
   float CurvatureAtIndex(IndexType index)
-  {      
-	  PointType p;
-      for (unsigned int k=0; k<ImageDimension; k++) 
+  {
+      PointType p;
+      for (unsigned int k=0; k<ImageDimension; k++)
       {
         p[k]=(RealType) index[k];
       }
       this->SetOrigin(p);
       this->EstimateFrameFromGradient(index);
       this->FindNeighborhood();
-	  this->WeingartenMap();
+      this->WeingartenMap();
       float fval=this->m_GaussianKappa;
-	  float kpix;
+      float kpix;
       fval=this->m_MeanKappa;
       if (fabs(fval) > 1) fval/=fval;
-      kpix=kpix+m_kSign*fval; 
+      kpix=kpix+m_kSign*fval;
 
     return kpix;
   }
@@ -206,10 +206,10 @@ protected:
 
   void CopyImageToFunctionImage( OutputImagePointer,OutputImagePointer);
 
-  
-  /** This function changes the values of the label image for use with 
+
+  /** This function changes the values of the label image for use with
       the fast marching image filter. */
-  
+
 
 private:
 

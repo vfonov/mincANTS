@@ -805,8 +805,8 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
       if( segmenter->GetNumberOfIntensityImages() !=
         static_cast<unsigned int>( ImageDimension * ( ImageDimension + 1 ) / 2 ) )
         {
-     	  std::cerr << " Expect images in upper triangular order " << std::endl;
-     	  std::cerr << " xx xy xz yy yz zz " <<std::endl;
+           std::cerr << " Expect images in upper triangular order " << std::endl;
+           std::cerr << " xx xy xz yy yz zz " <<std::endl;
         std::cerr << "Incorrect number of intensity images specified." << std::endl;
         return EXIT_FAILURE;
         }
@@ -842,8 +842,8 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
       if( segmenter->GetNumberOfIntensityImages() !=
         static_cast<unsigned int>( ImageDimension * ( ImageDimension + 1 ) / 2 ) )
         {
-     	  std::cerr << " Expect images in upper triangular order " << std::endl;
-     	  std::cerr << " xx xy xz yy yz zz " <<std::endl;
+           std::cerr << " Expect images in upper triangular order " << std::endl;
+           std::cerr << " xx xy xz yy yz zz " <<std::endl;
         std::cerr << "Incorrect number of intensity images specified." << std::endl;
         return EXIT_FAILURE;
         }

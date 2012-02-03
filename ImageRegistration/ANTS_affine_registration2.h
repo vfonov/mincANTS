@@ -33,7 +33,7 @@
 #include "ReadWriteImage.h"
 #include "itkMeanSquaresImageToImageMetric.h"
 #include "itkGradientDifferenceImageToImageMetric.h"
-#include "itkNormalizedCorrelationImageToImageMetric.h" 
+#include "itkNormalizedCorrelationImageToImageMetric.h"
 
 #include "itkImageRegionIterator.h"
 #include "itkRandomImageSource.h"
@@ -763,7 +763,7 @@ void BuildImagePyramid(const ImagePointerType &image, int number_of_levels, Imag
   }
 
   //    for(int i=0; i < number_of_levels; i++)
-  //    	std::cout << "level " << i << ": size: " << image_pyramid[i]->GetLargestPossibleRegion().GetSize() << std::endl;
+  //        std::cout << "level " << i << ": size: " << image_pyramid[i]->GetLargestPossibleRegion().GetSize() << std::endl;
 }
 
 template<class ImagePointerType, class OptAffineType, class RunningAffineCacheType>
@@ -1185,7 +1185,7 @@ bool RegisterImageAffineMutualInformationMultiResolution(RunningAffineCacheType 
     maximum_step_length = opt.maximum_step_length;
     relaxation_factor = opt.relaxation_factor;
     minimum_step_length = opt.minimum_step_length;
-    value=0; 
+    value=0;
 
     for(int i = 0; i < number_of_levels; i++){
 

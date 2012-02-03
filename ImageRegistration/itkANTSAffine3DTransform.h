@@ -17,7 +17,7 @@ namespace itk
 template < class TScalarType=double >    // Data type for scalars (float or double)
 class ITK_EXPORT ANTSAffine3DTransform :
           public MatrixOffsetTransformBase< TScalarType, 3, 3>
-  //        public Rigid3DTransform< TScalarType > 
+  //        public Rigid3DTransform< TScalarType >
 {
 public:
   /** Standard class typedefs.   */
@@ -26,7 +26,7 @@ public:
   typedef MatrixOffsetTransformBase< TScalarType, 3, 3 >   Superclass;
   typedef SmartPointer<Self>                  Pointer;
   typedef SmartPointer<const Self>            ConstPointer;
-  
+
   /** New macro for creation of through a Smart Pointer   */
   itkNewMacro( Self );
 
@@ -50,9 +50,9 @@ public:
   typedef typename Superclass::OutputVectorType       OutputVectorType;
   typedef typename Superclass::InputVnlVectorType     InputVnlVectorType;
   typedef typename Superclass::OutputVnlVectorType    OutputVnlVectorType;
-  typedef typename Superclass::InputCovariantVectorType 
+  typedef typename Superclass::InputCovariantVectorType
                                                       InputCovariantVectorType;
-  typedef typename Superclass::OutputCovariantVectorType      
+  typedef typename Superclass::OutputCovariantVectorType
                                                       OutputCovariantVectorType;
   typedef typename Superclass::MatrixType             MatrixType;
   typedef typename Superclass::InverseMatrixType      InverseMatrixType;
@@ -80,8 +80,8 @@ public:
   /** Get the rotation from an ANTSAffine3DTransform.
    * This method returns the value of the rotation of the
    * ANTSAffine3DTransform.   **/
-   const VnlQuaternionType & GetRotation(void) const 
-     { return m_Rotation; } 
+   const VnlQuaternionType & GetRotation(void) const
+     { return m_Rotation; }
 
   MatrixType ComputeMyRotationMatrix();
 
@@ -123,11 +123,11 @@ public:
    */
   virtual void ComputeJacobianWithRespectToParameters(const InputPointType  & p, JacobianType & j) const;
 
-  
-  
-   
-  
-  
+
+
+
+
+
 protected:
 /*   ANTSAffine3DTransform(const MatrixType &matrix, */
 /*                            const OutputVectorType &offset); */

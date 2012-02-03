@@ -7,11 +7,11 @@
   Version:   $Revision: 1.4 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -24,7 +24,7 @@
 
 namespace itk
 {
-  
+
 /** \class DivideByConstantImageFilter
  *
  * \brief Divide input pixels by a constant.
@@ -40,8 +40,8 @@ namespace itk
  * \ingroup IntensityImageFilters  Multithreaded
  * \sa UnaryFunctorImageFilter
  */
-namespace Functor {  
-  
+namespace Functor {
+
 template< class TInput, class TConstant, class TOutput>
 class DivideByConstant
 {
@@ -73,7 +73,7 @@ public:
     this->m_Constant = ct;
     }
   const TConstant & GetConstant() const { return m_Constant; }
-   
+
   TConstant m_Constant;
 };
 }
@@ -81,8 +81,8 @@ public:
 template <class TInputImage, class TConstant, class TOutputImage>
 class ITK_EXPORT DivideByConstantImageFilter :
       public
-UnaryFunctorImageFilter<TInputImage,TOutputImage, 
-                        Functor::DivideByConstant< 
+UnaryFunctorImageFilter<TInputImage,TOutputImage,
+                        Functor::DivideByConstant<
    typename TInputImage::PixelType, TConstant,
    typename TOutputImage::PixelType> >
 {
@@ -90,7 +90,7 @@ public:
   /** Standard class typedefs. */
   typedef DivideByConstantImageFilter                        Self;
   typedef UnaryFunctorImageFilter<
-    TInputImage,TOutputImage, Functor::DivideByConstant< 
+    TInputImage,TOutputImage, Functor::DivideByConstant<
       typename TInputImage::PixelType, TConstant,
       typename TOutputImage::PixelType>   >                  Superclass;
   typedef SmartPointer<Self>                                 Pointer;
@@ -98,7 +98,7 @@ public:
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
-  
+
   /** Run-time type information (and related methods). */
   itkTypeMacro(DivideByConstantImageFilter, UnaryFunctorImageFilter);
 
@@ -116,7 +116,7 @@ public:
     {
     return this->GetFunctor().GetConstant();
     }
-  
+
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
@@ -134,11 +134,11 @@ public:
 protected:
   DivideByConstantImageFilter() {};
   virtual ~DivideByConstantImageFilter() {};
-   
+
   void PrintSelf(std::ostream &os, Indent indent) const
     {
     Superclass::PrintSelf(os, indent);
-    os << indent << "Constant: " 
+    os << indent << "Constant: "
        << static_cast<typename NumericTraits<TConstant>::PrintType>(this->GetConstant())
        << std::endl;
     }

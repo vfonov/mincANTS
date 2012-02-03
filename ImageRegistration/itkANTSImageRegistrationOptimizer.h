@@ -165,13 +165,13 @@ public:
       std::string::size_type pos = filename.rfind( "." );
       std::string filepre = std::string( filename, 0, pos );
       if ( pos != std::string::npos ){
-	std::string extension = std::string( filename, pos, filename.length()-1);
+    std::string extension = std::string( filename, pos, filename.length()-1);
         if (extension==std::string(".gz")){
-	  pos = filepre.rfind( "." );
-	  extension = std::string( filepre, pos, filepre.length()-1 );
+      pos = filepre.rfind( "." );
+      extension = std::string( filepre, pos, filepre.length()-1 );
         }
-	//      if (extension==".txt") return AFFINE_FILE;
-	//        else return DEFORMATION_FILE;
+    //      if (extension==".txt") return AFFINE_FILE;
+    //        else return DEFORMATION_FILE;
       }
       //    else{
       //      return INVALID_FILE;
@@ -301,7 +301,7 @@ public:
        {
              expandFactors[idim] = (TReal)this->m_CurrentDomainSize[idim]/(TReal) this->m_TimeVaryingVelocity->GetLargestPossibleRegion().GetSize()[idim];
              if( expandFactors[idim] < 1 ) expandFactors[idim] = 1;
-	     if (this->m_Debug)  std::cout << " ExpFac " << expandFactors[idim] << " curdsz " << this->m_CurrentDomainSize[idim] << std::endl;
+         if (this->m_Debug)  std::cout << " ExpFac " << expandFactors[idim] << " curdsz " << this->m_CurrentDomainSize[idim] << std::endl;
        }
         VectorType pad;  pad.Fill(0);
         typedef VectorExpandImageFilter<TimeVaryingVelocityFieldType, TimeVaryingVelocityFieldType> ExpanderType;
@@ -310,7 +310,7 @@ public:
         m_FieldExpander->SetExpandFactors( expandFactors );
 //        m_FieldExpander->SetEdgePaddingValue( pad );
         m_FieldExpander->UpdateLargestPossibleRegion();
-	  return m_FieldExpander->GetOutput();
+      return m_FieldExpander->GetOutput();
 
     }
 
@@ -322,7 +322,7 @@ public:
        {
              expandFactors[idim] = (TReal)this->m_CurrentDomainSize[idim]/(TReal)field->GetLargestPossibleRegion().GetSize()[idim];
              if( expandFactors[idim] < 1 ) expandFactors[idim] = 1;
-	     //             if (this->m_Debug)  std::cout << " ExpFac " << expandFactors[idim] << " curdsz " << this->m_CurrentDomainSize[idim] << std::endl;
+         //             if (this->m_Debug)  std::cout << " ExpFac " << expandFactors[idim] << " curdsz " << this->m_CurrentDomainSize[idim] << std::endl;
        }
 
         VectorType pad;
@@ -339,7 +339,7 @@ public:
         fieldout->SetSpacing(targetSpacing);
         fieldout->SetOrigin(field->GetOrigin());
         if (this->m_Debug)  std::cout << " Field size " << fieldout->GetLargestPossibleRegion().GetSize() << std::endl;
-	//this->m_Debug=false;
+    //this->m_Debug=false;
 
         return fieldout;
 
@@ -441,17 +441,17 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
       warper->SetEdgePaddingValue( 0);
       warper->SetSmoothScale(1);
      if (!doinverse)
-	{
-	if (totalField) warper->PushBackDisplacementFieldTransform(totalField);
-	if (fixedaff) warper->PushBackAffineTransform(fixedaff);
-	else if (aff) warper->PushBackAffineTransform(aff);
-	}
+    {
+    if (totalField) warper->PushBackDisplacementFieldTransform(totalField);
+    if (fixedaff) warper->PushBackAffineTransform(fixedaff);
+    else if (aff) warper->PushBackAffineTransform(aff);
+    }
       else
-	{
-	if (aff) warper->PushBackAffineTransform( affinverse );
-	else if (fixedaff) warper->PushBackAffineTransform(fixedaffinverse);
-	if (totalField) warper->PushBackDisplacementFieldTransform(totalField);
-	}
+    {
+    if (aff) warper->PushBackAffineTransform( affinverse );
+    else if (fixedaff) warper->PushBackAffineTransform(fixedaffinverse);
+    if (totalField) warper->PushBackDisplacementFieldTransform(totalField);
+    }
 
      warper->SetOutputOrigin(referenceimage->GetOrigin());
      typename ImageType::SizeType size=referenceimage->GetLargestPossibleRegion().GetSize();
@@ -471,24 +471,24 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
       unsigned long sz1 = movingpoints->GetNumberOfPoints();
       if (this->m_Debug) std::cout << " BEFORE # points " << sz1 << std::endl;
       for (unsigned long ii=0; ii<sz1; ii++)
-	{
-	PointType point,wpoint;
-	PointDataType label=0;
-	movingpoints->GetPoint(ii,&point);
-	movingpoints->GetPointData(ii,&label);
+    {
+    PointType point,wpoint;
+    PointDataType label=0;
+    movingpoints->GetPoint(ii,&point);
+    movingpoints->GetPointData(ii,&label);
 // convert pointtype to imagepointtype
-	ImagePointType pt,wpt;
-	for (unsigned int jj=0;  jj<ImageDimension; jj++) pt[jj]=point[jj];
-	bool bisinside = warper->MultiTransformSinglePoint(pt,wpt);
-	if (bisinside)
-	  {
-	  for (unsigned int jj=0;  jj<ImageDimension; jj++) wpoint[jj]=wpt[jj];
-	  outputMesh->SetPointData( count, label );
-	  outputMesh->SetPoint( count, wpoint );
-//	  if (ii % 100 == 0) std::cout << " pt " << pt << " wpt " << wpt << std::endl;
-	  count++;
-	    }
-	}
+    ImagePointType pt,wpt;
+    for (unsigned int jj=0;  jj<ImageDimension; jj++) pt[jj]=point[jj];
+    bool bisinside = warper->MultiTransformSinglePoint(pt,wpt);
+    if (bisinside)
+      {
+      for (unsigned int jj=0;  jj<ImageDimension; jj++) wpoint[jj]=wpt[jj];
+      outputMesh->SetPointData( count, label );
+      outputMesh->SetPoint( count, wpoint );
+//      if (ii % 100 == 0) std::cout << " pt " << pt << " wpt " << wpt << std::endl;
+      count++;
+        }
+    }
       if (this->m_Debug) std::cout << " AFTER # points " << count << std::endl;
 //      if (count != sz1 ) std::cout << " WARNING:  POINTS ARE MAPPING OUT OF IMAGE DOMAIN " << 1.0 - (TReal) count/(TReal)(sz1+1) << std::endl;
       return outputMesh;
@@ -533,17 +533,17 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
     warper->SetInterpolator(interp1);
       if (this->m_UseNN) warper->SetInterpolator(interpnn);
      if (!doinverse)
-	{
-	if (totalField) warper->PushBackDisplacementFieldTransform(totalField);
-	if (fixedaff) warper->PushBackAffineTransform(fixedaff);
-	else if (aff) warper->PushBackAffineTransform(aff);
-	}
+    {
+    if (totalField) warper->PushBackDisplacementFieldTransform(totalField);
+    if (fixedaff) warper->PushBackAffineTransform(fixedaff);
+    else if (aff) warper->PushBackAffineTransform(aff);
+    }
       else
-	{
-	if (aff) warper->PushBackAffineTransform( affinverse );
-	else if (fixedaff) warper->PushBackAffineTransform(fixedaffinverse);
-	if (totalField) warper->PushBackDisplacementFieldTransform(totalField);
-	}
+    {
+    if (aff) warper->PushBackAffineTransform( affinverse );
+    else if (fixedaff) warper->PushBackAffineTransform(fixedaffinverse);
+    if (totalField) warper->PushBackDisplacementFieldTransform(totalField);
+    }
 
      warper->SetOutputOrigin(referenceimage->GetOrigin());
      typename ImageType::SizeType size=referenceimage->GetLargestPossibleRegion().GetSize();
@@ -584,7 +584,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
     for ( unsigned int d = 0; d < Dimension; d++ )
     {
     RealType scaling = vnl_math_min( scalingFactor * minimumSpacing / inputSpacing[d],
-				     static_cast<RealType>( inputSize[d] ) / 32.0 );
+                     static_cast<RealType>( inputSize[d] ) / 32.0 );
         outputSpacing[d] = inputSpacing[d] * scaling;
         outputSize[d] = static_cast<unsigned long>( inputSpacing[d] *
                 static_cast<RealType>( inputSize[d] ) / outputSpacing[d] + 0.5 );
@@ -670,7 +670,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
     if ( this->m_RestrictDeformation.size() != ImageDimension ) {
       std::cout <<" You input a vector of size :  "  << this->m_RestrictDeformation.size() << " for --Restrict-Deformation.  The vector length does not match the image dimension.  Ignoring.  " << std::endl;
       for (unsigned int jj=0; jj<this->m_RestrictDeformation.size();  jj++ )
-	this->m_RestrictDeformation[jj]=0;
+    this->m_RestrictDeformation[jj]=0;
     }
 
     // set up max iterations per level
@@ -899,12 +899,12 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
                 this->m_DisplacementField->Allocate();
                 this->m_DisplacementField->FillBuffer(zero);
                 std::cout <<  " allocated def field " << this->m_DisplacementField->GetDirection() << std::endl;
-		//exit(0);
+        //exit(0);
             }
             else
             {
                 this->m_DisplacementField=this->ExpandField(this->m_DisplacementField,this->m_CurrentDomainSpacing);
-		if ( this->m_TimeVaryingVelocity ) this->ExpandVelocity();
+        if ( this->m_TimeVaryingVelocity ) this->ExpandVelocity();
             }
 
   }
@@ -994,12 +994,12 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
     for ( unsigned int currentLevel = 0; currentLevel < this->m_NumberOfLevels; currentLevel++ )
       if ( this->m_Iterations[currentLevel] > maxits) maxits=this->m_Iterations[currentLevel];
         if (maxits == 0)
-         	{
-         	this->m_DisplacementField=NULL;
-         	this->m_InverseDisplacementField=NULL;
-         //	this->ComputeMultiResolutionParameters(this->m_SimilarityMetrics[0]->GetFixedImage());
-         	return;
-         	}
+             {
+             this->m_DisplacementField=NULL;
+             this->m_InverseDisplacementField=NULL;
+         //    this->ComputeMultiResolutionParameters(this->m_SimilarityMetrics[0]->GetFixedImage());
+             return;
+             }
 
     /* this is a hack to force univariate mappings   in the future,
        we will re-cast this framework  s.t. multivariate images can be used */
@@ -1104,7 +1104,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
       while (!converged)
         {
         for (unsigned int metricCount=0;  metricCount <   numberOfMetrics;  metricCount++)
-		        this->m_SimilarityMetrics[metricCount]->GetMetric()->SetIterations(this->m_CurrentIteration);
+                this->m_SimilarityMetrics[metricCount]->GetMetric()->SetIterations(this->m_CurrentIteration);
 
         if ( this->GetTransformationModel() == std::string("Elast"))
           {
@@ -1115,10 +1115,10 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
           {
           if ( currentLevel > 0  )
             {
-	    this->m_SyNF=this->ExpandField(this->m_SyNF,this->m_CurrentDomainSpacing);
-	    this->m_SyNFInv=this->ExpandField(this->m_SyNFInv,this->m_CurrentDomainSpacing);
-	    this->m_SyNM=this->ExpandField(this->m_SyNM,this->m_CurrentDomainSpacing);
-	    this->m_SyNMInv=this->ExpandField(this->m_SyNMInv,this->m_CurrentDomainSpacing);
+        this->m_SyNF=this->ExpandField(this->m_SyNF,this->m_CurrentDomainSpacing);
+        this->m_SyNFInv=this->ExpandField(this->m_SyNFInv,this->m_CurrentDomainSpacing);
+        this->m_SyNM=this->ExpandField(this->m_SyNM,this->m_CurrentDomainSpacing);
+        this->m_SyNMInv=this->ExpandField(this->m_SyNMInv,this->m_CurrentDomainSpacing);
             }
           if(this->m_Iterations[currentLevel] > 0)
             {
@@ -1130,8 +1130,8 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
               this->SyNRegistrationUpdate(fixedImage, movingImage, this->m_SimilarityMetrics[0]->GetFixedPointSet(),  this->m_SimilarityMetrics[0]->GetMovingPointSet() );
             }
           else if (this->m_SyNType)
-	    this->UpdateTimeVaryingVelocityFieldWithSyNFandSyNM( );
-	  //            this->CopyOrAddToVelocityField( this->m_SyNF,  0 , false);
+        this->UpdateTimeVaryingVelocityFieldWithSyNFandSyNM( );
+      //            this->CopyOrAddToVelocityField( this->m_SyNF,  0 , false);
 
           }
         else if (this->GetTransformationModel() == std::string("Exp"))
@@ -1182,8 +1182,8 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
           = this->m_Parser->GetOption( "use-all-metrics-for-convergence" );
         bool use_all_metrics = (atoi(regularizationOption->GetValue().c_str()) > 0);
 
-	unsigned int domtar=12;
-	if( this->m_CurrentIteration > domtar )
+    unsigned int domtar=12;
+    if( this->m_CurrentIteration > domtar )
           {
           typedef BSplineScatteredDataPointSetToImageFilter
             <EnergyProfileType, CurveType> BSplinerType;
@@ -1218,7 +1218,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
                 ProfilePointType pm;
                 pm[0] = qq;
                 ProfilePointDataType em;
-		em.Fill(0);
+        em.Fill(0);
                 energyProfiles[im]->GetPointData( qq, &em );
                 RealType weight = this->m_SimilarityMetrics[im]->GetWeightScalar();
                 energy[0] += weight * em[0];
@@ -1232,7 +1232,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
             energyProfileWindow->SetPoint( qq-windowBegin, point );
             energyProfileWindow->SetPointData( qq-windowBegin, energy );
             }
-//	  std::cout <<" totale " << totale << std::endl;
+//      std::cout <<" totale " << totale << std::endl;
           if (totale > 0) totale*=(-1.0);
           for( unsigned int qq = windowBegin; qq < this->m_CurrentIteration; qq++ )
             {
@@ -1244,7 +1244,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
                 ProfilePointType pm;
                 pm[0] = qq;
                 ProfilePointDataType em;
-		em.Fill(0);
+        em.Fill(0);
                 energyProfiles[im]->GetPointData( qq, &em );
                 RealType weight = this->m_SimilarityMetrics[im]->GetWeightScalar();
                 energy[0] += weight * em[0];
@@ -1277,14 +1277,14 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
           bspliner2->SetSplineOrder( 1 );
           bspliner2->SetInputImage( bspliner->GetPhiLattice() );
 
-	  ProfilePointType endPoint;
+      ProfilePointType endPoint;
           endPoint[0] = static_cast<TReal>( this->m_CurrentIteration-domainsize*0.5 );
-	  typename BSplinerType2::GradientType gradient =
-	    bspliner2->EvaluateGradientAtParametricPoint( endPoint );
-	  this->m_ESlope=gradient[0][0]  ;
-	  if (  this->m_ESlope < 0.0001 && this->m_CurrentIteration > domtar) converged=true;
-	  std::cout << " E-Slope " <<  this->m_ESlope;//<< std::endl;
-	  }
+      typename BSplinerType2::GradientType gradient =
+        bspliner2->EvaluateGradientAtParametricPoint( endPoint );
+      this->m_ESlope=gradient[0][0]  ;
+      if (  this->m_ESlope < 0.0001 && this->m_CurrentIteration > domtar) converged=true;
+      std::cout << " E-Slope " <<  this->m_ESlope;//<< std::endl;
+      }
         for ( unsigned int qq=0; qq < this->m_Energy.size(); qq++ )
           {
           if ( qq==0 )
@@ -1303,17 +1303,17 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
           else if ( this->m_EnergyBad[qq] > 1 )
             numbade += this->m_EnergyBad[qq];
 
-	//if ( this->m_EnergyBad[0] > 2)
-		  //         {
-	//          this->m_GradstepAltered*=0.8;
-      		  //	    std::cout <<" reducing gradstep " <<  this->m_GradstepAltered;
-      		  // this->m_EnergyBad[this->m_Energy.size()-1]=0;
-	// }
+    //if ( this->m_EnergyBad[0] > 2)
+          //         {
+    //          this->m_GradstepAltered*=0.8;
+                //        std::cout <<" reducing gradstep " <<  this->m_GradstepAltered;
+                // this->m_EnergyBad[this->m_Energy.size()-1]=0;
+    // }
         std::cout << std::endl;
 
         if (this->m_CurrentIteration >= this->m_Iterations[currentLevel] )converged = true;
-	//        || this->m_EnergyBad[0] >= 6 )
-	//
+    //        || this->m_EnergyBad[0] >= 6 )
+    //
         if ( converged && this->m_CurrentIteration >= this->m_Iterations[currentLevel] )
           std::cout <<" tired convergence: reached max iterations " << std::endl;
         else if (converged)
@@ -1338,51 +1338,51 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
         //         this->m_SyNF= this->IntegrateConstantVelocity(this->m_SyNF, nts, timestep);
         //         this->m_SyNM= this->IntegrateConstantVelocity(this->m_SyNM,
         //         nts, timestep);
-        //	 DisplacementFieldPointer fdiffmap = this->IntegrateVelocity(0,0.5);
-        //	 this->m_SyNFInv = this->IntegrateVelocity(0.5,0);
-        //	 DisplacementFieldPointer mdiffmap = this->IntegrateVelocity(0.5,1);
-        //	 this->m_SyNMInv = this->IntegrateVelocity(1,0.5);
-        //	 this->m_SyNM=this->CopyDisplacementField(mdiffmap);
-        //	 this->m_SyNF=this->CopyDisplacementField(fdiffmap);
-      	 this->m_DisplacementField = this->IntegrateVelocity(0,1);
-        //	 ImagePointer wmimage= this->WarpMultiTransform(  this->m_SmoothFixedImages[0],this->m_SmoothMovingImages[0], this->m_AffineTransform, this->m_DisplacementField, false , this->m_ScaleFactor );
-      	 this->m_InverseDisplacementField=this->IntegrateVelocity(1,0);
+        //     DisplacementFieldPointer fdiffmap = this->IntegrateVelocity(0,0.5);
+        //     this->m_SyNFInv = this->IntegrateVelocity(0.5,0);
+        //     DisplacementFieldPointer mdiffmap = this->IntegrateVelocity(0.5,1);
+        //     this->m_SyNMInv = this->IntegrateVelocity(1,0.5);
+        //     this->m_SyNM=this->CopyDisplacementField(mdiffmap);
+        //     this->m_SyNF=this->CopyDisplacementField(fdiffmap);
+           this->m_DisplacementField = this->IntegrateVelocity(0,1);
+        //     ImagePointer wmimage= this->WarpMultiTransform(  this->m_SmoothFixedImages[0],this->m_SmoothMovingImages[0], this->m_AffineTransform, this->m_DisplacementField, false , this->m_ScaleFactor );
+           this->m_InverseDisplacementField=this->IntegrateVelocity(1,0);
         }
       else
         {
         this->m_InverseDisplacementField=this->CopyDisplacementField( this->m_SyNM);
         this->ComposeDiffs(this->m_SyNF,this->m_SyNMInv,this->m_DisplacementField,1);
         this->ComposeDiffs(this->m_SyNM,this->m_SyNFInv,this->m_InverseDisplacementField,1);
-      	 }
+           }
       }
     else if (this->GetTransformationModel() == std::string("Exp"))
       {
-	DisplacementFieldPointer diffmap =  this->IntegrateConstantVelocity( this->m_DisplacementField, (unsigned int)this->m_NTimeSteps , 1 ); // 1.0/ (TReal)this->m_NTimeSteps);
-	DisplacementFieldPointer invdiffmap = this->IntegrateConstantVelocity(this->m_DisplacementField,(unsigned int) this->m_NTimeSteps, -1 ); // -1.0/(TReal)this->m_NTimeSteps);
+    DisplacementFieldPointer diffmap =  this->IntegrateConstantVelocity( this->m_DisplacementField, (unsigned int)this->m_NTimeSteps , 1 ); // 1.0/ (TReal)this->m_NTimeSteps);
+    DisplacementFieldPointer invdiffmap = this->IntegrateConstantVelocity(this->m_DisplacementField,(unsigned int) this->m_NTimeSteps, -1 ); // -1.0/(TReal)this->m_NTimeSteps);
       this->m_InverseDisplacementField=invdiffmap;
       this->m_DisplacementField=diffmap;
       AffineTransformPointer invaff =NULL;
       if (this->m_AffineTransform)
-      	 {
-      	 invaff=AffineTransformType::New();
-      	 this->m_AffineTransform->GetInverse(invaff);
-      	 if (this->m_Debug) std::cout << " ??????invaff " << this->m_AffineTransform << std::endl << std::endl;
-      	 if (this->m_Debug)  std::cout << " invaff?????? " << invaff << std::endl << std::endl;
-      	 }
+           {
+           invaff=AffineTransformType::New();
+           this->m_AffineTransform->GetInverse(invaff);
+           if (this->m_Debug) std::cout << " ??????invaff " << this->m_AffineTransform << std::endl << std::endl;
+           if (this->m_Debug)  std::cout << " invaff?????? " << invaff << std::endl << std::endl;
+           }
       }
     else if (this->GetTransformationModel() == std::string("GreedyExp"))
       {
-	DisplacementFieldPointer diffmap = this->m_DisplacementField;
-	this->m_InverseDisplacementField=NULL;
+    DisplacementFieldPointer diffmap = this->m_DisplacementField;
+    this->m_InverseDisplacementField=NULL;
       this->m_DisplacementField=diffmap;
       AffineTransformPointer invaff =NULL;
       if (this->m_AffineTransform)
-      	 {
-      	 invaff=AffineTransformType::New();
-      	 this->m_AffineTransform->GetInverse(invaff);
-      	 if (this->m_Debug) std::cout << " ??????invaff " << this->m_AffineTransform << std::endl << std::endl;
-      	 if (this->m_Debug)  std::cout << " invaff?????? " << invaff << std::endl << std::endl;
-      	 }
+           {
+           invaff=AffineTransformType::New();
+           this->m_AffineTransform->GetInverse(invaff);
+           if (this->m_Debug) std::cout << " ??????invaff " << this->m_AffineTransform << std::endl << std::endl;
+           if (this->m_Debug)  std::cout << " invaff?????? " << invaff << std::endl << std::endl;
+           }
       }
 
     this->m_DisplacementField->SetOrigin( this->m_ReferenceSpaceImage->GetOrigin() );
@@ -1395,13 +1395,13 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
 
       if ( this->m_TimeVaryingVelocity  ) {
         std::string outname=localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str())+std::string("velocity.mhd");
-	typename itk::ImageFileWriter<TimeVaryingVelocityFieldType>::Pointer writer = itk::ImageFileWriter<TimeVaryingVelocityFieldType>::New();
+    typename itk::ImageFileWriter<TimeVaryingVelocityFieldType>::Pointer writer = itk::ImageFileWriter<TimeVaryingVelocityFieldType>::New();
         writer->SetFileName(outname.c_str());
         writer->SetInput( this->m_TimeVaryingVelocity);
         writer->UpdateLargestPossibleRegion();
-	//	writer->Write();
-	std::cout << " write tv field " << outname << std::endl;
-	//        WriteImage<TimeVaryingVelocityFieldType>( this->m_TimeVaryingVelocity , outname.c_str());
+    //    writer->Write();
+    std::cout << " write tv field " << outname << std::endl;
+    //        WriteImage<TimeVaryingVelocityFieldType>( this->m_TimeVaryingVelocity , outname.c_str());
       }
 
     }
@@ -1481,8 +1481,8 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
   void SetDeltaTime( TReal t) {this->m_DeltaTime=t; }
 
   TReal InvertField(DisplacementFieldPointer field,
-		    DisplacementFieldPointer inverseField, TReal weight=1.0,
-		    TReal toler=0.1, int maxiter=20, bool print = false)
+            DisplacementFieldPointer inverseField, TReal weight=1.0,
+            TReal toler=0.1, int maxiter=20, bool print = false)
 {
 
   TReal mytoler=toler;
@@ -1588,21 +1588,21 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
     difmag=0.0;
     for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
       {
-	IndexType  index=vfIter.GetIndex();
-	VectorType  update=eulerianInitCond->GetPixel(index);
-	TReal mag=0;
-	for (int j=0; j<ImageDimension;j++)
-	  {
-	    update[j]*=(-1.0);
-	    mag+=(update[j]/spacing[j])*(update[j]/spacing[j]);
+    IndexType  index=vfIter.GetIndex();
+    VectorType  update=eulerianInitCond->GetPixel(index);
+    TReal mag=0;
+    for (int j=0; j<ImageDimension;j++)
+      {
+        update[j]*=(-1.0);
+        mag+=(update[j]/spacing[j])*(update[j]/spacing[j]);
                     }
-	mag=sqrt(mag);
-	meandif+=mag;
-	if (mag > difmag) {difmag=mag; }
-	//	  if (mag < 1.e-2) update.Fill(0);
+    mag=sqrt(mag);
+    meandif+=mag;
+    if (mag > difmag) {difmag=mag; }
+    //      if (mag < 1.e-2) update.Fill(0);
 
-	eulerianInitCond->SetPixel(index,update);
-	TRealImage->SetPixel(index,mag);
+    eulerianInitCond->SetPixel(index,update);
+    TRealImage->SetPixel(index,mag);
     }
     meandif/=(TReal)npix;
     if (ct == 0) epsilon = 0.75;
@@ -1722,8 +1722,8 @@ protected:
     VectorType dif=rupdate-lupdate;
     for (int tt=0; tt<ImageDimension; tt++)
       {
-	stepl+=update[tt]*update[tt]/(myspacing[tt]*myspacing[tt]);
-	  mag+=dif[tt]*dif[tt]/(myspacing[tt]*myspacing[tt]);
+    stepl+=update[tt]*update[tt]/(myspacing[tt]*myspacing[tt]);
+      mag+=dif[tt]*dif[tt]/(myspacing[tt]*myspacing[tt]);
       }
     }
     stepl=sqrt(stepl);

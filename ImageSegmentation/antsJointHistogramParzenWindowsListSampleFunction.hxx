@@ -47,7 +47,7 @@ JointHistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
 ::~JointHistogramParzenWindowsListSampleFunction()
 {
 }
- 
+
 
 template <class TListSample, class TOutput, class TCoordRep>
 void
@@ -56,7 +56,7 @@ JointHistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
 {
   RealType newWeight = 1.0;
 
-// now define two joint histograms, one for shape, one for orientation. 
+// now define two joint histograms, one for shape, one for orientation.
 // first, the shape histogram --- 0,0 origin and spacing of 1
   if ( this->m_JointHistogramImages.size() == which_hist ) {
   this->m_JointHistogramImages.push_back( JointHistogramImageType::New() );
@@ -88,7 +88,7 @@ JointHistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
       typename JointHistogramImageType::IndexType shapeIdx;
 
 /** Nearest neighbor increment to JH */
-    if ( this->m_UseNNforJointHistIncrements ) { 
+    if ( this->m_UseNNforJointHistIncrements ) {
       shapeIdx[0] = vcl_floor( shapeCidx[0] + 0.5);
       shapeIdx[1] = vcl_floor( shapeCidx[1] + 0.5 );
       if( this->m_JointHistogramImages[which_hist]->GetLargestPossibleRegion().IsInside( shapeIdx ) )
@@ -150,7 +150,7 @@ JointHistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
      }
   return;
 }
- 
+
 
 template <class TListSample, class TOutput, class TCoordRep>
 void
@@ -213,10 +213,10 @@ JointHistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
       /** joint-hist model for the eigenvalues */
       unsigned int jhcount=0;
       for( unsigned int d = 0; d < Dimension; d=d+2 )
-        {   
+        {
           RealType value1=(inputMeasurement[d]-minValues[d])/(maxValues[d]-minValues[d]);
           RealType value2=(inputMeasurement[d+1]-minValues[d+1])/(maxValues[d+1]-minValues[d+1]);
-          this->IncrementJointHistogram(value1,value2,jhcount); jhcount++;  
+          this->IncrementJointHistogram(value1,value2,jhcount); jhcount++;
         }
     ++It;
     }

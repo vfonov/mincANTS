@@ -132,8 +132,8 @@ VectorImageFileReader<TImage, TVectorImage, ConvertPixelTraits>
   if ( extension == std::string( ".gz" ) )
     {
     gzExtension = extension;
-				std::string::size_type pos2 = filename.rfind( "." );
-				extension = std::string( filename, pos2, filename.length()-1 );
+                std::string::size_type pos2 = filename.rfind( "." );
+                extension = std::string( filename, pos2, filename.length()-1 );
     filename = std::string( this->m_FileName, 0, pos2 );
     }
 
@@ -327,8 +327,8 @@ VectorImageFileReader<TImage, TVectorImage, ConvertPixelTraits>
   if ( extension == std::string( ".gz" ) )
     {
     gzExtension = extension;
-				std::string::size_type pos2 = filename.rfind( "." );
-				extension = std::string( filename, pos2, filename.length()-1 );
+                std::string::size_type pos2 = filename.rfind( "." );
+                extension = std::string( filename, pos2, filename.length()-1 );
     filename = std::string( this->m_FileName, 0, pos2 );
     }
 
@@ -466,8 +466,8 @@ void VectorImageFileReader<TImage, TVectorImage, ConvertPixelTraits>
   if ( extension == std::string( ".gz" ) )
     {
     gzExtension = extension;
-				std::string::size_type pos2 = filename.rfind( "." );
-				extension = std::string( filename, pos2, filename.length()-1 );
+                std::string::size_type pos2 = filename.rfind( "." );
+                extension = std::string( filename, pos2, filename.length()-1 );
     filename = std::string( this->m_FileName, 0, pos2 );
     }
 
@@ -571,7 +571,7 @@ void VectorImageFileReader<TImage, TVectorImage, ConvertPixelTraits>
         // the pixel types don't match so a type conversion needs to be
         // performed
         itkDebugMacro(<< "Buffer conversion required from: "
-                     <<  " FIXME m_ImageIO->GetComponentTypeInfo().name() " 
+                     <<  " FIXME m_ImageIO->GetComponentTypeInfo().name() "
                       << " to: "
                       << typeid(ITK_TYPENAME ConvertPixelTraits::ComponentType).name());
 

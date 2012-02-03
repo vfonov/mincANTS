@@ -132,7 +132,7 @@ std::cout << " Label Surf " << std::endl;
         for (int j=0; j<ImageDimension; j++)
           dist+=(float)(ind[j]-ind2[j])*(float)(ind[j]-ind2[j]);
         dist=sqrt(dist);
-  	    if (GHood.GetPixel(i) != foreground && dist < 1.1 )
+          if (GHood.GetPixel(i) != foreground && dist < 1.1 )
         {
           atedge=true;
         }
@@ -233,7 +233,7 @@ int ThresholdImage( int argc, char * argv[] )
   std::string threshtype=std::string(argv[4]);
   if (strcmp(threshtype.c_str(),"Otsu") == 0 )
   {
-  	thresh = OtsuThreshold<FixedImageType>(atoi(argv[5]),fixedReader->GetOutput());
+      thresh = OtsuThreshold<FixedImageType>(atoi(argv[5]),fixedReader->GetOutput());
   }
   else
     {

@@ -42,42 +42,42 @@ MatrixType RotationMatrixFromVectors(VectorType from, VectorType to)
     if (x[0] < x[1])
     {
       if (x[0] < x[2])
-	    {
+        {
         x[0] = 1.0; x[1] = x[2] = 0.0;
-	    }
+        }
       else
-	    {
+        {
         x[2] = 1.0; x[0] = x[1] = 0.0;
-	    }
+        }
     }
     else
     {
       if (x[1] < x[2])
-	    {
+        {
         x[1] = 1.0; x[0] = x[2] = 0.0;
-	    }
+        }
       else
-	    {
+        {
         x[2] = 1.0; x[0] = x[1] = 0.0;
-	    }
+        }
     }
 
     ut[0] = x[0] - from[0]; ut[1] = x[1] - from[1]; ut[2] = x[2] - from[2];
     vt[0] = x[0] - to[0];   vt[1] = x[1] - to[1];   vt[2] = x[2] - to[2];
-      
+
     c1 = 2.0 / (ut*ut);
     c2 = 2.0 / (vt*vt);
     c3 = c1 * c2  * (ut*vt);
 
-    for (i = 0; i < 3; i++) 
+    for (i = 0; i < 3; i++)
     {
-      for (j = 0; j < 3; j++) 
-	    {
-	      mtx[i][j] =  - c1 * ut[i] * ut[j] - c2 * vt[i] * vt[j] + c3 * vt[i] * ut[j];
-	    }
+      for (j = 0; j < 3; j++)
+        {
+          mtx[i][j] =  - c1 * ut[i] * ut[j] - c2 * vt[i] * vt[j] + c3 * vt[i] * ut[j];
+        }
       mtx[i][i] += 1.0;
     }
-    
+
   }
   else  /* the most common case, unless "from"="to", or "from"=-"to" */
   {
@@ -106,9 +106,9 @@ MatrixType RotationMatrixFromVectors(VectorType from, VectorType to)
   return mtx;
 
 }
-    
 
-  
+
+
 // /*
 //  * A function for creating a rotation matrix that rotates a vector called
 //  * "from" into another vector called "to".

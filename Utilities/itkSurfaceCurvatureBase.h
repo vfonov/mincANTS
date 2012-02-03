@@ -7,11 +7,11 @@
   Version:   $Revision: 1.12 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -34,12 +34,12 @@ namespace itk
 
 
 /** \class SurfaceCurvatureBase
- * 
- * This class takes a surface as input and creates a local
- * geometric frame for each surface point.  
  *
- * \note The origin of a neighborhood is always taken to be 
- *       the first point entered into and the 
+ * This class takes a surface as input and creates a local
+ * geometric frame for each surface point.
+ *
+ * \note The origin of a neighborhood is always taken to be
+ *       the first point entered into and the
  *       last point stored in the list.
  */
 template < typename TSurface, unsigned int TDimension=3 >
@@ -69,9 +69,9 @@ public:
 
   typedef float                     RealType;
   typedef vnl_vector<RealType>      VectorType;
-  typedef vnl_vector_fixed<RealType,itkGetStaticConstMacro(ImageDimension)>   
+  typedef vnl_vector_fixed<RealType,itkGetStaticConstMacro(ImageDimension)>
     FixedVectorType;
-  typedef vnl_vector_fixed<RealType,itkGetStaticConstMacro(ImageDimension)>   
+  typedef vnl_vector_fixed<RealType,itkGetStaticConstMacro(ImageDimension)>
     PointType;
   typedef vnl_matrix<double>        MatrixType;
   typedef std::vector<PointType>      PointContainerType;
@@ -85,7 +85,7 @@ public:
 
   /** Fill the point list with the points neighboring the current origin */
   virtual void FindNeighborhood(unsigned int temp=0);
- 
+
 
   /** A Euclidean relative of L.D. Griffin's compactness.*/
   RealType    ComputeMeanEuclideanDistance();
@@ -97,9 +97,9 @@ public:
 
   void    EigenDecomposition(MatrixType D);
 
-  /** Estimate the plane tangent to a point using the neighborhood 
+  /** Estimate the plane tangent to a point using the neighborhood
    *   of the point.  This is, in general, an over-constrained least
-   *   squares fitting problem. 
+   *   squares fitting problem.
    */
   void EstimateTangentPlane(PointType);
   void WeightedEstimateTangentPlane(PointType);
@@ -110,7 +110,7 @@ public:
   */
   void  ChooseReferenceTangent();
 
-  /** This function fills the weight and angle vectors for 
+  /** This function fills the weight and angle vectors for
     * a given neighborhood.
     */
   virtual void  ComputeWeightsAndDirectionalKappaAndAngles(PointType origin);
@@ -121,7 +121,7 @@ public:
   /** */
   void    ComputeFrameAndKappa(PointType origin);
 
-  
+
   void    ShimshoniFrame(PointType origin);
 
   /** */
@@ -137,15 +137,15 @@ public:
     * to estimate the mean and gaussian curvature.
     */
   void   JainMeanAndGaussianCurvature(PointType);
-  
 
-  /** This function returns a weight given a distance 
-   *  It may be the identity function, a normalization 
+
+  /** This function returns a weight given a distance
+   *  It may be the identity function, a normalization
    *  or a gaussianization of the input distance. */
   virtual RealType  GetWeight(PointType, PointType);
 
   /** This function returns the angle between the reference tangent
-      and the projection onto the tangent plane of the vector between 
+      and the projection onto the tangent plane of the vector between
       the neighborhood focus and its neighbor. */
   virtual RealType  GetTheta(PointType Neighbor,PointType origin);
 
@@ -173,7 +173,7 @@ public:
   itkGetMacro(MeanKappa,RealType);
   itkSetMacro(Sigma,RealType);
 
-  
+
   itkGetMacro(UseGeodesicNeighborhood,bool);
   itkSetMacro(UseGeodesicNeighborhood,bool);
 
@@ -183,20 +183,20 @@ public:
   /** We use the cross-product of the tangents times the image spacing
       to get the local area. */
   RealType ComputeLocalArea(const double* spacing);
-   
-  /** We estimate the integral as a sum, assuming the local 
-      area (from compute local area) scales the value of the 
+
+  /** We estimate the integral as a sum, assuming the local
+      area (from compute local area) scales the value of the
       function at the pixel.  See http://mathworld.wolfram.com/SurfaceIntegral.html*/
   virtual RealType IntegrateFunctionOverNeighborhood(bool norm=false) { return 0; }
 
   void SwitchNormalSign() { m_Normal*=(-1.0); }
 
   // for conjugate harmonic function
-  float dstarUestimate(); 
+  float dstarUestimate();
 
   // get this from the local frame - 1st order vs 2nd order shape operator
   void  EstimateMetricTensor();
-  
+
 protected:
 
   SurfaceCurvatureBase();
@@ -212,12 +212,12 @@ protected:
   /** Data structures to contain points. */
   PointContainerType                m_PointList;
 
-  
+
   /** Data structures to contain function
       values associated with points. */
   FunctionContainerType                m_FunctionValueList;
 
-  /** This list contains the projection of the vectors onto 
+  /** This list contains the projection of the vectors onto
       the tangent plane (T_i Shimshoni). */
   PointContainerType                m_TangentProjectionList;
 
@@ -226,7 +226,7 @@ protected:
   PointType                          m_AveragePoint;
   PointType                          m_PlaneVector;
 
-    
+
 /** Data that represents single vectors */
   FixedVectorType                    m_ArbitraryTangent;
   FixedVectorType                    m_Normal;
@@ -239,7 +239,7 @@ protected:
   VectorType                         m_ThetaVector;
   VectorType                         m_WeightVector;
   VectorType                         m_DirectionalKappaVector;
-  
+
 /** Data for representing neighborhoods and derived from the vector frames*/
 
   /** Approximate directional curvature */

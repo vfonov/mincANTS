@@ -236,14 +236,14 @@ AverageTimeImages( typename TImageIn::Pointer image_in ,  typename TImageOut::Po
       typename ImageType::IndexType ind;
       typename OutImageType::IndexType spind=vfIter2.GetIndex();
       for (unsigned int xx=0; xx<timelist.size(); xx++)
-	{
-	  for (unsigned int yy=0; yy<ImageDimension-1; yy++)
-	    {
-	      ind[yy]=spind[yy];
-	    }
-	  ind[ImageDimension-1]=timelist[xx];
-	  fval+=image_in->GetPixel(ind);
-	}
+    {
+      for (unsigned int yy=0; yy<ImageDimension-1; yy++)
+        {
+          ind[yy]=spind[yy];
+        }
+      ind[ImageDimension-1]=timelist[xx];
+      fval+=image_in->GetPixel(ind);
+    }
       fval/=(double)timelist.size();
       image_avg->SetPixel(spind,fval);
     }
@@ -504,37 +504,37 @@ int ants_motion( itk::ants::CommandLineParser *parser )
       ConvertToLowerCase( fixedValue );
       if( fixedValue.compare( "1" ) == 0 || fixedValue.compare( "true" ) == 0 )
         {
-	  if (timedim==0) std::cout << "using fixed reference image for all frames " << std::endl;
+      if (timedim==0) std::cout << "using fixed reference image for all frames " << std::endl;
           fixed_time_slice=fixedImage;
-	  extractRegion.SetIndex(ImageDimension, timedim );
-	  typename ExtractFilterType::Pointer extractFilter2 = ExtractFilterType::New();
-	  extractFilter2->SetInput( movingImage );
-	  extractFilter2->SetDirectionCollapseToSubmatrix();
-	  extractFilter2->SetExtractionRegion( extractRegion );
-	  extractFilter2->Update();
+      extractRegion.SetIndex(ImageDimension, timedim );
+      typename ExtractFilterType::Pointer extractFilter2 = ExtractFilterType::New();
+      extractFilter2->SetInput( movingImage );
+      extractFilter2->SetDirectionCollapseToSubmatrix();
+      extractFilter2->SetExtractionRegion( extractRegion );
+      extractFilter2->Update();
           moving_time_slice=extractFilter2->GetOutput();
-	  maptoneighbor=false;
-	}
+      maptoneighbor=false;
+    }
       }
 
     if ( maptoneighbor )
       {
-	extractRegion.SetIndex(ImageDimension, timedim );
-	typename ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
-	extractFilter->SetInput( movingImage );
-	extractFilter->SetDirectionCollapseToSubmatrix();
-	extractFilter->SetExtractionRegion( extractRegion );
-	extractFilter->Update();
-	fixed_time_slice=extractFilter->GetOutput();
-	unsigned int td=timedim+1;
-	if (td>timedims-1) td=timedims-1;
-	extractRegion.SetIndex(ImageDimension, td );
-	typename ExtractFilterType::Pointer extractFilter2 = ExtractFilterType::New();
-	extractFilter2->SetInput( movingImage );
-	extractFilter2->SetDirectionCollapseToSubmatrix();
-	extractFilter2->SetExtractionRegion( extractRegion );
-	extractFilter2->Update();
-	moving_time_slice=extractFilter2->GetOutput();
+    extractRegion.SetIndex(ImageDimension, timedim );
+    typename ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
+    extractFilter->SetInput( movingImage );
+    extractFilter->SetDirectionCollapseToSubmatrix();
+    extractFilter->SetExtractionRegion( extractRegion );
+    extractFilter->Update();
+    fixed_time_slice=extractFilter->GetOutput();
+    unsigned int td=timedim+1;
+    if (td>timedims-1) td=timedims-1;
+    extractRegion.SetIndex(ImageDimension, td );
+    typename ExtractFilterType::Pointer extractFilter2 = ExtractFilterType::New();
+    extractFilter2->SetInput( movingImage );
+    extractFilter2->SetDirectionCollapseToSubmatrix();
+    extractFilter2->SetExtractionRegion( extractRegion );
+    extractFilter2->Update();
+    moving_time_slice=extractFilter2->GetOutput();
       }
     typedef itk::ImageToImageMetricv4<FixedImageType, FixedImageType> MetricType;
     typename MetricType::Pointer metric;
@@ -603,13 +603,13 @@ int ants_motion( itk::ants::CommandLineParser *parser )
       unsigned long ind=0,ct=0;
       itk::ImageRegionIteratorWithIndex<FixedImageType> It(fixed_time_slice,fixed_time_slice->GetLargestPossibleRegion() );
       for( It.GoToBegin(); !It.IsAtEnd(); ++It )
-	{
-	  // take every N^th point
-	  if ( ct % npoints_to_skip == 0  ) // about a factor of 5 speed-up over dense
-	    {
+    {
+      // take every N^th point
+      if ( ct % npoints_to_skip == 0  ) // about a factor of 5 speed-up over dense
+        {
             PointType pt;
-	    fixed_time_slice->TransformIndexToPhysicalPoint( It.GetIndex(), pt);
-	    pset->SetPoint(ind, pt);
+        fixed_time_slice->TransformIndexToPhysicalPoint( It.GetIndex(), pt);
+        pset->SetPoint(ind, pt);
             ind++;
             }
           ct++;
@@ -667,9 +667,9 @@ int ants_motion( itk::ants::CommandLineParser *parser )
       ConvertToLowerCase( scalesValue );
       if( scalesValue.compare( "1" ) == 0 || scalesValue.compare( "true" ) == 0 )
         {
-	  std::cout << " employing scales estimator " << std::endl;
-	  optimizer->SetScalesEstimator( scalesEstimator );
-	}
+      std::cout << " employing scales estimator " << std::endl;
+      optimizer->SetScalesEstimator( scalesEstimator );
+    }
       else std::cout << " not employing scales estimator " <<scalesValue<< std::endl;
       }
     double small_step=0;
@@ -737,7 +737,7 @@ int ants_motion( itk::ants::CommandLineParser *parser )
         param_values.fill(0);
         }
       for (unsigned int i=0; i<nparams-2; i++)
-	param_values(timedim,i+2)=affineRegistration->GetOutput()->Get()->GetParameters()[i];
+    param_values(timedim,i+2)=affineRegistration->GetOutput()->Get()->GetParameters()[i];
       }
     else if( std::strcmp( whichTransform.c_str(), "rigid" ) == 0 )
       {
@@ -784,7 +784,7 @@ int ants_motion( itk::ants::CommandLineParser *parser )
         param_values.fill(0);
         }
       for (unsigned int i=0; i<nparams-2; i++)
-	param_values(timedim,i+2)=rigidRegistration->GetOutput()->Get()->GetParameters()[i];
+    param_values(timedim,i+2)=rigidRegistration->GetOutput()->Get()->GetParameters()[i];
       }
     else if( std::strcmp( whichTransform.c_str(), "gaussiandisplacementfield" ) == 0 ||  std::strcmp( whichTransform.c_str(), "gdf" ) == 0 )
       {
@@ -855,7 +855,7 @@ int ants_motion( itk::ants::CommandLineParser *parser )
       try
         {
         std::cout << std::endl << "*** Running gaussian displacement field registration (sigmaForUpdateField = "
-		  << sigmaForUpdateField << ", sigmaForTotalField = " << sigmaForTotalField << ") ***" << " timedim " << timedim << std::endl << std::endl;
+          << sigmaForUpdateField << ", sigmaForTotalField = " << sigmaForTotalField << ") ***" << " timedim " << timedim << std::endl << std::endl;
         displacementFieldRegistration->StartRegistration();
         }
       catch( itk::ExceptionObject &e )
@@ -933,8 +933,8 @@ int ants_motion( itk::ants::CommandLineParser *parser )
     std::vector<unsigned int> timelistsort;
     for (unsigned int i=0; i<nimagestoavg; i++)
       {
-	timelistsort.push_back(timelist[i]);
-	std::cout <<" i^th value " << i << "  is " << metriclist[timelist[i]] <<std::endl;
+    timelistsort.push_back(timelist[i]);
+    std::cout <<" i^th value " << i << "  is " << metriclist[timelist[i]] <<std::endl;
       }
     AverageTimeImages<MovingImageType,FixedImageType>( outputImage, avgImage, timelistsort );
     typedef itk::ImageFileWriter<FixedImageType> WriterType;

@@ -7,11 +7,11 @@
   Version:   $Revision: 1.17 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -50,7 +50,7 @@ int main( int argc, char * argv[] )
   if( argc < 5 )
     {
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << "  ImageDimension inputImageFile  outputImageFile outxspc outyspc {outzspacing}  {dosmooth?}  {addvox} {nn-interp?}" << std::endl; 
+    std::cerr << argv[0] << "  ImageDimension inputImageFile  outputImageFile outxspc outyspc {outzspacing}  {dosmooth?}  {addvox} {nn-interp?}" << std::endl;
     std::cout <<" addvox pads each dimension by addvox " << std::endl;
     std::cerr << "  " << std::endl;
 //    std::cout << " interp 0 = linear, 1 = nn " << std::endl;
@@ -59,7 +59,7 @@ int main( int argc, char * argv[] )
 
   unsigned int    Dimension = atoi(argv[1]);
 
-  if (Dimension == 2) 
+  if (Dimension == 2)
     {
 
   typedef   float  InputPixelType;
@@ -79,7 +79,7 @@ int main( int argc, char * argv[] )
   reader->SetFileName( argv[2] );
   writer->SetFileName( argv[3] );
 
-  try 
+  try
     {
     reader->Update();
     }
@@ -115,13 +115,13 @@ int main( int argc, char * argv[] )
   {
   for (int sm=0; sm<2; sm++)
   {
-  typedef itk::RecursiveGaussianImageFilter< 
+  typedef itk::RecursiveGaussianImageFilter<
                                   OutputImageType,
                                   OutputImageType > GaussianFilterType;
 
   GaussianFilterType::Pointer smootherX = GaussianFilterType::New();
   smootherX->SetInput( smoothedImage );
-  float sig = 0; 
+  float sig = 0;
   sig = atof(argv[4+sm])/inputSpacing[sm]-1.0;
   std::cout << " smoothing by : " << sig << " dir " << sm << std::endl;
   smootherX->SetSigma( sig );
@@ -129,7 +129,7 @@ int main( int argc, char * argv[] )
   smootherX->SetNormalizeAcrossScale( false );
   if (sig > 0 && dosmooth)
   {
-  try 
+  try
     {
     smootherX->Update();
     }
@@ -146,7 +146,7 @@ int main( int argc, char * argv[] )
 
  // InternalImageType::ConstPointer smoothedImage = smootherY->GetOutput();
 
- 
+
 
  // InternalImageType::ConstPointer smoothedImage = reader->GetOutput();
   //smoothedImage =SmoothImage<ImageType>(reader->GetOutput() , );
@@ -158,9 +158,9 @@ int main( int argc, char * argv[] )
 
   typedef itk::IdentityTransform< double, 2 >  TransformType;
 
-  typedef itk::LinearInterpolateImageFunction< 
+  typedef itk::LinearInterpolateImageFunction<
     InternalImageType, double >  InterpolatorType;
-  typedef itk::NearestNeighborInterpolateImageFunction< 
+  typedef itk::NearestNeighborInterpolateImageFunction<
     InternalImageType, double >  InterpolatorType2;
 
   InterpolatorType::Pointer interpolator = InterpolatorType::New();
@@ -201,8 +201,8 @@ int main( int argc, char * argv[] )
 
   resampler->SetTransform( transform );
 
-  
-  try 
+
+  try
     {
     writer->Update();
     }
@@ -216,7 +216,7 @@ int main( int argc, char * argv[] )
     }
 
 
-  if (Dimension == 3) 
+  if (Dimension == 3)
     {
 
   typedef   float  InputPixelType;
@@ -236,7 +236,7 @@ int main( int argc, char * argv[] )
   reader->SetFileName( argv[2] );
   writer->SetFileName( argv[3] );
 
-  try 
+  try
     {
     reader->Update();
     }
@@ -273,13 +273,13 @@ int main( int argc, char * argv[] )
   {
   for (int sm=0; sm<3; sm++)
   {
-  typedef itk::RecursiveGaussianImageFilter< 
+  typedef itk::RecursiveGaussianImageFilter<
                                   OutputImageType,
                                   OutputImageType > GaussianFilterType;
 
   GaussianFilterType::Pointer smootherX = GaussianFilterType::New();
   smootherX->SetInput( smoothedImage );
-  float sig = 0; 
+  float sig = 0;
   sig = atof(argv[4+sm])/inputSpacing[sm]-1.0;
   std::cout << " smoothing by : " << sig << " dir " << sm << std::endl;
   smootherX->SetSigma( sig );
@@ -287,7 +287,7 @@ int main( int argc, char * argv[] )
   smootherX->SetNormalizeAcrossScale( false );
   if (sig > 0 && dosmooth)
   {
-  try 
+  try
     {
     smootherX->Update();
     }
@@ -304,7 +304,7 @@ int main( int argc, char * argv[] )
 
  // InternalImageType::ConstPointer smoothedImage = smootherY->GetOutput();
 
- 
+
 
  // InternalImageType::ConstPointer smoothedImage = reader->GetOutput();
   //smoothedImage =SmoothImage<ImageType>(reader->GetOutput() , );
@@ -316,9 +316,9 @@ int main( int argc, char * argv[] )
 
   typedef itk::IdentityTransform< double, 3 >  TransformType;
 
-  typedef itk::LinearInterpolateImageFunction< 
+  typedef itk::LinearInterpolateImageFunction<
     InternalImageType, double >  InterpolatorType;
-  typedef itk::NearestNeighborInterpolateImageFunction< 
+  typedef itk::NearestNeighborInterpolateImageFunction<
     InternalImageType, double >  InterpolatorType2;
 
   InterpolatorType::Pointer interpolator = InterpolatorType::New();
@@ -359,8 +359,8 @@ int main( int argc, char * argv[] )
 
   resampler->SetTransform( transform );
 
-  
-  try 
+
+  try
     {
     writer->Update();
     }

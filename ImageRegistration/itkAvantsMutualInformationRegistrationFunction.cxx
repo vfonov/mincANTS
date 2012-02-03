@@ -234,24 +234,24 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplaceme
       double fsample = static_cast<double>( this->m_FixedImage->GetPixel( movingImageIterator.GetIndex() ));
 
       if ( sample < movingImageMin )
-	{
-	  movingImageMin = sample;
-	}
+    {
+      movingImageMin = sample;
+    }
 
       if ( sample > movingImageMax )
-	{
-	  movingImageMax = sample;
-	}
+    {
+      movingImageMax = sample;
+    }
 
       if ( fsample < fixedImageMin )
-	{
-	  fixedImageMin = fsample;
-	}
+    {
+      fixedImageMin = fsample;
+    }
 
       if ( fsample > fixedImageMax )
-	{
-	  fixedImageMax = fsample;
-	}
+    {
+      fixedImageMax = fsample;
+    }
       }
     }
   this->m_MovingImageTrueMax=movingImageMax;
@@ -377,17 +377,17 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplaceme
       {
 
       // Get sampled index
-	FixedImageIndexType index = iter.GetIndex();
-	typename FixedImageType::SizeType imagesize=this->m_FixedImage->GetLargestPossibleRegion().GetSize();
-/*	bool inimage=true;
-	for (unsigned int dd=0; dd<ImageDimension; dd++)
-	  {
-	    if ( index[dd] < 1 ||    index[dd] >= static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) )
-	      inimage=false;
-	  }
+    FixedImageIndexType index = iter.GetIndex();
+    typename FixedImageType::SizeType imagesize=this->m_FixedImage->GetLargestPossibleRegion().GetSize();
+/*    bool inimage=true;
+    for (unsigned int dd=0; dd<ImageDimension; dd++)
+      {
+        if ( index[dd] < 1 ||    index[dd] >= static_cast<typename IndexType::IndexValueType>(imagesize[dd]-1) )
+          inimage=false;
+      }
 */
-	double movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( index )  );
-	double fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( index )  );
+    double movingImageValue = this->GetMovingParzenTerm(  this->m_MovingImage->GetPixel( index )  );
+    double fixedImageValue = this->GetFixedParzenTerm(  this->m_FixedImage->GetPixel( index )  );
 
       /** add the paired intensity points to the joint histogram */
       JointPDFPointType jointPDFpoint;
@@ -459,10 +459,10 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplaceme
     {
       double sum = 0.0;
       while( !linearIter.IsAtEndOfLine() )
-	{
-	  sum += linearIter.Get();
-	  ++linearIter;
-	}
+    {
+      sum += linearIter.Get();
+      ++linearIter;
+    }
       MarginalPDFIndexType mind;
       mind[0]=fixedIndex;
       m_FixedImageMarginalPDF->SetPixel(mind,static_cast<PDFValueType>(sum));
@@ -477,10 +477,10 @@ AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplaceme
     {
       double sum = 0.0;
       while( !linearIter.IsAtEndOfLine() )
-	{
-	  sum += linearIter.Get();
-	  ++linearIter;
-	}
+    {
+      sum += linearIter.Get();
+      ++linearIter;
+    }
       MarginalPDFIndexType mind;
       mind[0]=movingIndex;
       m_MovingImageMarginalPDF->SetPixel(mind,static_cast<PDFValueType>(sum));
@@ -499,8 +499,8 @@ template < class TFixedImage, class TMovingImage  , class TDisplacementField>
 double
 AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::GetValueAndDerivative(IndexType oindex,
-			MeasureType& valuei,
-			DerivativeType& derivative1,DerivativeType& derivative2)
+            MeasureType& valuei,
+            DerivativeType& derivative1,DerivativeType& derivative2)
 {
   double value=0;
   DerivativeType zero(ImageDimension);
@@ -539,8 +539,8 @@ template < class TFixedImage, class TMovingImage  , class TDisplacementField>
 double
 AvantsMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::GetValueAndDerivativeInv(IndexType oindex,
-			MeasureType& valuei,
-			DerivativeType& derivative1,DerivativeType& derivative2)
+            MeasureType& valuei,
+            DerivativeType& derivative1,DerivativeType& derivative2)
 {
   double value=0;
   DerivativeType zero(ImageDimension);

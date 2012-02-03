@@ -87,7 +87,7 @@ public:
     { return fltTriangle->GetOutput(); }
 
   /** Get the intermediate antialiased image */
-  FloatImageType *GetAntiAliasImage() 
+  FloatImageType *GetAntiAliasImage()
     { return fltAlias->GetOutput(); }
 
   /** Whether to invert the binary image */
@@ -107,15 +107,15 @@ public:
   itkGetMacro(SmoothingIterations, int);
 
   /** Set the input */
-  void SetInput(TImage *image) 
+  void SetInput(TImage *image)
     { this->SetNthInput(0,image); }
 
   /** Update method (why?) */
-  void Update() 
+  void Update()
     { this->GenerateData(); }
 
   /** Set the anti-aliasing quality parameter */
-  void SetAntiAliasMaxRMSError(double value) 
+  void SetAntiAliasMaxRMSError(double value)
     { fltAlias->SetMaximumRMSError(value); }
 
   /** Get the 'distance image' based on anti-aliasing the binary image */
@@ -138,15 +138,15 @@ public:
 
     cout << "        mesh has " << mesh->GetNumberOfPoints() << " points." << endl;
     cout << "        mesh has " << mesh->GetNumberOfCells() << " cells. " << endl;
-    cout << "        mesh has " << cellHist[VTK_VERTEX] << " vtk_vertex" << endl;      
-    cout << "        mesh has " << cellHist[VTK_LINE] << " vtk_line" << endl;      
-    cout << "        mesh has " << cellHist[VTK_POLY_LINE] << " vtk_poly_line" << endl;      
-    cout << "        mesh has " << cellHist[VTK_TRIANGLE] << " vtk_triangle" << endl;      
-    cout << "        mesh has " << cellHist[VTK_TRIANGLE_STRIP] << " vtk_triangle_strip" << endl;      
+    cout << "        mesh has " << cellHist[VTK_VERTEX] << " vtk_vertex" << endl;
+    cout << "        mesh has " << cellHist[VTK_LINE] << " vtk_line" << endl;
+    cout << "        mesh has " << cellHist[VTK_POLY_LINE] << " vtk_poly_line" << endl;
+    cout << "        mesh has " << cellHist[VTK_TRIANGLE] << " vtk_triangle" << endl;
+    cout << "        mesh has " << cellHist[VTK_TRIANGLE_STRIP] << " vtk_triangle_strip" << endl;
     }
 
 protected:
-  BinaryImageToMeshFilter() 
+  BinaryImageToMeshFilter()
     {
     // Set the cardinality of the filter
     this->SetNumberOfInputs(1);
@@ -169,7 +169,7 @@ protected:
     fltResample->SetTransform(itk::IdentityTransform<double,3>::New());
     fltResample->SetInterpolator(fnInterpolate);
     imgPipeEnd = fltResample->GetOutput();
-  
+
     // Create an anti-aliasing image filter
     fltAlias = AAFilter::New();
     fltAlias->SetMaximumRMSError(0.024);
@@ -203,7 +203,7 @@ protected:
     //fltClean->SetInput(meshPipeEnd);
     // meshPipeEnd = fltClean->GetOutput();
 
-    // Decimate the data 
+    // Decimate the data
     fltDecimate = vtkDecimatePro::New();
     fltDecimate->SetInput(meshPipeEnd);
     fltDecimate->PreserveTopologyOn();
@@ -257,7 +257,7 @@ protected:
     // Run the computation
     cout << "Computing mesh from binary image" << endl;
     // Get the input and output pointers
-    typename TImage::ConstPointer inputImage = 
+    typename TImage::ConstPointer inputImage =
       reinterpret_cast<TImage *>(this->GetInput(0));
 
     // Pass the input to the topology filter
@@ -291,7 +291,7 @@ protected:
       fltAlias->SetInput(fltResample->GetOutput());
 
       // Set the size parameter
-      FloatImageType::SizeType szOutput = 
+      FloatImageType::SizeType szOutput =
         inputImage->GetBufferedRegion().GetSize();
       szOutput[0] = (unsigned long) (szOutput[0] * m_ResampleScaleFactor);
       szOutput[1] = (unsigned long) (szOutput[1] * m_ResampleScaleFactor);
@@ -299,7 +299,7 @@ protected:
       fltResample->SetSize(szOutput);
 
       // Set the scale and origin
-      FloatImageType::SpacingType xSpacing = 
+      FloatImageType::SpacingType xSpacing =
         inputImage->GetSpacing();
       xSpacing[0] /= m_ResampleScaleFactor;
       xSpacing[1] /= m_ResampleScaleFactor;
@@ -336,22 +336,22 @@ protected:
     if (verbose) cout << "   running marching cubes algorithm" << endl;
     fltMarching->Update();
 
-    if (verbose) cout << "      mesh has " 
-      << fltMarching->GetOutput()->GetNumberOfCells() << " cells and " 
+    if (verbose) cout << "      mesh has "
+      << fltMarching->GetOutput()->GetNumberOfCells() << " cells and "
       << fltMarching->GetOutput()->GetNumberOfPoints() << " points. " << endl;
 
     if (verbose) cout << "   extracting the largest component" << endl;
     fltConnect->Update();
 
-    if (verbose) cout << "      mesh has " 
-      << fltConnect->GetOutput()->GetNumberOfCells() << " cells and " 
+    if (verbose) cout << "      mesh has "
+      << fltConnect->GetOutput()->GetNumberOfCells() << " cells and "
       << fltConnect->GetOutput()->GetNumberOfPoints() << " points. " << endl;
 
     //if (verbose) cout << "   cleaning the mesh " << endl;
     //fltClean->Update();
 
-    //    if (verbose) cout << "      mesh has " 
-    // << fltClean->GetOutput()->GetNumberOfCells() << " cells and " 
+    //    if (verbose) cout << "      mesh has "
+    // << fltClean->GetOutput()->GetNumberOfCells() << " cells and "
     //  << fltClean->GetOutput()->GetNumberOfPoints() << " points. " << endl;
 
     // If decimation is on, run it
@@ -362,8 +362,8 @@ protected:
       fltDecimate->Update();
       fltTriangle->SetInput(fltDecimate->GetOutput());
 
-      //      if (verbose) cout << "      mesh has " 
-      // << fltClean->GetOutput()->GetNumberOfCells() << " cells and " 
+      //      if (verbose) cout << "      mesh has "
+      // << fltClean->GetOutput()->GetNumberOfCells() << " cells and "
       //  << fltClean->GetOutput()->GetNumberOfPoints() << " points. " << endl;
       }
     //else
@@ -375,10 +375,10 @@ protected:
     fltTriangle->Update();
     m_Result = fltTriangle->GetOutput();
 
-    if (verbose) cout << "      mesh has " 
-      << fltTriangle->GetOutput()->GetNumberOfCells() << " cells and " 
+    if (verbose) cout << "      mesh has "
+      << fltTriangle->GetOutput()->GetNumberOfCells() << " cells and "
       << fltTriangle->GetOutput()->GetNumberOfPoints() << " points. " << endl;
-    
+
     // If smoothing is on, run it
     if(m_SmoothingIterations > 0  )
       {
@@ -387,7 +387,7 @@ protected:
       fltSmoothMesh->SetInput(m_Result);
       fltSmoothMesh->SetSource(m_Result);
       fltSmoothMesh->Update();
-      //m_Result = 
+      //m_Result =
       fltSmoothMesh->GetOutput();
       std::cout << " Done " << std::endl;
       }
@@ -402,7 +402,7 @@ private:
 
   // Functor for remapping to float
   UnaryFunctorBinaryToFloat m_ToFloatFunctor;
-  
+
   // Filter to remap image to floating point
   typedef itk::UnaryFunctorImageFilter<
     TImage, FloatImageType, UnaryFunctorBinaryToFloat> ToFloatFilter;
@@ -415,9 +415,9 @@ private:
   // Filter to resample image
   typedef itk::ResampleImageFilter<FloatImageType,FloatImageType> ResampleFilter;
 
-  // Antialiasing filter 
+  // Antialiasing filter
   typedef itk::AntiAliasBinaryImageFilter<FloatImageType,FloatImageType> AAFilter;
-  
+
   // Export to VTK filter
   typedef itk::VTKImageExport<FloatImageType> ExportFilter;
 
@@ -443,7 +443,7 @@ private:
 
   vtkPolyData *m_Result;
 
-  void ProgressCommand(itk::Object *source, const itk::EventObject &evt) 
+  void ProgressCommand(itk::Object *source, const itk::EventObject &evt)
     {
     // Get the elapsed progress
     itk::ProcessObject *po = reinterpret_cast<ProcessObject *>(source);

@@ -161,7 +161,7 @@ std::string ANTSGetFilePrefix(const char *str){
             pos = filepre.rfind( "." );
             extension = std::string( filepre, pos, filepre.length()-1 );
         }
-	//      if (extension==".txt") return AFFINE_FILE;
+    //      if (extension==".txt") return AFFINE_FILE;
 //        else return DEFORMATION_FILE;
     }
 //    else{
@@ -173,26 +173,26 @@ std::string ANTSGetFilePrefix(const char *str){
 template <class TImage>
 typename TImage::Pointer BinaryThreshold(typename TImage::PixelType low, typename TImage::PixelType high,typename TImage::PixelType replaceval, typename TImage::Pointer input)
 {
-	//std::cout << " Binary Thresh " << std::endl;
+    //std::cout << " Binary Thresh " << std::endl;
 
-	typedef typename TImage::PixelType PixelType;
-	// Begin Threshold Image
-	typedef itk::BinaryThresholdImageFilter<TImage,TImage>  InputThresholderType;
-	typename InputThresholderType::Pointer inputThresholder =
-		InputThresholderType::New();
+    typedef typename TImage::PixelType PixelType;
+    // Begin Threshold Image
+    typedef itk::BinaryThresholdImageFilter<TImage,TImage>  InputThresholderType;
+    typename InputThresholderType::Pointer inputThresholder =
+        InputThresholderType::New();
 
-	inputThresholder->SetInput( input );
-	inputThresholder->SetInsideValue(  replaceval );
-	int outval=0;
-	if ((float) replaceval == (float) -1) outval=1;
-	inputThresholder->SetOutsideValue( outval );
+    inputThresholder->SetInput( input );
+    inputThresholder->SetInsideValue(  replaceval );
+    int outval=0;
+    if ((float) replaceval == (float) -1) outval=1;
+    inputThresholder->SetOutsideValue( outval );
 
-	if (high < low) high=255;
-	inputThresholder->SetLowerThreshold((PixelType) low );
-	inputThresholder->SetUpperThreshold((PixelType) high);
-	inputThresholder->Update();
+    if (high < low) high=255;
+    inputThresholder->SetLowerThreshold((PixelType) low );
+    inputThresholder->SetUpperThreshold((PixelType) high);
+    inputThresholder->Update();
 
-	return inputThresholder->GetOutput();
+    return inputThresholder->GetOutput();
 }
 
 template<unsigned int ImageDimension>
@@ -300,23 +300,23 @@ int GetLargestComponent(int argc, char *argv[])
   for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
     {
       if (vfIter.Get() > 0 )
-	{
-	  float vox=image1->GetPixel(vfIter.GetIndex());
-	  histogram[(unsigned int)vfIter.Get()]=histogram[(unsigned int)vfIter.Get()]+1;
-	  clustersum[(unsigned int)vfIter.Get()]+=vox;
-	  if (vox > maxtstat) maxtstat=vox;
-	}
+    {
+      float vox=image1->GetPixel(vfIter.GetIndex());
+      histogram[(unsigned int)vfIter.Get()]=histogram[(unsigned int)vfIter.Get()]+1;
+      clustersum[(unsigned int)vfIter.Get()]+=vox;
+      if (vox > maxtstat) maxtstat=vox;
+    }
     }
 
   for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
     {
       if (vfIter.Get() > 0 )
-	{
+    {
 
-	  Clusters->SetPixel( vfIter.GetIndex(), histogram[(unsigned int)vfIter.Get()]  );
-	//  if ( Clusters->GetPixel( vfIter.GetIndex() ) > maximgval )
+      Clusters->SetPixel( vfIter.GetIndex(), histogram[(unsigned int)vfIter.Get()]  );
+    //  if ( Clusters->GetPixel( vfIter.GetIndex() ) > maximgval )
         //    maximgval=Clusters->GetPixel( vfIter.GetIndex());
-	}
+    }
       else Clusters->SetPixel(vfIter.GetIndex(),0);
     }
 
@@ -600,8 +600,8 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
       }
     catch(...)
       {
-	std::cout << " can't read mask " << std::endl;
-	mask=NULL;
+    std::cout << " can't read mask " << std::endl;
+    mask=NULL;
      };
     }
   //  std::cout << " Mask " << std::endl;
@@ -665,7 +665,7 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
   const HistogramType *histogram = stats->GetHistogram( 1 );
 
   double lowerQuantile = histogram->Quantile( 0, lo );
-  double	upperQuantile = histogram->Quantile( 0, hi );
+  double    upperQuantile = histogram->Quantile( 0, hi );
 
   std::cout << "Lower quantile: " << lowerQuantile << std::endl;
   std::cout << "Upper quantile: " << upperQuantile << std::endl;
@@ -733,11 +733,11 @@ int TileImages(unsigned int argc, char *argv[])
     for (unsigned int i=0; i<imageIO->GetNumberOfDimensions(); i++)
       {
       if ( imageIO->GetDimensions(i) > size[i] )
-	{
-	size[i]=imageIO->GetDimensions(i);
-	bigimage=j;
-	std::cout << " bigimage " << j << " size " << size << std::endl;
-	}
+    {
+    size[i]=imageIO->GetDimensions(i);
+    bigimage=j;
+    std::cout << " bigimage " << j << " size " << size << std::endl;
+    }
       }
     }
 
@@ -780,10 +780,10 @@ int TileImages(unsigned int argc, char *argv[])
       meanval = 0.0;
       Iterator vfIter2( image2,  image2->GetLargestPossibleRegion() );
       for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
-	{
-	meanval+=vfIter2.Get();
-	ct++;
-	}
+    {
+    meanval+=vfIter2.Get();
+    ct++;
+    }
       if (ct > 0) meanval /= (float)ct;
       if (meanval <= 0) meanval=1.0;
       }
@@ -1071,8 +1071,8 @@ int ConvertVectorToImage(unsigned int argc, char *argv[])
   for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
     if (mIter.Get() >= 0.5)
       {
-	outimage->SetPixel(mIter.GetIndex(),vIter.Get());
-	++vIter;
+    outimage->SetPixel(mIter.GetIndex(),vIter.Get());
+    ++vIter;
       }
 
   WriteImage<ImageType>(outimage,outname.c_str());
@@ -1134,16 +1134,16 @@ int CorruptImage(int argc, char *argv[])
 
   if (smoothlevel >  0)
     {
-	{
-	  typedef itk::DiscreteGaussianImageFilter<ImageType, ImageType> dgf;
-	  typename dgf::Pointer filter = dgf::New();
-	  filter->SetVariance(smoothlevel);
-	  filter->SetUseImageSpacingOff();
-	  filter->SetMaximumError(.01f);
-	  filter->SetInput(image1);
-	  filter->Update();
-	  image1=filter->GetOutput();
-	}
+    {
+      typedef itk::DiscreteGaussianImageFilter<ImageType, ImageType> dgf;
+      typename dgf::Pointer filter = dgf::New();
+      filter->SetVariance(smoothlevel);
+      filter->SetUseImageSpacingOff();
+      filter->SetMaximumError(.01f);
+      filter->SetInput(image1);
+      filter->Update();
+      image1=filter->GetOutput();
+    }
     }
   WriteImage<ImageType>(image1,outname.c_str());
   return 0;
@@ -1191,18 +1191,18 @@ int Where(int argc, char *argv[])
   for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
     {
       if (!image2)
-	{
-	  if ( fabs(iter.Get() - value) < tol )
-	    {
-	      std::cout << iter.GetIndex() << std::endl;
-	      ct++;
-	    }
-	}
+    {
+      if ( fabs(iter.Get() - value) < tol )
+        {
+          std::cout << iter.GetIndex() << std::endl;
+          ct++;
+        }
+    }
       else if (image2->GetPixel(iter.GetIndex()) > 0 &&  fabs(iter.Get() - value) < tol )
-	{
-	      std::cout << iter.GetIndex() << std::endl;
-	      ct++;
-	}
+    {
+          std::cout << iter.GetIndex() << std::endl;
+          ct++;
+    }
     }
   std::cout << ct <<  " voxels have the value " << value << std::endl;
   return 0;
@@ -1415,21 +1415,21 @@ int PadImage(int argc, char *argv[])
 
       bool isinside=true;
       for (unsigned int i=0; i<ImageDimension; i++)
-	{
-	  float shifted=((float)oindex[i]+padvalue);
-	  if (shifted < 0 || shifted > newsize[i]-1 ) isinside=false;
-	    //	  if (shifted < 0) shifted=0;
-	    //padindex[i]=
-	}
+    {
+      float shifted=((float)oindex[i]+padvalue);
+      if (shifted < 0 || shifted > newsize[i]-1 ) isinside=false;
+        //      if (shifted < 0) shifted=0;
+        //padindex[i]=
+    }
       if (isinside)
-	{
-	  for (unsigned int i=0; i<ImageDimension; i++)
-	    {
-	      float shifted=((float)oindex[i]+padvalue);
-	      padindex[i]=(unsigned int)shifted;
-	    }
-	  padimage->SetPixel(padindex,iter.Get());
-	}
+    {
+      for (unsigned int i=0; i<ImageDimension; i++)
+        {
+          float shifted=((float)oindex[i]+padvalue);
+          padindex[i]=(unsigned int)shifted;
+        }
+      padimage->SetPixel(padindex,iter.Get());
+    }
 
     }
 
@@ -1476,7 +1476,7 @@ int CenterImage2inImage1(int argc, char *argv[])
       typename ImageType::PointType point;
       image2->TransformIndexToPhysicalPoint(iter.GetIndex(), point);
       for (unsigned int d=0; d<ImageDimension; d++)
-	cm_point[d]+=point[d]*iter.Get();
+    cm_point[d]+=point[d]*iter.Get();
       iweight+=iter.Get();
     }
 
@@ -1500,13 +1500,13 @@ int CenterImage2inImage1(int argc, char *argv[])
       typename ImageType::PointType point;
       image2->TransformIndexToPhysicalPoint(iter.GetIndex(), point);
       for (unsigned int d=0; d<ImageDimension; d++)
-	point[d]=point[d]+trans[d];
+    point[d]=point[d]+trans[d];
 
       typename ImageType::IndexType newindex;
       newindex.Fill(0);
       bool isinside=image1->TransformPhysicalPointToIndex(point,newindex);
       if ( isinside ) {
-	image1->SetPixel(newindex,iter.Get());
+    image1->SetPixel(newindex,iter.Get());
       }
     }
 
@@ -1651,9 +1651,9 @@ int ComputeTimeSeriesLeverage(int argc, char *argv[])
       double all_mean=0;
       for (unsigned int t=0; t<timedims; t++){
         tind[ImageDimension-1]=t;
-	Scalar pix=image1->GetPixel(tind);
+    Scalar pix=image1->GetPixel(tind);
         mSample(t)=pix;
-	all_mean+=pix;
+    all_mean+=pix;
       }
       // compute mean time series value at this voxel
       all_mean/=(double)timedims;
@@ -1663,7 +1663,7 @@ int ComputeTimeSeriesLeverage(int argc, char *argv[])
       // this is a simple approach --- just the difference from the mean.
       //
       for (unsigned int t=0; t<timedims; t++){
-	mLeverage(t)+=fabs(all_mean-mSample(t))/(Scalar)timedims;
+    mLeverage(t)+=fabs(all_mean-mSample(t))/(Scalar)timedims;
       }
     }
 
@@ -1680,7 +1680,7 @@ int ComputeTimeSeriesLeverage(int argc, char *argv[])
       if ( k != (int)t)
       {
         kDistance(t)+=fabs(mLeverage(t)-mLeverage(k));
-	ct++;
+    ct++;
       }
     }
     kDistance(t)/=(double)ct;
@@ -1781,7 +1781,7 @@ int TimeSeriesToMatrix(int argc, char *argv[])
       for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
       for (unsigned int t=0; t<timedims; t++){
         tind[ImageDimension-1]=t;
-	Scalar pix=image1->GetPixel(tind);
+    Scalar pix=image1->GetPixel(tind);
         mSample(t)=pix;
         matrix[t][voxct]=pix;
       }
@@ -1839,7 +1839,7 @@ int CompCorrAuto(int argc, char *argv[])
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
   std::string fn_label = std::string(argv[argct]);   argct++;
-  unsigned int n_comp_corr_vecs = 4;// number of eigenvectors to get from high variance voxels  
+  unsigned int n_comp_corr_vecs = 4;// number of eigenvectors to get from high variance voxels
   if ( argc > argct ) n_comp_corr_vecs = atoi(argv[argct]);   argct++;
   std::string::size_type idx;
   idx = outname.find_first_of('.');
@@ -1879,11 +1879,11 @@ int CompCorrAuto(int argc, char *argv[])
     {
       OutIndexType ind=vfIter2.GetIndex();
       if ( vfIter2.Get() == 1 ) { // in brain
-	ct_vox++;
+    ct_vox++;
       }
     }
   std::cout << " counted " << ct_vox << " voxels " <<  std::endl;
-  if ( ct_vox == 0 ) 
+  if ( ct_vox == 0 )
     {
       std::cout << ct_vox << " not enough voxels labeled as gm (or brain) " <<std::endl;
       return 1;
@@ -1896,30 +1896,30 @@ int CompCorrAuto(int argc, char *argv[])
   timeMatrixType mSample(timedims,ct_vox,0);
   unsigned long nuis_vox=0;
   timeVectorType sample(timedims,0);
-  //  FIRST -- get high variance (in time) voxels 
+  //  FIRST -- get high variance (in time) voxels
   float maxvar=0;
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       OutIndexType ind=vfIter2.GetIndex();
       if ( vfIter2.Get() > 0 ) { // in-brain
-	IndexType tind;
-	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
-	float total=0;
-	for (unsigned int t=0; t<timedims; t++){
+    IndexType tind;
+    for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
+    float total=0;
+    for (unsigned int t=0; t<timedims; t++){
           tind[ImageDimension-1]=t;
-	  Scalar pix=image1->GetPixel(tind);
+      Scalar pix=image1->GetPixel(tind);
           sample(t)=pix;
-	  total+=pix;
-	}
-	float mean=total/(float)timedims;
-	float var=0;
-	for (unsigned int t=0; t<timedims; t++){
-	  var+=((sample(t)-mean)*(sample(t)-mean));
-	}
-	var/=(float)(timedims);
-	var=sqrt(var);
-	if ( var > maxvar ) maxvar=var;
-	var_image->SetPixel(ind,var);
+      total+=pix;
+    }
+    float mean=total/(float)timedims;
+    float var=0;
+    for (unsigned int t=0; t<timedims; t++){
+      var+=((sample(t)-mean)*(sample(t)-mean));
+    }
+    var/=(float)(timedims);
+    var=sqrt(var);
+    if ( var > maxvar ) maxvar=var;
+    var_image->SetPixel(ind,var);
       }
     }
   std::cout << " got var " << std::endl;
@@ -1933,10 +1933,10 @@ int CompCorrAuto(int argc, char *argv[])
       OutIndexType ind=vfIter2.GetIndex();
       float var=var_image->GetPixel(ind);
       if ( vfIter2.Get() > 0 && var > 0 ) { // in-brain
-	int bin=(int)( var/binsize )-1;
-	if ( bin < 0 ) bin=0;
-	varhist[bin]+=1;
-	varhistsum+=1;
+    int bin=(int)( var/binsize )-1;
+    if ( bin < 0 ) bin=0;
+    varhist[bin]+=1;
+    varhistsum+=1;
       }
     }
   varhist=varhist/varhistsum;
@@ -1957,9 +1957,9 @@ int CompCorrAuto(int argc, char *argv[])
     {
       OutIndexType ind=vfIter2.GetIndex();
       if ( var_image->GetPixel(ind) > varval_csf  ) { // nuisance
-	ct_nuis++;
+    ct_nuis++;
       }
-    } 
+    }
   timeMatrixType mNuisance(timedims,ct_nuis,0);
   nuis_vox=0;
   unsigned long brain_vox=0;
@@ -1967,24 +1967,24 @@ int CompCorrAuto(int argc, char *argv[])
     {
       OutIndexType ind=vfIter2.GetIndex();
       if ( var_image->GetPixel(ind) > varval_csf  ) { // nuisance
-	IndexType tind;
-	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
-	for (unsigned int t=0; t<timedims; t++){
+    IndexType tind;
+    for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
+    for (unsigned int t=0; t<timedims; t++){
           tind[ImageDimension-1]=t;
-	  Scalar pix=image1->GetPixel(tind);
+      Scalar pix=image1->GetPixel(tind);
           mNuisance(t,nuis_vox)=pix;
-	}
-	nuis_vox++;
+    }
+    nuis_vox++;
       }
       if ( vfIter2.Get() > 0  ) { // in brain
-	IndexType tind;
-	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
-	for (unsigned int t=0; t<timedims; t++){
+    IndexType tind;
+    for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
+    for (unsigned int t=0; t<timedims; t++){
           tind[ImageDimension-1]=t;
-	  Scalar pix=image1->GetPixel(tind);
+      Scalar pix=image1->GetPixel(tind);
           mSample(t,brain_vox)=pix;
-	}
-	brain_vox++;
+    }
+    brain_vox++;
       }
     }
   // factor out the nuisance variables by OLS
@@ -2021,7 +2021,7 @@ int CompCorrAuto(int argc, char *argv[])
       std::cerr << exp << std::endl;
       return EXIT_FAILURE;
     }
-  
+
 
   timeMatrixType RRt=matrixOps->ProjectionMatrix(reducedNuisance);
   mSample=matrixOps->NormalizeMatrix(mSample);
@@ -2031,15 +2031,15 @@ int CompCorrAuto(int argc, char *argv[])
     {
       OutIndexType ind=vfIter2.GetIndex();
       if ( vfIter2.Get() > 0 ) {
-	timeVectorType samp=mSample.get_column(brain_vox);
+    timeVectorType samp=mSample.get_column(brain_vox);
 // correct the original image
-	IndexType tind;
-	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
-	for (unsigned int t=0; t<timedims; t++){
+    IndexType tind;
+    for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
+    for (unsigned int t=0; t<timedims; t++){
           tind[ImageDimension-1]=t;
-	  image1->SetPixel(tind,samp[t]);
-	}
-	brain_vox++;
+      image1->SetPixel(tind,samp[t]);
+    }
+    brain_vox++;
       }
     }
   kname=tempname+std::string("_corrected")+extension;
@@ -2078,7 +2078,7 @@ int CompCorr(int argc, char *argv[])
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
   std::string fn_label = std::string(argv[argct]);   argct++;
-  float compcorr_sigma = 0; 
+  float compcorr_sigma = 0;
   if ( argc > argct ) compcorr_sigma = atof(argv[argct]);   argct++;
   std::string::size_type idx;
   idx = outname.find_first_of('.');
@@ -2119,22 +2119,22 @@ int CompCorr(int argc, char *argv[])
     {
       OutIndexType ind=vfIter2.GetIndex();
       if ( vfIter2.Get() == 3 ) { // nuisance
-	ct_nuis++;
+    ct_nuis++;
       }
       if ( vfIter2.Get() == 2 ) { // reference
-	ct_ref++;
+    ct_ref++;
       }
       if ( vfIter2.Get() > 0 ) { // gm roi
-	ct_gm++;
+    ct_gm++;
       }
     }
   std::cout << " counted " << ct_gm << " gm voxels " << ct_ref << " reference region voxels " << std::endl;
-  if ( ct_gm == 0 ) 
+  if ( ct_gm == 0 )
     {
       std::cout << ct_gm << " not enough voxels labeled as gm (or brain) " << ct_gm <<std::endl;
       return 1;
     }
-  if ( ct_ref == 0 ) 
+  if ( ct_ref == 0 )
     {
       std::cout << ct_ref << " not enough voxels labeled as reference region " <<std::endl;
       return 1;
@@ -2151,30 +2151,30 @@ int CompCorr(int argc, char *argv[])
   unsigned long gm_vox=0;
   timeVectorType smoother(timedims,0);
   timeVectorType smoother_out(timedims,0);
-  //  FIRST -- get high variance (in time) voxels 
+  //  FIRST -- get high variance (in time) voxels
   float maxvar=0;
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
       OutIndexType ind=vfIter2.GetIndex();
       if ( vfIter2.Get() > 0 ) { // in-brain
-	IndexType tind;
-	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
-	float total=0;
-	for (unsigned int t=0; t<timedims; t++){
+    IndexType tind;
+    for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
+    float total=0;
+    for (unsigned int t=0; t<timedims; t++){
           tind[ImageDimension-1]=t;
-	  Scalar pix=image1->GetPixel(tind);
+      Scalar pix=image1->GetPixel(tind);
           smoother(t)=pix;
-	  total+=pix;
-	}
-	float mean=total/(float)timedims;
-	float var=0;
-	for (unsigned int t=0; t<timedims; t++){
-	  var+=((smoother(t)-mean)*(smoother(t)-mean));
-	}
-	var/=(float)(timedims);
-	var=sqrt(var);
-	if ( var > maxvar ) maxvar=var;
-	var_image->SetPixel(ind,var);
+      total+=pix;
+    }
+    float mean=total/(float)timedims;
+    float var=0;
+    for (unsigned int t=0; t<timedims; t++){
+      var+=((smoother(t)-mean)*(smoother(t)-mean));
+    }
+    var/=(float)(timedims);
+    var=sqrt(var);
+    if ( var > maxvar ) maxvar=var;
+    var_image->SetPixel(ind,var);
       }
     }
   std::cout << " got var " << std::endl;
@@ -2188,10 +2188,10 @@ int CompCorr(int argc, char *argv[])
       OutIndexType ind=vfIter2.GetIndex();
       float var=var_image->GetPixel(ind);
       if ( vfIter2.Get() > 0 && var > 0 ) { // in-brain
-	int bin=(int)( var/binsize )-1;
-	if ( bin < 0 ) bin=0;
-	varhist[bin]+=1;
-	varhistsum+=1;
+    int bin=(int)( var/binsize )-1;
+    if ( bin < 0 ) bin=0;
+    varhist[bin]+=1;
+    varhistsum+=1;
       }
     }
   varhist=varhist/varhistsum;
@@ -2214,9 +2214,9 @@ int CompCorr(int argc, char *argv[])
     {
       OutIndexType ind=vfIter2.GetIndex();
       if ( var_image->GetPixel(ind) > varval_csf  ) { // nuisance
-	ct_nuis++;
+    ct_nuis++;
       }
-    } 
+    }
   timeMatrixType mNuisance(timedims,ct_nuis,0);
   std::cout <<" begin smoothing " << std::endl;
   if ( compcorr_sigma > 1.e-5 )
@@ -2224,26 +2224,26 @@ int CompCorr(int argc, char *argv[])
     {
       OutIndexType ind=vfIter2.GetIndex();
       if ( vfIter2.Get() > 0 ) { // in-brain
-	IndexType tind;
-	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
-	for (unsigned int t=0; t<timedims; t++){
+    IndexType tind;
+    for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
+    for (unsigned int t=0; t<timedims; t++){
           tind[ImageDimension-1]=t;
-	  Scalar pix=image1->GetPixel(tind);
+      Scalar pix=image1->GetPixel(tind);
           smoother(t)=pix;
-	}
-	for (unsigned int t=0; t<timedims; t++){
-	  int offset=25;
-	  int lo=t-offset; if ( lo < 0 ) lo=0; 
-          int hi=t+offset; if ( hi > timedims-1 ) hi=timedims-1; 
-	  float total=0;
-  	  for (unsigned int s=lo; s<hi; s++){
-	    float diff=(float)s-(float)t;
+    }
+    for (unsigned int t=0; t<timedims; t++){
+      int offset=25;
+      int lo=t-offset; if ( lo < 0 ) lo=0;
+          int hi=t+offset; if ( hi > timedims-1 ) hi=timedims-1;
+      float total=0;
+        for (unsigned int s=lo; s<hi; s++){
+        float diff=(float)s-(float)t;
             float wt=exp(-1.0*diff*diff/(2.0*compcorr_sigma*compcorr_sigma));
-	    total+=wt;
-	    smoother_out(t)+=wt*smoother(s);
-	  }
-	  smoother_out(t)/=total;
-	}
+        total+=wt;
+        smoother_out(t)+=wt*smoother(s);
+      }
+      smoother_out(t)/=total;
+    }
       }
     }
   std::cout <<" smooth done " << std::endl;
@@ -2253,38 +2253,38 @@ int CompCorr(int argc, char *argv[])
       OutIndexType ind=vfIter2.GetIndex();
       //      if ( vfIter2.Get() == 3 ) { // nuisance
       if ( var_image->GetPixel(ind) > varval_csf  ) { // nuisance
-	IndexType tind;
-	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
-	for (unsigned int t=0; t<timedims; t++){
+    IndexType tind;
+    for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
+    for (unsigned int t=0; t<timedims; t++){
           tind[ImageDimension-1]=t;
-	  Scalar pix=image1->GetPixel(tind);
+      Scalar pix=image1->GetPixel(tind);
           mNuisance(t,nuis_vox)=pix;
-	}
-	nuis_vox++;
+    }
+    nuis_vox++;
       }
       if ( vfIter2.Get() == 2 ) { // reference
-	IndexType tind;
-	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
-	for (unsigned int t=0; t<timedims; t++){
+    IndexType tind;
+    for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
+    for (unsigned int t=0; t<timedims; t++){
           tind[ImageDimension-1]=t;
-	  Scalar pix=image1->GetPixel(tind);
+      Scalar pix=image1->GetPixel(tind);
           mReference(t,ref_vox)=pix;
-	}
-	ref_vox++;
+    }
+    ref_vox++;
       }
       if ( vfIter2.Get() > 0  ) { // in brain
-	IndexType tind;
-	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
-	for (unsigned int t=0; t<timedims; t++){
+    IndexType tind;
+    for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
+    for (unsigned int t=0; t<timedims; t++){
           tind[ImageDimension-1]=t;
-	  Scalar pix=image1->GetPixel(tind);
+      Scalar pix=image1->GetPixel(tind);
           mSample(t,gm_vox)=pix;
-	}
-	gm_vox++;
+    }
+    gm_vox++;
       }
     }
   // factor out the nuisance variables by OLS
-  unsigned int nnuis=3;// number of eigenvectors to get from high variance voxels 
+  unsigned int nnuis=3;// number of eigenvectors to get from high variance voxels
   if ( ct_nuis <= 0 ) nnuis=1;
   timeMatrixType reducedNuisance(timedims,nnuis);
   for (unsigned int i=0; i<nnuis;i++) {
@@ -2309,21 +2309,21 @@ int CompCorr(int argc, char *argv[])
     {
       OutIndexType ind=vfIter2.GetIndex();
       if ( vfIter2.Get() > 0 ) {
-	timeVectorType samp=mSample.get_column(gm_vox);
+    timeVectorType samp=mSample.get_column(gm_vox);
 // correct the original image
-	IndexType tind;
-	for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
-	for (unsigned int t=0; t<timedims; t++){
+    IndexType tind;
+    for (unsigned int i=0; i<ImageDimension-1; i++) tind[i]=ind[i];
+    for (unsigned int t=0; t<timedims; t++){
           tind[ImageDimension-1]=t;
-	  image1->SetPixel(tind,samp[t]);
-	}
+      image1->SetPixel(tind,samp[t]);
+    }
 // compute the gm-reference correlation
-	Scalar corr=matrixOps->PearsonCorr(samp,vReference);
-	//	Scalar corr2=matrixOps->PearsonCorr(samp,vReference2);
-	outimage->SetPixel(ind,corr);
-	//	outimage2->SetPixel(ind,corr2);
-	outimage2->SetPixel(ind,samp.two_norm());// the power of the time series
-	gm_vox++;
+    Scalar corr=matrixOps->PearsonCorr(samp,vReference);
+    //    Scalar corr2=matrixOps->PearsonCorr(samp,vReference2);
+    outimage->SetPixel(ind,corr);
+    //    outimage2->SetPixel(ind,corr2);
+    outimage2->SetPixel(ind,samp.two_norm());// the power of the time series
+    gm_vox++;
       }
     }
   std::cout<<"write results"<<std::endl;
@@ -2409,11 +2409,11 @@ int StackImage(int argc, char *argv[])
       bool isinside=false;
       if ( oindex[ImageDimension-1]  >= padvalue ) isinside=true;
       if (isinside)
-	{
-	  float shifted=((float)oindex[ImageDimension-1]-padvalue);
-	  padindex[ImageDimension-1]=(unsigned int)shifted;
-	  padimage->SetPixel(oindex,image2->GetPixel(padindex));
-	}
+    {
+      float shifted=((float)oindex[ImageDimension-1]-padvalue);
+      padindex[ImageDimension-1]=(unsigned int)shifted;
+      padimage->SetPixel(oindex,image2->GetPixel(padindex));
+    }
       else padimage->SetPixel(oindex,image1->GetPixel(oindex));
 
     }
@@ -2515,9 +2515,9 @@ std::cout << " Label Surf " << std::endl;
         for (int j=0; j<ImageDimension; j++)
           dist+=(float)(ind[j]-ind2[j])*(float)(ind[j]-ind2[j]);
         dist=sqrt(dist);
-	bool secondval=true;
-	if (input2) if (input2->GetPixel(ind2) >= 0.5 ) secondval=true;
-	if (GHood.GetPixel(i) < 0.5 && dist <  2. && secondval  )
+    bool secondval=true;
+    if (input2) if (input2->GetPixel(ind2) >= 0.5 ) secondval=true;
+    if (GHood.GetPixel(i) < 0.5 && dist <  2. && secondval  )
         {
           atedge=true;
         }
@@ -2615,145 +2615,145 @@ int FitSphere(int argc, char *argv[])
 */
       /*
       if (val > 0.5 && fabs((float)ind[2]-80.) < 6 )
-	{
-	  //float  bestrad=0;
-	  //parameterize sphere at this index
-	  float epspi=pi*0.1;
-	  float epsrad=0.2;
-	  gvol=0;wvol=0;warea=0;garea=0;
-	  float svol=0;//4./3.*pi*MaxRad*MaxRad*MaxRad;
-	  //	  float sarea=0;//4.*pi*MaxRad*MaxRad;
-	  //float bestvol=0;
-	  //	  float wdiff=0;
-	  //	  for (float theta=0; theta<=pi; theta+=epspi)
-	  float theta=0;
-	  gmtotal=0;
-	  wmtotal=0;
-	  float glength=0,wlength=0;
-	  while ( theta < pi )
-	    {
-	  garea=0;warea=0;
-	  float psi=0;
-	  while ( psi < pi )
-	    {
-	      glength=0;wlength=0;
-	      float rr=0;
-	      bool raddone=false;
-	      GMx.Fill(0);  WMx.Fill(0);
-	      while ( rr <= MaxRad && !raddone)
-		{
-		  // integrate the wm/gm probability along this radius, at these angles
-		  Y1[0]=(float)ind[0]/spacing[0]+rr*cos(psi)*sin(theta);
-		  Y1[1]=(float)ind[1]/spacing[1]+rr*sin(psi)*sin(theta);
-		  Y1[2]=(float)ind[2]/spacing[2]+rr*cos(theta);
-		  Y2[0]=(float)ind[0]/spacing[0]+rr*cos(psi+pi)*sin(theta);
-		  Y2[1]=(float)ind[1]/spacing[1]+rr*sin(psi+pi)*sin(theta);
-		  Y2[2]=(float)ind[2]/spacing[2]+rr*cos(theta);
-		  float gval1 = ginterp->EvaluateAtContinuousIndex( Y1 );
-		  float gval2 = ginterp->EvaluateAtContinuousIndex( Y2 );
-		  float wval1=0,wval2=0;
-		  if (wmimage) wval1 = winterp->EvaluateAtContinuousIndex( Y1 );
-		  if (wmimage) wval2 = winterp->EvaluateAtContinuousIndex( Y2 );
-		  glength+=(gval1+gval2)*epsrad*2;
-		  wlength+=(wval2+wval2)*epsrad*2;
-		  gmtotal+=(gval1+gval2);
-		  wmtotal+=(wval1+wval2);
-		  for (unsigned int dd=0; dd<ImageDimension; dd++)
-		    {
-		      GMx[dd]+=(Y1[dd]*gval1+Y2[dd]*gval2);
-		      WMx[dd]+=(Y1[dd]*wval1+Y2[dd]*wval2);
-		    }
-		  rr+=epsrad;
-		}//update rr
+    {
+      //float  bestrad=0;
+      //parameterize sphere at this index
+      float epspi=pi*0.1;
+      float epsrad=0.2;
+      gvol=0;wvol=0;warea=0;garea=0;
+      float svol=0;//4./3.*pi*MaxRad*MaxRad*MaxRad;
+      //      float sarea=0;//4.*pi*MaxRad*MaxRad;
+      //float bestvol=0;
+      //      float wdiff=0;
+      //      for (float theta=0; theta<=pi; theta+=epspi)
+      float theta=0;
+      gmtotal=0;
+      wmtotal=0;
+      float glength=0,wlength=0;
+      while ( theta < pi )
+        {
+      garea=0;warea=0;
+      float psi=0;
+      while ( psi < pi )
+        {
+          glength=0;wlength=0;
+          float rr=0;
+          bool raddone=false;
+          GMx.Fill(0);  WMx.Fill(0);
+          while ( rr <= MaxRad && !raddone)
+        {
+          // integrate the wm/gm probability along this radius, at these angles
+          Y1[0]=(float)ind[0]/spacing[0]+rr*cos(psi)*sin(theta);
+          Y1[1]=(float)ind[1]/spacing[1]+rr*sin(psi)*sin(theta);
+          Y1[2]=(float)ind[2]/spacing[2]+rr*cos(theta);
+          Y2[0]=(float)ind[0]/spacing[0]+rr*cos(psi+pi)*sin(theta);
+          Y2[1]=(float)ind[1]/spacing[1]+rr*sin(psi+pi)*sin(theta);
+          Y2[2]=(float)ind[2]/spacing[2]+rr*cos(theta);
+          float gval1 = ginterp->EvaluateAtContinuousIndex( Y1 );
+          float gval2 = ginterp->EvaluateAtContinuousIndex( Y2 );
+          float wval1=0,wval2=0;
+          if (wmimage) wval1 = winterp->EvaluateAtContinuousIndex( Y1 );
+          if (wmimage) wval2 = winterp->EvaluateAtContinuousIndex( Y2 );
+          glength+=(gval1+gval2)*epsrad*2;
+          wlength+=(wval2+wval2)*epsrad*2;
+          gmtotal+=(gval1+gval2);
+          wmtotal+=(wval1+wval2);
+          for (unsigned int dd=0; dd<ImageDimension; dd++)
+            {
+              GMx[dd]+=(Y1[dd]*gval1+Y2[dd]*gval2);
+              WMx[dd]+=(Y1[dd]*wval1+Y2[dd]*wval2);
+            }
+          rr+=epsrad;
+        }//update rr
 
-	      garea+=glength*epspi/pi;
-	      warea+=wlength*epspi/pi;
-	      psi+=epspi;
-	    }//update psi
-	  gvol+=garea;//epspi/pi;
-	  wvol+=warea;//epspi/pi;
-	  svol+=(gvol+wvol);
-	  theta+=epspi;
-	    }//update theta
+          garea+=glength*epspi/pi;
+          warea+=wlength*epspi/pi;
+          psi+=epspi;
+        }//update psi
+      gvol+=garea;//epspi/pi;
+      wvol+=warea;//epspi/pi;
+      svol+=(gvol+wvol);
+      theta+=epspi;
+        }//update theta
 
-		  for (unsigned int dd=0; dd<ImageDimension; dd++)
-		    {
-		      GMx[dd]/=gmtotal;
-		      WMx[dd]/=wmtotal;
-		    }
-		  float cmdist=0;
-		  for (unsigned int dd=0; dd<ImageDimension; dd++)
-		    {
-		      cmdist+=(GMx[dd]-WMx[dd])*(GMx[dd]-WMx[dd]);
-		    }
-		  cmdist=sqrt(cmdist);
-		  //		  std::cout << " GMT " << gmtotal << " WMT " << wmtotal << " dist " << cmdist << std::endl;
-	  float gmrad=pow( 3.*gvol/(4.*pi) , 1./3.);
-	  float gwrat=0,gvrat=0;
-	  if (warea > 0) gwrat=garea/warea;
-	  if (wvol > 0) gvrat=gvol/wvol;
-	  priorimage->SetPixel(ind,gmtotal/(wmtotal+gmtotal));
-	  radimage->SetPixel(ind,cmdist);
+          for (unsigned int dd=0; dd<ImageDimension; dd++)
+            {
+              GMx[dd]/=gmtotal;
+              WMx[dd]/=wmtotal;
+            }
+          float cmdist=0;
+          for (unsigned int dd=0; dd<ImageDimension; dd++)
+            {
+              cmdist+=(GMx[dd]-WMx[dd])*(GMx[dd]-WMx[dd]);
+            }
+          cmdist=sqrt(cmdist);
+          //          std::cout << " GMT " << gmtotal << " WMT " << wmtotal << " dist " << cmdist << std::endl;
+      float gmrad=pow( 3.*gvol/(4.*pi) , 1./3.);
+      float gwrat=0,gvrat=0;
+      if (warea > 0) gwrat=garea/warea;
+      if (wvol > 0) gvrat=gvol/wvol;
+      priorimage->SetPixel(ind,gmtotal/(wmtotal+gmtotal));
+      radimage->SetPixel(ind,cmdist);
 
-	}
+    }
   */
 /*
-	  //	  radimage2->SetPixel(ind,gvrat);
+      //      radimage2->SetPixel(ind,gvrat);
       if (image1->GetPixel(ind) >= 0.5)
-	{
+    {
       bool okfit=true;
       float dorad=1;
       float bestrad=1;
       while (okfit && dorad <= MaxRad )
-	    {
-	      typedef itk::NeighborhoodIterator<ImageType>  iteratorType;
-	      typename iteratorType::RadiusType rad,rad2;
-	      rad2.Fill(0);
-	      for (unsigned int j=0; j<ImageDimension; j++) rad[j]=(long unsigned int) dorad;
-	      float tardist=(dorad*sqrt((double)2));
-	      iteratorType GHood(rad, image1,image1->GetLargestPossibleRegion());
-	      GHood.SetLocation(ind);
-	      typename ImageType::PixelType p = GHood.GetCenterPixel();
-	      unsigned int goodct=0;
-	      unsigned int possct=0;
-	      if ( p > 0 && radimage->GetPixel(ind) <= 0  )
-		{
-		  for (unsigned int i = 0; i < GHood.Size(); i++)
-		    {
-		      ind2=GHood.GetIndex(i);
-		      float dist=sqrt(((float)ind2[0]-(float)ind[0])*((float)ind2[0]-(float)ind[0])+
-				      ((float)ind2[1]-(float)ind[1])*((float)ind2[1]-(float)ind[1])+
-				      ((float)ind2[2]-(float)ind[2])*((float)ind2[2]-(float)ind[2]));
-		      if ( GHood.GetPixel(i) == p && dist <= tardist)
-			{
-			  goodct++;
-			  possct++;
-			}
-		      else if ( dist <= tardist ) possct++;
-		      //		  std::cout << " Ind " <<  ind << " : " <<  bestrad << " tardist " << tardist << " gct " << goodct <<" pos " << possct << " dist " << dist << " ind2 " << ind2 << std::endl;
-		    }
-		  if (goodct==possct)
-		    {
-		      bestrad=dorad; radimage->SetPixel(ind,bestrad*(-1.0));
-		    }
-		  else { okfit=false; radimage->SetPixel(ind,radimage->GetPixel(ind)*(-1.0)); }
-		}
-	      dorad=dorad+1;
-	    }
-	  if (bestrad >= globalbestrad)
-	    {
-	      globalbestrad=bestrad;
-	      bestind=ind;
-	    }
+        {
+          typedef itk::NeighborhoodIterator<ImageType>  iteratorType;
+          typename iteratorType::RadiusType rad,rad2;
+          rad2.Fill(0);
+          for (unsigned int j=0; j<ImageDimension; j++) rad[j]=(long unsigned int) dorad;
+          float tardist=(dorad*sqrt((double)2));
+          iteratorType GHood(rad, image1,image1->GetLargestPossibleRegion());
+          GHood.SetLocation(ind);
+          typename ImageType::PixelType p = GHood.GetCenterPixel();
+          unsigned int goodct=0;
+          unsigned int possct=0;
+          if ( p > 0 && radimage->GetPixel(ind) <= 0  )
+        {
+          for (unsigned int i = 0; i < GHood.Size(); i++)
+            {
+              ind2=GHood.GetIndex(i);
+              float dist=sqrt(((float)ind2[0]-(float)ind[0])*((float)ind2[0]-(float)ind[0])+
+                      ((float)ind2[1]-(float)ind[1])*((float)ind2[1]-(float)ind[1])+
+                      ((float)ind2[2]-(float)ind[2])*((float)ind2[2]-(float)ind[2]));
+              if ( GHood.GetPixel(i) == p && dist <= tardist)
+            {
+              goodct++;
+              possct++;
+            }
+              else if ( dist <= tardist ) possct++;
+              //          std::cout << " Ind " <<  ind << " : " <<  bestrad << " tardist " << tardist << " gct " << goodct <<" pos " << possct << " dist " << dist << " ind2 " << ind2 << std::endl;
+            }
+          if (goodct==possct)
+            {
+              bestrad=dorad; radimage->SetPixel(ind,bestrad*(-1.0));
+            }
+          else { okfit=false; radimage->SetPixel(ind,radimage->GetPixel(ind)*(-1.0)); }
+        }
+          dorad=dorad+1;
+        }
+      if (bestrad >= globalbestrad)
+        {
+          globalbestrad=bestrad;
+          bestind=ind;
+        }
 
-	  if (npx % 10000 == 0)
-	    {
-	      std::cout <<" prog " << (float)npx/(float)numpx << std::endl;
-	      //	      WriteImage<ImageType>(radimage,outname.c_str());
-	      //	      WriteImage<ImageType>(radimage2,(std::string("Sphere")+outname).c_str());
-	      //WriteImage<ImageType>(priorimage,(std::string("Prior")+outname).c_str());
-	    }
-	}
+      if (npx % 10000 == 0)
+        {
+          std::cout <<" prog " << (float)npx/(float)numpx << std::endl;
+          //          WriteImage<ImageType>(radimage,outname.c_str());
+          //          WriteImage<ImageType>(radimage2,(std::string("Sphere")+outname).c_str());
+          //WriteImage<ImageType>(priorimage,(std::string("Prior")+outname).c_str());
+        }
+    }
 
     }
 
@@ -2763,28 +2763,28 @@ int FitSphere(int argc, char *argv[])
       float val=iter.Get();
       typename ImageType::IndexType ind=iter.GetIndex();
       if (val > 0)
-	{
-	  unsigned int dorad=(unsigned int)fabs(radimage->GetPixel(ind));
-	  typedef itk::NeighborhoodIterator<ImageType>  iteratorType;
-	  typename iteratorType::RadiusType rad;
-	  for (unsigned int j=0; j<ImageDimension; j++) rad[j]= dorad;
-	  float tardist=(dorad*sqrt((double)2));
-	  float diameter=2.0*(float)dorad*sqrt((double)2);
-	  iteratorType GHood(rad, image1,image1->GetLargestPossibleRegion());
-	  GHood.SetLocation(ind);
-	  typename ImageType::PixelType p = GHood.GetCenterPixel();
-	  for (unsigned int i = 0; i < GHood.Size(); i++)
-	    {
-	      ind2=GHood.GetIndex(i);
-	      float dist=sqrt(((float)ind2[0]-(float)ind[0])*((float)ind2[0]-(float)ind[0])+
-			      ((float)ind2[1]-(float)ind[1])*((float)ind2[1]-(float)ind[1])+
-			      ((float)ind2[2]-(float)ind[2])*((float)ind2[2]-(float)ind[2]));
-	      if ( GHood.GetPixel(i) == p && dist <= tardist && diameter > priorimage->GetPixel(ind2))
-		{
-		  priorimage->SetPixel(ind2,diameter);
-		}
-	    }
-	}
+    {
+      unsigned int dorad=(unsigned int)fabs(radimage->GetPixel(ind));
+      typedef itk::NeighborhoodIterator<ImageType>  iteratorType;
+      typename iteratorType::RadiusType rad;
+      for (unsigned int j=0; j<ImageDimension; j++) rad[j]= dorad;
+      float tardist=(dorad*sqrt((double)2));
+      float diameter=2.0*(float)dorad*sqrt((double)2);
+      iteratorType GHood(rad, image1,image1->GetLargestPossibleRegion());
+      GHood.SetLocation(ind);
+      typename ImageType::PixelType p = GHood.GetCenterPixel();
+      for (unsigned int i = 0; i < GHood.Size(); i++)
+        {
+          ind2=GHood.GetIndex(i);
+          float dist=sqrt(((float)ind2[0]-(float)ind[0])*((float)ind2[0]-(float)ind[0])+
+                  ((float)ind2[1]-(float)ind[1])*((float)ind2[1]-(float)ind[1])+
+                  ((float)ind2[2]-(float)ind[2])*((float)ind2[2]-(float)ind[2]));
+          if ( GHood.GetPixel(i) == p && dist <= tardist && diameter > priorimage->GetPixel(ind2))
+        {
+          priorimage->SetPixel(ind2,diameter);
+        }
+        }
+    }
     }
 
 
@@ -2803,12 +2803,12 @@ int FitSphere(int argc, char *argv[])
       ind2=GHood.GetIndex(i);
       float dist=0;
       dist+=sqrt((float)(ind2[0]-(float)bestind[0])*(float)(ind2[0]-(float)bestind[0])+
-		 (float)(ind2[1]-(float)bestind[1])*(float)(ind2[1]-(float)bestind[1])+
-		 (float)(ind2[2]-(float)bestind[2])*(float)(ind2[2]-(float)bestind[2]));
+         (float)(ind2[1]-(float)bestind[1])*(float)(ind2[1]-(float)bestind[1])+
+         (float)(ind2[2]-(float)bestind[2])*(float)(ind2[2]-(float)bestind[2]));
       if ( dist <= (globalbestrad*sqrt((double)2)))
-	{
-	  radimage2->SetPixel(ind2,p);
-	}
+    {
+      radimage2->SetPixel(ind2,p);
+    }
     }
 
 
@@ -2862,14 +2862,14 @@ int ImageMath(int argc, char *argv[])
   bool isfloat=false;
   float floatval=1.0;
   if(from_string<float>(floatval, fn2, std::dec) )
-  	{
+      {
     isfloat=true;
-  	}
+      }
   else
-  	{
-  	reader2->Update();
-  	image2 = reader2->GetOutput();
-  	}
+      {
+      reader2->Update();
+      image2 = reader2->GetOutput();
+      }
 
   reader1->SetFileName(fn1.c_str());
   try
@@ -2899,16 +2899,16 @@ int ImageMath(int argc, char *argv[])
       typename TransformType0::Pointer             m_Transform0=TransformType0::New();
       typename TransformType0::ParametersType trans=m_Transform0->GetParameters();
       for( unsigned int i=0; i<ImageDimension; i++)
-	{
-	  trans[i] = 0;
-	  spc[i]=image1->GetSpacing()[i]*image1->GetLargestPossibleRegion().GetSize()[i]/image2->GetLargestPossibleRegion().GetSize()[i];
-	}
+    {
+      trans[i] = 0;
+      spc[i]=image1->GetSpacing()[i]*image1->GetLargestPossibleRegion().GetSize()[i]/image2->GetLargestPossibleRegion().GetSize()[i];
+    }
       image2->SetSpacing(spc);
       image2->SetOrigin(image1->GetOrigin());
       image2->SetDirection(image1->GetDirection());
       m_Transform0->SetParameters(trans);
       std::cout <<" trans " << m_Transform0->GetParameters() << " Nspc " << image2->GetSpacing() << std::endl;
-      typedef itk::ResampleImageFilter< ImageType, ImageType >	ResampleFilterType;
+      typedef itk::ResampleImageFilter< ImageType, ImageType >    ResampleFilterType;
       typename ResampleFilterType::Pointer resample = ResampleFilterType::New();
       resample->SetTransform( m_Transform0 );
       resample->SetInput( image2 );
@@ -3007,70 +3007,70 @@ int TensorFunctions(int argc, char *argv[])
     unsigned int dim=imageIO->GetNumberOfDimensions();
     if ( dim == 4 )
       {
-	typename D4TensorImageType::Pointer d4img=NULL;
-	ReadImage<D4TensorImageType>(d4img, fn1.c_str());
-	unsigned int d4size=d4img->GetLargestPossibleRegion().GetSize()[3];
-	if ( d4size != 6 && d4size != 7 )
-	  {
-	    std::cout << " you should not be using this function if the input data is not a tensor. " << std::endl;
-	    std::cout << " there is no way for us to really check if your use of this function is correct right now except checking the size of the 4th dimension which should be 6 or 7 (the latter if you store b0 in the first component) --- you should really store tensors not as 4D images but as 3D images with tensor voxel types. " << std::endl;
-	    exit(0);
-	  }
-	typename TensorImageType::SizeType size;
-	typename TensorImageType::RegionType tensorregion;
-	typename TensorImageType::SpacingType spacing;
-	typename TensorImageType::PointType origin;
-	typename TensorImageType::DirectionType direction;
-	for ( unsigned int dd=0; dd<ImageDimension; dd++){
-  	  size[dd]=d4img->GetLargestPossibleRegion().GetSize()[dd];
-	  origin[dd]=d4img->GetOrigin()[dd];
-	  spacing[dd]=d4img->GetSpacing()[dd];
-  	    for ( unsigned int ee=0; ee<ImageDimension; ee++)
-	      direction[dd][ee]=d4img->GetDirection()[dd][ee];
-	}
-	tensorregion.SetSize(size);
-	timage = TensorImageType::New();
-	timage->SetRegions( tensorregion );
-	timage->Allocate();
-	timage->SetSpacing(spacing);
-	timage->SetOrigin(origin);
-	timage->SetDirection(direction);
+    typename D4TensorImageType::Pointer d4img=NULL;
+    ReadImage<D4TensorImageType>(d4img, fn1.c_str());
+    unsigned int d4size=d4img->GetLargestPossibleRegion().GetSize()[3];
+    if ( d4size != 6 && d4size != 7 )
+      {
+        std::cout << " you should not be using this function if the input data is not a tensor. " << std::endl;
+        std::cout << " there is no way for us to really check if your use of this function is correct right now except checking the size of the 4th dimension which should be 6 or 7 (the latter if you store b0 in the first component) --- you should really store tensors not as 4D images but as 3D images with tensor voxel types. " << std::endl;
+        exit(0);
+      }
+    typename TensorImageType::SizeType size;
+    typename TensorImageType::RegionType tensorregion;
+    typename TensorImageType::SpacingType spacing;
+    typename TensorImageType::PointType origin;
+    typename TensorImageType::DirectionType direction;
+    for ( unsigned int dd=0; dd<ImageDimension; dd++){
+        size[dd]=d4img->GetLargestPossibleRegion().GetSize()[dd];
+      origin[dd]=d4img->GetOrigin()[dd];
+      spacing[dd]=d4img->GetSpacing()[dd];
+          for ( unsigned int ee=0; ee<ImageDimension; ee++)
+          direction[dd][ee]=d4img->GetDirection()[dd][ee];
+    }
+    tensorregion.SetSize(size);
+    timage = TensorImageType::New();
+    timage->SetRegions( tensorregion );
+    timage->Allocate();
+    timage->SetSpacing(spacing);
+    timage->SetOrigin(origin);
+    timage->SetDirection(direction);
 
-	// now iterate through & set the values of the tensors.
-	Iterator tIter(timage, timage->GetLargestPossibleRegion() );
-	for(  tIter.GoToBegin(); !tIter.IsAtEnd(); ++tIter )
-	  {
-	    typename TensorImageType::IndexType ind=tIter.GetIndex();
-	    typename D4TensorImageType::IndexType ind2;
-	    for ( unsigned int dd=0; dd<ImageDimension; dd++) ind2[dd]=ind[dd];
-	    TensorType pix6=tIter.Get();
-	    if ( d4size == 6 ) {
-	      for ( unsigned int ee=0; ee<d4size; ee++)
-		{
-		  ind2[3]=ee;
-		  if ( ee ==  2 )
-		  pix6[2]=d4img->GetPixel(ind2);
-		  else if ( ee ==  3 )
-		  pix6[3]=d4img->GetPixel(ind2);
-		  else
-		  pix6[ee]=d4img->GetPixel(ind2);
-		}
-	    }
-	    // ITK-way
-	    //  xx, xy, yy, xz , yz, zz
-	    // VTK/other-way
-	    //  xx, xy, xz, yy , yz, zz
-	    else if ( d4size == 7 ) {
-	      for ( unsigned int ee=1; ee<d4size; ee++)
-		{
-		  ind2[3]=ee;
-		  pix6[ee-1]=d4img->GetPixel(ind2);
-		}
-	    }
-	    timage->SetPixel(ind,pix6);
-	  }
-	WriteTensorImage<TensorImageType>(timage, outname.c_str() ,false);
-	return 0;
+    // now iterate through & set the values of the tensors.
+    Iterator tIter(timage, timage->GetLargestPossibleRegion() );
+    for(  tIter.GoToBegin(); !tIter.IsAtEnd(); ++tIter )
+      {
+        typename TensorImageType::IndexType ind=tIter.GetIndex();
+        typename D4TensorImageType::IndexType ind2;
+        for ( unsigned int dd=0; dd<ImageDimension; dd++) ind2[dd]=ind[dd];
+        TensorType pix6=tIter.Get();
+        if ( d4size == 6 ) {
+          for ( unsigned int ee=0; ee<d4size; ee++)
+        {
+          ind2[3]=ee;
+          if ( ee ==  2 )
+          pix6[2]=d4img->GetPixel(ind2);
+          else if ( ee ==  3 )
+          pix6[3]=d4img->GetPixel(ind2);
+          else
+          pix6[ee]=d4img->GetPixel(ind2);
+        }
+        }
+        // ITK-way
+        //  xx, xy, yy, xz , yz, zz
+        // VTK/other-way
+        //  xx, xy, xz, yy , yz, zz
+        else if ( d4size == 7 ) {
+          for ( unsigned int ee=1; ee<d4size; ee++)
+        {
+          ind2[3]=ee;
+          pix6[ee-1]=d4img->GetPixel(ind2);
+        }
+        }
+        timage->SetPixel(ind,pix6);
+      }
+    WriteTensorImage<TensorImageType>(timage, outname.c_str() ,false);
+    return 0;
       }
     std::cout << " cannot convert --- input image not 4D --- " << fn1 << std::endl;
     return 0;
@@ -3223,7 +3223,7 @@ int TensorFunctions(int argc, char *argv[])
       VectorType zero;  zero.Fill(0);
       vecimage->FillBuffer(zero);
     }
-  else if ( (strcmp(operation.c_str(), "TensorToPhysicalSpace") == 0) || 
+  else if ( (strcmp(operation.c_str(), "TensorToPhysicalSpace") == 0) ||
             (strcmp(operation.c_str(), "TensorToLocalSpace") == 0) )
     {
     toimage = TensorImageType::New();
@@ -3234,7 +3234,7 @@ int TensorFunctions(int argc, char *argv[])
     toimage->SetSpacing(timage->GetSpacing());
     toimage->SetOrigin(timage->GetOrigin());
     toimage->SetDirection(timage->GetDirection());
-    typename TensorImageType::PixelType zero;  
+    typename TensorImageType::PixelType zero;
     zero.Fill(0);
     toimage->FillBuffer(zero);
     }
@@ -3258,49 +3258,49 @@ int TensorFunctions(int argc, char *argv[])
     float result=0;
 
     if (strcmp(operation.c_str(),"TensorFA") == 0)
-	  {
-    	result=GetTensorFA<TensorType>(tIter.Value());
+      {
+        result=GetTensorFA<TensorType>(tIter.Value());
       if (vnl_math_isnan(result)) result=0;
       vimage->SetPixel(ind,result);
-  	}
+      }
     else if (strcmp(operation.c_str(),"TensorMeanDiffusion") == 0)
-	  {
-	    result=GetTensorADC<TensorType>(tIter.Value(),0);
+      {
+        result=GetTensorADC<TensorType>(tIter.Value(),0);
       if (vnl_math_isnan(result)) result=0;
       vimage->SetPixel(ind,result);
-	  }
+      }
     else if (strcmp(operation.c_str(),"TensorFANumerator") == 0)
-	  {
-	    result=GetTensorFANumerator<TensorType>(tIter.Value());
+      {
+        result=GetTensorFANumerator<TensorType>(tIter.Value());
       if (vnl_math_isnan(result)) result=0;
       vimage->SetPixel(ind,result);
-	  }
+      }
     else if (strcmp(operation.c_str(),"TensorFADenominator") == 0)
-	  {
-	    result=GetTensorFADenominator<TensorType>(tIter.Value());
+      {
+        result=GetTensorFADenominator<TensorType>(tIter.Value());
       if (vnl_math_isnan(result)) result=0;
       vimage->SetPixel(ind,result);
-	  }
+      }
     else if (strcmp(operation.c_str(),"TensorColor") == 0)
-	  {
-	    RGBType rgb = GetTensorRGB<TensorType>(tIter.Value());
-	    cimage->SetPixel(ind,rgb);
-	  }
+      {
+        RGBType rgb = GetTensorRGB<TensorType>(tIter.Value());
+        cimage->SetPixel(ind,rgb);
+      }
     else if (strcmp(operation.c_str(),"TensorToVector") == 0)
-	  {
-	    VectorType vv = GetTensorPrincipalEigenvector<TensorType>(tIter.Value(),whichvec);
-	    vecimage->SetPixel(ind,vv);
-	  }
+      {
+        VectorType vv = GetTensorPrincipalEigenvector<TensorType>(tIter.Value(),whichvec);
+        vecimage->SetPixel(ind,vv);
+      }
     else if (strcmp(operation.c_str(),"TensorToVectorComponent") == 0)
-	  {
-	    if ( whichvec <= 2 ){
-	      VectorType vv = GetTensorPrincipalEigenvector<TensorType>(tIter.Value(),2);
-	      vimage->SetPixel(ind,vv[whichvec]);
-	    }
-	    else if ( whichvec > 2 && whichvec < 9){
-	      vimage->SetPixel(ind,tIter.Value()[whichvec]);
-	    }
-	  }
+      {
+        if ( whichvec <= 2 ){
+          VectorType vv = GetTensorPrincipalEigenvector<TensorType>(tIter.Value(),2);
+          vimage->SetPixel(ind,vv[whichvec]);
+        }
+        else if ( whichvec > 2 && whichvec < 9){
+          vimage->SetPixel(ind,tIter.Value()[whichvec]);
+        }
+      }
     else if (strcmp(operation.c_str(),"TensorToPhysicalSpace") == 0)
       {
       typename TensorType::EigenValuesArrayType eigenValues;
@@ -3333,9 +3333,9 @@ int TensorFunctions(int argc, char *argv[])
 
         }
 
-      typename TensorType::MatrixType::InternalMatrixType phyTensor 
-        = eigenVectorsPhysical.GetTranspose() * eigenValuesMatrix.GetVnlMatrix() * eigenVectorsPhysical.GetVnlMatrix();    
-      
+      typename TensorType::MatrixType::InternalMatrixType phyTensor
+        = eigenVectorsPhysical.GetTranspose() * eigenValuesMatrix.GetVnlMatrix() * eigenVectorsPhysical.GetVnlMatrix();
+
       TensorType oTensor = Matrix2Vector<TensorType,TensorType::MatrixType::InternalMatrixType>( phyTensor );
       toimage->SetPixel( tIter.GetIndex(), oTensor );
 
@@ -3368,9 +3368,9 @@ int TensorFunctions(int argc, char *argv[])
 
         }
 
-      typename TensorType::MatrixType::InternalMatrixType lclTensor 
+      typename TensorType::MatrixType::InternalMatrixType lclTensor
         = eigenVectors.GetTranspose() * eigenValuesMatrix.GetVnlMatrix() * eigenVectors.GetVnlMatrix();
-      
+
       TensorType oTensor = Matrix2Vector<TensorType,TensorType::MatrixType::InternalMatrixType>( lclTensor );
       toimage->SetPixel( tIter.GetIndex(), oTensor );
       }
@@ -3389,7 +3389,7 @@ int TensorFunctions(int argc, char *argv[])
     {
       WriteImage<VectorImageType>(vecimage,outname.c_str());
     }
-    else if ( (strcmp(operation.c_str(), "TensorToPhysicalSpace") == 0) || 
+    else if ( (strcmp(operation.c_str(), "TensorToPhysicalSpace") == 0) ||
               (strcmp(operation.c_str(), "TensorToLocalSpace") == 0 ) )
       {
       WriteTensorImage<TensorImageType>(toimage, outname.c_str(), false );
@@ -3529,19 +3529,19 @@ int CompareHeadersAndImages(int argc, char *argv[])
       fixed_center = calculator->GetCenterOfGravity();
       calculator->SetImage(  image2 );
       try
-	{
-	  calculator->Compute();
-	  moving_center = calculator->GetCenterOfGravity();
-	}
+    {
+      calculator->Compute();
+      moving_center = calculator->GetCenterOfGravity();
+    }
       catch(...)
-	{
-	  std::cout << " zero image2 error ";
-	  fixed_center.Fill(0);
-	}
+    {
+      std::cout << " zero image2 error ";
+      fixed_center.Fill(0);
+    }
     }
     catch(...)
       {
-	std::cout << " zero image1 error ";
+    std::cout << " zero image1 error ";
       }
 
     typedef itk::TranslationTransform< double, ImageDimension> TransformType0;
@@ -3553,7 +3553,7 @@ int CompareHeadersAndImages(int argc, char *argv[])
       }
     m_Transform0->SetParameters(trans);
     std::cout <<" trans " << m_Transform0->GetParameters() << std::endl;
-  typedef itk::ResampleImageFilter< ImageType, ImageType >	ResampleFilterType;
+  typedef itk::ResampleImageFilter< ImageType, ImageType >    ResampleFilterType;
   typename ResampleFilterType::Pointer resample = ResampleFilterType::New();
   resample->SetTransform( m_Transform0 );
   resample->SetInput( image2 );
@@ -3595,10 +3595,10 @@ int CompareHeadersAndImages(int argc, char *argv[])
       float pix1 = image1->GetPixel(ind)/mean1;
 
       if ( pix1 > 0 || pix2 > 0)
-	{
-	  i1i2norm+=fabs(pix1-pix2);
-	  ct12++;
-	}
+    {
+      i1i2norm+=fabs(pix1-pix2);
+      ct12++;
+    }
       //      if ( pix1 > 0 || pix3 > 0)
       //{
       //  i1i3norm+=fabs(pix1-pix3);
@@ -3617,12 +3617,12 @@ int CompareHeadersAndImages(int argc, char *argv[])
       failure=1;
       // now fix the error
       for (unsigned int i=0;i<ImageDimension;i++)
-	{
-	  if ( (op1[i] > 0 && op2[i] < 0 ) || (op1[i] < 0 && op2[i] > 0) )
-	    fixedorig[i]*=(-1.0);
-	  else if ( (op1[i] > 0 && op2[i] == 0 ) || (op1[i] < 0 && op2[i] == 0) )
-	    fixedorig[i]=image1->GetOrigin()[i];
-	}
+    {
+      if ( (op1[i] > 0 && op2[i] < 0 ) || (op1[i] < 0 && op2[i] > 0) )
+        fixedorig[i]*=(-1.0);
+      else if ( (op1[i] > 0 && op2[i] == 0 ) || (op1[i] < 0 && op2[i] == 0) )
+        fixedorig[i]=image1->GetOrigin()[i];
+    }
     }
   image2->SetOrigin(fixedorig);
   //  if ( sqrt(operr) > 100) failure=
@@ -3725,11 +3725,11 @@ int CompareHeadersAndImages(int argc, char *argv[])
 //       unsigned int best=0;
 //       float mindist=1.e9;
 //       for ( unsigned int i = 0 ; i < nclasses ; ++i )
-// 	{
-// 	float dist=fabs(px-estimatedMeans[i]);
-// 	if (dist < mindist) { mindist=dist;  best=i; }
-// 	//vec[i]=exp(-1.0*dist*dist/var);
-// 	}
+//     {
+//     float dist=fabs(px-estimatedMeans[i]);
+//     if (dist < mindist) { mindist=dist;  best=i; }
+//     //vec[i]=exp(-1.0*dist*dist/var);
+//     }
 //       varimage->SetPixel(vfIter2.GetIndex(),best+1);
 // //      vecimage->SetPixel(vfIter2.GetIndex(),vec);
 //     }
@@ -3896,7 +3896,7 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input,float ra
     while ( !o_iter.IsAtEnd() )
     {
       if (o_iter.Get() > 0.5 && input->GetPixel(o_iter.GetIndex()) > 0.5)
-	      o_iter.Set(1);
+          o_iter.Set(1);
       else o_iter.Set(0);
       ++o_iter;
     }
@@ -3991,11 +3991,11 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input,float ra
 //       unsigned int best=0;
 //       float mindist=1.e9;
 //       for ( unsigned int i = 0 ; i < nclasses ; ++i )
-// 	{
-// 	float dist=fabs(px-estimatedMeans[i]);
-// 	if (dist < mindist) { mindist=dist;  best=i; }
-// 	//vec[i]=exp(-1.0*dist*dist/var);
-// 	}
+//     {
+//     float dist=fabs(px-estimatedMeans[i]);
+//     if (dist < mindist) { mindist=dist;  best=i; }
+//     //vec[i]=exp(-1.0*dist*dist/var);
+//     }
 //       varimage->SetPixel(vfIter2.GetIndex(),best);
 //     }
 //   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
@@ -4109,64 +4109,64 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input,float ra
 //       std::cout <<" Allocated " << std::endl;
 //
 //       for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
-// 	{
-// //	std::cout <<" ind " <<vfIter2.GetIndex() << std::endl;
-// //	float outbrain = outbrainmask->GetPixel( vfIter2.GetIndex());
-// //	float inw = inwmask->GetPixel( vfIter2.GetIndex());
-// 	float distance = distcortex->GetPixel( vfIter2.GetIndex());
-// 	float wdistance = distwm->GetPixel( vfIter2.GetIndex());
-// 	VecPixelType  probs(nclasses);
-// 	probs.Fill(1.0/(float)nclasses);
-// 	VecPixelType  posteriors=vecImage->GetPixel(vfIter2.GetIndex());
-// 	if (nclasses > 2)
-// 	{
-// 	float dvar=2;
-// 	float basedist=4;
-// 	float distmag=basedist-distance;
-// //	if (distmag > 0) distmag=0;
-// 	distmag*=distmag;
-// 	float gdistprob=1.0-exp(-1.0*distmag/dvar);
+//     {
+// //    std::cout <<" ind " <<vfIter2.GetIndex() << std::endl;
+// //    float outbrain = outbrainmask->GetPixel( vfIter2.GetIndex());
+// //    float inw = inwmask->GetPixel( vfIter2.GetIndex());
+//     float distance = distcortex->GetPixel( vfIter2.GetIndex());
+//     float wdistance = distwm->GetPixel( vfIter2.GetIndex());
+//     VecPixelType  probs(nclasses);
+//     probs.Fill(1.0/(float)nclasses);
+//     VecPixelType  posteriors=vecImage->GetPixel(vfIter2.GetIndex());
+//     if (nclasses > 2)
+//     {
+//     float dvar=2;
+//     float basedist=4;
+//     float distmag=basedist-distance;
+// //    if (distmag > 0) distmag=0;
+//     distmag*=distmag;
+//     float gdistprob=1.0-exp(-1.0*distmag/dvar);
 //
-// 	float wdistprob=1.0/(1.0+exp(-1.0*distance/5));
+//     float wdistprob=1.0/(1.0+exp(-1.0*distance/5));
 //
-// 	float wdistmag=basedist-wdistance;
-// 	if (wdistmag > 0) wdistmag=0;
-// 	wdistmag*=wdistmag;
-// 	float gdistprob2=exp(-1.0*wdistmag/dvar);
+//     float wdistmag=basedist-wdistance;
+//     if (wdistmag > 0) wdistmag=0;
+//     wdistmag*=wdistmag;
+//     float gdistprob2=exp(-1.0*wdistmag/dvar);
 //
-// 	float sulcprob=sulci->GetPixel( vfIter2.GetIndex());
-// 	float sdiff=(0.25-sulcprob);
-// 	if (sdiff > 0) sdiff=0;
-// 	sdiff*=sdiff;
-// 	sulcprob=exp(-1.0*sdiff/0.5);
-// //	std::cout << " Sulc " << sulcprob << std::endl;
-// //	bool test = (outbrain < 1 && inw > 1);
-// 	if (  true  )
-// 	  {
-// 	  for (unsigned int i=0; i<nclasses; i++)
-// 	    {
-// 	    if ( i == (nclasses-2)) probs[i]=gdistprob*(gdistprob2);
-// 	    else if ( i == (nclasses-1)) probs[i]=wdistprob*wdistprob;
-// 	    //else
-// 	      if ( i == (nclasses-3)) probs[i]=sulcprob;
-// //	    else if (i > 0)  probs[i]=sulcprob;
-// 	    }
-// 	  }
-// 	else
-// 	  {
-// 	  for (unsigned int i=0; i<nclasses; i++) probs[i]=posteriors[i];//1.0/(float)nclasses;
-// 	  }
-// 	for (unsigned int i=0; i<nclasses; i++) posteriors[i]*=probs[i];
-// 	}
+//     float sulcprob=sulci->GetPixel( vfIter2.GetIndex());
+//     float sdiff=(0.25-sulcprob);
+//     if (sdiff > 0) sdiff=0;
+//     sdiff*=sdiff;
+//     sulcprob=exp(-1.0*sdiff/0.5);
+// //    std::cout << " Sulc " << sulcprob << std::endl;
+// //    bool test = (outbrain < 1 && inw > 1);
+//     if (  true  )
+//       {
+//       for (unsigned int i=0; i<nclasses; i++)
+//         {
+//         if ( i == (nclasses-2)) probs[i]=gdistprob*(gdistprob2);
+//         else if ( i == (nclasses-1)) probs[i]=wdistprob*wdistprob;
+//         //else
+//           if ( i == (nclasses-3)) probs[i]=sulcprob;
+// //        else if (i > 0)  probs[i]=sulcprob;
+//         }
+//       }
+//     else
+//       {
+//       for (unsigned int i=0; i<nclasses; i++) probs[i]=posteriors[i];//1.0/(float)nclasses;
+//       }
+//     for (unsigned int i=0; i<nclasses; i++) posteriors[i]*=probs[i];
+//     }
 //       float prtotal=0;
 //       float pototal=0;
 //       for (unsigned int i=0; i<nclasses; i++) {  prtotal+=probs[i];  pototal+=posteriors[i]; }
 //
 //       for (unsigned int i=0; i<nclasses; i++)
-// 	{
-// 	if (prtotal>0) probs[i]/=prtotal; else probs[i]=1.0/(float)nclasses;
-// 	if (pototal>0) posteriors[i]/=pototal; else posteriors[i]=1.0/(float)nclasses;
-// 	}
+//     {
+//     if (prtotal>0) probs[i]/=prtotal; else probs[i]=1.0/(float)nclasses;
+//     if (pototal>0) posteriors[i]/=pototal; else posteriors[i]=1.0/(float)nclasses;
+//     }
 //       priors->SetPixel( vfIter2.GetIndex(), probs);
 //       vecImage->SetPixel( vfIter2.GetIndex(), posteriors);
 //       }
@@ -4181,22 +4181,22 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input,float ra
 //       priors=reader->GetOutput();
 //
 //       for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
-// 	{
-// 	VecPixelType  posteriors=vecImage->GetPixel(vfIter2.GetIndex());
-// 	VecPixelType  probs=priors->GetPixel(vfIter2.GetIndex());
-// 	for (unsigned int i=0; i<nclasses; i++) posteriors[i]*=probs[i];
+//     {
+//     VecPixelType  posteriors=vecImage->GetPixel(vfIter2.GetIndex());
+//     VecPixelType  probs=priors->GetPixel(vfIter2.GetIndex());
+//     for (unsigned int i=0; i<nclasses; i++) posteriors[i]*=probs[i];
 //
-// 	float prtotal=0;
-// 	float pototal=0;
-// 	for (unsigned int i=0; i<nclasses; i++) {  prtotal+=probs[i];  pototal+=posteriors[i]; }
+//     float prtotal=0;
+//     float pototal=0;
+//     for (unsigned int i=0; i<nclasses; i++) {  prtotal+=probs[i];  pototal+=posteriors[i]; }
 //
-// 	for (unsigned int i=0; i<nclasses; i++)
-// 	  {
-// 	  if (prtotal>0) probs[i]/=prtotal; else probs[i]=1.0/(float)nclasses;
-// 	  if (pototal>0) posteriors[i]/=pototal; else posteriors[i]=1.0/(float)nclasses;
-// 	  }
-// 	vecImage->SetPixel( vfIter2.GetIndex(), posteriors);
-// 	}
+//     for (unsigned int i=0; i<nclasses; i++)
+//       {
+//       if (prtotal>0) probs[i]/=prtotal; else probs[i]=1.0/(float)nclasses;
+//       if (pototal>0) posteriors[i]/=pototal; else posteriors[i]=1.0/(float)nclasses;
+//       }
+//     vecImage->SetPixel( vfIter2.GetIndex(), posteriors);
+//     }
 //       }
 // //    if (priors) filter->SetInput( 1,  priors ); // Bug --
 // //    classification filter does not actually use priors
@@ -4313,7 +4313,7 @@ int NegativeImage(int argc, char *argv[])
 // typename TImage::Pointer
 // //void
 // SegmentMRF(typename TImage::Pointer image ,
-// 	   typename TImage::Pointer labelimage, unsigned int nclasses, float smf, unsigned int maxits)
+//        typename TImage::Pointer labelimage, unsigned int nclasses, float smf, unsigned int maxits)
 // {
 //
 //   typedef TImage ImageType;
@@ -4499,157 +4499,157 @@ template<class TImage>
 typename TImage::Pointer
 //void
 itkMRIBiasFieldCorrectionFilter(typename TImage::Pointer image ,
-								typename TImage::Pointer labelimage, unsigned int sd=2)
+                                typename TImage::Pointer labelimage, unsigned int sd=2)
 {
 
-	std::cout << "doing Bias corr " << std::endl;
-	typedef TImage ImageType;
-	enum { ImageDimension = ImageType::ImageDimension };
-	typedef itk::ImageRegionIteratorWithIndex< ImageType > ImageIteratorType ;
+    std::cout << "doing Bias corr " << std::endl;
+    typedef TImage ImageType;
+    enum { ImageDimension = ImageType::ImageDimension };
+    typedef itk::ImageRegionIteratorWithIndex< ImageType > ImageIteratorType ;
 
-//	bool SaveImages = false;
+//    bool SaveImages = false;
 
-	//  WriteImage<ImageType>(image,"temp1.nii");
-	//  WriteImage<ImageType>(labelimage,"temp2.nii");
+    //  WriteImage<ImageType>(image,"temp1.nii");
+    //  WriteImage<ImageType>(labelimage,"temp2.nii");
 
-	// class statistics for two classes: a bright sphere and background
-	// 3 or 1 classes ? SD
-	//unsigned int numclasses=1;
-	unsigned int numclasses=4;
-	itk::Array<double> classMeans(numclasses);
-	itk::Array<double> classSigmas(numclasses);
-	itk::Array<unsigned long> classCounts(numclasses);
-	classMeans.Fill(0.0);
-	classSigmas.Fill(0.0);
-	classCounts.Fill(0);
+    // class statistics for two classes: a bright sphere and background
+    // 3 or 1 classes ? SD
+    //unsigned int numclasses=1;
+    unsigned int numclasses=4;
+    itk::Array<double> classMeans(numclasses);
+    itk::Array<double> classSigmas(numclasses);
+    itk::Array<unsigned long> classCounts(numclasses);
+    classMeans.Fill(0.0);
+    classSigmas.Fill(0.0);
+    classCounts.Fill(0);
 
 
-	//******** get output mask from image SD
-	typename ImageType::Pointer outputmask = BinaryThreshold<TImage>(0.1,1.e9,1,image);
-	//******** get output mask from image SD
+    //******** get output mask from image SD
+    typename ImageType::Pointer outputmask = BinaryThreshold<TImage>(0.1,1.e9,1,image);
+    //******** get output mask from image SD
 
-	//  WriteImage<TImage>(mask,"outMK1.nii");
-	// SD play with mask to see if we can move the artifact line
-	//  mask=MorphologicalErosion<TImage>(1.5, mask);
-	//mask=MorphologicalErosion<TImage>(3.5, mask);
-	//WriteImage<TImage>(mask,"outMK2.nii");
+    //  WriteImage<TImage>(mask,"outMK1.nii");
+    // SD play with mask to see if we can move the artifact line
+    //  mask=MorphologicalErosion<TImage>(1.5, mask);
+    //mask=MorphologicalErosion<TImage>(3.5, mask);
+    //WriteImage<TImage>(mask,"outMK2.nii");
 
-	ImageIteratorType o_iter( labelimage,labelimage->GetLargestPossibleRegion() );
-	o_iter.GoToBegin() ;
-	while ( !o_iter.IsAtEnd() )
+    ImageIteratorType o_iter( labelimage,labelimage->GetLargestPossibleRegion() );
+    o_iter.GoToBegin() ;
+    while ( !o_iter.IsAtEnd() )
     {
-		unsigned int label = (unsigned int) o_iter.Get();
-		float pix = image->GetPixel(o_iter.GetIndex());
-		// uncomment for using one tissue class only for input mask SD
-		/*
-			if ( mask->GetPixel(o_iter.GetIndex()) == 1 )
-		 {
-				label=label-1;
-				unsigned int ind=0;
-				classCounts[ind] +=1;
-				float n = classCounts[ind];
-				classMeans[ind] = (n-1.0)/( n )*  classMeans[ind] + 1.0 / n * pix;
-				double sqrdf =  ( pix -  classMeans[ind])*( pix -  classMeans[ind]);
-				if (n > 1)classSigmas[ind]=  (n-1)/n * classSigmas[ind] +  1.0 / (n-1) * sqrdf;
-		 }
-		 */
+        unsigned int label = (unsigned int) o_iter.Get();
+        float pix = image->GetPixel(o_iter.GetIndex());
+        // uncomment for using one tissue class only for input mask SD
+        /*
+            if ( mask->GetPixel(o_iter.GetIndex()) == 1 )
+         {
+                label=label-1;
+                unsigned int ind=0;
+                classCounts[ind] +=1;
+                float n = classCounts[ind];
+                classMeans[ind] = (n-1.0)/( n )*  classMeans[ind] + 1.0 / n * pix;
+                double sqrdf =  ( pix -  classMeans[ind])*( pix -  classMeans[ind]);
+                if (n > 1)classSigmas[ind]=  (n-1)/n * classSigmas[ind] +  1.0 / (n-1) * sqrdf;
+         }
+         */
 
-		// uncomment for using 3 tissue classes SD
-		if ( outputmask->GetPixel(o_iter.GetIndex()) == 1 )
-		{
-			//label=label-1;
-			classCounts[label] +=1;
-			float n = classCounts[label];
-			classMeans[label] = (n-1.0)/( n )*  classMeans[label] + 1.0 / n * pix;
-			double sqrdf =  ( pix -  classMeans[label])*( pix -  classMeans[label]);
-			if (n > 1)classSigmas[label]=  (n-1)/n * classSigmas[label] +  1.0 / (n-1) * sqrdf;
-		}
+        // uncomment for using 3 tissue classes SD
+        if ( outputmask->GetPixel(o_iter.GetIndex()) == 1 )
+        {
+            //label=label-1;
+            classCounts[label] +=1;
+            float n = classCounts[label];
+            classMeans[label] = (n-1.0)/( n )*  classMeans[label] + 1.0 / n * pix;
+            double sqrdf =  ( pix -  classMeans[label])*( pix -  classMeans[label]);
+            if (n > 1)classSigmas[label]=  (n-1)/n * classSigmas[label] +  1.0 / (n-1) * sqrdf;
+        }
 
-		++o_iter ;
+        ++o_iter ;
     }
 
-	for (unsigned int k=0; k < numclasses; k++)
+    for (unsigned int k=0; k < numclasses; k++)
     {
-		classSigmas[k]=sqrt(classSigmas[k]);
-		std::cout << " Initial Means pre-bias " << classMeans[k] << " sig " <<  classSigmas[k] << std::endl;
+        classSigmas[k]=sqrt(classSigmas[k]);
+        std::cout << " Initial Means pre-bias " << classMeans[k] << " sig " <<  classSigmas[k] << std::endl;
     }
 
-	// creats a normal random variate generator
-	//itk::Statistics::NormalVariateGenerator::Pointer randomGenerator =
-	//  itk::Statistics::NormalVariateGenerator::New() ;
+    // creats a normal random variate generator
+    //itk::Statistics::NormalVariateGenerator::Pointer randomGenerator =
+    //  itk::Statistics::NormalVariateGenerator::New() ;
 
 
-	// creates a bias correction filter and run it.
-	typedef itk::MRIBiasFieldCorrectionFilter<ImageType, ImageType, ImageType>  FilterType;
+    // creates a bias correction filter and run it.
+    typedef itk::MRIBiasFieldCorrectionFilter<ImageType, ImageType, ImageType>  FilterType;
 
-	std::cout << "before new filter" << std::endl;
-	typename FilterType::Pointer filter = FilterType::New() ;
-	std::cout << "after new filter" << std::endl;
+    std::cout << "before new filter" << std::endl;
+    typename FilterType::Pointer filter = FilterType::New() ;
+    std::cout << "after new filter" << std::endl;
 
-	//  typename FilterType::BiasFieldType::CoefficientArrayType
+    //  typename FilterType::BiasFieldType::CoefficientArrayType
 
-	filter->SetInput( image.GetPointer() ) ;
-	//filter->SetInput( image ) ;
-	filter->IsBiasFieldMultiplicative( true ) ; // correct with multiplicative bias
-	unsigned int biasDegree=4;
-	filter->SetBiasFieldDegree( biasDegree ) ; // default value = 3
-	filter->SetTissueClassStatistics( classMeans, classSigmas ) ;
-	//filter->SetOptimizerGrowthFactor( 1.01 ) ; // default value
-	//filter->SetOptimizerInitialRadius( 0.02 ) ; // default value
+    filter->SetInput( image.GetPointer() ) ;
+    //filter->SetInput( image ) ;
+    filter->IsBiasFieldMultiplicative( true ) ; // correct with multiplicative bias
+    unsigned int biasDegree=4;
+    filter->SetBiasFieldDegree( biasDegree ) ; // default value = 3
+    filter->SetTissueClassStatistics( classMeans, classSigmas ) ;
+    //filter->SetOptimizerGrowthFactor( 1.01 ) ; // default value
+    //filter->SetOptimizerInitialRadius( 0.02 ) ; // default value
 
-	// SD debug don't do interslice correction
-	//filter->SetUsingInterSliceIntensityCorrection( true ) ; // default value
-	filter->SetUsingInterSliceIntensityCorrection( false ) ; // default value
-
-
+    // SD debug don't do interslice correction
+    //filter->SetUsingInterSliceIntensityCorrection( true ) ; // default value
+    filter->SetUsingInterSliceIntensityCorrection( false ) ; // default value
 
 
-	filter->SetVolumeCorrectionMaximumIteration( 200) ; // default value = 100
-	filter->SetInterSliceCorrectionMaximumIteration( 100 ) ; // default value = 100
-	filter->SetUsingSlabIdentification( false ) ; // default value = false
-												  //filter->SetSlabBackgroundMinimumThreshold( 0 ) ; // default value
-												  //filter->SetSlabNumberOfSamples( 10 ) ; // default value
-												  //filter->SetSlabTolerance(0.0) ; // default value
-	filter->SetSlicingDirection(sd) ; // default value
-	filter->SetUsingBiasFieldCorrection( true ) ; // default value
-	filter->SetGeneratingOutput( true ) ; // default value
 
-	filter->SetInputMask( outputmask ) ;
 
-	//******** Try different output mask SD
-	//  filter->SetOutputMask( labelimage ) ;
-	filter->SetOutputMask( outputmask ) ;
-	//  filter->SetDebug( true );
-	//    WriteImage<ImageType>(mask,"mask.nii");
-	//    WriteImage<ImageType>(outputmask,"outputmask.nii");
-	//    WriteImage<ImageType>(image,"image.nii");
-	//    WriteImage<ImageType>(labelimage,"labelimage.nii");
-	//******** Try different output mask SD
+    filter->SetVolumeCorrectionMaximumIteration( 200) ; // default value = 100
+    filter->SetInterSliceCorrectionMaximumIteration( 100 ) ; // default value = 100
+    filter->SetUsingSlabIdentification( false ) ; // default value = false
+                                                  //filter->SetSlabBackgroundMinimumThreshold( 0 ) ; // default value
+                                                  //filter->SetSlabNumberOfSamples( 10 ) ; // default value
+                                                  //filter->SetSlabTolerance(0.0) ; // default value
+    filter->SetSlicingDirection(sd) ; // default value
+    filter->SetUsingBiasFieldCorrection( true ) ; // default value
+    filter->SetGeneratingOutput( true ) ; // default value
 
-	// default schedule is 2 2 2 - 1 1 1, let's change this
-	bool setnewsched=false;
-	if (setnewsched)
+    filter->SetInputMask( outputmask ) ;
+
+    //******** Try different output mask SD
+    //  filter->SetOutputMask( labelimage ) ;
+    filter->SetOutputMask( outputmask ) ;
+    //  filter->SetDebug( true );
+    //    WriteImage<ImageType>(mask,"mask.nii");
+    //    WriteImage<ImageType>(outputmask,"outputmask.nii");
+    //    WriteImage<ImageType>(image,"image.nii");
+    //    WriteImage<ImageType>(labelimage,"labelimage.nii");
+    //******** Try different output mask SD
+
+    // default schedule is 2 2 2 - 1 1 1, let's change this
+    bool setnewsched=false;
+    if (setnewsched)
     {
-		unsigned int nlev=1;
-		typename FilterType::ScheduleType schedule ( nlev, ImageDimension) ;
-		schedule.Fill( 4 );
-		//      for (unsigned int jj=0; jj<ImageDimension; jj++) schedule[0][jj]=4;
-		//for (unsigned int jj=0; jj<ImageDimension; jj++) schedule[1][jj]=2;
-		//for (unsigned int jj=0; jj<ImageDimension; jj++) schedule[2][jj]=1;
-		filter->SetNumberOfLevels( nlev ) ; // Important to set this first, otherwise the filter rejects the new schedule
-		filter->SetSchedule( schedule ) ;
+        unsigned int nlev=1;
+        typename FilterType::ScheduleType schedule ( nlev, ImageDimension) ;
+        schedule.Fill( 4 );
+        //      for (unsigned int jj=0; jj<ImageDimension; jj++) schedule[0][jj]=4;
+        //for (unsigned int jj=0; jj<ImageDimension; jj++) schedule[1][jj]=2;
+        //for (unsigned int jj=0; jj<ImageDimension; jj++) schedule[2][jj]=1;
+        filter->SetNumberOfLevels( nlev ) ; // Important to set this first, otherwise the filter rejects the new schedule
+        filter->SetSchedule( schedule ) ;
     }
-	//  filter->SetInitialBiasFieldCoefficients(initCoefficients);
-	filter->SetVolumeCorrectionMaximumIteration( 200 ) ; // default value = 100
-	filter->SetInterSliceCorrectionMaximumIteration( 100 ) ; // default value = 100
-															 //filter->SetOptimizerInitialRadius( 0.02 ) ; // default value
-															 //timing
-	long int t1 = time(NULL);
-	filter->Update() ;
-	long int t2 = time(NULL);
-	std::cout << "Run time (in s)" << t2-t1  << std::endl ;
+    //  filter->SetInitialBiasFieldCoefficients(initCoefficients);
+    filter->SetVolumeCorrectionMaximumIteration( 200 ) ; // default value = 100
+    filter->SetInterSliceCorrectionMaximumIteration( 100 ) ; // default value = 100
+                                                             //filter->SetOptimizerInitialRadius( 0.02 ) ; // default value
+                                                             //timing
+    long int t1 = time(NULL);
+    filter->Update() ;
+    long int t2 = time(NULL);
+    std::cout << "Run time (in s)" << t2-t1  << std::endl ;
 
-	return filter->GetOutput();
+    return filter->GetOutput();
 }
 
 
@@ -4659,7 +4659,7 @@ itkMRIBiasFieldCorrectionFilter(typename TImage::Pointer image ,
 // typename TImage::Pointer
 // //void
 // SegmentMRFKM(typename TImage::Pointer image ,
-// 	     typename TImage::Pointer labelimage, unsigned int nclasses, float smf, unsigned int maxit)
+//          typename TImage::Pointer labelimage, unsigned int nclasses, float smf, unsigned int maxit)
 // {
 //
 //   typedef TImage ImageType;
@@ -5015,8 +5015,8 @@ int MorphImage(int argc, char *argv[])
   else if ( strcmp(operation.c_str(),"MC") == 0) morphopt=3;
   else if ( strcmp(operation.c_str(),"GE") == 0) morphopt=4;
   else if ( strcmp(operation.c_str(),"GD") == 0) morphopt=5;
-	else if ( strcmp(operation.c_str(),"GO") == 0) morphopt=6;
-	else if ( strcmp(operation.c_str(),"GC") == 0) morphopt=7;
+    else if ( strcmp(operation.c_str(),"GO") == 0) morphopt=6;
+    else if ( strcmp(operation.c_str(),"GC") == 0) morphopt=7;
 
   typename ImageType::Pointer image1 = NULL;
   ReadImage<ImageType>(image1, fn1.c_str());
@@ -5226,9 +5226,9 @@ int PropagateLabelsThroughMask(int argc, char *argv[])
       double labval=labimage->GetPixel(vfIter2.GetIndex());
       if ( speedval < thresh ) isinside=false;
       if (isinside )
-	{
-	  if ( labval > maxlabel ) maxlabel=labval;
-	}
+    {
+      if ( labval > maxlabel ) maxlabel=labval;
+    }
     }
 
   for (unsigned int lab=1; lab<=(unsigned int)maxlabel; lab++)
@@ -5244,42 +5244,42 @@ int PropagateLabelsThroughMask(int argc, char *argv[])
       seeds->Initialize();
       unsigned long ct=0;
       for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
-	{
-	  bool isinside=true;
-	  double speedval=speedimage->GetPixel(vfIter2.GetIndex());
-	  double labval=labimage->GetPixel(vfIter2.GetIndex());
-	  if ( speedval < thresh ) isinside=false;
-	  if (isinside && (unsigned int) labval == lab )
-	    {
-	      NodeType node;
-	      const double seedValue = 0.0;
-	      node.SetValue( seedValue );
-	      node.SetIndex( vfIter2.GetIndex() );
-	      seeds->InsertElement( ct, node );
-	      ct++;
-	    }
-	}
+    {
+      bool isinside=true;
+      double speedval=speedimage->GetPixel(vfIter2.GetIndex());
+      double labval=labimage->GetPixel(vfIter2.GetIndex());
+      if ( speedval < thresh ) isinside=false;
+      if (isinside && (unsigned int) labval == lab )
+        {
+          NodeType node;
+          const double seedValue = 0.0;
+          node.SetValue( seedValue );
+          node.SetIndex( vfIter2.GetIndex() );
+          seeds->InsertElement( ct, node );
+          ct++;
+        }
+    }
       fastMarching->SetTrialPoints(  seeds  );
       fastMarching->SetStoppingValue(  stopval );
       fastMarching->Update();
       for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
-	{
-	  bool isinside=true;
-	  double speedval=speedimage->GetPixel(vfIter2.GetIndex());
-	  double labval=labimage->GetPixel(vfIter2.GetIndex());
-	  if ( speedval < thresh ) isinside=false;
-	  if (isinside && labval == 0 )
-	    {
-	      double fmarrivaltime=fastMarching->GetOutput()->GetPixel( vfIter2.GetIndex() );
-	      double mmm= fastimage->GetPixel(vfIter2.GetIndex());
-	      if ( fmarrivaltime < mmm )
-		{
-		  fastimage->SetPixel(vfIter2.GetIndex() ,  fmarrivaltime );
-		  outlabimage->SetPixel(vfIter2.GetIndex() , lab );
-		}
-	    }
-	  else  if (!isinside) outlabimage->SetPixel(vfIter2.GetIndex() , 0 );
-	}
+    {
+      bool isinside=true;
+      double speedval=speedimage->GetPixel(vfIter2.GetIndex());
+      double labval=labimage->GetPixel(vfIter2.GetIndex());
+      if ( speedval < thresh ) isinside=false;
+      if (isinside && labval == 0 )
+        {
+          double fmarrivaltime=fastMarching->GetOutput()->GetPixel( vfIter2.GetIndex() );
+          double mmm= fastimage->GetPixel(vfIter2.GetIndex());
+          if ( fmarrivaltime < mmm )
+        {
+          fastimage->SetPixel(vfIter2.GetIndex() ,  fmarrivaltime );
+          outlabimage->SetPixel(vfIter2.GetIndex() , lab );
+        }
+        }
+      else  if (!isinside) outlabimage->SetPixel(vfIter2.GetIndex() , 0 );
+    }
     }
   std::string::size_type idx;
   idx = outname.find_first_of('.');
@@ -5425,9 +5425,9 @@ int FillHoles(int argc, char *argv[])
       Iterator vfIter( relabel->GetOutput(),  relabel->GetOutput()->GetLargestPossibleRegion() );
 
       for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
-	{
-	  if (vfIter.Get() > 1 ) imageout->SetPixel(vfIter.GetIndex(),1);
-	}
+    {
+      if (vfIter.Get() > 1 ) imageout->SetPixel(vfIter.GetIndex(),1);
+    }
 
       WriteImage<ImageType>(imageout,outname.c_str());
 
@@ -5446,7 +5446,7 @@ int FillHoles(int argc, char *argv[])
     {
       float erat=2;
       if (holeparam  <= 1 )
-	{
+    {
       GHood.GoToBegin();
 
       unsigned long objectedge=0;
@@ -5455,48 +5455,48 @@ int FillHoles(int argc, char *argv[])
       unsigned long volume=0;
 
       while (!GHood.IsAtEnd())
-	{
-	  typename ImageType::PixelType p = GHood.GetCenterPixel();
-	  typename ImageType::IndexType ind = GHood.GetIndex();
-	  typename ImageType::IndexType ind2;
-	  if ( p == lab )
-	    {
-	      volume++;
-	      for (unsigned int i = 0; i < GHood.Size(); i++)
-		{
-		  ind2=GHood.GetIndex(i);
-		  float val2=image1->GetPixel(ind2);
-		  if (val2 >= 0.5 && GHood.GetPixel(i) != lab )
-		    {
-		      objectedge++;
-		      totaledge++;
-		    }
-		  else if (val2 < 0.5 && GHood.GetPixel(i) != lab )
-		    {
-		      backgroundedge++;
-		      totaledge++;
-		    }
-		}
-	    }
-	  ++GHood;
-	}
+    {
+      typename ImageType::PixelType p = GHood.GetCenterPixel();
+      typename ImageType::IndexType ind = GHood.GetIndex();
+      typename ImageType::IndexType ind2;
+      if ( p == lab )
+        {
+          volume++;
+          for (unsigned int i = 0; i < GHood.Size(); i++)
+        {
+          ind2=GHood.GetIndex(i);
+          float val2=image1->GetPixel(ind2);
+          if (val2 >= 0.5 && GHood.GetPixel(i) != lab )
+            {
+              objectedge++;
+              totaledge++;
+            }
+          else if (val2 < 0.5 && GHood.GetPixel(i) != lab )
+            {
+              backgroundedge++;
+              totaledge++;
+            }
+        }
+        }
+      ++GHood;
+    }
       float vrat=(float)totaledge/(float)volume;
       erat=(float)objectedge/(float)totaledge;
       std::cout <<" Lab " << lab << " volume " << volume << " v-rat " << vrat << " edge " << erat << std::endl;
-	}
+    }
 
       if (erat > holeparam)// fill the hole
-	{
-	  std::cout <<" Filling " << lab << " of " << maximum <<  std::endl;
-	  typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-	  Iterator vfIter( relabel->GetOutput(),  relabel->GetOutput()->GetLargestPossibleRegion() );
+    {
+      std::cout <<" Filling " << lab << " of " << maximum <<  std::endl;
+      typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
+      Iterator vfIter( relabel->GetOutput(),  relabel->GetOutput()->GetLargestPossibleRegion() );
 
-	  for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
-	    {
-	      if (vfIter.Get() == lab ) imageout->SetPixel(vfIter.GetIndex(),1);
-	    }
+      for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
+        {
+          if (vfIter.Get() == lab ) imageout->SetPixel(vfIter.GetIndex(),1);
+        }
 
-	}
+    }
 
     }
 
@@ -5558,10 +5558,10 @@ int NormalizeImage(int argc, char *argv[])
     {
       float pix=iter.Get();
       if (option == 0)
-	{
-	  pix= (pix - min)/(max-min);
-	  iter.Set(pix);
-	}
+    {
+      pix= (pix - min)/(max-min);
+      iter.Set(pix);
+    }
       else iter.Set(pix/mean);
     }
 
@@ -5934,7 +5934,7 @@ RemoveLabelInterfaces(int argc, char *argv[])
       for (unsigned int i = 0; i < GHood.Size(); i++)
       {
         ind2=GHood.GetIndex(i);
-	if (GHood.GetPixel(i) > 0 && GHood.GetPixel(i)  != p )
+    if (GHood.GetPixel(i) > 0 && GHood.GetPixel(i)  != p )
         {
           atedge=true;
         }
@@ -6048,16 +6048,16 @@ typename myInterfaceImageType::Pointer colorimage = myInterfaceImageType::New();
       ind2=GHood.GetIndex(i);
       if (GHood.GetPixel(i) > 0 && GHood.GetPixel(i)  != p )
         {
-	atedge=true;
-	typename myInterfaceImageType::IndexType inda,indb;
-	inda[0]=(long int)p;  inda[1]=(long int)GHood.GetPixel(i);
-	indb[1]=(long int)p;  indb[0]=(long int)GHood.GetPixel(i);
-	faceimage->SetPixel(inda,faceimage->GetPixel(inda)+1);
-	faceimage->SetPixel(indb,faceimage->GetPixel(indb)+1);
-	linearinda=inda[1]*size[0]+inda[0];
-	linearindb=indb[1]*size[0]+indb[0];
-	if (linearinda < linearindb) linearind=linearinda;
-	else linearind=linearindb;
+    atedge=true;
+    typename myInterfaceImageType::IndexType inda,indb;
+    inda[0]=(long int)p;  inda[1]=(long int)GHood.GetPixel(i);
+    indb[1]=(long int)p;  indb[0]=(long int)GHood.GetPixel(i);
+    faceimage->SetPixel(inda,faceimage->GetPixel(inda)+1);
+    faceimage->SetPixel(indb,faceimage->GetPixel(indb)+1);
+    linearinda=inda[1]*size[0]+inda[0];
+    linearindb=indb[1]*size[0]+indb[0];
+    if (linearinda < linearindb) linearind=linearinda;
+    else linearind=linearindb;
         }
       }
     if (atedge) output->SetPixel(ind,linearind);
@@ -6087,7 +6087,7 @@ typename myInterfaceImageType::Pointer colorimage = myInterfaceImageType::New();
       find[1]=i;
       if (total > 0) faceimage->SetPixel(find,faceimage->GetPixel(find)/total);
       if ( faceimage->GetPixel(find) >  0.01 )
-	std::cout << i <<"  :: " << faceimage->GetPixel(find)  << std::endl;
+    std::cout << i <<"  :: " << faceimage->GetPixel(find)  << std::endl;
       }
     }
 
@@ -6098,7 +6098,7 @@ typename myInterfaceImageType::Pointer colorimage = myInterfaceImageType::New();
   typedef std::vector<unsigned int>                  ColorSetType;
   colorimage->FillBuffer(0);
 //  for (unsigned int j=1; j<=max; j++)
-	for (unsigned int j=max; j>=1; j--)
+    for (unsigned int j=max; j>=1; j--)
     {
     ColorSetType myColorSet1;
     ColorSetType myColorSet2;
@@ -6111,25 +6111,25 @@ typename myInterfaceImageType::Pointer colorimage = myInterfaceImageType::New();
    for (unsigned int i=max; i>=1; i--)
       {
       if ( i !=  j)
-	{
-	find[1]=i;
-	find2[0]=i;
-	unsigned int color=(unsigned int) colorimage->GetPixel(find2);
-	if ( faceimage->GetPixel(find) >  nfrac ) // then color
-	  {
-	  if ( color == 1)
-	    myColorSet1.push_back( (unsigned int) i );
-	  if ( color == 2)
-	    myColorSet2.push_back( (unsigned int) i );
-	  if ( color == 3)
-	    myColorSet3.push_back( (unsigned int) i );
-	  if ( color == 4)
-	    myColorSet4.push_back( (unsigned int) i );
-	  if ( color == 5)
-	    myColorSet5.push_back( (unsigned int) i );
+    {
+    find[1]=i;
+    find2[0]=i;
+    unsigned int color=(unsigned int) colorimage->GetPixel(find2);
+    if ( faceimage->GetPixel(find) >  nfrac ) // then color
+      {
+      if ( color == 1)
+        myColorSet1.push_back( (unsigned int) i );
+      if ( color == 2)
+        myColorSet2.push_back( (unsigned int) i );
+      if ( color == 3)
+        myColorSet3.push_back( (unsigned int) i );
+      if ( color == 4)
+        myColorSet4.push_back( (unsigned int) i );
+      if ( color == 5)
+        myColorSet5.push_back( (unsigned int) i );
 // now you know all of j's neighbors and their colors
-	  }
-	}
+      }
+    }
       }
 
 //we have to recolor j so that his color is different
@@ -6149,7 +6149,7 @@ typename myInterfaceImageType::Pointer colorimage = myInterfaceImageType::New();
       okcolor=5;
 
     colorimage->SetPixel(find,okcolor);
-		std::cout <<" Label " << j << " color " << okcolor << std::endl;
+        std::cout <<" Label " << j << " color " << okcolor << std::endl;
     }
 
   o_iter.GoToBegin() ;
@@ -6222,15 +6222,15 @@ int CountVoxelDifference(      int argc, char *argv[])
   for( It.GoToBegin(); !It.IsAtEnd(); ++It )
     {
       if( It.Get() > 0  )
-	{
-	  float p1=image1->GetPixel(It.GetIndex());
-	  float p2=image2->GetPixel(It.GetIndex());
-	  float locerr=p1-p2;
-	  err+=fabs(locerr);
-	  if (locerr > 0) poserr+=locerr;
-	  if (locerr < 0) negerr+=locerr;
-	  maskct++;
-	}
+    {
+      float p1=image1->GetPixel(It.GetIndex());
+      float p2=image2->GetPixel(It.GetIndex());
+      float locerr=p1-p2;
+      err+=fabs(locerr);
+      if (locerr > 0) poserr+=locerr;
+      if (locerr < 0) negerr+=locerr;
+      maskct++;
+    }
     }
 
 
@@ -6301,10 +6301,10 @@ int DiceAndMinDistSum(      int argc, char *argv[])
     if( fabs(label) > 0 )
       {
       if( find( myLabelSet1.begin(), myLabelSet1.end(), label )
-	  == myLabelSet1.end() )
-	{
-	myLabelSet1.push_back( label );
-	}
+      == myLabelSet1.end() )
+    {
+    myLabelSet1.push_back( label );
+    }
       }
     }}
 
@@ -6317,13 +6317,13 @@ int DiceAndMinDistSum(      int argc, char *argv[])
     if( fabs(label) > 0 )
       {
       if( find( myLabelSet2.begin(), myLabelSet2.end(), label )
-	  == myLabelSet2.end()   &&
-	  find( myLabelSet1.begin(), myLabelSet1.end(), label )
-	  != myLabelSet1.end() )
-	{
-	myLabelSet2.push_back( label );
-	labct++;
-	}
+      == myLabelSet2.end()   &&
+      find( myLabelSet1.begin(), myLabelSet1.end(), label )
+      != myLabelSet1.end() )
+    {
+    myLabelSet2.push_back( label );
+    labct++;
+    }
       }
     }}
 
@@ -6355,26 +6355,26 @@ int DiceAndMinDistSum(      int argc, char *argv[])
     //    float truepos=0;
     if (outdist)
       {
-	surf=LabelSurface<ImageType>(mask1,mask1);
-	//	WriteImage<ImageType>(surf,outdistfn.c_str());
-	//exit(0);
-	typedef itk::DanielssonDistanceMapImageFilter<ImageType, ImageType >  FilterType;
-	typename  FilterType::Pointer dfilter1 = FilterType::New();
-	dfilter1->InputIsBinaryOn();
-	dfilter1->SetUseImageSpacing(true);
-	dfilter1->SetInput(mask1);
+    surf=LabelSurface<ImageType>(mask1,mask1);
+    //    WriteImage<ImageType>(surf,outdistfn.c_str());
+    //exit(0);
+    typedef itk::DanielssonDistanceMapImageFilter<ImageType, ImageType >  FilterType;
+    typename  FilterType::Pointer dfilter1 = FilterType::New();
+    dfilter1->InputIsBinaryOn();
+    dfilter1->SetUseImageSpacing(true);
+    dfilter1->SetInput(mask1);
 
-	typename ImageType::Pointer mask2 = BinaryThreshold<ImageType>(*it,*it,1,image2);
-	typename  FilterType::Pointer dfilter2 = FilterType::New();
-	dfilter2->InputIsBinaryOn();
-	dfilter2->SetUseImageSpacing(true);
-	dfilter2->SetInput(mask2);
+    typename ImageType::Pointer mask2 = BinaryThreshold<ImageType>(*it,*it,1,image2);
+    typename  FilterType::Pointer dfilter2 = FilterType::New();
+    dfilter2->InputIsBinaryOn();
+    dfilter2->SetUseImageSpacing(true);
+    dfilter2->SetInput(mask2);
 
-	dfilter1->Update();
-	d1=dfilter1->GetOutput();
+    dfilter1->Update();
+    d1=dfilter1->GetOutput();
 
-	dfilter2->Update();
-	d2=dfilter2->GetOutput();
+    dfilter2->Update();
+    d2=dfilter2->GetOutput();
       }
 
     float dist1=0;
@@ -6383,27 +6383,27 @@ int DiceAndMinDistSum(      int argc, char *argv[])
     for( It2.GoToBegin(); !It2.IsAtEnd(); ++It2 )
       {
 
-	if (It2.Get() == *it || image1->GetPixel(It2.GetIndex()) == *it) countu++;
-	if (It2.Get() == *it && image1->GetPixel(It2.GetIndex()) == *it) counti++;
+    if (It2.Get() == *it || image1->GetPixel(It2.GetIndex()) == *it) countu++;
+    if (It2.Get() == *it && image1->GetPixel(It2.GetIndex()) == *it) counti++;
 
       if (It2.Get() == *it)
-	{
-	count2++;
-	if (d1) dist2+=d1->GetPixel(It2.GetIndex());
-	}
+    {
+    count2++;
+    if (d1) dist2+=d1->GetPixel(It2.GetIndex());
+    }
       if ( image1->GetPixel(It2.GetIndex()) == *it)
-	{
-	count1++;
-	if (d2)	dist1+=d2->GetPixel(It2.GetIndex());
-	}
+    {
+    count1++;
+    if (d2)    dist1+=d2->GetPixel(It2.GetIndex());
+    }
       if (outdist)
-	if ( surf->GetPixel(It2.GetIndex()) > 0 )
-	  {
-	    float sdist=d2->GetPixel(It2.GetIndex());
-	    outdist->SetPixel(It2.GetIndex(),sdist);
-	    surfdist+=sdist;
-	    surfct+=1;
-	  }
+    if ( surf->GetPixel(It2.GetIndex()) > 0 )
+      {
+        float sdist=d2->GetPixel(It2.GetIndex());
+        outdist->SetPixel(It2.GetIndex(),sdist);
+        surfdist+=sdist;
+        surfct+=1;
+      }
 
       }
     //    std::cout << " sdist " << surfdist << " sct " << surfct << std::endl
@@ -6412,11 +6412,11 @@ int DiceAndMinDistSum(      int argc, char *argv[])
 
     if (count2+count1 > 0)
       {
-	distances[labct]+=(dist2+dist1)/(count2+count1);
-	dicevals[labct]=2.0*counti/(count2+count1);
-	rovals[labct]=counti/(countu);
-	tpvals[labct]=counti/count1;
-	tpvals2[labct]=counti/count2;
+    distances[labct]+=(dist2+dist1)/(count2+count1);
+    dicevals[labct]=2.0*counti/(count2+count1);
+    rovals[labct]=counti/(countu);
+    tpvals[labct]=counti/count1;
+    tpvals2[labct]=counti/count2;
       }
     labct++;
 
@@ -6456,10 +6456,10 @@ int DiceAndMinDistSum(      int argc, char *argv[])
     {
     if (logfile.good()  )
       {
-	if (outdist)
-	logfile <<" Label " << *it << " MD " << distances[labct] << " DICE " << dicevals[labct] << std::endl;
-	else
-	  logfile <<" Label " << *it << " DICE " << dicevals[labct] << "  RO " << rovals[labct] << " TP1 " << tpvals[labct] << " TP2 " << tpvals2[labct] << std::endl;
+    if (outdist)
+    logfile <<" Label " << *it << " MD " << distances[labct] << " DICE " << dicevals[labct] << std::endl;
+    else
+      logfile <<" Label " << *it << " DICE " << dicevals[labct] << "  RO " << rovals[labct] << " TP1 " << tpvals[labct] << " TP2 " << tpvals2[labct] << std::endl;
       }
     sum+=distances[labct];
     sumdice+=dicevals[labct];
@@ -6474,9 +6474,9 @@ int DiceAndMinDistSum(      int argc, char *argv[])
   if (logfile.good()  )
     {
       if (outdist)
-	logfile <<" AvgMinDist " <<  " : " << sum/(float)labct << " AvgDice " <<  " : " << sumdice/(float)labct << " AvgRO " << " : " << sumro/(float)labct << std::endl;
+    logfile <<" AvgMinDist " <<  " : " << sum/(float)labct << " AvgDice " <<  " : " << sumdice/(float)labct << " AvgRO " << " : " << sumro/(float)labct << std::endl;
       else
-	logfile << " AvgDice " <<  " : " << sumdice/(float)labct << std::endl;
+    logfile << " AvgDice " <<  " : " << sumdice/(float)labct << std::endl;
     }
 
 
@@ -6562,32 +6562,32 @@ int Lipschitz( int argc, char *argv[] )
       float numer=0;
       float denom=0;
       for (unsigned int i=0; i<ImageDimension;i++)
-	{
-	yt[i]=y[i]+vecy[i];
-	numer+=(yt[i]-xt[i])*(yt[i]-xt[i]);
-	denom+=(y[i]-x[i])*(y[i]-x[i]);
-	}
+    {
+    yt[i]=y[i]+vecy[i];
+    numer+=(yt[i]-xt[i])*(yt[i]-xt[i]);
+    denom+=(y[i]-x[i])*(y[i]-x[i]);
+    }
       numer=sqrt(numer);
       denom=sqrt(denom);
       float localval=numer/denom;
       if (localval > localmaxval)
-	{
-	lx=x;
-	ly=y;
-	lxt=xt;
-	lyt=yt;
-	localmaxval=localval;
-	}
+    {
+    lx=x;
+    ly=y;
+    lxt=xt;
+    lyt=yt;
+    localmaxval=localval;
+    }
       }
       }
       if (localmaxval > globalmaxval)
-	{
-	gx=lx;
-	gy=ly;
-	gxt=lxt;
-	gyt=lyt;
-	globalmaxval = localmaxval;
-	}
+    {
+    gx=lx;
+    gy=ly;
+    gxt=lxt;
+    gyt=lyt;
+    globalmaxval = localmaxval;
+    }
       lipcon->SetPixel(It1.GetIndex(),localmaxval);
 //      if (ct1 % 1000 == 0) std::cout << " Progress : " << (float ) ct1 / (float) numpx *100.0 << " val " << localmaxval << std::endl;
       }
@@ -6785,7 +6785,7 @@ int LabelStats(      int argc, char *argv[])
     if( fabs(label) > 0 )
       {
         if( find( myLabelSet.begin(), myLabelSet.end(), label )
-	    == myLabelSet.end() )
+        == myLabelSet.end() )
           {
           myLabelSet.push_back( label );
           }
@@ -6837,22 +6837,22 @@ int LabelStats(      int argc, char *argv[])
       {
       PixelType label = It.Get();
       if(  label == currentlabel  )
-	{
-	totalvolume+=volumeelement;
-	totalct+=1;
-	if ( valimage) totalmass+=valimage->GetPixel(It.GetIndex());
+    {
+    totalvolume+=volumeelement;
+    totalct+=1;
+    if ( valimage) totalmass+=valimage->GetPixel(It.GetIndex());
 
-	// compute center of mass
-	typename ImageType::PointType point;
-	image->TransformIndexToPhysicalPoint(It.GetIndex(), point);
-	for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]+=point[i];
-	}
+    // compute center of mass
+    typename ImageType::PointType point;
+    image->TransformIndexToPhysicalPoint(It.GetIndex(), point);
+    for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]+=point[i];
+    }
       }
 
     for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]/=(float)totalct;
 
     if (!valimage)
-	std::cout <<" Volume Of Label " << *it << " is " << totalvolume <<   "  Avg-Location " << myCenterOfMass <<std::endl;
+    std::cout <<" Volume Of Label " << *it << " is " << totalvolume <<   "  Avg-Location " << myCenterOfMass <<std::endl;
     else // if ( totalvolume > 500 &&  totalmass/totalct > 1/500 )  {
       {
           std::cout << " Volume Of Label " << *it << " is " << totalvolume <<   "  Avg-Location " << myCenterOfMass <<" mass is " << totalmass << " average-val is " << totalmass/totalct << std::endl;
@@ -6983,7 +6983,7 @@ cortroimap[45]=std::string("White Matter");
   //  if(grade_list.find("Tim") == grade_list.end()) {  std::cout<<"Tim is not in the map!"<<endl; }
   //mymap.find('a')->second
   int argct=2;
-  if ( argc < 6 ) 
+  if ( argc < 6 )
     {
       std::cout<<" not enough parameters --- usage example 1 :"<<"" <<std::endl;
       std::cout<< argv[0] << " ImageMath  3 output.csv ROIStatistics roinames.txt LabelImage.nii.gz ValueImage.nii.gz  " << std::endl;
@@ -7030,11 +7030,11 @@ cortroimap[45]=std::string("White Matter");
     if( fabs(label) > 0 )
       {
         if( find( myLabelSet.begin(), myLabelSet.end(), label )
-	    == myLabelSet.end() )
+        == myLabelSet.end() )
           {
           myLabelSet.push_back( label );
           }
-	if (label > maxlab) maxlab=(unsigned long)label;
+    if (label > maxlab) maxlab=(unsigned long)label;
       }
     }
   // define the output matrix
@@ -7063,17 +7063,17 @@ cortroimap[45]=std::string("White Matter");
   typename LabelSetType::const_iterator it;
   unsigned long labelcount=0;
   for( it = myLabelSet.begin(); it != myLabelSet.end(); ++it )
-    { 
+    {
       labelcount++;
     }
 
 
   typedef itk::LinearInterpolateImageFunction<ImageType,float> ScalarInterpolatorType;
   typename ScalarInterpolatorType::Pointer interp =  ScalarInterpolatorType::New();
-  if (valimage) 
+  if (valimage)
     interp->SetInputImage(valimage);
   else interp->SetInputImage(image);
-  // iterate over the label image and index into the stat image 
+  // iterate over the label image and index into the stat image
   for( It.GoToBegin(); !It.IsAtEnd(); ++It )
   {
     PixelType label = It.Get();
@@ -7090,35 +7090,35 @@ cortroimap[45]=std::string("White Matter");
   logfile<<"ROIName,ROINumber,ClusterSize,Mass,comX,comY,comZ,comT"<<std::endl;
   //  for( it = myLabelSet.begin(); it != myLabelSet.end(); ++it )
   for (unsigned int mylabel=1; mylabel<maxlab+1; mylabel++)
-    { 
+    {
       unsigned int roi=mylabel-1;
       /* first count which roi it is by iterating through the label sets
       it = myLabelSet.begin();
-      while (  (*it) != mylabel && it != myLabelSet.end() ) 
-	{
-	  std::cout << " it " << *it << " roi " << roi << " mylabel " << mylabel << std::endl;
-	  roi++;
-	  ++it;
-	  }*/
+      while (  (*it) != mylabel && it != myLabelSet.end() )
+    {
+      std::cout << " it " << *it << " roi " << roi << " mylabel " << mylabel << std::endl;
+      roi++;
+      ++it;
+      }*/
 
       typename ImageType::PointType myCenterOfMass;
       myCenterOfMass.Fill(0);
       unsigned long totalct=0;
       if ( clusters[mylabel] > 0 )
-	{
+    {
         for( It.GoToBegin(); !It.IsAtEnd(); ++It )
-	{
-	  PixelType label = It.Get();
-	  if(  label == mylabel )
-	    {
-	      totalct+=1;
-	      // compute center of mass
-	      typename ImageType::PointType point;
-	      image->TransformIndexToPhysicalPoint(It.GetIndex(), point);
-	      for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]+=point[i];
-	    }
-  	}
-	}// if clusters big enough 
+    {
+      PixelType label = It.Get();
+      if(  label == mylabel )
+        {
+          totalct+=1;
+          // compute center of mass
+          typename ImageType::PointType point;
+          image->TransformIndexToPhysicalPoint(It.GetIndex(), point);
+          for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]+=point[i];
+        }
+      }
+    }// if clusters big enough
       if ( totalct == 0 ) totalct=1;
       for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]/=(float)totalct;
       double comx=0,comy=0,comz=0,comt=0;
@@ -7127,10 +7127,10 @@ cortroimap[45]=std::string("White Matter");
       if (ImageDimension>=3) comz=myCenterOfMass[2];
       if (ImageDimension==4) comt=myCenterOfMass[3];
       if ( roi < roimap.size() )
-	logfile << roimap[roi]<<","<<roi+1<<","<<clusters[roi+1] << ","<<masses[roi+1]<<","<<comx<<","<<comy<<","<<comz<<","<<comt<<std::endl;
+    logfile << roimap[roi]<<","<<roi+1<<","<<clusters[roi+1] << ","<<masses[roi+1]<<","<<comx<<","<<comy<<","<<comz<<","<<comt<<std::endl;
     }
   logfile.close();
-  
+
   return 0;
 
   float temp=sqrt((float)labelcount);
@@ -7171,30 +7171,30 @@ cortroimap[45]=std::string("White Matter");
       {
       PixelType label = It.Get();
       if(  label == currentlabel  )
-	{
-	totalvolume+=volumeelement;
-	totalct+=1;
-	float vv=valimage->GetPixel(It.GetIndex());
-	if ( valimage) totalmass+=vv;
-	if (  vv > maxoneminuspval) maxoneminuspval=vv;
-	if ( valimage3 ){
-	vv=valimage3->GetPixel(It.GetIndex());
-	if (  fabs(vv) > fabs(maxoneminuspval3)) maxoneminuspval3=vv;
-	}
-	if ( valimage4 ){
-	vv=valimage4->GetPixel(It.GetIndex());
-	if (  vv > maxoneminuspval4) maxoneminuspval4=vv;
-	}
-	if ( valimage5 ){
-	vv=valimage5->GetPixel(It.GetIndex());
-	if (  vv > maxoneminuspval5) maxoneminuspval5=vv;
-	}
+    {
+    totalvolume+=volumeelement;
+    totalct+=1;
+    float vv=valimage->GetPixel(It.GetIndex());
+    if ( valimage) totalmass+=vv;
+    if (  vv > maxoneminuspval) maxoneminuspval=vv;
+    if ( valimage3 ){
+    vv=valimage3->GetPixel(It.GetIndex());
+    if (  fabs(vv) > fabs(maxoneminuspval3)) maxoneminuspval3=vv;
+    }
+    if ( valimage4 ){
+    vv=valimage4->GetPixel(It.GetIndex());
+    if (  vv > maxoneminuspval4) maxoneminuspval4=vv;
+    }
+    if ( valimage5 ){
+    vv=valimage5->GetPixel(It.GetIndex());
+    if (  vv > maxoneminuspval5) maxoneminuspval5=vv;
+    }
 
-	// compute center of mass
-	typename ImageType::PointType point;
-	image->TransformIndexToPhysicalPoint(It.GetIndex(), point);
-	for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]+=point[i];
-	}
+    // compute center of mass
+    typename ImageType::PointType point;
+    image->TransformIndexToPhysicalPoint(It.GetIndex(), point);
+    for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]+=point[i];
+    }
       }
     if ( totalct == 0 ) totalct=1;
     for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]/=(float)totalct;
@@ -7213,42 +7213,42 @@ cortroimap[45]=std::string("White Matter");
 
     for (unsigned int roi=1; roi <=maxlab ; roi++)
       {
-	if (roi < maxlab )
-	logfile << roimap.find(roi)->second << ",";
-	else logfile << roimap.find(roi)->second << ","; //<< std::endl;
+    if (roi < maxlab )
+    logfile << roimap.find(roi)->second << ",";
+    else logfile << roimap.find(roi)->second << ","; //<< std::endl;
       }
     for (unsigned int roi=maxlab+1; roi <=maxlab*2 ; roi++)
       {
-	if (roi < maxlab*2 )
-	logfile << roimap.find(roi-maxlab)->second+std::string("mass") << ",";
-	else logfile << roimap.find(roi-maxlab)->second+std::string("mass") << std::endl;
+    if (roi < maxlab*2 )
+    logfile << roimap.find(roi-maxlab)->second+std::string("mass") << ",";
+    else logfile << roimap.find(roi-maxlab)->second+std::string("mass") << std::endl;
       }
     for (unsigned int roi=1; roi <=maxlab ; roi++)
       {
-	if (roi < maxlab )
-	logfile << clusters[roi] << ",";
-	else logfile << clusters[roi] << ","; //<< std::endl;
+    if (roi < maxlab )
+    logfile << clusters[roi] << ",";
+    else logfile << clusters[roi] << ","; //<< std::endl;
       }
     for (unsigned int roi=maxlab+1; roi <=maxlab*2 ; roi++)
       {
-	if (roi < maxlab*2 )
-	logfile << masses[roi-maxlab] << ",";
-	else logfile << masses[roi-maxlab] << std::endl;
+    if (roi < maxlab*2 )
+    logfile << masses[roi-maxlab] << ",";
+    else logfile << masses[roi-maxlab] << std::endl;
       }
     logfile.close();
     return 0;
     for (unsigned int roi=1; roi <=maxlab ; roi++)
       {
-	//unsigned int resol=5000;
-	//unsigned int intpvalue=resol*totalmass/totalct;
-	//	float pvalue=1.0-(float)intpvalue/(float)resol;// average pvalue
-	//	myCenterOfMass=mycomlist[roi];
+    //unsigned int resol=5000;
+    //unsigned int intpvalue=resol*totalmass/totalct;
+    //    float pvalue=1.0-(float)intpvalue/(float)resol;// average pvalue
+    //    myCenterOfMass=mycomlist[roi];
         if( roimap.find(roi) != roimap.end()  )
- 	  std::cout << roimap.find(roi)->second << " & " << clusters[roi] << " , "  << pvals[roi] << "  & " <<  pvals3[roi]  << " &  " << pvals4[roi]   << " &  " << (float)((int)(myCenterOfMass[0]*10))/10. << " " << (float)((int)(myCenterOfMass[1]*10))/10.  << " " <<  (float)((int)(myCenterOfMass[2]*10))/10.  << "   \\ " << std::endl;
+       std::cout << roimap.find(roi)->second << " & " << clusters[roi] << " , "  << pvals[roi] << "  & " <<  pvals3[roi]  << " &  " << pvals4[roi]   << " &  " << (float)((int)(myCenterOfMass[0]*10))/10. << " " << (float)((int)(myCenterOfMass[1]*10))/10.  << " " <<  (float)((int)(myCenterOfMass[2]*10))/10.  << "   \\ " << std::endl;
 
-	mCSVMatrix(roi,0)=clusters[roi];
-	for (unsigned int mydim=0;mydim<ImageDimension;mydim++)
-	  mCSVMatrix(roi,mydim+1)=myCenterOfMass[mydim];
+    mCSVMatrix(roi,0)=clusters[roi];
+    for (unsigned int mydim=0;mydim<ImageDimension;mydim++)
+      mCSVMatrix(roi,mydim+1)=myCenterOfMass[mydim];
     }
 
   //  WriteImage<TwoDImageType>(squareimage,imagename.c_str());
@@ -7380,15 +7380,15 @@ int PValueImage(      int argc, char *argv[])
     {
       float val=image->GetPixel(vfIter.GetIndex());
       if ( ! vnl_math_isnan(val) && ! vnl_math_isinf(val) )
-	{
-	  if ( fabs( val ) > 0 )
-	    {
-	      float pval=0;
-	      if (val >= 1) pval = 1.0-distributionFunction->EvaluateCDF( val , dof );
-	      else if (val < 1) pval = distributionFunction->EvaluateCDF( val , dof );
-	      image->SetPixel(vfIter.GetIndex() , pval );
-	    }
-	}
+    {
+      if ( fabs( val ) > 0 )
+        {
+          float pval=0;
+          if (val >= 1) pval = 1.0-distributionFunction->EvaluateCDF( val , dof );
+          else if (val < 1) pval = distributionFunction->EvaluateCDF( val , dof );
+          image->SetPixel(vfIter.GetIndex() , pval );
+        }
+    }
       else image->SetPixel(vfIter.GetIndex() , 0);
     }
 
@@ -7447,11 +7447,11 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
     for (unsigned int i=0; i<imageIO->GetNumberOfDimensions(); i++)
       {
       if ( imageIO->GetDimensions(i) > size[i] )
-	{
-	size[i]=imageIO->GetDimensions(i);
-	bigimage=j;
-	std::cout << " bigimage " << j << " size " << size << std::endl;
-	}
+    {
+    size[i]=imageIO->GetDimensions(i);
+    bigimage=j;
+    std::cout << " bigimage " << j << " size " << size << std::endl;
+    }
       }
     }
 
@@ -7477,23 +7477,23 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
       std::cout << " image " << j << " is "  << fn << std::endl;
       unsigned long xx=0,yy=0,tvoxct=0;
       if (rowcoloption==0)
-	{    yy=imagecount; }
+    {    yy=imagecount; }
       if (rowcoloption==1)
-	{  xx=imagecount; }
+    {  xx=imagecount; }
       for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
-	{
-	  if (mIter.Get() >= 0.5)
-	    {
-	      if (rowcoloption==0)
-		{   xx=tvoxct;  }
-	      if (rowcoloption==1)
-		{  yy=tvoxct; }
-	      matrix[xx][yy]=image2->GetPixel(mIter.GetIndex());
+    {
+      if (mIter.Get() >= 0.5)
+        {
+          if (rowcoloption==0)
+        {   xx=tvoxct;  }
+          if (rowcoloption==1)
+        {  yy=tvoxct; }
+          matrix[xx][yy]=image2->GetPixel(mIter.GetIndex());
               std::string colname=std::string("V")+ants_to_string<unsigned int>(tvoxct);
-	      if ( imagecount == 0 ) ColumnHeaders.push_back( colname );
-	      tvoxct++;
-	    }
-	}
+          if ( imagecount == 0 ) ColumnHeaders.push_back( colname );
+          tvoxct++;
+        }
+    }
       imagecount++;
     }
 
@@ -7543,25 +7543,25 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
       std::cout << " image " << j << " is "  << fn << std::endl;
       unsigned long xx=0,yy=0,tvoxct=0;
       if (rowcoloption==0)
-	{    yy=imagecount; }
+    {    yy=imagecount; }
       if (rowcoloption==1)
-	{  xx=imagecount; }
+    {  xx=imagecount; }
       typename MatrixImageType::IndexType mind;
       for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
-	{
-	  if (mIter.Get() >= 0.5)
-	    {
-	      if (rowcoloption==0)
-		{   xx=tvoxct;  }
-	      if (rowcoloption==1)
-		{  yy=tvoxct; }
-	      mind[0]=xx;
-	      mind[1]=yy;
-	      //	      std::cout << " Mind " << mind << std::endl;
-	      matimage->SetPixel(mind,image2->GetPixel(mIter.GetIndex()));
-	      tvoxct++;
-	    }
-	}
+    {
+      if (mIter.Get() >= 0.5)
+        {
+          if (rowcoloption==0)
+        {   xx=tvoxct;  }
+          if (rowcoloption==1)
+        {  yy=tvoxct; }
+          mind[0]=xx;
+          mind[1]=yy;
+          //          std::cout << " Mind " << mind << std::endl;
+          matimage->SetPixel(mind,image2->GetPixel(mIter.GetIndex()));
+          tvoxct++;
+        }
+    }
       imagecount++;
     }
 
@@ -7632,14 +7632,14 @@ int RandomlySampleImageSetToCSV(unsigned int argc, char *argv[])
       std::cout << " image " << j << " is "  << fn << std::endl;
       voxct=0;
       for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
-	{
+    {
           matrix[imagecount][voxct]=image2->GetPixel(mIter.GetIndex());
-	  if ( imagecount == 0 ) {
+      if ( imagecount == 0 ) {
             std::string colname=std::string("V")+ants_to_string<unsigned int>(voxct);
             ColumnHeaders.push_back( colname );
-	  }
-	  voxct++;
-	}
+      }
+      voxct++;
+    }
       imagecount++;
     }
 
@@ -7731,11 +7731,11 @@ int ConvertImageSetToEigenvectors(unsigned int argc, char *argv[])
     for (unsigned int i=0; i<imageIO->GetNumberOfDimensions(); i++)
       {
       if ( imageIO->GetDimensions(i) > size[i] )
-	{
-	size[i]=imageIO->GetDimensions(i);
-	bigimage=j;
-	std::cout << " bigimage " << j << " size " << size << std::endl;
-	}
+    {
+    size[i]=imageIO->GetDimensions(i);
+    bigimage=j;
+    std::cout << " bigimage " << j << " size " << size << std::endl;
+    }
       }
     }
 
@@ -7769,21 +7769,21 @@ int ConvertImageSetToEigenvectors(unsigned int argc, char *argv[])
       std::cout << " image " << j << " is "  << fn << std::endl;
       unsigned long xx=0,yy=0,tvoxct=0;
       if (rowcoloption==0)
-	{    yy=imagecount; }
+    {    yy=imagecount; }
       if (rowcoloption==1)
-	{  xx=imagecount; }
+    {  xx=imagecount; }
       for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
-	{
-	  if (mIter.Get() == mv )
-	    {
-	      if (rowcoloption==0)
-		{   xx=tvoxct;  }
-	      if (rowcoloption==1)
-		{  yy=tvoxct; }
-	      matrix[xx][yy]=image2->GetPixel(mIter.GetIndex());
-	      tvoxct++;
-	    }
-	}
+    {
+      if (mIter.Get() == mv )
+        {
+          if (rowcoloption==0)
+        {   xx=tvoxct;  }
+          if (rowcoloption==1)
+        {  yy=tvoxct; }
+          matrix[xx][yy]=image2->GetPixel(mIter.GetIndex());
+          tvoxct++;
+        }
+    }
       imagecount++;
     }
 
@@ -7893,10 +7893,10 @@ int ConvertImageToFile(      int argc, char *argv[])
       bool getval=true;
       if ( mask->GetPixel(vfIter.GetIndex()) < 0.5) getval=false;
       if (getval)
-	{
-	  float val=image->GetPixel(vfIter.GetIndex());
-	  logfile << " " << val ;
-	}
+    {
+      float val=image->GetPixel(vfIter.GetIndex());
+      logfile << " " << val ;
+    }
     }
   logfile << std::endl;
     }
@@ -7955,20 +7955,20 @@ int CorrelationUpdate(      int argc, char *argv[])
       typename ImageType::IndexType ind = GHood.GetIndex();
       bool isinside=true;
       for (unsigned int j=0; j<ImageDimension; j++)
-	{
-	  float shifted=ind[j];
-	  if (shifted < (radius+1) || shifted >  image1->GetLargestPossibleRegion().GetSize()[j]-radius-1  ) isinside=false;
-	}
+    {
+      float shifted=ind[j];
+      if (shifted < (radius+1) || shifted >  image1->GetLargestPossibleRegion().GetSize()[j]-radius-1  ) isinside=false;
+    }
       if (isinside) {
-	if ( image1->GetPixel(ind) > 0 || image2->GetPixel(ind) > 0) {
+    if ( image1->GetPixel(ind) > 0 || image2->GetPixel(ind) > 0) {
       typename ImageType::IndexType ind2;
       // compute mean difference
       float diff=0.0;
       for (unsigned int i = 0; i < GHood.Size(); i++)
-	{
-	  ind2=GHood.GetIndex(i);
-	  diff+=(image1->GetPixel(ind2)-image2->GetPixel(ind2));
-	}
+    {
+      ind2=GHood.GetIndex(i);
+      diff+=(image1->GetPixel(ind2)-image2->GetPixel(ind2));
+    }
       diff/=Gsz;
       float upd=(image1->GetPixel(ind)-image2->GetPixel(ind))-diff;
       imageout->SetPixel(ind,upd);
@@ -8003,214 +8003,214 @@ int main(int argc, char *argv[])
     std::cout << " NB: Some options output text files" << std::endl;
 
     std::cout << "\nMathematical Operations:" << std::endl;
-    std::cout << "  m			: Multiply" << std::endl;
-    std::cout << "  + 			: Add" << std::endl;
-    std::cout << "  - 			: Subtract" << std::endl;
-    std::cout << "  / 			: Divide" << std::endl;
-    std::cout << "  ^			: Power" << std::endl;
-    std::cout << "  exp			: Take exponent exp(imagevalue*value)" << std::endl;
-    std::cout << "  addtozero		: add image-b to image-a only over points where image-a has zero values" << std::endl;
-    std::cout << "  overadd		: replace image-a pixel with image-b pixel if image-b pixel is non-zero" << std::endl;
-    std::cout << "  abs			: absolute value " << std::endl;
-    std::cout << "  total			: Sums up values in an image or in image1*image2 (img2 is the probability mask)" << std::endl;
-    std::cout << "  Decision		: Computes result=1./(1.+exp(-1.0*( pix1-0.25)/pix2))" << std::endl;
-    std::cout << "  Neg			: Produce image negative" << std::endl;
+    std::cout << "  m            : Multiply" << std::endl;
+    std::cout << "  +             : Add" << std::endl;
+    std::cout << "  -             : Subtract" << std::endl;
+    std::cout << "  /             : Divide" << std::endl;
+    std::cout << "  ^            : Power" << std::endl;
+    std::cout << "  exp            : Take exponent exp(imagevalue*value)" << std::endl;
+    std::cout << "  addtozero        : add image-b to image-a only over points where image-a has zero values" << std::endl;
+    std::cout << "  overadd        : replace image-a pixel with image-b pixel if image-b pixel is non-zero" << std::endl;
+    std::cout << "  abs            : absolute value " << std::endl;
+    std::cout << "  total            : Sums up values in an image or in image1*image2 (img2 is the probability mask)" << std::endl;
+    std::cout << "  Decision        : Computes result=1./(1.+exp(-1.0*( pix1-0.25)/pix2))" << std::endl;
+    std::cout << "  Neg            : Produce image negative" << std::endl;
 
     std::cout << "\nSpatial Filtering:" << std::endl;
-    std::cout << "  G Image1.ext s	: Smooth with Gaussian of sigma = s" << std::endl;
-    std::cout << "  MD Image1.ext s	: Morphological Dilation with radius s" << std::endl;
-    std::cout << "  ME Image1.ext s	: Morphological Erosion with radius s" << std::endl;
-    std::cout << "  MO Image1.ext s	: Morphological Opening with radius s" << std::endl;
-    std::cout << "  MC Image1.ext s	: Morphological Closing with radius s" << std::endl;
-    std::cout << "  GD Image1.ext s	: Grayscale Dilation with radius s" << std::endl;
-    std::cout << "  GE Image1.ext s	: Grayscale Erosion with radius s" << std::endl;
-    std::cout << "  GO Image1.ext s	: Grayscale Opening with radius s" << std::endl;
-    std::cout << "  GC Image1.ext s	: Grayscale Closing with radius s" << std::endl;
+    std::cout << "  G Image1.ext s    : Smooth with Gaussian of sigma = s" << std::endl;
+    std::cout << "  MD Image1.ext s    : Morphological Dilation with radius s" << std::endl;
+    std::cout << "  ME Image1.ext s    : Morphological Erosion with radius s" << std::endl;
+    std::cout << "  MO Image1.ext s    : Morphological Opening with radius s" << std::endl;
+    std::cout << "  MC Image1.ext s    : Morphological Closing with radius s" << std::endl;
+    std::cout << "  GD Image1.ext s    : Grayscale Dilation with radius s" << std::endl;
+    std::cout << "  GE Image1.ext s    : Grayscale Erosion with radius s" << std::endl;
+    std::cout << "  GO Image1.ext s    : Grayscale Opening with radius s" << std::endl;
+    std::cout << "  GC Image1.ext s    : Grayscale Closing with radius s" << std::endl;
 
     std::cout << "\nTime Series Operations:" << std::endl;
     std::cout << " CompCorrAuto : Outputs a csv file containing global signal vector and N comp-corr eigenvectors determined from PCA of the high-variance voxels.  Also outputs a comp-corr + global signal corrected 4D image as well as a 3D image measuring the time series variance.  Requires a label image with label 1 identifying voxels in the brain." << std::endl;
-    std::cout << "    Usage		: CompCorr 4D_TimeSeries.nii.gz LabeLimage.nii.gz  N-comp-corr-eigenvectors " << std::endl;
+    std::cout << "    Usage        : CompCorr 4D_TimeSeries.nii.gz LabeLimage.nii.gz  N-comp-corr-eigenvectors " << std::endl;
     std::cout << " CompCorr : Outputs a comp-corr corrected 4D image as well as a 3D image measuring the correlation of a time series voxel/region with a reference voxel/region factored out.  Requires a label image with 1=overall region of interest,  2=reference voxel, 3=region to factor out.  If there is no 3rd label, then only the global signal is factored out." << std::endl;
-    std::cout << "    Usage		: CompCorr 4D_TimeSeries.nii.gz LabeLimage.nii.gz  Sigma-for-temporal-smoothing " << std::endl;
+    std::cout << "    Usage        : CompCorr 4D_TimeSeries.nii.gz LabeLimage.nii.gz  Sigma-for-temporal-smoothing " << std::endl;
     std::cout << " TimeSeriesSubset : Outputs n 3D image sub-volumes extracted uniformly from the input time-series 4D image." << std::endl;
-    std::cout << "    Usage		: TimeSeriesSubset 4D_TimeSeries.nii.gz n " << std::endl;
+    std::cout << "    Usage        : TimeSeriesSubset 4D_TimeSeries.nii.gz n " << std::endl;
     std::cout << " TimeSeriesToMatrix : Converts a 4D image + mask to matrix (stored as csv file) where rows are time and columns are space ." << std::endl;
-    std::cout << "    Usage		: TimeSeriesToMatrix 4D_TimeSeries.nii.gz mask " << std::endl;
+    std::cout << "    Usage        : TimeSeriesToMatrix 4D_TimeSeries.nii.gz mask " << std::endl;
 
     std::cout << " ComputeTimeSeriesLeverage : Outputs a csv file that identifies the raw leverage and normalized leverage for each time point in the 4D image.  leverage, here, is the difference of the time-point image from the average of the n images.  the normalized leverage is =  average( sum_k abs(Leverage(t)-Leverage(k)) )/Leverage(t). " << std::endl;
-    std::cout << "    Usage		: ComputeTimeSeriesLeverage 4D_TimeSeries.nii.gz k_neighbors " << std::endl;
+    std::cout << "    Usage        : ComputeTimeSeriesLeverage 4D_TimeSeries.nii.gz k_neighbors " << std::endl;
 
     std::cout << "\nTensor Operations:" << std::endl;
-    std::cout << "  4DTensorTo3DTensor	: Outputs a 3D_DT_Image with the same information. " << std::endl;
-    std::cout << "    Usage		: 4DTensorTo3DTensor 4D_DTImage.ext" << std::endl;
-    std::cout << "  ComponentTo3DTensor	: Outputs a 3D_DT_Image with the same information as component images. " << std::endl;
-    std::cout << "    Usage		: ComponentTo3DTensor component_image_prefix[xx,xy,xz,yy,yz,zz] extension" << std::endl;
-    std::cout << "  ExtractComponentFrom3DTensor	: Outputs a component images. " << std::endl;
-    std::cout << "    Usage		: ExtractComponentFrom3DTensor dtImage.ext which={xx,xy,xz,yy,yz,zz}" << std::endl;
+    std::cout << "  4DTensorTo3DTensor    : Outputs a 3D_DT_Image with the same information. " << std::endl;
+    std::cout << "    Usage        : 4DTensorTo3DTensor 4D_DTImage.ext" << std::endl;
+    std::cout << "  ComponentTo3DTensor    : Outputs a 3D_DT_Image with the same information as component images. " << std::endl;
+    std::cout << "    Usage        : ComponentTo3DTensor component_image_prefix[xx,xy,xz,yy,yz,zz] extension" << std::endl;
+    std::cout << "  ExtractComponentFrom3DTensor    : Outputs a component images. " << std::endl;
+    std::cout << "    Usage        : ExtractComponentFrom3DTensor dtImage.ext which={xx,xy,xz,yy,yz,zz}" << std::endl;
     std::cout << "  ExtractVectorComponent: Produces the WhichVec component of the vector " << std::endl;
-    std::cout << "    Usage		: ExtractVectorComponent VecImage WhichVec" << std::endl;
-    std::cout << "  TensorColor		: Produces RGB values identifying principal directions " << std::endl;
-    std::cout << "    Usage		: TensorColor DTImage.ext" << std::endl;
-    std::cout << "  TensorFA		: " << std::endl;
-    std::cout << "    Usage		: TensorFA DTImage.ext" << std::endl;
-    std::cout << "  TensorFADenominator	: " << std::endl;
-    std::cout << "    Usage		: TensorFADenominator DTImage.ext" << std::endl;
-    std::cout << "  TensorFANumerator	: " << std::endl;
-    std::cout << "    Usage		: TensorFANumerator DTImage.ext" << std::endl;
-    std::cout << "  TensorIOTest	: Will write the DT image back out ... tests I/O processes for consistency. " << std::endl;
-    std::cout << "    Usage		: TensorIOTest DTImage.ext" << std::endl;
-    std::cout << "  TensorMeanDiffusion	: " << std::endl;
-    std::cout << "    Usage		: TensorMeanDiffusion DTImage.ext" << std::endl;
-    std::cout << "  TensorToVector	: Produces vector field identifying one of the principal directions, 2 = largest eigenvalue" << std::endl;
-    std::cout << "    Usage		: TensorToVector DTImage.ext WhichVec" << std::endl;
+    std::cout << "    Usage        : ExtractVectorComponent VecImage WhichVec" << std::endl;
+    std::cout << "  TensorColor        : Produces RGB values identifying principal directions " << std::endl;
+    std::cout << "    Usage        : TensorColor DTImage.ext" << std::endl;
+    std::cout << "  TensorFA        : " << std::endl;
+    std::cout << "    Usage        : TensorFA DTImage.ext" << std::endl;
+    std::cout << "  TensorFADenominator    : " << std::endl;
+    std::cout << "    Usage        : TensorFADenominator DTImage.ext" << std::endl;
+    std::cout << "  TensorFANumerator    : " << std::endl;
+    std::cout << "    Usage        : TensorFANumerator DTImage.ext" << std::endl;
+    std::cout << "  TensorIOTest    : Will write the DT image back out ... tests I/O processes for consistency. " << std::endl;
+    std::cout << "    Usage        : TensorIOTest DTImage.ext" << std::endl;
+    std::cout << "  TensorMeanDiffusion    : " << std::endl;
+    std::cout << "    Usage        : TensorMeanDiffusion DTImage.ext" << std::endl;
+    std::cout << "  TensorToVector    : Produces vector field identifying one of the principal directions, 2 = largest eigenvalue" << std::endl;
+    std::cout << "    Usage        : TensorToVector DTImage.ext WhichVec" << std::endl;
     std::cout << "  TensorToVectorComponent: 0 => 2 produces component of the principal vector field (largest eigenvalue). 3 = 8 => gets values from the tensor " << std::endl;
-    std::cout << "    Usage		: TensorToVectorComponent DTImage.ext WhichVec" << std::endl;
+    std::cout << "    Usage        : TensorToVectorComponent DTImage.ext WhichVec" << std::endl;
 
     std::cout << "\nUnclassified Operators:" << std::endl;
 
-    std::cout << "  Byte			: Convert to Byte image in [0,255]" << std::endl;
+    std::cout << "  Byte            : Convert to Byte image in [0,255]" << std::endl;
 
     std::cout << "\n  CompareHeadersAndImages: Tries to find and fix header errors. Outputs a repaired image with new header. " << std::endl;
-    std::cout << "  			  Never use this if you trust your header information. " << std::endl;
-    std::cout << "      Usage		: CompareHeadersAndImages Image1 Image2" << std::endl;
+    std::cout << "                Never use this if you trust your header information. " << std::endl;
+    std::cout << "      Usage        : CompareHeadersAndImages Image1 Image2" << std::endl;
 
     std::cout << "\n  ConvertImageSetToMatrix: Each row/column contains image content extracted from mask applied to images in *img.nii " << std::endl;
-    std::cout << "      Usage		: ConvertImageSetToMatrix rowcoloption Mask.nii *images.nii" << std::endl;
+    std::cout << "      Usage        : ConvertImageSetToMatrix rowcoloption Mask.nii *images.nii" << std::endl;
     std::cout << " ConvertImageSetToMatrix output can be an image type or csv file type." <<std::endl;
 
     std::cout << "\n  RandomlySampleImageSetToCSV: N random samples are selected from each image in a list " << std::endl;
-    std::cout << "      Usage		: RandomlySampleImageSetToCSV N_samples *images.nii" << std::endl;
+    std::cout << "      Usage        : RandomlySampleImageSetToCSV N_samples *images.nii" << std::endl;
     std::cout << " RandomlySampleImageSetToCSV outputs a csv file type." <<std::endl;
 
     std::cout << "\n  ConvertImageSetToEigenvectors: Each row/column contains image content extracted from mask applied to images in *img.nii " << std::endl;
-    std::cout << "      Usage		: ConvertImageSetToEigenvectors N_Evecs Mask.nii *images.nii" << std::endl;
+    std::cout << "      Usage        : ConvertImageSetToEigenvectors N_Evecs Mask.nii *images.nii" << std::endl;
     std::cout << " ConvertImageSetToEigenvectors output will be a csv file for each label value > 0 in the mask." <<std::endl;
 
 
-    std::cout << "\n  ConvertImageToFile	: Writes voxel values to a file  " << std::endl;
-    std::cout << "      Usage		: ConvertImageToFile imagevalues.nii {Optional-ImageMask.nii}" << std::endl;
+    std::cout << "\n  ConvertImageToFile    : Writes voxel values to a file  " << std::endl;
+    std::cout << "      Usage        : ConvertImageToFile imagevalues.nii {Optional-ImageMask.nii}" << std::endl;
 
-    std::cout << "\n  ConvertLandmarkFile	: Converts landmark file between formats. See ANTS.pdf for description of formats."  << std::endl;
-    std::cout << "      Usage		: ConvertLandmarkFile InFile.txt" << std::endl;
-    std::cout << "      Example 1		: ImageMath 3  outfile.vtk  ConvertLandmarkFile  infile.txt" << std::endl;
+    std::cout << "\n  ConvertLandmarkFile    : Converts landmark file between formats. See ANTS.pdf for description of formats."  << std::endl;
+    std::cout << "      Usage        : ConvertLandmarkFile InFile.txt" << std::endl;
+    std::cout << "      Example 1        : ImageMath 3  outfile.vtk  ConvertLandmarkFile  infile.txt" << std::endl;
 
-    std::cout << "\n  ConvertToGaussian	: " << std::endl;
-    std::cout << "      Usage		: ConvertToGaussian  TValueImage  sigma-float" << std::endl;
+    std::cout << "\n  ConvertToGaussian    : " << std::endl;
+    std::cout << "      Usage        : ConvertToGaussian  TValueImage  sigma-float" << std::endl;
 
-    std::cout << "\n  ConvertVectorToImage	: The vector contains image content extracted from a mask. Here the vector is returned to its spatial origins as image content " << std::endl;
-    std::cout << "      Usage		: ConvertVectorToImage Mask.nii vector.nii" << std::endl;
+    std::cout << "\n  ConvertVectorToImage    : The vector contains image content extracted from a mask. Here the vector is returned to its spatial origins as image content " << std::endl;
+    std::cout << "      Usage        : ConvertVectorToImage Mask.nii vector.nii" << std::endl;
 
-    std::cout << "\n  CorrelationUpdate	: In voxels, compute update that makes Image2 more like Image1." << std::endl;
-    std::cout << "      Usage		: CorrelationUpdate Image1.ext Image2.ext RegionRadius" << std::endl;
+    std::cout << "\n  CorrelationUpdate    : In voxels, compute update that makes Image2 more like Image1." << std::endl;
+    std::cout << "      Usage        : CorrelationUpdate Image1.ext Image2.ext RegionRadius" << std::endl;
 
-    std::cout << "\n  CountVoxelDifference	: The where function from IDL " << std::endl;
-    std::cout << "      Usage		: CountVoxelDifference Image1 Image2 Mask" << std::endl;
+    std::cout << "\n  CountVoxelDifference    : The where function from IDL " << std::endl;
+    std::cout << "      Usage        : CountVoxelDifference Image1 Image2 Mask" << std::endl;
 
-    std::cout << "\n  CorruptImage		: " << std::endl;
-    std::cout << "      Usage		: CorruptImage Image NoiseLevel Smoothing" << std::endl;
+    std::cout << "\n  CorruptImage        : " << std::endl;
+    std::cout << "      Usage        : CorruptImage Image NoiseLevel Smoothing" << std::endl;
 
-    std::cout << "\n  D			: DistanceTransform" << std::endl;
+    std::cout << "\n  D            : DistanceTransform" << std::endl;
 
-    std::cout << "\n  DiceAndMinDistSum	: Outputs DiceAndMinDistSum and Dice Overlap to text log file + optional distance image" << std::endl;
-    std::cout << "      Usage		: DiceAndMinDistSum LabelImage1.ext LabelImage2.ext OptionalDistImage" << std::endl;
+    std::cout << "\n  DiceAndMinDistSum    : Outputs DiceAndMinDistSum and Dice Overlap to text log file + optional distance image" << std::endl;
+    std::cout << "      Usage        : DiceAndMinDistSum LabelImage1.ext LabelImage2.ext OptionalDistImage" << std::endl;
 
     std::cout << "\n  EnumerateLabelInterfaces: " << std::endl;
-    std::cout << "      Usage		: EnumerateLabelInterfaces ImageIn ColoredImageOutname NeighborFractionToIgnore" << std::endl;
+    std::cout << "      Usage        : EnumerateLabelInterfaces ImageIn ColoredImageOutname NeighborFractionToIgnore" << std::endl;
 
-    std::cout << "\n  ExtractSlice		: Extracts slice number from last dimension of volume (2,3,4) dimensions "  << std::endl;
-    std::cout << "      Usage		: ExtractSlice volume.nii.gz slicetoextract" << std::endl;
+    std::cout << "\n  ExtractSlice        : Extracts slice number from last dimension of volume (2,3,4) dimensions "  << std::endl;
+    std::cout << "      Usage        : ExtractSlice volume.nii.gz slicetoextract" << std::endl;
 
     std::cout << "\n  FastMarchingSegmentation: final output is the propagated label image. Optional stopping value: higher values allow more distant propagation "  << std::endl;
-    std::cout << "      Usage		: FastMarchingSegmentation speed/binaryimagemask.ext initiallabelimage.ext Optional-Stopping-Value" << std::endl;
+    std::cout << "      Usage        : FastMarchingSegmentation speed/binaryimagemask.ext initiallabelimage.ext Optional-Stopping-Value" << std::endl;
 
-    std::cout << "\n  FillHoles		: Parameter = ratio of edge at object to edge at background;  --  " << std::endl;
-    std::cout << "  			  Parameter = 1 is a definite hole bounded by object only, 0.99 is close" << std::endl;
-    std::cout << "  			  Default of parameter > 1 will fill all holes" << std::endl;
-    std::cout << "      Usage		: FillHoles Image.ext parameter" << std::endl;
+    std::cout << "\n  FillHoles        : Parameter = ratio of edge at object to edge at background;  --  " << std::endl;
+    std::cout << "                Parameter = 1 is a definite hole bounded by object only, 0.99 is close" << std::endl;
+    std::cout << "                Default of parameter > 1 will fill all holes" << std::endl;
+    std::cout << "      Usage        : FillHoles Image.ext parameter" << std::endl;
 
-    std::cout << "\n  FitSphere		: " << std::endl;
-    std::cout << "      Usage		: FitSphere GM-ImageIn {WM-Image} {MaxRad-Default=5}" << std::endl;
+    std::cout << "\n  FitSphere        : " << std::endl;
+    std::cout << "      Usage        : FitSphere GM-ImageIn {WM-Image} {MaxRad-Default=5}" << std::endl;
 
-    std::cout << "\n  FlattenImage		: Replaces values greater than %ofMax*Max to the value %ofMax*Max " << std::endl;
-    std::cout << "      Usage		: FlattenImage Image %ofMax" << std::endl;
+    std::cout << "\n  FlattenImage        : Replaces values greater than %ofMax*Max to the value %ofMax*Max " << std::endl;
+    std::cout << "      Usage        : FlattenImage Image %ofMax" << std::endl;
 
-    std::cout << "\n  GetLargestComponent	: Get the largest object in an image" << std::endl;
-    std::cout << "      Usage		: GetLargestComponent InputImage {MinObjectSize}" << std::endl;
+    std::cout << "\n  GetLargestComponent    : Get the largest object in an image" << std::endl;
+    std::cout << "      Usage        : GetLargestComponent InputImage {MinObjectSize}" << std::endl;
 
-    std::cout << "\n  Grad			: Gradient magnitude with sigma s (if normalize, then output in range [0, 1])" << std::endl;
-    std::cout << "      Usage		: Grad Image.ext s normalize?" << std::endl;
+    std::cout << "\n  Grad            : Gradient magnitude with sigma s (if normalize, then output in range [0, 1])" << std::endl;
+    std::cout << "      Usage        : Grad Image.ext s normalize?" << std::endl;
 
-    std::cout << "\n  HistogramMatch	: " << std::endl;
-    std::cout << "      Usage		: HistogramMatch SourceImage ReferenceImage {NumberBins-Default=255} {NumberPoints-Default=64}" << std::endl;
+    std::cout << "\n  HistogramMatch    : " << std::endl;
+    std::cout << "      Usage        : HistogramMatch SourceImage ReferenceImage {NumberBins-Default=255} {NumberPoints-Default=64}" << std::endl;
 
-    std::cout << "\n  InvId			: computes the inverse-consistency of two deformations and write the inverse consistency error image " << std::endl;
-    std::cout << "      Usage		: InvId VectorFieldName VectorFieldName" << std::endl;
+    std::cout << "\n  InvId            : computes the inverse-consistency of two deformations and write the inverse consistency error image " << std::endl;
+    std::cout << "      Usage        : InvId VectorFieldName VectorFieldName" << std::endl;
 
-    std::cout << "\n  LabelStats		: Compute volumes / masses of objects in a label image. Writes to text file" << std::endl;
-    std::cout << "      Usage		: LabelStats labelimage.ext valueimage.nii" << std::endl;
+    std::cout << "\n  LabelStats        : Compute volumes / masses of objects in a label image. Writes to text file" << std::endl;
+    std::cout << "      Usage        : LabelStats labelimage.ext valueimage.nii" << std::endl;
 
-    std::cout << "\n  Laplacian		: Laplacian computed with sigma s (if normalize, then output in range [0, 1])" << std::endl;
-    std::cout << "      Usage		: Laplacian Image.ext s normalize?" << std::endl;
+    std::cout << "\n  Laplacian        : Laplacian computed with sigma s (if normalize, then output in range [0, 1])" << std::endl;
+    std::cout << "      Usage        : Laplacian Image.ext s normalize?" << std::endl;
 
-    std::cout << "\n  Lipschitz		: Computes the Lipschitz norm of a vector field " << std::endl;
-    std::cout << "      Usage		: Lipschitz VectorFieldName" << std::endl;
+    std::cout << "\n  Lipschitz        : Computes the Lipschitz norm of a vector field " << std::endl;
+    std::cout << "      Usage        : Lipschitz VectorFieldName" << std::endl;
 
-    std::cout << "\n  MakeImage		: " << std::endl;
-    std::cout << "      Usage		: MakeImage SizeX  SizeY {SizeZ};" << std::endl;
+    std::cout << "\n  MakeImage        : " << std::endl;
+    std::cout << "      Usage        : MakeImage SizeX  SizeY {SizeZ};" << std::endl;
 
-    std::cout << "\n  Normalize		: Normalize to [0,1]. Option instead divides by average value" << std::endl;
-    std::cout << "      Usage		: Normalize Image.ext opt" << std::endl;
+    std::cout << "\n  Normalize        : Normalize to [0,1]. Option instead divides by average value" << std::endl;
+    std::cout << "      Usage        : Normalize Image.ext opt" << std::endl;
 
-    std::cout << "\n  PadImage		: If Pad-Number is negative, de-Padding occurs" << std::endl;
-    std::cout << "      Usage		: PadImage ImageIn Pad-Number" << std::endl;
+    std::cout << "\n  PadImage        : If Pad-Number is negative, de-Padding occurs" << std::endl;
+    std::cout << "      Usage        : PadImage ImageIn Pad-Number" << std::endl;
 
-    std::cout << "\n  CenterImage2inImage1		: " << std::endl;
-    std::cout << "      Usage		: ReferenceImageSpace ImageToCenter " << std::endl;
+    std::cout << "\n  CenterImage2inImage1        : " << std::endl;
+    std::cout << "      Usage        : ReferenceImageSpace ImageToCenter " << std::endl;
 
-    std::cout << "\n  PH			: Print Header" << std::endl;
+    std::cout << "\n  PH            : Print Header" << std::endl;
 
-    std::cout << "\n  PoissonDiffusion		: Solves Poisson's equation in a designated region using non-zero sources" << std::endl;
-    std::cout << "      Usage		: PoissonDiffusion inputImage labelImage [sigma=1.0] [regionLabel=1] [numberOfIterations=500] [convergenceThreshold=1e-10]" << std::endl;
+    std::cout << "\n  PoissonDiffusion        : Solves Poisson's equation in a designated region using non-zero sources" << std::endl;
+    std::cout << "      Usage        : PoissonDiffusion inputImage labelImage [sigma=1.0] [regionLabel=1] [numberOfIterations=500] [convergenceThreshold=1e-10]" << std::endl;
 
     std::cout << "\n  PropagateLabelsThroughMask: Final output is the propagated label image. Optional stopping value: higher values allow more distant propagation" << std::endl;
-    std::cout << "      Usage		: PropagateLabelsThroughMask speed/binaryimagemask.nii.gz initiallabelimage.nii.gz Optional-Stopping-Value" << std::endl;
+    std::cout << "      Usage        : PropagateLabelsThroughMask speed/binaryimagemask.nii.gz initiallabelimage.nii.gz Optional-Stopping-Value" << std::endl;
 
-    std::cout << "\n  PValueImage		: " << std::endl;
-    std::cout << "      Usage		: PValueImage TValueImage dof" << std::endl;
+    std::cout << "\n  PValueImage        : " << std::endl;
+    std::cout << "      Usage        : PValueImage TValueImage dof" << std::endl;
 
     std::cout << "\n  RemoveLabelInterfaces: " << std::endl;
-    std::cout << "      Usage		: RemoveLabelInterfaces ImageIn" << std::endl;
+    std::cout << "      Usage        : RemoveLabelInterfaces ImageIn" << std::endl;
 
-    std::cout << "\n  ROIStatistics		: computes anatomical locations, cluster size and mass of a stat image which should be in the same physical space (but not nec same resolution) as the label image." << std::endl;
-    std::cout << "      Usage		: ROIStatistics LabelNames.txt labelimage.ext valueimage.nii" << std::endl;
+    std::cout << "\n  ROIStatistics        : computes anatomical locations, cluster size and mass of a stat image which should be in the same physical space (but not nec same resolution) as the label image." << std::endl;
+    std::cout << "      Usage        : ROIStatistics LabelNames.txt labelimage.ext valueimage.nii" << std::endl;
 
 
-    std::cout << "\n  SetOrGetPixel	: "  << std::endl;
-    std::cout << "      Usage		: SetOrGetPixel ImageIn Get/Set-Value IndexX IndexY {IndexZ}" << std::endl;
-    std::cout << "      Example 1		: ImageMath 2 outimage.nii SetOrGetPixel Image Get 24 34; Gets the value at 24, 34" << std::endl;
-    std::cout << "      Example 2		: ImageMath 2 outimage.nii SetOrGetPixel Image 1.e9 24 34; This sets 1.e9 as the value at 23 34" << std::endl;
-    std::cout << "  			  You can also pass a boolean at the end to force the physical space to be used" << std::endl;
+    std::cout << "\n  SetOrGetPixel    : "  << std::endl;
+    std::cout << "      Usage        : SetOrGetPixel ImageIn Get/Set-Value IndexX IndexY {IndexZ}" << std::endl;
+    std::cout << "      Example 1        : ImageMath 2 outimage.nii SetOrGetPixel Image Get 24 34; Gets the value at 24, 34" << std::endl;
+    std::cout << "      Example 2        : ImageMath 2 outimage.nii SetOrGetPixel Image 1.e9 24 34; This sets 1.e9 as the value at 23 34" << std::endl;
+    std::cout << "                You can also pass a boolean at the end to force the physical space to be used" << std::endl;
 
-    std::cout << "\n  Segment		: Segment an Image  with option of Priors, weight 1 => maximally local/prior-based )" << std::endl;
-    std::cout << "      Usage		: Segment Image1.ext N-Classes LocalityVsGlobalityWeight-In-ZeroToOneRange OptionalPriorImages" << std::endl;
+    std::cout << "\n  Segment        : Segment an Image  with option of Priors, weight 1 => maximally local/prior-based )" << std::endl;
+    std::cout << "      Usage        : Segment Image1.ext N-Classes LocalityVsGlobalityWeight-In-ZeroToOneRange OptionalPriorImages" << std::endl;
 
-    std::cout << "\n  stack			: Will put 2 images in the same volume" << std::endl;
-    std::cout << "      Usage		: Stack Image1.ext Image2.ext" << std::endl;
+    std::cout << "\n  stack            : Will put 2 images in the same volume" << std::endl;
+    std::cout << "      Usage        : Stack Image1.ext Image2.ext" << std::endl;
 
-    std::cout << "\n  ThresholdAtMean	: See the code" << std::endl;
-    std::cout << "      Usage		: ThresholdAtMean Image %ofMean" << std::endl;
+    std::cout << "\n  ThresholdAtMean    : See the code" << std::endl;
+    std::cout << "      Usage        : ThresholdAtMean Image %ofMean" << std::endl;
 
-    std::cout << "\n  TileImages	: " << std::endl;
-    std::cout << "      Usage		: TileImages NumColumns ImageList*" << std::endl;
+    std::cout << "\n  TileImages    : " << std::endl;
+    std::cout << "      Usage        : TileImages NumColumns ImageList*" << std::endl;
 
-    std::cout << "\n  TriPlanarView	: " << std::endl;
-    std::cout << "      Usage		: TriPlanarView  ImageIn.nii.gz PercentageToClampLowIntensity PercentageToClampHiIntensity x-slice y-slice z-slice" << std::endl;
+    std::cout << "\n  TriPlanarView    : " << std::endl;
+    std::cout << "      Usage        : TriPlanarView  ImageIn.nii.gz PercentageToClampLowIntensity PercentageToClampHiIntensity x-slice y-slice z-slice" << std::endl;
 
     std::cout << "\n  TruncateImageIntensity: " << std::endl;
-    std::cout << "      Usage		: TruncateImageIntensity InputImage.ext {lowerQuantile=0.05} {upperQuantile=0.95} {numberOfBins=65} {binary-maskImage}" << std::endl;
+    std::cout << "      Usage        : TruncateImageIntensity InputImage.ext {lowerQuantile=0.05} {upperQuantile=0.95} {numberOfBins=65} {binary-maskImage}" << std::endl;
 
-    std::cout << "\n  Where			: The where function from IDL" << std::endl;
-    std::cout << "      Usage		: Where Image ValueToLookFor maskImage-option tolerance" << std::endl;
+    std::cout << "\n  Where            : The where function from IDL" << std::endl;
+    std::cout << "      Usage        : Where Image ValueToLookFor maskImage-option tolerance" << std::endl;
 
     return 1;
   }

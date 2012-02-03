@@ -353,12 +353,12 @@ DiReCTImageFilter926<TInputImage, TOutputImage>
       inverseField = composer->GetOutput();
       inverseField->DisconnectPipeline();
 
-   	  RealImagePointer warpedWhiteMatterProbabilityMap = this->WarpImage(
-   	    whiteMatterProbabilityImageImporter->GetOutput(), inverseField );
-   	  RealImagePointer warpedWhiteMatterContours = this->WarpImage(
-   	    whiteMatterContours, inverseField );
-   	  RealImagePointer warpedThicknessImage = this->WarpImage(
-   	    thicknessImage, inverseField );
+         RealImagePointer warpedWhiteMatterProbabilityMap = this->WarpImage(
+           whiteMatterProbabilityImageImporter->GetOutput(), inverseField );
+         RealImagePointer warpedWhiteMatterContours = this->WarpImage(
+           whiteMatterContours, inverseField );
+         RealImagePointer warpedThicknessImage = this->WarpImage(
+           thicknessImage, inverseField );
 
       typedef GradientRecursiveGaussianImageFilter<RealImageType, VectorImageType>
         GradientImageFilterType;
@@ -658,13 +658,13 @@ DiReCTImageFilter926<TInputImage, TOutputImage>
       endPoint[0] = static_cast<RealType>( this->m_ElapsedIterations - 1 );
       typename BSplinerFunctionType::GradientType gradient =
         bsplinerFunction->EvaluateGradientAtParametricPoint( endPoint );
-   	  this->m_CurrentConvergenceMeasurement = -gradient[0][0];
+         this->m_CurrentConvergenceMeasurement = -gradient[0][0];
 
-   	  if( this->m_CurrentConvergenceMeasurement < this->m_ConvergenceThreshold )
-   	    {
-   	    isConverged = true;
-   	    }
-   	  }
+         if( this->m_CurrentConvergenceMeasurement < this->m_ConvergenceThreshold )
+           {
+           isConverged = true;
+           }
+         }
 
     reporter.CompletedStep();
     }

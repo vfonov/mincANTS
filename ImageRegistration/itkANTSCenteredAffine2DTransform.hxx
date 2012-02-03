@@ -448,7 +448,7 @@ ComputeJacobianWithRespectToParameters(const InputPointType  & p, JacobianType &
     const double s1 = m_S1;
     const double s2 = m_S2;
     const double k = m_K;
-  
+
     j.SetSize( this->GetOutputSpaceDimension(), this->GetNumberOfLocalParameters() );
     j.Fill(0.0);
 
@@ -487,7 +487,7 @@ ComputeJacobianWithRespectToParameters(const InputPointType  & p, JacobianType &
     // wrt. t1/t2
     j[0][6] = 1.0;
     j[1][7] = 1.0;
-    
+
 }
 
 

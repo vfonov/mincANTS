@@ -7,11 +7,11 @@
   Version:   $Revision: 1.1 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -32,13 +32,13 @@ namespace itk
  * Computes an image where a given pixel is the mean value of the
  * the pixels in a neighborhood about the corresponding input pixel.
  *
- * A mean filter is one of the family of linear filters.  
+ * A mean filter is one of the family of linear filters.
  *
  * \sa Image
  * \sa Neighborhood
  * \sa NeighborhoodOperator
  * \sa NeighborhoodIterator
- * 
+ *
  * \ingroup IntensityImageFilters
  */
 template <class TInputImage, class TOutputImage>
@@ -67,7 +67,7 @@ public:
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(LogTensorImageFilter, ImageToImageFilter);
-  
+
   /** Image typedef support. */
   typedef typename InputImageType::ConstPointer InputImagePointer;
   typedef typename OutputImageType::Pointer OutputImagePointer;
@@ -80,7 +80,7 @@ public:
 
   //typedef typename TensorType::EigenValuesArrayType EigenValuesArrayType;
   //typedef typename TensorType::EigenVectorsMatrixType EigenVectorsMatrixType;
-  
+
   typedef typename InputImageType::RegionType InputImageRegionType;
   typedef typename OutputImageType::RegionType OutputImageRegionType;
 
@@ -118,7 +118,7 @@ private:
   void operator=(const Self&); //purposely not implemented
 
 };
-  
+
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION

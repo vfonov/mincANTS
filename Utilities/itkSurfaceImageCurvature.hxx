@@ -7,11 +7,11 @@
   Version:   $Revision: 1.12 $
 
   Copyright (c) ConsortiumOfANTS. All rights reserved.
-  See accompanying COPYING.txt or 
+  See accompanying COPYING.txt or
  http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
@@ -61,7 +61,7 @@ public:
     connected=false;
     neighborhoodindex=0;
   }
-  
+
   GeodesicNode(unsigned long i, float d, bool t, IndexType ind)
   {
     distance=d;
@@ -75,15 +75,15 @@ public:
 
 };
 
- 
+
 template<class pclass>
 class GeodesicNodePriority /* defines the comparison operator for the prioritiy queue */
 {
-    public:  
-    bool operator() ( pclass N1, pclass N2) 
-	{  
+    public:
+    bool operator() ( pclass N1, pclass N2)
+    {
       return N1.distance > N2.distance;
-	}
+    }
 };
 
 
@@ -92,7 +92,7 @@ class GeodesicNodePriority /* defines the comparison operator for the prioritiy 
 template <typename TSurface>
 SurfaceImageCurvature<TSurface>
 ::SurfaceImageCurvature()
-{ 
+{
 // outputs are curvature image and normal image
   this->ProcessObject::SetNumberOfRequiredOutputs( 2 );
   m_SurfaceLabel=1;
@@ -112,7 +112,7 @@ void  SurfaceImageCurvature<TSurface>::ProcessLabelImage()
 {
 
   ImageType* image=GetInput();
-  
+
   if (!image) return;
 
 
@@ -123,12 +123,12 @@ void  SurfaceImageCurvature<TSurface>::ProcessLabelImage()
   m_ImageSize=image->GetLargestPossibleRegion().GetSize();
   ImageIteratorType ti( image, image->GetLargestPossibleRegion() );
 
-  ti.GoToBegin(); 
+  ti.GoToBegin();
   while(!ti.IsAtEnd()  )
   {
     PixelType pix=ti.Get();
     index=ti.GetIndex();
-    if (ti.Get() == 2 ) 
+    if (ti.Get() == 2 )
     {
       ti.Set(m_SurfaceLabel);
     } else ti.Set(0);
@@ -155,7 +155,7 @@ void  SurfaceImageCurvature<TSurface>::ProcessLabelImage()
 
 //    if (fabs(d-rad) <= 0.5) ti.Set(m_SurfaceLabel);
 
-  	++ti;
+      ++ti;
   }
 
 
@@ -175,9 +175,9 @@ void  SurfaceImageCurvature<TSurface>::FindEuclideanNeighborhood
 
   typename ImageType::SizeType rad;
   IndexType oindex,index;
-  
+
   long offset=0;
-  for (unsigned int i=0; i<ImageDimension; i++) 
+  for (unsigned int i=0; i<ImageDimension; i++)
   {
     rad[i]=(long)(m_NeighborhoodRadius);
     offset=(long)m_NeighborhoodRadius;
@@ -200,31 +200,31 @@ void  SurfaceImageCurvature<TSurface>::FindEuclideanNeighborhood
       PointType p;
       float dist=0.0;
       bool isorigin=true;
-      for (unsigned int k=0; k<ImageDimension; k++) 
+      for (unsigned int k=0; k<ImageDimension; k++)
       {
         if (index[k]!=oindex[k]) isorigin=false;
         p[k]=(RealType) index[k];
         dist+=(p(k)-this->m_Origin[k])*(p(k)-this->m_Origin[k]);
       }
       dist=sqrt(dist);
-      if (!isorigin && dist <= (m_NeighborhoodRadius)) 
+      if (!isorigin && dist <= (m_NeighborhoodRadius))
       {
         this->m_AveragePoint=this->m_AveragePoint+p;
         this->m_PointList.insert(this->m_PointList.begin(),p);
       }
     }
-    
+
   }
-  
+
   unsigned int npts=this->m_PointList.size();
   if (npts > 0)  this->m_AveragePoint/=(RealType)npts;
     else this->m_AveragePoint=this->m_Origin;
-    
+
   if (this->m_Debug)
   {
-    std:: cout << " point list size " << this->m_PointList.size() << std::endl;  
+    std:: cout << " point list size " << this->m_PointList.size() << std::endl;
   //  for(int i = 0; i < this->m_PointList.size(); i++) {
-  //    std:: cout << " point  " << this->m_PointList[i];  
+  //    std:: cout << " point  " << this->m_PointList[i];
   //  }
     std::cout << std::endl;
   }
@@ -239,8 +239,8 @@ void  SurfaceImageCurvature<TSurface>::FindGeodesicNeighborhood()
 {
 
   typedef std::priority_queue
-  < GeodesicNode<ImageType> , std::vector< GeodesicNode<ImageType> >, 
-	  GeodesicNodePriority< GeodesicNode<ImageType> > >  QType; 
+  < GeodesicNode<ImageType> , std::vector< GeodesicNode<ImageType> >,
+      GeodesicNodePriority< GeodesicNode<ImageType> > >  QType;
 
   QType nodeq;
   std::map<unsigned int, GeodesicNode<ImageType> > nodes;
@@ -248,16 +248,16 @@ void  SurfaceImageCurvature<TSurface>::FindGeodesicNeighborhood()
  this->m_AveragePoint=this->m_Origin;
 
   this->m_PointList.insert(this->m_PointList.begin(),this->m_Origin);
- 
+
   typename ImageType::SizeType rad;
   IndexType oindex,index;
 
   float dist=0.0;
   unsigned int k=0;
   unsigned long longindex=0;
-  
+
   long offset=0;
-  for (unsigned int i=0; i<ImageDimension; i++) 
+  for (unsigned int i=0; i<ImageDimension; i++)
   {
     rad[i]=(long)(m_NeighborhoodRadius);
     offset=(long)m_NeighborhoodRadius;
@@ -266,7 +266,7 @@ void  SurfaceImageCurvature<TSurface>::FindGeodesicNeighborhood()
   index=oindex;
 
 
-  for (k=0; k<ImageDimension; k++) 
+  for (k=0; k<ImageDimension; k++)
   {
     if (k==0) longindex=index[0];
     if (k==1) longindex=index[1]+longindex+index[0]*m_ImageSize[0];
@@ -288,38 +288,38 @@ void  SurfaceImageCurvature<TSurface>::FindGeodesicNeighborhood()
   while( !nodeq.empty() && lastdist <= m_NeighborhoodRadius)
   {
     GeodesicNode<ImageType> g=nodeq.top();
-    
+
     lastdist=g.distance;
 
-    PointType q; 
-    
-//    if ( g.distance < 2.0) 
+    PointType q;
+
+//    if ( g.distance < 2.0)
 //    {
 //      this->m_PointList.insert(this->m_PointList.begin(),q);
 //      nodes[g.neighborhoodindex].connected=true;
-//    } 
-//    else 
+//    }
+//    else
     if ( lastdist <= m_NeighborhoodRadius)
     {
       m_ti2.SetLocation(g.imageindex);
       for (unsigned int jj=0; jj<m_ti2.Size(); jj++)
       {
-        index=m_ti2.GetIndex(jj); 
+        index=m_ti2.GetIndex(jj);
 
         if ( // m_ti2.GetPixel(jj) == m_SurfaceLabel &&
          this->IsValidSurface( m_ti2.GetPixel(jj) ,index) &&
-         index[0] < m_ImageSize[0]-m_NeighborhoodRadius && 
+         index[0] < m_ImageSize[0]-m_NeighborhoodRadius &&
          index[0] >  m_NeighborhoodRadius &&
-         index[1] < m_ImageSize[1]-m_NeighborhoodRadius && 
+         index[1] < m_ImageSize[1]-m_NeighborhoodRadius &&
          index[1] >  m_NeighborhoodRadius &&
-         index[2] < m_ImageSize[2]-m_NeighborhoodRadius && 
+         index[2] < m_ImageSize[2]-m_NeighborhoodRadius &&
          index[2] >  m_NeighborhoodRadius )
         {
-  
- 
+
+
           longindex=0;
-          dist=0; 
-          for (k=0; k<ImageDimension; k++) 
+          dist=0;
+          for (k=0; k<ImageDimension; k++)
           {
             if (k==0) longindex=index[0];
             if (k==1) longindex=index[1]+longindex+index[0]*m_ImageSize[0];
@@ -330,19 +330,19 @@ void  SurfaceImageCurvature<TSurface>::FindGeodesicNeighborhood()
             dist+=(float)(g.imageindex[k]-index[k])*(g.imageindex[k]-index[k]);
           }
           dist=sqrt(dist);
-      
+
 //if ( this->m_Origin[1]==146 && this->m_Origin[0] == 168 && this->m_Origin[2]==215)
 //{
-// std::cout << " testing point " << index << " longind " << longindex << " dist " << dist << 
+// std::cout << " testing point " << index << " longind " << longindex << " dist " << dist <<
 // " bool " << nodes[longindex].connected << std::endl;
 //}
-//          if (!nodes[longindex].connected ) //&& !nodes[g.neighborhoodindex].connected) 
-          if ( !nodes[longindex].connected &&  (dist+lastdist) <= m_NeighborhoodRadius) 
+//          if (!nodes[longindex].connected ) //&& !nodes[g.neighborhoodindex].connected)
+          if ( !nodes[longindex].connected &&  (dist+lastdist) <= m_NeighborhoodRadius)
           {
             GeodesicNode<ImageType> gnode(longindex,dist+lastdist,true,index);
 //            GeodesicNode<ImageType> gnode(longindex,dist,true,index);
             nodes[longindex]=gnode;
-            nodeq.push(gnode);  
+            nodeq.push(gnode);
 //if ( this->m_Origin[1]==146 && this->m_Origin[0] == 168 && this->m_Origin[2]==215)
 ///{
 // std::cout << " inserting point " << index << std::endl;
@@ -377,7 +377,7 @@ void  SurfaceImageCurvature<TSurface>::FindNeighborhood(unsigned int numMeanShif
   else
   {
     this->FindEuclideanNeighborhood(this->GetOrigin());
- 
+
     for (unsigned int dd=0; dd< numMeanShifts; dd++)
     {
       this->m_PointList.clear();
@@ -409,7 +409,7 @@ void  SurfaceImageCurvature<TSurface>
 
 /*
   ImageType* image=GetInput();
-  
+
   if (!image) return;
 
   IndexType index;
@@ -423,16 +423,16 @@ void  SurfaceImageCurvature<TSurface>
   typename CurvatureType::Pointer inCurvature = CurvatureType::New();
   inCurvature->SetInputImage( image );
 
-  ti.GoToBegin(); 
+  ti.GoToBegin();
   while(!ti.IsAtEnd()  )
   {
     index=ti.GetIndex();
-	  //if (ti.Get() == this->m_SurfaceLabel)
+      //if (ti.Get() == this->m_SurfaceLabel)
     if(this->IsValidSurface(ti.Get(),index))
     {
       double curvature = inCurvature->EvaluateAtIndex( index );
       this->m_FunctionImage->SetPixel(index,fabs(curvature));
-	  }
+      }
     ++ti;
   }
 */
@@ -447,16 +447,16 @@ void  SurfaceImageCurvature<TSurface>
 
   typename ImageType::Pointer image=GetInput();
 
-  std::cout << " compute normals " << this->m_Sigma << " hood " << (this->m_NeighborhoodRadius) << 
+  std::cout << " compute normals " << this->m_Sigma << " hood " << (this->m_NeighborhoodRadius) <<
    " spacing " << image->GetSpacing() <<  std::endl;
-  
+
   if (!image) return;
 
   typename ImageType::SizeType rad;
   typename ImageType::SizeType rad2;
 
   for (unsigned int t=0; t<ImageDimension; t++)
-  { 
+  {
     rad[t]=(unsigned long) (this->m_NeighborhoodRadius);
     rad2[t]=1;
   }
@@ -466,12 +466,12 @@ void  SurfaceImageCurvature<TSurface>
   typedef itk::ImageRegionIteratorWithIndex<TSurface> IteratorType;
   IteratorType Iterator( image,image->GetLargestPossibleRegion().GetSize() );
   bool wmgmcurv=true;
-  Iterator.GoToBegin();	
+  Iterator.GoToBegin();
   while(  !Iterator.IsAtEnd()  )
       {
       float pix=Iterator.Get();
       if (pix !=0 && pix != 1 && pix != 2) wmgmcurv=false;
-      ++Iterator; 
+      ++Iterator;
       }
   wmgmcurv=false;
   std::cout << " Using Binary Segmentation curv? " << wmgmcurv << std::endl;
@@ -483,28 +483,28 @@ void  SurfaceImageCurvature<TSurface>
     laplacian->SetBufferedRegion( image->GetLargestPossibleRegion() );
     laplacian->Allocate();
     laplacian->SetSpacing(image->GetSpacing());
-    Iterator.GoToBegin();	
+    Iterator.GoToBegin();
     while(  !Iterator.IsAtEnd()  )
       {
       IndexType ind=Iterator.GetIndex();
       if (image->GetPixel(ind) == 2) laplacian->SetPixel(ind,1);
       else if (image->GetPixel(ind) == 1 ) laplacian->SetPixel(ind,0.);
       else laplacian->SetPixel(ind,0.);
-      ++Iterator; 
+      ++Iterator;
       }
-    
-    //smooth and then reset the values 
+
+    //smooth and then reset the values
     unsigned int totit=50;
     for(unsigned int iterations=0; iterations<totit; iterations++)
       {
       std::cout <<" % " << (float)iterations/(float)(totit) <<std::endl;
       while(  !Iterator.IsAtEnd()  )
-	{
-	IndexType ind=Iterator.GetIndex();
-	if (image->GetPixel(ind) == 2) laplacian->SetPixel(ind,1);
-	else if (image->GetPixel(ind) == 0 ) laplacian->SetPixel(ind,0.);
-	++Iterator; 
-	}
+    {
+    IndexType ind=Iterator.GetIndex();
+    if (image->GetPixel(ind) == 2) laplacian->SetPixel(ind,1);
+    else if (image->GetPixel(ind) == 0 ) laplacian->SetPixel(ind,0.);
+    ++Iterator;
+    }
       typedef itk::DiscreteGaussianImageFilter<TSurface, TSurface> dgf;
       typename dgf::Pointer filter = dgf::New();
       filter->SetVariance(0.5);
@@ -513,36 +513,36 @@ void  SurfaceImageCurvature<TSurface>
       filter->SetInput(laplacian);
       filter->Update();
       laplacian=filter->GetOutput();
-      Iterator.GoToBegin();	
+      Iterator.GoToBegin();
       }
 //    WriteImage<TSurface>(laplacian,"lap.hdr");
 //    std::cout << "Laplacian Solved " << std::endl;
     GradientImageFilterPointer filter=GradientImageFilterType::New();
-    filter->SetInput( laplacian); 
+    filter->SetInput( laplacian);
     RealType sigma=this->m_Sigma;
-    filter->SetSigma( sigma ); 
+    filter->SetSigma( sigma );
     // Execute the filter
     filter->Update();
     this->m_GradientImage=filter->GetOutput();
     GradientPixelType zero;
     zero.Fill(0);
-    Iterator.GoToBegin();	
+    Iterator.GoToBegin();
     while(  !Iterator.IsAtEnd()  )
       {
       IndexType ind=Iterator.GetIndex();
-      if (image->GetPixel(ind) != 1) 
-	{
-	this->m_GradientImage->SetPixel(ind,zero);
-	}
+      if (image->GetPixel(ind) != 1)
+    {
+    this->m_GradientImage->SetPixel(ind,zero);
+    }
       ++Iterator;
       }
     }
   else
     {
     GradientImageFilterPointer filter=GradientImageFilterType::New();
-    filter->SetInput(  image ); 
+    filter->SetInput(  image );
     RealType sigma=this->m_Sigma;
-    filter->SetSigma( sigma ); 
+    filter->SetSigma( sigma );
     // Execute the filter
     filter->Update();
     this->m_GradientImage=filter->GetOutput();
@@ -568,7 +568,7 @@ void  SurfaceImageCurvature<TSurface>
   unsigned int i=0;
   unsigned int npts=this->m_PointList.size()-1;
 
-  if (npts < 4) 
+  if (npts < 4)
   {
     this->m_MeanKappa = 0;
     this->m_GaussianKappa = 0;
@@ -584,16 +584,16 @@ void  SurfaceImageCurvature<TSurface>
   MatrixType W(2,2);
   W.fill(0.0);
 
-  
-  vnl_vector<double> xdists(npts); 
+
+  vnl_vector<double> xdists(npts);
   xdists.fill(0.0);
-  vnl_vector<double> ydists(npts); 
+  vnl_vector<double> ydists(npts);
   ydists.fill(0.0);
-  vnl_vector<double> zdists(npts); 
+  vnl_vector<double> zdists(npts);
   zdists.fill(0.0);
 
 
-// go through all the points 
+// go through all the points
 //  compute weight
 //  compute dist of unit dif and tangents
 //  compute dif of normal with grad at point
@@ -603,7 +603,7 @@ void  SurfaceImageCurvature<TSurface>
 
   for (j=0; j<npts; j++)
   {
-  
+
     PointType Dif=Q-this->m_PointList[j];
     float difmag=Dif.magnitude();
     PointType unitDif=Dif/difmag;
@@ -632,11 +632,11 @@ void  SurfaceImageCurvature<TSurface>
     float nmag=0.0;
 
     for (i=0;i<SurfaceDimension;i++)
-    { 
+    {
       nmag+=norm[i]*norm[i];
       PN[i]=norm[i];
     }
- 
+
     nmag=sqrt(nmag);
     if (nmag >  1.e-9) PN/=(nmag); else PN*=0.0;
 
@@ -645,7 +645,7 @@ void  SurfaceImageCurvature<TSurface>
     xdists[j]=(PN[0]);
     ydists[j]=(PN[1]);
     zdists[j]=(PN[2]);
-/*    
+/*
     float a=0;
     float b=0;
 
@@ -659,11 +659,11 @@ void  SurfaceImageCurvature<TSurface>
 
     if ( u1*u1 > u2*u2 )
     {
-      
+
       W(0,0)=W(0,0)+a;
       W(1,0)=W(1,0)+b;
-    } 
-    else 
+    }
+    else
     {
       W(0,1)=W(0,1)+a;
       W(1,1)=W(1,1)+b;
@@ -678,7 +678,7 @@ void  SurfaceImageCurvature<TSurface>
    D(j,5)=1.0;
 */
  // each row contains [u^2 , uv, v^2, u, v, 1] for point p
- 
+
    if (vars == 6)
    {
      D(j,5)=u2*u2;  // (0   , 2*u2)
@@ -714,7 +714,7 @@ void  SurfaceImageCurvature<TSurface>
     float c=0;
     float d=0;
 
-  
+
     for (i=0; i<SurfaceDimension; i++)
     {
       a+=dNdu[i]*this->m_Tangent1[i];
@@ -727,7 +727,7 @@ void  SurfaceImageCurvature<TSurface>
     dNdu=a/(c+a)*this->m_Tangent1+c/(c+a)*this->m_Tangent2;
     dNdv=b/(b+d)*this->m_Tangent1+d/(b+d)*this->m_Tangent2;
     a=0; b=0; c=0; d=0;
-  
+
     for (i=0; i<SurfaceDimension; i++)
     {
       a+=dNdu[i]*this->m_Tangent1[i];
@@ -774,7 +774,7 @@ void  SurfaceImageCurvature<TSurface>
 {
 
   ImageType* image=GetInput();
-  
+
   if (!image) return;
 
 //BUG FIXME
@@ -786,11 +786,11 @@ void  SurfaceImageCurvature<TSurface>
     typename ImageType::RegionType requestedRegion;
     this->m_ImageSize=image->GetLargestPossibleRegion().GetSize();
     ImageIteratorType ti( image, image->GetLargestPossibleRegion() );
-    
+
     RealType area=0.0;
     this->m_TotalArea=0.0;
 
-    ti.GoToBegin(); 
+    ti.GoToBegin();
     unsigned int ct=0;
     while(!ti.IsAtEnd()  )
     {
@@ -798,13 +798,13 @@ void  SurfaceImageCurvature<TSurface>
 
       if ( //ti.Get() == this->m_SurfaceLabel &&
        (this->IsValidSurface(ti.Get(),index)) &&
-       index[0] < this->m_ImageSize[0]-this->m_NeighborhoodRadius && 
+       index[0] < this->m_ImageSize[0]-this->m_NeighborhoodRadius &&
        index[0] >  this->m_NeighborhoodRadius &&
-       index[1] < this->m_ImageSize[1]-this->m_NeighborhoodRadius && 
+       index[1] < this->m_ImageSize[1]-this->m_NeighborhoodRadius &&
        index[1] >  this->m_NeighborhoodRadius &&
-       index[2] < this->m_ImageSize[2]-this->m_NeighborhoodRadius && 
+       index[2] < this->m_ImageSize[2]-this->m_NeighborhoodRadius &&
        index[2] >  this->m_NeighborhoodRadius )
-      { 
+      {
         ct++;
 //        this->EstimateFrameFromGradient(index);
 // BUG FIXME
@@ -831,13 +831,13 @@ void  SurfaceImageCurvature<TSurface>
   GradientPixelType g=this->m_GradientImage->GetPixel(index);
 
   RealType mag=0.0;
-  for (int i=0; i< ImageDimension; i++) 
-  { 
+  for (int i=0; i< ImageDimension; i++)
+  {
     this->m_Normal(i)=(RealType) g[i];
     mag+=g[i]*g[i];
   }
   mag=sqrt(mag);
-  if (mag <= 1.e-9) 
+  if (mag <= 1.e-9)
   {
     this->m_Normal.fill(0.);
   } else this->m_Normal/=sqrt(mag);
@@ -854,7 +854,7 @@ SurfaceImageCurvature<TSurface>
 ::IntegrateFunctionOverSurface(bool norm)
 {
   typename OutputImageType::Pointer image=this->m_FunctionImage;
-  
+
   if (!image) { std::cout << " no image " << std::endl; return 0; }
 
 std::cout << "  allocating temp image ";
@@ -869,7 +869,7 @@ std::cout << "  done allocating  ";
   typename ImageType::SizeType rad2;
 
   for (unsigned int t=0; t<ImageDimension; t++)
-  { 
+  {
     rad[t]=(unsigned long) (this->m_NeighborhoodRadius);
     rad2[t]=1;
   }
@@ -880,13 +880,13 @@ std::cout << "  done allocating  ";
 
 
   IndexType index;
-  
+
   typename ImageType::RegionType requestedRegion;
   ImageIteratorType ti( this->GetInput(), this->GetInput()->GetLargestPossibleRegion() );
-    
+
     std::cout << " begin integrate ";
 
-    ti.GoToBegin(); 
+    ti.GoToBegin();
     unsigned int ct =0;
 std::cout << " begin while " << std::endl;
     while(!ti.IsAtEnd()  )
@@ -895,25 +895,25 @@ std::cout << " begin while " << std::endl;
       tempimage->SetPixel(index,0);
       if ( //ti.Get() == this->m_SurfaceLabel &&
        (this->IsValidSurface(ti.Get(),index)) &&
-       index[0] < this->m_ImageSize[0]-this->m_NeighborhoodRadius && 
+       index[0] < this->m_ImageSize[0]-this->m_NeighborhoodRadius &&
        index[0] >  this->m_NeighborhoodRadius &&
-       index[1] < this->m_ImageSize[1]-this->m_NeighborhoodRadius && 
+       index[1] < this->m_ImageSize[1]-this->m_NeighborhoodRadius &&
        index[1] >  this->m_NeighborhoodRadius &&
-       index[2] < this->m_ImageSize[2]-this->m_NeighborhoodRadius && 
+       index[2] < this->m_ImageSize[2]-this->m_NeighborhoodRadius &&
        index[2] >  this->m_NeighborhoodRadius )
-      { 
+      {
         PointType p;
         ct++;
         for (unsigned int k=0; k<ImageDimension; k++) p[k]=(RealType) index[k];
-	      this->SetOrigin(p);
-//	      std::cout << " find nhood ";
+          this->SetOrigin(p);
+//          std::cout << " find nhood ";
         this->FindNeighborhood();
 //        std::cout << " get area ";
         RealType area=this->IntegrateFunctionOverNeighborhood(norm);
         tempimage->SetPixel(index,area);
         if (ct % 10000 == 0)       std::cout << " area is : " << area << " ct " << ct << " pix " << ti.Get() << std::endl;
 //        if ( area > 1) std::cout << " ind " << index << " area " << area  << std::endl;
-          // SD why sometimes a pixel is NaN ? 
+          // SD why sometimes a pixel is NaN ?
   //      if ( !(area > 0)) std::cout << " ind " << index << " area " << area << " pix " << ti.Get() << std::endl;
       }
       ++ti;
@@ -930,16 +930,16 @@ void
 SurfaceImageCurvature<TSurface>
 ::CopyImageToFunctionImage(OutputImagePointer i1, OutputImagePointer i2)
 {
- 
+
   if (!i1 || !i2) return;
 
-  
+
   typename ImageType::RegionType requestedRegion;
   OutputImageIteratorType ti1( i1, i1->GetLargestPossibleRegion() );
   OutputImageIteratorType ti2( i2, i2->GetLargestPossibleRegion() );
-    
-  ti1.GoToBegin(); 
-  ti2.GoToBegin(); 
+
+  ti1.GoToBegin();
+  ti2.GoToBegin();
   while(!ti1.IsAtEnd()  )
   {
      ti2.Set(ti1.Get());
@@ -961,7 +961,7 @@ SurfaceImageCurvature<TSurface>
   std::cout << " npts " << npts;
   for (unsigned int pp =0; pp<npts; pp++){
     IndexType localindex;
-    for (unsigned int k=0; k<ImageDimension; k++) 
+    for (unsigned int k=0; k<ImageDimension; k++)
       localindex[k]=(long) this->m_PointList[pp][k];
     PointType dd=this->m_Origin-this->m_PointList[pp];
     double wi=dd.magnitude();
@@ -977,9 +977,9 @@ SurfaceImageCurvature<TSurface>
   // SD sometimes tw is zero making curvature = NaN
   if (norm && tw!=0) curvature/=tw;
   this->m_PointList.clear();
- 
+
   return curvature;
- 
+
 }
 
 
@@ -989,7 +989,7 @@ void  SurfaceImageCurvature<TSurface>
 {
 
   typename ImageType::Pointer  image=GetInput();
-  
+
   if (!image) return;
 
   IndexType index;
@@ -999,48 +999,48 @@ void  SurfaceImageCurvature<TSurface>
   ImageIteratorType ti( image, image->GetLargestPossibleRegion() );
 
   std::vector<double> kvec;
-  ti.GoToBegin(); 
+  ti.GoToBegin();
   while(!ti.IsAtEnd()  )
   {
     PixelType pix=ti.Get();
     index=ti.GetIndex();
     if ( //ti.Get() == this->m_SurfaceLabel &&
      (this->IsValidSurface(ti.Get(),index)) &&
-     index[0] < this->m_ImageSize[0]-this->m_NeighborhoodRadius && 
+     index[0] < this->m_ImageSize[0]-this->m_NeighborhoodRadius &&
      index[0] >  this->m_NeighborhoodRadius &&
-     index[1] < this->m_ImageSize[1]-this->m_NeighborhoodRadius && 
+     index[1] < this->m_ImageSize[1]-this->m_NeighborhoodRadius &&
      index[1] >  this->m_NeighborhoodRadius &&
-     index[2] < this->m_ImageSize[2]-this->m_NeighborhoodRadius && 
+     index[2] < this->m_ImageSize[2]-this->m_NeighborhoodRadius &&
      index[2] >  this->m_NeighborhoodRadius ) //
     {
-  	  PointType p;
+        PointType p;
       for (unsigned int k=0; k<ImageDimension; k++) p[k]=(RealType) index[k];
-	    this->SetOrigin(p);
-	    this->FindNeighborhood();
+        this->SetOrigin(p);
+        this->FindNeighborhood();
       int npts = this->m_PointList.size()-1;
       int dim = SurfaceDimension;
-	    double curvature=0.0,tw=0.0;
+        double curvature=0.0,tw=0.0;
       for (int pp =0; pp<npts; pp++){
         IndexType localindex;
-        for (unsigned int k=0; k<ImageDimension; k++) 
-  	      localindex[k]=(long) this->m_PointList[pp][k];
-//	      PointType dd=this->m_Origin-this->m_PointList[pp];
-//	      double wi=dd.magnitude();
-//	      if (wi!=0.0) wi=1./wi;
-//	      tw+=wi;vector<int> vec;      
+        for (unsigned int k=0; k<ImageDimension; k++)
+            localindex[k]=(long) this->m_PointList[pp][k];
+//          PointType dd=this->m_Origin-this->m_PointList[pp];
+//          double wi=dd.magnitude();
+//          if (wi!=0.0) wi=1./wi;
+//          tw+=wi;vector<int> vec;
 
           curvature = this->m_FunctionImage->GetPixel( localindex );
           kvec.push_back (curvature);
       }
-      
+
       std::sort(kvec.begin(), kvec.end()); // Sort the vector
 
-	    this->m_PointList.clear();
-//	    curvature/=tw;
+        this->m_PointList.clear();
+//        curvature/=tw;
       this->m_FunctionImage->SetPixel(index,kvec[kvec.size()/2]);
       kvec.clear();
     }
-  	++ti;
+      ++ti;
   }
 }
 
@@ -1051,7 +1051,7 @@ void  SurfaceImageCurvature<TSurface>
 {
 
   ImageType* image=GetInput();
-  
+
   if (!image) return;
 
   IndexType index;
@@ -1081,16 +1081,16 @@ void  SurfaceImageCurvature<TSurface>
     kpix=0.0;
     if ( //ti.Get() == this->m_SurfaceLabel &&
      this->IsValidSurface(ti.Get(),index) &&
-     index[0] < this->m_ImageSize[0]-2*this->m_NeighborhoodRadius && 
+     index[0] < this->m_ImageSize[0]-2*this->m_NeighborhoodRadius &&
      index[0] >  2*this->m_NeighborhoodRadius &&
-     index[1] < this->m_ImageSize[1]-2*this->m_NeighborhoodRadius && 
+     index[1] < this->m_ImageSize[1]-2*this->m_NeighborhoodRadius &&
      index[1] >  2*this->m_NeighborhoodRadius &&
-     index[2] < this->m_ImageSize[2]-2*this->m_NeighborhoodRadius && 
+     index[2] < this->m_ImageSize[2]-2*this->m_NeighborhoodRadius &&
      index[2] >  2*this->m_NeighborhoodRadius ) //
     {
       // std::cout << " val " << (RealType) ti.Get() << std::endl;
       PointType p;
-      for (unsigned int k=0; k<ImageDimension; k++) 
+      for (unsigned int k=0; k<ImageDimension; k++)
       {
         p[k]=(RealType) index[k];
       }
@@ -1111,7 +1111,7 @@ void  SurfaceImageCurvature<TSurface>
           break;
     default:     this->WeingartenMap();
     }
-        
+
     //      this->PrintFrame();
 
       bool geterror=false;
@@ -1119,9 +1119,9 @@ void  SurfaceImageCurvature<TSurface>
       float error=0.0;
         float temp1=this->ErrorEstimate(this->GetOrigin());
         float temp2=this->ErrorEstimate(this->GetOrigin(),-1);
-        if (temp1 < temp2) 
+        if (temp1 < temp2)
         {
-          error=temp1; 
+          error=temp1;
         }else{
          error=temp2;
          this->SwitchNormalSign();
@@ -1133,21 +1133,21 @@ void  SurfaceImageCurvature<TSurface>
       }
 
 //    kpix=fabs(2.0/(3.1416)*atan((this->m_Kappa1+this->m_Kappa2)/(this->m_Kappa2-this->m_Kappa1)));
-//    if (kpix >= 0) 
+//    if (kpix >= 0)
 //    kpix = (sqrt(this->m_Kappa1*this->m_Kappa1+this->m_Kappa2*this->m_Kappa2));
 //      kpix=1.0;
-//    if (this->m_MeanKappa > 0.)  kpix +=fabs(this->m_MeanKappa);  
+//    if (this->m_MeanKappa > 0.)  kpix +=fabs(this->m_MeanKappa);
 //      kpix =fabs(this->m_MeanKappa);
 //    kpix = kpix+10.0;
 //    if (this->m_Kappa1 > 0) kpix+=fabs(this->m_Kappa1);
 //    if (this->m_Kappa2 > 0) kpix+=fabs(this->m_Kappa2);
 //    else kpix = -1.0*(sqrt(this->m_Kappa1*this->m_Kappa1+this->m_Kappa2*this->m_Kappa2));
-    
-    
+
+
 //    std::cout << " kpix " << kpix << " thresh " << thresh << std::endl;
-   
+
 //
-//    if ( fabs(kpix) >  100 ) kpix=0.0; 
+//    if ( fabs(kpix) >  100 ) kpix=0.0;
 //    else if (kpix < -1.0*thresh/ct ) kpix=2;
 //    else kpix=0;
 
@@ -1158,8 +1158,8 @@ void  SurfaceImageCurvature<TSurface>
       if (fabs(fval) > 1) fval/=fval;
 //      if (fval > 0.0) kpix+=(fval); // gyri
 //      if (fval < 0.0) kpix-=(fval); // sulci bright
-      kpix=this->m_kSign*fval; //sulci 
-      if( vnl_math_isnan(kpix)  || vnl_math_isinf(kpix) ) 
+      kpix=this->m_kSign*fval; //sulci
+      if( vnl_math_isnan(kpix)  || vnl_math_isinf(kpix) )
       {
         this->m_Kappa1=0.0;
         this->m_Kappa2=0.0;
@@ -1172,9 +1172,9 @@ void  SurfaceImageCurvature<TSurface>
       if (which == 5) kpix=this->CharacterizeSurface();
       if (which == 6) kpix=this->m_GaussianKappa;
       ct++;
-      this->m_PointList.clear();  
+      this->m_PointList.clear();
     }
-    thresh+=kpix; 
+    thresh+=kpix;
     float offset=0;
     if ( fabs( image->GetPixel(index) - 0 ) > 1.e-6  ) offset=128.0;
     if (which == 5) offset=0;
@@ -1192,9 +1192,9 @@ void  SurfaceImageCurvature<TSurface>
   while(!ti.IsAtEnd()  )
   {
     PixelType pix=ti.Get();
-    if ( //ti.Get() == this->m_SurfaceLabel 
+    if ( //ti.Get() == this->m_SurfaceLabel
       this->IsValidSurface(ti.Get(),index)
-    ) 
+    )
       sd+=(this->m_FunctionImage->GetPixel(ti.GetIndex())-avgc)*
           (this->m_FunctionImage->GetPixel(ti.GetIndex())-avgc);
     ++ti;
@@ -1206,11 +1206,11 @@ void  SurfaceImageCurvature<TSurface>
   while(!ti.IsAtEnd()  )
   {
     PixelType pix=ti.Get();
-    if ( //ti.Get() == this->m_SurfaceLabel 
-        this->IsValidSurface(ti.Get(),index) && 
-        (this->m_FunctionImage->GetPixel(ti.GetIndex()) - avgc) > nsd*sd ) 
+    if ( //ti.Get() == this->m_SurfaceLabel
+        this->IsValidSurface(ti.Get(),index) &&
+        (this->m_FunctionImage->GetPixel(ti.GetIndex()) - avgc) > nsd*sd )
       this->m_FunctionImage->SetPixel(ti.GetIndex(),avgc+nsd*sd);
-  
+
     ++ti;
   }
 */
@@ -1222,24 +1222,24 @@ void  SurfaceImageCurvature<TSurface>
 template <typename TSurface>
 typename SurfaceImageCurvature<TSurface>::ImageType*
 SurfaceImageCurvature<TSurface>
-::GetInput(void) 
+::GetInput(void)
 {
   if (this->GetNumberOfInputs() < 1)
     {
     return NULL;
     }
-  
+
   return static_cast< ImageType * >
                      (this->ProcessObject::GetInput(0) );
 }
-  
+
 
 
 /**
  *
  */
 template <typename TSurface>
-typename SurfaceImageCurvature<TSurface>::OutputImageType * 
+typename SurfaceImageCurvature<TSurface>::OutputImageType *
 SurfaceImageCurvature<TSurface>
 ::GetOutput()
 {
@@ -1256,12 +1256,12 @@ SurfaceImageCurvature<TSurface>
 //          const_cast< ImageType * >( input ) );
 
 
-  
+
   this->m_ImageSize=input->GetLargestPossibleRegion().GetSize();
 
   typename OutputImageType::RegionType region;
   region.SetSize( this->m_ImageSize );
-  
+
   if (!this->m_FunctionImage)
   {
   this->m_FunctionImage=OutputImageType::New();
@@ -1274,7 +1274,7 @@ SurfaceImageCurvature<TSurface>
 
   }
   //this->ProcessLabelImage();
-  
+
   //this->ProcessObject::SetNthOutput( 0, this->m_FunctionImage );
 }
 

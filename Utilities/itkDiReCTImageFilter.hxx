@@ -345,12 +345,12 @@ DiReCTImageFilter<TInputImage, TOutputImage>
       inverseField->Update();
       inverseField->DisconnectPipeline();
 
-   	  RealImagePointer warpedWhiteMatterProbabilityMap = this->WarpImage(
-   	    whiteMatterProbabilityImageImporter->GetOutput(), inverseField );
-   	  RealImagePointer warpedWhiteMatterContours = this->WarpImage(
-   	    whiteMatterContours, inverseField );
-   	  RealImagePointer warpedThicknessImage = this->WarpImage(
-   	    thicknessImage, inverseField );
+         RealImagePointer warpedWhiteMatterProbabilityMap = this->WarpImage(
+           whiteMatterProbabilityImageImporter->GetOutput(), inverseField );
+         RealImagePointer warpedWhiteMatterContours = this->WarpImage(
+           whiteMatterContours, inverseField );
+         RealImagePointer warpedThicknessImage = this->WarpImage(
+           thicknessImage, inverseField );
 
       typedef GradientRecursiveGaussianImageFilter<RealImageType, DisplacementFieldType>
         GradientImageFilterType;

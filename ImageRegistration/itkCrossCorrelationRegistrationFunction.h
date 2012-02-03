@@ -178,9 +178,9 @@ public:
        double cc=0;
        if ( fabs(sff*smm) > 0) { cc+=sfm*sfm/(sff*smm); ct++; }
        if ( this->m_MetricImage) {
-	 this->m_MetricImage->SetPixel(oindex,cc);
-	 //if ( fabs(cc) > 0)
-	   //	 std::cout << " set cc " << cc << std::endl;
+     this->m_MetricImage->SetPixel(oindex,cc);
+     //if ( fabs(cc) > 0)
+       //     std::cout << " set cc " << cc << std::endl;
        }
        totalcc+=cc;
        }
@@ -308,15 +308,15 @@ public:
     bool makebinimg=false;
     if (makebinimg)
       {
-	m_Iteration=0;
-	binaryimage = BinaryImageType::New();
-	binaryimage->SetLargestPossibleRegion(img->GetLargestPossibleRegion()  );
-	binaryimage->SetBufferedRegion(img->GetLargestPossibleRegion());
-	binaryimage->SetSpacing(img->GetSpacing());
-	binaryimage->SetOrigin(img->GetOrigin());
-	binaryimage->Allocate();
-	ittype2 it(binaryimage,binaryimage->GetLargestPossibleRegion().GetSize());
-	for( it.GoToBegin(); !it.IsAtEnd(); ++it ) it.Set(1);
+    m_Iteration=0;
+    binaryimage = BinaryImageType::New();
+    binaryimage->SetLargestPossibleRegion(img->GetLargestPossibleRegion()  );
+    binaryimage->SetBufferedRegion(img->GetLargestPossibleRegion());
+    binaryimage->SetSpacing(img->GetSpacing());
+    binaryimage->SetOrigin(img->GetOrigin());
+    binaryimage->Allocate();
+    ittype2 it(binaryimage,binaryimage->GetLargestPossibleRegion().GetSize());
+    for( it.GoToBegin(); !it.IsAtEnd(); ++it ) it.Set(1);
       }
     return this->m_MetricImage;
   }
