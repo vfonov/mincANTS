@@ -104,7 +104,7 @@ protected:
             IndexType index = outputIt.GetIndex();
             outputPtr->TransformIndexToPhysicalPoint( index, point1 );
 
-            bool isinside = MultiTransformPoint(point1, point2, Superclass::m_bFirstDeformNoInterp, index);
+            const bool isinside = this->MultiTransformPoint(point1, point2, Superclass::m_bFirstDeformNoInterp, index);
 
             if (isinside) {
                 PixelType value;

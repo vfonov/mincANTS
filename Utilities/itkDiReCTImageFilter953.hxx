@@ -1130,7 +1130,7 @@ template<class TInputImage, class TOutputImage>
 typename DiReCTImageFilter953<TInputImage, TOutputImage>::SparseImagePointer
 DiReCTImageFilter953<TInputImage, TOutputImage>
 ::ConvertRealImageToSparseImage( const RealImageType *inputImage,
-  const InputImageType *maskImage = NULL )
+  const InputImageType *maskImage)
 {
   SparseImagePointer sparseImage = SparseImageType::New();
   sparseImage->Initialize();
@@ -1179,7 +1179,7 @@ template<class TInputImage, class TOutputImage>
 typename DiReCTImageFilter953<TInputImage, TOutputImage>::RealImagePointer
 DiReCTImageFilter953<TInputImage, TOutputImage>
 ::ConvertSparseImageToRealImage( const SparseImageType *inputImage,
-  const InputImageType *maskImage = NULL )
+  const InputImageType *maskImage )
 {
   RealImagePointer realImage = RealImageType::New();
   realImage->CopyInformation( this->GetSegmentationImage() );
