@@ -192,7 +192,7 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
     std::string ANTS_prefix(argv[4]);
 
 
-    typedef itk::MatrixOffsetTransformBase< double, 3, 3> AffineTransformType;
+    typedef itk::AffineTransform< double, 3> AffineTransformType;
     AffineTransformType::Pointer aff = AffineTransformType::New();
     GetAffineTransformFromTwoPointSets3D(fixedLandmarks, movingLandmarks, aff);
     std::cout << "affine:" << aff;
@@ -348,7 +348,7 @@ void DumpTransformForANTS3D(const TransformAPointer &transform, StringType &ANTS
     const int ImageDimension = 3;
 
     // ANTS transform file type
-    typedef itk::MatrixOffsetTransformBase< double, ImageDimension, ImageDimension > AffineTransformType;
+    typedef itk::AffineTransform< double, ImageDimension > AffineTransformType;
     AffineTransformType::Pointer transform_ANTS = AffineTransformType::New();
 
     //    typedef TransformAPointer::ObjectType TransformA;
