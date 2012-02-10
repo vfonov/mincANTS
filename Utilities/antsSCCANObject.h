@@ -433,6 +433,7 @@ private:
 
 
   VectorType  m_CanonicalCorrelations;
+  VariateType m_SparseVariatesP;
   VariateType m_VariatesP;
   VariateType m_VariatesQ;
 
