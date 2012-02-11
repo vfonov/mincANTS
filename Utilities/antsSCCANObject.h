@@ -279,14 +279,14 @@ public:
   {
     double sx = 0.0, sy = 0.0, stt = 0.0, sts = 0.0;
     unsigned int listsize = vexlist.size();
+    if ( listsize < 10 ) return 1;
     if ( n > listsize ) n=listsize;
-    for (int i = 0; i < n; ++i) sx += i;
-    for (int i = 0; i < n; ++i) {
+    for (int i = 4; i < n; ++i) sx += i;
+    for (int i = 4; i < n; ++i) {
       double t = i - sx/n;
       stt += t*t;
       sts += t*vexlist[listsize-i-1];
     }
-    if ( listsize < 3 ) return 1;
     std::vector<RealType> sublist;
     for (int i=listsize-4; i<listsize; i++) sublist.push_back( vexlist[i] );
     /** detect a cycle in the solution space */
@@ -296,7 +296,7 @@ public:
       for (int j=0; j<4; j++) if ( sublist[j] != vexlist[i-j] ) allequal=false;
       if (allequal) return 1.e-7;
     }
-    return sts/stt*(-1);
+    return sts/stt*(1);
   }
 
   RealType SparseCCA(unsigned int nvecs);
