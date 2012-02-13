@@ -195,9 +195,10 @@ public:
   RealType RunSCCAN2( );
   RealType RunSCCAN3();
 
+  RealType SparseConjGrad( VectorType& , VectorType , RealType , unsigned int );
   void ReSoftThreshold( VectorType& v_in, RealType fractional_goal , bool allow_negative_weights );
   void ConstantProbabilityThreshold( VectorType& v_in, RealType probability_goal , bool allow_negative_weights );
-  VectorType InitializeV( MatrixType p );
+  VectorType InitializeV( MatrixType p , bool random = false);
   MatrixType NormalizeMatrix(MatrixType p);
   /** needed for partial scca */
   MatrixType CovarianceMatrix(MatrixType p, RealType regularization=1.e-2 ) {
@@ -277,19 +278,30 @@ public:
 
   RealType ComputeEnergySlope( std::vector<RealType> vexlist , unsigned int n )
   {
-    double sx = 0.0, sy = 0.0, stt = 0.0, sts = 0.0;
-    unsigned int listsize = vexlist.size();
-    if ( listsize < 10 ) return 1;
-    if ( n > listsize ) n=listsize;
-    for (int i = 4; i < n; ++i) sx += i;
-    for (int i = 4; i < n; ++i) {
-      double t = i - sx/n;
-      stt += t*t;
-      sts += t*vexlist[listsize-i-1];
-    }
+    unsigned int N = vexlist.size();
+    unsigned int loline = N - n; 
+    if ( N < n*2 ) return 1; 
+    double s0 = (n+1);
+    double s1 =  0 ;
+    double s2 =  0 ;
+    double t0 =  0 ;
+    double t1 =  0 ;
+    for (int i = loline; i < N; ++i)
+      {
+      double t=(i-loline);
+      s1+=t;
+      s2+=(t*t);
+      double e=vexlist[i]-vexlist[loline]; 
+      t0+=e;
+      t1+=(e*e);
+      }
+    double M = 1; 
+    double denom=(s0*s2 - s1*s1);
+    if ( denom > 0 ) M = ( s1*t0 - s0*t1 ) / denom;
+    return (M);
+    /*
     std::vector<RealType> sublist;
     for (int i=listsize-4; i<listsize; i++) sublist.push_back( vexlist[i] );
-    /** detect a cycle in the solution space */
     bool allequal=true;
     for (int i = 4; i < listsize; ++i) {
       allequal=true;
@@ -297,19 +309,41 @@ public:
       if (allequal) return 1.e-7;
     }
     return sts/stt*(1);
+*/
   }
 
   RealType SparseCCA(unsigned int nvecs);
   RealType SparsePartialCCA(unsigned int nvecs);
   RealType SparsePartialArnoldiCCA(unsigned int nvecs);
+  RealType SparseArnoldiSVDGreedy(unsigned int nvecs);
   RealType SparseArnoldiSVD(unsigned int nvecs);
+  RealType SparseArnoldiSVD_x(unsigned int nvecs);
+  RealType SparseArnoldiSVD_z(unsigned int nvecs);
   RealType ComputeSPCAEigenvalues(unsigned int, RealType);
+  RealType BasicSVD(unsigned int nvecs);
+  RealType rSVD(unsigned int nvecs);
+
+  MatrixType GetCovMatEigenvectors( MatrixType p );
 
 protected:
 
   void SortResults(unsigned int n_vecs);
 // for pscca
   void UpdatePandQbyR( );
+
+  void SparsifyP( VectorType& x_k1  )
+  {
+    RealType fnp = this->m_FractionNonZeroP;
+    if ( this->m_KeepPositiveP ) this->ConstantProbabilityThreshold( x_k1 , fnp , this->m_KeepPositiveP );  else
+      this->ReSoftThreshold( x_k1 , fnp , !this->m_KeepPositiveP );
+    this->ClusterThresholdVariate( x_k1 , this->m_MaskImageP, this->m_MinClusterSizeP );
+  }
+
+  void SparsifyP( VectorType& x_k1 , VectorType& refvec  )
+  {
+    if ( x_k1.size() != refvec.size() ) { std::cout <<" sizes dont match " << std::endl; exit(1); }
+    for (unsigned int i=0; i < x_k1.size(); i++) if ( refvec(i) == 0 ) x_k1(i)=0;
+  }
 
   MatrixType  DeleteCol( MatrixType p_in , unsigned int col)
   {
@@ -432,6 +466,7 @@ private:
   bool       m_KeepPositiveQ;
 
 
+  VectorType  m_Eigenvalues;
   VectorType  m_CanonicalCorrelations;
   VariateType m_SparseVariatesP;
   VariateType m_VariatesP;
