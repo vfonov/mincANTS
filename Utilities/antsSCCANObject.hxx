@@ -1022,7 +1022,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     RealType vex=this->ComputeSPCAEigenvalues(n_vecs,trace);
     vexlist.push_back(   vex    );
     this->SortResults(n_vecs);
-    convcrit=( this->ComputeEnergySlope(vexlist, 8) );
+    convcrit=( this->ComputeEnergySlope(vexlist, 6) );
     std::cout <<"Iteration: " << loop << " Eigenval_0: " << this->m_CanonicalCorrelations[0] << " Eigenval_N: " << this->m_CanonicalCorrelations[n_vecs-1] << " Sparseness: " << fnp  << " convergence-criterion: " << convcrit <<  " vex " << vex << std::endl;
     loop++;
     if (debug) std::cout<<"wloopdone"<<std::endl;
@@ -1161,8 +1161,9 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 template <class TInputImage, class TRealType>
 TRealType antsSCCANObject<TInputImage, TRealType>
 ::SparseConjGrad( typename antsSCCANObject<TInputImage, TRealType>::VectorType& x_k , 
-		  typename antsSCCANObject<TInputImage, TRealType>::VectorType  b , TRealType convcrit = 1.e-3 , unsigned int colind = 0 )
+		  typename antsSCCANObject<TInputImage, TRealType>::VectorType  b , TRealType convcrit = 1.e-3 )
 {
+  bool keeppos = false;
   bool debug = false;
     RealType fnp = this->m_FractionNonZeroP;
     MatrixType A = this->m_MatrixP;
@@ -1172,27 +1173,17 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     VectorType p_k = r_k ;
     double approxerr = 1.e9;
     unsigned int ct = 0;
-    VectorType bestsol;
-    RealType minerr = 1.e12;
-    while ( approxerr > 1.e-3 && ct < 100 ) 
+    VectorType bestsol = x_k;
+    RealType minerr = 1.e12, deltaminerr = 1 , lasterr = minerr;
+    while (  deltaminerr > 0 && approxerr > convcrit && ct < 10 ) 
       {
       RealType alpha_denom = inner_product( p_k ,  A.transpose() * ( A * p_k ) );
       RealType iprk = inner_product( r_k , r_k );
       if ( debug ) std::cout << " iprk " << iprk << std::endl;
       RealType alpha_k = iprk / alpha_denom;
       if ( debug ) std::cout << " alpha_k " << alpha_k << std::endl;
-      VectorType x_k1  = x_k + alpha_k * p_k; 
-      /***/
-      // orthogonalize the target vector against this solution so we can reuse the target vector later 
-      for ( unsigned int j = 0; j < colind; j++ )       //   \forall j \ne i x_j \perp x_i
-        {
-        VectorType qj = this->m_VariatesP.get_column( j );
-        RealType ip = inner_product( qj, qj );
-        if ( ip < this->m_Epsilon ) ip = 1;
-        RealType hjk = inner_product( qj, x_k1 ) / ip;
-        x_k1 = x_k1 - qj * hjk;
-        }
-      this->SparsifyP( x_k1 );/*******sparse******/
+      VectorType x_k1  = x_k + alpha_k * p_k; // this adds the scaled residual to the current solution 
+      this->SparsifyP( x_k1 , keeppos ); /*******sparse******/
 
       if ( debug ) std::cout <<" x_k1 " << x_k1.two_norm() << std::endl;
       VectorType r_k1;
@@ -1200,11 +1191,14 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       if (  false  ) r_k1 = ( b - A.transpose() * (A * x_k1 )  );
       /** Below update works cleanly and smoothly , if not sparse */
       else r_k1 = r_k - ( A.transpose() * ( A * p_k ) ) * alpha_k ;
+      lasterr = approxerr; 
       approxerr = r_k1.two_norm();
+      deltaminerr = ( lasterr - approxerr );
       if ( approxerr < minerr ) { minerr = approxerr ; bestsol=( x_k1 ); }
       if ( false ) this->SparsifyP( r_k1 , x_k1 );/*******sparse******/
-      if ( false ) std::cout << " r_k1 " << approxerr <<  std::endl;
+      if ( false ) std::cout << " r_k1 " << approxerr <<  " derr " << deltaminerr << std::endl;
 
+      // measures the change in the residual 
       RealType   beta_k = inner_product( r_k1 , r_k1 ) /  inner_product( r_k , r_k );
       if ( debug ) std::cout <<" beta_k " << beta_k << std::endl;
       VectorType p_k1  = r_k1 + beta_k * p_k;
@@ -1226,7 +1220,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 
 template <class TInputImage, class TRealType>
 TRealType antsSCCANObject<TInputImage, TRealType>
-::rSVD(unsigned int n_vecs )
+::CGSPCA(unsigned int n_vecs )
 {
   /** Based on Golub CONJUGATE  G R A D I E N T   A N D  LANCZOS  HISTORY 
    *  http://www.matematicas.unam.mx/gfgf/cg2010/HISTORY-conjugategradient.pdf
@@ -1269,7 +1263,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     VectorType x_k = this->InitializeV( this->m_MatrixP , true );
     VectorType b = bmatrix_big.get_column( bcolind ) ;
     /********************************/
-    this->SparseConjGrad( x_k , b , 1.e1 , colind );
+    this->SparseConjGrad( x_k , b , 1.e-1 );
     /********************************/
     this->m_VariatesP.set_column( colind, x_k );
     RealType vex = this->ComputeSPCAEigenvalues( n_vecs, trace );
@@ -1307,6 +1301,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       this->m_VariatesP.set_column(kk,initv);
       }
     }
+  this->m_CanonicalCorrelations=this->m_Eigenvalues;
   return this->m_CanonicalCorrelations[0];
 }
 
