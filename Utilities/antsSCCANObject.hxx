@@ -1564,13 +1564,23 @@ TRealType antsSCCANObject<TInputImage, TRealType>
   this->m_MatrixQ=this->NormalizeMatrix(this->m_OriginalMatrixQ);
   this->m_MatrixR=this->NormalizeMatrix(this->m_OriginalMatrixR);
 
-  if ( this->m_OriginalMatrixR.size() > 0 ) {
+  if ( this->m_OriginalMatrixR.size() > 0 ) 
+    {
+    std::cout << "Partialing-Pre : -P-Norm  " << this->m_MatrixP.frobenius_norm() << " -Q-Norm  " << this->m_MatrixQ.frobenius_norm()<< std::endl;
     this->m_MatrixRRt=this->ProjectionMatrix(this->m_OriginalMatrixR);
     if ( this->m_SCCANFormulation == PminusRQ ||  this->m_SCCANFormulation == PminusRQminusR )
+      {
+      std::cout <<" Subtract R from P "<<std::endl;
       this->m_MatrixP=this->m_MatrixP-(this->m_MatrixRRt*this->m_MatrixP);
+      std::cout << "Partialing-Post : -P-Norm  " << this->m_MatrixP.frobenius_norm() <<  std::endl;
+      }
     if ( this->m_SCCANFormulation == PQminusR ||  this->m_SCCANFormulation == PminusRQminusR )
+      {
+      std::cout <<" Subtract R from Q "<<std::endl;
       this->m_MatrixQ=this->m_MatrixQ-this->m_MatrixRRt*this->m_MatrixQ;
-  }
+      std::cout << " -Q-Norm  " << this->m_MatrixQ.frobenius_norm()<< std::endl;
+      }
+   }
 
   this->m_VariatesP.set_size(this->m_MatrixP.cols(),n_vecs);
   this->m_VariatesQ.set_size(this->m_MatrixQ.cols(),n_vecs);
