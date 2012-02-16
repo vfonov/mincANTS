@@ -922,7 +922,7 @@ int SVD_One_View( itk::ants::CommandLineParser *parser, unsigned int permct , un
   sccanobj->SetMatrixR( r );
   sccanobj->SetMaskImageP( mask1 );
   double truecorr=0;
-  if ( svd_option == 1 )  truecorr=sccanobj->BasicSVD(n_evec); // classic 
+  if ( svd_option == 1 )  truecorr=sccanobj->BasicSVD( ); // classic 
   else if ( svd_option == 3 ) truecorr=sccanobj->SparseArnoldiSVD(n_evec); // cgsparse
   else if ( svd_option == 2 ) truecorr=sccanobj->CGSPCA(n_evec); // cgspca
   else truecorr=sccanobj->SparseArnoldiSVDGreedy(n_evec); // sparse (default)
