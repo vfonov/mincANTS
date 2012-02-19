@@ -195,7 +195,8 @@ public:
   RealType RunSCCAN2( );
   RealType RunSCCAN3();
 
-  RealType SparseConjGrad( VectorType& , VectorType , RealType  );
+  RealType SparseConjGrad( VectorType& , VectorType , RealType , unsigned int );
+  RealType SparseNLConjGrad( VectorType& , VectorType , RealType , unsigned int );
   void ReSoftThreshold( VectorType& v_in, RealType fractional_goal , bool allow_negative_weights );
   void ConstantProbabilityThreshold( VectorType& v_in, RealType probability_goal , bool allow_negative_weights );
   VectorType InitializeV( MatrixType p , bool random = false);
@@ -241,7 +242,7 @@ public:
   MatrixType ProjectionMatrix(MatrixType b) 
     {
     double pinvTolerance=this->m_PinvTolerance;
-    MatrixType dd=this->NormalizeMatrix(b);
+    MatrixType dd= this->NormalizeMatrix(b);
     MatrixType cov=dd*dd.transpose();
     cov.set_identity();
     TRealType regularization=1.e-3;
@@ -482,6 +483,7 @@ private:
   bool       m_KeepPositiveQ;
 
 
+  MatrixType  m_Eigenvectors;
   VectorType  m_Eigenvalues;
   VectorType  m_CanonicalCorrelations;
   VariateType m_SparseVariatesP;
