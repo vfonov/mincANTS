@@ -920,7 +920,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 
   this->m_VariatesQ=this->m_VariatesP;
   if (debug) std::cout<<" get evecs "<<std::endl;
-  RealType vex=this->ComputeSPCAEigenvalues(n_vecs,trace);
+  RealType vex=this->ComputeSPCAEigenvalues(n_vecs,trace,true);
   vexlist.push_back(   vex    );
   this->SortResults( n_vecs );
   convcrit=( this->ComputeEnergySlope(vexlist, 5) );
@@ -1026,7 +1026,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     } //kloop
     this->m_VariatesQ=this->m_VariatesP;
     /** Estimate eigenvalues , then sort */
-    RealType vex = this->ComputeSPCAEigenvalues(n_vecs,trace);
+    RealType vex = this->ComputeSPCAEigenvalues(n_vecs,trace,true);
     vexlist.push_back(   vex    );
     this->SortResults(n_vecs);
     convcrit=( this->ComputeEnergySlope(vexlist, 6) );
@@ -1151,7 +1151,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 
     this->m_VariatesQ=this->m_VariatesP;
     if (debug) std::cout<<" get evecs "<<std::endl;
-    RealType vex=this->ComputeSPCAEigenvalues(n_vecs,trace);
+    RealType vex=this->ComputeSPCAEigenvalues(n_vecs,trace,true);
     vexlist.push_back(   vex    );
     this->SortResults(n_vecs);
     convcrit=( this->ComputeEnergySlope(vexlist, 5) );
@@ -1167,7 +1167,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 template <class TInputImage, class TRealType>
 TRealType antsSCCANObject<TInputImage, TRealType>
 ::ConjGrad( typename antsSCCANObject<TInputImage, TRealType>::MatrixType& A , typename antsSCCANObject<TInputImage, TRealType>::VectorType& x_k , 
-		  typename antsSCCANObject<TInputImage, TRealType>::VectorType  b_in , TRealType convcrit = 1.e-3 , unsigned int maxits = 5 )
+  typename antsSCCANObject<TInputImage, TRealType>::VectorType  b_in , TRealType convcrit, unsigned int maxits)
 {
   /** This will use the normal equations */
   /** Based on Golub CONJUGATE  G R A D I E N T   A N D  LANCZOS  HISTORY 
@@ -1316,7 +1316,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 template <class TInputImage, class TRealType>
 TRealType antsSCCANObject<TInputImage, TRealType>
 ::SparseNLConjGrad( typename antsSCCANObject<TInputImage, TRealType>::MatrixType& A,  typename antsSCCANObject<TInputImage, TRealType>::VectorType& x_k , 
-		    typename antsSCCANObject<TInputImage, TRealType>::VectorType  b , TRealType convcrit = 1.e-3 , unsigned int maxits = 5 , bool keeppos = false )
+		    typename antsSCCANObject<TInputImage, TRealType>::VectorType  b , TRealType convcrit, unsigned int maxits, bool keeppos)
 {
   bool negate = false;
   keeppos = true;
@@ -1649,7 +1649,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 
   this->m_VariatesQ=this->m_VariatesP;
   if (debug) std::cout<<" get evecs "<<std::endl;
-  RealType vex=this->ComputeSPCAEigenvalues(n_vecs,trace);
+  RealType vex=this->ComputeSPCAEigenvalues(n_vecs,trace, true);
   vexlist.push_back(   vex    );
   this->SortResults( n_vecs );
   convcrit=( this->ComputeEnergySlope(vexlist, 5) );
@@ -1666,7 +1666,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 
 template <class TInputImage, class TRealType>
 TRealType antsSCCANObject<TInputImage, TRealType>
-::ComputeSPCAEigenvalues(unsigned int n_vecs, TRealType trace , bool orth = true )
+::ComputeSPCAEigenvalues(unsigned int n_vecs, TRealType trace , bool orth )
 {
   this->m_CanonicalCorrelations.set_size( n_vecs );
   double evalsum=0;
