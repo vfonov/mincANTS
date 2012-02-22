@@ -200,7 +200,8 @@ public:
   RealType EvaluateEnergy( MatrixType& A , VectorType&  x_k , VectorType&  p_k , VectorType&  b , 
 		       TRealType minalph  ,  bool );
   RealType SparseConjGrad( VectorType& , VectorType , RealType , unsigned int );
-RealType SparseNLConjGrad( MatrixType& , VectorType& , VectorType , RealType , unsigned int , bool );
+  RealType ConjGrad( MatrixType& , VectorType& , VectorType , RealType , unsigned int  );
+  RealType SparseNLConjGrad( MatrixType& , VectorType& , VectorType , RealType , unsigned int , bool );
   void ReSoftThreshold( VectorType& v_in, RealType fractional_goal , bool allow_negative_weights );
   void ConstantProbabilityThreshold( VectorType& v_in, RealType probability_goal , bool allow_negative_weights );
   VectorType InitializeV( MatrixType p , bool random = false);
