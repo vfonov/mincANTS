@@ -266,7 +266,6 @@ antsSCCANObject<TInputImage, TRealType>
 ::ReSoftThreshold( typename antsSCCANObject<TInputImage, TRealType>::VectorType&
  v_in, TRealType fractional_goal , bool keep_positive )
 {
-  keep_positive = false;
   //  std::cout <<" resoft " << fractional_goal << std::endl;
   if ( fabs(fractional_goal) >= 1 || fabs((float)(v_in.size())*fractional_goal) <= 1 ) return ;
   RealType minv=v_in.min_value();
@@ -1320,7 +1319,8 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 		    typename antsSCCANObject<TInputImage, TRealType>::VectorType  b , TRealType convcrit = 1.e-3 , unsigned int maxits = 5 , bool keeppos = false )
 {
   bool negate = false;
-  if ( b.min_value() < 0 ) negate = true ;
+  keeppos = true;
+  //  if ( b.min_value() < 0 ) negate = true ;
   if ( negate ) 
     {
     x_k = x_k * ( -1 );
@@ -1359,7 +1359,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     if ( approxerr < newminerr ) { newminerr = approxerr ; bestsol=( x_k1 ); }
     deltaminerr = ( minerr - newminerr  );
     if ( newminerr < minerr ) minerr=newminerr;
-    //    if ( true ) std::cout << " r_k1 " << minerr <<  " derr " << deltaminerr << " ba " << best_alph / alpha_k << std::endl;
+    if ( false ) std::cout << " r_k1 " << minerr <<  " derr " << deltaminerr << " ba " << best_alph / alpha_k << " xk1-min " << x_k1.min_value() << std::endl;
     // measures the change in the residual --- this is the Fletcher-Reeves form for nonlinear CG
     // see Table 1.1 \Beta^FR in A SURVEY OF NONLINEAR CONJUGATE GRADIENT METHODS
     // in this paper's notation d => p,  g => r , alpha, beta, x the same , so y = rk1 - rk
@@ -1485,6 +1485,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       for ( unsigned int mm = 0; mm < colind; mm++ ) 
         b = this->Orthogonalize( b , this->m_MatrixP * this->m_VariatesP.get_column(mm) );
       VectorType bp = b * pmod;
+      this->StandardizeV( bp );
       this->SparseNLConjGrad( pmod , randv , bp  , 1.e-1 , 20 , true );
       }
     this->m_VariatesP.set_column( colind, randv );
@@ -1500,8 +1501,15 @@ TRealType antsSCCANObject<TInputImage, TRealType>
   VectorType lmsol( n_vecs , 1 ); 
   lmsol = lmsol / lmsol.two_norm();
   MatrixType A = this->m_MatrixP * this->m_VariatesP;
+  b =  this->m_MatrixR.get_column( 0 ) ;
+  this->StandardizeV( b );
+  this->StandardizeV( lmsol );
   RealType lmerror = this->ConjGrad(  A ,  lmsol , b , 0 , 100 );
-  std::cout << "Error-Norm: " << lmerror << std::endl;
+  //  vnl_svd<double> svd(A, 1.0e-12); // 1e-12 = zero-tolerance for singular values
+  // VectorType x = svd.solve(b);
+  std::cout << "Error-Norm: " << lmerror <<  std::endl;
+  this->m_CanonicalCorrelations.set_size(n_vecs);
+  this->m_CanonicalCorrelations.fill(0);
   return 0;
 }
 
