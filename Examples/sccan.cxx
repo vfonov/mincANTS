@@ -924,6 +924,7 @@ int SVD_One_View( itk::ants::CommandLineParser *parser, unsigned int permct , un
   double truecorr=0;
   if ( svd_option == 1 )  truecorr=sccanobj->BasicSVD( ); // classic 
   else if ( svd_option == 3 ) truecorr=sccanobj->SparseArnoldiSVD(n_evec); // cgsparse
+  else if ( svd_option == 4 ) truecorr=sccanobj->NetworkDecomposition(n_evec); // cgsparse
   else if ( svd_option == 2 ) truecorr=sccanobj->CGSPCA(n_evec); // cgspca
   else truecorr=sccanobj->SparseArnoldiSVDGreedy(n_evec); // sparse (default)
   vVector w_p=sccanobj->GetVariateP(0);
@@ -1613,9 +1614,14 @@ int sccan( itk::ants::CommandLineParser *parser )
         SVD_One_View<ImageDimension, double>(  parser, permct , evec_ct , robustify , p_cluster_thresh, iterct, 2);
         return EXIT_SUCCESS;
         }
-      if (  !initializationStrategy.compare( std::string( "classic" ) )  )
+      if (  !initializationStrategy.compare( std::string( "cgspca" ) )  )
         {
-        SVD_One_View<ImageDimension, double>(  parser, permct , evec_ct , robustify , p_cluster_thresh, iterct, 1);
+        SVD_One_View<ImageDimension, double>(  parser, permct , evec_ct , robustify , p_cluster_thresh, iterct, 2);
+        return EXIT_SUCCESS;
+        }
+      if (  !initializationStrategy.compare( std::string( "network" ) )  )
+        {
+        SVD_One_View<ImageDimension, double>(  parser, permct , evec_ct , robustify , p_cluster_thresh, iterct, 4);
         return EXIT_SUCCESS;
         }
       if (  !initializationStrategy.compare( std::string( "prior" ) )  )
@@ -1859,6 +1865,7 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
     option->SetUsageOption( 1, "classic[matrix-view1.mhd,mask1,FracNonZero1,nuisance-matrix] --- will only use view1 ... unless nuisance matrix is specified." );
     option->SetUsageOption( 2, "cgspca[matrix-view1.mhd,mask1,FracNonZero1,nuisance-matrix] --- will only use view1 ... unless nuisance matrix is specified." );
     option->SetUsageOption( 3, "prior[....]" );
+    option->SetUsageOption( 4, "network[matrix-view1.mhd,mask1,FracNonZero1,guidance-matrix]" );
     option->SetDescription( description );
     parser->AddOption( option );
   }
