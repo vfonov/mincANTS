@@ -982,13 +982,13 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       VectorType pveck=this->m_VariatesP.get_column(k);
       MatrixType pmod = this->NormalizeMatrix( this->m_OriginalMatrixP );
       if ( k > 1  && loop > 1  ) 
-	{
-	MatrixType m( this->m_MatrixP.rows() , k , 0 );
-	for ( unsigned int mm = 0; mm < k; mm++ ) 
+        {
+        MatrixType m( this->m_MatrixP.rows() , k , 0 );
+        for ( unsigned int mm = 0; mm < k; mm++ ) 
           m.set_row( mm , this->m_MatrixP * this->m_VariatesP.get_column( mm ) );
-	MatrixType projmat = this->ProjectionMatrix( m , 1.e-8 );
+        MatrixType projmat = this->ProjectionMatrix( m , 1.e-8 );
         pmod = pmod - projmat * pmod;
-	}
+        }
       pveck =( pmod * pveck ) ; // classic 
       pveck  = pmod.transpose() * ( pveck  ); 
       RealType hkkm1=pveck.two_norm();
@@ -996,7 +996,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       for ( unsigned int j=0; j< k; j++) 
         {
         VectorType qj=this->m_VariatesP.get_column(j);
-	pveck = this->Orthogonalize( pveck , qj );
+        pveck = this->Orthogonalize( pveck , qj );
         }
       /** Project to the feasible sub-space */
       if ( negate )  pveck = pveck * ( -1 ) ;
@@ -1005,17 +1005,17 @@ TRealType antsSCCANObject<TInputImage, TRealType>
         if ( this->m_KeepPositiveP ) this->ConstantProbabilityThreshold( pveck , fnp , this->m_KeepPositiveP );  else
         this->ReSoftThreshold( pveck , fnp , !this->m_KeepPositiveP );
         this->ClusterThresholdVariate( pveck , this->m_MaskImageP, this->m_MinClusterSizeP );
-	if ( pveck.two_norm() > 0 )  pveck=pveck/pveck.two_norm();
+        if ( pveck.two_norm() > 0 )  pveck=pveck/pveck.two_norm();
         }
       if ( negate )  pveck = pveck * ( -1 ) ;
       /********************************
       unsigned int bcolind = 0;
       RealType maxcorr = 0;
       for ( unsigned int cc = 0 ; cc < bmatrix_big.cols(); cc ++ )
-	{
-	RealType corr = fabs( this->PearsonCorr( this->m_MatrixP * pveck , bmatrix.get_column( cc ) ) );
-	if (  corr > maxcorr ) bcolind = cc;
-	}
+        {
+        RealType corr = fabs( this->PearsonCorr( this->m_MatrixP * pveck , bmatrix.get_column( cc ) ) );
+        if (  corr > maxcorr ) bcolind = cc;
+        }
       VectorType b = bmatrix_big.get_column( bcolind ) ;
       RealType cgerr = this->SparseConjGrad( pveck , b , 1.e-3 );
       ********************************/
@@ -1093,12 +1093,12 @@ this means that you can reconstruct all voxels for a subject given the measures 
       {
       this->m_VariatesP = ( this->m_VariatesQ * f  + lastV * ( 1 - f ) );
       for ( unsigned int m=0; m < this->m_VariatesP.cols(); m++) 
-	{
-	VectorType mm = this->m_VariatesP.get_column(m);
-	this->SparsifyP( mm , true );
-	mm = mm / mm.two_norm();
-	this->m_VariatesP.set_column( m , mm  );
-	}
+        {
+        VectorType mm = this->m_VariatesP.get_column(m);
+        this->SparsifyP( mm , true );
+        mm = mm / mm.two_norm();
+        this->m_VariatesP.set_column( m , mm  );
+        }
       eold = enew;
       enew = this->ComputeSPCAEigenvalues(n_vecs,trace,true);
       if ( enew > bestvex ) { bestvex = enew;  bestV = this->m_VariatesP; }
@@ -1318,9 +1318,9 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 template <class TInputImage, class TRealType>
 TRealType antsSCCANObject<TInputImage, TRealType>
 ::EvaluateEnergy( typename antsSCCANObject<TInputImage, TRealType>::MatrixType& A , 
-	      typename antsSCCANObject<TInputImage, TRealType>::VectorType&  x_k , 
- 	      typename antsSCCANObject<TInputImage, TRealType>::VectorType&  p_k , 
- 	      typename antsSCCANObject<TInputImage, TRealType>::VectorType&  b , 
+              typename antsSCCANObject<TInputImage, TRealType>::VectorType&  x_k , 
+               typename antsSCCANObject<TInputImage, TRealType>::VectorType&  p_k , 
+               typename antsSCCANObject<TInputImage, TRealType>::VectorType&  b , 
               TRealType minalph   , bool keeppos )
 {
     VectorType x_k1  = x_k + minalph * p_k; 
@@ -1337,10 +1337,10 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 template <class TInputImage, class TRealType>
 TRealType antsSCCANObject<TInputImage, TRealType>
 ::GoldenSection( typename antsSCCANObject<TInputImage, TRealType>::MatrixType& A , 
-	         typename antsSCCANObject<TInputImage, TRealType>::VectorType&  x_k , 
- 	         typename antsSCCANObject<TInputImage, TRealType>::VectorType&  p_k , 
- 	         typename antsSCCANObject<TInputImage, TRealType>::VectorType&  bsol , 
-		 TRealType minalph  , TRealType maxalph  , bool keeppos ,
+                 typename antsSCCANObject<TInputImage, TRealType>::VectorType&  x_k , 
+                  typename antsSCCANObject<TInputImage, TRealType>::VectorType&  p_k , 
+                  typename antsSCCANObject<TInputImage, TRealType>::VectorType&  bsol , 
+                 TRealType minalph  , TRealType maxalph  , bool keeppos ,
                  TRealType a, TRealType b, TRealType c, TRealType tau )
 {
   this->m_GoldenSectionCounter++;
@@ -1370,9 +1370,9 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 template <class TInputImage, class TRealType>
 TRealType antsSCCANObject<TInputImage, TRealType>
 ::LineSearch( typename antsSCCANObject<TInputImage, TRealType>::MatrixType& A , 
-	      typename antsSCCANObject<TInputImage, TRealType>::VectorType&  x_k , 
- 	      typename antsSCCANObject<TInputImage, TRealType>::VectorType&  p_k , 
- 	      typename antsSCCANObject<TInputImage, TRealType>::VectorType&  b , 
+              typename antsSCCANObject<TInputImage, TRealType>::VectorType&  x_k , 
+               typename antsSCCANObject<TInputImage, TRealType>::VectorType&  p_k , 
+               typename antsSCCANObject<TInputImage, TRealType>::VectorType&  b , 
               TRealType minalph  , TRealType maxalph  , bool keeppos )
 {
   bool dogs = true;
@@ -1404,7 +1404,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 template <class TInputImage, class TRealType>
 TRealType antsSCCANObject<TInputImage, TRealType>
 ::SparseNLConjGrad( typename antsSCCANObject<TInputImage, TRealType>::MatrixType& A,  typename antsSCCANObject<TInputImage, TRealType>::VectorType& x_k , 
-		    typename antsSCCANObject<TInputImage, TRealType>::VectorType  b , TRealType convcrit, unsigned int maxits, bool keeppos)
+                    typename antsSCCANObject<TInputImage, TRealType>::VectorType  b , TRealType convcrit, unsigned int maxits, bool keeppos)
 {
   bool negate = false;
   if ( b.max_value() <= 0 ) negate = true;
@@ -1569,7 +1569,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     /* Now get the LSQ regression solution */
     /***************************************/
     VectorType lmsol( n_vecs , 1 ); 
-    MatrixType A = this->m_MatrixP * this->m_VariatesP;	
+    MatrixType A = this->m_MatrixP * this->m_VariatesP;        
     lmerror = this->ConjGrad(  A ,  lmsol , original_b , 0 , 100 );
     //    vnl_svd<RealType> xxx( A );
     // VectorType soln = xxx.solve( original_b );
@@ -1592,11 +1592,11 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       {
       // zero out already used parts of matrix 
       for ( unsigned int mm = 0; mm < colind; mm++ ) 
-	{
-	VectorType u =  this->m_VariatesP.get_column( mm );
-	for ( unsigned int j=0; j< u.size(); j++) 
-	  if ( fabs(u(j)) >= this->m_Epsilon ) this->m_Indicator( j , j ) = 0;
-	}
+        {
+        VectorType u =  this->m_VariatesP.get_column( mm );
+        for ( unsigned int j=0; j< u.size(); j++) 
+          if ( fabs(u(j)) >= this->m_Epsilon ) this->m_Indicator( j , j ) = 0;
+        }
       //      pmod = pmod * this->m_Indicator;
       }
 */
@@ -1631,10 +1631,10 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       if ( true ) 
       {
       for ( unsigned int vv = 0; vv < initvneg.size(); vv++ ) 
-	{
-	if ( initvneg( vv ) > 0 ) initvneg( vv ) = 0; else initvneg( vv ) = fabs( initvneg( vv ) );
-	if ( initvpos( vv ) < 0 ) initvpos( vv ) = 0;
-	}
+        {
+        if ( initvneg( vv ) > 0 ) initvneg( vv ) = 0; else initvneg( vv ) = fabs( initvneg( vv ) );
+        if ( initvpos( vv ) < 0 ) initvpos( vv ) = 0;
+        }
       m_Eigenvectors.set_column( svdct ,  initvneg*(-1)  );
       if ( fnp < 1  )
         {
