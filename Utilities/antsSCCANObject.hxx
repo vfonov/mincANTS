@@ -22,6 +22,7 @@
 #include "itkRelabelComponentImageFilter.h"
 #include <vnl/vnl_random.h>
 #include <vnl/vnl_trace.h>
+#include <vnl/algo/vnl_qr.h>
 #include <vnl/algo/vnl_matrix_inverse.h>
 #include <vnl/algo/vnl_generalized_eigensystem.h>
 #include "antsSCCANObject.h"
@@ -40,7 +41,7 @@ antsSCCANObject<TInputImage, TRealType>::antsSCCANObject( )
   this->m_CorrelationForSignificanceTest=0;
   this->m_SpecializationForHBM2011=false;
   this->m_AlreadyWhitened=false;
-  this->m_PinvTolerance=1.e-3;
+  this->m_PinvTolerance=1.e-6;
   this->m_PercentVarianceForPseudoInverse=0.9;
   this->m_MaximumNumberOfIterations=20;
   this->m_MaskImageP=NULL;
@@ -934,13 +935,13 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 }
 
 
-
 template <class TInputImage, class TRealType>
 TRealType antsSCCANObject<TInputImage, TRealType>
 ::SparseArnoldiSVDGreedy(unsigned int n_vecs)
 {
   std::cout <<" arnoldi sparse svd : greedy " << std::endl;
   std::vector<RealType> vexlist;
+  vexlist.push_back( 0 );
   this->m_MatrixP = this->NormalizeMatrix( this->m_OriginalMatrixP );
   this->m_MatrixQ = this->m_MatrixP;
   if ( this->m_OriginalMatrixR.size() > 0 ) 
@@ -950,21 +951,19 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     this->m_MatrixP=this->m_MatrixP-(this->m_MatrixRRt*this->m_MatrixP);
     }
   this->m_VariatesP.set_size(this->m_MatrixP.cols(),n_vecs);
-  /* 
   MatrixType bmatrix = this->GetCovMatEigenvectors( this->m_MatrixP ) ;
   MatrixType bmatrix_big;
   bmatrix_big.set_size( this->m_MatrixP.cols(), n_vecs );
-  */
   double trace = vnl_trace<double>(   this->m_MatrixP * this->m_MatrixP.transpose()  );
   for ( unsigned int kk = 0; kk < n_vecs; kk++ ) 
     {
       this->m_VariatesP.set_column( kk, this->InitializeV( this->m_MatrixP )  );
-    /*    if ( kk < bmatrix.columns() && false )
-      {
-      VectorType initv = bmatrix.get_column( kk ) * this->m_MatrixP;
-      this->SparsifyP( initv , true );
-      this->m_VariatesP.set_column( kk, initv );
-      }*/
+      if ( kk < bmatrix.columns() && true )
+        {
+        VectorType initv = bmatrix.get_column( kk ) * this->m_MatrixP;
+        this->SparsifyP( initv , true );
+        this->m_VariatesP.set_column( kk, initv );
+        }
     }
   unsigned int maxloop=this->m_MaximumNumberOfIterations;
 // Arnoldi Iteration SVD/SPCA
@@ -973,19 +972,22 @@ TRealType antsSCCANObject<TInputImage, TRealType>
   double convcrit=1;
   RealType fnp=1;
   bool negate = false ;
+  MatrixType lastV = this->m_VariatesP;  lastV.fill( 0 );
   while ( loop < maxloop && (convcrit) > 1.e-8 ) 
     {
     /** Compute the gradient estimate according to standard Arnoldi */ 
     fnp=this->m_FractionNonZeroP;
-    for ( unsigned int k=0; k<n_vecs; k++) {
+    for ( unsigned int k=0; k<n_vecs; k++) 
+      {
       VectorType pveck=this->m_VariatesP.get_column(k);
-      MatrixType pmod = this->m_MatrixP;
-      if ( k > 0  && false ) 
+      MatrixType pmod = this->NormalizeMatrix( this->m_OriginalMatrixP );
+      if ( k > 1  && loop > 1  ) 
 	{
-        MatrixType m; m.set_size( this->m_MatrixP.rows() , k ); 
+	MatrixType m( this->m_MatrixP.rows() , k , 0 );
 	for ( unsigned int mm = 0; mm < k; mm++ ) 
           m.set_row( mm , this->m_MatrixP * this->m_VariatesP.get_column( mm ) );
-        pmod = pmod - this->ProjectionMatrix(m,100) * pmod;
+	MatrixType projmat = this->ProjectionMatrix( m , 1.e-8 );
+        pmod = pmod - projmat * pmod;
 	}
       pveck =( pmod * pveck ) ; // classic 
       pveck  = pmod.transpose() * ( pveck  ); 
@@ -994,10 +996,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       for ( unsigned int j=0; j< k; j++) 
         {
         VectorType qj=this->m_VariatesP.get_column(j);
-        RealType ip=inner_product(qj,qj);
-        if (ip < this->m_Epsilon) ip=1;
-        RealType hjk=inner_product(qj,pveck)/ip;
-        pveck=pveck-qj*hjk;
+	pveck = this->Orthogonalize( pveck , qj );
         }
       /** Project to the feasible sub-space */
       if ( negate )  pveck = pveck * ( -1 ) ;
@@ -1035,7 +1034,7 @@ X_i  --- 1 \times n some voxel for each subject
 
 then solve , for each voxel , 
 
-\| X_i - \beta B X \|
+\| X_i - \beta B    X \|
   1xn      1xk kxp pxn
 
 \| X   - \Beta B X \|
@@ -1047,8 +1046,6 @@ then solve , for each voxel ,
 requires you to have  n > k --- which you should have .... and easily done in R b.c you precomputed    B X =>  a   k \times n matrix 
 
 this means that you can reconstruct all voxels for a subject given the measures of his ROI values --- so it's basically a regression across all voxels given the ROI ( or PCA ) values from that subject.   the reconstruction error is very descriptive about the information gained by the dimensionality reduction used for that data.
-
-*/
     RealType totalerr = 0;
     MatrixType A = ( this->m_MatrixP * this->m_VariatesP );
     MatrixType reconmat( this->m_MatrixP.rows(),  this->m_MatrixP.cols(), 0 );
@@ -1062,7 +1059,8 @@ this means that you can reconstruct all voxels for a subject given the measures 
       reconmat.set_column( vox , proj );
       totalerr += lmerror;
       } 
-    /*
+    totalerr /= this->m_MatrixP.cols() ;
+    std::cout << " totalerr " << totalerr << std::endl;
    {
     VectorType vvv = reconmat.get_row( 10 );
     typename TInputImage::Pointer image=this->ConvertVariateToSpatialImage( vvv , this->m_MaskImageP , false );
@@ -1080,15 +1078,42 @@ this means that you can reconstruct all voxels for a subject given the measures 
     writer->SetFileName( "temp2.nii.gz" );
     writer->SetInput( image );
     writer->Update();
-    }*/
-    totalerr /= this->m_MatrixP.cols() ;
-    std::cout << " totalerr " << totalerr << std::endl;
+    }
+    */
     this->m_VariatesQ=this->m_VariatesP;
     /** Estimate eigenvalues , then sort */
-    RealType vex = this->ComputeSPCAEigenvalues(n_vecs,trace,true);
-    vexlist.push_back(   exp( -1.0 * totalerr    ) );
+  
+    RealType bestvex = this->ComputeSPCAEigenvalues(n_vecs,trace,true);
+    if ( bestvex < vexlist[ loop ]  ) 
+    {
+    RealType f = -0.5, enew = 0, eold = -1, delt = 0.05;
+    bestvex = 0;
+    MatrixType bestV = this->m_VariatesP; 
+    while (  ( enew - eold ) >  0  && f <= 0.5 && loop > 0 && true )
+      {
+      this->m_VariatesP = ( this->m_VariatesQ * f  + lastV * ( 1 - f ) );
+      for ( unsigned int m=0; m < this->m_VariatesP.cols(); m++) 
+	{
+	VectorType mm = this->m_VariatesP.get_column(m);
+	this->SparsifyP( mm , true );
+	mm = mm / mm.two_norm();
+	this->m_VariatesP.set_column( m , mm  );
+	}
+      eold = enew;
+      enew = this->ComputeSPCAEigenvalues(n_vecs,trace,true);
+      if ( enew > bestvex ) { bestvex = enew;  bestV = this->m_VariatesP; }
+      //      std::cout <<" vex " << enew << " f " << f << std::endl;
+      f = f + delt;
+      }
+    this->m_VariatesP = bestV;
+    }
+    if ( bestvex < vexlist[ loop ] ) { this->m_VariatesP = lastV; bestvex = vexlist[ loop ]; }
+    lastV = this->m_VariatesP;
+    RealType vex = bestvex;
+    vexlist.push_back( vex );
     this->SortResults(n_vecs);
-    convcrit=( this->ComputeEnergySlope(vexlist, 10) );
+    convcrit=( this->ComputeEnergySlope(vexlist, 5) );
+    if ( bestvex == vexlist[ loop ] ) convcrit = 0;
     std::cout <<"Iteration: " << loop << " Eval_0: " << this->m_CanonicalCorrelations[0] << " Eval_N: " << this->m_CanonicalCorrelations[n_vecs-1] << " Sp: " << fnp  << " conv-crit: " << convcrit <<  " vex " << vex << std::endl;
     loop++;
     if (debug) std::cout<<"wloopdone"<<std::endl;
@@ -1772,8 +1797,8 @@ TRealType antsSCCANObject<TInputImage, TRealType>
   evalsum/=trace;
   //  std::cout << this->m_CanonicalCorrelations << std::endl;
   double vex=this->m_CanonicalCorrelations.sum()/trace;
-  std::cout<<" adjusted variance explained " << vex << std::endl;
-  std::cout<<" raw variance explained " <<  evalsum << std::endl;
+  //  std::cout<<" adjusted variance explained " << vex << std::endl;
+  // std::cout<<" raw variance explained " <<  evalsum << std::endl;
   /*
   MatrixType mmm =  this->m_MatrixP *  this->m_VariatesP ;
   MatrixType projmat = this->ProjectionMatrix( mmm );
@@ -1784,7 +1809,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
   // if we factored out everything then ktrace will be small 
   std::cout <<" ktr  " << ktrace << " trace " << this->m_Eigenvalues.sum() << std::endl;
   */
-  return evalsum;
+  return vex;
   /*****************************************/
   MatrixType ptemp(this->m_MatrixP);
   VectorType d_i(n_vecs,0);
