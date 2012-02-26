@@ -238,26 +238,33 @@ typename antsSCCANObject<TInputImage, TRealType>::MatrixType
 antsSCCANObject<TInputImage, TRealType>
 ::VNLPseudoInverse( typename antsSCCANObject<TInputImage, TRealType>::MatrixType rin , bool take_sqrt ) {
   double pinvTolerance=1.e-9; // this->m_PinvTolerance;
-      MatrixType dd=rin;
-      unsigned int ss=dd.rows();
-      if ( dd.rows() > dd.columns() ) ss=dd.columns();
-      vnl_svd<RealType> eig(dd,pinvTolerance);
-      for (unsigned int j=0; j<ss; j++)
+  MatrixType dd=rin;
+  unsigned int ss=dd.rows();
+  if ( dd.rows() > dd.columns() ) ss=dd.columns();
+  vnl_svd<RealType> eig(dd,pinvTolerance);
+  if ( ! take_sqrt )
+  return eig.pinverse( ss );
+  else
+  {
+  for (unsigned int j=0; j<ss; j++)
     {
-      RealType eval=eig.W(j,j);
-      if ( eval > pinvTolerance )  {// FIXME -- check tolerances against matlab pinv
-        eig.W(j,j)=1/(eval);// need eval for inv cov
-        if ( take_sqrt ) eig.W(j,j)=1/sqrt(eval);
+    RealType eval=eig.W(j,j);
+    if ( eval > pinvTolerance )  
+      {// FIXME -- check tolerances against matlab pinv
+      eig.W(j,j)=1/(eval);// need eval for inv cov
+      if ( take_sqrt ) eig.W(j,j)=1/sqrt(eval);
       }
-      else eig.W(j,j)=0;
+    else 
+      eig.W(j,j)=0;
     }
-      /** there is a scaling problem with the pseudoinverse --- this is a cheap fix!!
+  /** there is a scaling problem with the pseudoinverse --- this is a cheap fix!!
           it is based on the theoretical frobenious norm of the inverse matrix */
   MatrixType pinv=( eig.recompose() ).transpose();
   double a=sqrt((double)dd.rows());
   double b=(pinv*dd).frobenius_norm();
   pinv=pinv*a/b;
   return pinv;
+  }
 }
 
 template <class TInputImage, class TRealType>
