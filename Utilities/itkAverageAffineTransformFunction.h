@@ -64,8 +64,8 @@ template<class T> class HelperType;
 
 //explicit specialization for 2D affine transform
 template<>
-struct HelperType<Dispatcher<2> > {
-//public:
+class HelperType<Dispatcher<2> > {
+public:
     typedef ANTSCenteredAffine2DTransform<double> InternalAffineTransformType;
 
     typedef HelperCommonType<InternalAffineTransformType>::InternalAffineTransformPointerType InternalAffineTransformPointerType;
@@ -93,7 +93,8 @@ struct HelperType<Dispatcher<2> > {
 
 //explicit specialization for 3D affine transform
 template<>
-struct HelperType<Dispatcher<3> > {
+class HelperType<Dispatcher<3> > {
+public:
     typedef ANTSAffine3DTransform<double> InternalAffineTransformType;
 
     typedef HelperCommonType<InternalAffineTransformType>::InternalAffineTransformPointerType InternalAffineTransformPointerType;

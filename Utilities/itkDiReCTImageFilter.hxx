@@ -287,9 +287,9 @@ DiReCTImageFilter<TInputImage, TOutputImage>
   ImageRegionConstIterator<InputImageType> ItMaskImage(
     maskImage,
     maskImage->GetRequestedRegion() );
-  ImageRegionConstIteratorWithIndex<InputImageType> ItSegmentationImage(
-    segmentationImageImporter->GetOutput(),
-    segmentationImageImporter->GetOutput()->GetRequestedRegion() );
+  ImageRegionConstIteratorWithIndex<InputImageType>
+    ItSegmentationImage(segmentationImageImporter->GetOutput(),
+                        segmentationImageImporter->GetOutput()->GetRequestedRegion() );
   ImageRegionIterator<RealImageType> ItSpeedImage(
     speedImage,
     speedImage->GetRequestedRegion() );
@@ -393,9 +393,13 @@ DiReCTImageFilter<TInputImage, TOutputImage>
       ItSpeedImage.GoToBegin();
       ItWarpedWhiteMatterProbabilityMap.GoToBegin();
 
+      const typename InputImageType::PixelType grayMatterPixel =
+        static_cast<typename InputImageType::PixelType>(this->m_GrayMatterLabel),
+        whiteMatterPixel =
+        static_cast<typename InputImageType::PixelType>(this->m_WhiteMatterLabel);
       while( !ItSegmentationImage.IsAtEnd() )
         {
-        if( ItSegmentationImage.Get() == this->m_GrayMatterLabel )
+          if( ItSegmentationImage.Get() == grayMatterPixel )
           {
           RealType norm = ( ItGradientImage.Get() ).GetNorm();
           if( norm > 1e-3 && !vnl_math_isnan( norm ) && !vnl_math_isinf( norm ) )
@@ -456,9 +460,7 @@ DiReCTImageFilter<TInputImage, TOutputImage>
         ItInverseIncrementalField.Set( ItVelocityField.Get() );
         ItForwardIncrementalField.Set( ItForwardIncrementalField.Get() +
           ItGradientImage.Get() * ItSpeedImage.Get() );
-
-        if( segmentationValue == this->m_GrayMatterLabel ||
-          segmentationValue == this->m_WhiteMatterLabel )
+          if( segmentationValue == grayMatterPixel || segmentationValue == whiteMatterPixel)
           {
           if( integrationPoint == 1 )
             {
@@ -472,7 +474,7 @@ DiReCTImageFilter<TInputImage, TOutputImage>
             thicknessImage->SetPixel( index, weightedNorm );
             totalImage->SetPixel( index, weightedNorm );
             }
-          else if( segmentationValue == this->m_GrayMatterLabel )
+          else if( segmentationValue == grayMatterPixel )
             {
             hitImage->SetPixel( index, hitImage->GetPixel( index ) +
               warpedWhiteMatterContours->GetPixel( index ) );
@@ -566,7 +568,9 @@ DiReCTImageFilter<TInputImage, TOutputImage>
       {
       ItVelocityField.Set( ItVelocityField.Get() +
         ItForwardIncrementalField.Get() );
-      if( ItSegmentationImage.Get() == this->m_GrayMatterLabel )
+      const typename InputImageType::PixelType grayMatterPixel =
+        static_cast<typename InputImageType::PixelType>(this->m_GrayMatterLabel);
+      if( ItSegmentationImage.Get() == grayMatterPixel )
         {
         RealType thicknessValue = 0.0;
         if( ItHitImage.Get() > 0.001 )

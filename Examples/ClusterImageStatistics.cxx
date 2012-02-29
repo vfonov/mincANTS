@@ -242,7 +242,7 @@ int  ClusterStatistics(unsigned int argc, char *argv[])
           if (countinlabel[i] == 0) countinlabel[i]=1;
           //          outf << " Label " << i+min <<   " average " << suminlabel[i]/(float)countinlabel[i] <<  std::endl;
           std::cout << " Label " << i+min <<   " average " << suminlabel[i]/(float)countinlabel[i] <<  std::endl;
-          if ( i >= 0 && i < range ) {  outf <<  suminlabel[i]/(float)countinlabel[i] << ","; }
+          if ( i < range ) {  outf <<  suminlabel[i]/(float)countinlabel[i] << ","; }
           else {  outf <<  suminlabel[i]/(float)countinlabel[i] << std::endl; }
         }
     }
@@ -255,7 +255,7 @@ int  ClusterStatistics(unsigned int argc, char *argv[])
   {
     for (unsigned int i=0; i <= range; i++) {
       if (countinlabel[i] == 0) countinlabel[i]=1;
-        if ( i >= 0 && i < range ) {  outf2 <<  (float)countinlabel[i] << ","; }
+        if ( i < range ) {  outf2 <<  (float)countinlabel[i] << ","; }
           else {  outf2 <<  (float)countinlabel[i] << std::endl; }
     }
   }

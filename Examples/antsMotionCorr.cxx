@@ -71,7 +71,7 @@ inline std::string ants_moco_to_string (const T& t)
 }
 
 template<class T> struct ants_moco_index_cmp {
-ants_moco_index_cmp(const T arr) : arr(arr) {}
+ants_moco_index_cmp(const T _arr) : arr(_arr) {}
 bool operator()(const size_t a, const size_t b) const
 { return arr[a] < arr[b]; }
 const T arr;
@@ -480,7 +480,7 @@ int ants_motion( itk::ants::CommandLineParser *parser )
     {
     unsigned int timedim=timelist[timelistindex];
     typename CompositeTransformType::Pointer compositeTransform=NULL;
-    if (  currentStage == (numberOfStages - 1) )
+    if ( currentStage == static_cast<int>(numberOfStages) - 1 )
     {
     compositeTransform = CompositeTransformType::New();
     CompositeTransformVector.push_back(compositeTransform);
@@ -874,8 +874,11 @@ int ants_motion( itk::ants::CommandLineParser *parser )
       std::cerr << "ERROR:  Unrecognized transform option - " << whichTransform << std::endl;
       return EXIT_FAILURE;
       }
-      if ( currentStage == (numberOfStages - 1) ) param_values(timedim,1)=metric->GetValue();
-      metriclist.push_back( param_values(timedim,1) );
+    if ( currentStage == static_cast<int>(numberOfStages) - 1 )
+      {
+      param_values(timedim,1)=metric->GetValue();
+      }
+    metriclist.push_back( param_values(timedim,1) );
     // resample the moving image and then put it in its place
     typedef itk::ResampleImageFilter<FixedImageType, FixedImageType> ResampleFilterType;
     typename ResampleFilterType::Pointer resampler = ResampleFilterType::New();
@@ -956,8 +959,8 @@ int ants_motion( itk::ants::CommandLineParser *parser )
   ColumnHeaders.push_back( colname );
   for (unsigned int nv=2; nv<nparams; nv++)
     {
-      std::string colname=std::string("MOCOparam")+ants_moco_to_string<unsigned int>(nv-2);
-      ColumnHeaders.push_back( colname );
+    std::string _colname=std::string("MOCOparam")+ants_moco_to_string<unsigned int>(nv-2);
+      ColumnHeaders.push_back( _colname );
     }
   typedef itk::CSVNumericObjectFileWriter<double,1,1> WriterType;
   WriterType::Pointer writer = WriterType::New();

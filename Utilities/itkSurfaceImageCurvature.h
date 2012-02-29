@@ -111,7 +111,7 @@ public:
   void ComputeFrameOverDomain(unsigned int which=0);
 
   ImageType* GetInput();
-  void SetInput(typename ImageType::Pointer input);
+  virtual void SetInputImage(typename ImageType::Pointer &input);
   OutputImageType* GetOutput();
 
   /** Apply the level set curvature equation over the whole image */

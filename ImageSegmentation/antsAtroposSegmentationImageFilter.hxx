@@ -1743,7 +1743,7 @@ AtroposSegmentationImageFilter<TInputImage, TMaskImage, TClassifiedImage>
      univariateSamples->SetMeasurementVectorSize( 1 );
      if( this->m_OutlierHandlingFilter )
        {
-       this->m_OutlierHandlingFilter->SetInput( samples[i] );
+       this->m_OutlierHandlingFilter->SetInputListSample( samples[i] );
        this->m_OutlierHandlingFilter->Update();
        univariateSamples = this->m_OutlierHandlingFilter->GetOutput();
        }

@@ -152,8 +152,7 @@ int MeasureImageSimilarity(unsigned int argc, char *argv[])
     typename FixedImageType::RegionType region=image1->GetLargestPossibleRegion();
     ScanIteratorType   asamIt( hradius, image1,region);
     unsigned long ct = 0;
-    const unsigned int hoodlen = asamIt.Size();
-    double totval = 0;
+
     for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
       {
       IndexType index=iter.GetIndex();

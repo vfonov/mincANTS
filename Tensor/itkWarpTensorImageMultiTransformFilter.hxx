@@ -323,7 +323,7 @@ WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField,
 template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
 void
 WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
-::SetSmoothScale(double scale)
+::SetSmoothScale(double /* scale */)
 {
 /*
     if (m_SmoothScale != scale){

@@ -461,7 +461,7 @@ protected:
   antsSCCANObject();
   ~antsSCCANObject() {  }
 
-  void PrintSelf( std::ostream& os, Indent indent ) const
+  void PrintSelf( std::ostream&, /* os */ Indent /* indent */) const
   {
     if ( this->m_MaskImageP && this->m_MaskImageQ && this->m_MaskImageR ) std::cout << " 3 matrices " << std::endl;
     else if ( this->m_MaskImageP && this->m_MaskImageQ  ) std::cout << " 2 matrices " << std::endl;

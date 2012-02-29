@@ -1877,7 +1877,6 @@ int CompCorrAuto(int argc, char *argv[])
   std::cout << " verify input " << std::endl;
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
-      OutIndexType ind=vfIter2.GetIndex();
       if ( vfIter2.Get() == 1 ) { // in brain
     ct_vox++;
       }
@@ -2117,7 +2116,6 @@ int CompCorr(int argc, char *argv[])
   std::cout << " verify input " << std::endl;
   for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
     {
-      OutIndexType ind=vfIter2.GetIndex();
       if ( vfIter2.Get() == 3 ) { // nuisance
     ct_nuis++;
       }
@@ -2244,9 +2242,9 @@ int CompCorr(int argc, char *argv[])
         hi=timedims-1;
         }
       float total=0;
-        for (unsigned int s=lo; s<hi; s++){
-        float diff=(float)s-(float)t;
-            float wt=exp(-1.0*diff*diff/(2.0*compcorr_sigma*compcorr_sigma));
+      for (int s=lo; s<hi; s++){
+      float diff=(float)s-(float)t;
+      float wt=exp(-1.0*diff*diff/(2.0*compcorr_sigma*compcorr_sigma));
         total+=wt;
         smoother_out(t)+=wt*smoother(s);
       }
@@ -5465,7 +5463,6 @@ int FillHoles(int argc, char *argv[])
       while (!GHood.IsAtEnd())
     {
       typename ImageType::PixelType p = GHood.GetCenterPixel();
-      typename ImageType::IndexType ind = GHood.GetIndex();
       typename ImageType::IndexType ind2;
       if ( p == lab )
         {
@@ -7714,9 +7711,15 @@ int ConvertImageSetToEigenvectors(unsigned int argc, char *argv[])
   ReadImage<ImageType>(mask,maskfn.c_str());
   /** 1. compute max value in mask */
   unsigned long maxval=0;
-  Iterator mIter( mask,mask->GetLargestPossibleRegion() );
-  for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
-    if (mIter.Get() > maxval ) maxval=(unsigned long) mIter.Get();
+
+  for(Iterator mIter( mask,mask->GetLargestPossibleRegion() );
+      !mIter.IsAtEnd(); ++mIter )
+    {
+    if (mIter.Get() > maxval )
+      {
+      maxval=(unsigned long) mIter.Get();
+      }
+    }
   if ( maxval == 0 ) {
     std::cout <<" Max value in mask is <= 0, aborting. " << maxval << std::endl;
     exit(1);
@@ -7754,9 +7757,14 @@ int ConvertImageSetToEigenvectors(unsigned int argc, char *argv[])
   for ( unsigned long mv=1; mv<=maxval; mv++ ) {
     /** 2. count the voxels in this label */
   unsigned long voxct=0;
-  Iterator mIter( mask,mask->GetLargestPossibleRegion() );
-  for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
-    if (mIter.Get() == mv ) voxct++;
+  for( Iterator mIter( mask,mask->GetLargestPossibleRegion() );
+        !mIter.IsAtEnd(); ++mIter )
+    {
+    if (mIter.Get() == mv )
+      {
+      voxct++;
+      }
+    }
 
   unsigned long xx1=0,yy1=0;
   if (rowcoloption==0)
@@ -7780,7 +7788,8 @@ int ConvertImageSetToEigenvectors(unsigned int argc, char *argv[])
     {    yy=imagecount; }
       if (rowcoloption==1)
     {  xx=imagecount; }
-      for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
+      for( Iterator mIter( mask,mask->GetLargestPossibleRegion() );
+            !mIter.IsAtEnd(); ++mIter )
     {
       if (mIter.Get() == mv )
         {

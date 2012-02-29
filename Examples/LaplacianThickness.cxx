@@ -336,7 +336,7 @@ FMMGrad(typename TImage::Pointer wm,typename TImage::Pointer gm )
       thIt.GoToBegin();
       while(  !thIt.IsAtEnd()  ){
         typename TField::PixelType vec;
-        for (unsigned int dd=0; dd<ImageDimension; dd++)
+        for (dd=0; dd<ImageDimension; dd++)
           vec[dd]=marcher->GetGradientImage()->GetPixel(thIt.GetIndex())[dd];
         ++thIt;
       }
@@ -416,7 +416,7 @@ LaplacianGrad(typename TImage::Pointer wm,typename TImage::Pointer gm, float sig
 
 
 template <class TImage,class TField, class TInterp, class TInterp2>
-float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointer thickimage, typename TImage::IndexType velind,  typename TField::Pointer lapgrad,  float itime, float starttime, float finishtime, bool timedone, float deltaTime, typename TInterp::Pointer vinterp, typename TInterp2::Pointer sinterp, unsigned int task, bool propagate,bool domeasure,   unsigned int m_NumberOfTimePoints, typename TImage::SpacingType spacing, float vecsign, float timesign, float gradsign, unsigned int ct, typename TImage::Pointer wm, typename TImage::Pointer gm, float priorthickval ,  typename TImage::Pointer smooththick  , bool printprobability,  typename TImage::Pointer sulci )
+float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointer /* thickimage */, typename TImage::IndexType velind,  typename TField::Pointer lapgrad,  float itime, float starttime, float /* finishtime */, bool timedone, float deltaTime, typename TInterp::Pointer vinterp, typename TInterp2::Pointer sinterp, unsigned int task, bool propagate,bool domeasure,   unsigned int m_NumberOfTimePoints, typename TImage::SpacingType spacing, float vecsign, float timesign, float gradsign, unsigned int ct, typename TImage::Pointer wm, typename TImage::Pointer gm, float priorthickval ,  typename TImage::Pointer smooththick  , bool printprobability,  typename TImage::Pointer sulci )
 {
   typedef   TField TimeVaryingVelocityFieldType;
   typedef typename TField::PixelType VectorType;
@@ -441,9 +441,9 @@ float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointe
   if (sulci) startprob=sulci->GetPixel(velind);
       bool printout=false;
       if ( gmsurf->GetPixel(velind) > 0) printout=true;
-     IndexType index;
      for (unsigned int jj=0; jj<ImageDimension; jj++)
        {
+       IndexType index;
        index[jj]= velind[jj];
        pointIn1[jj]=velind[jj]*lapgrad->GetSpacing()[jj];
        }
@@ -468,9 +468,9 @@ float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointe
        if (itimetn1 > m_NumberOfTimePoints-1 ) itimetn1=m_NumberOfTimePoints-1;
 
        // first get current position of particle
-       IndexType index;
        for (unsigned int jj=0; jj<ImageDimension; jj++)
      {
+     IndexType index;
      index[jj]= velind[jj];
      pointIn1[jj]=velind[jj]*lapgrad->GetSpacing()[jj];
      }
@@ -536,7 +536,12 @@ float IntegrateLength( typename TImage::Pointer gmsurf,  typename TImage::Pointe
        for (unsigned int qq=0; qq<  ImageDimension; qq++) myind[qq]=(unsigned long)(pointIn3[qq]/spacing[qq]+0.5);
 
 
-       if ( gm->GetPixel(myind) < 0.5 && wm->GetPixel(myind) < 0.5 ||  wm->GetPixel(myind) >= 0.5 && gm->GetPixel(myind) < 0.5 || mag < 1.e-1*deltaTime)  { timedone=true; }
+       if ( (gm->GetPixel(myind) < 0.5 && wm->GetPixel(myind) < 0.5) ||
+            (wm->GetPixel(myind) >= 0.5 && gm->GetPixel(myind) < 0.5) ||
+            mag < 1.e-1*deltaTime)
+         {
+         timedone=true;
+         }
        if ( gm->GetPixel(myind) < 0.5 )  { timedone=true; }
        if ( ct >  2.0/deltaTime ) {  timedone=true;}
        if ( totalmag >  priorthickval ) timedone=true;
@@ -680,7 +685,6 @@ int LaplacianThickness(int argc, char *argv[])
 
 
   double timezero=0; //1
-  typename ImageType::SizeType s= wm->GetLargestPossibleRegion().GetSize();
   double timeone=1;//(s[ImageDimension]-1-timezero);
 
   //  unsigned int m_NumberOfTimePoints = s[ImageDimension];
