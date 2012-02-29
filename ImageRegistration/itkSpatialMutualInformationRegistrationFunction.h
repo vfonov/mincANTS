@@ -414,8 +414,8 @@ public:
 
 
   virtual VectorType ComputeUpdateInv(const NeighborhoodType &neighborhood,
-                                   void *globalData,
-                                   const FloatOffsetType &offset = FloatOffsetType(0.0))
+                                   void * /* globalData */,
+                                   const FloatOffsetType & /* offset */= FloatOffsetType(0.0))
   {
     VectorType update;
     update.Fill(0.0);
@@ -495,8 +495,8 @@ public:
 
 
   virtual VectorType ComputeUpdate(const NeighborhoodType &neighborhood,
-                                   void *globalData,
-                                   const FloatOffsetType &offset = FloatOffsetType(0.0))
+                                   void * /* globalData */,
+                                   const FloatOffsetType & /* offset */ = FloatOffsetType(0.0))
   {
     VectorType update;
     update.Fill(0.0);

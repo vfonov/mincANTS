@@ -342,7 +342,6 @@ WarpImageWAffineFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
 
 
         double minimumSpacing = inputSpacing.GetVnlVector().min_value();
-        double maximumSpacing = inputSpacing.GetVnlVector().max_value();
 
 
         InputImagePointer image = const_cast<InputImageType *> (this->GetInput());
@@ -419,7 +418,6 @@ WarpImageWAffineFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
 
     std::cout << "m_TransformOrder: " << m_TransformOrder << std::endl;
 
-    int cnt = 0;
     while( !outputIt.IsAtEnd() )
     {
         // get the output image index

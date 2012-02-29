@@ -123,9 +123,12 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
             {
                 totalct++;
                 // compute center of mass
-                ImageType::PointType point;
+                ImageType::PointType _point;
                 fixedimage->TransformIndexToPhysicalPoint(It.GetIndex(), point);
-                for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]+=point[i];
+                for (unsigned int i=0; i<spacing.Size(); i++)
+                  {
+                  myCenterOfMass[i]+=_point[i];
+                  }
                 //std::cout << " point " << point << std::endl;
             }
         }
@@ -151,9 +154,12 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
             {
                 totalct++;
                 // compute center of mass
-                ImageType::PointType point;
+                ImageType::PointType _point;
                 movingimage->TransformIndexToPhysicalPoint(ItM.GetIndex(), point);
-                for (unsigned int i=0; i<spacing.Size(); i++) myCenterOfMass[i]+=point[i];
+                for (unsigned int i=0; i<spacing.Size(); i++)
+                  {
+                  myCenterOfMass[i]+=_point[i];
+                  }
             }
         }
 

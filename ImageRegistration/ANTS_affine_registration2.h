@@ -646,7 +646,7 @@ void InjectInitialPara(PointType &center, VectorType &translation_vec, Transform
 
 //////////////////////////////////////////////////////////////////////////////////////////
 template<class ImagePointerType, class ParaType, class PointType, class TransformTypePointer>
-double TestCostValueMMI(ImagePointerType fixedImage, ImagePointerType movingImage, ParaType para, PointType center, TransformTypePointer null_transform){
+double TestCostValueMMI(ImagePointerType fixedImage, ImagePointerType movingImage, ParaType para, PointType center, TransformTypePointer /* null_transform */){
 
   typedef typename ImagePointerType::ObjectType ImageType;
   typedef typename TransformTypePointer::ObjectType TransformType;

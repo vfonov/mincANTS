@@ -703,9 +703,9 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
     if ( transformOption->GetNumberOfParameters() >= 1 )
       {
       std::string parameter = transformOption->GetParameter( 0, 0 );
-      TReal temp=this->m_Parser->template Convert<TReal>( parameter );
-      this->m_Gradstep = temp;
-      this->m_GradstepAltered = temp;
+      TReal _temp=this->m_Parser->template Convert<TReal>( parameter );
+      this->m_Gradstep = _temp;
+      this->m_GradstepAltered = _temp;
       }
     else {  this->m_Gradstep=0.5;  this->m_GradstepAltered=0.5; }
     if ( transformOption->GetNumberOfParameters() >= 2 )
@@ -1197,8 +1197,8 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
           origin.Fill( domainorigin );
           typename CurveType::SizeType size;
           size.Fill( domainsize );
-          typename CurveType::SpacingType spacing;
-          spacing.Fill( 1 );
+          typename CurveType::SpacingType _spacing;
+          _spacing.Fill( 1 );
 
           typename EnergyProfileType::Pointer energyProfileWindow = EnergyProfileType::New();
           energyProfileWindow->Initialize();
@@ -1259,7 +1259,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
 
           bspliner->SetInput( energyProfileWindow );
           bspliner->SetOrigin( origin );
-          bspliner->SetSpacing( spacing );
+          bspliner->SetSpacing( _spacing );
           bspliner->SetSize( size );
           bspliner->SetNumberOfLevels( 1 );
           unsigned int order=1;
@@ -1272,7 +1272,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
           typedef BSplineControlPointImageFunction<CurveType> BSplinerType2;
           typename BSplinerType2::Pointer bspliner2 = BSplinerType2::New();
           bspliner2->SetOrigin( origin );
-          bspliner2->SetSpacing( spacing );
+          bspliner2->SetSpacing( _spacing );
           bspliner2->SetSize( size );
           bspliner2->SetSplineOrder( 1 );
           bspliner2->SetInputImage( bspliner->GetPhiLattice() );
@@ -1423,7 +1423,7 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
   void CopyOrAddToVelocityField( TimeVaryingVelocityFieldPointer velocity,  DisplacementFieldPointer update1, DisplacementFieldPointer update2 , TReal timept);
 //void CopyOrAddToVelocityField( DisplacementFieldPointer update,  unsigned int timeindex,  bool CopyIsTrueOtherwiseAdd);
 
-    void ElasticRegistrationUpdate(ImagePointer fixedImage, ImagePointer movingImage)
+  void ElasticRegistrationUpdate(ImagePointer /* fixedImage */, ImagePointer /* xxxxmovingImage */)
     {
         typename ImageType::SpacingType spacing;
         VectorType zero;
@@ -1481,8 +1481,8 @@ PointSetPointer  WarpMultiTransform(ImagePointer referenceimage, ImagePointer mo
   void SetDeltaTime( TReal t) {this->m_DeltaTime=t; }
 
   TReal InvertField(DisplacementFieldPointer field,
-            DisplacementFieldPointer inverseField, TReal weight=1.0,
-            TReal toler=0.1, int maxiter=20, bool print = false)
+                    DisplacementFieldPointer inverseField, TReal weight=1.0,
+                    TReal toler=0.1, int maxiter=20, bool /* print */ = false)
 {
 
   TReal mytoler=toler;
@@ -1643,7 +1643,7 @@ protected:
         ImagePointer varimage=ImageType::New();
 
         typename ImageType::RegionType region;
-        typename ImageType::SizeType size=bigimage->GetLargestPossibleRegion().GetSize();
+
         region.SetSize( this->m_CurrentDomainSize);
         typename ImageType::IndexType index;  index.Fill(0);
         region.SetIndex(index);
@@ -1668,7 +1668,7 @@ protected:
         for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
         {
             typename ImageType::IndexType origindex=vfIter2.GetIndex();
-            typename ImageType::IndexType index=vfIter2.GetIndex();
+            typename ImageType::IndexType _index=vfIter2.GetIndex();
             bool oktosample=true;
             for (unsigned int ii=0; ii<ImageDimension; ii++)
             {
@@ -1679,14 +1679,14 @@ protected:
             }
             if (oktosample) {
                 //      std::cout << " index " << index <<  " origindex " << origindex << " ok? " << oktosample << std::endl;
-                varimage->SetPixel(index,bigimage->GetPixel(origindex)); }
+                varimage->SetPixel(_index,bigimage->GetPixel(origindex)); }
         }
         //std::cout << " sizes " << varimage->GetLargestPossibleRegion().GetSize() << " bigimage " << bigimage->GetLargestPossibleRegion().GetSize() << std::endl;
         return varimage;
     }
 
 
-  TReal MeasureDeformation(DisplacementFieldPointer field, int option=0)
+  TReal MeasureDeformation(DisplacementFieldPointer field, int /* option */ = 0)
   {
   typedef typename DisplacementFieldType::PixelType VectorType;
   typedef typename DisplacementFieldType::IndexType IndexType;

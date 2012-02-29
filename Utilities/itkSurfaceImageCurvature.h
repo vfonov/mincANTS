@@ -185,7 +185,7 @@ public:
     return kpix;
   }
 
-  inline bool IsValidSurface(PixelType pix, IndexType ind)
+  inline bool IsValidSurface(PixelType pix, IndexType /* ind */)
     {
       //   std::cout << "m_UseLabel "<< m_UseLabel << " pix " << pix << " Thresh " << m_Threshold << " ind " << ind << std::endl;
       if (this->m_UseLabel)

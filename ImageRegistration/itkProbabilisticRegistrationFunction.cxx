@@ -176,7 +176,6 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
   typedef itk::ImageRegionIteratorWithIndex<MetricImageType> Iterator;
   Iterator tIter(this->GetFixedImage(),this->GetFixedImage()->GetLargestPossibleRegion() );
 
-  typename FixedImageType::SizeType imagesize=this->GetFixedImage()->GetLargestPossibleRegion().GetSize();
 
   // compute local means
   //  typedef itk::ImageRegionIteratorWithIndex<MetricImageType> Iterator;
@@ -312,15 +311,15 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
         float smm = sumb2 - movingMean*sumb - movingMean*sumb + count*movingMean*movingMean;
         float sfm = sumab - movingMean*suma - fixedMean*sumb + count*movingMean*fixedMean;
 
-        IndexType oindex = outIter.GetIndex();
+        IndexType _oindex = outIter.GetIndex();
 
-        float val = this->GetFixedImage()->GetPixel( oindex ) - fixedMean;
-        this->finitediffimages[0]->SetPixel( oindex, val );
-        val = this->GetMovingImage()->GetPixel( oindex ) - movingMean;
-        this->finitediffimages[1]->SetPixel( oindex, val );
-        this->finitediffimages[2]->SetPixel( oindex, sfm );//A
-        this->finitediffimages[3]->SetPixel( oindex, sff );//B
-        this->finitediffimages[4]->SetPixel( oindex, smm );//C
+        float val = this->GetFixedImage()->GetPixel( _oindex ) - fixedMean;
+        this->finitediffimages[0]->SetPixel( _oindex, val );
+        val = this->GetMovingImage()->GetPixel( _oindex ) - movingMean;
+        this->finitediffimages[1]->SetPixel( _oindex, val );
+        this->finitediffimages[2]->SetPixel( _oindex, sfm );//A
+        this->finitediffimages[3]->SetPixel( _oindex, sff );//B
+        this->finitediffimages[4]->SetPixel( _oindex, smm );//C
         }
 
       // Increment the iterator and check to see if we're at the end of the
@@ -510,15 +509,15 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
         float smm = sumb2 - movingMean*sumb - movingMean*sumb + count*movingMean*movingMean;
         float sfm = sumab - movingMean*suma - fixedMean*sumb + count*movingMean*fixedMean;
 
-        IndexType oindex = outIter.GetIndex();
+        IndexType _oindex = outIter.GetIndex();
 
         // float val = this->GetFixedImage()->GetPixel( oindex ) - fixedMean;
     //        this->finitediffimages[0]->SetPixel( oindex, val );
     // val = this->GetMovingImage()->GetPixel( oindex ) - movingMean;
         // this->finitediffimages[1]->SetPixel( oindex, val );
-        this->finitediffimages[2]->SetPixel( oindex, sfm );//A
-        this->finitediffimages[3]->SetPixel( oindex, sff );//B
-        this->finitediffimages[4]->SetPixel( oindex, smm );//C
+        this->finitediffimages[2]->SetPixel( _oindex, sfm );//A
+        this->finitediffimages[3]->SetPixel( _oindex, sff );//B
+        this->finitediffimages[4]->SetPixel( _oindex, smm );//C
         }
 
       // Increment the iterator and check to see if we're at the end of the
@@ -792,7 +791,7 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 template <class TFixedImage, class TMovingImage, class TDisplacementField>
 typename TDisplacementField::PixelType
 ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
-::ComputeMetricAtPairB(IndexType oindex, typename TDisplacementField::PixelType vec)
+::ComputeMetricAtPairB(IndexType oindex, typename TDisplacementField::PixelType /* vec */)
 {
 
   typename TDisplacementField::PixelType deriv;
@@ -853,7 +852,7 @@ ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 template <class TFixedImage, class TMovingImage, class TDisplacementField>
 typename TDisplacementField::PixelType
 ProbabilisticRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
-::ComputeMetricAtPairC(IndexType oindex, typename TDisplacementField::PixelType vec)
+::ComputeMetricAtPairC(IndexType oindex, typename TDisplacementField::PixelType /* vec */)
 {
 
   typename TDisplacementField::PixelType deriv;

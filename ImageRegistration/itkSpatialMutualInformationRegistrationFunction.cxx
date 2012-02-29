@@ -157,8 +157,6 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
 //  std::cout << " A " << std::endl;
 //    bool makenewimage=false;
     typedef ImageRegionIteratorWithIndex<TFixedImage> ittype;
-    TFixedImage* img =const_cast<TFixedImage *>(this->m_FixedImage.GetPointer());
-    typename TFixedImage::SizeType imagesize=img->GetLargestPossibleRegion().GetSize();
 //  std::cout << " B " << std::endl;
 
     /*
@@ -712,8 +710,8 @@ SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacem
 template < class TFixedImage, class TMovingImage  , class TDisplacementField>
 double
 SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
-::GetValueAndDerivative(IndexType oindex, MeasureType& valuei,
-            DerivativeType& derivative1,DerivativeType& derivative2)
+::GetValueAndDerivative(IndexType oindex, MeasureType& /* valuei */,
+            DerivativeType& /* derivative1 */,DerivativeType& /* derivative2 */)
 {
   double value=0;
   DerivativeType zero(ImageDimension);
@@ -782,8 +780,8 @@ template < class TFixedImage, class TMovingImage  , class TDisplacementField>
 double
 SpatialMutualInformationRegistrationFunction<TFixedImage,TMovingImage,TDisplacementField>
 ::GetValueAndDerivativeInv(IndexType oindex,
-            MeasureType& valuei,
-            DerivativeType& derivative1,DerivativeType& derivative2)
+            MeasureType& /* valuei */,
+            DerivativeType& /* derivative1 */,DerivativeType& /* derivative2 */)
 {
   double value=0;
   DerivativeType zero(ImageDimension);

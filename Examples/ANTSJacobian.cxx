@@ -159,7 +159,7 @@ ComputeJacobian(TDisplacementField* field,char* fnm, char* maskfn, bool uselog=f
   std::vector<std::string> v;
   if ( projvec.length() > 2 ) {
   antsjacobiansplit(projvec, 'x', v);
-  for (int i = 0; i < v.size( ); ++i) {
+  for (std::vector<std::string>::size_type i = 0; i < v.size( ); ++i) {
       std::cout << v[i] << '\n';
    }
   }
@@ -272,8 +272,6 @@ ComputeJacobian(TDisplacementField* field,char* fnm, char* maskfn, bool uselog=f
   // 2nd deriv - 4th order
   wC = 30.0 ;
   wLL= -1.0; wL= 16.0; wR = 16.0; wRR = -1.0;
-  float total = wC;// wLL + wL + wR + wRR;
-  if (total == 0.0) total = 1.0;
 
   unsigned long ct =0;
 
@@ -294,7 +292,6 @@ ComputeJacobian(TDisplacementField* field,char* fnm, char* maskfn, bool uselog=f
     if (oktosample)
       {
     ct++;
-    typename TImage::IndexType temp=rindex;
     cpix=TransformVector<ImageType,FieldType>(field,rindex);
     if ( v.size() > 0 ) cpix=ProjectVector<ImageType,FieldType>(cpix,pvec);
     for(unsigned int row=0; row< ImageDimension;row++)
@@ -385,18 +382,18 @@ ComputeJacobian(TDisplacementField* field,char* fnm, char* maskfn, bool uselog=f
       } */
 
       double total = 0.0;
-      unsigned long ct = 0;
+      unsigned long _ct = 0;
       for(  m_FieldIter.GoToBegin() ; !m_FieldIter.IsAtEnd(); ++m_FieldIter )
     {
       rindex=m_FieldIter.GetIndex();
       if (mask->GetPixel(rindex) > 0 )
         {
           total+=m_FloatImage->GetPixel(rindex);
-          ct++;
+          _ct++;
         }
       else m_FloatImage->SetPixel(rindex,0);
     }
-      total /= (double) ct;
+      total /= (double) _ct;
       for(  m_FieldIter.GoToBegin() ; !m_FieldIter.IsAtEnd(); ++m_FieldIter )
     {
       rindex=m_FieldIter.GetIndex();

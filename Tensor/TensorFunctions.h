@@ -170,7 +170,7 @@ TensorType TensorLog( TensorType dtv, bool success=true )
 }
 
 template <class TensorType>
-TensorType TensorExp( TensorType dtv, bool takelog , bool success=true)
+TensorType TensorExp( TensorType dtv, bool /* takelog */, bool success=true)
 {
   return TensorLogAndExp<TensorType>( dtv, false, success );
 }
@@ -518,9 +518,6 @@ itk::RGBPixel< float >   GetTensorPrincipalEigenvector( TTensorType dtv )
   vnl_symmetric_eigensystem< double > eig(DT);
 
 
-  double e1 = (eig.D(0,0));
-  double e2 = (eig.D(1,1));
-  double e3 = (eig.D(2,2));
   itk::RGBPixel< float > rgb;
 
   float xx = dtv[0];

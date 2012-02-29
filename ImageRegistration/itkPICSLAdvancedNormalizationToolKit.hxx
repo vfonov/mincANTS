@@ -660,7 +660,6 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
               std::cout << "  similarity metric weight: "
                         << similarityMetricScalarWeight << std::endl;
 
-              typename SimilarityMetricType::RadiusType radius;
               radius.Fill( 0 );
               if ( option->GetNumberOfParameters( i ) > parameterCount )
                 {
@@ -695,7 +694,7 @@ PICSLAdvancedNormalizationToolKit<TDimension, TReal>
                   std::cout <<" Setting Extra Param to :  " << extraparam << " often used as a robustness parameter for longitudinal studies " << std::endl;
                   parameterCount++;
                 }
-              std::cout << "  Radius: " << radius << std::endl;
+              std::cout << "  radius: " << radius << std::endl;
 
               unsigned int numberOfHistogramBins = 64;
               if ( Dimension == 2 )
