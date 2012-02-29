@@ -28,7 +28,7 @@
 #include <vector>
 #include <fstream>
 
-template<class TensorType>
+template <class TensorType>
 double CalculateFractionalAnisotropy( TensorType tensor )
 {
   typename TensorType::EigenValuesArrayType eigenvalues;
@@ -47,7 +47,7 @@ double CalculateFractionalAnisotropy( TensorType tensor )
 
   double fa = 0.0;
   double mean = tensor.GetTrace() / static_cast<double>(
-    TensorType::Dimension );
+      TensorType::Dimension );
 
   double numerator = 0.0;
   double denominator = 0.0;
@@ -61,7 +61,7 @@ double CalculateFractionalAnisotropy( TensorType tensor )
   return fa;
 }
 
-template<class TensorType>
+template <class TensorType>
 double CalculateMeanDiffusivity( TensorType tensor )
 {
   typename TensorType::EigenValuesArrayType eigenvalues;
@@ -79,21 +79,21 @@ double CalculateMeanDiffusivity( TensorType tensor )
     }
 
   double mean = tensor.GetTrace() / static_cast<double>(
-    TensorType::Dimension );
+      TensorType::Dimension );
 
   return mean;
 }
 
-template<unsigned int ImageDimension>
+template <unsigned int ImageDimension>
 int CreateDTICohort( itk::ants::CommandLineParser *parser )
 {
-  typedef float RealType;
+  typedef float                                                    RealType;
   typedef itk::SymmetricSecondRankTensor<RealType, ImageDimension> TensorType;
-  typedef itk::VariableSizeMatrix<typename TensorType::ValueType> MatrixType;
+  typedef itk::VariableSizeMatrix<typename TensorType::ValueType>  MatrixType;
 
   typedef itk::Image<RealType, ImageDimension> ImageType;
 
-  typedef unsigned int LabelType;
+  typedef unsigned int                          LabelType;
   typedef itk::Image<LabelType, ImageDimension> MaskImageType;
   typename MaskImageType::Pointer maskImage = NULL;
 
@@ -104,7 +104,7 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
   typename TensorReaderType::Pointer reader = TensorReaderType::New();
 
   typedef itk::DecomposeTensorFunction<MatrixType,
-    typename MatrixType::ValueType, MatrixType> DecomposerType;
+                                       typename MatrixType::ValueType, MatrixType> DecomposerType;
   typename DecomposerType::Pointer decomposer = DecomposerType::New();
 
   typedef itk::Statistics::MersenneTwisterRandomVariateGenerator RandomizerType;
@@ -134,8 +134,8 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
   //
   // Get the number of output images and duplicate the atlas for each cohort.
   //
-  std::string outputDirectory( "./" );
-  std::string rootOutputFileName( "outputDWI" );
+  std::string  outputDirectory( "./" );
+  std::string  rootOutputFileName( "outputDWI" );
   unsigned int numberOfControls = 10;
   unsigned int numberOfExperimentals = 10;
 
@@ -155,12 +155,12 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
     if( outputOption->GetNumberOfParameters() > 2 )
       {
       numberOfControls = parser->Convert<unsigned int>(
-        outputOption->GetParameter( 2 ) );
+          outputOption->GetParameter( 2 ) );
       }
     if( outputOption->GetNumberOfParameters() > 3 )
       {
       numberOfExperimentals = parser->Convert<unsigned int>(
-        outputOption->GetParameter( 3 ) );
+          outputOption->GetParameter( 3 ) );
       }
     }
   else
@@ -187,7 +187,7 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
       maskImage->Update();
       maskImage->DisconnectPipeline();
       }
-    catch(...)
+    catch( ... )
       {
       lowerThresholdValue = parser->Convert<RealType>( maskImageOption->GetValue() );
       }
@@ -195,8 +195,8 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
   if( !maskImage->GetBufferPointer() )
     {
     std::cout << "Mask not read.  Creating mask by thresholding "
-      << "the FA of the DTI atlas at >= " << lowerThresholdValue
-      << "." << std::endl << std::endl;
+              << "the FA of the DTI atlas at >= " << lowerThresholdValue
+              << "." << std::endl << std::endl;
 
     typename ImageType::Pointer faImage = ImageType::New();
     faImage->CopyInformation( inputAtlas );
@@ -205,16 +205,16 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
     faImage->FillBuffer( 0.0 );
 
     itk::ImageRegionIterator<TensorImageType> ItA( inputAtlas,
-      inputAtlas->GetLargestPossibleRegion() );
+                                                   inputAtlas->GetLargestPossibleRegion() );
     itk::ImageRegionIterator<ImageType> ItF( faImage,
-      faImage->GetLargestPossibleRegion() );
+                                             faImage->GetLargestPossibleRegion() );
     for( ItA.GoToBegin(), ItF.GoToBegin(); !ItA.IsAtEnd(); ++ItA, ++ItF )
       {
       ItF.Set( CalculateFractionalAnisotropy<TensorType>( ItA.Get() ) );
       }
 
     typedef itk::BinaryThresholdImageFilter<ImageType, MaskImageType>
-      ThresholderType;
+    ThresholderType;
     typename ThresholderType::Pointer thresholder = ThresholderType::New();
     thresholder->SetInput( faImage );
     thresholder->SetInsideValue( 1 );
@@ -231,7 +231,7 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
   // Get label information for pathology option
   //
   typedef itk::LabelGeometryImageFilter<MaskImageType, ImageType>
-    LabelGeometryFilterType;
+  LabelGeometryFilterType;
   typename LabelGeometryFilterType::Pointer labelGeometry =
     LabelGeometryFilterType::New();
   labelGeometry->SetInput( maskImage );
@@ -248,7 +248,7 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
   for( unsigned int n = 0; n < labels.size(); n++ )
     {
     totalMaskVolume += static_cast<unsigned int>( labelGeometry->GetVolume(
-        labels[n] ) );
+                                                    labels[n] ) );
     }
 
   // Fill in default values per label:
@@ -271,7 +271,7 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
   if( pathologyOption && pathologyOption->GetNumberOfValues() > 0 )
     {
     if( pathologyOption->GetNumberOfValues() == 1 &&
-      ( pathologyOption->GetValue( 0 ) ).empty() )
+        ( pathologyOption->GetValue( 0 ) ).empty() )
       {
       float pathologyDeltaEig1 = 0.0;
       float pathologyDeltaEig2_Eig3 = 0.0;
@@ -280,17 +280,17 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
       if( pathologyOption->GetNumberOfParameters( 0 ) > 0 )
         {
         pathologyDeltaEig1 = parser->Convert<float>(
-          pathologyOption->GetParameter( 0, 0 ) );
+            pathologyOption->GetParameter( 0, 0 ) );
         }
       if( pathologyOption->GetNumberOfParameters( 0 ) > 1 )
         {
         pathologyDeltaEig2_Eig3 = parser->Convert<float>(
-          pathologyOption->GetParameter( 0, 1 ) );
+            pathologyOption->GetParameter( 0, 1 ) );
         }
       if( pathologyOption->GetNumberOfParameters( 0 ) > 2 )
         {
         percentageVoxels = parser->Convert<float>(
-          pathologyOption->GetParameter( 0, 2 ) );
+            pathologyOption->GetParameter( 0, 2 ) );
         }
       for( unsigned int n = 0; n < labels.size(); n++ )
         {
@@ -298,7 +298,7 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
         if( percentage > 1.0 )
           {
           percentage /= static_cast<RealType>( labelGeometry->GetVolume(
-            labels[n] ) );
+                                                 labels[n] ) );
           }
 
         pathologyParameters(n, 0) = pathologyDeltaEig1;
@@ -311,7 +311,7 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
       for( unsigned int n = 0; n < pathologyOption->GetNumberOfValues(); n++ )
         {
         LabelType whichClass = parser->Convert<LabelType>(
-          pathologyOption->GetValue( n ) );
+            pathologyOption->GetValue( n ) );
 
         std::vector<LabelType>::const_iterator it =
           std::find( labels.begin(), labels.end(), whichClass );
@@ -328,17 +328,17 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
         if( pathologyOption->GetNumberOfParameters( n ) > 0 )
           {
           pathologyDeltaEig1 = parser->Convert<float>(
-            pathologyOption->GetParameter( n, 0 ) );
+              pathologyOption->GetParameter( n, 0 ) );
           }
         if( pathologyOption->GetNumberOfParameters( n ) > 1 )
           {
           pathologyDeltaEig2_Eig3 = parser->Convert<float>(
-            pathologyOption->GetParameter( n, 1 ) );
+              pathologyOption->GetParameter( n, 1 ) );
           }
         if( pathologyOption->GetNumberOfParameters( n ) > 2 )
           {
           percentageVoxels = parser->Convert<float>(
-            pathologyOption->GetParameter( n, 2 ) );
+              pathologyOption->GetParameter( n, 2 ) );
           }
 
         RealType percentage = percentageVoxels;
@@ -364,7 +364,7 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
   if( populationOption && populationOption->GetNumberOfValues() > 0 )
     {
     std::cout << "--- Modeling intersubject variability ---" << std::endl
-      << std::endl;
+              << std::endl;
 
     std::vector<std::string> imageNames;
 
@@ -377,6 +377,7 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
       {
       imageNames.push_back( imageFile );
       }
+
     str.close();
 
     MatrixType M;
@@ -385,11 +386,10 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
     MatrixType Lambda;
     M.SetSize( imageNames.size(), 2 * totalMaskVolume );
     M.Fill( 0 );
-
-    for ( unsigned int k = 0; k < imageNames.size(); k++ )
+    for( unsigned int k = 0; k < imageNames.size(); k++ )
       {
-      std::cout << "Processing " << imageNames[k] << " (" << k+1 << " of "
-        << imageNames.size() << ")." << std::endl;
+      std::cout << "Processing " << imageNames[k] << " (" << k + 1 << " of "
+                << imageNames.size() << ")." << std::endl;
       typename TensorReaderType::Pointer tensorReader = TensorReaderType::New();
       tensorReader->SetFileName( imageNames[k].c_str() );
       tensorReader->Update();
@@ -397,9 +397,9 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
       unsigned int count = 0;
 
       itk::ImageRegionIterator<TensorImageType> It( tensorReader->GetOutput(),
-        tensorReader->GetOutput()->GetLargestPossibleRegion() );
+                                                    tensorReader->GetOutput()->GetLargestPossibleRegion() );
       itk::ImageRegionIterator<MaskImageType> ItM( maskImage,
-        maskImage->GetLargestPossibleRegion() );
+                                                   maskImage->GetLargestPossibleRegion() );
       for( It.GoToBegin(), ItM.GoToBegin(); !It.IsAtEnd(); ++It, ++ItM )
         {
         if( ItM.Get() != 0 )
@@ -439,7 +439,6 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
 
     // Now that the matrix M has been calculated, we need to subtract out
     // the longitudinal mean before performing PCA
-
     for( unsigned int i = 0; i < M.Cols(); i++ )
       {
       RealType columnAverage = 0.0;
@@ -459,8 +458,8 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
     MMt *= M.GetTranspose();
     decomposer->EvaluateSymmetricEigenDecomposition( MMt, Lambda, E );
 
-    ISV = ( M.GetTranspose() * E.GetVnlMatrix() ) /
-      vcl_sqrt( static_cast<float>( imageNames.size() ) );
+    ISV = ( M.GetTranspose() * E.GetVnlMatrix() )
+      / vcl_sqrt( static_cast<float>( imageNames.size() ) );
 
     applyISV = true;
     }
@@ -469,9 +468,9 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
   // Get DWI parameters
   //
   typename ImageType::Pointer b0Image = NULL;
-  unsigned int numberOfDirections = 0;
+  unsigned int                       numberOfDirections = 0;
   std::vector<vnl_vector<RealType> > directions;
-  std::vector<RealType> bvalues;
+  std::vector<RealType>              bvalues;
 
   vnl_vector<RealType> direction( ImageDimension );
 
@@ -483,7 +482,7 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
   typename itk::ants::CommandLineParser::OptionType::Pointer dwiOption =
     parser->GetOption( "dwi-parameters" );
   if( dwiOption && dwiOption->GetNumberOfValues() > 0 &&
-    dwiOption->GetNumberOfParameters() > 1 )
+      dwiOption->GetNumberOfParameters() > 1 )
     {
     typedef itk::ImageFileReader<ImageType> ReaderType;
     typename ReaderType::Pointer reader2 = ReaderType::New();
@@ -492,7 +491,7 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
     b0Image = reader2->GetOutput();
     b0Image->DisconnectPipeline();
 
-    std::string directionsFileName = dwiOption->GetParameter( 1 );
+    std::string  directionsFileName = dwiOption->GetParameter( 1 );
     std::fstream str( directionsFileName.c_str() );
 
     if( dwiOption->GetNumberOfParameters() > 2 )
@@ -524,10 +523,11 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
           }
         }
       }
+
     if( numberOfDirections != directions.size() - 1 )
       {
       std::cerr << "ERROR:  Number of directions does not match the data file."
-        << std::endl;
+                << std::endl;
       return EXIT_FAILURE;
       }
     }
@@ -569,7 +569,7 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
     if( n == 0 )
       {
       std::cout << "--- Calculating regional average FA and MD values (original and "
-        << "pathology) ---" << std::endl << std::endl;
+                << "pathology) ---" << std::endl << std::endl;
       }
     else if( n <= numberOfControls )
       {
@@ -578,12 +578,12 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
         std::cout << std::endl << "--- Writing images ---" << std::endl << std::endl;
         }
       std::cout << "Writing control " << n
-        << " (of " << numberOfControls << ") DWI images." << std::endl;
+                << " (of " << numberOfControls << ") DWI images." << std::endl;
       }
     else
       {
-      std::cout << "Writing experimental " << n-numberOfControls
-        << " (of " << numberOfExperimentals << ") DWI images." << std::endl;
+      std::cout << "Writing experimental " << n - numberOfControls
+                << " (of " << numberOfExperimentals << ") DWI images." << std::endl;
       }
 
     // copy atlas
@@ -614,12 +614,12 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
     unsigned long count = 0;
 
     itk::ImageRegionIterator<TensorImageType> It( dti,
-      dti->GetLargestPossibleRegion() );
+                                                  dti->GetLargestPossibleRegion() );
     itk::ImageRegionIterator<MaskImageType> ItM( maskImage,
-      maskImage->GetLargestPossibleRegion() );
+                                                 maskImage->GetLargestPossibleRegion() );
     for( It.GoToBegin(), ItM.GoToBegin(); !It.IsAtEnd(); ++It, ++ItM )
       {
-      LabelType label = ItM.Get();
+      LabelType  label = ItM.Get();
       TensorType tensor = It.Get();
 
       typename TensorType::EigenValuesArrayType eigenvalues;
@@ -636,7 +636,7 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
         }
 
       std::vector<LabelType>::const_iterator it = std::find( labels.begin(),
-        labels.end(), label );
+                                                             labels.end(), label );
       if( it == labels.end() )
         {
         std::cerr << "ERROR:  unknown label." << std::endl;
@@ -653,7 +653,7 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
       RealType pathologyLongitudinalChange = 0.0;
       RealType pathologyTransverseChange = 0.0;
       if( ( n == 0 || n > numberOfControls ) && randomizer->GetUniformVariate(
-        0.0, 1.0 ) <= pathologyParameters(labelIndex, 2) )
+            0.0, 1.0 ) <= pathologyParameters(labelIndex, 2) )
         {
         pathologyLongitudinalChange = pathologyParameters(labelIndex, 0);
         pathologyTransverseChange = pathologyParameters(labelIndex, 1);
@@ -676,11 +676,11 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
       //
       if( ImageDimension == 2 )
         {
-        newEigenvalues[1] = eigenvalues[1] +
-          eigenvalues[1] * pathologyLongitudinalChange +
-          isvLongitudinalProjection;
-        newEigenvalues[0] = eigenvalues[0] * ( 1.0 + eigenvalues[0] ) *
-          pathologyTransverseChange + isvTransverseProjection;
+        newEigenvalues[1] = eigenvalues[1]
+          + eigenvalues[1] * pathologyLongitudinalChange
+          + isvLongitudinalProjection;
+        newEigenvalues[0] = eigenvalues[0] * ( 1.0 + eigenvalues[0] )
+          * pathologyTransverseChange + isvTransverseProjection;
         if( newEigenvalues[0] >= newEigenvalues[1] )
           {
           newEigenvalues[0] = newEigenvalues[1] - 1.0e-6;
@@ -688,19 +688,19 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
         }
       else
         {
-        newEigenvalues[2] = eigenvalues[2] +
-          eigenvalues[2] * pathologyLongitudinalChange +
-          isvLongitudinalProjection;
+        newEigenvalues[2] = eigenvalues[2]
+          + eigenvalues[2] * pathologyLongitudinalChange
+          + isvLongitudinalProjection;
         RealType eigenAverage = 0.5 * ( eigenvalues[1] + eigenvalues[0] );
-        newEigenvalues[1] = ( 2.0 * eigenAverage *
-          ( 1.0 + pathologyTransverseChange ) +
-          isvTransverseProjection ) / ( eigenvalues[0] / eigenvalues[1] + 1.0 );
+        newEigenvalues[1] = ( 2.0 * eigenAverage
+                              * ( 1.0 + pathologyTransverseChange )
+                              + isvTransverseProjection ) / ( eigenvalues[0] / eigenvalues[1] + 1.0 );
         if( newEigenvalues[1] >= newEigenvalues[2] )
           {
           newEigenvalues[1] = newEigenvalues[2] - 1.0e-6;
           }
-        newEigenvalues[0] = ( eigenvalues[0] / eigenvalues[1] ) *
-          newEigenvalues[1];
+        newEigenvalues[0] = ( eigenvalues[0] / eigenvalues[1] )
+          * newEigenvalues[1];
         }
       for( unsigned int d = 0; d < ImageDimension; d++ )
         {
@@ -760,25 +760,25 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
     if( n == 0 )
       {
       std::cout << "   " << std::left << std::setw( 7 ) << "Region"
-        << std::left << std::setw( 15 ) << "FA (original)"
-        << std::left << std::setw( 15 ) << "FA (pathology)"
-        << std::left << std::setw( 15 ) << "FA (% change)"
-        << std::left << std::setw( 15 ) << "MD (original)"
-        << std::left << std::setw( 15 ) << "MD (pathology)"
-        << std::left << std::setw( 15 ) << "MD (% change)"
-        << std::endl;
+                << std::left << std::setw( 15 ) << "FA (original)"
+                << std::left << std::setw( 15 ) << "FA (pathology)"
+                << std::left << std::setw( 15 ) << "FA (% change)"
+                << std::left << std::setw( 15 ) << "MD (original)"
+                << std::left << std::setw( 15 ) << "MD (pathology)"
+                << std::left << std::setw( 15 ) << "MD (% change)"
+                << std::endl;
       for( unsigned int l = 1; l < labels.size(); l++ )
         {
         std::cout << "   " << std::left << std::setw( 7 ) << labels[l]
-          << std::left << std::setw( 15 ) << meanFAandMD(l, 0)/meanFAandMD(l, 4)
-          << std::left << std::setw( 15 ) << meanFAandMD(l, 2)/meanFAandMD(l, 4)
-          << std::left << std::setw( 15 ) <<
-            ( meanFAandMD(l, 2) - meanFAandMD(l, 0) ) / meanFAandMD(l, 0)
-          << std::left << std::setw( 15 ) << meanFAandMD(l, 1)/meanFAandMD(l, 4)
-          << std::left << std::setw( 15 ) << meanFAandMD(l, 3)/meanFAandMD(l, 4)
-          << std::left << std::setw( 15 ) <<
-            ( meanFAandMD(l, 3) - meanFAandMD(l, 1) ) / meanFAandMD(l, 1)
-          << std::endl;
+                  << std::left << std::setw( 15 ) << meanFAandMD(l, 0) / meanFAandMD(l, 4)
+                  << std::left << std::setw( 15 ) << meanFAandMD(l, 2) / meanFAandMD(l, 4)
+                  << std::left << std::setw( 15 )
+                  << ( meanFAandMD(l, 2) - meanFAandMD(l, 0) ) / meanFAandMD(l, 0)
+                  << std::left << std::setw( 15 ) << meanFAandMD(l, 1) / meanFAandMD(l, 4)
+                  << std::left << std::setw( 15 ) << meanFAandMD(l, 3) / meanFAandMD(l, 4)
+                  << std::left << std::setw( 15 )
+                  << ( meanFAandMD(l, 3) - meanFAandMD(l, 1) ) / meanFAandMD(l, 1)
+                  << std::endl;
         }
       }
     else
@@ -802,8 +802,8 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
         {
         istream << ( n - numberOfControls );
         }
-      std::string dwiSeriesFileNames = outputDirectory + which + istream.str() +
-        rootOutputFileName + std::string( "Direction%03d.nii.gz" );
+      std::string dwiSeriesFileNames = outputDirectory + which + istream.str()
+        + rootOutputFileName + std::string( "Direction%03d.nii.gz" );
 
       itk::NumericSeriesFileNames::Pointer dwiFileNamesCreator =
         itk::NumericSeriesFileNames::New();
@@ -811,15 +811,14 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
       dwiFileNamesCreator->SetEndIndex( directions.size() - 1 );
       dwiFileNamesCreator->SetSeriesFormat( dwiSeriesFileNames.c_str() );
       std::vector<std::string> dwiImageNames = dwiFileNamesCreator->GetFileNames();
-
       for( unsigned int d = 0; d < directions.size(); d++ )
         {
         vnl_vector<RealType> bk = directions[d];
-        RealType bvalue = bvalues[d];
+        RealType             bvalue = bvalues[d];
 
-        std::cout << "  Applying direction " << d << " (of " <<
-          directions.size()-1 << "): [" << bk << "]"
-          << ", bvalue = " << bvalue << std::endl;
+        std::cout << "  Applying direction " << d << " (of "
+                  << directions.size() - 1 << "): [" << bk << "]"
+                  << ", bvalue = " << bvalue << std::endl;
 
         typename ImageType::Pointer dwi = ImageType::New();
         dwi->CopyInformation( dti );
@@ -828,14 +827,13 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
         dwi->FillBuffer( 0 );
 
         itk::ImageRegionConstIterator<ImageType> ItB( b0Image,
-          b0Image->GetLargestPossibleRegion() );
+                                                      b0Image->GetLargestPossibleRegion() );
         itk::ImageRegionIterator<ImageType> ItD( dwi,
-          dwi->GetLargestPossibleRegion() );
+                                                 dwi->GetLargestPossibleRegion() );
         for( It.GoToBegin(), ItB.GoToBegin(), ItD.GoToBegin(); !It.IsAtEnd();
-          ++It, ++ItB, ++ItD )
+             ++It, ++ItB, ++ItD )
           {
           TensorType tensor = It.Get();
-
           for( unsigned int i = 0; i < tensor.GetNumberOfComponents(); i++ )
             {
             if( vnl_math_isnan( tensor[i] ) )
@@ -863,9 +861,9 @@ int CreateDTICohort( itk::ants::CommandLineParser *parser )
           if( noiseSigma > 0.0 )
             {
             realNoise = randomizer->GetNormalVariate( 0.0,
-              vnl_math_sqr( noiseSigma ) );
+                                                      vnl_math_sqr( noiseSigma ) );
             imagNoise = randomizer->GetNormalVariate( 0.0,
-              vnl_math_sqr( noiseSigma ) );
+                                                      vnl_math_sqr( noiseSigma ) );
             }
           RealType realSignal = signal + realNoise;
           RealType imagSignal = imagNoise;
@@ -894,173 +892,174 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
 {
   typedef itk::ants::CommandLineParser::OptionType OptionType;
 
-  {
-  std::string description =
-    std::string( "This option forces the image to be treated as a specified-" ) +
-    std::string( "dimensional image.  If not specified, the program tries to " ) +
-    std::string( "infer the dimensionality from the input image." );
+    {
+    std::string description =
+      std::string( "This option forces the image to be treated as a specified-" )
+      + std::string( "dimensional image.  If not specified, the program tries to " )
+      + std::string( "infer the dimensionality from the input image." );
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "image-dimensionality" );
-  option->SetShortName( 'd' );
-  option->SetUsageOption( 0, "2/3" );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "image-dimensionality" );
+    option->SetShortName( 'd' );
+    option->SetUsageOption( 0, "2/3" );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  {
-  std::string description =
-    std::string( "A diffusion tensor atlas image is required input for " ) +
-    std::string( "creating the cohort. " );
+    {
+    std::string description =
+      std::string( "A diffusion tensor atlas image is required input for " )
+      + std::string( "creating the cohort. " );
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "dti-atlas" );
-  option->SetShortName( 'a' );
-  option->SetUsageOption( 0, "inputDTIAtlasFileName" );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "dti-atlas" );
+    option->SetShortName( 'a' );
+    option->SetUsageOption( 0, "inputDTIAtlasFileName" );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  {
-  std::string description =
-    std::string( "A mask image can be specified which determines the region(s). " ) +
-    std::string( "to which the simulated pathology operations are applied. " ) +
-    std::string( "See also the option '--pathology'.  If no mask is specified " ) +
-    std::string( "one is created by thresholding the atlas FA map at 0.2 unless  " ) +
-    std::string( "a lower threshold is specified." );
+    {
+    std::string description =
+      std::string( "A mask image can be specified which determines the region(s). " )
+      + std::string( "to which the simulated pathology operations are applied. " )
+      + std::string( "See also the option '--pathology'.  If no mask is specified " )
+      + std::string( "one is created by thresholding the atlas FA map at 0.2 unless  " )
+      + std::string( "a lower threshold is specified." );
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "label-mask-image" );
-  option->SetShortName( 'x' );
-  option->SetUsageOption( 0, "maskImageFileName" );
-  option->SetUsageOption( 1, "lowerThresholdValue" );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "label-mask-image" );
+    option->SetShortName( 'x' );
+    option->SetUsageOption( 0, "maskImageFileName" );
+    option->SetUsageOption( 1, "lowerThresholdValue" );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  {
-  std::string description =
-    std::string( "This parameter characterizes the Rician noise in the original DWI" ) +
-    std::string( "images.  Van Hecke uses the noise-estimation method of Sijbers et " ) +
-    std::string( "al. \"Automatic estimation of the noise variance from the " ) +
-    std::string( "histogram of a magnetic resonance image\", Phys. Med. Biol. " ) +
-    std::string( "52:1335-1348, 2007." );
+    {
+    std::string description =
+      std::string( "This parameter characterizes the Rician noise in the original DWI" )
+      + std::string( "images.  Van Hecke uses the noise-estimation method of Sijbers et " )
+      + std::string( "al. \"Automatic estimation of the noise variance from the " )
+      + std::string( "histogram of a magnetic resonance image\", Phys. Med. Biol. " )
+      + std::string( "52:1335-1348, 2007." );
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "noise-sigma" );
-  option->SetShortName( 'n' );
-  option->SetUsageOption( 0, "<noiseSigma=18>" );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "noise-sigma" );
+    option->SetShortName( 'n' );
+    option->SetUsageOption( 0, "<noiseSigma=18>" );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  {
-  std::string description =
-    std::string( "The user can specify the simulated pathology in a given " ) +
-    std::string( "area using a label mask. If no label is prepended to " ) +
-    std::string( "parameters, the specified parameters are applied to all labels." ) +
-    std::string( "Pathology is simulated by changing the eigenvalues. Typically " ) +
-    std::string( "this involves a decrease in the largest eigenvalue and an " ) +
-    std::string( "increase in the average of the remaining eigenvalues. " ) +
-    std::string( "Change is specified as a percentage of the current eigenvalues. " ) +
-    std::string( "However, care is taken " ) +
-    std::string( "to ensure that diffusion direction does not change. " ) +
-    std::string( "Additionally, one can specify the number of voxels affected " ) +
-    std::string( "in each region or one can specify the percentage of voxels " ) +
-    std::string( "affected.  Default is to change all voxels.  Note that the " ) +
-    std::string( "percentages must be specified in the range [0,1]. For " ) +
-    std::string( "dimension=3 where the average transverse diffusion eigenvalues " ) +
-    std::string( "are altered, this change is propagated to the distinct eigenvalues " ) +
-    std::string( "by forcing the ratio to be the same before the change. " );
+    {
+    std::string description =
+      std::string( "The user can specify the simulated pathology in a given " )
+      + std::string( "area using a label mask. If no label is prepended to " )
+      + std::string( "parameters, the specified parameters are applied to all labels." )
+      + std::string( "Pathology is simulated by changing the eigenvalues. Typically " )
+      + std::string( "this involves a decrease in the largest eigenvalue and an " )
+      + std::string( "increase in the average of the remaining eigenvalues. " )
+      + std::string( "Change is specified as a percentage of the current eigenvalues. " )
+      + std::string( "However, care is taken " )
+      + std::string( "to ensure that diffusion direction does not change. " )
+      + std::string( "Additionally, one can specify the number of voxels affected " )
+      + std::string( "in each region or one can specify the percentage of voxels " )
+      + std::string( "affected.  Default is to change all voxels.  Note that the " )
+      + std::string( "percentages must be specified in the range [0,1]. For " )
+      + std::string( "dimension=3 where the average transverse diffusion eigenvalues " )
+      + std::string( "are altered, this change is propagated to the distinct eigenvalues " )
+      + std::string( "by forcing the ratio to be the same before the change. " );
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "pathology" );
-  option->SetUsageOption( 0,
-    "label[<percentageChangeEig1=-0.05>,<percentageChangeAvgEig2andEig3=0.05>,<numberOfVoxels=all or percentageOfvoxels>]" );
-  option->SetShortName( 'p' );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "pathology" );
+    option->SetUsageOption(
+      0,
+      "label[<percentageChangeEig1=-0.05>,<percentageChangeAvgEig2andEig3=0.05>,<numberOfVoxels=all or percentageOfvoxels>]" );
+    option->SetShortName( 'p' );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  {
-  std::string description =
-    std::string( "This option specifies the parameters of the output " ) +
-    std::string( "diffusion-weighted images including the directions and " ) +
-    std::string( "b-values.  The directions are specified using a direction " ) +
-    std::string( "file which has as its first line the number of directions." ) +
-    std::string( "Each successive three lines contains the x, y, and z " ) +
-    std::string( "directions, respectively, and a single b-value. " ) +
-    std::string( "Note that several direction files of this format are " ) +
-    std::string( "distributed with the Camino DTI toolkit " ) +
-    std::string( "(http://web4.cs.ucl.ac.uk/research/medic/camino/pmwiki/pmwiki.php).  " ) +
-    std::string( "Alternatively, one can specify a scheme file where each direction " ) +
-    std::string( "is specified followed by a b-value for that direction, i.e. " ) +
-    std::string( "<x1> <y1> <z1> <bvalue1> ... <xN><yN><zN><bvalueN>." );
+    {
+    std::string description =
+      std::string( "This option specifies the parameters of the output " )
+      + std::string( "diffusion-weighted images including the directions and " )
+      + std::string( "b-values.  The directions are specified using a direction " )
+      + std::string( "file which has as its first line the number of directions." )
+      + std::string( "Each successive three lines contains the x, y, and z " )
+      + std::string( "directions, respectively, and a single b-value. " )
+      + std::string( "Note that several direction files of this format are " )
+      + std::string( "distributed with the Camino DTI toolkit " )
+      + std::string( "(http://web4.cs.ucl.ac.uk/research/medic/camino/pmwiki/pmwiki.php).  " )
+      + std::string( "Alternatively, one can specify a scheme file where each direction " )
+      + std::string( "is specified followed by a b-value for that direction, i.e. " )
+      + std::string( "<x1> <y1> <z1> <bvalue1> ... <xN><yN><zN><bvalueN>." );
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "dwi-parameters" );
-  option->SetShortName( 'w' );
-  option->SetUsageOption( 0, "[B0Image,directionFile,bvalue]" );
-  option->SetUsageOption( 1, "[B0Image,schemeFile]" );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "dwi-parameters" );
+    option->SetShortName( 'w' );
+    option->SetUsageOption( 0, "[B0Image,directionFile,bvalue]" );
+    option->SetUsageOption( 1, "[B0Image,schemeFile]" );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  {
-  std::string description =
-    std::string( "If one wants to introduce inter-subject variability" ) +
-    std::string( "a registered DTI population to the DTI atlas is " ) +
-    std::string( "required.  This variability is modeled by a PCA " ) +
-    std::string( "decomposition on a combination of the first eigenvalue " ) +
-    std::string( "image and the average of the second and third eigenvalues." ) +
-    std::string( "The registered image file names are specified using " ) +
-    std::string( "a text file " ) +
-    std::string( "where each line is the name of an individual DTI." );
+    {
+    std::string description =
+      std::string( "If one wants to introduce inter-subject variability" )
+      + std::string( "a registered DTI population to the DTI atlas is " )
+      + std::string( "required.  This variability is modeled by a PCA " )
+      + std::string( "decomposition on a combination of the first eigenvalue " )
+      + std::string( "image and the average of the second and third eigenvalues." )
+      + std::string( "The registered image file names are specified using " )
+      + std::string( "a text file " )
+      + std::string( "where each line is the name of an individual DTI." );
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "registered-population" );
-  option->SetShortName( 'r' );
-  option->SetUsageOption( 0, "textFileWithFileNames.txt" );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "registered-population" );
+    option->SetShortName( 'r' );
+    option->SetUsageOption( 0, "textFileWithFileNames.txt" );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  {
-  std::string description =
-    std::string( "The output consists of a set of diffusion-weighted images " ) +
-    std::string( "for each subject.  Each file name is prepended with the " ) +
-    std::string( "word 'Control' or 'Experimental'.  The number of control " ) +
-    std::string( "and experimental subjects can be also be specified on the " ) +
-    std::string( "command line.  Default is 10 for each group." );
+    {
+    std::string description =
+      std::string( "The output consists of a set of diffusion-weighted images " )
+      + std::string( "for each subject.  Each file name is prepended with the " )
+      + std::string( "word 'Control' or 'Experimental'.  The number of control " )
+      + std::string( "and experimental subjects can be also be specified on the " )
+      + std::string( "command line.  Default is 10 for each group." );
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "output" );
-  option->SetShortName( 'o' );
-  option->SetUsageOption( 0,
-    "[outputDirectory,fileNameSeriesRootName,<numberOfControls=10>,<numberOfExperimentals=10>]" );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "output" );
+    option->SetShortName( 'o' );
+    option->SetUsageOption( 0,
+                            "[outputDirectory,fileNameSeriesRootName,<numberOfControls=10>,<numberOfExperimentals=10>]" );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  {
-  std::string description = std::string( "Print the help menu (short version)." );
+    {
+    std::string description = std::string( "Print the help menu (short version)." );
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetShortName( 'h' );
-  option->SetDescription( description );
-  option->AddValue( std::string( "0" ) );
-  parser->AddOption( option );
-  }
+    OptionType::Pointer option = OptionType::New();
+    option->SetShortName( 'h' );
+    option->SetDescription( description );
+    option->AddValue( std::string( "0" ) );
+    parser->AddOption( option );
+    }
 
-  {
-  std::string description = std::string( "Print the help menu." );
+    {
+    std::string description = std::string( "Print the help menu." );
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "help" );
-  option->SetDescription( description );
-  option->AddValue( std::string( "0" ) );
-  parser->AddOption( option );
-  }
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "help" );
+    option->SetDescription( description );
+    option->AddValue( std::string( "0" ) );
+    parser->AddOption( option );
+    }
 
 }
 
@@ -1068,17 +1067,18 @@ int main( int argc, char *argv[] )
 {
   itk::ants::CommandLineParser::Pointer parser =
     itk::ants::CommandLineParser::New();
+
   parser->SetCommand( argv[0] );
 
   std::string commandDescription =
-    std::string( "CreateDTICohort implements the work of Van Hecke et al. (" ) +
-    std::string( "On the construction of a ground truth framework for " ) +
-    std::string( "evaluating voxl-based diffusion tensor MRI analysis " ) +
-    std::string( "methods, Neuroimage 46:692-707, 2009) to create " ) +
-    std::string( "simulated DTI data sets.  The only " ) +
-    std::string( "difference is that all registrations (both for the input " ) +
-    std::string( "population and for the output population) are assumed to " ) +
-    std::string( "take place outside of this program." );
+    std::string( "CreateDTICohort implements the work of Van Hecke et al. (" )
+    + std::string( "On the construction of a ground truth framework for " )
+    + std::string( "evaluating voxl-based diffusion tensor MRI analysis " )
+    + std::string( "methods, Neuroimage 46:692-707, 2009) to create " )
+    + std::string( "simulated DTI data sets.  The only " )
+    + std::string( "difference is that all registrations (both for the input " )
+    + std::string( "population and for the output population) are assumed to " )
+    + std::string( "take place outside of this program." );
 
   parser->SetCommandDescription( commandDescription );
   InitializeCommandLineOptions( parser );
@@ -1086,13 +1086,13 @@ int main( int argc, char *argv[] )
   parser->Parse( argc, argv );
 
   if( argc < 2 || parser->Convert<bool>(
-    parser->GetOption( "help" )->GetValue() ) )
+        parser->GetOption( "help" )->GetValue() ) )
     {
     parser->PrintMenu( std::cout, 5, false );
     exit( EXIT_FAILURE );
     }
   else if( parser->Convert<bool>(
-    parser->GetOption( 'h' )->GetValue() ) )
+             parser->GetOption( 'h' )->GetValue() ) )
     {
     parser->PrintMenu( std::cout, 5, true );
     exit( EXIT_FAILURE );
@@ -1128,8 +1128,8 @@ int main( int argc, char *argv[] )
     else
       {
       std::cerr << "No input atlas was specified.  Specify a dti atlas"
-        << " with the -a option" << std::endl;
-      return( EXIT_FAILURE );
+                << " with the -a option" << std::endl;
+      return EXIT_FAILURE;
       }
     itk::ImageIOBase::Pointer imageIO = itk::ImageIOFactory::CreateImageIO(
         filename.c_str(), itk::ImageIOFactory::ReadMode );
@@ -1137,19 +1137,18 @@ int main( int argc, char *argv[] )
     }
 
   std::cout << std::endl << "Creating DTI cohort for "
-    << dimension << "-dimensional images." << std::endl << std::endl;
+            << dimension << "-dimensional images." << std::endl << std::endl;
 
   switch( dimension )
-   {
-   case 2:
-     CreateDTICohort<2>( parser );
-     break;
-   case 3:
-     CreateDTICohort<3>( parser );
-     break;
-   default:
+    {
+    case 2:
+      CreateDTICohort<2>( parser );
+      break;
+    case 3:
+      CreateDTICohort<3>( parser );
+      break;
+    default:
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
-   }
+    }
 }
-

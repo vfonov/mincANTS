@@ -73,7 +73,7 @@ ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
 
   MeasurementVectorType mv;
 
-  unsigned long count = 0;
+  unsigned long                count = 0;
   PointsContainerConstIterator It
     = this->GetInputPointSet()->GetPoints()->Begin();
   while( It != this->GetInputPointSet()->GetPoints()->End() )
@@ -81,7 +81,6 @@ ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
     PointType point = It.Value();
 
     typename GaussianType::MeanType mean( Dimension );
-
     for( unsigned int d = 0; d < Dimension; d++ )
       {
       mv[d] = point[d];
@@ -110,7 +109,7 @@ ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
   It = this->GetInputPointSet()->GetPoints()->Begin();
   while( It != this->GetInputPointSet()->GetPoints()->End() )
     {
-    PointType point = It.Value();
+    PointType     point = It.Value();
     unsigned long index = It.Index();
 
     this->m_Gaussians[index] = GaussianType::New();
@@ -119,33 +118,31 @@ ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
       inputGaussians[index]->GetMean() );
 
     if( this->m_CovarianceKNeighborhood > 0
-      && this->m_UseAnisotropicCovariances )
+        && this->m_UseAnisotropicCovariances )
       {
       CovarianceMatrixType Cout( Dimension, Dimension );
       Cout.Fill( 0 );
 
       MeasurementVectorType queryPoint;
-
       for( unsigned int d = 0; d < Dimension; d++ )
         {
         queryPoint[d] = point[d];
         }
 
       typename TreeGeneratorType::KdTreeType
-        ::InstanceIdentifierVectorType neighbors;
+      ::InstanceIdentifierVectorType neighbors;
       this->m_KdTreeGenerator->GetOutput()->Search(
         queryPoint, this->m_CovarianceKNeighborhood, neighbors );
-
 
       RealType denominator = 0.0;
       for( unsigned int j = 0; j < this->m_CovarianceKNeighborhood; j++ )
         {
         if( neighbors[j] != index
-          && neighbors[j] < this->GetInputPointSet()->GetNumberOfPoints() )
+            && neighbors[j] < this->GetInputPointSet()->GetNumberOfPoints() )
           {
           MeasurementVectorType neighbor
             = this->m_KdTreeGenerator->GetOutput()->GetMeasurementVector(
-              neighbors[j] );
+                neighbors[j] );
 
           RealType kernelValue = inputGaussians[index]->Evaluate( neighbor );
 
@@ -156,9 +153,9 @@ ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
               {
               for( unsigned int n = m; n < Dimension; n++ )
                 {
-                RealType covariance = kernelValue *
-                  ( neighbor[m] - queryPoint[m] ) *
-                    ( neighbor[n] - queryPoint[n] );
+                RealType covariance = kernelValue
+                  * ( neighbor[m] - queryPoint[m] )
+                  * ( neighbor[n] - queryPoint[n] );
                 Cout( m, n ) += covariance;
                 Cout( n, m ) += covariance;
                 }
@@ -223,7 +220,7 @@ ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
 template <class TPointSet, class TOutput, class TCoordRep>
 TOutput
 ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
-::Evaluate( const InputPointType &point ) const
+::Evaluate( const InputPointType & point ) const
 {
   if( !this->m_KdTreeGenerator )
     {
@@ -240,7 +237,7 @@ ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
       sum += static_cast<OutputType>( (*it)->Evaluate( measurement ) );
       }
     return static_cast<OutputType>(
-      sum / static_cast<OutputType>(  this->m_Gaussians.size() ) );
+             sum / static_cast<OutputType>(  this->m_Gaussians.size() ) );
     }
   else
     {
@@ -251,8 +248,8 @@ ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
       }
 
     unsigned int numberOfNeighbors = vnl_math_min(
-      this->m_EvaluationKNeighborhood,
-      static_cast<unsigned int>( this->m_Gaussians.size() ) );
+        this->m_EvaluationKNeighborhood,
+        static_cast<unsigned int>( this->m_Gaussians.size() ) );
 
     OutputType sum = 0.0;
 
@@ -261,30 +258,29 @@ ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
       for( unsigned int j = 0; j < this->m_Gaussians.size(); j++ )
         {
         sum += static_cast<OutputType>(
-          this->m_Gaussians[j]->Evaluate( queryPoint ) );
+            this->m_Gaussians[j]->Evaluate( queryPoint ) );
         }
       }
     else
       {
       typename TreeGeneratorType::KdTreeType
-        ::InstanceIdentifierVectorType neighbors;
+      ::InstanceIdentifierVectorType neighbors;
       this->m_KdTreeGenerator->GetOutput()->Search( queryPoint,
-        static_cast<unsigned int>( numberOfNeighbors ), neighbors );
-
+                                                    static_cast<unsigned int>( numberOfNeighbors ), neighbors );
       for( unsigned int j = 0; j < numberOfNeighbors; j++ )
         {
         sum += static_cast<OutputType>(
-          this->m_Gaussians[neighbors[j]]->Evaluate( queryPoint ) );
+            this->m_Gaussians[neighbors[j]]->Evaluate( queryPoint ) );
         }
       }
     return static_cast<OutputType>(
-      sum / static_cast<OutputType>( this->m_Gaussians.size() ) );
+             sum / static_cast<OutputType>( this->m_Gaussians.size() ) );
     }
 }
 
 template <class TPointSet, class TOutput, class TCoordRep>
 typename ManifoldParzenWindowsPointSetFunction
-  <TPointSet, TOutput, TCoordRep>::NeighborhoodIdentifierType
+<TPointSet, TOutput, TCoordRep>::NeighborhoodIdentifierType
 ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
 ::GetNeighborhoodIdentifiers(
   MeasurementVectorType point, unsigned int numberOfNeighbors )
@@ -302,7 +298,7 @@ ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
 
 template <class TPointSet, class TOutput, class TCoordRep>
 typename ManifoldParzenWindowsPointSetFunction
-  <TPointSet, TOutput, TCoordRep>::NeighborhoodIdentifierType
+<TPointSet, TOutput, TCoordRep>::NeighborhoodIdentifierType
 ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
 ::GetNeighborhoodIdentifiers(
   InputPointType point, unsigned int numberOfNeighbors )
@@ -315,17 +311,16 @@ ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
   return this->GetNeighborhoodIdentifiers( queryPoint, numberOfNeighbors );
 }
 
-
 template <class TPointSet, class TOutput, class TCoordRep>
 typename ManifoldParzenWindowsPointSetFunction
-  <TPointSet, TOutput, TCoordRep>::PointType
+<TPointSet, TOutput, TCoordRep>::PointType
 ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
 ::GenerateRandomSample()
 {
   typename GaussianType::MeasurementVectorType gaussianSample;
   gaussianSample = this->m_Gaussians[this->m_Randomizer->GetIntegerVariate(
-    this->GetInputPointSet()->GetNumberOfPoints()-1 )
-      ]->GenerateRandomSample();
+                                       this->GetInputPointSet()->GetNumberOfPoints() - 1 )
+    ]->GenerateRandomSample();
 
   PointType sample;
   for( unsigned int d = 0; d < Dimension; d++ )
@@ -335,7 +330,6 @@ ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
 
   return sample;
 }
-
 
 /**
  * Standard "PrintSelf" method
@@ -348,21 +342,21 @@ ManifoldParzenWindowsPointSetFunction<TPointSet, TOutput, TCoordRep>
   Indent indent) const
 {
   os << indent << "Covariance: "
-               << this->m_CovarianceKNeighborhood << std::endl;
+     << this->m_CovarianceKNeighborhood << std::endl;
   os << indent << "Evaluation: "
-               << this->m_EvaluationKNeighborhood << std::endl;
+     << this->m_EvaluationKNeighborhood << std::endl;
   os << indent << "Regularization sigma: "
-               << this->m_RegularizationSigma << std::endl;
+     << this->m_RegularizationSigma << std::endl;
   os << indent << "Kernel sigma: "
-               << this->m_KernelSigma << std::endl;
+     << this->m_KernelSigma << std::endl;
   os << indent << "Bucket size: "
-               << this->m_BucketSize << std::endl;
+     << this->m_BucketSize << std::endl;
   os << indent << "Normalize: "
-               << this->m_Normalize << std::endl;
+     << this->m_Normalize << std::endl;
   os << indent << "Use anisotropic covariances: "
-               << this->m_UseAnisotropicCovariances << std::endl;
+     << this->m_UseAnisotropicCovariances << std::endl;
 }
 
-}  //end namespace itk
+}  // end namespace itk
 
 #endif

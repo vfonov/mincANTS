@@ -30,32 +30,32 @@ namespace itk
 /*
  * ComposeDiffeomorphismsImageFilter class definitions
  */
-template<class InputImage, class TOutputImage>
+template <class InputImage, class TOutputImage>
 ComposeDiffeomorphismsImageFilter<InputImage, TOutputImage>
 ::ComposeDiffeomorphismsImageFilter()
 {
   this->SetNumberOfRequiredInputs( 2 );
 
   typedef VectorLinearInterpolateImageFunction
-    <InputFieldType, RealType> DefaultInterpolatorType;
+  <InputFieldType, RealType> DefaultInterpolatorType;
   typename DefaultInterpolatorType::Pointer interpolator
     = DefaultInterpolatorType::New();
   this->m_Interpolator = interpolator;
 }
 
-template<class InputImage, class TOutputImage>
+template <class InputImage, class TOutputImage>
 ComposeDiffeomorphismsImageFilter<InputImage, TOutputImage>
 ::~ComposeDiffeomorphismsImageFilter()
 {
 }
 
-template<class InputImage, class TOutputImage>
+template <class InputImage, class TOutputImage>
 void
 ComposeDiffeomorphismsImageFilter<InputImage, TOutputImage>
 ::SetInterpolator( InterpolatorType *interpolator )
 {
   itkDebugMacro( "setting Interpolator to " << interpolator );
-  if ( this->m_Interpolator != interpolator )
+  if( this->m_Interpolator != interpolator )
     {
     this->m_Interpolator = interpolator;
     this->Modified();
@@ -66,7 +66,7 @@ ComposeDiffeomorphismsImageFilter<InputImage, TOutputImage>
     }
 }
 
-template<class InputImage, class TOutputImage>
+template <class InputImage, class TOutputImage>
 void
 ComposeDiffeomorphismsImageFilter<InputImage, TOutputImage>
 ::BeforeThreadedGenerateData()
@@ -77,7 +77,7 @@ ComposeDiffeomorphismsImageFilter<InputImage, TOutputImage>
   this->GetOutput()->FillBuffer( zeroVector );
 }
 
-template<class InputImage, class TOutputImage>
+template <class InputImage, class TOutputImage>
 void
 ComposeDiffeomorphismsImageFilter<InputImage, TOutputImage>
 ::ThreadedGenerateData( const RegionType & region, ThreadIdType itkNotUsed( threadId ) )
@@ -86,9 +86,8 @@ ComposeDiffeomorphismsImageFilter<InputImage, TOutputImage>
 
   typename OutputFieldType::Pointer output = this->GetOutput();
 
-  ImageRegionConstIterator<InputFieldType> ItW( this->GetWarpingField(), region );
+  ImageRegionConstIterator<InputFieldType>      ItW( this->GetWarpingField(), region );
   ImageRegionIteratorWithIndex<OutputFieldType> ItF( output, region );
-
   for( ItW.GoToBegin(), ItF.GoToBegin(); !ItW.IsAtEnd(); ++ItW, ++ItF )
     {
     PointType point1;
@@ -112,7 +111,7 @@ ComposeDiffeomorphismsImageFilter<InputImage, TOutputImage>
     }
 }
 
-template<class InputImage, class TOutputImage>
+template <class InputImage, class TOutputImage>
 void
 ComposeDiffeomorphismsImageFilter<InputImage, TOutputImage>
 ::PrintSelf( std::ostream& os, Indent indent ) const
@@ -120,6 +119,6 @@ ComposeDiffeomorphismsImageFilter<InputImage, TOutputImage>
   Superclass::PrintSelf( os, indent );
 }
 
-}  //end namespace itk
+}  // end namespace itk
 
 #endif

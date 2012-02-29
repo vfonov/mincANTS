@@ -28,15 +28,18 @@
 #include "itkDivideByConstantImageFilter.h"
 #include "itkStatisticsImageFilter.h"
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 template <class TListSample, class TOutput, class TCoordRep>
 HistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
 ::HistogramParzenWindowsListSampleFunction()
 {
-  this->m_Interpolator=InterpolatorType::New();
+  this->m_Interpolator = InterpolatorType::New();
   this->m_Interpolator->SetSplineOrder( 3 );
 
   this->m_NumberOfHistogramBins = 32;
@@ -63,8 +66,8 @@ HistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
 
   if( this->GetInputListSample()->Size() <= 1 )
     {
-    itkWarningMacro( "The input list sample has <= 1 element." <<
-      "Function evaluations will be equal to 0." );
+    itkWarningMacro( "The input list sample has <= 1 element."
+                     << "Function evaluations will be equal to 0." );
     return;
     }
 
@@ -85,7 +88,6 @@ HistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
   while( It != this->GetInputListSample()->End() )
     {
     InputMeasurementVectorType inputMeasurement = It.GetMeasurementVector();
-
     for( unsigned int d = 0; d < Dimension; d++ )
       {
       if( inputMeasurement[d] < minValues[d] )
@@ -106,16 +108,16 @@ HistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
     this->m_HistogramImages.push_back( HistogramImageType::New() );
 
     typename HistogramImageType::SpacingType spacing;
-    spacing[0] = ( maxValues[d] - minValues[d] ) /
-      static_cast<RealType>( this->m_NumberOfHistogramBins - 1 );
+    spacing[0] = ( maxValues[d] - minValues[d] )
+      / static_cast<RealType>( this->m_NumberOfHistogramBins - 1 );
 
     typename HistogramImageType::PointType origin;
     origin[0] = minValues[d] - 3.0 * ( this->m_Sigma * spacing[0] );
 
     typename HistogramImageType::SizeType size;
     size[0] = static_cast<unsigned int>(
-      vcl_ceil( ( maxValues[d] + 3.0 * ( this->m_Sigma * spacing[0] ) -
-      ( minValues[d] - 3.0 * ( this->m_Sigma * spacing[0] ) ) ) / spacing[0] ) );
+        vcl_ceil( ( maxValues[d] + 3.0 * ( this->m_Sigma * spacing[0] )
+                    - ( minValues[d] - 3.0 * ( this->m_Sigma * spacing[0] ) ) ) / spacing[0] ) );
 
     this->m_HistogramImages[d]->SetOrigin( origin );
     this->m_HistogramImages[d]->SetSpacing( spacing );
@@ -135,7 +137,6 @@ HistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
       {
       newWeight = ( *this->GetListSampleWeights() )[count];
       }
-
     for( unsigned int d = 0; d < Dimension; d++ )
       {
       typename HistogramImageType::PointType point;
@@ -148,12 +149,12 @@ HistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
       typename HistogramImageType::IndexType idx;
 
       idx[0] = static_cast<typename
-        HistogramImageType::IndexType::IndexValueType>( vcl_floor( cidx[0] ) );
+                           HistogramImageType::IndexType::IndexValueType>( vcl_floor( cidx[0] ) );
       if( this->m_HistogramImages[d]->GetLargestPossibleRegion().IsInside( idx ) )
         {
         RealType oldWeight = this->m_HistogramImages[d]->GetPixel( idx );
         this->m_HistogramImages[d]->SetPixel( idx,
-          ( 1.0 - ( cidx[0] - idx[0] ) ) * newWeight + oldWeight );
+                                              ( 1.0 - ( cidx[0] - idx[0] ) ) * newWeight + oldWeight );
         }
 
       idx[0]++;
@@ -161,17 +162,16 @@ HistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
         {
         RealType oldWeight = this->m_HistogramImages[d]->GetPixel( idx );
         this->m_HistogramImages[d]->SetPixel( idx,
-          ( 1.0 - ( idx[0] - cidx[0] ) ) * newWeight + oldWeight );
+                                              ( 1.0 - ( idx[0] - cidx[0] ) ) * newWeight + oldWeight );
         }
       }
     ++count;
     ++It;
     }
-
   for( unsigned int d = 0; d < Dimension; d++ )
     {
     typedef DiscreteGaussianImageFilter<HistogramImageType, HistogramImageType>
-      GaussianFilterType;
+    GaussianFilterType;
     typename GaussianFilterType::Pointer gaussian = GaussianFilterType::New();
     gaussian->SetInput( this->m_HistogramImages[d] );
     gaussian->SetVariance( this->m_Sigma * this->m_Sigma );
@@ -185,7 +185,7 @@ HistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
     stats->Update();
 
     typedef DivideByConstantImageFilter<HistogramImageType, RealType,
-      HistogramImageType> DividerType;
+                                        HistogramImageType> DividerType;
     typename DividerType::Pointer divider = DividerType::New();
     divider->SetInput( gaussian->GetOutput() );
     divider->SetConstant( stats->GetSum() );
@@ -197,7 +197,7 @@ HistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
 template <class TListSample, class TOutput, class TCoordRep>
 TOutput
 HistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
-::Evaluate( const InputMeasurementVectorType &measurement ) const
+::Evaluate( const InputMeasurementVectorType & measurement ) const
 {
 
   try
@@ -221,7 +221,7 @@ HistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
       }
     return probability;
     }
-  catch(...)
+  catch( ... )
     {
     return 0;
     }
@@ -238,9 +238,9 @@ HistogramParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
   Indent indent) const
 {
   os << indent << "Sigma: "
-               << this->m_Sigma << std::endl;
+     << this->m_Sigma << std::endl;
   os << indent << "Number of histogram bins: "
-               << this->m_NumberOfHistogramBins << std::endl;
+     << this->m_NumberOfHistogramBins << std::endl;
 }
 
 } // end of namespace Statistics

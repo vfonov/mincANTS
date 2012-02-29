@@ -12,20 +12,20 @@
 template <unsigned int ImageDimension>
 int LabelOverlapMeasures( int argc, char * argv[] )
 {
-  if(argc < 2)
+  if( argc < 2 )
     {
     std::cerr << "missing 1st filename" << std::endl;
     throw;
     }
-  if(argc < 3)
+  if( argc < 3 )
     {
     std::cerr << "missing 2nd filename" << std::endl;
     throw;
     }
-  typedef unsigned int PixelType;
+  typedef unsigned int                          PixelType;
   typedef itk::Image<PixelType, ImageDimension> ImageType;
 
-  typedef itk::ImageFileReader<ImageType>  ReaderType;
+  typedef itk::ImageFileReader<ImageType> ReaderType;
   typename ReaderType::Pointer reader1 = ReaderType::New();
   reader1->SetFileName( argv[2] );
   typename ReaderType::Pointer reader2 = ReaderType::New();
@@ -40,12 +40,12 @@ int LabelOverlapMeasures( int argc, char * argv[] )
   std::cout << "                                          "
             << "************ All Labels *************" << std::endl;
   std::cout << std::setw( 10 ) << "   "
-    << std::setw( 17 ) << "Total"
-    << std::setw( 17 ) << "Union (jaccard)"
-    << std::setw( 17 ) << "Mean (dice)"
-    << std::setw( 17 ) << "Volume sim."
-    << std::setw( 17 ) << "False negative"
-    << std::setw( 17 ) << "False positive" << std::endl;
+            << std::setw( 17 ) << "Total"
+            << std::setw( 17 ) << "Union (jaccard)"
+            << std::setw( 17 ) << "Mean (dice)"
+            << std::setw( 17 ) << "Volume sim."
+            << std::setw( 17 ) << "False negative"
+            << std::setw( 17 ) << "False positive" << std::endl;
   std::cout << std::setw( 10 ) << "   ";
   std::cout << std::setw( 17 ) << filter->GetTotalOverlap();
   std::cout << std::setw( 17 ) << filter->GetUnionOverlap();
@@ -67,7 +67,7 @@ int LabelOverlapMeasures( int argc, char * argv[] )
 //            << std::setw( 17 ) << "Hausdorff"
 //            << std::setw( 17 ) << "Avg. Hausdorff"
 //            << std::setw( 17 ) << "Min. dist. sum"
-            << std::endl;
+  << std::endl;
 
   typename FilterType::MapType labelMap = filter->GetLabelSetMeasures();
   typename FilterType::MapType::const_iterator it;
@@ -187,21 +187,20 @@ int main( int argc, char *argv[] )
   if( argc < 4 )
     {
     std::cerr << "Usage: " << argv[0] << " imageDimension sourceImage "
-      << "targetImage" << std::endl;
+              << "targetImage" << std::endl;
     return EXIT_FAILURE;
     }
 
   switch( atoi( argv[1] ) )
-   {
-   case 2:
-     LabelOverlapMeasures<2>( argc, argv );
-     break;
-   case 3:
-     LabelOverlapMeasures<3>( argc, argv );
-     break;
-   default:
+    {
+    case 2:
+      LabelOverlapMeasures<2>( argc, argv );
+      break;
+    case 3:
+      LabelOverlapMeasures<3>( argc, argv );
+      break;
+    default:
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
-   }
+    }
 }
-

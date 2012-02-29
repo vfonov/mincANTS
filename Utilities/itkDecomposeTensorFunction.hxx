@@ -30,18 +30,20 @@
 #include "vnl/vnl_matrix_fixed.h"
 #include "vnl/vnl_det.h"
 
-namespace itk {
+namespace itk
+{
 
 template <typename TInput, typename TRealType, typename TOutput>
 DecomposeTensorFunction<TInput, TRealType, TOutput>
 ::DecomposeTensorFunction()
-{}
+{
+}
 
 template <typename TInput, typename TRealType, typename TOutput>
 void
 DecomposeTensorFunction<TInput, TRealType, TOutput>
-::EvaluateEigenDecomposition( InputMatrixType &M,
-  OutputMatrixType &D, OutputMatrixType &V )
+::EvaluateEigenDecomposition( InputMatrixType & M,
+                              OutputMatrixType & D, OutputMatrixType & V )
 {
   unsigned int RowDimensions = M.Rows();
   unsigned int ColumnDimensions = M.Cols();
@@ -75,8 +77,8 @@ DecomposeTensorFunction<TInput, TRealType, TOutput>
 template <typename TInput, typename TRealType, typename TOutput>
 void
 DecomposeTensorFunction<TInput, TRealType, TOutput>
-::EvaluateSymmetricEigenDecomposition( InputMatrixType &M,
-  OutputMatrixType &D, OutputMatrixType &V )
+::EvaluateSymmetricEigenDecomposition( InputMatrixType & M,
+                                       OutputMatrixType & D, OutputMatrixType & V )
 {
 
 //    The resulting eigenvectors and values are sorted in increasing order
@@ -91,7 +93,6 @@ DecomposeTensorFunction<TInput, TRealType, TOutput>
 
   D.Fill( 0.0 );
   vnl_symmetric_eigensystem<RealType> eig( M.GetVnlMatrix() );
-
   for( unsigned int j = 0; j < ColumnDimensions; j++ )
     {
     for( unsigned int i = 0; i < RowDimensions; i++ )
@@ -108,12 +109,13 @@ DecomposeTensorFunction<TInput, TRealType, TOutput>
 template <typename TInput, typename TRealType, typename TOutput>
 void
 DecomposeTensorFunction<TInput, TRealType, TOutput>
-::EvaluateRightPolarDecomposition( InputMatrixType &M,
-  OutputMatrixType &R, OutputMatrixType &S )
+::EvaluateRightPolarDecomposition( InputMatrixType & M,
+                                   OutputMatrixType & R, OutputMatrixType & S )
 {
   OutputMatrixType U;
   OutputMatrixType W;
   OutputMatrixType V;
+
   this->EvaluateSVDDecomposition( M, U, W, V );
 
   R = U * V.GetTranspose();
@@ -123,12 +125,13 @@ DecomposeTensorFunction<TInput, TRealType, TOutput>
 template <typename TInput, typename TRealType, typename TOutput>
 void
 DecomposeTensorFunction<TInput, TRealType, TOutput>
-::EvaluateLeftPolarDecomposition( InputMatrixType &M,
-  OutputMatrixType &S, OutputMatrixType &R )
+::EvaluateLeftPolarDecomposition( InputMatrixType & M,
+                                  OutputMatrixType & S, OutputMatrixType & R )
 {
   OutputMatrixType U;
   OutputMatrixType W;
   OutputMatrixType V;
+
   this->EvaluateSVDDecomposition( M, U, W, V );
 
   R = U * V.GetTranspose();
@@ -138,27 +141,26 @@ DecomposeTensorFunction<TInput, TRealType, TOutput>
 template <typename TInput, typename TRealType, typename TOutput>
 void
 DecomposeTensorFunction<TInput, TRealType, TOutput>
-::EvaluateQRDecomposition( InputMatrixType &M,
-  OutputMatrixType &Q, OutputMatrixType &R )
+::EvaluateQRDecomposition( InputMatrixType & M,
+                           OutputMatrixType & Q, OutputMatrixType & R )
 {
 
   vnl_qr<RealType> qr( M.GetVnlMatrix() );
 
   Q.SetSize( qr.Q().rows(), qr.Q().cols() );
   R.SetSize( qr.R().rows(), qr.R().cols() );
-
   for( unsigned int i = 0; i < Q.Rows(); i++ )
     {
     for( unsigned int j = 0; j < Q.Cols(); j++ )
       {
-      Q[i][j] = qr.Q()(i, j);
+      Q[i][j] = qr.Q() (i, j);
       }
     }
   for( unsigned int i = 0; i < R.Rows(); i++ )
     {
     for( unsigned int j = 0; j < R.Cols(); j++ )
       {
-      R[i][j] = qr.R()(i, j);
+      R[i][j] = qr.R() (i, j);
       }
     }
 }
@@ -166,8 +168,8 @@ DecomposeTensorFunction<TInput, TRealType, TOutput>
 template <typename TInput, typename TRealType, typename TOutput>
 void
 DecomposeTensorFunction<TInput, TRealType, TOutput>
-::EvaluateSVDDecomposition( InputMatrixType &M,
-  OutputMatrixType &U, OutputMatrixType &W, OutputMatrixType &V )
+::EvaluateSVDDecomposition( InputMatrixType & M,
+                            OutputMatrixType & U, OutputMatrixType & W, OutputMatrixType & V )
 {
   unsigned int RowDimensions = M.Rows();
   unsigned int ColumnDimensions = M.Cols();
@@ -177,7 +179,6 @@ DecomposeTensorFunction<TInput, TRealType, TOutput>
   W.SetSize( RowDimensions, ColumnDimensions );
 
   vnl_svd<RealType> svd( M.GetVnlMatrix() );
-
   for( unsigned int i = 0; i < RowDimensions; i++ )
     {
     for( unsigned int j = 0; j < RowDimensions; j++ )
@@ -196,7 +197,7 @@ DecomposeTensorFunction<TInput, TRealType, TOutput>
   W.Fill( 0.0 );
   unsigned int minDimensions = ColumnDimensions;
   if( static_cast<unsigned int>( RowDimensions ) <
-       static_cast<unsigned int>( ColumnDimensions ) )
+      static_cast<unsigned int>( ColumnDimensions ) )
     {
     minDimensions = RowDimensions;
     }
@@ -209,8 +210,8 @@ DecomposeTensorFunction<TInput, TRealType, TOutput>
 template <typename TInput, typename TRealType, typename TOutput>
 void
 DecomposeTensorFunction<TInput, TRealType, TOutput>
-::EvaluateSVDEconomyDecomposition( InputMatrixType &M,
-  OutputMatrixType &W, OutputMatrixType &V )
+::EvaluateSVDEconomyDecomposition( InputMatrixType & M,
+                                   OutputMatrixType & W, OutputMatrixType & V )
 {
   /**
    * Same as SVD except the routine does not return U ---
@@ -224,19 +225,18 @@ DecomposeTensorFunction<TInput, TRealType, TOutput>
   W.SetSize( RowDimensions, ColumnDimensions );
 
   vnl_svd_economy<RealType> svd( M.GetVnlMatrix() );
-
   for( unsigned int i = 0; i < ColumnDimensions; i++ )
     {
     for( unsigned int j = 0; j < ColumnDimensions; j++ )
       {
-      V[i][j] = svd.V()(i, j);
+      V[i][j] = svd.V() (i, j);
       }
     }
 
   W.Fill( 0.0 );
   unsigned int minDimensions = ColumnDimensions;
   if( static_cast<unsigned int>( RowDimensions ) <
-       static_cast<unsigned int>( ColumnDimensions ) )
+      static_cast<unsigned int>( ColumnDimensions ) )
     {
     minDimensions = RowDimensions;
     }
@@ -249,7 +249,7 @@ DecomposeTensorFunction<TInput, TRealType, TOutput>
 template <typename TInput, typename TRealType, typename TOutput>
 void
 DecomposeTensorFunction<TInput, TRealType, TOutput>
-::EvaluateCholeskyDecomposition( InputMatrixType &M, OutputMatrixType &L )
+::EvaluateCholeskyDecomposition( InputMatrixType & M, OutputMatrixType & L )
 {
   // Assumes symmetric tensor of type double
   vnl_matrix<double> m( M.Rows(), M.Cols() );
@@ -276,7 +276,7 @@ DecomposeTensorFunction<TInput, TRealType, TOutput>
 template <typename TInput, typename TRealType, typename TOutput>
 typename DecomposeTensorFunction<TInput, TRealType, TOutput>::RealType
 DecomposeTensorFunction<TInput, TRealType, TOutput>
-::EvaluateDeterminant( InputMatrixType &M )
+::EvaluateDeterminant( InputMatrixType & M )
 {
   RealType det = 0.0;
 
@@ -303,6 +303,7 @@ DecomposeTensorFunction<TInput, TRealType, TOutput>
           }
         }
       }
+
     switch( M.Rows() )
       {
       case 2:

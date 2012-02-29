@@ -36,22 +36,20 @@ public:
   itkTypeMacro( VectorImageFileReaderException, ExceptionObject );
 
   /** Constructor. */
-  VectorImageFileReaderException(const char *file, unsigned int line,
-                           const char* message = "Error in IO",
-                           const char* loc = "Unknown") :
+  VectorImageFileReaderException(const char *file, unsigned int line, const char* message = "Error in IO",
+                                 const char* loc = "Unknown") :
     ExceptionObject(file, line, message, loc)
   {
   }
 
   /** Constructor. */
-  VectorImageFileReaderException(const std::string &file, unsigned int line,
-                           const char* message = "Error in IO",
-                           const char* loc = "Unknown") :
+  VectorImageFileReaderException(const std::string & file, unsigned int line, const char* message = "Error in IO",
+                                 const char* loc = "Unknown") :
     ExceptionObject(file, line, message, loc)
   {
   }
-};
 
+};
 
 /** \brief Data source that reads image data from a single file.
  *
@@ -84,15 +82,15 @@ public:
  *
  */
 template <class TImage, class TVectorImage,
-          class ConvertPixelTraits=DefaultConvertPixelTraits<
-                   ITK_TYPENAME TImage::IOPixelType > >
+          class ConvertPixelTraits = DefaultConvertPixelTraits<
+              ITK_TYPENAME TImage::IOPixelType> >
 class ITK_EXPORT VectorImageFileReader : public ImageSource<TVectorImage>
 {
 public:
   /** Standard class typedefs. */
-  typedef VectorImageFileReader         Self;
-  typedef ImageSource<TVectorImage>  Superclass;
-  typedef SmartPointer<Self>  Pointer;
+  typedef VectorImageFileReader     Self;
+  typedef ImageSource<TVectorImage> Superclass;
+  typedef SmartPointer<Self>        Pointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -101,21 +99,20 @@ public:
   itkTypeMacro(VectorImageFileReader, ImageSource);
 
   /** Image types */
-  typedef typename TImage::RegionType  ImageRegionType;
+  typedef typename TImage::RegionType        ImageRegionType;
   typedef typename TImage::InternalPixelType ImagePixelType;
 
   /** Deformation field types */
-  typedef typename TVectorImage::RegionType  VectorImageRegionType;
+  typedef typename TVectorImage::RegionType        VectorImageRegionType;
   typedef typename TVectorImage::InternalPixelType VectorImagePixelType;
-
 
   /** Specify the file to read. This is forwarded to the IO instance. */
   itkSetStringMacro(FileName);
   itkGetStringMacro(FileName);
 
   /** Set the Avants' naming convention On or Off */
-  itkSetMacro(UseAvantsNamingConvention,bool);
-  itkGetConstReferenceMacro(UseAvantsNamingConvention,bool);
+  itkSetMacro(UseAvantsNamingConvention, bool);
+  itkGetConstReferenceMacro(UseAvantsNamingConvention, bool);
   itkBooleanMacro(UseAvantsNamingConvention);
 
   /** Set/Get the ImageIO helper class. Often this is created via the object
@@ -125,7 +122,8 @@ public:
    * to use to read a particular file in case the factory mechanism will
    * not work properly (e.g., unknown or unusual extension). */
   void  SetImageIO( ImageIOBase * imageIO );
-  itkGetObjectMacro(ImageIO,ImageIOBase);
+
+  itkGetObjectMacro(ImageIO, ImageIOBase);
 
   /** Prepare the allocation of the output image during the first back
    * propagation of the pipeline. */
@@ -137,8 +135,6 @@ public:
    * cannot read a portion of an image), so the VectorImageFileReader must
    * enlarge the RequestedRegion to the size of the image on disk. */
   virtual void EnlargeOutputRequestedRegion(DataObject *output);
-
-
 
 protected:
   VectorImageFileReader();
@@ -159,23 +155,22 @@ protected:
   virtual void GenerateData();
 
   ImageIOBase::Pointer m_ImageIO;
-  bool m_UserSpecifiedImageIO; //keep track whether the ImageIO is user specified
+  bool                 m_UserSpecifiedImageIO; // keep track whether the ImageIO is user specified
 
   /** The file to be read. */
   std::string m_FileName;
-
 private:
-  VectorImageFileReader(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  VectorImageFileReader(const Self &); // purposely not implemented
+  void operator=(const Self &);        // purposely not implemented
+
   std::string m_ExceptionMessage;
 
   typename TImage::Pointer m_Image;
-  bool     m_UseAvantsNamingConvention;
+  bool m_UseAvantsNamingConvention;
 
 };
 
-
-} //namespace ITK
+} // namespace ITK
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "itkVectorImageFileReader.hxx"

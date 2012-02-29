@@ -16,7 +16,6 @@
 
 =========================================================================*/
 
-
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -43,336 +42,368 @@ SmoothImage(typename TImage::Pointer image, float sig)
   return filter->GetOutput();
 }
 
-
-
 int main( int argc, char * argv[] )
 {
   if( argc < 5 )
     {
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << "  ImageDimension inputImageFile  outputImageFile outxspc outyspc {outzspacing}  {dosmooth?}  {addvox} {nn-interp?}" << std::endl;
-    std::cout <<" addvox pads each dimension by addvox " << std::endl;
+    std::cerr << argv[0]
+              <<
+    "  ImageDimension inputImageFile  outputImageFile outxspc outyspc {outzspacing}  {dosmooth?}  {addvox} {nn-interp?}"
+              << std::endl;
+    std::cout << " addvox pads each dimension by addvox " << std::endl;
     std::cerr << "  " << std::endl;
 //    std::cout << " interp 0 = linear, 1 = nn " << std::endl;
     return 1;
     }
 
-  unsigned int    Dimension = atoi(argv[1]);
+  unsigned int Dimension = atoi(argv[1]);
 
-  if (Dimension == 2)
+  if( Dimension == 2 )
     {
 
-  typedef   float  InputPixelType;
-  typedef   float           InternalPixelType;
-  typedef   float   OutputPixelType;
+    typedef   float InputPixelType;
+    typedef   float InternalPixelType;
+    typedef   float OutputPixelType;
 
-  typedef itk::Image< InputPixelType,    2 >   InputImageType;
-  typedef itk::Image< InternalPixelType, 2 >   InternalImageType;
-  typedef itk::Image< OutputPixelType,   2 >   OutputImageType;
+    typedef itk::Image<InputPixelType,    2> InputImageType;
+    typedef itk::Image<InternalPixelType, 2> InternalImageType;
+    typedef itk::Image<OutputPixelType,   2> OutputImageType;
 
-  typedef itk::ImageFileReader< InputImageType  >  ReaderType;
-  typedef itk::ImageFileWriter< OutputImageType >  WriterType;
+    typedef itk::ImageFileReader<InputImageType>  ReaderType;
+    typedef itk::ImageFileWriter<OutputImageType> WriterType;
 
-  ReaderType::Pointer reader = ReaderType::New();
-  WriterType::Pointer writer = WriterType::New();
+    ReaderType::Pointer reader = ReaderType::New();
+    WriterType::Pointer writer = WriterType::New();
 
-  reader->SetFileName( argv[2] );
-  writer->SetFileName( argv[3] );
+    reader->SetFileName( argv[2] );
+    writer->SetFileName( argv[3] );
 
-  try
-    {
-    reader->Update();
-    }
-  catch( itk::ExceptionObject & excep )
-    {
-    std::cerr << "Exception caught!" << std::endl;
-    std::cerr << excep << std::endl;
-    }
+    try
+      {
+      reader->Update();
+      }
+    catch( itk::ExceptionObject & excep )
+      {
+      std::cerr << "Exception caught!" << std::endl;
+      std::cerr << excep << std::endl;
+      }
 
+    InputImageType::ConstPointer inputImage = reader->GetOutput();
 
-  InputImageType::ConstPointer inputImage = reader->GetOutput();
+    const InputImageType::SpacingType& inputSpacing = inputImage->GetSpacing();
 
-  const InputImageType::SpacingType& inputSpacing = inputImage->GetSpacing();
+    OutputImageType::SpacingType spacing;
+    for( int i = 0; i < 2; i++ )
+      {
+      spacing[i] = inputSpacing[i];
+      }
 
-  OutputImageType::SpacingType spacing;
-  for (int i=0; i<2; i++) spacing[i]=inputSpacing[i];
+    std::cout <<  " spacing " << spacing << " dim " << 2 << std::endl;
 
-  std::cout <<  " spacing " << spacing << " dim " << 2 << std::endl;
+    bool dosmooth = 1;
+    if( argc > 4 )
+      {
+      spacing[0] = atof(argv[4]);
+      }
+    if( argc > 5 )
+      {
+      spacing[1] = atof(argv[5]);
+      }
+    if( argc > 6 )
+      {
+      dosmooth = atoi(argv[6]);
+      }
+    int addvox = 0;
+    if( argc > 7 )
+      {
+      addvox = atoi(argv[7]);
+      }
+    bool nn = false;
+    if( argc > 8 )
+      {
+      nn = atoi(argv[7]);
+      }
 
-  bool dosmooth=1;
-  if (argc > 4) spacing[0] = atof(argv[4]);
-  if (argc > 5) spacing[1] = atof(argv[5]);
-  if (argc > 6) dosmooth = atoi(argv[6]);
-  int addvox=0;
-  if (argc > 7) addvox = atoi(argv[7]);
-  bool nn=false;
-  if (argc > 8) nn = atoi(argv[7]);
+    std::cout <<  " spacing2 " << spacing << std::endl;
 
-  std::cout <<  " spacing2 " << spacing << std::endl;
+    InternalImageType::ConstPointer smoothedImage = reader->GetOutput();
+    if( dosmooth )
+      {
+      for( int sm = 0; sm < 2; sm++ )
+        {
+        typedef itk::RecursiveGaussianImageFilter<
+          OutputImageType,
+          OutputImageType> GaussianFilterType;
 
-  InternalImageType::ConstPointer smoothedImage = reader->GetOutput();
-  if( dosmooth )
-  {
-  for (int sm=0; sm<2; sm++)
-  {
-  typedef itk::RecursiveGaussianImageFilter<
-                                  OutputImageType,
-                                  OutputImageType > GaussianFilterType;
+        GaussianFilterType::Pointer smootherX = GaussianFilterType::New();
+        smootherX->SetInput( smoothedImage );
+        float sig = 0;
+        sig = atof(argv[4 + sm]) / inputSpacing[sm] - 1.0;
+        std::cout << " smoothing by : " << sig << " dir " << sm << std::endl;
+        smootherX->SetSigma( sig );
+        smootherX->SetDirection( sm );
+        smootherX->SetNormalizeAcrossScale( false );
+        if( sig > 0 && dosmooth )
+          {
+          try
+            {
+            smootherX->Update();
+            }
+          catch( itk::ExceptionObject & excep )
+            {
+            std::cerr << "Exception catched !" << std::endl;
+            std::cerr << excep << std::endl;
+            }
+          smoothedImage = smootherX->GetOutput();
+          }
+        }
+      }
 
-  GaussianFilterType::Pointer smootherX = GaussianFilterType::New();
-  smootherX->SetInput( smoothedImage );
-  float sig = 0;
-  sig = atof(argv[4+sm])/inputSpacing[sm]-1.0;
-  std::cout << " smoothing by : " << sig << " dir " << sm << std::endl;
-  smootherX->SetSigma( sig );
-  smootherX->SetDirection( sm );
-  smootherX->SetNormalizeAcrossScale( false );
-  if (sig > 0 && dosmooth)
-  {
-  try
-    {
-    smootherX->Update();
-    }
-  catch( itk::ExceptionObject & excep )
-    {
-    std::cerr << "Exception catched !" << std::endl;
-    std::cerr << excep << std::endl;
-    }
-    smoothedImage = smootherX->GetOutput();
-  }
-  }
-  }
+    // InternalImageType::ConstPointer smoothedImage = smootherY->GetOutput();
 
+    // InternalImageType::ConstPointer smoothedImage = reader->GetOutput();
+    // smoothedImage =SmoothImage<ImageType>(reader->GetOutput() , );
 
- // InternalImageType::ConstPointer smoothedImage = smootherY->GetOutput();
+    typedef itk::ResampleImageFilter<
+      InternalImageType, OutputImageType>  ResampleFilterType;
 
+    ResampleFilterType::Pointer resampler = ResampleFilterType::New();
 
+    typedef itk::IdentityTransform<double, 2> TransformType;
 
- // InternalImageType::ConstPointer smoothedImage = reader->GetOutput();
-  //smoothedImage =SmoothImage<ImageType>(reader->GetOutput() , );
+    typedef itk::LinearInterpolateImageFunction<
+      InternalImageType, double>  InterpolatorType;
+    typedef itk::NearestNeighborInterpolateImageFunction<
+      InternalImageType, double>  InterpolatorType2;
 
-  typedef itk::ResampleImageFilter<
-                  InternalImageType, OutputImageType >  ResampleFilterType;
+    InterpolatorType::Pointer  interpolator = InterpolatorType::New();
+    InterpolatorType2::Pointer interpolator2 = InterpolatorType2::New();
 
-  ResampleFilterType::Pointer resampler = ResampleFilterType::New();
+    resampler->SetInterpolator( interpolator );
+    if( nn == 1 )
+      {
+      resampler->SetInterpolator( interpolator2 );
+      }
 
-  typedef itk::IdentityTransform< double, 2 >  TransformType;
+    InternalImageType::IndexType ind;
+    ind.Fill(1);
+    resampler->SetDefaultPixelValue( inputImage->GetPixel(ind) ); // zero regions without source
 
-  typedef itk::LinearInterpolateImageFunction<
-    InternalImageType, double >  InterpolatorType;
-  typedef itk::NearestNeighborInterpolateImageFunction<
-    InternalImageType, double >  InterpolatorType2;
+    std::cout << " out space " << spacing << std::endl;
+    resampler->SetOutputSpacing( spacing );
+    // Use the same origin
+    resampler->SetOutputOrigin( inputImage->GetOrigin() );
+    // Use the same origin
+    resampler->SetOutputDirection( inputImage->GetDirection() );
 
-  InterpolatorType::Pointer interpolator = InterpolatorType::New();
-  InterpolatorType2::Pointer interpolator2 = InterpolatorType2::New();
+    InputImageType::SizeType inputSize = inputImage->GetLargestPossibleRegion().GetSize();
+    typedef InputImageType::SizeType::SizeValueType SizeValueType;
+    InputImageType::SizeType size;
+    for( int i = 0; i < 2; i++ )
+      {
+      size[i] = static_cast<SizeValueType>(inputSize[i] * inputSpacing[i] / spacing[i] + addvox);
+      }
 
-  resampler->SetInterpolator( interpolator );
-  if (nn == 1 ) resampler->SetInterpolator( interpolator2 );
+    std::cout << " output size " << size << " spc " << spacing << std::endl;
+    resampler->SetSize( size );
 
-  InternalImageType::IndexType ind;
-  ind.Fill(1);
-  resampler->SetDefaultPixelValue( inputImage->GetPixel(ind) ); // zero regions without source
+    resampler->SetInput( smoothedImage );
 
-  std::cout << " out space " << spacing << std::endl;
-  resampler->SetOutputSpacing( spacing );
-  // Use the same origin
-  resampler->SetOutputOrigin( inputImage->GetOrigin() );
-  // Use the same origin
-  resampler->SetOutputDirection( inputImage->GetDirection() );
+    writer->SetInput( resampler->GetOutput() );
 
+    TransformType::Pointer transform = TransformType::New();
 
-  InputImageType::SizeType   inputSize = inputImage->GetLargestPossibleRegion().GetSize();
-  typedef InputImageType::SizeType::SizeValueType SizeValueType;
-  InputImageType::SizeType   size;
+    transform->SetIdentity();
 
-  for (int i=0; i<2; i++)
-    size[i] = static_cast<SizeValueType>(inputSize[i] * inputSpacing[i] / spacing[i]+addvox);
+    resampler->SetTransform( transform );
 
-  std::cout << " output size " << size << " spc " << spacing << std::endl;
-  resampler->SetSize( size );
+    try
+      {
+      writer->Update();
+      }
+    catch( itk::ExceptionObject & excep )
+      {
+      std::cerr << "Exception catched !" << std::endl;
+      std::cerr << excep << std::endl;
+      }
 
-  resampler->SetInput( smoothedImage );
-
-  writer->SetInput( resampler->GetOutput() );
-
-  TransformType::Pointer transform = TransformType::New();
-
-  transform->SetIdentity();
-
-  resampler->SetTransform( transform );
-
-
-  try
-    {
-    writer->Update();
-    }
-  catch( itk::ExceptionObject & excep )
-    {
-    std::cerr << "Exception catched !" << std::endl;
-    std::cerr << excep << std::endl;
-    }
-
-
-    }
-
-
-  if (Dimension == 3)
-    {
-
-  typedef   float  InputPixelType;
-  typedef   float           InternalPixelType;
-  typedef   float   OutputPixelType;
-
-  typedef itk::Image< InputPixelType,    3 >   InputImageType;
-  typedef itk::Image< InternalPixelType, 3 >   InternalImageType;
-  typedef itk::Image< OutputPixelType,   3 >   OutputImageType;
-
-  typedef itk::ImageFileReader< InputImageType  >  ReaderType;
-  typedef itk::ImageFileWriter< OutputImageType >  WriterType;
-
-  ReaderType::Pointer reader = ReaderType::New();
-  WriterType::Pointer writer = WriterType::New();
-
-  reader->SetFileName( argv[2] );
-  writer->SetFileName( argv[3] );
-
-  try
-    {
-    reader->Update();
-    }
-  catch( itk::ExceptionObject & excep )
-    {
-    std::cerr << "Exception caught!" << std::endl;
-    std::cerr << excep << std::endl;
     }
 
-
-  InputImageType::ConstPointer inputImage = reader->GetOutput();
-
-  const InputImageType::SpacingType& inputSpacing = inputImage->GetSpacing();
-
-  OutputImageType::SpacingType spacing;
-  for (int i=0; i<3; i++) spacing[i]=inputSpacing[i];
-
-  std::cout <<  " spacing " << spacing << " dim " << 3 << std::endl;
-
-  bool dosmooth=1;
-  if (argc > 4) spacing[0] = atof(argv[4]);
-  if (argc > 5) spacing[1] = atof(argv[5]);
-  if (argc > 6) spacing[2] = atof(argv[6]);
-  if (argc > 7) dosmooth = atoi(argv[7]);
-  int addvox=0;
-  if (argc > 8) addvox = atoi(argv[8]);
-  bool nn=false;
-  if (argc > 9) nn = atoi(argv[9]);
-
-  std::cout <<  " spacing2 " << spacing << std::endl;
-
-  InternalImageType::ConstPointer smoothedImage = reader->GetOutput();
-  if( dosmooth )
-  {
-  for (int sm=0; sm<3; sm++)
-  {
-  typedef itk::RecursiveGaussianImageFilter<
-                                  OutputImageType,
-                                  OutputImageType > GaussianFilterType;
-
-  GaussianFilterType::Pointer smootherX = GaussianFilterType::New();
-  smootherX->SetInput( smoothedImage );
-  float sig = 0;
-  sig = atof(argv[4+sm])/inputSpacing[sm]-1.0;
-  std::cout << " smoothing by : " << sig << " dir " << sm << std::endl;
-  smootherX->SetSigma( sig );
-  smootherX->SetDirection( sm );
-  smootherX->SetNormalizeAcrossScale( false );
-  if (sig > 0 && dosmooth)
-  {
-  try
+  if( Dimension == 3 )
     {
-    smootherX->Update();
-    }
-  catch( itk::ExceptionObject & excep )
-    {
-    std::cerr << "Exception catched !" << std::endl;
-    std::cerr << excep << std::endl;
-    }
-    smoothedImage = smootherX->GetOutput();
-  }
-  }
-  }
 
+    typedef   float InputPixelType;
+    typedef   float InternalPixelType;
+    typedef   float OutputPixelType;
 
- // InternalImageType::ConstPointer smoothedImage = smootherY->GetOutput();
+    typedef itk::Image<InputPixelType,    3> InputImageType;
+    typedef itk::Image<InternalPixelType, 3> InternalImageType;
+    typedef itk::Image<OutputPixelType,   3> OutputImageType;
 
+    typedef itk::ImageFileReader<InputImageType>  ReaderType;
+    typedef itk::ImageFileWriter<OutputImageType> WriterType;
 
+    ReaderType::Pointer reader = ReaderType::New();
+    WriterType::Pointer writer = WriterType::New();
 
- // InternalImageType::ConstPointer smoothedImage = reader->GetOutput();
-  //smoothedImage =SmoothImage<ImageType>(reader->GetOutput() , );
+    reader->SetFileName( argv[2] );
+    writer->SetFileName( argv[3] );
 
-  typedef itk::ResampleImageFilter<
-                  InternalImageType, OutputImageType >  ResampleFilterType;
+    try
+      {
+      reader->Update();
+      }
+    catch( itk::ExceptionObject & excep )
+      {
+      std::cerr << "Exception caught!" << std::endl;
+      std::cerr << excep << std::endl;
+      }
 
-  ResampleFilterType::Pointer resampler = ResampleFilterType::New();
+    InputImageType::ConstPointer inputImage = reader->GetOutput();
 
-  typedef itk::IdentityTransform< double, 3 >  TransformType;
+    const InputImageType::SpacingType& inputSpacing = inputImage->GetSpacing();
 
-  typedef itk::LinearInterpolateImageFunction<
-    InternalImageType, double >  InterpolatorType;
-  typedef itk::NearestNeighborInterpolateImageFunction<
-    InternalImageType, double >  InterpolatorType2;
+    OutputImageType::SpacingType spacing;
+    for( int i = 0; i < 3; i++ )
+      {
+      spacing[i] = inputSpacing[i];
+      }
 
-  InterpolatorType::Pointer interpolator = InterpolatorType::New();
-  InterpolatorType2::Pointer interpolator2 = InterpolatorType2::New();
+    std::cout <<  " spacing " << spacing << " dim " << 3 << std::endl;
 
-  resampler->SetInterpolator( interpolator );
-  if (nn  == 1 ) resampler->SetInterpolator( interpolator2 );
+    bool dosmooth = 1;
+    if( argc > 4 )
+      {
+      spacing[0] = atof(argv[4]);
+      }
+    if( argc > 5 )
+      {
+      spacing[1] = atof(argv[5]);
+      }
+    if( argc > 6 )
+      {
+      spacing[2] = atof(argv[6]);
+      }
+    if( argc > 7 )
+      {
+      dosmooth = atoi(argv[7]);
+      }
+    int addvox = 0;
+    if( argc > 8 )
+      {
+      addvox = atoi(argv[8]);
+      }
+    bool nn = false;
+    if( argc > 9 )
+      {
+      nn = atoi(argv[9]);
+      }
 
-  InternalImageType::IndexType ind;
-  ind.Fill(1);
-  resampler->SetDefaultPixelValue( inputImage->GetPixel(ind) ); // zero regions without source
+    std::cout <<  " spacing2 " << spacing << std::endl;
 
-  std::cout << " out space " << spacing << std::endl;
-  resampler->SetOutputSpacing( spacing );
-  // Use the same origin
-  resampler->SetOutputOrigin( inputImage->GetOrigin() );
-  // Use the same origin
-  resampler->SetOutputDirection( inputImage->GetDirection() );
+    InternalImageType::ConstPointer smoothedImage = reader->GetOutput();
+    if( dosmooth )
+      {
+      for( int sm = 0; sm < 3; sm++ )
+        {
+        typedef itk::RecursiveGaussianImageFilter<
+          OutputImageType,
+          OutputImageType> GaussianFilterType;
 
+        GaussianFilterType::Pointer smootherX = GaussianFilterType::New();
+        smootherX->SetInput( smoothedImage );
+        float sig = 0;
+        sig = atof(argv[4 + sm]) / inputSpacing[sm] - 1.0;
+        std::cout << " smoothing by : " << sig << " dir " << sm << std::endl;
+        smootherX->SetSigma( sig );
+        smootherX->SetDirection( sm );
+        smootherX->SetNormalizeAcrossScale( false );
+        if( sig > 0 && dosmooth )
+          {
+          try
+            {
+            smootherX->Update();
+            }
+          catch( itk::ExceptionObject & excep )
+            {
+            std::cerr << "Exception catched !" << std::endl;
+            std::cerr << excep << std::endl;
+            }
+          smoothedImage = smootherX->GetOutput();
+          }
+        }
+      }
 
-  InputImageType::SizeType   inputSize = inputImage->GetLargestPossibleRegion().GetSize();
-  typedef InputImageType::SizeType::SizeValueType SizeValueType;
-  InputImageType::SizeType   size;
+    // InternalImageType::ConstPointer smoothedImage = smootherY->GetOutput();
 
-  for (int i=0; i<3; i++)
-    size[i] = static_cast<SizeValueType>(inputSize[i] * inputSpacing[i] / spacing[i]+addvox);
+    // InternalImageType::ConstPointer smoothedImage = reader->GetOutput();
+    // smoothedImage =SmoothImage<ImageType>(reader->GetOutput() , );
 
-  std::cout << " output size " << size << " spc " << spacing << std::endl;
-  resampler->SetSize( size );
+    typedef itk::ResampleImageFilter<
+      InternalImageType, OutputImageType>  ResampleFilterType;
 
-  resampler->SetInput( smoothedImage );
+    ResampleFilterType::Pointer resampler = ResampleFilterType::New();
 
-  writer->SetInput( resampler->GetOutput() );
+    typedef itk::IdentityTransform<double, 3> TransformType;
 
-  TransformType::Pointer transform = TransformType::New();
+    typedef itk::LinearInterpolateImageFunction<
+      InternalImageType, double>  InterpolatorType;
+    typedef itk::NearestNeighborInterpolateImageFunction<
+      InternalImageType, double>  InterpolatorType2;
 
-  transform->SetIdentity();
+    InterpolatorType::Pointer  interpolator = InterpolatorType::New();
+    InterpolatorType2::Pointer interpolator2 = InterpolatorType2::New();
 
-  resampler->SetTransform( transform );
+    resampler->SetInterpolator( interpolator );
+    if( nn  == 1 )
+      {
+      resampler->SetInterpolator( interpolator2 );
+      }
 
+    InternalImageType::IndexType ind;
+    ind.Fill(1);
+    resampler->SetDefaultPixelValue( inputImage->GetPixel(ind) ); // zero regions without source
 
-  try
-    {
-    writer->Update();
-    }
-  catch( itk::ExceptionObject & excep )
-    {
-    std::cerr << "Exception catched !" << std::endl;
-    std::cerr << excep << std::endl;
-    }
+    std::cout << " out space " << spacing << std::endl;
+    resampler->SetOutputSpacing( spacing );
+    // Use the same origin
+    resampler->SetOutputOrigin( inputImage->GetOrigin() );
+    // Use the same origin
+    resampler->SetOutputDirection( inputImage->GetDirection() );
 
+    InputImageType::SizeType inputSize = inputImage->GetLargestPossibleRegion().GetSize();
+    typedef InputImageType::SizeType::SizeValueType SizeValueType;
+    InputImageType::SizeType size;
+    for( int i = 0; i < 3; i++ )
+      {
+      size[i] = static_cast<SizeValueType>(inputSize[i] * inputSpacing[i] / spacing[i] + addvox);
+      }
+
+    std::cout << " output size " << size << " spc " << spacing << std::endl;
+    resampler->SetSize( size );
+
+    resampler->SetInput( smoothedImage );
+
+    writer->SetInput( resampler->GetOutput() );
+
+    TransformType::Pointer transform = TransformType::New();
+
+    transform->SetIdentity();
+
+    resampler->SetTransform( transform );
+
+    try
+      {
+      writer->Update();
+      }
+    catch( itk::ExceptionObject & excep )
+      {
+      std::cerr << "Exception catched !" << std::endl;
+      std::cerr << excep << std::endl;
+      }
 
     }
 
   return 0;
 }
-

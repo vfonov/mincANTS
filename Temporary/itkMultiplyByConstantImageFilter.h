@@ -39,24 +39,27 @@ namespace itk
  */
 template <class TInputImage, class TConstant, class TOutputImage>
 class ITK_EXPORT MultiplyByConstantImageFilter :
-      public
-MultiplyImageFilter<TInputImage, Image<TConstant, TInputImage::ImageDimension>, TOutputImage>
+  public
+  MultiplyImageFilter<TInputImage, Image<TConstant, TInputImage::ImageDimension>, TOutputImage>
 {
 public:
-  typedef MultiplyByConstantImageFilter                             Self;
+  typedef MultiplyByConstantImageFilter Self;
   typedef MultiplyImageFilter<TInputImage, Image<TConstant, TInputImage::ImageDimension>, TOutputImage>
-                                                                    Superclass;
-  typedef SmartPointer<Self>                                        Pointer;
-  typedef SmartPointer<const Self>                                  ConstPointer;
+  Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** method for creation through object factory */
   itkNewMacro(Self);
   /** Run-time type information (and related methods). */
   itkTypeMacro(MultiplyByConstantImageFilter, MultiplyImageFilter);
-
 protected:
-  MultiplyByConstantImageFilter() {}
-  virtual ~MultiplyByConstantImageFilter() {}
+  MultiplyByConstantImageFilter()
+  {
+  }
+  virtual ~MultiplyByConstantImageFilter()
+  {
+  }
 };
 
 }

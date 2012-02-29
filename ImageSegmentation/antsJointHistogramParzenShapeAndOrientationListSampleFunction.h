@@ -24,9 +24,12 @@
 #include "itkImage.h"
 #include "itkBSplineInterpolateImageFunction.h"
 #include "itkLinearInterpolateImageFunction.h"
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 /** \class JointHistogramParzenShapeAndOrientationListSampleFunction.h
  * \brief point set filter.
@@ -34,45 +37,44 @@ namespace Statistics {
 
 template <class TListSample, class TOutput = double, class TCoordRep = double>
 class ITK_EXPORT JointHistogramParzenShapeAndOrientationListSampleFunction
-: public ListSampleFunction<TListSample, TOutput, TCoordRep>
+  : public ListSampleFunction<TListSample, TOutput, TCoordRep>
 {
 public:
   typedef JointHistogramParzenShapeAndOrientationListSampleFunction
-                                                           Self;
+  Self;
   typedef ListSampleFunction
-    <TListSample, TOutput, TCoordRep>                      Superclass;
-  typedef SmartPointer<Self>                               Pointer;
-  typedef SmartPointer<const Self>                         ConstPointer;
+  <TListSample, TOutput, TCoordRep>                      Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro( Self );
 
   /** Run-time type information (and related methods). */
   itkTypeMacro( JointHistogramParzenShapeAndOrientationListSampleFunction,
-    ListSampleFunction );
+                ListSampleFunction );
 
-  typedef typename Superclass::InputListSampleType          InputListSampleType;
-  typedef typename Superclass::InputMeasurementVectorType   InputMeasurementVectorType;
-  typedef typename Superclass::InputMeasurementType         InputMeasurementType;
+  typedef typename Superclass::InputListSampleType        InputListSampleType;
+  typedef typename Superclass::InputMeasurementVectorType InputMeasurementVectorType;
+  typedef typename Superclass::InputMeasurementType       InputMeasurementType;
   /** List sample typedef support. */
-  typedef TListSample                                       ListSampleType;
+  typedef TListSample ListSampleType;
 
   /** Other typedef */
-  typedef TOutput                              RealType;
-  typedef TOutput                              OutputType;
+  typedef TOutput RealType;
+  typedef TOutput OutputType;
 
-  typedef Image<RealType, 2>                          JointHistogramImageType;
-  typedef typename JointHistogramImageType::Pointer   JointHistogramImagePointer;
-  typedef Vector<RealType, 2>                         ThetaPsiType;
+  typedef Image<RealType, 2>                        JointHistogramImageType;
+  typedef typename JointHistogramImageType::Pointer JointHistogramImagePointer;
+  typedef Vector<RealType, 2>                       ThetaPsiType;
 
   typedef typename JointHistogramImageType::IndexType IndexType;
   typedef typename IndexType::IndexValueType          IndexValueType;
   typedef BSplineInterpolateImageFunction<JointHistogramImageType>
-      InterpolatorType;
+  InterpolatorType;
   typedef LinearInterpolateImageFunction<JointHistogramImageType>
-      LInterpolatorType;
-  typedef typename InterpolatorType::Pointer   InterpolatorPointer;
-
+  LInterpolatorType;
+  typedef typename InterpolatorType::Pointer InterpolatorPointer;
 
   /** Helper functions */
 
@@ -84,7 +86,7 @@ public:
   itkSetMacro( NumberOfJointHistogramBins, unsigned int );
   itkGetConstMacro( NumberOfJointHistogramBins, unsigned int );
 
-  virtual TOutput Evaluate( const InputMeasurementVectorType& ) const;
+  virtual TOutput Evaluate( const InputMeasurementVectorType & ) const;
 
 protected:
   JointHistogramParzenShapeAndOrientationListSampleFunction();
@@ -92,24 +94,24 @@ protected:
   void PrintSelf( std::ostream& os, Indent indent ) const;
 
   void GenerateData();
+
   void IncrementJointHistogramForShape( RealType, RealType );
   void IncrementJointHistogramForOrientation(
     RealType, RealType, RealType, unsigned int );
-
 private:
-  //purposely not implemented
-  JointHistogramParzenShapeAndOrientationListSampleFunction( const Self& );
-  void operator=( const Self& );
+  // purposely not implemented
+  JointHistogramParzenShapeAndOrientationListSampleFunction( const Self & );
+  void operator=( const Self & );
 
-  unsigned int                                    m_NumberOfJointHistogramBins;
-  RealType                                        m_Sigma;
-  RealType                                        m_MaximumEigenvalue1;
-  RealType                                        m_MaximumEigenvalue2;
-  RealType                                        m_MinimumEigenvalue1;
-  RealType                                        m_MinimumEigenvalue2;
-  JointHistogramImagePointer                      m_JointHistogramImages[3];
-  InterpolatorPointer m_Interpolator;
-  bool                                         m_UseNearestNeighborIncrements;
+  unsigned int               m_NumberOfJointHistogramBins;
+  RealType                   m_Sigma;
+  RealType                   m_MaximumEigenvalue1;
+  RealType                   m_MaximumEigenvalue2;
+  RealType                   m_MinimumEigenvalue1;
+  RealType                   m_MinimumEigenvalue2;
+  JointHistogramImagePointer m_JointHistogramImages[3];
+  InterpolatorPointer        m_Interpolator;
+  bool                       m_UseNearestNeighborIncrements;
 
 };
 

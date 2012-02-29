@@ -50,14 +50,14 @@ namespace itk
 
 template <class TInputImage, class TOutputImage>
 class DiReCTImageFilter953 :
-    public ImageToImageFilter<TInputImage, TOutputImage>
+  public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
   /** Standard class typedefs. */
-  typedef DiReCTImageFilter953                               Self;
-  typedef ImageToImageFilter<TInputImage, TOutputImage>   Superclass;
-  typedef SmartPointer<Self>                              Pointer;
-  typedef SmartPointer<const Self>                        ConstPointer;
+  typedef DiReCTImageFilter953                          Self;
+  typedef ImageToImageFilter<TInputImage, TOutputImage> Superclass;
+  typedef SmartPointer<Self>                            Pointer;
+  typedef SmartPointer<const Self>                      ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro( Self );
@@ -67,88 +67,85 @@ public:
                        TInputImage::ImageDimension );
 
   /** Convenient typedefs for simplifying declarations. */
-  typedef TInputImage                           InputImageType;
-  typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::PixelType    InputPixelType;
-  typedef typename InputImageType::RegionType   RegionType;
-  typedef typename InputImageType::IndexType    IndexType;
-  typedef typename IndexType::IndexValueType    IndexValueType;
-  typedef TOutputImage                          OutputImageType;
-  typedef TOutputImage                          RealImageType;
+  typedef TInputImage                         InputImageType;
+  typedef typename InputImageType::Pointer    InputImagePointer;
+  typedef typename InputImageType::PixelType  InputPixelType;
+  typedef typename InputImageType::RegionType RegionType;
+  typedef typename InputImageType::IndexType  IndexType;
+  typedef typename IndexType::IndexValueType  IndexValueType;
+  typedef TOutputImage                        OutputImageType;
+  typedef TOutputImage                        RealImageType;
 
-
-  typedef typename OutputImageType::PixelType   RealType;
-  typedef typename RealImageType::Pointer       RealImagePointer;
+  typedef typename OutputImageType::PixelType RealType;
+  typedef typename RealImageType::Pointer     RealImagePointer;
   typedef Vector<RealType,
-    itkGetStaticConstMacro( ImageDimension )>   VectorType;
+                 itkGetStaticConstMacro( ImageDimension )>   VectorType;
   typedef Image<VectorType,
-    itkGetStaticConstMacro( ImageDimension )>   VectorImageType;
-  typedef typename VectorImageType::Pointer     VectorImagePointer;
-  typedef typename VectorType::ValueType        VectorValueType;
-  typedef typename VectorImageType::PointType   PointType;
-
+                itkGetStaticConstMacro( ImageDimension )>   VectorImageType;
+  typedef typename VectorImageType::Pointer   VectorImagePointer;
+  typedef typename VectorType::ValueType      VectorValueType;
+  typedef typename VectorImageType::PointType PointType;
 
   typedef PointSet<RealType,
-    itkGetStaticConstMacro( ImageDimension )>      SparseImageType;
-  typedef typename SparseImageType::Pointer        SparseImagePointer;
+                   itkGetStaticConstMacro( ImageDimension )>      SparseImageType;
+  typedef typename SparseImageType::Pointer SparseImagePointer;
   typedef PointSet<VectorType,
-    itkGetStaticConstMacro( ImageDimension )>      SparseVectorImageType;
-  typedef typename SparseVectorImageType::Pointer  SparseVectorImagePointer;
-  typedef typename SparseImageType::PointType      SparseIndexType;
-
+                   itkGetStaticConstMacro( ImageDimension )>      SparseVectorImageType;
+  typedef typename SparseVectorImageType::Pointer SparseVectorImagePointer;
+  typedef typename SparseImageType::PointType     SparseIndexType;
 
   /**
    * Set the segmentation image.  The segmentation image is a labeled image
    * with specified labels for the gray and white matters.
    */
   void SetSegmentationImage( const InputImageType *seg )
-    {
+  {
     this->SetNthInput( 0, const_cast<InputImageType *>( seg ) );
-    }
+  }
 
   /**
    * Get the segmentation image.
    */
-  const InputImageType* GetSegmentationImage() const
-    {
+  const InputImageType * GetSegmentationImage() const
+  {
     return this->GetInput( 0 );
-    }
+  }
 
   /**
    * Set the grey matter probability image.
    */
   void SetGrayMatterProbabilityImage( const RealImageType *gm )
-    {
+  {
     this->SetNthInput( 1, const_cast<RealImageType *>( gm ) );
     this->Modified();
-    }
+  }
 
   /**
    * Get the grey matter probability image.
    */
-  const RealImageType* GetGrayMatterProbabilityImage() const
-    {
-    return static_cast<const RealImageType*>(
-      this->ProcessObject::GetInput( 1 ) );
-    }
+  const RealImageType * GetGrayMatterProbabilityImage() const
+  {
+    return static_cast<const RealImageType *>(
+             this->ProcessObject::GetInput( 1 ) );
+  }
 
   /**
    * Set the white matter probability image.
    */
   void SetWhiteMatterProbabilityImage( const RealImageType *wm )
-    {
+  {
     this->SetNthInput( 2, const_cast<RealImageType *>( wm ) );
     this->Modified();
-    }
+  }
 
   /**
    * Get the grey matter probability image.
    */
-  const RealImageType* GetWhiteMatterProbabilityImage() const
-    {
-    return static_cast<const RealImageType*>(
-      this->ProcessObject::GetInput( 2 ) );
-    }
+  const RealImageType * GetWhiteMatterProbabilityImage() const
+  {
+    return static_cast<const RealImageType *>(
+             this->ProcessObject::GetInput( 2 ) );
+  }
 
   /**
    * Set the maximum number of registration iterations.  Default = 50.
@@ -261,7 +258,6 @@ public:
    * reporting observations.
    */
   itkGetConstMacro( CurrentConvergenceMeasurement, RealType );
-
 protected:
 
   DiReCTImageFilter953();
@@ -269,7 +265,9 @@ protected:
 
   void PrintSelf( std::ostream& os, Indent indent ) const;
 
-  void ThreadedGenerateData( const RegionType &, ThreadIdType ) {};
+  void ThreadedGenerateData( const RegionType &, ThreadIdType )
+  {
+  };
 
   void GenerateData();
 
@@ -298,47 +296,42 @@ private:
   /**
    * Private function for smoothing the deformation field.
    */
-  VectorImagePointer SmoothDisplacementField( const VectorImageType *,
-    const RealType );
+  VectorImagePointer SmoothDisplacementField( const VectorImageType *, const RealType );
 
   /**
    * Private function for converting a scalar image to a sparse image
    */
-  SparseImagePointer ConvertRealImageToSparseImage( const RealImageType *,
-    const InputImageType * );
+  SparseImagePointer ConvertRealImageToSparseImage( const RealImageType *, const InputImageType * );
 
   /**
    * Private function for converting a sparse image to a scalar image
    */
-  RealImagePointer ConvertSparseImageToRealImage( const SparseImageType *,
-    const InputImageType * );
+  RealImagePointer ConvertSparseImageToRealImage( const SparseImageType *, const InputImageType * );
 
   /**
    * Private function for converting a vector image to a sparse vector image
    */
-  SparseVectorImagePointer ConvertVectorImageToSparseVectorImage(
-    const VectorImageType *, const InputImageType * = NULL);
+  SparseVectorImagePointer ConvertVectorImageToSparseVectorImage(const VectorImageType *, const InputImageType * = NULL);
 
   /**
    * Private function for converting a sparse vector image to a vector image
    */
-  VectorImagePointer ConvertSparseVectorImageToVectorImage(
-    const SparseVectorImageType *, const InputImageType * = NULL );
+  VectorImagePointer ConvertSparseVectorImageToVectorImage(const SparseVectorImageType *, const InputImageType * = NULL );
 
-  RealType                                       m_ThicknessPriorEstimate;
-  RealType                                       m_SmoothingSigma;
-  RealType                                       m_GradientStep;
-  unsigned int                                   m_NumberOfIntegrationPoints;
+  RealType     m_ThicknessPriorEstimate;
+  RealType     m_SmoothingSigma;
+  RealType     m_GradientStep;
+  unsigned int m_NumberOfIntegrationPoints;
 
-  unsigned int                                   m_GrayMatterLabel;
-  unsigned int                                   m_WhiteMatterLabel;
+  unsigned int m_GrayMatterLabel;
+  unsigned int m_WhiteMatterLabel;
 
-  unsigned int                                   m_ElapsedIterations;
-  unsigned int                                   m_MaximumNumberOfIterations;
-  RealType                                       m_CurrentEnergy;
-  RealType                                       m_CurrentConvergenceMeasurement;
-  RealType                                       m_ConvergenceThreshold;
-  unsigned int                                   m_ConvergenceWindowSize;
+  unsigned int m_ElapsedIterations;
+  unsigned int m_MaximumNumberOfIterations;
+  RealType     m_CurrentEnergy;
+  RealType     m_CurrentConvergenceMeasurement;
+  RealType     m_ConvergenceThreshold;
+  unsigned int m_ConvergenceWindowSize;
 };
 
 } // end namespace itk

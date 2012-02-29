@@ -47,12 +47,12 @@ namespace itk
  * \ingroup ImageFeatureExtraction */
 template <class TInputImage, class TOutputImage>
 class ITK_EXPORT OptimalSharpeningImageFilter :
-    public ImageToImageFilter< TInputImage, TOutputImage >
+  public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
   /** Standard "Self" & Superclass typedef.   */
   typedef OptimalSharpeningImageFilter                  Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
+  typedef ImageToImageFilter<TInputImage, TOutputImage> Superclass;
 
   /** Extract some information from the image types.  Dimensionality
    * of the two images is assumed to be the same. */
@@ -70,8 +70,8 @@ public:
   typedef typename InputImageType::Pointer InputImagePointer;
 
   /** Smart pointer typedef support.   */
-  typedef SmartPointer<Self>        Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Run-time type information (and related methods)  */
   itkTypeMacro(OptimalSharpeningImageFilter, ImageToImageFilter);
@@ -87,32 +87,41 @@ public:
    * execution model.
    *
    * \sa ImageToImageFilter::GenerateInputRequestedRegion()  */
-  virtual void GenerateInputRequestedRegion() throw(InvalidRequestedRegionError);
+  virtual void GenerateInputRequestedRegion()
+  throw (InvalidRequestedRegionError);
 
-  void SetSValue(float s) { this->m_SValue=s; }
+  void SetSValue(float s)
+  {
+    this->m_SValue = s;
+  }
   /** Use the image spacing information in calculations. Use this option if you
    *  want derivatives in physical space. Default is UseImageSpacingOn. */
   void SetUseImageSpacingOn()
-    { this->SetUseImageSpacing(true); }
+  {
+    this->SetUseImageSpacing(true);
+  }
 
   /** Ignore the image spacing. Use this option if you want derivatives in
       isotropic pixel space.  Default is UseImageSpacingOn. */
   void SetUseImageSpacingOff()
-    { this->SetUseImageSpacing(false); }
+  {
+    this->SetUseImageSpacing(false);
+  }
 
   /** Set/Get whether or not the filter will use the spacing of the input
       image in its calculations */
   itkSetMacro(UseImageSpacing, bool);
   itkGetMacro(UseImageSpacing, bool);
-
-
 protected:
   OptimalSharpeningImageFilter()
-    {
+  {
     m_UseImageSpacing = true;
-    m_SValue=0.5;
-    }
-  virtual ~OptimalSharpeningImageFilter()  {}
+    m_SValue = 0.5;
+  }
+
+  virtual ~OptimalSharpeningImageFilter()
+  {
+  }
 
   /** Standard pipeline method. While this class does not implement a
    * ThreadedGenerateData(), its GenerateData() delegates all
@@ -120,12 +129,13 @@ protected:
    * NeighborhoodOperatorImageFilter is multithreaded, this filter is
    * multithreaded by default.   */
   void GenerateData();
-  void PrintSelf(std::ostream&, Indent) const;
 
+  void PrintSelf(std::ostream &, Indent) const;
 private:
-  OptimalSharpeningImageFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
-  bool m_UseImageSpacing;
+  OptimalSharpeningImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);               // purposely not implemented
+
+  bool  m_UseImageSpacing;
   float m_SValue;
 
 };

@@ -33,9 +33,9 @@ namespace itk
 {
 
 template <class TLevelSet, class TSpeedImage>
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::FastMarchingImageFilter()
-  : m_TrialHeap( )
+  : m_TrialHeap()
 {
   this->ProcessObject::SetNumberOfRequiredInputs(0);
 
@@ -70,10 +70,10 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
 template <class TLevelSet, class TSpeedImage>
 void
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
-  Superclass::PrintSelf(os,indent);
+  Superclass::PrintSelf(os, indent);
   os << indent << "Alive points: " << this->m_AlivePoints.GetPointer()
      << std::endl;
   os << indent << "Trial points: " << this->m_TrialPoints.GetPointer()
@@ -82,24 +82,19 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
   os << indent << "Stopping value: " << this->m_StoppingValue << std::endl;
   os << indent << "Large Value: "
      << static_cast<typename NumericTraits<PixelType>::PrintType>(
-        this->m_LargeValue ) << std::endl;
+    this->m_LargeValue ) << std::endl;
   os << indent << "Normalization Factor: " << this->m_NormalizationFactor
      << std::endl;
   os << indent << "Topology check: ";
+
   switch( this->m_TopologyCheck )
     {
     case None:
-      {
       os << "None" << std::endl;
-      }
     case NoHandles:
-      {
       os << "No handles" << std::endl;
-      }
     case Strict:
-      {
       os << "Strict" << std::endl;
-      }
     }
   os << indent << "Collect points: " << this->m_CollectPoints << std::endl;
   os << indent << "OverrideOutputInformation: ";
@@ -112,7 +107,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
 template <class TLevelSet, class TSpeedImage>
 void
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::GenerateOutputInformation()
 {
 
@@ -120,7 +115,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
   Superclass::GenerateOutputInformation();
 
   // use user-specified output information
-  if ( this->GetInput() == NULL || this->m_OverrideOutputInformation )
+  if( this->GetInput() == NULL || this->m_OverrideOutputInformation )
     {
     LevelSetPointer output = this->GetOutput();
     output->SetLargestPossibleRegion( this->m_OutputRegion );
@@ -132,7 +127,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
 template <class TLevelSet, class TSpeedImage>
 void
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::EnlargeOutputRequestedRegion(
   DataObject *output )
 {
@@ -140,25 +135,25 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
   // to the whole data set
   TLevelSet * imgData;
 
-  imgData = dynamic_cast<TLevelSet*>( output );
-  if ( imgData )
+  imgData = dynamic_cast<TLevelSet *>( output );
+  if( imgData )
     {
     imgData->SetRequestedRegionToLargestPossibleRegion();
     }
   else
     {
     // Pointer could not be cast to TLevelSet *
-    itkWarningMacro(<< "itk::FastMarchingImageFilter" <<
-                    "::EnlargeOutputRequestedRegion cannot cast "
+    itkWarningMacro(<< "itk::FastMarchingImageFilter"
+                    << "::EnlargeOutputRequestedRegion cannot cast "
                     << typeid(output).name() << " to "
-                    << typeid(TLevelSet*).name() );
+                    << typeid(TLevelSet *).name() );
     }
 
 }
 
 template <class TLevelSet, class TSpeedImage>
 void
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::Initialize( LevelSetImageType * output )
 {
 
@@ -195,46 +190,42 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
   // set all output value to infinity
   typedef ImageRegionIterator<LevelSetImageType>
-    OutputIterator;
+  OutputIterator;
 
-  OutputIterator outIt ( output, output->GetBufferedRegion() );
+  OutputIterator outIt( output, output->GetBufferedRegion() );
 
   PixelType outputPixel;
   outputPixel = this->m_LargeValue;
-
-  for ( outIt.GoToBegin(); !outIt.IsAtEnd(); ++outIt )
+  for( outIt.GoToBegin(); !outIt.IsAtEnd(); ++outIt )
     {
     outIt.Set( outputPixel );
     }
 
   // set all points type to FarPoint
-  typedef ImageRegionIterator< LabelImageType > LabelIterator;
+  typedef ImageRegionIterator<LabelImageType> LabelIterator;
 
   LabelIterator typeIt( this->m_LabelImage,
                         this->m_LabelImage->GetBufferedRegion() );
-
-  for ( typeIt.GoToBegin(); !typeIt.IsAtEnd(); ++typeIt )
+  for( typeIt.GoToBegin(); !typeIt.IsAtEnd(); ++typeIt )
     {
     typeIt.Set( FarPoint );
     }
 
-
   // process input alive points
   AxisNodeType node;
 
-  if ( this->m_AlivePoints )
+  if( this->m_AlivePoints )
     {
     typename NodeContainer::ConstIterator pointsIter = this->m_AlivePoints->Begin();
     typename NodeContainer::ConstIterator pointsEnd = this->m_AlivePoints->End();
-
-    for (; pointsIter != pointsEnd; ++pointsIter )
+    for( ; pointsIter != pointsEnd; ++pointsIter )
       {
 
       // get node from alive points container
       node = pointsIter.Value();
 
       // check if node index is within the output level set
-      if ( !this->m_BufferedRegion.IsInside( node.GetIndex() ) )
+      if( !this->m_BufferedRegion.IsInside( node.GetIndex() ) )
         {
         continue;
         }
@@ -246,7 +237,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
       if( this->m_TopologyCheck == NoHandles )
         {
         this->m_ConnectedComponentImage->SetPixel( node.GetIndex(),
-          NumericTraits<typename ConnectedComponentImageType::PixelType>::One );
+                                                   NumericTraits<typename ConnectedComponentImageType::PixelType>::One );
         }
 
       outputPixel = node.GetValue();
@@ -259,13 +250,13 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
     // Now create the connected component image and relabel such that labels
     // are 1, 2, 3, ...
     typedef ConnectedComponentImageFilter<ConnectedComponentImageType,
-      ConnectedComponentImageType> ConnectedComponentFilterType;
+                                          ConnectedComponentImageType> ConnectedComponentFilterType;
     typename ConnectedComponentFilterType::Pointer connecter
       = ConnectedComponentFilterType::New();
     connecter->SetInput( this->m_ConnectedComponentImage );
 
     typedef RelabelComponentImageFilter<ConnectedComponentImageType,
-      ConnectedComponentImageType> RelabelerType;
+                                        ConnectedComponentImageType> RelabelerType;
     typename RelabelerType::Pointer relabeler = RelabelerType::New();
     relabeler->SetInput( connecter->GetOutput() );
     relabeler->Update();
@@ -274,25 +265,24 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
     }
 
   // make sure the heap is empty
-  while ( !this->m_TrialHeap.empty() )
+  while( !this->m_TrialHeap.empty() )
     {
     this->m_TrialHeap.pop();
     }
 
   // process the input trial points
-  if ( this->m_TrialPoints )
+  if( this->m_TrialPoints )
     {
     typename NodeContainer::ConstIterator pointsIter = this->m_TrialPoints->Begin();
     typename NodeContainer::ConstIterator pointsEnd = this->m_TrialPoints->End();
-
-    for (; pointsIter != pointsEnd; ++pointsIter )
+    for( ; pointsIter != pointsEnd; ++pointsIter )
       {
 
       // get node from trial points container
       node = pointsIter.Value();
 
       // check if node index is within the output level set
-      if ( !this->m_BufferedRegion.IsInside( node.GetIndex() ) )
+      if( !this->m_BufferedRegion.IsInside( node.GetIndex() ) )
         {
         continue;
         }
@@ -334,28 +324,28 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
 template <class TLevelSet, class TSpeedImage>
 void
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::GenerateData()
 {
 
-  LevelSetPointer         output      = this->GetOutput();
-  SpeedImageConstPointer  speedImage  = this->GetInput();
+  LevelSetPointer        output      = this->GetOutput();
+  SpeedImageConstPointer speedImage  = this->GetInput();
 
   this->Initialize( output );
 
-  if ( this->m_CollectPoints )
+  if( this->m_CollectPoints )
     {
     this->m_ProcessedPoints = NodeContainer::New();
     }
 
   // process points on the heap
   AxisNodeType node;
-  double currentValue;
-  double oldProgress = 0;
+  double       currentValue;
+  double       oldProgress = 0;
 
   this->UpdateProgress( 0.0 ); // Send first progress event
 
-  while ( !this->m_TrialHeap.empty() )
+  while( !this->m_TrialHeap.empty() )
     {
     // get the node with the smallest value
     node = this->m_TrialHeap.top();
@@ -364,16 +354,16 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
     // does this node contain the current value ?
     currentValue = (double) output->GetPixel( node.GetIndex() );
 
-    if ( node.GetValue() != currentValue )
+    if( node.GetValue() != currentValue )
       {
       continue;
       }
 
     // is this node already alive ?
 #ifdef ITK_USE_DEPRECATED_FAST_MARCHING
-    if ( m_LabelImage->GetPixel( node.GetIndex() ) != TrialPoint )
+    if( m_LabelImage->GetPixel( node.GetIndex() ) != TrialPoint )
 #else
-    if ( m_LabelImage->GetPixel( node.GetIndex() ) == AlivePoint )
+    if( m_LabelImage->GetPixel( node.GetIndex() ) == AlivePoint )
 #endif
       {
       continue;
@@ -386,7 +376,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
       bool strictTopologyViolation
         = this->DoesVoxelChangeViolateStrictTopology( node.GetIndex() );
       if( this->m_TopologyCheck == Strict && ( wellComposednessViolation
-        || strictTopologyViolation ) )
+                                               || strictTopologyViolation ) )
         {
         output->SetPixel( node.GetIndex(), -0.00000001 );
         this->m_LabelImage->SetPixel( node.GetIndex(), TopologyPoint );
@@ -396,72 +386,71 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
         {
         if( wellComposednessViolation )
           {
-                                        output->SetPixel( node.GetIndex(), -0.00000001 );
-                                        this->m_LabelImage->SetPixel( node.GetIndex(), TopologyPoint );
-                                        continue;
+          output->SetPixel( node.GetIndex(), -0.00000001 );
+          this->m_LabelImage->SetPixel( node.GetIndex(), TopologyPoint );
+          continue;
           }
         if( strictTopologyViolation )
-                                        {
-                                        // check for handles
-                                        typename NeighborhoodIteratorType::RadiusType radius;
-                                        radius.Fill( 1 );
-                                        NeighborhoodIteratorType ItL( radius, this->m_LabelImage,
-                                                this->m_LabelImage->GetBufferedRegion() );
-                                        ItL.SetLocation( node.GetIndex() );
-                                        NeighborhoodIterator<ConnectedComponentImageType> ItC(
-                                                radius, this->m_ConnectedComponentImage,
-                                                this->m_ConnectedComponentImage->GetBufferedRegion() );
-                                        ItC.SetLocation( node.GetIndex() );
+          {
+          // check for handles
+          typename NeighborhoodIteratorType::RadiusType radius;
+          radius.Fill( 1 );
+          NeighborhoodIteratorType ItL( radius, this->m_LabelImage,
+                                        this->m_LabelImage->GetBufferedRegion() );
+          ItL.SetLocation( node.GetIndex() );
+          NeighborhoodIterator<ConnectedComponentImageType> ItC(
+            radius, this->m_ConnectedComponentImage,
+            this->m_ConnectedComponentImage->GetBufferedRegion() );
+          ItC.SetLocation( node.GetIndex() );
 
-                                        typename ConnectedComponentImageType::PixelType minLabel
-                                                = NumericTraits<typename ConnectedComponentImageType::PixelType>::Zero;
-                                        typename ConnectedComponentImageType::PixelType otherLabel
-                                                = NumericTraits<typename ConnectedComponentImageType::PixelType>::Zero;
+          typename ConnectedComponentImageType::PixelType minLabel
+            = NumericTraits<typename ConnectedComponentImageType::PixelType>::Zero;
+          typename ConnectedComponentImageType::PixelType otherLabel
+            = NumericTraits<typename ConnectedComponentImageType::PixelType>::Zero;
 
-                                        bool doesChangeCreateHandle = false;
-
-                                        for( unsigned int d = 0; d < SetDimension; d++ )
-                                                {
-                                                if( ItL.GetNext( d ) == AlivePoint && ItL.GetPrevious( d ) == AlivePoint )
-                                                        {
-                                                        if( ItC.GetNext( d ) == ItC.GetPrevious( d ) )
-                                                                {
-                                                                doesChangeCreateHandle = true;
-                                                                }
-                                                        else
-                                                                {
-                                                                minLabel = vnl_math_min( ItC.GetNext( d ), ItC.GetPrevious( d ) );
-                                                                otherLabel = vnl_math_max( ItC.GetNext( d ), ItC.GetPrevious( d ) );
-                                                                }
-                                                        break;
-                                                        }
-                                                }
-                                        if( doesChangeCreateHandle )
-                                                {
-                                                output->SetPixel( node.GetIndex(), -0.0001 );
-                                                this->m_LabelImage->SetPixel( node.GetIndex(), TopologyPoint );
-                                                continue;
-                                                }
-                                        else
-                                                {
-                                                for( ItC.GoToBegin(); !ItC.IsAtEnd(); ++ItC )
-                                                        {
-                                                        if( ItC.GetCenterPixel() == otherLabel )
-                                                                {
-                                                                ItC.SetCenterPixel( minLabel );
-                                                                }
-                                                        }
-                                                }
-                                        }
+          bool doesChangeCreateHandle = false;
+          for( unsigned int d = 0; d < SetDimension; d++ )
+            {
+            if( ItL.GetNext( d ) == AlivePoint && ItL.GetPrevious( d ) == AlivePoint )
+              {
+              if( ItC.GetNext( d ) == ItC.GetPrevious( d ) )
+                {
+                doesChangeCreateHandle = true;
+                }
+              else
+                {
+                minLabel = vnl_math_min( ItC.GetNext( d ), ItC.GetPrevious( d ) );
+                otherLabel = vnl_math_max( ItC.GetNext( d ), ItC.GetPrevious( d ) );
+                }
+              break;
+              }
+            }
+          if( doesChangeCreateHandle )
+            {
+            output->SetPixel( node.GetIndex(), -0.0001 );
+            this->m_LabelImage->SetPixel( node.GetIndex(), TopologyPoint );
+            continue;
+            }
+          else
+            {
+            for( ItC.GoToBegin(); !ItC.IsAtEnd(); ++ItC )
+              {
+              if( ItC.GetCenterPixel() == otherLabel )
+                {
+                ItC.SetCenterPixel( minLabel );
+                }
+              }
+            }
+          }
         }
       }
 
-    if ( currentValue > this->m_StoppingValue )
+    if( currentValue > this->m_StoppingValue )
       {
       break;
       }
 
-    if ( this->m_CollectPoints )
+    if( this->m_CollectPoints )
       {
       this->m_ProcessedPoints->InsertElement(
         this->m_ProcessedPoints->Size(), node );
@@ -470,7 +459,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
     // set this node as alive
     this->m_LabelImage->SetPixel( node.GetIndex(), AlivePoint );
 
-                // for topology handle checks, we need to update the connected
+    // for topology handle checks, we need to update the connected
     // component image at the current node with the appropriate label.
     if( this->m_TopologyCheck == NoHandles )
       {
@@ -483,7 +472,6 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
         radius, this->m_ConnectedComponentImage,
         this->m_ConnectedComponentImage->GetBufferedRegion() );
       ItC.SetLocation( node.GetIndex() );
-
       for( unsigned int n = 0; n < ItC.Size(); n++ )
         {
         if( n == static_cast<unsigned int>( 0.5 * ItC.Size() ) )
@@ -497,10 +485,10 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
           break;
           }
         }
-                        if( neighborhoodLabel > 0 )
-                                {
-                                ItC.SetCenterPixel( neighborhoodLabel );
-                                }
+      if( neighborhoodLabel > 0 )
+        {
+        ItC.SetCenterPixel( neighborhoodLabel );
+        }
       }
 
     // update its neighbors
@@ -516,7 +504,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
         {
         this->InvokeEvent( AbortEvent() );
         this->ResetPipeline();
-        ProcessAborted e(__FILE__,__LINE__);
+        ProcessAborted e(__FILE__, __LINE__);
         e.SetDescription("Process aborted.");
         e.SetLocation(ITK_LOCATION);
         throw e;
@@ -527,15 +515,14 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
 template <class TLevelSet, class TSpeedImage>
 void
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::UpdateNeighbors(
   const IndexType& index,
   const SpeedImageType * speedImage,
   LevelSetImageType * output )
 {
   IndexType neighIndex = index;
-
-  for ( unsigned int j = 0; j < SetDimension; j++ )
+  for( unsigned int j = 0; j < SetDimension; j++ )
     {
     // update left neighbor
     if( index[j] > this->m_StartIndex[j] )
@@ -543,31 +530,31 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
       neighIndex[j] = index[j] - 1;
       }
 #ifdef ITK_USE_DEPRECATED_FAST_MARCHING
-    if ( m_LabelImage->GetPixel( neighIndex ) != AlivePoint )
+    if( m_LabelImage->GetPixel( neighIndex ) != AlivePoint )
 #else
     unsigned char label = m_LabelImage->GetPixel( neighIndex );
-    if ( label != AlivePoint && label != InitialTrialPoint )
+    if( label != AlivePoint && label != InitialTrialPoint )
 #endif
       {
       this->UpdateValue( neighIndex, speedImage, output );
       }
 
     // update right neighbor
-    if ( index[j] < this->m_LastIndex[j] )
+    if( index[j] < this->m_LastIndex[j] )
       {
       neighIndex[j] = index[j] + 1;
       }
 #ifdef ITK_USE_DEPRECATED_FAST_MARCHING
-    if ( m_LabelImage->GetPixel( neighIndex ) != AlivePoint )
+    if( m_LabelImage->GetPixel( neighIndex ) != AlivePoint )
 #else
     label = m_LabelImage->GetPixel( neighIndex );
-    if ( label != AlivePoint && label != InitialTrialPoint )
+    if( label != AlivePoint && label != InitialTrialPoint )
 #endif
       {
       this->UpdateValue( neighIndex, speedImage, output );
       }
 
-    //reset neighIndex
+    // reset neighIndex
     neighIndex[j] = index[j];
 
     }
@@ -575,7 +562,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
 template <class TLevelSet, class TSpeedImage>
 double
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::UpdateValue(
   const IndexType& index,
   const SpeedImageType * speedImage,
@@ -583,14 +570,13 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 {
 
   IndexType neighIndex = index;
-  typename TLevelSet::PixelType neighValue;
-  PixelType outputPixel;
-  AxisNodeType node;
 
-  for ( unsigned int j = 0; j < SetDimension; j++ )
+  typename TLevelSet::PixelType neighValue;
+  PixelType    outputPixel;
+  AxisNodeType node;
+  for( unsigned int j = 0; j < SetDimension; j++ )
     {
     node.SetValue( this->m_LargeValue );
-
     // find smallest valued neighbor in this dimension
     for( int s = -1; s < 2; s = s + 2 )
       {
@@ -602,7 +588,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
         continue;
         }
 
-      if ( this->m_LabelImage->GetPixel( neighIndex ) == AlivePoint )
+      if( this->m_LabelImage->GetPixel( neighIndex ) == AlivePoint )
         {
         outputPixel = output->GetPixel( neighIndex );
         neighValue = outputPixel;
@@ -633,7 +619,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
   aa = 0.0;
   bb = 0.0;
-  if ( speedImage )
+  if( speedImage )
     {
     typedef typename SpeedImageType::PixelType SpeedPixelType;
     cc = (double) speedImage->GetPixel( index ) / this->m_NormalizationFactor;
@@ -647,22 +633,21 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
   OutputSpacingType spacing = this->GetOutput()->GetSpacing();
 
   double discrim;
-
-  for ( unsigned int j = 0; j < SetDimension; j++ )
+  for( unsigned int j = 0; j < SetDimension; j++ )
     {
     node = this->m_NodesUsed[j];
 
-    if ( solution >= node.GetValue() )
+    if( solution >= node.GetValue() )
       {
-      const int axis = node.GetAxis();
+      const int    axis = node.GetAxis();
       const double spaceFactor = vnl_math_sqr( 1.0 / spacing[axis] );
-      const double value = double(node.GetValue());
+      const double value = double(node.GetValue() );
       aa += spaceFactor;
       bb += value * spaceFactor;
       cc += vnl_math_sqr( value ) * spaceFactor;
 
       discrim = vnl_math_sqr( bb ) - aa * cc;
-      if ( discrim < 0.0 )
+      if( discrim < 0.0 )
         {
         // Discriminant of quadratic eqn. is negative
         ExceptionObject err(__FILE__, __LINE__);
@@ -679,7 +664,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
       }
     }
 
-  if ( solution < this->m_LargeValue )
+  if( solution < this->m_LargeValue )
     {
     // write solution to this->m_OutputLevelSet
     outputPixel = static_cast<PixelType>( solution );
@@ -700,10 +685,11 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
  */
 template <class TLevelSet, class TSpeedImage>
 bool
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::DoesVoxelChangeViolateWellComposedness( IndexType idx )
 {
   bool isChangeWellComposed = false;
+
   if( SetDimension == 2 )
     {
     isChangeWellComposed = this->IsChangeWellComposed2D( idx );
@@ -718,13 +704,13 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
 template <class TLevelSet, class TSpeedImage>
 bool
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::DoesVoxelChangeViolateStrictTopology( IndexType idx )
 {
   typename NeighborhoodIteratorType::RadiusType radius;
   radius.Fill( 1 );
   NeighborhoodIteratorType It( radius, this->m_LabelImage,
-    this->m_LabelImage->GetBufferedRegion() );
+                               this->m_LabelImage->GetBufferedRegion() );
   It.SetLocation( idx );
 
   unsigned int numberOfCriticalC3Configurations = 0;
@@ -755,22 +741,21 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
 template <class TLevelSet, class TSpeedImage>
 bool
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::IsChangeWellComposed2D( IndexType idx )
 {
   typename NeighborhoodIteratorType::RadiusType radius;
   radius.Fill( 1 );
   NeighborhoodIteratorType It( radius, this->m_LabelImage,
-    this->m_LabelImage->GetBufferedRegion() );
+                               this->m_LabelImage->GetBufferedRegion() );
   It.SetLocation( idx );
 
   Array<short> neighborhoodPixels( 9 );
 
   // Check for critical configurations: 4 90-degree rotations
-
-  for ( unsigned int i = 0; i < 4; i++ )
+  for( unsigned int i = 0; i < 4; i++ )
     {
-    for ( unsigned int j = 0; j < 9; j++ )
+    for( unsigned int j = 0; j < 9; j++ )
       {
       neighborhoodPixels[j] =
         ( It.GetPixel( this->m_RotationIndices[i][j] ) != AlivePoint );
@@ -781,9 +766,9 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
       }
 
     if( this->IsCriticalC1Configuration2D( neighborhoodPixels )
-      || this->IsCriticalC2Configuration2D( neighborhoodPixels )
-      || this->IsCriticalC3Configuration2D( neighborhoodPixels )
-      || this->IsCriticalC4Configuration2D( neighborhoodPixels ) )
+        || this->IsCriticalC2Configuration2D( neighborhoodPixels )
+        || this->IsCriticalC3Configuration2D( neighborhoodPixels )
+        || this->IsCriticalC4Configuration2D( neighborhoodPixels ) )
       {
       return false;
       }
@@ -793,10 +778,9 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
   //  Note that the reflections for the C1 and C2 cases
   //  are covered by the rotation cases above (except
   //  in the case of FullInvariance == false.
-
-  for ( unsigned int i = 0; i < 2; i++ )
+  for( unsigned int i = 0; i < 2; i++ )
     {
-    for ( unsigned int j = 0; j < 9; j++ )
+    for( unsigned int j = 0; j < 9; j++ )
       {
       neighborhoodPixels[j] =
         ( It.GetPixel( this->m_ReflectionIndices[i][j] ) != AlivePoint );
@@ -812,7 +796,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 //      return false;
 //      }
     if( this->IsCriticalC3Configuration2D( neighborhoodPixels )
-      || this->IsCriticalC4Configuration2D( neighborhoodPixels ) )
+        || this->IsCriticalC4Configuration2D( neighborhoodPixels ) )
       {
       return false;
       }
@@ -822,50 +806,50 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
 template <class TLevelSet, class TSpeedImage>
 bool
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::IsCriticalC1Configuration2D( Array<short> neighborhood )
 {
-  return ( !neighborhood[0] &&  neighborhood[1] &&
-            neighborhood[3] && !neighborhood[4] &&
-           !neighborhood[8] );
+  return !neighborhood[0] &&  neighborhood[1] &&
+         neighborhood[3] && !neighborhood[4] &&
+         !neighborhood[8];
 }
 
 template <class TLevelSet, class TSpeedImage>
 bool
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::IsCriticalC2Configuration2D( Array<short> neighborhood )
 {
-  return ( !neighborhood[0] &&  neighborhood[1] &&
-            neighborhood[3] && !neighborhood[4] &&
-            neighborhood[8] &&
-           ( neighborhood[5] || neighborhood[7] ) );
+  return !neighborhood[0] &&  neighborhood[1] &&
+         neighborhood[3] && !neighborhood[4] &&
+         neighborhood[8] &&
+         ( neighborhood[5] || neighborhood[7] );
 }
 
 template <class TLevelSet, class TSpeedImage>
 bool
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::IsCriticalC3Configuration2D( Array<short> neighborhood )
 {
-  return ( !neighborhood[0] &&  neighborhood[1] &&
-            neighborhood[3] && !neighborhood[4] &&
-           !neighborhood[5] &&  neighborhood[6] &&
-           !neighborhood[7] &&  neighborhood[8] );
+  return !neighborhood[0] &&  neighborhood[1] &&
+         neighborhood[3] && !neighborhood[4] &&
+         !neighborhood[5] &&  neighborhood[6] &&
+         !neighborhood[7] &&  neighborhood[8];
 }
 
 template <class TLevelSet, class TSpeedImage>
 bool
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::IsCriticalC4Configuration2D( Array<short> neighborhood )
 {
-  return ( !neighborhood[0] &&  neighborhood[1] &&
-            neighborhood[3] && !neighborhood[4] &&
-           !neighborhood[5] && !neighborhood[6] &&
-           !neighborhood[7] &&  neighborhood[8] );
+  return !neighborhood[0] &&  neighborhood[1] &&
+         neighborhood[3] && !neighborhood[4] &&
+         !neighborhood[5] && !neighborhood[6] &&
+         !neighborhood[7] &&  neighborhood[8];
 }
 
 template <class TLevelSet, class TSpeedImage>
 void
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::InitializeIndices2D()
 {
   this->m_RotationIndices[0].SetSize( 9 );
@@ -939,7 +923,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
 template <class TLevelSet, class TSpeedImage>
 bool
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::IsChangeWellComposed3D( IndexType idx )
 {
   Array<short> neighborhoodPixels( 8 );
@@ -947,13 +931,12 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
   typename NeighborhoodIteratorType::RadiusType radius;
   radius.Fill( 1 );
   NeighborhoodIteratorType It( radius, this->m_LabelImage,
-    this->m_LabelImage->GetRequestedRegion() );
+                               this->m_LabelImage->GetRequestedRegion() );
   It.SetLocation( idx );
-
   // Check for C1 critical configurations
-  for ( unsigned int i = 0; i < 12; i++ )
+  for( unsigned int i = 0; i < 12; i++ )
     {
-    for ( unsigned int j = 0; j < 4; j++ )
+    for( unsigned int j = 0; j < 4; j++ )
       {
       neighborhoodPixels[j]
         = ( It.GetPixel( this->m_C1Indices[i][j] ) == AlivePoint );
@@ -967,11 +950,10 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
       return false;
       }
     }
-
   // Check for C2 critical configurations
-  for ( unsigned int i = 0; i < 8; i++ )
+  for( unsigned int i = 0; i < 8; i++ )
     {
-    for ( unsigned int j = 0; j < 8; j++ )
+    for( unsigned int j = 0; j < 8; j++ )
       {
       neighborhoodPixels[j]
         = ( It.GetPixel( this->m_C2Indices[i][j] ) == AlivePoint );
@@ -991,31 +973,31 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
 template <class TLevelSet, class TSpeedImage>
 bool
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::IsCriticalC1Configuration3D( Array<short> neighborhood )
 {
-  return ( (  neighborhood[0] &&  neighborhood[1] &&
-             !neighborhood[2] && !neighborhood[3] ) ||
-           ( !neighborhood[0] && !neighborhood[1] &&
-              neighborhood[2] &&  neighborhood[3] ) );
+  return (  neighborhood[0] &&  neighborhood[1] &&
+            !neighborhood[2] && !neighborhood[3] ) ||
+         ( !neighborhood[0] && !neighborhood[1] &&
+           neighborhood[2] &&  neighborhood[3] );
 }
 
 template <class TLevelSet, class TSpeedImage>
 unsigned int
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::IsCriticalC2Configuration3D( Array<short> neighborhood )
 {
   // Check if Type 1 or Type 2
-  for ( unsigned int i = 0; i < 4; i++ )
+  for( unsigned int i = 0; i < 4; i++ )
     {
     bool isC2 = false;
-    if( neighborhood[2*i] == neighborhood[2*i+1] )
+    if( neighborhood[2 * i] == neighborhood[2 * i + 1] )
       {
       isC2 = true;
-      for ( unsigned int j = 0; j < 8; j++ )
+      for( unsigned int j = 0; j < 8; j++ )
         {
-        if( neighborhood[j] == neighborhood[2*i] &&
-               j != 2*i && j != 2*i+1 )
+        if( neighborhood[j] == neighborhood[2 * i] &&
+            j != 2 * i && j != 2 * i + 1 )
           {
           isC2 = false;
           }
@@ -1023,7 +1005,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
       }
     if( isC2 )
       {
-      if( neighborhood[2*i] )
+      if( neighborhood[2 * i] )
         {
         return 1;
         }
@@ -1039,14 +1021,14 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
 
 template <class TLevelSet, class TSpeedImage>
 void
-FastMarchingImageFilter<TLevelSet,TSpeedImage>
+FastMarchingImageFilter<TLevelSet, TSpeedImage>
 ::InitializeIndices3D()
 {
-  for ( unsigned int i = 0; i <  12; i++ )
+  for( unsigned int i = 0; i <  12; i++ )
     {
     this->m_C1Indices[i].SetSize( 4 );
     }
-  for ( unsigned int i = 0; i <  8; i++ )
+  for( unsigned int i = 0; i <  8; i++ )
     {
     this->m_C2Indices[i].SetSize( 8 );
     }
@@ -1128,8 +1110,7 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
   this->m_C2Indices[4][5] = 19;
   this->m_C2Indices[4][6] = 13;
   this->m_C2Indices[4][7] = 18;
-
-  for ( unsigned int i = 1; i < 4; i++ )
+  for( unsigned int i = 1; i < 4; i++ )
     {
     int addend;
     if( i == 2 )
@@ -1140,15 +1121,14 @@ FastMarchingImageFilter<TLevelSet,TSpeedImage>
       {
       addend = 1;
       }
-    for ( unsigned int j = 0; j < 8; j++ )
+    for( unsigned int j = 0; j < 8; j++ )
       {
-      this->m_C2Indices[i  ][j] = this->m_C2Indices[i-1][j] + addend;
-      this->m_C2Indices[i+4][j] = this->m_C2Indices[i+3][j] + addend;
+      this->m_C2Indices[i][j] = this->m_C2Indices[i - 1][j] + addend;
+      this->m_C2Indices[i + 4][j] = this->m_C2Indices[i + 3][j] + addend;
       }
     }
 }
 
 } // namespace itk
-
 
 #endif

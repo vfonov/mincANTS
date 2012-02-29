@@ -17,7 +17,7 @@
 =========================================================================*/
 
 #include "itkImageFileReader.h"
-//#include "itkVectorImageFileReader.h"
+// #include "itkVectorImageFileReader.h"
 #include "itkVector.h"
 #include "itkImageRegionIteratorWithIndex.h"
 
@@ -27,23 +27,24 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 
-
 int main( int argc, char *argv[] )
 {
-  if ( argc < 3 )
+  if( argc < 3 )
     {
-    std::cout << "Usage: " << argv[0] << " inputDisplacementField outputVTKFile maskImage(optional) slice(optional) whichAxis(optional)" << std::endl;
+    std::cout << "Usage: " << argv[0]
+              << " inputDisplacementField outputVTKFile maskImage(optional) slice(optional) whichAxis(optional)"
+              << std::endl;
     exit( 1 );
     }
 
   typedef float PixelType;
-  const unsigned int          ImageDimension = 3;
+  const unsigned int ImageDimension = 3;
 
   typedef itk::Image<PixelType, ImageDimension> ImageType;
-  typedef itk::Image<int, ImageDimension> MaskImageType;
+  typedef itk::Image<int, ImageDimension>       MaskImageType;
 
-  typedef double RealType;
-  typedef itk::Vector<RealType, ImageDimension> VectorType;
+  typedef double                                 RealType;
+  typedef itk::Vector<RealType, ImageDimension>  VectorType;
   typedef itk::Image<VectorType, ImageDimension> DisplacementFieldType;
 
   typedef itk::ImageFileReader<DisplacementFieldType> ReaderType;
@@ -53,7 +54,7 @@ int main( int argc, char *argv[] )
   reader->Update();
 
   MaskImageType::Pointer mask = MaskImageType::New();
-  if ( argc >= 4 )
+  if( argc >= 4 )
     {
     typedef itk::ImageFileReader<MaskImageType> MaskReaderType;
     MaskReaderType::Pointer maskreader = MaskReaderType::New();
@@ -73,14 +74,13 @@ int main( int argc, char *argv[] )
   double origin[ImageDimension];
   double spacing[ImageDimension];
   int    size[ImageDimension];
-  int totalsize = 1;
-
-  for ( unsigned int i = 0; i < ImageDimension; i++ )
+  int    totalsize = 1;
+  for( unsigned int i = 0; i < ImageDimension; i++ )
     {
     origin[i] = reader->GetOutput()->GetOrigin()[i];
     spacing[i] = reader->GetOutput()->GetSpacing()[i];
     size[i] = reader->GetOutput()->GetLargestPossibleRegion().GetSize()[i];
-    if ( argc > 4 && atoi( argv[5] ) == (int) i )
+    if( argc > 4 && atoi( argv[5] ) == (int) i )
       {
       size[i] = 1;
       }
@@ -90,22 +90,22 @@ int main( int argc, char *argv[] )
   int totalPoints = totalsize;
 
   vtkUnstructuredGrid *field = vtkUnstructuredGrid::New();
-  vtkPoints *points = vtkPoints::New();
+  vtkPoints *          points = vtkPoints::New();
   points->Allocate( totalPoints );
   vtkFloatArray *vectors = vtkFloatArray::New();
   vectors->SetNumberOfComponents( 3 );
   vectors->SetNumberOfTuples( totalPoints );
 
   float x[3], v[3];
-  int offset = 0;
+  int   offset = 0;
 
   itk::ImageRegionIteratorWithIndex<MaskImageType> It
     ( mask, mask->GetLargestPossibleRegion() );
-  for ( It.GoToBegin(); !It.IsAtEnd(); ++It )
+  for( It.GoToBegin(); !It.IsAtEnd(); ++It )
     {
     DisplacementFieldType::IndexType idx = It.GetIndex();
 
-    if ( ( argc > 4 && idx[atoi( argv[5] )] != atoi( argv[4] ) ) || It.Get() == 0 )
+    if( ( argc > 4 && idx[atoi( argv[5] )] != atoi( argv[4] ) ) || It.Get() == 0 )
       {
       continue;
       }
@@ -113,7 +113,7 @@ int main( int argc, char *argv[] )
     reader->GetOutput()->TransformIndexToPhysicalPoint( idx, point );
 
     VectorType V = reader->GetOutput()->GetPixel( idx );
-    for ( unsigned int i = 0; i < ImageDimension; i++ )
+    for( unsigned int i = 0; i < ImageDimension; i++ )
       {
       x[i] = point[i];
       v[i] = V[i];

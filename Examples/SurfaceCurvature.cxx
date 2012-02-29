@@ -1,5 +1,5 @@
 
-//#include "curvatureapp.h"
+// #include "curvatureapp.h"
 
 #include "itkSurfaceCurvatureBase.h"
 #include "itkSurfaceImageCurvature.h"
@@ -42,52 +42,58 @@ typedef itk::SurfaceCurvatureBase<ImageType>  ParamType;
 */
 
 int main(int argc, char *argv[])
-  {
+{
 
-    if (argc < 3)
+  if( argc < 3 )
     {
-      std::cout << " usage :  SurfaceCurvature FileNameIn FileNameOut sigma option  " << std::endl;
-      std::cout << " e.g  :   SurfaceCurvature    BrainIn.nii BrainOut.nii   3  0 " << std::endl;
-      std::cout << " option 0 means just compute mean curvature from intensity " << std::endl;
-      std::cout << " option 5 means characterize surface from intensity " << std::endl;
-      std::cout << " option 6 means compute gaussian curvature " << std::endl;
-      std::cout << " ... " << std::endl;
-      std::cout << " for surface characterization " << std::endl;
-      std::cout << " 1 == (+) bowl "<<std::endl;
-      std::cout << " 2 == (-) bowl  "<<std::endl;
-      std::cout << " 3 == (+) saddle "<<std::endl;
-      std::cout << " 4 == (-) saddle "<<std::endl;
-      std::cout << " 5 == (+) U "<<std::endl;
-      std::cout << " 6 == (-) U "<<std::endl;
-      std::cout << " 7 == flat "<<std::endl;
-      std::cout << " 8 == a perfectly even saddle (rare) "<<std::endl;
-      std::cout << " " << std::endl;
-      std::cout << " we add 128 to mean curvature results s.t. they are differentiated from background (zero) " <<std::endl;
-      return 0;
+    std::cout << " usage :  SurfaceCurvature FileNameIn FileNameOut sigma option  " << std::endl;
+    std::cout << " e.g  :   SurfaceCurvature    BrainIn.nii BrainOut.nii   3  0 " << std::endl;
+    std::cout << " option 0 means just compute mean curvature from intensity " << std::endl;
+    std::cout << " option 5 means characterize surface from intensity " << std::endl;
+    std::cout << " option 6 means compute gaussian curvature " << std::endl;
+    std::cout << " ... " << std::endl;
+    std::cout << " for surface characterization " << std::endl;
+    std::cout << " 1 == (+) bowl " << std::endl;
+    std::cout << " 2 == (-) bowl  " << std::endl;
+    std::cout << " 3 == (+) saddle " << std::endl;
+    std::cout << " 4 == (-) saddle " << std::endl;
+    std::cout << " 5 == (+) U " << std::endl;
+    std::cout << " 6 == (-) U " << std::endl;
+    std::cout << " 7 == flat " << std::endl;
+    std::cout << " 8 == a perfectly even saddle (rare) " << std::endl;
+    std::cout << " " << std::endl;
+    std::cout << " we add 128 to mean curvature results s.t. they are differentiated from background (zero) "
+              << std::endl;
+    return 0;
     }
 
   typedef itk::Image<float, 3> ImageType;
   typedef itk::Image<float, 3> floatImageType;
   enum { ImageDimension = ImageType::ImageDimension };
-  typedef itk::SurfaceImageCurvature<ImageType>  ParamType;
-  ParamType::Pointer Parameterizer=ParamType::New();
+  typedef itk::SurfaceImageCurvature<ImageType> ParamType;
+  ParamType::Pointer Parameterizer = ParamType::New();
   typedef  ImageType::PixelType PixType;
 
-
-  int opt = 0;
-  float sig=1.0;
-  if (argc > 3) sig = atof( argv[3]);
+  int   opt = 0;
+  float sig = 1.0;
+  if( argc > 3 )
+    {
+    sig = atof( argv[3]);
+    }
   std::cout << " sigma " << sig << std::endl;
-  if (argc > 4) opt = (int) atoi(argv[4]);
+  if( argc > 4 )
+    {
+    opt = (int) atoi(argv[4]);
+    }
 
-  if ( opt < 0)
-  {
+  if( opt < 0 )
+    {
     std::cout << " error " << std::endl;
     return 0;
-  }
+    }
 
   ImageType::Pointer input;
-  ReadImage<ImageType>(input,argv[1]);
+  ReadImage<ImageType>(input, argv[1]);
   std::cout << " done reading " << std::string(argv[1]) << std::endl;
 
   //  float ballradius = 2.0;
@@ -96,36 +102,47 @@ int main(int argc, char *argv[])
 
   Parameterizer->SetInputImage(input);
 
-
   //  Parameterizer->ProcessLabelImage();
   Parameterizer->SetNeighborhoodRadius( 1. );
 //  std::cout << " set sig " ;  std::cin >> sig;
-  if (sig <= 0.5) sig=1.66;
+  if( sig <= 0.5 )
+    {
+    sig = 1.66;
+    }
   std::cout << " sigma " << sig << " option " << opt << std::endl;
   Parameterizer->SetSigma(sig);
 
-  if (opt == 1)
+  if( opt == 1 )
     {
-      Parameterizer->SetUseLabel(true);
-      Parameterizer->SetUseGeodesicNeighborhood(false);
+    Parameterizer->SetUseLabel(true);
+    Parameterizer->SetUseGeodesicNeighborhood(false);
     }
   else
     {
-      Parameterizer->SetUseLabel(false);
-      Parameterizer->SetUseGeodesicNeighborhood(false);
-      float sign=1.0;
-      if (opt == 3) sign=-1.0;
-      std::cout << " setting outward direction as " << sign;
-      Parameterizer->SetkSign(sign);
-      Parameterizer->SetThreshold(0);
+    Parameterizer->SetUseLabel(false);
+    Parameterizer->SetUseGeodesicNeighborhood(false);
+    float sign = 1.0;
+    if( opt == 3 )
+      {
+      sign = -1.0;
+      }
+    std::cout << " setting outward direction as " << sign;
+    Parameterizer->SetkSign(sign);
+    Parameterizer->SetThreshold(0);
     }
 //  Parameterizer->ComputeSurfaceArea();
 //  Parameterizer->IntegrateFunctionOverSurface();
 //  Parameterizer->IntegrateFunctionOverSurface(true);
 
   std::cout << " computing frame " << std::endl;
-  if (opt != 5 && opt != 6 ) Parameterizer->ComputeFrameOverDomain( 3 );
-  else Parameterizer->ComputeFrameOverDomain( opt );
+  if( opt != 5 && opt != 6 )
+    {
+    Parameterizer->ComputeFrameOverDomain( 3 );
+    }
+  else
+    {
+    Parameterizer->ComputeFrameOverDomain( opt );
+    }
 
   //   Parameterizer->SetNeighborhoodRadius( 2 );
   //  Parameterizer->LevelSetMeanCurvature();
@@ -135,8 +152,7 @@ int main(int argc, char *argv[])
   //  Parameterizer->IntegrateFunctionOverSurface(true);
   //   for (int i=0; i<1; i++) Parameterizer->PostProcessGeometry();
 
-
-  ImageType::Pointer output=NULL;
+  ImageType::Pointer output = NULL;
 
   //  Parameterizer->GetFunctionImage()->SetSpacing( input->GetSpacing() );
   //  Parameterizer->GetFunctionImage()->SetDirection( input->GetDirection() );
@@ -146,10 +162,9 @@ int main(int argc, char *argv[])
   // NormalizeImage(smooth,output,mn);
   //  NormalizeImage(Parameterizer->GetFunctionImage(),output,mn);
 
-  WriteImage<floatImageType>(Parameterizer->GetFunctionImage() , argv[2]);
+  WriteImage<floatImageType>(Parameterizer->GetFunctionImage(), argv[2]);
 
   std::cout << " done writing ";
 
   return 1;
 }
-

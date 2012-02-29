@@ -37,14 +37,14 @@ namespace itk
  */
 template <class TOutputMesh>
 class LabeledPointSetFileReader
-: public MeshSource<TOutputMesh>
+  : public MeshSource<TOutputMesh>
 {
 public:
   /** Standard "Self" typedef. */
-  typedef LabeledPointSetFileReader               Self;
-  typedef MeshSource<TOutputMesh>                 Superclass;
-  typedef SmartPointer<Self>                      Pointer;
-  typedef SmartPointer<const Self>                ConstPointer;
+  typedef LabeledPointSetFileReader Self;
+  typedef MeshSource<TOutputMesh>   Superclass;
+  typedef SmartPointer<Self>        Pointer;
+  typedef SmartPointer<const Self>  ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro( Self );
@@ -53,26 +53,25 @@ public:
   itkStaticConstMacro( Dimension, unsigned int,
                        TOutputMesh::PointType::Dimension );
 
-
   /** Run-time type information (and related methods). */
   itkTypeMacro( LabeledPointSetFileReader, MeshSource );
 
   /** Hold on to the type information specified by the template parameters. */
-  typedef TOutputMesh                             OutputMeshType;
-  typedef typename OutputMeshType::MeshTraits     MeshTraits;
-  typedef typename OutputMeshType::Superclass     PointSetType;
-  typedef typename OutputMeshType::PointType      PointType;
-  typedef typename MeshTraits::PixelType          PixelType;
-  typedef Array<PixelType>                        MultiComponentScalarType;
-  typedef Array<unsigned long>                    LineType;
+  typedef TOutputMesh                         OutputMeshType;
+  typedef typename OutputMeshType::MeshTraits MeshTraits;
+  typedef typename OutputMeshType::Superclass PointSetType;
+  typedef typename OutputMeshType::PointType  PointType;
+  typedef typename MeshTraits::PixelType      PixelType;
+  typedef Array<PixelType>                    MultiComponentScalarType;
+  typedef Array<unsigned long>                LineType;
   typedef VectorContainer<long,
-    MultiComponentScalarType>                     MultiComponentScalarSetType;
-  typedef VectorContainer<long, LineType>         LineSetType;
+                          MultiComponentScalarType>                     MultiComponentScalarSetType;
+  typedef VectorContainer<long, LineType> LineSetType;
 
   typedef Image<PixelType,
-    itkGetStaticConstMacro( Dimension )>          LabeledPointSetImageType;
+                itkGetStaticConstMacro( Dimension )>          LabeledPointSetImageType;
 
-  typedef std::vector<PixelType>                  LabelSetType;
+  typedef std::vector<PixelType> LabelSetType;
 
   /** Set/Get the name of the file to be read. */
   itkSetStringMacro( FileName );
@@ -88,42 +87,55 @@ public:
   itkSetClampMacro( RandomPercentage, double, 0.0, 1.0 );
   itkGetConstMacro( RandomPercentage, double );
 
-  LabelSetType* GetLabelSet() { return &this->m_LabelSet; }
-  unsigned int GetNumberOfLabels() { return this->m_LabelSet.size(); }
+  LabelSetType * GetLabelSet()
+  {
+    return &this->m_LabelSet;
+  }
+  unsigned int GetNumberOfLabels()
+  {
+    return this->m_LabelSet.size();
+  }
 
-  MultiComponentScalarSetType* GetMultiComponentScalars()
-    { return this->m_MultiComponentScalars.GetPointer(); }
+  MultiComponentScalarSetType * GetMultiComponentScalars()
+  {
+    return this->m_MultiComponentScalars.GetPointer();
+  }
 
-  LineSetType* GetLines()
-    { return this->m_Lines.GetPointer(); }
-
+  LineSetType * GetLines()
+  {
+    return this->m_Lines.GetPointer();
+  }
 protected:
   LabeledPointSetFileReader();
-  ~LabeledPointSetFileReader() {}
+  ~LabeledPointSetFileReader()
+  {
+  }
   void PrintSelf( std::ostream& os, Indent indent ) const;
 
   /** Reads the file */
   void GenerateData();
 
-  bool                                            m_ExtractBoundaryPoints;
+  bool m_ExtractBoundaryPoints;
 
-  std::string                                     m_FileName;
-  double                                          m_RandomPercentage;
-  LabelSetType                                    m_LabelSet;
+  std::string  m_FileName;
+  double       m_RandomPercentage;
+  LabelSetType m_LabelSet;
   typename MultiComponentScalarSetType::Pointer   m_MultiComponentScalars;
   typename LineSetType::Pointer                   m_Lines;
-
-
 private:
-  LabeledPointSetFileReader( const Self& ); // purposely not implemented
-  void operator=( const Self& ); // purposely not implemented
+  LabeledPointSetFileReader( const Self & ); // purposely not implemented
+  void operator=( const Self & );            // purposely not implemented
 
   void ReadPointsFromImageFile();
+
   void ReadPointsFromAvantsFile();
 
   void ReadVTKFile();
+
   void ReadPointsFromVTKFile();
+
   void ReadScalarsFromVTKFile();
+
   void ReadLinesFromVTKFile();
 
 };
@@ -134,4 +146,4 @@ private:
 #include "itkLabeledPointSetFileReader.hxx"
 #endif
 
-#endif //_itkLabeledPointSetFileReader_h
+#endif // _itkLabeledPointSetFileReader_h

@@ -9,8 +9,7 @@
 namespace itk
 {
 
-
-template<class TInputImage, class TOutputImage>
+template <class TInputImage, class TOutputImage>
 GeneralToBSplineDisplacementFieldFilter<TInputImage, TOutputImage>
 ::GeneralToBSplineDisplacementFieldFilter()
 {
@@ -22,13 +21,13 @@ GeneralToBSplineDisplacementFieldFilter<TInputImage, TOutputImage>
 //  this->m_ConfidenceImage = NULL;
 }
 
-template<class TInputImage, class TOutputImage>
+template <class TInputImage, class TOutputImage>
 GeneralToBSplineDisplacementFieldFilter<TInputImage, TOutputImage>
 ::~GeneralToBSplineDisplacementFieldFilter()
 {
 }
 
-template<class TInputImage, class TOutputImage>
+template <class TInputImage, class TOutputImage>
 void
 GeneralToBSplineDisplacementFieldFilter<TInputImage, TOutputImage>
 ::GenerateData()
@@ -40,16 +39,16 @@ GeneralToBSplineDisplacementFieldFilter<TInputImage, TOutputImage>
 //  confidenceValues->Initialize();
 
   ImageRegionConstIteratorWithIndex<InputImageType>
-    It( this->GetInput(), this->GetInput()->GetRequestedRegion() );
+  It( this->GetInput(), this->GetInput()->GetRequestedRegion() );
 
   itkDebugMacro( << "Extracting points from input deformation field. " )
 
   unsigned int N = 0;
-  for ( It.GoToBegin(); !It.IsAtEnd(); ++It )
+  for( It.GoToBegin(); !It.IsAtEnd(); ++It )
     {
     InputPixelType data = It.Get();
 
-    if ( data != this->m_IgnorePixelValue )
+    if( data != this->m_IgnorePixelValue )
       {
       typename PointSetType::PointType point;
       this->GetInput()->TransformIndexToPhysicalPoint( It.GetIndex(), point );
@@ -71,7 +70,7 @@ GeneralToBSplineDisplacementFieldFilter<TInputImage, TOutputImage>
   typename OutputImageType::PointType origin;
   typename OutputImageType::SpacingType spacing;
   typename OutputImageType::SizeType size;
-  for ( unsigned int i = 0; i < ImageDimension; i++ )
+  for( unsigned int i = 0; i < ImageDimension; i++ )
     {
     origin[i] = this->GetInput( 0 )->GetOrigin()[i];
     spacing[i] = this->GetInput( 0 )->GetSpacing()[i];

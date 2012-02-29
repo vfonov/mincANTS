@@ -28,16 +28,16 @@
 
 namespace itk
 {
-template<unsigned int TDimension = 3, class TReal = float>
+template <unsigned int TDimension = 3, class TReal = float>
 class ITK_EXPORT ANTSSimilarityMetric
-: public Object
+  : public Object
 {
 public:
   /** Standard class typedefs. */
-  typedef ANTSSimilarityMetric                             Self;
-  typedef Object                                           Superclass;
-  typedef SmartPointer<Self>                               Pointer;
-  typedef SmartPointer<const Self>                         ConstPointer;
+  typedef ANTSSimilarityMetric     Self;
+  typedef Object                   Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro( Self );
@@ -46,30 +46,29 @@ public:
   itkTypeMacro( ANTSSimilarityMetric, Object );
   itkStaticConstMacro( Dimension, unsigned int, TDimension );
 
-  typedef TReal                                            RealType;
+  typedef TReal RealType;
   typedef Image<RealType,
-    itkGetStaticConstMacro( Dimension )>                   ImageType;
-  typedef typename ImageType::Pointer                      ImagePointer;
+                itkGetStaticConstMacro( Dimension )>                   ImageType;
+  typedef typename ImageType::Pointer ImagePointer;
   typedef Vector<RealType,
-    itkGetStaticConstMacro( Dimension )>                   VectorType;
+                 itkGetStaticConstMacro( Dimension )>                   VectorType;
   typedef Image<VectorType,
-    itkGetStaticConstMacro( Dimension )>                   DisplacementFieldType;
+                itkGetStaticConstMacro( Dimension )>                   DisplacementFieldType;
 
   /** Point Types  for landmarks and labeled point-sets */
-  typedef itk::ANTSLabeledPointSet<Dimension>  LabeledPointSetType;
-  typedef typename LabeledPointSetType::Pointer  LabeledPointSetPointer;
+  typedef itk::ANTSLabeledPointSet<Dimension>        LabeledPointSetType;
+  typedef typename LabeledPointSetType::Pointer      LabeledPointSetPointer;
   typedef typename LabeledPointSetType::PointSetType PointSetType;
-  typedef typename PointSetType::Pointer PointSetPointer;
-  typedef typename PointSetType::PointType PointType;
-  typedef typename PointSetType::PixelType PointDataType;
-  typedef typename ImageType::PointType ImagePointType;
+  typedef typename PointSetType::Pointer             PointSetPointer;
+  typedef typename PointSetType::PointType           PointType;
+  typedef typename PointSetType::PixelType           PointDataType;
+  typedef typename ImageType::PointType              ImagePointType;
 
   /** Typedefs for similarity metrics */
   typedef AvantsPDEDeformableRegistrationFunction
-    <ImageType, ImageType, DisplacementFieldType>           MetricType;
-  typedef typename MetricType::Pointer                     MetricPointer;
-  typedef typename MetricType::RadiusType                  RadiusType;
-
+  <ImageType, ImageType, DisplacementFieldType>           MetricType;
+  typedef typename MetricType::Pointer    MetricPointer;
+  typedef typename MetricType::RadiusType RadiusType;
 
   itkSetMacro( FixedImage, ImagePointer );
   itkGetConstMacro( FixedImage, ImagePointer );
@@ -84,27 +83,25 @@ public:
   itkSetClampMacro( WeightScalar, RealType, 0.0, NumericTraits<RealType>::max() );
   itkGetConstMacro( WeightScalar, RealType );
 
-
   itkSetObjectMacro( Metric, MetricType );
   itkGetObjectMacro( Metric, MetricType );
 
   itkSetMacro( MaximizeMetric, bool );
   itkGetConstMacro( MaximizeMetric, bool );
   itkBooleanMacro( MaximizeMetric );
-
 private:
 
-  MetricPointer                                            m_Metric;
-  bool                                                     m_MaximizeMetric;
+  MetricPointer m_Metric;
+  bool          m_MaximizeMetric;
 
-  ImagePointer                                             m_FixedImage;
-  ImagePointer                                             m_MovingImage;
+  ImagePointer m_FixedImage;
+  ImagePointer m_MovingImage;
 
-  PointSetPointer                                          m_FixedPointSet;
-  PointSetPointer                                          m_MovingPointSet;
+  PointSetPointer m_FixedPointSet;
+  PointSetPointer m_MovingPointSet;
 
-  ImagePointer                                             m_WeightImage;
-  RealType                                                 m_WeightScalar;
+  ImagePointer m_WeightImage;
+  RealType     m_WeightScalar;
 
 };
 

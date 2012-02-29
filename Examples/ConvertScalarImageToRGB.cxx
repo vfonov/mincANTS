@@ -26,18 +26,17 @@
 
 #include "itkScalarToRGBColormapImageFilter.h"
 
-
 template <unsigned int ImageDimension>
 int ConvertScalarImageToRGB( int argc, char *argv[] )
 {
-  typedef unsigned int PixelType;
+  typedef unsigned int                 PixelType;
   typedef itk::RGBPixel<unsigned char> RGBPixelType;
 //  typedef itk::RGBAPixel<unsigned char> RGBPixelType;
 
   typedef float RealType;
 
-  typedef itk::Image<PixelType, ImageDimension> ImageType;
-  typedef itk::Image<float, ImageDimension> RealImageType;
+  typedef itk::Image<PixelType, ImageDimension>    ImageType;
+  typedef itk::Image<float, ImageDimension>        RealImageType;
   typedef itk::Image<RGBPixelType, ImageDimension> RGBImageType;
 
   typedef itk::ImageFileReader<RealImageType> ReaderType;
@@ -55,64 +54,64 @@ int ConvertScalarImageToRGB( int argc, char *argv[] )
     maskreader->Update();
     maskImage = maskreader->GetOutput();
     }
-  catch(...)
+  catch( ... )
     {
     maskImage = NULL;
-    };
-
+    }
+  ;
 
   std::string colormapString( argv[5] );
 
   typedef itk::ScalarToRGBColormapImageFilter<RealImageType,
-    RGBImageType> RGBFilterType;
+                                              RGBImageType> RGBFilterType;
   typename RGBFilterType::Pointer rgbfilter = RGBFilterType::New();
   rgbfilter->SetInput( reader->GetOutput() );
 
-  if ( colormapString == "red" )
+  if( colormapString == "red" )
     {
     rgbfilter->SetColormap( RGBFilterType::Red );
     }
-  else if ( colormapString == "green"  )
+  else if( colormapString == "green"  )
     {
     rgbfilter->SetColormap( RGBFilterType::Green );
     }
-  else if ( colormapString == "blue"  )
+  else if( colormapString == "blue"  )
     {
     rgbfilter->SetColormap( RGBFilterType::Blue );
     }
-  else if ( colormapString == "grey"  )
+  else if( colormapString == "grey"  )
     {
     rgbfilter->SetColormap( RGBFilterType::Grey );
     }
-  else if ( colormapString == "cool"  )
+  else if( colormapString == "cool"  )
     {
     rgbfilter->SetColormap( RGBFilterType::Cool );
     }
-  else if ( colormapString == "hot"  )
+  else if( colormapString == "hot"  )
     {
     rgbfilter->SetColormap( RGBFilterType::Hot );
     }
-  else if ( colormapString == "spring"  )
+  else if( colormapString == "spring"  )
     {
     rgbfilter->SetColormap( RGBFilterType::Spring );
     }
-  else if ( colormapString == "autumn"  )
+  else if( colormapString == "autumn"  )
     {
     rgbfilter->SetColormap( RGBFilterType::Autumn );
     }
-  else if ( colormapString == "winter"  )
+  else if( colormapString == "winter"  )
     {
     rgbfilter->SetColormap( RGBFilterType::Winter );
     }
-  else if ( colormapString == "copper"  )
+  else if( colormapString == "copper"  )
     {
     rgbfilter->SetColormap( RGBFilterType::Copper );
     }
-  else if ( colormapString == "summer"  )
+  else if( colormapString == "summer"  )
     {
     rgbfilter->SetColormap( RGBFilterType::Summer );
     }
-  else if ( colormapString == "jet"  )
+  else if( colormapString == "jet"  )
     {
     rgbfilter->SetColormap( RGBFilterType::Jet );
 //    typedef itk::Function::JetColormapFunction<typename RealImageType::PixelType,
@@ -120,7 +119,7 @@ int ConvertScalarImageToRGB( int argc, char *argv[] )
 //    typename ColormapType::Pointer colormap = ColormapType::New();
 //    rgbfilter->SetColormap( colormap );
     }
-  else if ( colormapString == "hsv"  )
+  else if( colormapString == "hsv"  )
     {
     rgbfilter->SetColormap( RGBFilterType::HSV );
 //    typedef itk::Function::HSVColormapFunction<typename RealImageType::PixelType,
@@ -128,56 +127,59 @@ int ConvertScalarImageToRGB( int argc, char *argv[] )
 //    typename ColormapType::Pointer colormap = ColormapType::New();
 //    rgbfilter->SetColormap( colormap );
     }
-  else if ( colormapString == "overunder"  )
+  else if( colormapString == "overunder"  )
     {
     rgbfilter->SetColormap( RGBFilterType::OverUnder );
     }
-  else if ( colormapString == "custom"  )
+  else if( colormapString == "custom"  )
     {
     typedef itk::Function::CustomColormapFunction<typename RealImageType::PixelType,
-      typename RGBImageType::PixelType> ColormapType;
+                                                  typename RGBImageType::PixelType> ColormapType;
     typename ColormapType::Pointer colormap = ColormapType::New();
 
     std::ifstream str( argv[6] );
-    std::string line;
+    std::string   line;
 
     // Get red values
-    {
-    std::getline( str, line );
-    std::istringstream iss( line );
-    float value;
-    typename ColormapType::ChannelType channel;
-    while ( iss >> value )
       {
-      channel.push_back( value );
+      std::getline( str, line );
+      std::istringstream iss( line );
+      float              value;
+      typename ColormapType::ChannelType channel;
+      while( iss >> value )
+        {
+        channel.push_back( value );
+        }
+
+      colormap->SetRedChannel( channel );
       }
-    colormap->SetRedChannel( channel );
-    }
 
     // Get green values
-    {
-    std::getline( str, line );
-    std::istringstream iss( line );
-    float value;
-    typename ColormapType::ChannelType channel;
-    while ( iss >> value )
       {
-      channel.push_back( value );
+      std::getline( str, line );
+      std::istringstream iss( line );
+      float              value;
+      typename ColormapType::ChannelType channel;
+      while( iss >> value )
+        {
+        channel.push_back( value );
+        }
+
+      colormap->SetGreenChannel( channel );
       }
-    colormap->SetGreenChannel( channel );
-    }
     // Get blue values
-    {
-    std::getline( str, line );
-    std::istringstream iss( line );
-    float value;
-    typename ColormapType::ChannelType channel;
-    while ( iss >> value )
       {
-      channel.push_back( value );
+      std::getline( str, line );
+      std::istringstream iss( line );
+      float              value;
+      typename ColormapType::ChannelType channel;
+      while( iss >> value )
+        {
+        channel.push_back( value );
+        }
+
+      colormap->SetBlueChannel( channel );
       }
-    colormap->SetBlueChannel( channel );
-    }
 //    rgbfilter->SetColormap( colormap );
     }
 
@@ -188,9 +190,9 @@ int ConvertScalarImageToRGB( int argc, char *argv[] )
     RealType maskMaximumValue = itk::NumericTraits<RealType>::NonpositiveMin();
 
     itk::ImageRegionIterator<MaskImageType> ItM( maskImage,
-      maskImage->GetLargestPossibleRegion() );
+                                                 maskImage->GetLargestPossibleRegion() );
     itk::ImageRegionIterator<RealImageType> ItS( reader->GetOutput(),
-      reader->GetOutput()->GetLargestPossibleRegion() );
+                                                 reader->GetOutput()->GetLargestPossibleRegion() );
     for( ItM.GoToBegin(), ItS.GoToBegin(); !ItM.IsAtEnd(); ++ItM, ++ItS )
       {
       if( ItM.Get() != 0 )
@@ -213,10 +215,10 @@ int ConvertScalarImageToRGB( int argc, char *argv[] )
 
   rgbfilter->GetColormap()->SetMinimumRGBComponentValue(
     ( argc > 9 ) ? static_cast<
-    typename RGBPixelType::ComponentType>( atof( argv[9] ) ) : 0 );
+      typename RGBPixelType::ComponentType>( atof( argv[9] ) ) : 0 );
   rgbfilter->GetColormap()->SetMaximumRGBComponentValue(
     ( argc > 10 ) ? static_cast<
-    typename RGBPixelType::ComponentType>( atof( argv[10] ) ) : 255 );
+      typename RGBPixelType::ComponentType>( atof( argv[10] ) ) : 255 );
 
   if( argc > 8 )
     {
@@ -231,7 +233,7 @@ int ConvertScalarImageToRGB( int argc, char *argv[] )
     {
     rgbfilter->Update();
     }
-  catch (...)
+  catch( ... )
     {
     return EXIT_FAILURE;
     }
@@ -239,11 +241,11 @@ int ConvertScalarImageToRGB( int argc, char *argv[] )
   if( maskImage )
     {
     itk::ImageRegionIterator<MaskImageType> ItM( maskImage,
-      maskImage->GetLargestPossibleRegion() );
+                                                 maskImage->GetLargestPossibleRegion() );
     itk::ImageRegionIterator<RGBImageType> ItC( rgbfilter->GetOutput(),
-      rgbfilter->GetOutput()->GetLargestPossibleRegion() );
+                                                rgbfilter->GetOutput()->GetLargestPossibleRegion() );
     itk::ImageRegionIterator<RealImageType> ItS( reader->GetOutput(),
-      reader->GetOutput()->GetLargestPossibleRegion() );
+                                                 reader->GetOutput()->GetLargestPossibleRegion() );
 
     ItM.GoToBegin();
     ItC.GoToBegin();
@@ -288,27 +290,26 @@ int ConvertScalarImageToRGB( int argc, char *argv[] )
 
 int main( int argc, char *argv[] )
 {
-  if ( argc < 6 )
+  if( argc < 6 )
     {
     std::cout << "Usage: " << argv[0] << " imageDimension inputImage outputImage "
-      << "mask colormap [customColormapFile] [minimumInput] [maximumInput] "
-      << "[minimumRGBOutput] [maximumRGBOutput]" << std::endl;
+              << "mask colormap [customColormapFile] [minimumInput] [maximumInput] "
+              << "[minimumRGBOutput] [maximumRGBOutput]" << std::endl;
     std::cout << "  Possible colormaps: grey, red, green, blue, copper, jet, hsv, ";
     std::cout << "spring, summer, autumn, winter, hot, cool, overunder, custom" << std::endl;
     exit( 1 );
     }
 
   switch( atoi( argv[1] ) )
-   {
-   case 2:
-     ConvertScalarImageToRGB<2>( argc, argv );
-     break;
-   case 3:
-     ConvertScalarImageToRGB<3>( argc, argv );
-     break;
-   default:
+    {
+    case 2:
+      ConvertScalarImageToRGB<2>( argc, argv );
+      break;
+    case 3:
+      ConvertScalarImageToRGB<3>( argc, argv );
+      break;
+    default:
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
-   }
+    }
 }
-

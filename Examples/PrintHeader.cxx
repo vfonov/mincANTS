@@ -30,25 +30,28 @@
 #include "itkMetaDataObject.h"
 #include "itkSpatialOrientation.h"
 
-
 using namespace std;
 /** below code from Paul Yushkevich's c3d */
-template<class AnyType>
+template <class AnyType>
 bool
-try_print_metadata(itk::MetaDataDictionary &mdd, std::string key)
-  {
-  AnyType value=0;
-  if(itk::ExposeMetaData<AnyType>(mdd, key, value))
+try_print_metadata(itk::MetaDataDictionary & mdd, std::string key)
+{
+  AnyType value = 0;
+
+  if( itk::ExposeMetaData<AnyType>(mdd, key, value) )
     {
     cout << "    " << key << " = " << value << endl;
     return true;
     }
-  else return false;
-  }
+  else
+    {
+    return false;
+    }
+}
 
 string
 get_rai_code(itk::SpatialOrientation::ValidCoordinateOrientationFlags code)
-  {
+{
   std::map<itk::SpatialOrientation::ValidCoordinateOrientationFlags, string> m_CodeToString;
   m_CodeToString[itk::SpatialOrientation::ITK_COORDINATE_ORIENTATION_RIP] = "RIP";
   m_CodeToString[itk::SpatialOrientation::ITK_COORDINATE_ORIENTATION_LIP] = "LIP";
@@ -99,26 +102,23 @@ get_rai_code(itk::SpatialOrientation::ValidCoordinateOrientationFlags code)
   m_CodeToString[itk::SpatialOrientation::ITK_COORDINATE_ORIENTATION_AIL] = "AIL";
   m_CodeToString[itk::SpatialOrientation::ITK_COORDINATE_ORIENTATION_ASL] = "ASL";
   return m_CodeToString[code];
-  }
-
-
-
+}
 
 template <unsigned int ImageDimension>
 int PrintHeader(int argc, char *argv[])
 {
 
-  typedef  float  outPixelType;
-  typedef  float floatPixelType;
-  typedef  float inPixelType;
-  typedef itk::Image<inPixelType,ImageDimension> ImageType;
-  typedef itk::Image<floatPixelType,ImageDimension> IntermediateType;
-  typedef itk::Image<outPixelType,ImageDimension> OutImageType;
-  typedef itk::ImageFileReader<ImageType> readertype;
-  typedef itk::ImageFileWriter<OutImageType> writertype;
+  typedef  float                                     outPixelType;
+  typedef  float                                     floatPixelType;
+  typedef  float                                     inPixelType;
+  typedef itk::Image<inPixelType, ImageDimension>    ImageType;
+  typedef itk::Image<floatPixelType, ImageDimension> IntermediateType;
+  typedef itk::Image<outPixelType, ImageDimension>   OutImageType;
+  typedef itk::ImageFileReader<ImageType>            readertype;
+  typedef itk::ImageFileWriter<OutImageType>         writertype;
 
   typename readertype::Pointer reader = readertype::New();
-  if(argc < 2)
+  if( argc < 2 )
     {
     std::cerr << "missing input image name" << std::endl;
     throw;
@@ -128,27 +128,37 @@ int PrintHeader(int argc, char *argv[])
   std::cout << " Spacing " << reader->GetOutput()->GetSpacing() << std::endl;
   std::cout << " Origin " << reader->GetOutput()->GetOrigin() << std::endl;
   std::cout << " Direction " << std::endl << reader->GetOutput()->GetDirection() << std::endl;
-  if ( ImageDimension == 1 )
+  if( ImageDimension == 1 )
+    {
     std::cout << " Size : " << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[0] << " " <<   std::endl;
-  else if ( ImageDimension == 2 )
-    std::cout << " Size : " << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[0] << " " << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[1] << " " << std::endl;
-   else if ( ImageDimension == 3 )
-    std::cout << " Size : " << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[0] << " " << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[1] << " " <<  " " << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[2] << std::endl;
-   else    std::cout << " Size : " << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
+    }
+  else if( ImageDimension == 2 )
+    {
+    std::cout << " Size : " << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[0] << " "
+              << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[1] << " " << std::endl;
+    }
+  else if( ImageDimension == 3 )
+    {
+    std::cout << " Size : " << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[0] << " "
+              << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[1] << " " <<  " "
+              << reader->GetOutput()->GetLargestPossibleRegion().GetSize()[2] << std::endl;
+    }
+  else
+    {
+    std::cout << " Size : " << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
+    }
 //  std::cout << " Orientation " << reader->GetOutput()->GetOrientation() << std::endl;
 
-
-  unsigned int VDim=ImageDimension;
+  unsigned int VDim = ImageDimension;
   // Get the input image
   typename ImageType::Pointer image = reader->GetOutput();
-
 
   // Compute the bounding box
   vnl_vector<double> bb0, bb1, ospm;
   bb0.set_size(VDim);
   bb1.set_size(VDim);
   ospm.set_size(VDim);
-  for(size_t i = 0; i < VDim; i++)
+  for( size_t i = 0; i < VDim; i++ )
     {
     bb0[i] = image->GetOrigin()[i];
     bb1[i] = bb0[i] + image->GetSpacing()[i] * image->GetBufferedRegion().GetSize()[i];
@@ -159,7 +169,7 @@ int PrintHeader(int argc, char *argv[])
   size_t n = image->GetBufferedRegion().GetNumberOfPixels();
   float *vox = image->GetBufferPointer();
   double iMax = vox[0], iMin = vox[0], iMean = vox[0];
-  for(size_t i = 1; i < n; i++)
+  for( size_t i = 1; i < n; i++ )
     {
     iMax = (iMax > vox[i]) ? iMax : vox[i];
     iMin = (iMin < vox[i]) ? iMin : vox[i];
@@ -168,8 +178,8 @@ int PrintHeader(int argc, char *argv[])
   iMean /= n;
 
   // Short or long?
-  bool full=true;
-  if(!full)
+  bool full = true;
+  if( !full )
     {
     cout << " dim = " << image->GetBufferedRegion().GetSize() << "; ";
     cout << " bb = {[" << bb0 << "], [" << bb1 << "]}; ";
@@ -195,75 +205,112 @@ int PrintHeader(int argc, char *argv[])
     //
     // Print metadata
     cout << "  Image Metadata: " << endl;
-    itk::MetaDataDictionary &mdd = image->GetMetaDataDictionary();
+    itk::MetaDataDictionary &              mdd = image->GetMetaDataDictionary();
     itk::MetaDataDictionary::ConstIterator itMeta;
-    for(itMeta = mdd.Begin(); itMeta != mdd.End(); ++itMeta)
+    for( itMeta = mdd.Begin(); itMeta != mdd.End(); ++itMeta )
       {
       // Get the metadata as a generic object
-      string key = itMeta->first, v_string;
+      string                                                   key = itMeta->first, v_string;
       itk::SpatialOrientation::ValidCoordinateOrientationFlags v_oflags;
 
-      if(itk::ExposeMetaData<string>(mdd, key, v_string))
+      if( itk::ExposeMetaData<string>(mdd, key, v_string) )
         {
         // For some weird reason, some of the strings returned by this method
         // contain '\0' characters. We will replace them by spaces
         std::ostringstream sout("");
-        for(unsigned int i=0;i<v_string.length();i++)
-          if(v_string[i] >= ' ') sout << v_string[i];
+        for( unsigned int i = 0; i < v_string.length(); i++ )
+          {
+          if( v_string[i] >= ' ' )
+            {
+            sout << v_string[i];
+            }
+          }
         v_string = sout.str();
 
         // Make sure the value has more than blanks
-        if(v_string.find_first_not_of(" ") != v_string.npos)
+        if( v_string.find_first_not_of(" ") != v_string.npos )
+          {
           cout << "    " << key << " = " << v_string << endl;
+          }
         }
-      else if(itk::ExposeMetaData(mdd, key, v_oflags))
+      else if( itk::ExposeMetaData(mdd, key, v_oflags) )
         {
         cout << "    " << key << " = " << get_rai_code(v_oflags) << endl;
         }
       else
         {
         bool rc = false;
-        if(!rc) rc |= try_print_metadata<double>(mdd, key);
-        if(!rc) rc |= try_print_metadata<float>(mdd, key);
-        if(!rc) rc |= try_print_metadata<int>(mdd, key);
-        if(!rc) rc |= try_print_metadata<unsigned int>(mdd, key);
-        if(!rc) rc |= try_print_metadata<long>(mdd, key);
-        if(!rc) rc |= try_print_metadata<unsigned long>(mdd, key);
-        if(!rc) rc |= try_print_metadata<short>(mdd, key);
-        if(!rc) rc |= try_print_metadata<unsigned short>(mdd, key);
-        if(!rc) rc |= try_print_metadata<char>(mdd, key);
-        if(!rc) rc |= try_print_metadata<unsigned char>(mdd, key);
+        if( !rc )
+          {
+          rc |= try_print_metadata<double>(mdd, key);
+          }
+        if( !rc )
+          {
+          rc |= try_print_metadata<float>(mdd, key);
+          }
+        if( !rc )
+          {
+          rc |= try_print_metadata<int>(mdd, key);
+          }
+        if( !rc )
+          {
+          rc |= try_print_metadata<unsigned int>(mdd, key);
+          }
+        if( !rc )
+          {
+          rc |= try_print_metadata<long>(mdd, key);
+          }
+        if( !rc )
+          {
+          rc |= try_print_metadata<unsigned long>(mdd, key);
+          }
+        if( !rc )
+          {
+          rc |= try_print_metadata<short>(mdd, key);
+          }
+        if( !rc )
+          {
+          rc |= try_print_metadata<unsigned short>(mdd, key);
+          }
+        if( !rc )
+          {
+          rc |= try_print_metadata<char>(mdd, key);
+          }
+        if( !rc )
+          {
+          rc |= try_print_metadata<unsigned char>(mdd, key);
+          }
 
-        if(!rc)
+        if( !rc )
           {
           cout << "    " << key << " of unsupported type "
-            << itMeta->second->GetMetaDataObjectTypeName() << endl;
+               << itMeta->second->GetMetaDataObjectTypeName() << endl;
           }
         }
       }
 
     }
 
-
-
   return 1;
 
 }
 
-
-
-bool FileExists(string strFilename) {
+bool FileExists(string strFilename)
+{
   struct stat stFileInfo;
-  bool blnReturn;
-  int intStat;
+  bool        blnReturn;
+  int         intStat;
 
   // Attempt to get the file attributes
-  intStat = stat(strFilename.c_str(),&stFileInfo);
-  if(intStat == 0) {
+  intStat = stat(strFilename.c_str(), &stFileInfo);
+  if( intStat == 0 )
+    {
     // We were able to get the file attributes
     // so the file obviously exists.
     blnReturn = true;
-  } else {
+    }
+  else
+    {
     // We were not able to get the file attributes.
     // This may mean that we don't have permission to
     // access the folder which contains this file. If you
@@ -271,57 +318,57 @@ bool FileExists(string strFilename) {
     // return values of stat which will give you
     // more details on why stat failed.
     blnReturn = false;
-  }
+    }
 
-  return(blnReturn);
+  return blnReturn;
 }
 
 int main(int argc, char *argv[])
 {
 
-
-  if ( argc < 2  || ((argc == 2) && strcmp(argv[1], "--help") == 0))
-    { std::cout << "Usage:  " << argv[0] << " image.ext " << std::endl;
+  if( argc < 2  || ( (argc == 2) && strcmp(argv[1], "--help") == 0) )
+    {
+    std::cout << "Usage:  " << argv[0] << " image.ext " << std::endl;
     return 1;
-  }
-   // Get the image dimension
+    }
+  // Get the image dimension
   std::string fn = std::string(argv[1]);
- if ( ! FileExists(fn) ) { std::cout << " file " << fn << " does not exist . " << std::endl;  return 1; }
+  if( !FileExists(fn) )
+    {
+    std::cout << " file " << fn << " does not exist . " << std::endl;  return 1;
+    }
   itk::ImageIOBase::Pointer imageIO =
-      itk::ImageIOFactory::CreateImageIO(
-         fn.c_str(), itk::ImageIOFactory::ReadMode);
-   imageIO->SetFileName(fn.c_str());
-   try  {
-   imageIO->ReadImageInformation();
-   }
-   catch ( ... )
-   {
-     std::cout << " cant read " << fn << std::endl;
-     return 1 ;
-   }
-   switch ( imageIO->GetNumberOfDimensions() )
-   {
-   case 1:
-     PrintHeader<1>(argc,argv);
+    itk::ImageIOFactory::CreateImageIO(
+      fn.c_str(), itk::ImageIOFactory::ReadMode);
+  imageIO->SetFileName(fn.c_str() );
+  try
+    {
+    imageIO->ReadImageInformation();
+    }
+  catch( ... )
+    {
+    std::cout << " cant read " << fn << std::endl;
+    return 1;
+    }
+
+  switch( imageIO->GetNumberOfDimensions() )
+    {
+    case 1:
+      PrintHeader<1>(argc, argv);
       break;
-   case 2:
-     PrintHeader<2>(argc,argv);
+    case 2:
+      PrintHeader<2>(argc, argv);
       break;
-   case 3:
-     PrintHeader<3>(argc,argv);
+    case 3:
+      PrintHeader<3>(argc, argv);
       break;
-   case 4:
-     PrintHeader<4>(argc,argv);
+    case 4:
+      PrintHeader<4>(argc, argv);
       break;
-   default:
+    default:
       std::cerr << "Unsupported dimension " <<  imageIO->GetNumberOfDimensions() << std::endl;
       exit( EXIT_FAILURE );
-   }
+    }
 
   return 0;
 }
-
-
-
-
-

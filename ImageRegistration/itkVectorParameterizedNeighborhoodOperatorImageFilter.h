@@ -57,14 +57,14 @@ namespace itk
 
 template <class TInputImage, class TOutputImage, class TParamImage>
 class ITK_EXPORT VectorParameterizedNeighborhoodOperatorImageFilter :
-    public ImageToImageFilter< TInputImage, TOutputImage >
+  public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
   /** Standard class typedefs. */
   typedef VectorParameterizedNeighborhoodOperatorImageFilter Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef       SmartPointer<Self> Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  typedef ImageToImageFilter<TInputImage, TOutputImage>      Superclass;
+  typedef       SmartPointer<Self>                           Pointer;
+  typedef SmartPointer<const Self>                           ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -74,16 +74,16 @@ public:
 
   /** Extract some information from the image types.  Dimensionality
    * of the two images is assumed to be the same. */
-  typedef typename TInputImage::Pointer           InputImagePointer;
+  typedef typename TInputImage::Pointer            InputImagePointer;
   typedef typename TOutputImage::Pointer           OutputImagePointer;
   typedef typename TOutputImage::PixelType         OutputPixelType;
   typedef typename TOutputImage::InternalPixelType OutputInternalPixelType;
   typedef typename  TInputImage::PixelType         InputPixelType;
   typedef typename  TInputImage::InternalPixelType InputInternalPixelType;
   typedef typename OutputPixelType::ValueType      ScalarValueType;
-  typedef TParamImage ParameterImageType;
-  typedef typename TParamImage::Pointer ParameterImagePointer;
-  typedef typename TParamImage::PixelType ParameterImageTypePixelType;
+  typedef TParamImage                              ParameterImageType;
+  typedef typename TParamImage::Pointer            ParameterImagePointer;
+  typedef typename TParamImage::PixelType          ParameterImageTypePixelType;
 
   /** Determine image dimension. */
   itkStaticConstMacro(ImageDimension, unsigned int,
@@ -100,13 +100,13 @@ public:
   /** Superclass typedefs. */
   typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
 
-  typedef itk::GaussianOperator<ScalarValueType, itkGetStaticConstMacro(ImageDimension)>  OperatorType;
+  typedef itk::GaussianOperator<ScalarValueType, itkGetStaticConstMacro(ImageDimension)> OperatorType;
 //  Neighborhood<ScalarValueType, itkGetStaticConstMacro(ImageDimension)>
 
   /** Sets the operator that is used to filter the image. Note
    * that the operator is stored as an internal COPY (it
    * is not part of the pipeline). */
-  void SetOperator(OperatorType &p)
+  void SetOperator(OperatorType & p)
   {
     m_Operator = p;
     this->Modified();
@@ -118,7 +118,9 @@ public:
    * can be of a different type than the default type as long as it is
    * a subclass of ImageBoundaryCondition. */
   void OverrideBoundaryCondition(const ImageBoundaryConditionPointerType i)
-  { m_BoundsCondition = i; }
+  {
+    m_BoundsCondition = i;
+  }
 
   /** VectorParameterizedNeighborhoodOperatorImageFilter needs a larger input requested
    * region than the output requested region.  As such,
@@ -127,14 +129,21 @@ public:
    * execution model.
    *
    * \sa ProcessObject::GenerateInputRequestedRegion() */
-  virtual void GenerateInputRequestedRegion() throw (InvalidRequestedRegionError);
+  virtual void GenerateInputRequestedRegion()
+  throw (InvalidRequestedRegionError);
 
-
-  void SetParameterImage( ParameterImagePointer I) { m_ParameterImage = I; }
-
+  void SetParameterImage( ParameterImagePointer I)
+  {
+    m_ParameterImage = I;
+  }
 protected:
-  VectorParameterizedNeighborhoodOperatorImageFilter() {  m_ParameterImage = NULL; }
-  virtual ~VectorParameterizedNeighborhoodOperatorImageFilter() {}
+  VectorParameterizedNeighborhoodOperatorImageFilter()
+  {
+    m_ParameterImage = NULL;
+  }
+  virtual ~VectorParameterizedNeighborhoodOperatorImageFilter()
+  {
+  }
 
   /** VectorParameterizedNeighborhoodOperatorImageFilter can be implemented as a
    * multithreaded filter.  Therefore, this implementation provides a
@@ -146,17 +155,18 @@ protected:
    * "outputRegionForThread"
    * \sa ImageToImageFilter::ThreadedGenerateData(),
    *     ImageToImageFilter::GenerateData() */
-  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread,
-                            ThreadIdType threadId );
+  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, ThreadIdType threadId );
 
   void PrintSelf(std::ostream& os, Indent indent) const
-  { Superclass::PrintSelf(os,indent);  }
+  {
+    Superclass::PrintSelf(os, indent);
+  }
 private:
-  VectorParameterizedNeighborhoodOperatorImageFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  VectorParameterizedNeighborhoodOperatorImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);                                     // purposely not implemented
 
   /** Pointer to the internal operator used to filter the image. */
-      OperatorType m_Operator;
+  OperatorType m_Operator;
 
   /** Pointer to a persistent boundary condition object used
    * for the image iterator. */

@@ -17,57 +17,58 @@
 #include <string>
 #include <vector>
 
-template<class TValue>
+template <class TValue>
 TValue Convert( std::string optionString )
-            {
-            TValue value;
-            std::istringstream iss( optionString );
-            iss >> value;
-            return value;
-            }
+{
+  TValue             value;
+  std::istringstream iss( optionString );
 
-template<class TValue>
+  iss >> value;
+  return value;
+}
+
+template <class TValue>
 std::vector<TValue> ConvertVector( std::string optionString )
-            {
-            std::vector<TValue> values;
-            std::string::size_type crosspos = optionString.find( 'x', 0 );
+{
+  std::vector<TValue>    values;
+  std::string::size_type crosspos = optionString.find( 'x', 0 );
 
-            if ( crosspos == std::string::npos )
-                    {
-                    values.push_back( Convert<TValue>( optionString ) );
-                    }
-            else
-                    {
-                    std::string element = optionString.substr( 0, crosspos ) ;
-                    TValue value;
-                    std::istringstream iss( element );
-                    iss >> value;
-                    values.push_back( value );
-                    while ( crosspos != std::string::npos )
-                            {
-                            std::string::size_type crossposfrom = crosspos;
-                            crosspos = optionString.find( 'x', crossposfrom + 1 );
-                            if ( crosspos == std::string::npos )
-                                    {
-                                    element = optionString.substr( crossposfrom + 1, optionString.length() );
-                                    }
-                            else
-                                    {
-                                    element = optionString.substr( crossposfrom + 1, crosspos ) ;
-                                    }
-                            iss.str( element );
-                            iss >> value;
-                            values.push_back( value );
-                            }
-                    }
-            return values;
-            }
+  if( crosspos == std::string::npos )
+    {
+    values.push_back( Convert<TValue>( optionString ) );
+    }
+  else
+    {
+    std::string        element = optionString.substr( 0, crosspos );
+    TValue             value;
+    std::istringstream iss( element );
+    iss >> value;
+    values.push_back( value );
+    while( crosspos != std::string::npos )
+      {
+      std::string::size_type crossposfrom = crosspos;
+      crosspos = optionString.find( 'x', crossposfrom + 1 );
+      if( crosspos == std::string::npos )
+        {
+        element = optionString.substr( crossposfrom + 1, optionString.length() );
+        }
+      else
+        {
+        element = optionString.substr( crossposfrom + 1, crosspos );
+        }
+      iss.str( element );
+      iss >> value;
+      values.push_back( value );
+      }
+    }
+  return values;
+}
 
 template <unsigned int ImageDimension>
 int ResampleImage( int argc, char *argv[] )
 {
-  typedef double RealType;
-  typedef double PixelType;
+  typedef double                                RealType;
+  typedef double                                PixelType;
   typedef itk::Image<PixelType, ImageDimension> ImageType;
 
   typedef itk::ImageFileReader<ImageType> ReaderType;
@@ -80,25 +81,25 @@ int ResampleImage( int argc, char *argv[] )
   transform->SetIdentity();
 
   typedef itk::LinearInterpolateImageFunction<ImageType, RealType>
-    LinearInterpolatorType;
+  LinearInterpolatorType;
   typename LinearInterpolatorType::Pointer interpolator
     = LinearInterpolatorType::New();
   interpolator->SetInputImage( reader->GetOutput() );
 
   typedef itk::NearestNeighborInterpolateImageFunction<ImageType, RealType>
-    NearestNeighborInterpolatorType;
+  NearestNeighborInterpolatorType;
   typename NearestNeighborInterpolatorType::Pointer nn_interpolator
     = NearestNeighborInterpolatorType::New();
   nn_interpolator->SetInputImage( reader->GetOutput() );
 
   typedef itk::BSplineInterpolateImageFunction<ImageType, RealType>
-    BSplineInterpolatorType;
+  BSplineInterpolatorType;
   typename BSplineInterpolatorType::Pointer bs_interpolator
     = BSplineInterpolatorType::New();
   bs_interpolator->SetInputImage( reader->GetOutput() );
 
   typedef itk::GaussianInterpolateImageFunction<ImageType, RealType>
-    GaussianInterpolatorType;
+  GaussianInterpolatorType;
   typename GaussianInterpolatorType::Pointer g_interpolator
     = GaussianInterpolatorType::New();
   g_interpolator->SetInputImage( reader->GetOutput() );
@@ -108,22 +109,22 @@ int ResampleImage( int argc, char *argv[] )
   sh_interpolator->SetInputImage( reader->GetOutput() );
 
   typedef itk::WindowedSincInterpolateImageFunction<ImageType, 3,
-    itk::Function::CosineWindowFunction<3> > Sinc1InterpolatorType;
+                                                    itk::Function::CosineWindowFunction<3> > Sinc1InterpolatorType;
   typename Sinc1InterpolatorType::Pointer sc_interpolator = Sinc1InterpolatorType::New();
   sc_interpolator->SetInputImage( reader->GetOutput() );
 
   typedef itk::WindowedSincInterpolateImageFunction<ImageType, 3,
-    itk::Function::WelchWindowFunction<3> > Sinc2InterpolatorType;
+                                                    itk::Function::WelchWindowFunction<3> > Sinc2InterpolatorType;
   typename Sinc2InterpolatorType::Pointer sw_interpolator = Sinc2InterpolatorType::New();
   sw_interpolator->SetInputImage( reader->GetOutput() );
 
   typedef itk::WindowedSincInterpolateImageFunction<ImageType, 3,
-    itk::Function::LanczosWindowFunction<3> > Sinc3InterpolatorType;
+                                                    itk::Function::LanczosWindowFunction<3> > Sinc3InterpolatorType;
   typename Sinc3InterpolatorType::Pointer sl_interpolator = Sinc3InterpolatorType::New();
   sl_interpolator->SetInputImage( reader->GetOutput() );
 
   typedef itk::WindowedSincInterpolateImageFunction<ImageType, 3,
-    itk::Function::BlackmanWindowFunction<3> > Sinc4InterpolatorType;
+                                                    itk::Function::BlackmanWindowFunction<3> > Sinc4InterpolatorType;
   typename Sinc3InterpolatorType::Pointer sb_interpolator = Sinc3InterpolatorType::New();
   sb_interpolator->SetInputImage( reader->GetOutput() );
 
@@ -136,13 +137,13 @@ int ResampleImage( int argc, char *argv[] )
 
   if( argc <= 5 || atoi( argv[5] ) == 0 )
     {
-    if ( sp.size() == 1 )
+    if( sp.size() == 1 )
       {
       spacing.Fill( sp[0] );
       }
-    else if ( sp.size() == ImageDimension )
+    else if( sp.size() == ImageDimension )
       {
-      for ( unsigned int d = 0; d < ImageDimension; d++ )
+      for( unsigned int d = 0; d < ImageDimension; d++ )
         {
         spacing[d] = sp[d];
         }
@@ -151,8 +152,7 @@ int ResampleImage( int argc, char *argv[] )
       {
       std::cerr << "Invalid spacing." << std::endl;
       }
-
-    for ( unsigned int i = 0; i < ImageDimension; i++ )
+    for( unsigned int i = 0; i < ImageDimension; i++ )
       {
       RealType spacing_old = reader->GetOutput()->GetSpacing()[i];
       RealType size_old = reader->GetOutput()->GetLargestPossibleRegion().GetSize()[i];
@@ -161,13 +161,13 @@ int ResampleImage( int argc, char *argv[] )
     }
   else
     {
-    if ( sp.size() == 1 )
+    if( sp.size() == 1 )
       {
       size.Fill( static_cast<unsigned int>( sp[0] ) );
       }
-    else if ( sp.size() == ImageDimension )
+    else if( sp.size() == ImageDimension )
       {
-      for ( unsigned int d = 0; d < ImageDimension; d++ )
+      for( unsigned int d = 0; d < ImageDimension; d++ )
         {
         size[d] = static_cast<unsigned int>( sp[d] );
         }
@@ -176,8 +176,7 @@ int ResampleImage( int argc, char *argv[] )
       {
       std::cerr << "Invalid size." << std::endl;
       }
-
-    for ( unsigned int i = 0; i < ImageDimension; i++ )
+    for( unsigned int i = 0; i < ImageDimension; i++ )
       {
       RealType spacing_old = reader->GetOutput()->GetSpacing()[i];
       RealType size_old = reader->GetOutput()->GetLargestPossibleRegion().GetSize()[i];
@@ -185,7 +184,6 @@ int ResampleImage( int argc, char *argv[] )
         / static_cast<float>( size[i] - 1.0 );
       }
     }
-
 
   char arg7 = '\0';
   if( argc > 7 )
@@ -280,15 +278,15 @@ int ResampleImage( int argc, char *argv[] )
   writer->SetInput( resampler->GetOutput() );
   writer->Update();
 
- return 0;
+  return 0;
 }
 
 int main( int argc, char *argv[] )
 {
-  if ( argc < 5 )
+  if( argc < 5 )
     {
     std::cout << "Usage: " << argv[0] << " imageDimension inputImage "
-      << "outputImage MxNxO [size=1,spacing=0] [interpolate type]" << std::endl;
+              << "outputImage MxNxO [size=1,spacing=0] [interpolate type]" << std::endl;
     std::cout << "  Interpolation type: " << std::endl;
     std::cout << "    0. linear (default)" << std::endl;
     std::cout << "    1. nn " << std::endl;
@@ -299,20 +297,18 @@ int main( int argc, char *argv[] )
     }
 
   switch( atoi( argv[1] ) )
-   {
-   case 2:
-     ResampleImage<2>( argc, argv );
-     break;
-   case 3:
-     ResampleImage<3>( argc, argv );
-     break;
-   case 4:
-     ResampleImage<4>( argc, argv );
-     break;
-   default:
+    {
+    case 2:
+      ResampleImage<2>( argc, argv );
+      break;
+    case 3:
+      ResampleImage<3>( argc, argv );
+      break;
+    case 4:
+      ResampleImage<4>( argc, argv );
+      break;
+    default:
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
-   }
+    }
 }
-
-

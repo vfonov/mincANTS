@@ -24,22 +24,21 @@
 #include "itkCastImageFilter.h"
 #include "itkRescaleIntensityImageFilter.h"
 
-
 template <unsigned int ImageDimension>
 int ConvertType(int argc, char *argv[])
 {
 
-  typedef  unsigned char outPixelType;
-  typedef  float floatPixelType;
-  typedef  float inPixelType;
-  typedef itk::Image<inPixelType,ImageDimension> ImageType;
-  typedef itk::Image<floatPixelType,ImageDimension> IntermediateType;
-  typedef itk::Image<outPixelType,ImageDimension> OutImageType;
-  typedef itk::ImageFileReader<ImageType> readertype;
-  typedef itk::ImageFileWriter<OutImageType> writertype;
+  typedef  unsigned char                             outPixelType;
+  typedef  float                                     floatPixelType;
+  typedef  float                                     inPixelType;
+  typedef itk::Image<inPixelType, ImageDimension>    ImageType;
+  typedef itk::Image<floatPixelType, ImageDimension> IntermediateType;
+  typedef itk::Image<outPixelType, ImageDimension>   OutImageType;
+  typedef itk::ImageFileReader<ImageType>            readertype;
+  typedef itk::ImageFileWriter<OutImageType>         writertype;
 
   typename readertype::Pointer reader = readertype::New();
-  if(argc < 2)
+  if( argc < 2 )
     {
     std::cerr << "Missing input filename" << std::endl;
     throw;
@@ -48,24 +47,24 @@ int ConvertType(int argc, char *argv[])
   reader->Update();
   std::cout << " Updated reader " << std::endl;
 
-  typedef itk::CastImageFilter<ImageType,IntermediateType> castertype;
-  typename   castertype::Pointer caster=castertype::New();
-  caster->SetInput(reader->GetOutput());
+  typedef itk::CastImageFilter<ImageType, IntermediateType> castertype;
+  typename   castertype::Pointer caster = castertype::New();
+  caster->SetInput(reader->GetOutput() );
   caster->Update();
 
   // Rescale the image intensities so that they fall between 0 and 255
-  typedef itk::RescaleIntensityImageFilter<IntermediateType,IntermediateType> FilterType;
+  typedef itk::RescaleIntensityImageFilter<IntermediateType, IntermediateType> FilterType;
   typename   FilterType::Pointer fixedrescalefilter = FilterType::New();
-  fixedrescalefilter->SetInput(caster->GetOutput());
+  fixedrescalefilter->SetInput(caster->GetOutput() );
   const double desiredMinimum =  0.0;
   const double desiredMaximum =  255.0;
   fixedrescalefilter->SetOutputMinimum( desiredMinimum );
   fixedrescalefilter->SetOutputMaximum( desiredMaximum );
   fixedrescalefilter->UpdateLargestPossibleRegion();
 
-  typedef itk::CastImageFilter<IntermediateType,OutImageType> castertype2;
-  typename castertype2::Pointer caster2=castertype2::New();
-  caster2->SetInput(fixedrescalefilter->GetOutput());
+  typedef itk::CastImageFilter<IntermediateType, OutImageType> castertype2;
+  typename castertype2::Pointer caster2 = castertype2::New();
+  caster2->SetInput(fixedrescalefilter->GetOutput() );
   caster2->Update();
 
   typename   OutImageType::Pointer outim = caster2->GetOutput();
@@ -74,7 +73,7 @@ int ConvertType(int argc, char *argv[])
   std::cout << " Dire in " << reader->GetOutput()->GetDirection() << std::endl;
   std::cout << " Dire out " << outim->GetDirection() << std::endl;
   typename   writertype::Pointer writer = writertype::New();
-  if(argc < 3)
+  if( argc < 3 )
     {
     std::cerr << "Missing output filename" << std::endl;
     throw;
@@ -88,42 +87,35 @@ int ConvertType(int argc, char *argv[])
 
 }
 
-
-
 int main(int argc, char *argv[])
 {
 
-
-  if ( argc < 3 )
-  { std::cout << "Usage:   ConvertToJpg infile.nii out.jpg " << std::endl;
+  if( argc < 3 )
+    {
+    std::cout << "Usage:   ConvertToJpg infile.nii out.jpg " << std::endl;
     return 1;
-  }
+    }
 
-   // Get the image dimension
-  std::string fn = std::string(argv[1]);
-   itk::ImageIOBase::Pointer imageIO =
-      itk::ImageIOFactory::CreateImageIO(
-         fn.c_str(), itk::ImageIOFactory::ReadMode);
-   imageIO->SetFileName(fn.c_str());
-   imageIO->ReadImageInformation();
+  // Get the image dimension
+  std::string               fn = std::string(argv[1]);
+  itk::ImageIOBase::Pointer imageIO =
+    itk::ImageIOFactory::CreateImageIO(
+      fn.c_str(), itk::ImageIOFactory::ReadMode);
+  imageIO->SetFileName(fn.c_str() );
+  imageIO->ReadImageInformation();
 
-   switch ( imageIO->GetNumberOfDimensions() )
-   {
-   case 2:
-     ConvertType<2>(argc,argv);
+  switch( imageIO->GetNumberOfDimensions() )
+    {
+    case 2:
+      ConvertType<2>(argc, argv);
       break;
-   case 3:
-     ConvertType<3>(argc,argv);
+    case 3:
+      ConvertType<3>(argc, argv);
       break;
-   default:
+    default:
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
-   }
+    }
 
   return 0;
 }
-
-
-
-
-

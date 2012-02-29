@@ -23,9 +23,12 @@
 
 #include "itkVariableSizeMatrix.h"
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 /** \class LogEuclideanGaussianListSampleFunction.h
  * \brief
@@ -33,14 +36,14 @@ namespace Statistics {
 
 template <class TListSample, class TOutput = double, class TCoordRep = double>
 class ITK_EXPORT LogEuclideanGaussianListSampleFunction
-: public ListSampleFunction<TListSample, TOutput, TCoordRep>
+  : public ListSampleFunction<TListSample, TOutput, TCoordRep>
 {
 public:
-  typedef LogEuclideanGaussianListSampleFunction           Self;
+  typedef LogEuclideanGaussianListSampleFunction Self;
   typedef ListSampleFunction
-    <TListSample, TOutput, TCoordRep>                      Superclass;
-  typedef SmartPointer<Self>                               Pointer;
-  typedef SmartPointer<const Self>                         ConstPointer;
+  <TListSample, TOutput, TCoordRep>                      Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro( Self );
@@ -48,14 +51,14 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro( LogEuclideanGaussianListSampleFunction, ListSampleFunction );
 
-  typedef typename Superclass::InputListSampleType          InputListSampleType;
-  typedef typename Superclass::InputMeasurementVectorType   InputMeasurementVectorType;
-  typedef typename Superclass::InputMeasurementType         InputMeasurementType;
+  typedef typename Superclass::InputListSampleType        InputListSampleType;
+  typedef typename Superclass::InputMeasurementVectorType InputMeasurementVectorType;
+  typedef typename Superclass::InputMeasurementType       InputMeasurementType;
 
   /** Other typedef */
-  typedef TOutput                                           RealType;
-  typedef TOutput                                           OutputType;
-  typedef VariableSizeMatrix<RealType>                      TensorType;
+  typedef TOutput                      RealType;
+  typedef TOutput                      OutputType;
+  typedef VariableSizeMatrix<RealType> TensorType;
 
   /** Helper functions */
 
@@ -71,16 +74,18 @@ protected:
   void GenerateData();
 
   TensorType LogTensorTransform( const TensorType & ) const;
+
   TensorType ExpTensorTransform( const TensorType & ) const;
+
   RealType CalculateTensorDistance( const TensorType &, const TensorType & ) const;
 
-  TensorType                                                m_MeanTensor;
-  RealType                                                  m_Dispersion;
-
+  TensorType m_MeanTensor;
+  RealType   m_Dispersion;
 private:
-  //purposely not implemented
-  LogEuclideanGaussianListSampleFunction( const Self& );
-  void operator=( const Self& );
+  // purposely not implemented
+  LogEuclideanGaussianListSampleFunction( const Self & );
+  void operator=( const Self & );
+
 };
 
 } // end of namespace Statistics

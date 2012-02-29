@@ -7,37 +7,42 @@
 #include "itkOtsuThresholdImageFilter.h"
 #include "itkShrinkImageFilter.h"
 
-template<class TFilter>
+template <class TFilter>
 class CommandIterationUpdate : public itk::Command
 {
 public:
-  typedef CommandIterationUpdate   Self;
-  typedef itk::Command             Superclass;
-  typedef itk::SmartPointer<Self>  Pointer;
+  typedef CommandIterationUpdate  Self;
+  typedef itk::Command            Superclass;
+  typedef itk::SmartPointer<Self> Pointer;
   itkNewMacro( Self );
 protected:
-  CommandIterationUpdate() {};
+  CommandIterationUpdate()
+  {
+  };
 public:
 
   void Execute(itk::Object *caller, const itk::EventObject & event)
-    {
+  {
     Execute( (const itk::Object *) caller, event);
-    }
+  }
 
   void Execute(const itk::Object * object, const itk::EventObject & event)
-    {
+  {
     const TFilter * filter =
-      dynamic_cast< const TFilter * >( object );
+      dynamic_cast<const TFilter *>( object );
+
     if( typeid( event ) != typeid( itk::IterationEvent ) )
-      { return; }
+      {
+      return;
+      }
 
     std::cout << "Iteration " << filter->GetElapsedIterations()
-      << " (of " << filter->GetMaximumNumberOfIterations() << ").  ";
+              << " (of " << filter->GetMaximumNumberOfIterations() << ").  ";
     std::cout << " Current convergence value = "
-      << filter->GetCurrentConvergenceMeasurement()
-      << " (threshold = " << filter->GetConvergenceThreshold()
-      << ")" << std::endl;
-    }
+              << filter->GetCurrentConvergenceMeasurement()
+              << " (threshold = " << filter->GetConvergenceThreshold()
+              << ")" << std::endl;
+  }
 
 };
 
@@ -46,12 +51,12 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
 {
   typedef float RealType;
 
-  typedef itk::Image<RealType, ImageDimension> ImageType;
+  typedef itk::Image<RealType, ImageDimension>      ImageType;
   typedef itk::Image<unsigned char, ImageDimension> MaskImageType;
 
   typedef itk::ImageFileReader<ImageType> ReaderType;
   typename ReaderType::Pointer reader = ReaderType::New();
-  if(argc < 3)
+  if( argc < 3 )
     {
     std::cerr << "missing 1st filename" << std::endl;
     throw;
@@ -77,16 +82,16 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
       maskreader->Update();
       maskImage = maskreader->GetOutput();
       }
-    catch(...)
+    catch( ... )
       {
       std::cout << "Mask file not read.  Generating mask file using otsu"
-        << " thresholding." << std::endl;
+                << " thresholding." << std::endl;
       }
     }
   if( !maskImage )
     {
     typedef itk::OtsuThresholdImageFilter<ImageType, MaskImageType>
-      ThresholderType;
+    ThresholderType;
     typename ThresholderType::Pointer otsu = ThresholderType::New();
     otsu->SetInput( reader->GetOutput() );
     otsu->SetNumberOfHistogramBins( 200 );
@@ -110,7 +115,7 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
   maskshrinker->Update();
 
   typedef itk::N3MRIBiasFieldCorrectionImageFilter<ImageType, MaskImageType,
-    ImageType> CorrecterType;
+                                                   ImageType> CorrecterType;
   typename CorrecterType::Pointer correcter = CorrecterType::New();
   correcter->SetInput( shrinker->GetOutput() );
   correcter->SetMaskImage( maskshrinker->GetOutput() );
@@ -124,7 +129,6 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
     correcter->SetNumberOfFittingLevels( atoi( argv[7] ) );
     }
 
-
   typedef CommandIterationUpdate<CorrecterType> CommandType;
   typename CommandType::Pointer observer = CommandType::New();
   correcter->AddObserver( itk::IterationEvent(), observer );
@@ -133,7 +137,7 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
     {
     correcter->Update();
     }
-  catch(...)
+  catch( ... )
     {
     std::cerr << "Exception caught." << std::endl;
     return EXIT_FAILURE;
@@ -147,8 +151,8 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
    * corrected image.
    */
   typedef itk::BSplineControlPointImageFilter<typename
-    CorrecterType::BiasFieldControlPointLatticeType, typename
-    CorrecterType::ScalarImageType> BSplinerType;
+                                              CorrecterType::BiasFieldControlPointLatticeType, typename
+                                              CorrecterType::ScalarImageType> BSplinerType;
   typename BSplinerType::Pointer bspliner = BSplinerType::New();
   bspliner->SetInput( correcter->GetLogBiasFieldControlPointLattice() );
   bspliner->SetSplineOrder( correcter->GetSplineOrder() );
@@ -171,7 +175,7 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
     bspliner->GetOutput(),
     bspliner->GetOutput()->GetLargestPossibleRegion() );
   itk::ImageRegionIterator<ImageType> ItF( logField,
-    logField->GetLargestPossibleRegion() );
+                                           logField->GetLargestPossibleRegion() );
   for( ItB.GoToBegin(), ItF.GoToBegin(); !ItB.IsAtEnd(); ++ItB, ++ItF )
     {
     ItF.Set( ItB.Get()[0] );
@@ -190,7 +194,7 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
 
   typedef itk::ImageFileWriter<ImageType> WriterType;
   typename WriterType::Pointer writer = WriterType::New();
-  if(argc < 4)
+  if( argc < 4 )
     {
     std::cerr << "missing divider image filename" << std::endl;
     throw;
@@ -212,25 +216,24 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
 
 int main( int argc, char *argv[] )
 {
-  if ( argc < 4 )
+  if( argc < 4 )
     {
     std::cerr << "Usage: " << argv[0] << " imageDimension inputImage "
-     << "outputImage [shrinkFactor] [maskImage] [numberOfIterations] "
-     << "[numberOfFittingLevels] [outputBiasField] " << std::endl;
+              << "outputImage [shrinkFactor] [maskImage] [numberOfIterations] "
+              << "[numberOfFittingLevels] [outputBiasField] " << std::endl;
     exit( EXIT_FAILURE );
     }
 
   switch( atoi( argv[1] ) )
-   {
-   case 2:
-     N3BiasFieldCorrection<2>( argc, argv );
-     break;
-   case 3:
-     N3BiasFieldCorrection<3>( argc, argv );
-     break;
-   default:
+    {
+    case 2:
+      N3BiasFieldCorrection<2>( argc, argv );
+      break;
+    case 3:
+      N3BiasFieldCorrection<3>( argc, argv );
+      break;
+    default:
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
-   }
+    }
 }
-

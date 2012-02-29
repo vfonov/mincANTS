@@ -104,16 +104,16 @@ namespace itk
  */
 template <
   class TLevelSet,
-  class TSpeedImage = Image<float,::itk::GetImageDimension<TLevelSet>::ImageDimension> >
+  class TSpeedImage = Image<float, ::itk::GetImageDimension<TLevelSet>::ImageDimension> >
 class ITK_EXPORT FastMarchingImageFilter :
-    public ImageToImageFilter<TSpeedImage,TLevelSet>
+  public ImageToImageFilter<TSpeedImage, TLevelSet>
 {
 public:
   /** Standard class typdedefs. */
-  typedef FastMarchingImageFilter   Self;
-  typedef ImageSource<TLevelSet>    Superclass;
-  typedef SmartPointer<Self>        Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef FastMarchingImageFilter  Self;
+  typedef ImageSource<TLevelSet>   Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -136,22 +136,30 @@ public:
   typedef typename LevelSetImageType::PointType       OutputPointType;
 
   class AxisNodeType : public NodeType
+  {
+public:
+    int GetAxis() const
     {
-    public:
-      int GetAxis() const { return m_Axis; }
-      void SetAxis( int axis ) { m_Axis = axis; }
-      const AxisNodeType & operator=(const NodeType & node)
-      { this->NodeType::operator=(node); return *this; }
-    private:
-      int m_Axis;
+      return m_Axis;
+    }
+    void SetAxis( int axis )
+    {
+      m_Axis = axis;
+    }
+    const AxisNodeType & operator=(const NodeType & node)
+    {
+      this->NodeType::operator=(node); return *this;
+    }
+private:
+    int m_Axis;
   };
 
   /** SpeedImage typedef support. */
   typedef TSpeedImage SpeedImageType;
 
   /** SpeedImagePointer typedef support. */
-  typedef typename SpeedImageType::Pointer        SpeedImagePointer;
-  typedef typename SpeedImageType::ConstPointer   SpeedImageConstPointer;
+  typedef typename SpeedImageType::Pointer      SpeedImagePointer;
+  typedef typename SpeedImageType::ConstPointer SpeedImageConstPointer;
 
   /** Dimension of the level set and the speed image. */
   itkStaticConstMacro(SetDimension, unsigned int,
@@ -169,11 +177,11 @@ public:
    * would have violated topology checks.
    */
   enum LabelType { FarPoint, AlivePoint, TrialPoint, InitialTrialPoint,
-    TopologyPoint };
+                   TopologyPoint };
 
   /** LabelImage typedef support. */
   typedef Image<unsigned char, itkGetStaticConstMacro( SetDimension )>
-    LabelImageType;
+  LabelImageType;
   typedef NeighborhoodIterator<LabelImageType> NeighborhoodIteratorType;
 
   /** LabelImagePointer typedef support. */
@@ -181,61 +189,61 @@ public:
 
   /** ConnectedComponentImage typedef support. */
   typedef Image<unsigned int, itkGetStaticConstMacro( SetDimension )>
-    ConnectedComponentImageType;
+  ConnectedComponentImageType;
 
   /** ConnectedComponentImagePointer typedef support. */
   typedef typename ConnectedComponentImageType::Pointer
-    ConnectedComponentImagePointer;
+  ConnectedComponentImagePointer;
 
   /** Set the container of Alive Points representing the initial front.
    * Alive points are represented as a VectorContainer of LevelSetNodes. */
   void SetAlivePoints( NodeContainer * points )
-    {
+  {
     m_AlivePoints = points;
     this->Modified();
-    }
+  }
 
   /** Get the container of Alive Points representing the initial front. */
-  NodeContainerPointer GetAlivePoints( )
-    {
+  NodeContainerPointer GetAlivePoints()
+  {
     return m_AlivePoints;
-    }
+  }
 
   /** Set the container of Trial Points representing the initial front.
    * Trial points are represented as a VectorContainer of LevelSetNodes. */
   void SetTrialPoints( NodeContainer * points )
-    {
+  {
     m_TrialPoints = points;
     this->Modified();
-    }
+  }
 
   /** Get the container of Trial Points representing the initial front. */
-  NodeContainerPointer GetTrialPoints( )
-    {
+  NodeContainerPointer GetTrialPoints()
+  {
     return m_TrialPoints;
-    }
+  }
 
   /** Get the point type label image. */
   LabelImagePointer GetLabelImage() const
-    {
+  {
     return m_LabelImage;
-    }
+  }
 
   /** Get the point type label image. */
   ConnectedComponentImagePointer GetConnectedComponentImage() const
-    {
+  {
     return m_ConnectedComponentImage;
-    }
+  }
 
   /** Set the Speed Constant. If the Speed Image is NULL,
    * the SpeedConstant value is used for the whole level set.
    * By default, the SpeedConstant is set to 1.0. */
   void SetSpeedConstant( double value )
-    {
+  {
     m_SpeedConstant = value;
     m_InverseSpeed = -1.0 * vnl_math_sqr( 1.0 / m_SpeedConstant );
     this->Modified();
-    }
+  }
 
   /** Get the Speed Constant. */
   itkGetConstReferenceMacro( SpeedConstant, double );
@@ -276,9 +284,9 @@ public:
    * This is useful for defining creating Narrowbands for level
    * set algorithms that supports narrow banding. */
   NodeContainerPointer GetProcessedPoints() const
-    {
+  {
     return m_ProcessedPoints;
-    }
+  }
 
   /** The output largeset possible, spacing and origin is computed as follows.
    * If the speed image is NULL or if the OverrideOutputInformation is true,
@@ -287,9 +295,13 @@ public:
    * and SetOutputOrigin(). Else if the speed image is not NULL, the output information
    * is copied from the input speed image. */
   virtual void SetOutputSize( const OutputSizeType& size )
-  { m_OutputRegion = size; }
+  {
+    m_OutputRegion = size;
+  }
   virtual OutputSizeType GetOutputSize() const
-  { return m_OutputRegion.GetSize(); }
+  {
+    return m_OutputRegion.GetSize();
+  }
   itkSetMacro( OutputRegion, OutputRegionType );
   itkGetConstReferenceMacro( OutputRegion, OutputRegionType );
   itkSetMacro( OutputSpacing, OutputSpacingType );
@@ -305,35 +317,38 @@ public:
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
   itkConceptMacro(SameDimensionCheck,
-    (Concept::SameDimension<SetDimension, SpeedImageDimension>));
+                  (Concept::SameDimension<SetDimension, SpeedImageDimension> ) );
   itkConceptMacro(SpeedConvertibleToDoubleCheck,
-    (Concept::Convertible<typename TSpeedImage::PixelType, double>));
+                  (Concept::Convertible<typename TSpeedImage::PixelType, double> ) );
   itkConceptMacro(DoubleConvertibleToLevelSetCheck,
-    (Concept::Convertible<double, PixelType>));
+                  (Concept::Convertible<double, PixelType> ) );
   itkConceptMacro(LevelSetOStreamWritableCheck,
-    (Concept::OStreamWritable<PixelType>));
+                  (Concept::OStreamWritable<PixelType> ) );
   /** End concept checking */
 #endif
-
 protected:
   FastMarchingImageFilter();
-  ~FastMarchingImageFilter(){};
+  ~FastMarchingImageFilter()
+  {
+  };
   void PrintSelf( std::ostream& os, Indent indent ) const;
 
   virtual void Initialize( LevelSetImageType * );
-  virtual void UpdateNeighbors( const IndexType& index,
-                                const SpeedImageType *, LevelSetImageType * );
-  virtual double UpdateValue( const IndexType& index,
-                              const SpeedImageType *, LevelSetImageType * );
 
+  virtual void UpdateNeighbors( const IndexType& index, const SpeedImageType *, LevelSetImageType * );
 
-  const AxisNodeType& GetNodeUsedInCalculation(unsigned int idx) const
-  { return m_NodesUsed[idx]; }
+  virtual double UpdateValue( const IndexType& index, const SpeedImageType *, LevelSetImageType * );
+
+  const AxisNodeType & GetNodeUsedInCalculation(unsigned int idx) const
+  {
+    return m_NodesUsed[idx];
+  }
 
   void GenerateData();
 
   /** Generate the output image meta information. */
   virtual void GenerateOutputInformation();
+
   virtual void EnlargeOutputRequestedRegion(DataObject *output);
 
   /** Get Large Value. This value is used to
@@ -342,79 +357,85 @@ protected:
       max() of the pixel type used to represent the time-crossing map. */
   itkGetConstReferenceMacro( LargeValue, PixelType );
 
-  OutputRegionType                              m_BufferedRegion;
+  OutputRegionType m_BufferedRegion;
   typedef typename LevelSetImageType::IndexType LevelSetIndexType;
-  LevelSetIndexType                             m_StartIndex;
-  LevelSetIndexType                             m_LastIndex;
+  LevelSetIndexType m_StartIndex;
+  LevelSetIndexType m_LastIndex;
 
   itkGetConstReferenceMacro( StartIndex, LevelSetIndexType );
   itkGetConstReferenceMacro( LastIndex, LevelSetIndexType );
-
 private:
-  FastMarchingImageFilter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  FastMarchingImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);          // purposely not implemented
 
-  NodeContainerPointer                          m_AlivePoints;
-  NodeContainerPointer                          m_TrialPoints;
+  NodeContainerPointer m_AlivePoints;
+  NodeContainerPointer m_TrialPoints;
 
-  LabelImagePointer                             m_LabelImage;
-  ConnectedComponentImagePointer                m_ConnectedComponentImage;
+  LabelImagePointer              m_LabelImage;
+  ConnectedComponentImagePointer m_ConnectedComponentImage;
 
-  double                                        m_SpeedConstant;
-  double                                        m_InverseSpeed;
-  double                                        m_StoppingValue;
+  double m_SpeedConstant;
+  double m_InverseSpeed;
+  double m_StoppingValue;
 
-  bool                                          m_CollectPoints;
-  NodeContainerPointer                          m_ProcessedPoints;
+  bool                 m_CollectPoints;
+  NodeContainerPointer m_ProcessedPoints;
 
-  OutputRegionType                              m_OutputRegion;
-  OutputPointType                               m_OutputOrigin;
-  OutputSpacingType                             m_OutputSpacing;
-  OutputDirectionType                           m_OutputDirection;
-  bool                                          m_OverrideOutputInformation;
-
+  OutputRegionType    m_OutputRegion;
+  OutputPointType     m_OutputOrigin;
+  OutputSpacingType   m_OutputSpacing;
+  OutputDirectionType m_OutputDirection;
+  bool                m_OverrideOutputInformation;
 
   typename LevelSetImageType::PixelType         m_LargeValue;
-  AxisNodeType                                  m_NodesUsed[SetDimension];
+  AxisNodeType m_NodesUsed[SetDimension];
 
   /** Trial points are stored in a min-heap. This allow efficient access
    * to the trial point with minimum value which is the next grid point
    * the algorithm processes. */
   typedef std::vector<AxisNodeType>  HeapContainer;
   typedef std::greater<AxisNodeType> NodeComparer;
-  typedef std::priority_queue< AxisNodeType, HeapContainer, NodeComparer >
-                                     HeapType;
+  typedef std::priority_queue<AxisNodeType, HeapContainer, NodeComparer>
+  HeapType;
 
-  HeapType    m_TrialHeap;
+  HeapType m_TrialHeap;
 
-  double    m_NormalizationFactor;
+  double m_NormalizationFactor;
 
   /**
    * Functions and variables to check for topology changes (2D/3D only).
    */
-  TopologyCheckType                             m_TopologyCheck;
+  TopologyCheckType m_TopologyCheck;
 
   // Functions/data for the 2-D case
   void InitializeIndices2D();
+
   bool IsChangeWellComposed2D( IndexType );
   bool IsCriticalC1Configuration2D( Array<short> );
+
   bool IsCriticalC2Configuration2D( Array<short> );
+
   bool IsCriticalC3Configuration2D( Array<short> );
+
   bool IsCriticalC4Configuration2D( Array<short> );
+
   bool IsSpecialCaseOfC4Configuration2D(
     PixelType, IndexType, IndexType, IndexType );
 
-  Array<unsigned int>                        m_RotationIndices[4];
-  Array<unsigned int>                        m_ReflectionIndices[2];
+  Array<unsigned int> m_RotationIndices[4];
+  Array<unsigned int> m_ReflectionIndices[2];
 
   // Functions/data for the 3-D case
   void InitializeIndices3D();
+
   bool IsCriticalC1Configuration3D( Array<short> );
+
   unsigned int IsCriticalC2Configuration3D( Array<short> );
+
   bool IsChangeWellComposed3D( IndexType );
 
-  Array<unsigned int>                        m_C1Indices[12];
-  Array<unsigned int>                        m_C2Indices[8];
+  Array<unsigned int> m_C1Indices[12];
+  Array<unsigned int> m_C2Indices[8];
 
   // Functions for both 2D/3D cases
   bool DoesVoxelChangeViolateWellComposedness( IndexType );
@@ -423,7 +444,6 @@ private:
 };
 
 } // namespace itk
-
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "itkFastMarchingImageFilter.hxx"

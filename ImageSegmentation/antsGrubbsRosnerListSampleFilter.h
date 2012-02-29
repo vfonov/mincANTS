@@ -23,9 +23,12 @@
 
 #include <vector>
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 /** \class GrubbsRosnerListSampleFilter
  * \brief Base class of filters intended to generate scalar samples from
@@ -33,25 +36,25 @@ namespace Statistics {
  *
  */
 
-template<class TScalarListSample>
+template <class TScalarListSample>
 class ITK_EXPORT GrubbsRosnerListSampleFilter
-: public ListSampleToListSampleFilter<TScalarListSample, TScalarListSample>
+  : public ListSampleToListSampleFilter<TScalarListSample, TScalarListSample>
 {
 public:
   /**
    * Standard class typedefs.
    */
-  typedef GrubbsRosnerListSampleFilter                        Self;
+  typedef GrubbsRosnerListSampleFilter Self;
   typedef ListSampleToListSampleFilter
-    <TScalarListSample, TScalarListSample>                    Superclass;
-  typedef SmartPointer<Self>                                  Pointer;
-  typedef SmartPointer<const Self>                            ConstPointer;
+  <TScalarListSample, TScalarListSample>                    Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /**
    * Standard macros
    */
   itkTypeMacro( GrubbsRosnerListSampleFilter,
-    ListSampleToScalarListSampleFilter );
+                ListSampleToScalarListSampleFilter );
 
   /**
    * Method for creation through the object factory.
@@ -61,13 +64,13 @@ public:
   /**
    * Conveneient typedefs
    */
-  typedef double                                      RealType;
-  typedef TScalarListSample                           ScalarListSampleType;
+  typedef double            RealType;
+  typedef TScalarListSample ScalarListSampleType;
   typedef typename ScalarListSampleType
-    ::MeasurementVectorType                           MeasurementVectorType;
+  ::MeasurementVectorType                           MeasurementVectorType;
   typedef typename ScalarListSampleType
-    ::InstanceIdentifier                              InstanceIdentifierType;
-  typedef std::vector<InstanceIdentifierType>         InstanceIdentifierContainerType;
+  ::InstanceIdentifier                              InstanceIdentifierType;
+  typedef std::vector<InstanceIdentifierType> InstanceIdentifierContainerType;
 
   enum OutlierHandlingType { None, Trim, Winsorize };
 
@@ -81,12 +84,11 @@ public:
   itkGetConstMacro( SignificanceLevel, RealType );
 
   InstanceIdentifierContainerType GetOutlierInstanceIdentifiers()
-    {
+  {
     return this->m_OutlierInstanceIdentifiers;
-    }
+  }
 
 //   itkGetConstMacro( Outliers, InstanceIdentifierContainerType );
-
 protected:
   GrubbsRosnerListSampleFilter();
   virtual ~GrubbsRosnerListSampleFilter();
@@ -96,19 +98,18 @@ protected:
   virtual void GenerateData();
 
 private:
-  GrubbsRosnerListSampleFilter( const Self& ); //purposely not implemented
-  void operator=( const Self& ); //purposely not implemented
+  GrubbsRosnerListSampleFilter( const Self & ); // purposely not implemented
+  void operator=( const Self & );               // purposely not implemented
 
   InstanceIdentifierType FindMaximumNonOutlierDeviationValue( RealType, RealType );
-  bool IsMeasurementAnOutlier( RealType, RealType, RealType, unsigned long );
+  bool                   IsMeasurementAnOutlier( RealType, RealType, RealType, unsigned long );
 
-  OutlierHandlingType                                 m_OutlierHandling;
-  RealType                                            m_WinsorizingLevel;
-  InstanceIdentifierContainerType                     m_OutlierInstanceIdentifiers;
-  RealType                                            m_SignificanceLevel;
+  OutlierHandlingType             m_OutlierHandling;
+  RealType                        m_WinsorizingLevel;
+  InstanceIdentifierContainerType m_OutlierInstanceIdentifiers;
+  RealType                        m_SignificanceLevel;
 
-
-}; // end of class
+};    // end of class
 
 } // end of namespace Statistics
 } // end of namespace ants

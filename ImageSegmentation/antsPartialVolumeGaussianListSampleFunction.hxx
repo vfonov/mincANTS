@@ -24,9 +24,12 @@
 #include "itkMeanSampleFilter.h"
 #include "itkWeightedMeanSampleFilter.h"
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 template <class TListSample, class TOutput, class TCoordRep>
 PartialVolumeGaussianListSampleFunction<TListSample, TOutput, TCoordRep>
@@ -78,7 +81,7 @@ template <class TListSample, class TOutput, class TCoordRep>
 void
 PartialVolumeGaussianListSampleFunction<TListSample, TOutput, TCoordRep>
 ::CalculateGaussianParametersFromListSample( const InputListSampleType *listSample,
-  const ListSampleWeightArrayType *weights, MeanType &mean )
+                                             const ListSampleWeightArrayType *weights, MeanType & mean )
 {
   if( !listSample )
     {
@@ -90,7 +93,7 @@ PartialVolumeGaussianListSampleFunction<TListSample, TOutput, TCoordRep>
     if( weights->Size() == listSample->Size() )
       {
       typedef typename itk::Statistics::
-        WeightedMeanSampleFilter<InputListSampleType> MeanCalculatorType;
+      WeightedMeanSampleFilter<InputListSampleType> MeanCalculatorType;
       typename MeanCalculatorType::Pointer meanCalculator =
         MeanCalculatorType::New();
 
@@ -99,7 +102,7 @@ PartialVolumeGaussianListSampleFunction<TListSample, TOutput, TCoordRep>
       meanCalculator->Update();
 
       NumericTraits<MeanType>::SetLength( mean,
-        listSample->GetMeasurementVectorSize() );
+                                          listSample->GetMeasurementVectorSize() );
       for( unsigned int d = 0; d < listSample->GetMeasurementVectorSize(); d++ )
         {
         mean[d] = meanCalculator->GetMean()[d];
@@ -108,14 +111,14 @@ PartialVolumeGaussianListSampleFunction<TListSample, TOutput, TCoordRep>
     else
       {
       typedef itk::Statistics::MeanSampleFilter<InputListSampleType>
-        MeanCalculatorType;
+      MeanCalculatorType;
       typename MeanCalculatorType::Pointer meanCalculator =
         MeanCalculatorType::New();
       meanCalculator->SetInput( listSample );
       meanCalculator->Update();
 
       NumericTraits<MeanType>::SetLength( mean,
-        listSample->GetMeasurementVectorSize() );
+                                          listSample->GetMeasurementVectorSize() );
       for( unsigned int d = 0; d < listSample->GetMeasurementVectorSize(); d++ )
         {
         mean[d] = meanCalculator->GetMean()[d];
@@ -144,13 +147,12 @@ PartialVolumeGaussianListSampleFunction<TListSample, TOutput, TCoordRep>
   CovarianceType covariance;
   covariance.SetSize( mean.Size(), mean.Size() );
   covariance.SetIdentity();
-
   for( unsigned int d = 0; d < mean.Size(); d++ )
     {
     mean[d] = 0.5 * ( this->m_Mean[0][d] + this->m_Mean[1][d] );
-    covariance( d, d ) = 1.0 / 12.0 * vnl_math_sqr( this->m_Mean[0][d] ) +
-      - 1.0 / 6.0 * this->m_Mean[0][d] * this->m_Mean[1][d] +
-      1.0 / 12.0 * vnl_math_sqr( this->m_Mean[1][d] );
+    covariance( d, d ) = 1.0 / 12.0 * vnl_math_sqr( this->m_Mean[0][d] )
+      + -1.0 / 6.0 * this->m_Mean[0][d] * this->m_Mean[1][d]
+      + 1.0 / 12.0 * vnl_math_sqr( this->m_Mean[1][d] );
     }
 
   this->m_Gaussian->SetMean( mean );
@@ -160,7 +162,7 @@ PartialVolumeGaussianListSampleFunction<TListSample, TOutput, TCoordRep>
 template <class TListSample, class TOutput, class TCoordRep>
 TOutput
 PartialVolumeGaussianListSampleFunction<TListSample, TOutput, TCoordRep>
-::Evaluate( const InputMeasurementVectorType &measurement ) const
+::Evaluate( const InputMeasurementVectorType & measurement ) const
 {
   if( this->m_IsCalculated[0] && this->m_IsCalculated[1] )
     {
@@ -168,7 +170,7 @@ PartialVolumeGaussianListSampleFunction<TListSample, TOutput, TCoordRep>
       {
       return this->m_Gaussian->Evaluate( measurement );
       }
-    catch(...)
+    catch( ... )
       {
       return 0.0;
       }

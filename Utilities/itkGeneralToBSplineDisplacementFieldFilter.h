@@ -28,17 +28,17 @@ namespace itk
 
 template <class TInputImage, class TOutputImage = TInputImage>
 class GeneralToBSplineDisplacementFieldFilter :
-    public ImageToImageFilter<TInputImage, TOutputImage>
+  public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
   /** Standard class typedefs. */
-  typedef GeneralToBSplineDisplacementFieldFilter   Self;
+  typedef GeneralToBSplineDisplacementFieldFilter Self;
   typedef ImageToImageFilter<
-                       TInputImage,
-                       TOutputImage>           Superclass;
+    TInputImage,
+    TOutputImage>           Superclass;
 
-  typedef SmartPointer<Self>                   Pointer;
-  typedef SmartPointer<const Self>             ConstPointer;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro( Self );
@@ -48,22 +48,22 @@ public:
                        TInputImage::ImageDimension );
 
   /** Convenient typedefs for simplifying declarations. */
-  typedef TInputImage    InputImageType;
-  typedef TOutputImage   OutputImageType;
+  typedef TInputImage  InputImageType;
+  typedef TOutputImage OutputImageType;
 
-  typedef typename InputImageType::PixelType    InputPixelType;
-  typedef typename OutputImageType::PixelType   OutputPixelType;
+  typedef typename InputImageType::PixelType  InputPixelType;
+  typedef typename OutputImageType::PixelType OutputPixelType;
 
-  typedef typename InputPixelType::ValueType    InputPixelComponentType;
+  typedef typename InputPixelType::ValueType InputPixelComponentType;
 
-  typedef InputPixelType                        VectorType;
-  typedef InputPixelComponentType               RealType;
-  typedef Image<RealType, ImageDimension>       RealImageType;
+  typedef InputPixelType                  VectorType;
+  typedef InputPixelComponentType         RealType;
+  typedef Image<RealType, ImageDimension> RealImageType;
 
   typedef PointSet<InputPixelType,
-    itkGetStaticConstMacro( ImageDimension )>   PointSetType;
+                   itkGetStaticConstMacro( ImageDimension )>   PointSetType;
   typedef BSplineScatteredDataPointSetToImageFilter
-    <PointSetType, OutputImageType>             BSplineFilterType;
+  <PointSetType, OutputImageType>             BSplineFilterType;
   typedef typename BSplineFilterType::ArrayType ArrayType;
 
 //  itkSetMacro( ConfidenceImage, RealImageType );
@@ -80,7 +80,6 @@ public:
 
   itkSetMacro( IgnorePixelValue, InputPixelType );
   itkGetConstMacro( IgnorePixelValue, InputPixelType );
-
 protected:
 
   GeneralToBSplineDisplacementFieldFilter();
@@ -93,10 +92,10 @@ protected:
 private:
 //   typename RealImageType::Pointer              m_ConfidenceImage;
 
-   InputPixelType                               m_IgnorePixelValue;
-   unsigned int                                 m_NumberOfLevels;
-   unsigned int                                 m_SplineOrder;
-   ArrayType                                    m_NumberOfControlPoints;
+  InputPixelType m_IgnorePixelValue;
+  unsigned int   m_NumberOfLevels;
+  unsigned int   m_SplineOrder;
+  ArrayType      m_NumberOfControlPoints;
 };
 
 } // end namespace itk

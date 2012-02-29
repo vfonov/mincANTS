@@ -23,9 +23,12 @@
 
 #include "itkGaussianMembershipFunction.h"
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 /** \class GaussianListSampleFunction.h
  * \brief point set filter.
@@ -33,14 +36,14 @@ namespace Statistics {
 
 template <class TListSample, class TOutput = double, class TCoordRep = double>
 class ITK_EXPORT GaussianListSampleFunction
-: public ListSampleFunction<TListSample, TOutput, TCoordRep>
+  : public ListSampleFunction<TListSample, TOutput, TCoordRep>
 {
 public:
-  typedef GaussianListSampleFunction                       Self;
+  typedef GaussianListSampleFunction Self;
   typedef ListSampleFunction
-    <TListSample, TOutput, TCoordRep>                      Superclass;
-  typedef SmartPointer<Self>                               Pointer;
-  typedef SmartPointer<const Self>                         ConstPointer;
+  <TListSample, TOutput, TCoordRep>                      Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro( Self );
@@ -48,23 +51,22 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro( GaussianListSampleFunction, ListSampleFunction );
 
-  typedef typename Superclass::InputListSampleType          InputListSampleType;
-  typedef typename Superclass::InputMeasurementVectorType   InputMeasurementVectorType;
-  typedef typename Superclass::InputMeasurementType         InputMeasurementType;
+  typedef typename Superclass::InputListSampleType        InputListSampleType;
+  typedef typename Superclass::InputMeasurementVectorType InputMeasurementVectorType;
+  typedef typename Superclass::InputMeasurementType       InputMeasurementType;
 
   /** List sample typedef support. */
-  typedef TListSample                                       ListSampleType;
+  typedef TListSample ListSampleType;
 
-  typedef typename Superclass::ListSampleWeightArrayType    ListSampleWeightArrayType;
-
+  typedef typename Superclass::ListSampleWeightArrayType ListSampleWeightArrayType;
 
   /** Gaussian typedefs */
   typedef typename itk::Statistics::GaussianMembershipFunction
-    <InputMeasurementVectorType>                          GaussianType;
+  <InputMeasurementVectorType>                          GaussianType;
 
   /** Other typedef */
-  typedef TOutput                                  RealType;
-  typedef TOutput                                  OutputType;
+  typedef TOutput RealType;
+  typedef TOutput OutputType;
 
   /** Helper functions */
 
@@ -80,9 +82,9 @@ protected:
   void GenerateData();
 
 private:
-  //purposely not implemented
-  GaussianListSampleFunction( const Self& );
-  void operator=( const Self& );
+  // purposely not implemented
+  GaussianListSampleFunction( const Self & );
+  void operator=( const Self & );
 
   typename GaussianType::Pointer                                  m_Gaussian;
 };

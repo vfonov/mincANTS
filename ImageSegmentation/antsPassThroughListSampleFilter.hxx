@@ -21,11 +21,14 @@
 
 #include "antsPassThroughListSampleFilter.h"
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
-template<class TListSample>
+template <class TListSample>
 PassThroughListSampleFilter<TListSample>
 ::PassThroughListSampleFilter()
 {
@@ -34,13 +37,13 @@ PassThroughListSampleFilter<TListSample>
     this->GetInput()->GetMeasurementVectorSize() );
 }
 
-template<class TListSample>
+template <class TListSample>
 PassThroughListSampleFilter<TListSample>
 ::~PassThroughListSampleFilter()
 {
 }
 
-template<class TListSample>
+template <class TListSample>
 void
 PassThroughListSampleFilter<TListSample>
 ::GenerateData()
@@ -56,7 +59,7 @@ PassThroughListSampleFilter<TListSample>
     }
 }
 
-template<class TListSample>
+template <class TListSample>
 void
 PassThroughListSampleFilter<TListSample>
 ::PrintSelf( std::ostream& os, Indent indent ) const
@@ -64,10 +67,8 @@ PassThroughListSampleFilter<TListSample>
   this->Superclass::PrintSelf( os, indent );
 }
 
-
 } // end of namespace Statistics
 } // end of namespace ants
 } // end of namespace itk
-
 
 #endif

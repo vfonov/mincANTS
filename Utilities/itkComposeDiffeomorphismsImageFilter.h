@@ -49,16 +49,16 @@ public:
 
   /** Extract dimension from input image. */
   itkStaticConstMacro( ImageDimension, unsigned int,
-    TInputImage::ImageDimension );
+                       TInputImage::ImageDimension );
 
-  typedef TInputImage                          InputFieldType;
-  typedef TOutputImage                         OutputFieldType;
+  typedef TInputImage  InputFieldType;
+  typedef TOutputImage OutputFieldType;
 
   /** Image typedef support. */
-  typedef typename OutputFieldType::PixelType     PixelType;
-  typedef typename OutputFieldType::PixelType     VectorType;
-  typedef typename OutputFieldType::RegionType    RegionType;
-  typedef typename OutputFieldType::IndexType     IndexType;
+  typedef typename OutputFieldType::PixelType  PixelType;
+  typedef typename OutputFieldType::PixelType  VectorType;
+  typedef typename OutputFieldType::RegionType RegionType;
+  typedef typename OutputFieldType::IndexType  IndexType;
 
   typedef typename OutputFieldType::PointType     PointType;
   typedef typename OutputFieldType::SpacingType   SpacingType;
@@ -67,53 +67,53 @@ public:
   typedef typename OutputFieldType::DirectionType DirectionType;
 
   /** Other typedef */
-  typedef typename VectorType::ComponentType      RealType;
+  typedef typename VectorType::ComponentType RealType;
   typedef VectorInterpolateImageFunction
-    <InputFieldType, RealType>                    InterpolatorType;
+  <InputFieldType, RealType>                    InterpolatorType;
 
   /** Get the interpolator. */
   itkGetObjectMacro( Interpolator, InterpolatorType );
 
   /** Set the deformation field */
   void SetDisplacementField( const InputFieldType *field )
-    {
+  {
     itkDebugMacro( "setting deformation field to " << field );
-    if ( field != this->GetInput( 0 ) )
+    if( field != this->GetInput( 0 ) )
       {
       this->SetInput( 0, field );
       this->Modified();
-      if( ! this->m_Interpolator.IsNull() )
+      if( !this->m_Interpolator.IsNull() )
         {
         this->m_Interpolator->SetInputImage( field );
         }
       }
-    }
+  }
 
   /**
    * Get the deformation field.
    */
-  const InputFieldType* GetDisplacementField() const
-    {
+  const InputFieldType * GetDisplacementField() const
+  {
     return this->GetInput( 0 );
-    }
+  }
 
   /** Set the warping field */
   void SetWarpingField( const InputFieldType *field )
-    {
+  {
     itkDebugMacro( "setting warping field to " << field );
-    if ( field != this->GetInput( 1 ) )
+    if( field != this->GetInput( 1 ) )
       {
       this->SetInput( 1, field );
       }
-    }
+  }
 
   /**
    * Get the warping field.
    */
-  const InputFieldType* GetWarpingField() const
-    {
+  const InputFieldType * GetWarpingField() const
+  {
     return this->GetInput( 1 );
-    }
+  }
 
   /* Set the interpolator. */
   virtual void SetInterpolator( InterpolatorType* interpolator );
@@ -134,10 +134,9 @@ protected:
 
   /** Multithreaded function which generates the output field. */
   void ThreadedGenerateData( const RegionType &, ThreadIdType );
-
 private:
-  ComposeDiffeomorphismsImageFilter( const Self& ); //purposely not implemented
-  void operator=( const Self& );                 //purposely not implemented
+  ComposeDiffeomorphismsImageFilter( const Self & ); // purposely not implemented
+  void operator=( const Self & );                    // purposely not implemented
 
   /** The interpolator. */
   typename InterpolatorType::Pointer             m_Interpolator;

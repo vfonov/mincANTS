@@ -15,7 +15,6 @@
 
 =========================================================================*/
 
-
 #include <string>
 
 #include <math.h>
@@ -45,14 +44,13 @@
 #include "itkRescaleIntensityImageFilter.h"
 
 #include "itkSurfaceImageCurvature.h"
-//#include "../BSpline/itkBSplineScatteredDataPointSetToImageFilter.h"
+// #include "../BSpline/itkBSplineScatteredDataPointSetToImageFilter.h"
 #include "itkImageRegionConstIterator.h"
 #include "itkImageRegionConstIteratorWithIndex.h"
 #include "itkImageRegionIterator.h"
 #include "itkPointSet.h"
 #include <vtkSmartPointer.h>
 #include <vtkWindowedSincPolyDataFilter.h>
-
 
 /*
 
@@ -72,50 +70,54 @@ OPEN QUESTIONS:
 
   */
 
-
 template <class TImage>
 typename TImage::Pointer BinaryThreshold(
   typename TImage::PixelType bkg,
-   typename TImage::PixelType foreground,
-   typename TImage::PixelType replaceval, typename TImage::Pointer input)
+  typename TImage::PixelType foreground,
+  typename TImage::PixelType replaceval, typename TImage::Pointer input)
 {
 
   typedef typename TImage::PixelType PixelType;
   // Begin Threshold Image
-  typedef itk::BinaryThresholdImageFilter<TImage,TImage>
-    InputThresholderType;
+  typedef itk::BinaryThresholdImageFilter<TImage, TImage>
+  InputThresholderType;
   typename InputThresholderType::Pointer inputThresholder =
     InputThresholderType::New();
 
   inputThresholder->SetInput( input );
   inputThresholder->SetInsideValue(  replaceval );
-  int outval=0;
-  if ((float) replaceval == (float) -1) outval=1;
+  int outval = 0;
+  if( (float) replaceval == (float) -1 )
+    {
+    outval = 1;
+    }
   inputThresholder->SetOutsideValue( outval );
 
-  float low=bkg;
-  float high=foreground;
-  if (high < low) high=255;
-  inputThresholder->SetLowerThreshold((PixelType) low );
-  inputThresholder->SetUpperThreshold((PixelType) high);
+  float low = bkg;
+  float high = foreground;
+  if( high < low )
+    {
+    high = 255;
+    }
+  inputThresholder->SetLowerThreshold( (PixelType) low );
+  inputThresholder->SetUpperThreshold( (PixelType) high);
   inputThresholder->Update();
 
   return inputThresholder->GetOutput();
 }
 
-
-
-
-
-void Display(vtkUnstructuredGrid* vtkgrid, bool secondwin=false, bool delinter=true)
+void Display(vtkUnstructuredGrid* vtkgrid, bool secondwin = false, bool delinter = true)
 {
 // Create the renderer and window stuff
-    std::cout <<" second win " << secondwin << std::endl;
-  vtkRenderer* ren1 = vtkRenderer::New();
-  vtkRenderer* ren2 = vtkRenderer::New();
+  std::cout << " second win " << secondwin << std::endl;
+  vtkRenderer*     ren1 = vtkRenderer::New();
+  vtkRenderer*     ren2 = vtkRenderer::New();
   vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->AddRenderer(ren1);
-  if (secondwin) renWin->AddRenderer(ren2);
+  if( secondwin )
+    {
+    renWin->AddRenderer(ren2);
+    }
   vtkRenderWindowInteractor* inter = vtkRenderWindowInteractor::New();
   inter->SetRenderWindow(renWin);
 
@@ -133,24 +135,40 @@ void vtkCompositeManagerExitInteractor(vtkObject *vtkNotUsed(o),
 }*/
 
 //  cbc=vectraEventHandler; //-> SetCallback(vectraEventHandler);
-  ren1 -> AddObserver(vtkCommand::KeyPressEvent, cbc);
+  ren1->AddObserver(vtkCommand::KeyPressEvent, cbc);
 
   vtkDataSetMapper* mapper = vtkDataSetMapper::New();
   mapper->SetInput(vtkgrid);
-  mapper->SetScalarRange(0,255);
+  mapper->SetScalarRange(0, 255);
   vtkActor* actor = vtkActor::New();
   actor->SetMapper(mapper);
   vtkDataSetMapper* mapper2 = vtkDataSetMapper::New();
-  if (secondwin) mapper2->SetInput(vtkgrid);
-  if (secondwin) mapper2->SetScalarRange(0,255);
-  vtkActor* actor2 = vtkActor::New();
-  if (secondwin) actor2->SetMapper(mapper2);
-  if (secondwin)
+  if( secondwin )
     {
-      ren1->SetViewport(0.0, 0.0, 0.5, 1.0);
-      ren2->SetViewport(0.5, 0.0, 1.0, 1.0);
-    }else ren1->SetViewport(0.0, 0.0, 1.0, 1.0);
-  if (secondwin) ren2->AddActor(actor2);
+    mapper2->SetInput(vtkgrid);
+    }
+  if( secondwin )
+    {
+    mapper2->SetScalarRange(0, 255);
+    }
+  vtkActor* actor2 = vtkActor::New();
+  if( secondwin )
+    {
+    actor2->SetMapper(mapper2);
+    }
+  if( secondwin )
+    {
+    ren1->SetViewport(0.0, 0.0, 0.5, 1.0);
+    ren2->SetViewport(0.5, 0.0, 1.0, 1.0);
+    }
+  else
+    {
+    ren1->SetViewport(0.0, 0.0, 1.0, 1.0);
+    }
+  if( secondwin )
+    {
+    ren2->AddActor(actor2);
+    }
   // add the actor and start the render loop
   ren1->AddActor(actor);
 
@@ -183,19 +201,19 @@ void vtkCompositeManagerExitInteractor(vtkObject *vtkNotUsed(o),
   actor2->Delete();
   ren2->Delete();
   renWin->Delete();
-  if (delinter)  inter->Delete();
+  if( delinter )
+    {
+    inter->Delete();
+    }
 }
 
-
-
-
 template <class TImage>
-void MapToSphere(typename TImage::Pointer image,int fixdir, float e)
+void MapToSphere(typename TImage::Pointer image, int fixdir, float e)
 {
-  typedef TImage ImageType;
-  typedef unsigned char PixelType;
-  typedef itk::Mesh<float>                         MeshType;
-  typedef itk::BinaryMask3DMeshSource<ImageType,MeshType>   MeshSourceType;
+  typedef TImage                                           ImageType;
+  typedef unsigned char                                    PixelType;
+  typedef itk::Mesh<float>                                 MeshType;
+  typedef itk::BinaryMask3DMeshSource<ImageType, MeshType> MeshSourceType;
 
   PixelType backgroundValue = 0;
   PixelType internalValue   = 1;
@@ -216,55 +234,51 @@ void MapToSphere(typename TImage::Pointer image,int fixdir, float e)
   std::cout << meshSource->GetNumberOfNodes() << std::endl;
   std::cout << meshSource->GetNumberOfCells() << std::endl;
 
-
-  typedef itk::FEMConformalMap<MeshType,ImageType>  ParamType;
-  typename ParamType::Pointer Parameterizer=ParamType::New();
+  typedef itk::FEMConformalMap<MeshType, ImageType> ParamType;
+  typename ParamType::Pointer Parameterizer = ParamType::New();
 
   Parameterizer->SetDebug(false);
 //  Parameterizer->SetDebug(true);
   Parameterizer->SetReadFromFile(false);
   Parameterizer->SetParameterFileName("");
   Parameterizer->SetImage(image);
-  std::cout <<  " fixdir " << fixdir << " e " << e << " best e ~ 3.e-3 "<<std::endl;
+  std::cout <<  " fixdir " << fixdir << " e " << e << " best e ~ 3.e-3 " << std::endl;
 
   Parameterizer->SetNorthPole(fixdir);
   Parameterizer->SetSigma(e);
-  Parameterizer->SetSurfaceMesh(meshSource->GetOutput());
+  Parameterizer->SetSurfaceMesh(meshSource->GetOutput() );
 //  Parameterizer->GenerateSystemFromSurfaceMesh();
   std::cout << std::endl;
 
   Parameterizer->ConformalMap();
   Parameterizer->ComputeStereographicCoordinates();
 
-
-  int irad=50;
-  if (Parameterizer->GetImage())
-  {
-  std::cout << " writing param images " << std::endl;
+  int irad = 50;
+  if( Parameterizer->GetImage() )
     {
-  Parameterizer->MapCheckerboardToImage(0.05);
-  typename itk::ImageFileWriter<ImageType>::Pointer writer;
-  writer = itk::ImageFileWriter<ImageType>::New();
-  std::string fn="checker.nii";
-  writer->SetFileName(fn.c_str());
-  writer->SetInput(Parameterizer->GetImage());
-  writer->Write();
+    std::cout << " writing param images " << std::endl;
+      {
+      Parameterizer->MapCheckerboardToImage(0.05);
+      typename itk::ImageFileWriter<ImageType>::Pointer writer;
+      writer = itk::ImageFileWriter<ImageType>::New();
+      std::string fn = "checker.nii";
+      writer->SetFileName(fn.c_str() );
+      writer->SetInput(Parameterizer->GetImage() );
+      writer->Write();
+      }
     }
-  }
 
-  }
-
-
+}
 
 template <class TImage>
 typename TImage::Pointer
-SmoothImage( typename TImage::Pointer input,double var)
+SmoothImage( typename TImage::Pointer input, double var)
 {
 
-  typedef TImage ImageType;
+  typedef TImage                        ImageType;
   typedef typename ImageType::PixelType PixelType;
   enum { ImageDimension = ImageType::ImageDimension };
-  typedef itk::Image<float,ImageDimension> realImageType;
+  typedef itk::Image<float, ImageDimension> realImageType;
 
   typedef itk::DiscreteGaussianImageFilter<ImageType, ImageType> dgf;
 
@@ -275,41 +289,39 @@ SmoothImage( typename TImage::Pointer input,double var)
   filter->SetInput(input);
   filter->Update();
 
-
-  typedef itk::CastImageFilter<ImageType,ImageType> CasterType1;
+  typedef itk::CastImageFilter<ImageType, ImageType> CasterType1;
   typename CasterType1::Pointer caster1 = CasterType1::New();
-  caster1->SetInput(filter->GetOutput());
+  caster1->SetInput(filter->GetOutput() );
   caster1->Update();
 
   return caster1->GetOutput();
 }
 
-
 float ComputeGenus(vtkPolyData* pd1)
 {
 
-    vtkExtractEdges* edgeex=vtkExtractEdges::New();
-    edgeex->SetInput(pd1);
-    edgeex->Update();
-    vtkPolyData* edg1=edgeex->GetOutput();
+  vtkExtractEdges* edgeex = vtkExtractEdges::New();
 
-    vtkIdType nedg=edg1->GetNumberOfCells();
-    vtkIdType vers = pd1->GetNumberOfPoints();
-    int nfac = pd1->GetNumberOfPolys();
+  edgeex->SetInput(pd1);
+  edgeex->Update();
+  vtkPolyData* edg1 = edgeex->GetOutput();
 
-    float g = 0.5 * (2.0 - vers + nedg - nfac);
-    std::cout << " Genus " << g << std::endl;
+  vtkIdType nedg = edg1->GetNumberOfCells();
+  vtkIdType vers = pd1->GetNumberOfPoints();
+  int       nfac = pd1->GetNumberOfPolys();
 
-    std::cout << " face " << nfac << " edg " << nedg <<  " vert " << vers << std::endl;
+  float g = 0.5 * (2.0 - vers + nedg - nfac);
+  std::cout << " Genus " << g << std::endl;
 
-    return g;
+  std::cout << " face " << nfac << " edg " << nedg <<  " vert " << vers << std::endl;
+
+  return g;
 }
-
 
 float vtkComputeTopology(vtkPolyData* pd)
 {
 
-    // Marching cubes
+  // Marching cubes
 //    std::cout << " Marching Cubes ";
 //    vtkMarchingCubes *marchingCubes = vtkMarchingCubes::New();
 //    vtkContourFilter *marchingCubes = vtkContourFilter::New();
@@ -317,33 +329,31 @@ float vtkComputeTopology(vtkPolyData* pd)
 //    marchingCubes->SetInput((vtkDataSet*) vds);
 //    marchingCubes->SetValue(0, hithresh);
 //    int nc;
-//    std::cout << " Input # conts "; std::cin >> nc;
+//    std::cout << " Input #conts "; std::cin >> nc;
 //    marchingCubes->SetNumberOfContours(2);
 //    marchingCubes->SetComputeScalars(false);
 //    marchingCubes->SetComputeGradients(false);
 //    marchingCubes->SetComputeNormals(false);
 
-    vtkPolyDataConnectivityFilter* con = vtkPolyDataConnectivityFilter::New();
-    con->SetExtractionModeToLargestRegion();
+  vtkPolyDataConnectivityFilter* con = vtkPolyDataConnectivityFilter::New();
+
+  con->SetExtractionModeToLargestRegion();
 //    con->SetInput(marchingCubes->GetOutput());
-    con->SetInput(pd);
+  con->SetInput(pd);
 
 //    vtkUnstructuredGridToPolyDataFilter* gp = vtkUnstructuredGridToPolyDataFilter::New();
 //    gp->SetInput(con->GetOutput());
 
-    float g = ComputeGenus(con->GetOutput());
+  float g = ComputeGenus(con->GetOutput() );
 //    marchingCubes->Delete();
 
-    return g;
+  return g;
 }
 
-
-
-
 template <class TImage>
-void GetMeshAndCurvature(typename TImage::Pointer image,float e, const char* filename)
+void GetMeshAndCurvature(typename TImage::Pointer image, float e, const char* filename)
 {
-  typedef TImage ImageType;
+  typedef TImage      ImageType;
   typedef vtkPolyData MeshType;
 
   double aaParm = 0.024;
@@ -351,99 +361,114 @@ void GetMeshAndCurvature(typename TImage::Pointer image,float e, const char* fil
   typename  FilterType::Pointer fltMesh = FilterType::New();
   fltMesh->SetInput(image);
   fltMesh->SetAntiAliasMaxRMSError(aaParm);
-      fltMesh->SetAntiAliasMaxRMSError( -1000.0 ); // to do nothing
+  fltMesh->SetAntiAliasMaxRMSError( -1000.0 );     // to do nothing
   fltMesh->Update();
-  vtkPolyData* vtkmesh =fltMesh->GetMesh();
+  vtkPolyData* vtkmesh = fltMesh->GetMesh();
 // assign scalars to the original surface mesh
 //  Display((vtkUnstructuredGrid*)vtkmesh);
 
   std::cout << " Genus " << vtkComputeTopology(vtkmesh) << std::endl;
 
-  typedef itk::SurfaceImageCurvature<ImageType>   surfktype;
-  typename surfktype::Pointer surfk=surfktype::New();
+  typedef itk::SurfaceImageCurvature<ImageType> surfktype;
+  typename surfktype::Pointer surfk = surfktype::New();
 //  kappa=;
 
-  typedef  itk::Image<float,3> FloatImageType;
-  surfk->SetInput(image); //SmoothImage<ImageType>(image,1.0));
+  typedef  itk::Image<float, 3> FloatImageType;
+  surfk->SetInput(image); // SmoothImage<ImageType>(image,1.0));
   surfk->SetNeighborhoodRadius( 1.5 );
   surfk->SetSigma(1.);
   surfk->SetUseLabel(false);
   surfk->SetUseGeodesicNeighborhood(false);
   surfk->SetkSign(1.0);
   surfk->ComputeFrameOverDomain( 3 );
-  typename FloatImageType::Pointer kappa=surfk->GetFunctionImage();
+  typename FloatImageType::Pointer kappa = surfk->GetFunctionImage();
 
-  typedef itk::Image<unsigned char,3> itype;
-        typedef itk::RescaleIntensityImageFilter<
-                                FloatImageType,
-                                itype >   CastFilterType;
-        typename CastFilterType::Pointer caster=CastFilterType::New();
-        caster->SetInput( image );
-        caster->SetOutputMinimum(   0 );
-        caster->SetOutputMaximum( 255 );
-        std::string fn=std::string(filename);
-        fn=fn.substr(0,fn.length()-4)+"kappa.nii";
-        typedef itk::ImageFileWriter<itype> writertype;
-        typename writertype::Pointer w= writertype::New();
-        typename itype::Pointer kimg=caster->GetOutput();
-        w->SetInput(kimg);
-        w->SetFileName(fn.c_str());
-        w->Write();
+  typedef itk::Image<unsigned char, 3> itype;
+  typedef itk::RescaleIntensityImageFilter<
+    FloatImageType,
+    itype>   CastFilterType;
+  typename CastFilterType::Pointer caster = CastFilterType::New();
+  caster->SetInput( image );
+  caster->SetOutputMinimum(   0 );
+  caster->SetOutputMaximum( 255 );
+  std::string fn = std::string(filename);
+  fn = fn.substr(0, fn.length() - 4) + "kappa.nii";
+  typedef itk::ImageFileWriter<itype> writertype;
+  typename writertype::Pointer w = writertype::New();
+  typename itype::Pointer kimg = caster->GetOutput();
+  w->SetInput(kimg);
+  w->SetFileName(fn.c_str() );
+  w->Write();
 
-        typename itype::SpacingType spacing=image->GetSpacing();
+  typename itype::SpacingType spacing = image->GetSpacing();
 
-  vtkPoints* vtkpoints =vtkmesh->GetPoints();
-  int numPoints = vtkpoints->GetNumberOfPoints();
-  float mx=0,mn=9.e9,meank=0;
-  for(int i =0; i < numPoints; i++)
-  {
+  vtkPoints* vtkpoints = vtkmesh->GetPoints();
+  int        numPoints = vtkpoints->GetNumberOfPoints();
+  float      mx = 0, mn = 9.e9, meank = 0;
+  for( int i = 0; i < numPoints; i++ )
+    {
     typename ImageType::IndexType index;
-    for (int j=0;j<3;j++) index[j]=(int)(vtkpoints->GetPoint(i)[j]/spacing[j]+0.5);
-    float temp=kimg->GetPixel(index);
+    for( int j = 0; j < 3; j++ )
+      {
+      index[j] = (int)(vtkpoints->GetPoint(i)[j] / spacing[j] + 0.5);
+      }
+    float temp = kimg->GetPixel(index);
 //    float temp=image->GetPixel(index);
-    if (fabs(temp)>mx) mx=fabs(temp);
-    if (fabs(temp)<mn && mn > 0) mn=fabs(temp);
-  meank+=fabs(temp);
-  }
-  std::cout <<" max kap " << mx <<" mn k " << mn <<  std::endl;
-  meank/=numPoints;
+    if( fabs(temp) > mx )
+      {
+      mx = fabs(temp);
+      }
+    if( fabs(temp) < mn && mn > 0 )
+      {
+      mn = fabs(temp);
+      }
+    meank += fabs(temp);
+    }
+  std::cout << " max kap " << mx << " mn k " << mn <<  std::endl;
+  meank /= numPoints;
 //  mx=1.3;
 //  mx=2.0;
 
   vtkFloatArray* param;
 
 //   bool done=false;
-  //while (!done)
-  {
-  param= vtkFloatArray::New();
-  param->SetName("angle");
-  float dif=(mx-mn)*0.25;
-  float mx2=meank+dif;
-  float mn2=meank-dif;
-  dif=mx2-mn2;
-  for(int i =0; i < numPoints; i++)
-  {
-    typename ImageType::IndexType index;
-      for (int j=0;j<3;j++) index[j]=(int)(vtkpoints->GetPoint(i)[j]/spacing[j]+0.5);
-      float temp=kimg->GetPixel(index);
+// while (!done)
+    {
+    param = vtkFloatArray::New();
+    param->SetName("angle");
+    float dif = (mx - mn) * 0.25;
+    float mx2 = meank + dif;
+    float mn2 = meank - dif;
+    dif = mx2 - mn2;
+    for( int i = 0; i < numPoints; i++ )
+      {
+      typename ImageType::IndexType index;
+      for( int j = 0; j < 3; j++ )
+        {
+        index[j] = (int)(vtkpoints->GetPoint(i)[j] / spacing[j] + 0.5);
+        }
+      float temp = kimg->GetPixel(index);
 //    float temp=surfk->CurvatureAtIndex(index);
-      if (i % 1000 == 0) std::cout << " kappa " << temp << std::endl;
-        //=fabs(manifoldIntegrator->GetGraphNode(i)->GetTotalCost());
-    temp=fabs(temp);
-    param->InsertNextValue((temp-mn2)*255./dif);
-  }
-  vtkmesh->GetPointData()->SetScalars(param);
-  //  Display((vtkUnstructuredGrid*)vtkmesh);
+      if( i % 1000 == 0 )
+        {
+        std::cout << " kappa " << temp << std::endl;
+        }
+      // =fabs(manifoldIntegrator->GetGraphNode(i)->GetTotalCost());
+      temp = fabs(temp);
+      param->InsertNextValue( (temp - mn2) * 255. / dif);
+      }
+    vtkmesh->GetPointData()->SetScalars(param);
+    //  Display((vtkUnstructuredGrid*)vtkmesh);
 //  std::cout<<"DOne? "; std::cin >> done;
-  }
-  std::cout <<" done with curvature map ";
+    }
+  std::cout << " done with curvature map ";
   vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
   writer->SetInput(vtkmesh);
-  std::string outnm=std::string(filename);
-  outnm=outnm.substr(0,outnm.length()-4)+".vtk";
+  std::string outnm = std::string(filename);
+  outnm = outnm.substr(0, outnm.length() - 4) + ".vtk";
   std::cout << " writing " << outnm << std::endl;
- // outnm="C:\\temp\\mesh.vtk";
-  writer->SetFileName(outnm.c_str());
+  // outnm="C:\\temp\\mesh.vtk";
+  writer->SetFileName(outnm.c_str() );
   writer->SetFileTypeToBinary();
   writer->Update();
   std::cout << " done writing ";
@@ -451,14 +476,10 @@ void GetMeshAndCurvature(typename TImage::Pointer image,float e, const char* fil
 
 }
 
-
-
-
-
 template <class TImage>
-float GetImageTopology(typename TImage::Pointer image,float e, const char* filename)
+float GetImageTopology(typename TImage::Pointer image, float e, const char* filename)
 {
-  typedef TImage ImageType;
+  typedef TImage      ImageType;
   typedef vtkPolyData MeshType;
 
   double aaParm = 0.024;
@@ -466,29 +487,26 @@ float GetImageTopology(typename TImage::Pointer image,float e, const char* filen
   typename  FilterType::Pointer fltMesh = FilterType::New();
   fltMesh->SetInput(image);
   fltMesh->SetAntiAliasMaxRMSError(aaParm);
-    fltMesh->SetAntiAliasMaxRMSError( -1000.0 ); // to do nothing
+  fltMesh->SetAntiAliasMaxRMSError( -1000.0 );   // to do nothing
   fltMesh->Update();
-  vtkPolyData* vtkmesh =fltMesh->GetMesh();
+  vtkPolyData* vtkmesh = fltMesh->GetMesh();
 // assign scalars to the original surface mesh
 //  Display((vtkUnstructuredGrid*)vtkmesh);
 
   float genus =  vtkComputeTopology(vtkmesh);
   std::cout << " Genus " << genus << std::endl;
 
-
   return genus;
 
 }
 
-
-
 template <class TImage>
 void MapToDisc(vtkPolyData* vtkmesh, float e, std::string outfn)
 {
-  typedef TImage ImageType;
-  typedef vtkPolyData MeshType;
-  typedef itk::FEMDiscConformalMap<MeshType,ImageType>  ParamType;
-  typename ParamType::Pointer Parameterizer=ParamType::New();
+  typedef TImage                                        ImageType;
+  typedef vtkPolyData                                   MeshType;
+  typedef itk::FEMDiscConformalMap<MeshType, ImageType> ParamType;
+  typename ParamType::Pointer Parameterizer = ParamType::New();
   Parameterizer->SetDebug(false);
 //  Parameterizer->SetDebug(true);
   Parameterizer->SetReadFromFile(false);
@@ -496,9 +514,9 @@ void MapToDisc(vtkPolyData* vtkmesh, float e, std::string outfn)
   Parameterizer->SetSigma(e);
   Parameterizer->SetSurfaceMesh(vtkmesh);
 
-  ComputeGenus((vtkPolyData*)Parameterizer->GetSurfaceMesh());
+  ComputeGenus( (vtkPolyData *)Parameterizer->GetSurfaceMesh() );
   Parameterizer->ExtractSurfaceDisc();
-  ComputeGenus((vtkPolyData*)Parameterizer->GetSurfaceMesh());
+  ComputeGenus( (vtkPolyData *)Parameterizer->GetSurfaceMesh() );
 //  Display((vtkUnstructuredGrid*)Parameterizer->GetSurfaceMesh());
 
   std::cout << " begin conformal mapping ";
@@ -506,44 +524,44 @@ void MapToDisc(vtkPolyData* vtkmesh, float e, std::string outfn)
 
   std::cout << " display patch ";
   //  ComputeGenus((vtkPolyData*)Parameterizer->m_ExtractedSurfaceMesh);
-  //Display((vtkUnstructuredGrid*)Parameterizer->m_ExtractedSurfaceMesh);
+  // Display((vtkUnstructuredGrid*)Parameterizer->m_ExtractedSurfaceMesh);
 
 //  std::cout << " display flattened patch ";
   int segct = 0;
 //   float step  = 0.1;
 //   float maxt=0.0;
-  //  for (float tt = 0.0; tt<=maxt; tt=tt+step)
+//  for (float tt = 0.0; tt<=maxt; tt=tt+step)
     {
-      //      std::cout <<" Building at : " << tt << std::endl;
-      ///  Parameterizer->BuildOutputMeshes(tt);
+    //      std::cout <<" Building at : " << tt << std::endl;
+    // /  Parameterizer->BuildOutputMeshes(tt);
 
-      //      if (tt == 0.)
+    //      if (tt == 0.)
       {
-    vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
-    writer->SetInput(Parameterizer->m_ExtractedSurfaceMesh);
-    std::string outnm;//=std::string(filename);
-    //outnm=outnm.substr(0,outnm.length()-4)+".vtk";
-    outnm=outfn+"mapspace.vtk";
-    std::cout << " writing " << outnm << std::endl;
-    writer->SetFileName(outnm.c_str());
-    writer->SetFileTypeToBinary();
-    writer->Update();
+      vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
+      writer->SetInput(Parameterizer->m_ExtractedSurfaceMesh);
+      std::string outnm; // =std::string(filename);
+      // outnm=outnm.substr(0,outnm.length()-4)+".vtk";
+      outnm = outfn + "mapspace.vtk";
+      std::cout << " writing " << outnm << std::endl;
+      writer->SetFileName(outnm.c_str() );
+      writer->SetFileTypeToBinary();
+      writer->Update();
       }
 
       {
-    vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
-    writer->SetInput(Parameterizer->m_DiskSurfaceMesh);
-    std::string outnm;
-    std::ostringstream buf;
-    buf<<( segct+10 );
-    //    outnm=outfn+std::string(buf.str().c_str())+"mapflat.vtk";
-    outnm=outfn+"mapflat.vtk";
-    std::cout << " writing " << outnm << std::endl;
-    writer->SetFileName(outnm.c_str());
-    writer->SetFileTypeToBinary();
-    writer->Update();
+      vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
+      writer->SetInput(Parameterizer->m_DiskSurfaceMesh);
+      std::string        outnm;
+      std::ostringstream buf;
+      buf << ( segct + 10 );
+      //    outnm=outfn+std::string(buf.str().c_str())+"mapflat.vtk";
+      outnm = outfn + "mapflat.vtk";
+      std::cout << " writing " << outnm << std::endl;
+      writer->SetFileName(outnm.c_str() );
+      writer->SetFileTypeToBinary();
+      writer->Update();
 
-    segct++;
+      segct++;
       }
     }
 /*
@@ -559,15 +577,17 @@ void MapToDisc(vtkPolyData* vtkmesh, float e, std::string outfn)
   typedef typename ParamType::FlatImageType imtype;
   typename itk::ImageFileWriter<imtype>::Pointer writer;
   writer = itk::ImageFileWriter<imtype>::New();
-  std::string fn=outfn+"flat.nii";
-  writer->SetFileName(fn.c_str());
+  std::string fn = outfn + "flat.nii";
+  writer->SetFileName(fn.c_str() );
   writer->SetInput(Parameterizer->m_FlatImage);
-  if (Parameterizer->m_FlatImage  ) writer->Write();
+  if( Parameterizer->m_FlatImage  )
+    {
+    writer->Write();
+    }
 
   std::cout << " done writing ";
 
 }
-
 
 /*
 template <class TImage>
@@ -585,7 +605,7 @@ void MeshToImage(vtkPolyData* vtkmesh, int imagesize, std::string outfn)
 
     int numVertices = vtkmesh->GetNumberOfPoints();
     vtkmesh->GetPointData()->SetActiveScalars( dataname );
-    std::cout << "# of vertices " << numVertices << " Fitting variable " << vtkmesh->GetPointData()->GetScalars()->GetName( ) << std::endl;
+    std::cout << "#of vertices " << numVertices << " Fitting variable " << vtkmesh->GetPointData()->GetScalars()->GetName( ) << std::endl;
 
     typedef itk::PointSet<FunctionalDataType, Dimension> FunctionalMapType;
     typedef itk::BSplineScatteredDataPointSetToImageFilter
@@ -651,7 +671,7 @@ void MeshToImage(vtkPolyData* vtkmesh, int imagesize, std::string outfn)
       typename BSplineFilterType::ArrayType close;
      close.Fill( false );
 
-    std::cout << "No. of levels " << numLevels << " splineOrder " << splineOrder << " # control points " << ncps << std::endl;
+    std::cout << "No. of levels " << numLevels << " splineOrder " << splineOrder << " #control points " << ncps << std::endl;
 
         bspliner->SetOrigin( origin );
         bspliner->SetSpacing( spacing );
@@ -692,48 +712,48 @@ void MeshToImage(vtkPolyData* vtkmesh, int imagesize, std::string outfn)
       writer->SetInput( outimage );
       writer->Write();
 */
-    /*** Evaluate quality of fit ***/
-        /*
-    typedef typename itk::LinearInterpolateImageFunction< ImageType, float > InterpolatorType;
-    typename InterpolatorType::PointType testpoint;
-    typename InterpolatorType::Pointer interp = InterpolatorType::New();
-    interp->SetInputImage( outimage );
-    for (int ID=0; ID < numVertices; ++ID)
-    {
-        data[0] = vtkmesh->GetPointData()->GetScalars()->GetComponent(ID, component);
-        for (int dir=0; dir < Dimension; ++dir)
-        {
-            point[dir] = meshpoints->GetPoint(ID)[dir];
-            testpoint[dir] = point[dir] - origin[dir];
-        }
-        vtkmesh->GetPointData()->GetScalars()->SetComponent(ID, component, static_cast<int>(data[0]) - static_cast<int>(interp->Evaluate( testpoint )));
+/*** Evaluate quality of fit ***/
+/*
+typedef typename itk::LinearInterpolateImageFunction< ImageType, float > InterpolatorType;
+typename InterpolatorType::PointType testpoint;
+typename InterpolatorType::Pointer interp = InterpolatorType::New();
+interp->SetInputImage( outimage );
+for (int ID=0; ID < numVertices; ++ID)
+{
+data[0] = vtkmesh->GetPointData()->GetScalars()->GetComponent(ID, component);
+for (int dir=0; dir < Dimension; ++dir)
+{
+    point[dir] = meshpoints->GetPoint(ID)[dir];
+    testpoint[dir] = point[dir] - origin[dir];
+}
+vtkmesh->GetPointData()->GetScalars()->SetComponent(ID, component, static_cast<int>(data[0]) - static_cast<int>(interp->Evaluate( testpoint )));
 
-        //vtkmesh->GetPointData()->GetScalars()->SetComponent(ID, component,  interp->Evaluate( testpoint ));
-        data1[0] = vtkmesh->GetPointData()->GetScalars()->GetComponent(ID, component);
-        cout << "error  " << data1[0] << " original " << data[0] << " at " << point << " interpolated " << interp->Evaluate( testpoint ) << " at " << testpoint << endl;
-    }
-    vtkPolyDataWriter *vtkwriter = vtkPolyDataWriter::New();
-    vtkwriter->SetInput( vtkmesh );
-    vtkwriter->SetFileName( "newmesh3.vtk" );
-    vtkwriter->Write();
-    */
+//vtkmesh->GetPointData()->GetScalars()->SetComponent(ID, component,  interp->Evaluate( testpoint ));
+data1[0] = vtkmesh->GetPointData()->GetScalars()->GetComponent(ID, component);
+cout << "error  " << data1[0] << " original " << data[0] << " at " << point << " interpolated " << interp->Evaluate( testpoint ) << " at " << testpoint << endl;
+}
+vtkPolyDataWriter *vtkwriter = vtkPolyDataWriter::New();
+vtkwriter->SetInput( vtkmesh );
+vtkwriter->SetFileName( "newmesh3.vtk" );
+vtkwriter->Write();
+*/
 
-
-//}
-
-
+// }
 
 template <class TImage>
 typename TImage::Pointer
 RemoveNaNs(typename TImage::Pointer image, float replaceval )
 {
   typedef itk::ImageRegionIteratorWithIndex<TImage> Iterator;
-  Iterator vfIter(image,image->GetLargestPossibleRegion() );
-  for( vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter)
-  {
-    typename TImage::PixelType v1=vfIter.Get();
-    if (vnl_math_isnan(v1)) vfIter.Set(replaceval);
-  }
+  Iterator vfIter(image, image->GetLargestPossibleRegion() );
+  for( vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
+    {
+    typename TImage::PixelType v1 = vfIter.Get();
+    if( vnl_math_isnan(v1) )
+      {
+      vfIter.Set(replaceval);
+      }
+    }
   return image;
 }
 
@@ -757,7 +777,7 @@ void ImageToMesh(vtkPolyData* vtkmesh, typename TImage::Pointer image, std::stri
 
     int numVertices = vtkmesh->GetNumberOfPoints();
     vtkmesh->GetPointData()->SetActiveScalars( dataname );
-    std::cout << "# of vertices " << numVertices << " Fitting variable " << vtkmesh->GetPointData()->GetScalars()->GetName( ) << std::endl;
+    std::cout << "#of vertices " << numVertices << " Fitting variable " << vtkmesh->GetPointData()->GetScalars()->GetName( ) << std::endl;
 
     typedef itk::PointSet<FunctionalDataType, Dimension> FunctionalMapType;
     typedef itk::BSplineScatteredDataPointSetToImageFilter
@@ -820,75 +840,75 @@ void ImageToMesh(vtkPolyData* vtkmesh, typename TImage::Pointer image, std::stri
 
     std::cout << "size " << size << " origin " << origin << " spacing " << spacing << std::endl;
 */
-    /* bspline code -- not doing b-spline now
+/* bspline code -- not doing b-spline now
 
-        typename BSplineFilterType::ArrayType ncps;
-    ncps.Fill(  splineOrder + 1 );
+    typename BSplineFilterType::ArrayType ncps;
+ncps.Fill(  splineOrder + 1 );
 
-    //const int numLevels = round((1/static_cast<double>(Dimension))*log(static_cast<double>(numVertices))/log(2.0));
-    const int numLevels = 13;
+//const int numLevels = round((1/static_cast<double>(Dimension))*log(static_cast<double>(numVertices))/log(2.0));
+const int numLevels = 13;
 
-      typename BSplineFilterType::ArrayType close;
-     close.Fill( false );
+  typename BSplineFilterType::ArrayType close;
+ close.Fill( false );
 
-    std::cout << "No. of levels " << numLevels << " splineOrder " << splineOrder << " # control points " << ncps << std::endl;
+std::cout << "No. of levels " << numLevels << " splineOrder " << splineOrder << " #control points " << ncps << std::endl;
 
-        bspliner->SetOrigin( origin );
-        bspliner->SetSpacing( spacing );
-        bspliner->SetSize( size );
-        bspliner->SetGenerateOutputImage( true );
-        bspliner->SetNumberOfLevels( numLevels );
-        bspliner->SetSplineOrder( splineOrder );
-        bspliner->SetNumberOfControlPoints( ncps );
-        bspliner->SetCloseDimension( close );
-    bspliner->SetInput( funcdataPoints );
-    bspliner->DebugOn();
+    bspliner->SetOrigin( origin );
+    bspliner->SetSpacing( spacing );
+    bspliner->SetSize( size );
+    bspliner->SetGenerateOutputImage( true );
+    bspliner->SetNumberOfLevels( numLevels );
+    bspliner->SetSplineOrder( splineOrder );
+    bspliner->SetNumberOfControlPoints( ncps );
+    bspliner->SetCloseDimension( close );
+bspliner->SetInput( funcdataPoints );
+bspliner->DebugOn();
 
 
-    std::cout << "Entering BSpline" << std::endl;
-    bspliner->Update();
-    std::cout << "BSpline fitting done" << std::endl;
+std::cout << "Entering BSpline" << std::endl;
+bspliner->Update();
+std::cout << "BSpline fitting done" << std::endl;
 
-    typename ImageType::Pointer outimage = ImageType::New();
-    outimage->SetSpacing( bspliner->GetOutput()->GetSpacing() );
-    outimage->SetOrigin( bspliner->GetOutput()->GetOrigin() );
-    outimage->SetRegions( bspliner->GetOutput()->GetLargestPossibleRegion() );
-    outimage->Allocate();
+typename ImageType::Pointer outimage = ImageType::New();
+outimage->SetSpacing( bspliner->GetOutput()->GetSpacing() );
+outimage->SetOrigin( bspliner->GetOutput()->GetOrigin() );
+outimage->SetRegions( bspliner->GetOutput()->GetLargestPossibleRegion() );
+outimage->Allocate();
 
 */
-    /*
-    typename itk::ImageRegionIterator<ImageType>
-        ItO( image, image->GetRequestedRegion() );
+/*
+typename itk::ImageRegionIterator<ImageType>
+    ItO( image, image->GetRequestedRegion() );
 
 
 
-    // Evaluate quality of fit
-    //typedef typename itk::LinearInterpolateImageFunction< ImageType, float > InterpolatorType;
-    typedef typename itk::NearestNeighborInterpolateImageFunction< ImageType, float > InterpolatorType;
-    typename InterpolatorType::PointType testpoint;
-    typedef typename itk::ContinuousIndex< float, Dimension > ContinuousIndexType;
+// Evaluate quality of fit
+//typedef typename itk::LinearInterpolateImageFunction< ImageType, float > InterpolatorType;
+typedef typename itk::NearestNeighborInterpolateImageFunction< ImageType, float > InterpolatorType;
+typename InterpolatorType::PointType testpoint;
+typedef typename itk::ContinuousIndex< float, Dimension > ContinuousIndexType;
 
-    typename InterpolatorType::Pointer interp = InterpolatorType::New();
-    interp->SetInputImage( image );
-        ContinuousIndexType contind;
+typename InterpolatorType::Pointer interp = InterpolatorType::New();
+interp->SetInputImage( image );
+    ContinuousIndexType contind;
 
 
-    for (int ID=0; ID < numVertices; ++ID)
-    {
-        for (int dir=0; dir < Dimension; ++dir)
-            testpoint[dir] = meshpoints->GetPoint(ID)[dir] - origin[dir];
-        newdata->InsertNextValue( interp->Evaluate( testpoint ) );
-        //vtkmesh->GetPointData()->GetScalars()->SetComponent(ID, component, (interp->Evaluate( testpoint )));
+for (int ID=0; ID < numVertices; ++ID)
+{
+    for (int dir=0; dir < Dimension; ++dir)
+        testpoint[dir] = meshpoints->GetPoint(ID)[dir] - origin[dir];
+    newdata->InsertNextValue( interp->Evaluate( testpoint ) );
+    //vtkmesh->GetPointData()->GetScalars()->SetComponent(ID, component, (interp->Evaluate( testpoint )));
 
-        //vtkmesh->GetPointData()->GetScalars()->SetComponent(ID, component,  interp->Evaluate( testpoint ));
-    //    cout << vtkmesh->GetPointData()->GetScalars()->GetComponent(ID, component) << " " << data[0] << " " << interp->Evaluate( testpoint ) << endl;
-    }
-    vtkmesh->GetPointData()->AddArray( newdata );
-    vtkPolyDataWriter *vtkwriter = vtkPolyDataWriter::New();
-    vtkwriter->SetInput( vtkmesh );
-      std::string fn=outfn+".vtk";
-      vtkwriter->SetFileName(fn.c_str());
-    vtkwriter->Write();
+    //vtkmesh->GetPointData()->GetScalars()->SetComponent(ID, component,  interp->Evaluate( testpoint ));
+//    cout << vtkmesh->GetPointData()->GetScalars()->GetComponent(ID, component) << " " << data[0] << " " << interp->Evaluate( testpoint ) << endl;
+}
+vtkmesh->GetPointData()->AddArray( newdata );
+vtkPolyDataWriter *vtkwriter = vtkPolyDataWriter::New();
+vtkwriter->SetInput( vtkmesh );
+  std::string fn=outfn+".vtk";
+  vtkwriter->SetFileName(fn.c_str());
+vtkwriter->Write();
 
 
 }
@@ -898,25 +918,26 @@ int main(int argc, char *argv[])
 {
   // Define the dimension of the images
   const unsigned int Dimension = 3;
+
   typedef float PixelType;
   // Declare the types of the output images
-  typedef itk::Image<PixelType,Dimension>   ImageType;
-  typedef itk::Image<PixelType,2>   Image2DType;
+  typedef itk::Image<PixelType, Dimension> ImageType;
+  typedef itk::Image<PixelType, 2>         Image2DType;
 
   // Declare the type of the index,size and region to initialize images
-  typedef itk::Index<Dimension>                     IndexType;
-  typedef itk::Size<Dimension>                      SizeType;
-  typedef itk::ImageRegion<Dimension>               RegionType;
-  typedef itk::ImageRegionIterator<ImageType>       IteratorType;
+  typedef itk::Index<Dimension>               IndexType;
+  typedef itk::Size<Dimension>                SizeType;
+  typedef itk::ImageRegion<Dimension>         RegionType;
+  typedef itk::ImageRegionIterator<ImageType> IteratorType;
 
   // Declare the type of the Mesh
 
-  char* filename;
-  char* refmeshname;
-  PixelType loth=1;
-  PixelType hith=256;
-  int fixdir=1;
-  float param=2.e-4;
+  char*       filename;
+  char*       refmeshname;
+  PixelType   loth = 1;
+  PixelType   hith = 256;
+  int         fixdir = 1;
+  float       param = 2.e-4;
   std::string outfn;
 
   std::cout << "to get mesh: ConformalMapping   image.nii 1 255 1.e-3 0 outname " << std::endl;
@@ -924,118 +945,118 @@ int main(int argc, char *argv[])
   std::cout << "to view mesh: ConformalMapping   mesh.vtk 1 2 3 1 outname " << std::endl;
   std::cout << "to get image topology: ConformalMapping   image.nii 1 255 1.e-3 5 outname " << std::endl;
   std::cout << "to convert flattened mesh to image : ConformalMapping   mesh.vtk 1 2 3 6 outname " << std::endl;
-  std::cout << "to interpolate data in flattened image domain to original mesh: ConformalMapping   image.nii 1 2 3 7 outname originalflatmesh.vtk" << std::endl;
-  std::cout << " to smooth a mesh --- ConformalMapping mesh.vtk 1 2 NumSmoothIts 8 outname " <<std::endl;
-  if (argc>=2)
-  {
-    filename=argv[1];
-    loth=atof(argv[2]);
-    hith=atof(argv[3]);
-    param=atof(argv[4]);
-    fixdir=atoi(argv[5]);
-    outfn=std::string(argv[6]);
+  std::cout
+  <<
+  "to interpolate data in flattened image domain to original mesh: ConformalMapping   image.nii 1 2 3 7 outname originalflatmesh.vtk"
+  << std::endl;
+  std::cout << " to smooth a mesh --- ConformalMapping mesh.vtk 1 2 NumSmoothIts 8 outname " << std::endl;
+  if( argc >= 2 )
+    {
+    filename = argv[1];
+    loth = atof(argv[2]);
+    hith = atof(argv[3]);
+    param = atof(argv[4]);
+    fixdir = atoi(argv[5]);
+    outfn = std::string(argv[6]);
 
-  }
+    }
   else
-  {
-    filename= (char *)"image.nii";
+    {
+    filename = (char *)"image.nii";
     return 0;
-  }
+    }
 
+  if( fixdir == 0 )
+    {
+    typedef itk::ImageFileReader<ImageType> FileSourceType;
+    typedef ImageType::PixelType            PixType;
+    FileSourceType::Pointer readfilter = FileSourceType::New();
+    readfilter->SetFileName( filename );
+    try
+      {
+      readfilter->Update();
+      }
+    catch( itk::ExceptionObject & e )
+      {
+      std::cerr << "Exception caught during reference file reading " << std::endl;
+      std::cerr << e << std::endl;
+      return -1;
+      }
 
-  if (fixdir == 0)
-  {
-  typedef itk::ImageFileReader< ImageType >      FileSourceType;
-  typedef ImageType::PixelType PixType;
-  FileSourceType::Pointer readfilter = FileSourceType::New();
-  readfilter->SetFileName( filename );
-  try
-  {
-    readfilter->Update();
-  }
-  catch( itk::ExceptionObject & e )
-  {
-    std::cerr << "Exception caught during reference file reading " << std::endl;
-    std::cerr << e << std::endl;
-    return -1;
-  }
-
-  ImageType::Pointer image = readfilter->GetOutput();
-
-//   PixelType backgroundValue = 0;
-//   PixelType internalValue   = 255;
-
-  ImageType::Pointer thresh=BinaryThreshold<ImageType>(loth,hith,hith,image );
-
-  // Save the mesh
-  GetMeshAndCurvature<ImageType>(thresh,param,filename);
-  //  MapToSphere<ImageType>(thresh,fixdir,e);
-  }
-  else if (fixdir == 5 )
-  {
-  typedef itk::ImageFileReader< ImageType >      FileSourceType;
-  typedef ImageType::PixelType PixType;
-  FileSourceType::Pointer readfilter = FileSourceType::New();
-  readfilter->SetFileName( filename );
-  try
-  {
-    readfilter->Update();
-  }
-  catch( itk::ExceptionObject & e )
-  {
-    std::cerr << "Exception caught during reference file reading " << std::endl;
-    std::cerr << e << std::endl;
-    return -1;
-  }
-
-  ImageType::Pointer image = readfilter->GetOutput();
+    ImageType::Pointer image = readfilter->GetOutput();
 
 //   PixelType backgroundValue = 0;
 //   PixelType internalValue   = 255;
 
-  ImageType::Pointer thresh=BinaryThreshold<ImageType>(loth,hith,hith,image );
+    ImageType::Pointer thresh = BinaryThreshold<ImageType>(loth, hith, hith, image );
 
-  // Save the mesh
-  GetImageTopology<ImageType>(thresh,param,filename);
-  //  MapToSphere<ImageType>(thresh,fixdir,e);
-  }
+    // Save the mesh
+    GetMeshAndCurvature<ImageType>(thresh, param, filename);
+    //  MapToSphere<ImageType>(thresh,fixdir,e);
+    }
+  else if( fixdir == 5 )
+    {
+    typedef itk::ImageFileReader<ImageType> FileSourceType;
+    typedef ImageType::PixelType            PixType;
+    FileSourceType::Pointer readfilter = FileSourceType::New();
+    readfilter->SetFileName( filename );
+    try
+      {
+      readfilter->Update();
+      }
+    catch( itk::ExceptionObject & e )
+      {
+      std::cerr << "Exception caught during reference file reading " << std::endl;
+      std::cerr << e << std::endl;
+      return -1;
+      }
+
+    ImageType::Pointer image = readfilter->GetOutput();
+
+//   PixelType backgroundValue = 0;
+//   PixelType internalValue   = 255;
+
+    ImageType::Pointer thresh = BinaryThreshold<ImageType>(loth, hith, hith, image );
+
+    // Save the mesh
+    GetImageTopology<ImageType>(thresh, param, filename);
+    //  MapToSphere<ImageType>(thresh,fixdir,e);
+    }
   /*************** flat mesh to image ****************/
-  else if (fixdir == 6)
-  {
+  else if( fixdir == 6 )
+    {
     vtkPolyDataReader *fltReader = vtkPolyDataReader::New();
     fltReader->SetFileName(filename);
     fltReader->Update();
-    //MeshToImage<Image2DType>(fltReader->GetOutput(), 512, outfn);
+    // MeshToImage<Image2DType>(fltReader->GetOutput(), 512, outfn);
 
-
-  }
+    }
   /*************** flat mesh to image ****************/
-  else if (fixdir == 7)
+  else if( fixdir == 7 )
   /*************** flat map to mesh *****************/
-  {
-      refmeshname = argv[7];
+    {
+    refmeshname = argv[7];
     vtkPolyDataReader *fltReader = vtkPolyDataReader::New();
     fltReader->SetFileName(refmeshname);
     fltReader->Update();
-      typedef itk::ImageFileReader< Image2DType >      FileSourceType;
-      FileSourceType::Pointer readfilter = FileSourceType::New();
-      readfilter->SetFileName( filename );
+    typedef itk::ImageFileReader<Image2DType> FileSourceType;
+    FileSourceType::Pointer readfilter = FileSourceType::New();
+    readfilter->SetFileName( filename );
     readfilter->Update();
     Image2DType::Pointer image = readfilter->GetOutput();
-    //ImageToMesh<Image2DType>(fltReader->GetOutput(), image, outfn);
+    // ImageToMesh<Image2DType>(fltReader->GetOutput(), image, outfn);
 
-
-  }
-  else if (fixdir == 8)
+    }
+  else if( fixdir == 8 )
   /*************** flat map to mesh *****************/
-  {
+    {
     std::cout << " read " << std::string(filename) << " write " << outfn << std::endl;
     vtkPolyDataReader *fltReader = vtkPolyDataReader::New();
     fltReader->SetFileName(filename);
     fltReader->Update();
     vtkSmartPointer<vtkWindowedSincPolyDataFilter> smoother =
       vtkSmartPointer<vtkWindowedSincPolyDataFilter>::New();
-    smoother->SetInput(fltReader->GetOutput());
+    smoother->SetInput(fltReader->GetOutput() );
     smoother->SetNumberOfIterations( (int) param );
     smoother->BoundarySmoothingOn();
     smoother->FeatureEdgeSmoothingOff();
@@ -1048,30 +1069,33 @@ int main(int argc, char *argv[])
 
     vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
     writer->SetInput(    smoother->GetOutput() );
-    writer->SetFileName(outfn.c_str());
+    writer->SetFileName(outfn.c_str() );
     writer->SetFileTypeToBinary();
     writer->Update();
     std::cout << " done writing ";
 
-  }
+    }
   /*************** flat map to mesh ****************/
   else
-  {
+    {
     vtkPolyDataReader *fltReader = vtkPolyDataReader::New();
     fltReader->SetFileName(filename);
     fltReader->Update();
-      vtkPolyData* polydata = fltReader->GetOutput();
+    vtkPolyData* polydata = fltReader->GetOutput();
 
-      vtkSmartPointer<vtkPolyDataNormals> normalGenerator =
+    vtkSmartPointer<vtkPolyDataNormals> normalGenerator =
       vtkSmartPointer<vtkPolyDataNormals>::New();
-      normalGenerator->SetInput(polydata);
-      normalGenerator->Update();
-      polydata = normalGenerator->GetOutput();
-      if ( fixdir == 1 )  Display((vtkUnstructuredGrid*)polydata);
-        //    if ( fixdir == 1 )  Display((vtkUnstructuredGrid*)fltReader->GetOutput());
+    normalGenerator->SetInput(polydata);
+    normalGenerator->Update();
+    polydata = normalGenerator->GetOutput();
+    if( fixdir == 1 )
+      {
+      Display( (vtkUnstructuredGrid *)polydata);
+      }
+    //    if ( fixdir == 1 )  Display((vtkUnstructuredGrid*)fltReader->GetOutput());
     std::cout << " m_Smooth " << param << std::endl;
-    MapToDisc<ImageType>(fltReader->GetOutput(),param,outfn);
-  }
-   return 0;
+    MapToDisc<ImageType>(fltReader->GetOutput(), param, outfn);
+    }
+  return 0;
 
 }

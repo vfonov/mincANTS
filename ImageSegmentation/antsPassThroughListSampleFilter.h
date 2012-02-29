@@ -21,33 +21,36 @@
 
 #include "antsListSampleToListSampleFilter.h"
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 /** \class PassThroughListSampleFilter
  * \brief Simple class which pass the input to the output.
  *
  */
 
-template<class TListSample>
+template <class TListSample>
 class ITK_EXPORT PassThroughListSampleFilter
-: public ListSampleToListSampleFilter<TListSample, TListSample>
+  : public ListSampleToListSampleFilter<TListSample, TListSample>
 {
 public:
   /**
    * Standard class typedefs.
    */
-  typedef PassThroughListSampleFilter                             Self;
-  typedef ListSampleToListSampleFilter<TListSample, TListSample>  Superclass;
-  typedef SmartPointer<Self>                                      Pointer;
-  typedef SmartPointer<const Self>                                ConstPointer;
+  typedef PassThroughListSampleFilter                            Self;
+  typedef ListSampleToListSampleFilter<TListSample, TListSample> Superclass;
+  typedef SmartPointer<Self>                                     Pointer;
+  typedef SmartPointer<const Self>                               ConstPointer;
 
   /**
    * Standard macros
    */
   itkTypeMacro( PassThroughListSampleFilter,
-    ListSampleToScalarListSampleFilter );
+                ListSampleToScalarListSampleFilter );
 
   /**
    * Method for creation through the object factory.
@@ -57,11 +60,10 @@ public:
   /**
    * Conveneient typedefs
    */
-  typedef TListSample                                      ListSampleType;
-  typedef ListSampleType                                   InputType;
-  typedef typename ListSampleType::MeasurementVectorType   MeasurementVectorType;
-  typedef typename ListSampleType::MeasurementType         MeasurementType;
-
+  typedef TListSample                                    ListSampleType;
+  typedef ListSampleType                                 InputType;
+  typedef typename ListSampleType::MeasurementVectorType MeasurementVectorType;
+  typedef typename ListSampleType::MeasurementType       MeasurementType;
 protected:
   PassThroughListSampleFilter();
   virtual ~PassThroughListSampleFilter();
@@ -71,10 +73,10 @@ protected:
   virtual void GenerateData();
 
 private:
-  PassThroughListSampleFilter( const Self& ); //purposely not implemented
-  void operator=( const Self& ); //purposely not implemented
+  PassThroughListSampleFilter( const Self & ); // purposely not implemented
+  void operator=( const Self & );              // purposely not implemented
 
-}; // end of class
+};    // end of class
 
 } // end of namespace Statistics
 } // end of namespace ants

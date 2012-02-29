@@ -22,7 +22,8 @@
 #include "itkIdentityTransform.h"
 #include "itkManifoldParzenWindowsPointSetFunction.h"
 
-namespace itk {
+namespace itk
+{
 
 /** \class JensenHavrdaCharvatTsallisPointSetMetric
  *
@@ -30,9 +31,9 @@ namespace itk {
  *
  *
  */
-template<class TPointSet>
+template <class TPointSet>
 class ITK_EXPORT JensenHavrdaCharvatTsallisPointSetMetric :
-    public PointSetToPointSetMetric<TPointSet, TPointSet>
+  public PointSetToPointSetMetric<TPointSet, TPointSet>
 {
 public:
   /** Standard class typedefs. */
@@ -46,35 +47,32 @@ public:
 
   /** Run-time type information (and related methods) */
   itkTypeMacro( JensenHavrdaCharvatTsallisPointSetMetric,
-    PointSetToPointSetMetric );
+                PointSetToPointSetMetric );
 
   itkStaticConstMacro( PointDimension, unsigned int,
                        TPointSet::PointDimension );
 
   /** Types transferred from the base class */
-  typedef typename Superclass::TransformType            TransformType;
-  typedef typename Superclass::TransformPointer         TransformPointer;
-  typedef typename Superclass::TransformParametersType  TransformParametersType;
-  typedef typename Superclass::TransformJacobianType    TransformJacobianType;
+  typedef typename Superclass::TransformType           TransformType;
+  typedef typename Superclass::TransformPointer        TransformPointer;
+  typedef typename Superclass::TransformParametersType TransformParametersType;
+  typedef typename Superclass::TransformJacobianType   TransformJacobianType;
 
-  typedef typename Superclass::MeasureType              MeasureType;
-  typedef typename Superclass::DerivativeType           DerivativeType;
+  typedef typename Superclass::MeasureType    MeasureType;
+  typedef typename Superclass::DerivativeType DerivativeType;
 
-  typedef TPointSet                                     PointSetType;
-  typedef typename PointSetType::Pointer                PointSetPointer;
-  typedef typename PointSetType::PointType              PointType;
-
-
+  typedef TPointSet                        PointSetType;
+  typedef typename PointSetType::Pointer   PointSetPointer;
+  typedef typename PointSetType::PointType PointType;
 
   /**
    * Other typedefs
    */
-  typedef double                                           RealType;
+  typedef double RealType;
   typedef ManifoldParzenWindowsPointSetFunction
-    <PointSetType, RealType>                               DensityFunctionType;
-  typedef typename DensityFunctionType::GaussianType       GaussianType;
-  typedef IdentityTransform<RealType, PointDimension>      DefaultTransformType;
-
+  <PointSetType, RealType>                               DensityFunctionType;
+  typedef typename DensityFunctionType::GaussianType  GaussianType;
+  typedef IdentityTransform<RealType, PointDimension> DefaultTransformType;
 
   /**
    * Public function definitions
@@ -93,25 +91,27 @@ public:
    * The only transform type used is Identity
    */
   unsigned int GetNumberOfParameters( void ) const
-    { return m_Transform->GetNumberOfParameters(); }
+  {
+    return m_Transform->GetNumberOfParameters();
+  }
 
   /** Initialize the Metric by making sure that all the components
    *  are present and plugged together correctly     */
-  virtual void Initialize( void ) throw ( ExceptionObject );
+  virtual void Initialize( void )
+  throw ( ExceptionObject );
 
   /** Get the number of values */
   unsigned int GetNumberOfValues() const;
 
   /** Get the derivatives of the match measure. */
-  void GetDerivative( const TransformParametersType & parameters,
-                      DerivativeType & Derivative ) const;
+  void GetDerivative( const TransformParametersType & parameters, DerivativeType & Derivative ) const;
 
   /**  Get the value for single valued optimizers. */
   MeasureType GetValue( const TransformParametersType & parameters ) const;
 
   /**  Get value and derivatives for multiple valued optimizers. */
-  void GetValueAndDerivative( const TransformParametersType & parameters,
-    MeasureType& Value, DerivativeType& Derivative ) const;
+  void GetValueAndDerivative( const TransformParametersType & parameters, MeasureType& Value,
+                              DerivativeType& Derivative ) const;
 
 //  itkSetClampMacro( Alpha, RealType, 1.0, 2.0 );
   itkSetMacro( Alpha, RealType );
@@ -130,7 +130,6 @@ public:
 
   itkSetMacro( MovingEvaluationKNeighborhood, unsigned int );
   itkGetConstMacro( MovingEvaluationKNeighborhood, unsigned int );
-
 
   itkSetMacro( FixedPointSetSigma, RealType );
   itkGetConstMacro( FixedPointSetSigma, RealType );
@@ -153,7 +152,6 @@ public:
   itkSetMacro( NumberOfFixedSamples, unsigned long );
   itkGetConstMacro( NumberOfFixedSamples, unsigned long );
 
-
   itkSetMacro( UseAnisotropicCovariances, bool );
   itkGetConstMacro( UseAnisotropicCovariances, bool );
   itkBooleanMacro( UseAnisotropicCovariances );
@@ -174,46 +172,45 @@ public:
 
   itkSetMacro( MovingKernelSigma, RealType );
   itkGetConstMacro( MovingKernelSigma, RealType );
-
-
 protected:
   JensenHavrdaCharvatTsallisPointSetMetric();
-  ~JensenHavrdaCharvatTsallisPointSetMetric() {}
+  ~JensenHavrdaCharvatTsallisPointSetMetric()
+  {
+  }
 
   void PrintSelf( std::ostream& os, Indent indent ) const;
 
 private:
-  //purposely not implemented
-  JensenHavrdaCharvatTsallisPointSetMetric(const Self&);
-  void operator=(const Self&);
+  // purposely not implemented
+  JensenHavrdaCharvatTsallisPointSetMetric(const Self &);
+  void operator=(const Self &);
 
-  bool                                     m_UseRegularizationTerm;
-  bool                                     m_UseInputAsSamples;
-  bool                                     m_UseAnisotropicCovariances;
-  bool                                     m_UseWithRespectToTheMovingPointSet;
+  bool m_UseRegularizationTerm;
+  bool m_UseInputAsSamples;
+  bool m_UseAnisotropicCovariances;
+  bool m_UseWithRespectToTheMovingPointSet;
 
   typename DensityFunctionType::Pointer    m_MovingDensityFunction;
-  PointSetPointer                          m_MovingSamplePoints;
-  RealType                                 m_MovingPointSetSigma;
-  RealType                                 m_MovingKernelSigma;
-  unsigned int                             m_MovingCovarianceKNeighborhood;
-  unsigned int                             m_MovingEvaluationKNeighborhood;
-  unsigned long                            m_NumberOfMovingSamples;
+  PointSetPointer m_MovingSamplePoints;
+  RealType        m_MovingPointSetSigma;
+  RealType        m_MovingKernelSigma;
+  unsigned int    m_MovingCovarianceKNeighborhood;
+  unsigned int    m_MovingEvaluationKNeighborhood;
+  unsigned long   m_NumberOfMovingSamples;
 
   typename DensityFunctionType::Pointer    m_FixedDensityFunction;
-  PointSetPointer                          m_FixedSamplePoints;
-  RealType                                 m_FixedPointSetSigma;
-  RealType                                 m_FixedKernelSigma;
-  unsigned int                             m_FixedCovarianceKNeighborhood;
-  unsigned int                             m_FixedEvaluationKNeighborhood;
-  unsigned long                            m_NumberOfFixedSamples;
+  PointSetPointer m_FixedSamplePoints;
+  RealType        m_FixedPointSetSigma;
+  RealType        m_FixedKernelSigma;
+  unsigned int    m_FixedCovarianceKNeighborhood;
+  unsigned int    m_FixedEvaluationKNeighborhood;
+  unsigned long   m_NumberOfFixedSamples;
 
-  RealType                                 m_Alpha;
+  RealType m_Alpha;
 
-  TransformPointer                         m_Transform;
+  TransformPointer m_Transform;
 
 };
-
 
 } // end namespace itk
 

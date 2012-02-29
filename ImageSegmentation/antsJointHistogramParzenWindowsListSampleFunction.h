@@ -23,9 +23,12 @@
 
 #include "itkImage.h"
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 /** \class JointHistogramParzenWindowsListSampleFunction.h
  * \brief
@@ -33,35 +36,34 @@ namespace Statistics {
 
 template <class TListSample, class TOutput = double, class TCoordRep = double>
 class ITK_EXPORT JointHistogramParzenWindowsListSampleFunction
-: public ListSampleFunction<TListSample, TOutput, TCoordRep>
+  : public ListSampleFunction<TListSample, TOutput, TCoordRep>
 {
 public:
-  typedef JointHistogramParzenWindowsListSampleFunction    Self;
+  typedef JointHistogramParzenWindowsListSampleFunction Self;
   typedef ListSampleFunction
-    <TListSample, TOutput, TCoordRep>                      Superclass;
-  typedef SmartPointer<Self>                               Pointer;
-  typedef SmartPointer<const Self>                         ConstPointer;
+  <TListSample, TOutput, TCoordRep>                      Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro( Self );
 
   /** Run-time type information (and related methods). */
   itkTypeMacro( JointHistogramParzenWindowsListSampleFunction,
-    ListSampleFunction );
+                ListSampleFunction );
 
-  typedef typename Superclass::InputListSampleType          InputListSampleType;
-  typedef typename Superclass::InputMeasurementVectorType   InputMeasurementVectorType;
-  typedef typename Superclass::InputMeasurementType         InputMeasurementType;
+  typedef typename Superclass::InputListSampleType        InputListSampleType;
+  typedef typename Superclass::InputMeasurementVectorType InputMeasurementVectorType;
+  typedef typename Superclass::InputMeasurementType       InputMeasurementType;
   /** List sample typedef support. */
-  typedef TListSample                                       ListSampleType;
+  typedef TListSample ListSampleType;
 
   /** Other typedef */
-  typedef TOutput                                           RealType;
-  typedef TOutput                                           OutputType;
+  typedef TOutput RealType;
+  typedef TOutput OutputType;
 
-  typedef Image<RealType, 2>                                JointHistogramImageType;
-  typedef Vector<RealType,2>                                ThetaPsiType;
-
+  typedef Image<RealType, 2>  JointHistogramImageType;
+  typedef Vector<RealType, 2> ThetaPsiType;
 
   /** Helper functions */
 
@@ -81,17 +83,18 @@ protected:
   void PrintSelf( std::ostream& os, Indent indent ) const;
 
   void GenerateData();
+
   void IncrementJointHistogram(RealType e1, RealType e2, unsigned int which);
 
 private:
-  //purposely not implemented
-  JointHistogramParzenWindowsListSampleFunction( const Self& );
-  void operator=( const Self& );
+  // purposely not implemented
+  JointHistogramParzenWindowsListSampleFunction( const Self & );
+  void operator=( const Self & );
 
-  unsigned int                                         m_NumberOfJointHistogramBins;
-  RealType                                             m_Sigma;
-  bool  m_UseNNforJointHistIncrements;
-  std::vector<typename JointHistogramImageType::Pointer>    m_JointHistogramImages;
+  unsigned int                                           m_NumberOfJointHistogramBins;
+  RealType                                               m_Sigma;
+  bool                                                   m_UseNNforJointHistIncrements;
+  std::vector<typename JointHistogramImageType::Pointer> m_JointHistogramImages;
 };
 
 } // end of namespace Statistics

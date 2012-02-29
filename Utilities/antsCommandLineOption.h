@@ -48,129 +48,139 @@ namespace ants
 */
 
 class ITK_EXPORT CommandLineOption
-: public DataObject
+  : public DataObject
 {
 public:
-    typedef CommandLineOption                        Self;
-    typedef DataObject                               Superclass;
-    typedef SmartPointer<Self>                       Pointer;
+  typedef CommandLineOption  Self;
+  typedef DataObject         Superclass;
+  typedef SmartPointer<Self> Pointer;
 
-    itkNewMacro( Self );
+  itkNewMacro( Self );
 
-    itkTypeMacro( Option, DataObject );
+  itkTypeMacro( Option, DataObject );
 
-    typedef std::string                              ValueType;
-    typedef std::deque<ValueType>                    ValueStackType;
-    typedef std::deque<ValueStackType>               ParameterStackType;
+  typedef std::string                ValueType;
+  typedef std::deque<ValueType>      ValueStackType;
+  typedef std::deque<ValueStackType> ParameterStackType;
 
-    ValueStackType GetValues()
-      { return this->m_Values; }
+  ValueStackType GetValues()
+  {
+    return this->m_Values;
+  }
 
-    unsigned int GetNumberOfValues()
-      { return this->m_Values.size(); }
+  unsigned int GetNumberOfValues()
+  {
+    return this->m_Values.size();
+  }
 
-    std::string GetValue( unsigned int i = 0 )
+  std::string GetValue( unsigned int i = 0 )
+  {
+    if( i < this->m_Values.size() )
       {
-      if( i < this->m_Values.size() )
-        {
-        return this->m_Values[i];
-        }
-      else
-        {
-        return std::string( "" );
-        }
+      return this->m_Values[i];
       }
-
-    ValueStackType GetUsageOptions()
-      { return this->m_UsageOptions; }
-
-    unsigned int GetNumberOfUsageOptions()
-      { return this->m_UsageOptions.size(); }
-
-    std::string GetUsageOption( unsigned int i = 0 )
+    else
       {
-      if( i < this->m_UsageOptions.size() )
-        {
-        return this->m_UsageOptions[i];
-        }
-      else
-        {
-        return std::string( "" );
-        }
+      return std::string( "" );
       }
+  }
 
+  ValueStackType GetUsageOptions()
+  {
+    return this->m_UsageOptions;
+  }
 
-    ValueStackType GetParameters( unsigned int i = 0 )
+  unsigned int GetNumberOfUsageOptions()
+  {
+    return this->m_UsageOptions.size();
+  }
+
+  std::string GetUsageOption( unsigned int i = 0 )
+  {
+    if( i < this->m_UsageOptions.size() )
       {
-      if( i < this->m_Parameters.size() )
-        {
-        return this->m_Parameters[i];
-        }
-      else
-        {
-        ValueStackType empty;
-        return empty;
-        }
+      return this->m_UsageOptions[i];
       }
-
-    std::string GetParameter( unsigned int i, unsigned int j )
+    else
       {
-      if( i < this->m_Parameters.size() && j < this->m_Parameters[i].size() )
-        {
-        return this->m_Parameters[i][j];
-        }
-      else
-        {
-        return std::string( "" );
-        }
+      return std::string( "" );
       }
+  }
 
-    std::string GetParameter( unsigned int j )
+  ValueStackType GetParameters( unsigned int i = 0 )
+  {
+    if( i < this->m_Parameters.size() )
       {
-      return this->GetParameter( 0, j );
+      return this->m_Parameters[i];
       }
-
-    unsigned int GetNumberOfParameters( unsigned int i = 0 )
+    else
       {
-      if( i < this->m_Parameters.size() )
-        {
-        return this->m_Parameters[i].size();
-        }
-      else
-        {
-        return 0;
-        }
+      ValueStackType empty;
+      return empty;
       }
+  }
 
-    itkSetMacro( ShortName, char );
-    itkGetMacro( ShortName, char );
-
-    itkSetMacro( LongName, std::string );
-    itkGetMacro( LongName, std::string );
-
-    itkSetMacro( Description, std::string );
-    itkGetMacro( Description, std::string );
-
-    void AddValue( std::string, char, char );
-    void AddValue( std::string s )
+  std::string GetParameter( unsigned int i, unsigned int j )
+  {
+    if( i < this->m_Parameters.size() && j < this->m_Parameters[i].size() )
       {
-      this->AddValue( s, '[', ']' );
+      return this->m_Parameters[i][j];
       }
-    void SetValue( unsigned int, std::string );
+    else
+      {
+      return std::string( "" );
+      }
+  }
 
-    void SetUsageOption( unsigned int, std::string );
+  std::string GetParameter( unsigned int j )
+  {
+    return this->GetParameter( 0, j );
+  }
+
+  unsigned int GetNumberOfParameters( unsigned int i = 0 )
+  {
+    if( i < this->m_Parameters.size() )
+      {
+      return this->m_Parameters[i].size();
+      }
+    else
+      {
+      return 0;
+      }
+  }
+
+  itkSetMacro( ShortName, char );
+  itkGetMacro( ShortName, char );
+
+  itkSetMacro( LongName, std::string );
+  itkGetMacro( LongName, std::string );
+
+  itkSetMacro( Description, std::string );
+  itkGetMacro( Description, std::string );
+
+  void AddValue( std::string, char, char );
+
+  void AddValue( std::string s )
+  {
+    this->AddValue( s, '[', ']' );
+  }
+
+  void SetValue( unsigned int, std::string );
+
+  void SetUsageOption( unsigned int, std::string );
 
 protected:
-    CommandLineOption();
-    virtual ~CommandLineOption() {};
-
+  CommandLineOption();
+  virtual ~CommandLineOption()
+  {
+  };
 private:
-    char                                                     m_ShortName;
-    std::string                                              m_LongName;
-    std::string                                              m_Description;
-    ValueStackType                                           m_UsageOptions;
-    ValueStackType                                           m_Values;
-    ParameterStackType                                       m_Parameters;
+  char               m_ShortName;
+  std::string        m_LongName;
+  std::string        m_Description;
+  ValueStackType     m_UsageOptions;
+  ValueStackType     m_Values;
+  ParameterStackType m_Parameters;
 };
 
 } // end namespace ants

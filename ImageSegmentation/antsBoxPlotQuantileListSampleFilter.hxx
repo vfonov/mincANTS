@@ -25,11 +25,14 @@
 #include "itkHistogram.h"
 #include "itkSampleToHistogramFilter.h"
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
-template<class TScalarListSample>
+template <class TScalarListSample>
 BoxPlotQuantileListSampleFilter<TScalarListSample>
 ::BoxPlotQuantileListSampleFilter()
 {
@@ -42,13 +45,13 @@ BoxPlotQuantileListSampleFilter<TScalarListSample>
   this->m_UpperPercentile = 0.75;
 }
 
-template<class TScalarListSample>
+template <class TScalarListSample>
 BoxPlotQuantileListSampleFilter<TScalarListSample>
 ::~BoxPlotQuantileListSampleFilter()
 {
 }
 
-template<class TScalarListSample>
+template <class TScalarListSample>
 void
 BoxPlotQuantileListSampleFilter<TScalarListSample>
 ::GenerateData()
@@ -71,10 +74,10 @@ BoxPlotQuantileListSampleFilter<TScalarListSample>
    */
 
   typedef itk::Statistics::
-    Histogram<RealType, itk::Statistics::DenseFrequencyContainer2> HistogramType;
+  Histogram<RealType, itk::Statistics::DenseFrequencyContainer2> HistogramType;
   typedef itk::Statistics::
-    SampleToHistogramFilter<ScalarListSampleType, HistogramType>
-    SampleFilterType;
+  SampleToHistogramFilter<ScalarListSampleType, HistogramType>
+  SampleFilterType;
   typename SampleFilterType::HistogramSizeType histogramSize( 1 );
   histogramSize.Fill( 200 );
 
@@ -88,10 +91,10 @@ BoxPlotQuantileListSampleFilter<TScalarListSample>
   RealType upperQuantile = sampleFilter->GetOutput()->
     Quantile( 0, this->m_UpperPercentile );
 
-  RealType upperBound = upperQuantile +
-    this->m_WhiskerScalingFactor * ( upperQuantile - lowerQuantile );
-  RealType lowerBound = lowerQuantile -
-    this->m_WhiskerScalingFactor * ( upperQuantile - lowerQuantile );
+  RealType upperBound = upperQuantile
+    + this->m_WhiskerScalingFactor * ( upperQuantile - lowerQuantile );
+  RealType lowerBound = lowerQuantile
+    - this->m_WhiskerScalingFactor * ( upperQuantile - lowerQuantile );
 
   typename ScalarListSampleType::ConstIterator It = this->GetInput()->Begin();
   It = this->GetInput()->Begin();
@@ -131,10 +134,10 @@ BoxPlotQuantileListSampleFilter<TScalarListSample>
     RealType upperQuantile2 = sampleFilter2->GetOutput()->
       Quantile( 0, this->m_UpperPercentile );
 
-    RealType upperBound2 = upperQuantile2 +
-      this->m_WhiskerScalingFactor * ( upperQuantile2 - lowerQuantile2 );
-    RealType lowerBound2 = lowerQuantile2 -
-      this->m_WhiskerScalingFactor * ( upperQuantile2 - lowerQuantile2 );
+    RealType upperBound2 = upperQuantile2
+      + this->m_WhiskerScalingFactor * ( upperQuantile2 - lowerQuantile2 );
+    RealType lowerBound2 = lowerQuantile2
+      - this->m_WhiskerScalingFactor * ( upperQuantile2 - lowerQuantile2 );
 
     this->GetOutput()->Clear();
 
@@ -159,16 +162,16 @@ BoxPlotQuantileListSampleFilter<TScalarListSample>
     }
 }
 
-template<class TScalarListSample>
+template <class TScalarListSample>
 void
 BoxPlotQuantileListSampleFilter<TScalarListSample>
 ::PrintSelf( std::ostream& os, Indent indent ) const
 {
   os << indent << "Percentile Bounds: ["
-    << this->m_LowerPercentile << ", " << this->m_UpperPercentile << "]"
-    << std::endl;
+     << this->m_LowerPercentile << ", " << this->m_UpperPercentile << "]"
+     << std::endl;
   os << indent << "Whisker scaling factor: "
-    << this->m_WhiskerScalingFactor << std::endl;
+     << this->m_WhiskerScalingFactor << std::endl;
   os << indent << "Outlier handling: ";
   if( this->m_OutlierHandling == None )
     {
@@ -184,10 +187,8 @@ BoxPlotQuantileListSampleFilter<TScalarListSample>
     }
 }
 
-
 } // end of namespace Statistics
 } // end of namespace ants
 } // end of namespace itk
-
 
 #endif

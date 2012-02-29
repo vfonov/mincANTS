@@ -26,9 +26,12 @@
 
 #include <vector>
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 /** \class ManifoldParzenWindowsListSampleFunction.h
  * \brief point set filter.
@@ -36,14 +39,14 @@ namespace Statistics {
 
 template <class TListSample, class TOutput = double, class TCoordRep = double>
 class ITK_EXPORT ManifoldParzenWindowsListSampleFunction
-: public ListSampleFunction<TListSample, TOutput, TCoordRep>
+  : public ListSampleFunction<TListSample, TOutput, TCoordRep>
 {
 public:
-  typedef ManifoldParzenWindowsListSampleFunction          Self;
+  typedef ManifoldParzenWindowsListSampleFunction Self;
   typedef ListSampleFunction
-    <TListSample, TOutput, TCoordRep>                      Superclass;
-  typedef SmartPointer<Self>                               Pointer;
-  typedef SmartPointer<const Self>                         ConstPointer;
+  <TListSample, TOutput, TCoordRep>                      Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro( Self );
@@ -51,29 +54,28 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro( ManifoldParzenWindowsListSampleFunction, ListSampleFunction );
 
-  typedef typename Superclass::InputListSampleType          InputListSampleType;
-  typedef typename Superclass::InputMeasurementVectorType   InputMeasurementVectorType;
-  typedef typename Superclass::InputMeasurementType         InputMeasurementType;
+  typedef typename Superclass::InputListSampleType        InputListSampleType;
+  typedef typename Superclass::InputMeasurementVectorType InputMeasurementVectorType;
+  typedef typename Superclass::InputMeasurementType       InputMeasurementType;
 
   /** List sample typedef support. */
-  typedef TListSample                                       ListSampleType;
+  typedef TListSample ListSampleType;
 
   /** Kd tree typedefs */
   typedef typename itk::Statistics::
-    WeightedCentroidKdTreeGenerator<InputListSampleType>    TreeGeneratorType;
-  typedef typename TreeGeneratorType::KdTreeType            KdTreeType;
+  WeightedCentroidKdTreeGenerator<InputListSampleType>    TreeGeneratorType;
+  typedef typename TreeGeneratorType::KdTreeType KdTreeType;
   typedef typename KdTreeType
-    ::InstanceIdentifierVectorType                          NeighborhoodIdentifierType;
+  ::InstanceIdentifierVectorType                          NeighborhoodIdentifierType;
 
   /** Other typedef */
-  typedef TOutput                                  RealType;
-  typedef TOutput                                  OutputType;
-
+  typedef TOutput RealType;
+  typedef TOutput OutputType;
 
   typedef typename itk::Statistics::GaussianMembershipFunction
-    <InputMeasurementVectorType>                         GaussianType;
-  typedef std::vector<typename GaussianType::Pointer>    GaussianContainerType;
-  typedef typename GaussianType::CovarianceMatrixType    CovarianceMatrixType;
+  <InputMeasurementVectorType>                         GaussianType;
+  typedef std::vector<typename GaussianType::Pointer> GaussianContainerType;
+  typedef typename GaussianType::CovarianceMatrixType CovarianceMatrixType;
 
   /** Helper functions */
 
@@ -101,19 +103,19 @@ protected:
   void GenerateData();
 
 private:
-  //purposely not implemented
-  ManifoldParzenWindowsListSampleFunction( const Self& );
-  void operator=( const Self& );
+  // purposely not implemented
+  ManifoldParzenWindowsListSampleFunction( const Self & );
+  void operator=( const Self & );
 
-  unsigned int                                  m_CovarianceKNeighborhood;
-  unsigned int                                  m_EvaluationKNeighborhood;
-  RealType                                      m_RegularizationSigma;
-  RealType                                      m_KernelSigma;
-  RealType                                      m_NormalizationFactor;
+  unsigned int m_CovarianceKNeighborhood;
+  unsigned int m_EvaluationKNeighborhood;
+  RealType     m_RegularizationSigma;
+  RealType     m_KernelSigma;
+  RealType     m_NormalizationFactor;
 
   typename TreeGeneratorType::Pointer           m_KdTreeGenerator;
 
-  GaussianContainerType                         m_Gaussians;
+  GaussianContainerType m_Gaussians;
 };
 
 } // end of namespace Statistics
@@ -125,5 +127,3 @@ private:
 #endif
 
 #endif
-
-

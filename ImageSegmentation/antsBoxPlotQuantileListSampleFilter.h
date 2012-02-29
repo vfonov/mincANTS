@@ -23,9 +23,12 @@
 
 #include <vector>
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 /** \class BoxPlotQuantileListSampleFilter
  * \brief Base class of filters intended to generate scalar samples from
@@ -33,25 +36,25 @@ namespace Statistics {
  *
  */
 
-template<class TScalarListSample>
+template <class TScalarListSample>
 class ITK_EXPORT BoxPlotQuantileListSampleFilter
-: public ListSampleToListSampleFilter<TScalarListSample, TScalarListSample>
+  : public ListSampleToListSampleFilter<TScalarListSample, TScalarListSample>
 {
 public:
   /**
    * Standard class typedefs.
    */
-  typedef BoxPlotQuantileListSampleFilter                     Self;
+  typedef BoxPlotQuantileListSampleFilter Self;
   typedef ListSampleToListSampleFilter
-    <TScalarListSample, TScalarListSample>                    Superclass;
-  typedef SmartPointer<Self>                                  Pointer;
-  typedef SmartPointer<const Self>                            ConstPointer;
+  <TScalarListSample, TScalarListSample>                    Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /**
    * Standard macros
    */
   itkTypeMacro( BoxPlotQuantileListSampleFilter,
-    ListSampleToScalarListSampleFilter );
+                ListSampleToScalarListSampleFilter );
 
   /**
    * Method for creation through the object factory.
@@ -61,13 +64,13 @@ public:
   /**
    * Conveneient typedefs
    */
-  typedef double                                      RealType;
-  typedef TScalarListSample                           ScalarListSampleType;
+  typedef double            RealType;
+  typedef TScalarListSample ScalarListSampleType;
   typedef typename ScalarListSampleType
-    ::MeasurementVectorType                           MeasurementVectorType;
+  ::MeasurementVectorType                           MeasurementVectorType;
   typedef typename ScalarListSampleType
-    ::InstanceIdentifier                              InstanceIdentifierType;
-  typedef std::vector<InstanceIdentifierType>         InstanceIdentifierContainerType;
+  ::InstanceIdentifier                              InstanceIdentifierType;
+  typedef std::vector<InstanceIdentifierType> InstanceIdentifierContainerType;
 
   enum OutlierHandlingType { None, Trim, Winsorize };
 
@@ -84,12 +87,11 @@ public:
   itkGetConstMacro( LowerPercentile, RealType );
 
   InstanceIdentifierContainerType GetOutlierInstanceIdentifiers()
-    {
+  {
     return this->m_OutlierInstanceIdentifiers;
-    }
+  }
 
 //   itkGetConstMacro( Outliers, InstanceIdentifierContainerType );
-
 protected:
   BoxPlotQuantileListSampleFilter();
   virtual ~BoxPlotQuantileListSampleFilter();
@@ -99,20 +101,19 @@ protected:
   virtual void GenerateData();
 
 private:
-  BoxPlotQuantileListSampleFilter( const Self& ); //purposely not implemented
-  void operator=( const Self& ); //purposely not implemented
+  BoxPlotQuantileListSampleFilter( const Self & ); // purposely not implemented
+  void operator=( const Self & );                  // purposely not implemented
 
   InstanceIdentifierType FindMaximumNonOutlierDeviationValue( RealType, RealType );
-  bool IsMeasurementAnOutlier( RealType, RealType, RealType, unsigned long );
+  bool                   IsMeasurementAnOutlier( RealType, RealType, RealType, unsigned long );
 
-  OutlierHandlingType                                 m_OutlierHandling;
-  InstanceIdentifierContainerType                     m_OutlierInstanceIdentifiers;
-  RealType                                            m_WhiskerScalingFactor;
-  RealType                                            m_LowerPercentile;
-  RealType                                            m_UpperPercentile;
+  OutlierHandlingType             m_OutlierHandling;
+  InstanceIdentifierContainerType m_OutlierInstanceIdentifiers;
+  RealType                        m_WhiskerScalingFactor;
+  RealType                        m_LowerPercentile;
+  RealType                        m_UpperPercentile;
 
-
-}; // end of class
+};    // end of class
 
 } // end of namespace Statistics
 } // end of namespace ants4443

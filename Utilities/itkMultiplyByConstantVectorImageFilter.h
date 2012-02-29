@@ -34,12 +34,16 @@ namespace itk
  */
 namespace Functor
 {
-template< class TInput, class TConstantVector, class TOutput >
+template <class TInput, class TConstantVector, class TOutput>
 class MultiplyByConstantVector
 {
 public:
-  MultiplyByConstantVector() {}
-  ~MultiplyByConstantVector() {}
+  MultiplyByConstantVector()
+  {
+  }
+  ~MultiplyByConstantVector()
+  {
+  }
   bool operator!=(const MultiplyByConstantVector & other) const
   {
     return !( *this == other );
@@ -56,27 +60,33 @@ public:
     // check if the cte is not 0;
 
     TConstantVector value;
-    for ( unsigned int i = 0; i < m_ConstantVector.GetVectorDimension(); i++ )
+    for( unsigned int i = 0; i < m_ConstantVector.GetVectorDimension(); i++ )
       {
       value[i] = A[i] * m_ConstantVector[i];
       }
     return value;
   }
 
-  void SetConstantVector(TConstantVector ct) { this->m_ConstantVector = ct; }
-  const TConstantVector & GetConstantVector() const { return m_ConstantVector; }
+  void SetConstantVector(TConstantVector ct)
+  {
+    this->m_ConstantVector = ct;
+  }
+  const TConstantVector & GetConstantVector() const
+  {
+    return m_ConstantVector;
+  }
 
   TConstantVector m_ConstantVector;
 };
 }
 
-template< class TInputImage, class TConstantVector, class TOutputImage >
-class ITK_EXPORT MultiplyByConstantVectorImageFilter:
+template <class TInputImage, class TConstantVector, class TOutputImage>
+class ITK_EXPORT MultiplyByConstantVectorImageFilter :
   public
   UnaryFunctorImageFilter<TInputImage, TOutputImage,
-                           Functor::MultiplyByConstantVector<
-                             typename TInputImage::PixelType, TConstantVector,
-                             typename TOutputImage::PixelType > >
+                          Functor::MultiplyByConstantVector<
+                            typename TInputImage::PixelType, TConstantVector,
+                            typename TOutputImage::PixelType> >
 {
 public:
   /** Standard class typedefs. */
@@ -99,7 +109,7 @@ public:
   /** Set the constant that will be used to multiply all the image pixels */
   void SetConstantVector( TConstantVector ct )
   {
-    if ( ct != this->GetFunctor().GetConstantVector() )
+    if( ct != this->GetFunctor().GetConstantVector() )
       {
       this->GetFunctor().SetConstantVector( ct );
       this->Modified();
@@ -112,8 +122,12 @@ public:
   }
 
 protected:
-  MultiplyByConstantVectorImageFilter() {}
-  virtual ~MultiplyByConstantVectorImageFilter() {}
+  MultiplyByConstantVectorImageFilter()
+  {
+  }
+  virtual ~MultiplyByConstantVectorImageFilter()
+  {
+  }
 
   void PrintSelf(std::ostream & os, Indent indent ) const
   {
@@ -122,8 +136,9 @@ protected:
   }
 
 private:
-  MultiplyByConstantVectorImageFilter(const Self &); //purposely not implemented
-  void operator=(const Self &);                //purposely not implemented
+  MultiplyByConstantVectorImageFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);                      // purposely not implemented
+
 };
 } // end namespace itk
 

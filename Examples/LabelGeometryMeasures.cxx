@@ -10,13 +10,13 @@
 template <unsigned int ImageDimension>
 int LabelGeometryMeasures( int argc, char * argv[] )
 {
-  typedef int LabelType;
+  typedef int                                   LabelType;
   typedef itk::Image<LabelType, ImageDimension> LabelImageType;
-  typedef itk::ImageFileReader<LabelImageType> LabelReaderType;
+  typedef itk::ImageFileReader<LabelImageType>  LabelReaderType;
 
-  typedef float RealType;
+  typedef float                                RealType;
   typedef itk::Image<RealType, ImageDimension> RealImageType;
-  typedef itk::ImageFileReader<RealImageType> ReaderType;
+  typedef itk::ImageFileReader<RealImageType>  ReaderType;
 
   typename LabelReaderType::Pointer labelReader = LabelReaderType::New();
   labelReader->SetFileName( argv[2] );
@@ -44,7 +44,6 @@ int LabelGeometryMeasures( int argc, char * argv[] )
 //   filter->CalculateOrientedBoundingBoxOn();;
 //   filter->CalculateOrientedLabelRegionsOn();
   filter->Update();
-
 
   typename FilterType::LabelsType allLabels = filter->GetLabels();
   typename FilterType::LabelsType::iterator allLabelsIt;
@@ -112,21 +111,20 @@ int main( int argc, char *argv[] )
   if( argc < 3 )
     {
     std::cerr << "Usage: " << argv[0] << " imageDimension labelImage [intensityImage]"
-      << std::endl;
+              << std::endl;
     return EXIT_FAILURE;
     }
 
   switch( atoi( argv[1] ) )
-   {
-   case 2:
-     LabelGeometryMeasures<2>( argc, argv );
-     break;
-   case 3:
-     LabelGeometryMeasures<3>( argc, argv );
-     break;
-   default:
+    {
+    case 2:
+      LabelGeometryMeasures<2>( argc, argv );
+      break;
+    case 3:
+      LabelGeometryMeasures<3>( argc, argv );
+      break;
+    default:
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
-   }
+    }
 }
-

@@ -27,16 +27,16 @@
 
 namespace itk
 {
-template<unsigned int TDimension = 3>
+template <unsigned int TDimension = 3>
 class ITK_EXPORT ANTSLabeledPointSet
-: public Object
+  : public Object
 {
 public:
   /** Standard class typedefs. */
-  typedef ANTSLabeledPointSet                             Self;
-  typedef Object                                           Superclass;
-  typedef SmartPointer<Self>                               Pointer;
-  typedef SmartPointer<const Self>                         ConstPointer;
+  typedef ANTSLabeledPointSet      Self;
+  typedef Object                   Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro( Self );
@@ -45,60 +45,61 @@ public:
   itkTypeMacro( ANTSLabeledPointSet, Object );
   itkStaticConstMacro( Dimension, unsigned int, TDimension );
 
-  typedef float                                           RealType;
-  typedef Image<RealType,  itkGetStaticConstMacro( Dimension )>                   ImageType;
-  typedef typename ImageType::Pointer                      ImagePointer;
-  typedef Vector<RealType, itkGetStaticConstMacro( Dimension )>                   VectorType;
-  typedef Image<VectorType, itkGetStaticConstMacro( Dimension )>                   DisplacementFieldType;
+  typedef float                                                  RealType;
+  typedef Image<RealType,  itkGetStaticConstMacro( Dimension )>  ImageType;
+  typedef typename ImageType::Pointer                            ImagePointer;
+  typedef Vector<RealType, itkGetStaticConstMacro( Dimension )>  VectorType;
+  typedef Image<VectorType, itkGetStaticConstMacro( Dimension )> DisplacementFieldType;
 
   /** Point Types  for landmarks and labeled point-sets */
-  typedef long PointDataVectorType;
+  typedef long                                          PointDataVectorType;
   typedef itk::PointSet<PointDataVectorType, Dimension> PointSetType;
-  typedef typename PointSetType::Pointer PointSetPointer;
-  typedef typename PointSetType::PointType PointType;
-  typedef typename PointSetType::PixelType PointDataType;
-  typedef typename ImageType::PointType ImagePointType;
+  typedef typename PointSetType::Pointer                PointSetPointer;
+  typedef typename PointSetType::PointType              PointType;
+  typedef typename PointSetType::PixelType              PointDataType;
+  typedef typename ImageType::PointType                 ImagePointType;
 
   itkSetMacro( PointSet, PointSetPointer );
   itkGetConstMacro( PointSet, PointSetPointer );
 
   PointType  GetPoint( unsigned long ii)
   {
-     PointType point;
-     this->m_PointSet->GetPoint(ii,&point);
-     return point;
+    PointType point;
+
+    this->m_PointSet->GetPoint(ii, &point);
+    return point;
   }
+
   PointDataType  GetPointData( unsigned long ii)
   {
-     PointDataType data;
-     this->m_PointSet->GetPointData(ii,&data);
-     return data;
+    PointDataType data;
+
+    this->m_PointSet->GetPointData(ii, &data);
+    return data;
   }
 
-  void  SetPoint( unsigned long ii ,  PointType point )
+  void  SetPoint( unsigned long ii,  PointType point )
   {
-    this->m_PointSet->SetPoint(ii,point);
-  }
-  void  SetPointData( unsigned long ii ,  PointDataType label )
-  {
-    this->m_PointSet->SetPointData(ii,label);
-  }
-  void  SetPointAndData( unsigned long ii ,  PointType point , PointDataType label )
-  {
-    this->m_PointSet->SetPoint(ii,point);
-    this->m_PointSet->SetPointData(ii,label);
+    this->m_PointSet->SetPoint(ii, point);
   }
 
+  void  SetPointData( unsigned long ii,  PointDataType label )
+  {
+    this->m_PointSet->SetPointData(ii, label);
+  }
+
+  void  SetPointAndData( unsigned long ii,  PointType point, PointDataType label )
+  {
+    this->m_PointSet->SetPoint(ii, point);
+    this->m_PointSet->SetPointData(ii, label);
+  }
 
 private:
 
-
-  PointSetPointer                                             m_PointSet;
-
+  PointSetPointer m_PointSet;
 
 };
 
 } // end namespace itk
 
 #endif
-

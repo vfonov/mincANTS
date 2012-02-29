@@ -32,116 +32,116 @@ namespace itk
 /**
  * Default constructor.
  */
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
 ::WarpTensorImageMultiTransformFilter()
 {
-    // Setup the number of required inputs
-    this->SetNumberOfRequiredInputs( 1 );
+  // Setup the number of required inputs
+  this->SetNumberOfRequiredInputs( 1 );
 
-    // Setup default values
-    m_OutputSpacing.Fill( 1.0 );
-    m_OutputOrigin.Fill( 0.0 );
+  // Setup default values
+  m_OutputSpacing.Fill( 1.0 );
+  m_OutputOrigin.Fill( 0.0 );
 
-    PixelType Zero;
-    Zero.SetIdentity();
-    Zero=Zero*1.e-6;
-    m_EdgePaddingValue = Zero;
+  PixelType Zero;
+  Zero.SetIdentity();
+  Zero = Zero * 1.e-6;
+  m_EdgePaddingValue = Zero;
 
-    // Setup default interpolator
-    typename DefaultInterpolatorType::Pointer interp = DefaultInterpolatorType::New();
+  // Setup default interpolator
+  typename DefaultInterpolatorType::Pointer interp = DefaultInterpolatorType::New();
 
-    m_Interpolator = static_cast<InterpolatorType*>( interp.GetPointer() );
+  m_Interpolator = static_cast<InterpolatorType *>( interp.GetPointer() );
 
-    m_SmoothScale = -1;
+  m_SmoothScale = -1;
 
-    // m_bOutputDisplacementField = false;
+  // m_bOutputDisplacementField = false;
 
-    // m_TransformOrder = AffineFirst;
-
+  // m_TransformOrder = AffineFirst;
 
 }
 
-//template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
-//void
-//WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
-//::SetInterpolator1(InterpolatorPointer interp)
-//{
+// template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+// void
+// WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+// ::SetInterpolator1(InterpolatorPointer interp)
+// {
 //    m_Interpolator = static_cast<InterpolatorType*> (interp.GetPointer());
 //    std::cout << "set interpolator in WarpImage:" << interp << std::endl;
-//}
+// }
 
-
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 void
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
 ::PrintTransformList()
 {
-    std::cout << "transform list: " << std::endl;
-    typename TransformListType::iterator it = (m_TransformList.begin());
-    for(int ii=0; it != m_TransformList.end(); it++, ii++){
-        switch(it->first){
-        case EnumAffineType:
-            std::cout << '[' << ii << "]: EnumAffineType" << std::endl;
-            std::cout << it->second.aex.aff << std::endl;
-            break;
-        case EnumDisplacementFieldType:
-            std::cout << '[' << ii << "]: EnumDisplacementFieldType: size"
-            << it->second.dex.field->GetLargestPossibleRegion().GetSize() << std::endl;
-        }
+  std::cout << "transform list: " << std::endl;
+  typename TransformListType::iterator it = (m_TransformList.begin() );
+  for( int ii = 0; it != m_TransformList.end(); it++, ii++ )
+    {
+    switch( it->first )
+      {
+      case EnumAffineType:
+        std::cout << '[' << ii << "]: EnumAffineType" << std::endl;
+        std::cout << it->second.aex.aff << std::endl;
+        break;
+      case EnumDisplacementFieldType:
+        std::cout << '[' << ii << "]: EnumDisplacementFieldType: size"
+                  << it->second.dex.field->GetLargestPossibleRegion().GetSize() << std::endl;
+      }
     }
 }
+
 /**
  * Standard PrintSelf method.
  */
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 void
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
 ::PrintSelf(std::ostream& os, Indent indent) const
 {
 
-    Superclass::PrintSelf(os, indent);
+  Superclass::PrintSelf(os, indent);
 
-    os << indent << "OutputSpacing: " << m_OutputSpacing << std::endl;;
-    os << indent << "OutputOrigin: " << m_OutputOrigin << std::endl;
-    os << indent << "EdgePaddingValue: "
-    << static_cast<typename NumericTraits<PixelType>::PrintType>(m_EdgePaddingValue)
-    << std::endl;
-    os << indent << "Interpolator: " << m_Interpolator.GetPointer() << std::endl;
+  os << indent << "OutputSpacing: " << m_OutputSpacing << std::endl;;
+  os << indent << "OutputOrigin: " << m_OutputOrigin << std::endl;
+  os << indent << "EdgePaddingValue: "
+     << static_cast<typename NumericTraits<PixelType>::PrintType>(m_EdgePaddingValue)
+     << std::endl;
+  os << indent << "Interpolator: " << m_Interpolator.GetPointer() << std::endl;
 
-    os << indent << "m_bFirstDeformNoInterp = " << m_bFirstDeformNoInterp << std::endl;
-
+  os << indent << "m_bFirstDeformNoInterp = " << m_bFirstDeformNoInterp << std::endl;
 
 }
-
 
 /**
  * Set the output image spacing.
  *
  */
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 void
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
 ::SetOutputSpacing(
-        const double* spacing)
+  const double* spacing)
 {
-    SpacingType s(spacing);
-    this->SetOutputSpacing( s );
-}
+  SpacingType s(spacing);
 
+  this->SetOutputSpacing( s );
+}
 
 /**
  * Set the output image origin.
  *
  */
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 void
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
 ::SetOutputOrigin(
-        const double* origin)
+  const double* origin)
 {
-    PointType p(origin);
-    this->SetOutputOrigin(p);
+  PointType p(origin);
+
+  this->SetOutputOrigin(p);
 }
 
 /**
@@ -149,97 +149,93 @@ WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField,
  * InterpolatorType::SetInputImage is not thread-safe and hence
  * has to be setup before ThreadedGenerateData
  */
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 void
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
 ::BeforeThreadedGenerateData()
 {
 
-    if( !m_Interpolator )
+  if( !m_Interpolator )
     {
-        itkExceptionMacro(<< "Interpolator not set");
+    itkExceptionMacro(<< "Interpolator not set");
     }
 
-    // Connect input image to interpolator
-    // m_Interpolator->SetInputImage( this->GetInput() );
+  // Connect input image to interpolator
+  // m_Interpolator->SetInputImage( this->GetInput() );
 
-    if (m_CachedSmoothImage.IsNull() && (this->GetInput() )){
-        m_CachedSmoothImage = const_cast<InputImageType *> (this->GetInput());
+  if( m_CachedSmoothImage.IsNull() && (this->GetInput() ) )
+    {
+    m_CachedSmoothImage = const_cast<InputImageType *>(this->GetInput() );
     }
 
-    m_Interpolator->SetInputImage( m_CachedSmoothImage );
+  m_Interpolator->SetInputImage( m_CachedSmoothImage );
 
 }
 
 /**
  * Setup state of filter after multi-threading.
  */
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 void
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
 ::AfterThreadedGenerateData()
 {
-    // Disconnect input image from interpolator
-    m_Interpolator->SetInputImage( NULL );
+  // Disconnect input image from interpolator
+  m_Interpolator->SetInputImage( NULL );
 
 }
 
-
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 void
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
 ::GenerateInputRequestedRegion()
 {
 
-    // call the superclass's implementation
-    Superclass::GenerateInputRequestedRegion();
+  // call the superclass's implementation
+  Superclass::GenerateInputRequestedRegion();
 
-    // request the largest possible region for the input image
-    InputImagePointer inputPtr = const_cast< InputImageType * >( this->GetInput() );
+  // request the largest possible region for the input image
+  InputImagePointer inputPtr = const_cast<InputImageType *>( this->GetInput() );
 
-    if( inputPtr )
+  if( inputPtr )
     {
-        inputPtr->SetRequestedRegionToLargestPossibleRegion();
+    inputPtr->SetRequestedRegionToLargestPossibleRegion();
     }
 
-    return;
-
+  return;
 
 }
 
-
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 void
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
 ::GenerateOutputInformation()
 {
-    // call the superclass's implementation of this method
-    Superclass::GenerateOutputInformation();
+  // call the superclass's implementation of this method
+  Superclass::GenerateOutputInformation();
 
-    OutputImagePointer outputPtr = this->GetOutput();
-    if ( !outputPtr )
+  OutputImagePointer outputPtr = this->GetOutput();
+  if( !outputPtr )
     {
-        return;
+    return;
     }
 
-
-    typename TOutputImage::RegionType outputLargestPossibleRegion;
-    outputLargestPossibleRegion.SetSize( this->m_OutputSize );
-    // outputLargestPossibleRegion.SetIndex( 0 );
-    outputPtr->SetLargestPossibleRegion( outputLargestPossibleRegion );
-    outputPtr->SetSpacing( this->m_OutputSpacing );
-    outputPtr->SetOrigin( this->m_OutputOrigin );
-    outputPtr->SetDirection( this->m_OutputDirection  );
-    // determine if the deformation field is the same dimension as the image
-    // so that it does not need interpolation in the first step
-    DetermineFirstDeformNoInterp();
-
+  typename TOutputImage::RegionType outputLargestPossibleRegion;
+  outputLargestPossibleRegion.SetSize( this->m_OutputSize );
+  // outputLargestPossibleRegion.SetIndex( 0 );
+  outputPtr->SetLargestPossibleRegion( outputLargestPossibleRegion );
+  outputPtr->SetSpacing( this->m_OutputSpacing );
+  outputPtr->SetOrigin( this->m_OutputOrigin );
+  outputPtr->SetDirection( this->m_OutputDirection  );
+  // determine if the deformation field is the same dimension as the image
+  // so that it does not need interpolation in the first step
+  DetermineFirstDeformNoInterp();
 
 }
 
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 void
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
 ::SetSmoothScale(double scale)
 {
 /*
@@ -299,79 +295,80 @@ WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField,
     }
 */
 
-  InputImagePointer image = const_cast<InputImageType *> (this->GetInput());
+  InputImagePointer image = const_cast<InputImageType *>(this->GetInput() );
+
   m_CachedSmoothImage = image;
 
 }
 
-
-
 /**
  * Compute the output for the region specified by outputRegionForThread.
  */
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 void
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
 ::ThreadedGenerateData(
-        const OutputImageRegionType& outputRegionForThread,
-        ThreadIdType threadId )
+  const OutputImageRegionType& outputRegionForThread,
+  ThreadIdType threadId )
 {
-    InputImageConstPointer inputPtr = this->GetInput();
-    OutputImagePointer outputPtr = this->GetOutput();
+  InputImageConstPointer inputPtr = this->GetInput();
+  OutputImagePointer     outputPtr = this->GetOutput();
 
-    //std::cout << "inputPtr->GetOrigin():" << inputPtr->GetOrigin() << std::endl;
-    //std::cout << "outputPtr->GetOrigin():" << outputPtr->GetOrigin() << std::endl;
+  // std::cout << "inputPtr->GetOrigin():" << inputPtr->GetOrigin() << std::endl;
+  // std::cout << "outputPtr->GetOrigin():" << outputPtr->GetOrigin() << std::endl;
 
+  // exit(-1);
+
+  IndexType index;
+
+  index.Fill(0);
+  this->m_EdgePaddingValue = inputPtr->GetPixel(index);
+
+  // support progress methods/callbacks
+  ProgressReporter progress(this, threadId, outputRegionForThread.GetNumberOfPixels() );
+
+  // iterator for the output image
+  ImageRegionIteratorWithIndex<OutputImageType> outputIt(outputPtr, outputRegionForThread);
+
+  while( !outputIt.IsAtEnd() )
+    {
+    PointType point1, point2;
+
+    // get the output image index
+    IndexType index = outputIt.GetIndex();
+    outputPtr->TransformIndexToPhysicalPoint( index, point1 );
+
+    bool isinside = MultiTransformPoint(point1, point2, m_bFirstDeformNoInterp, index);
+
+    // std::cout << "point1:" << point1 << "  point2:" << point2 << " index:" << index << std::endl;
     // exit(-1);
 
+    // warp the image
+    // get the interpolated value
+    if( isinside && (m_Interpolator->IsInsideBuffer( point2 ) ) )
+      {
+      PixelType value = static_cast<PixelType>(m_Interpolator->Evaluate(point2) );
+      outputIt.Set( value );
+      }
+    else
+      {
+      // std::cout << "OUTSIDE" << " isinside:" << isinside << " m_Interpolator->IsInsideBuffer( point2 ):" <<
+      // m_Interpolator->IsInsideBuffer( point2 ) <<  std::endl;
+      outputIt.Set( m_EdgePaddingValue );
+      }
 
-
-    IndexType index;
-    index.Fill(0);
-    this->m_EdgePaddingValue=inputPtr->GetPixel(index);
-
-    // support progress methods/callbacks
-    ProgressReporter progress(this, threadId, outputRegionForThread.GetNumberOfPixels());
-
-    // iterator for the output image
-    ImageRegionIteratorWithIndex<OutputImageType> outputIt(outputPtr, outputRegionForThread);
-
-    while( !outputIt.IsAtEnd() )
-    {
-        PointType point1, point2;
-
-        // get the output image index
-        IndexType index = outputIt.GetIndex();
-        outputPtr->TransformIndexToPhysicalPoint( index, point1 );
-
-        bool isinside = MultiTransformPoint(point1, point2, m_bFirstDeformNoInterp, index);
-
-        // std::cout << "point1:" << point1 << "  point2:" << point2 << " index:" << index << std::endl;
-        // exit(-1);
-
-        // warp the image
-        // get the interpolated value
-        if( isinside && (m_Interpolator->IsInsideBuffer( point2 )) ) {
-            PixelType value = static_cast<PixelType>(m_Interpolator->Evaluate(point2));
-            outputIt.Set( value );
-        }
-        else {
-           // std::cout << "OUTSIDE" << " isinside:" << isinside << " m_Interpolator->IsInsideBuffer( point2 ):" << m_Interpolator->IsInsideBuffer( point2 ) <<  std::endl;
-            outputIt.Set( m_EdgePaddingValue );
-        }
-
-        ++outputIt;
+    ++outputIt;
     }
 
-    progress.CompletedPixel();
+  progress.CompletedPixel();
 
 }
 
-//template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
-//void
-//WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
-//::UpdateSizeByScale()
-//{
+// template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+// void
+// WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+// ::UpdateSizeByScale()
+// {
 //
 //    //    DisplacementFieldPointer field = this->GetDisplacementField();
 //    //
@@ -379,245 +376,275 @@ WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField,
 //    //    SetOutputOrigin( field->GetOrigin() );
 //    //
 //    //    typename InputImageType::SizeType imgsz =  field->GetLargestPossibleRegion().GetSize();
-//    //    for(int ii = 0; ii < InputImageType::ImageDimension; ii++) imgsz[ii] = (typename InputImageType::SizeType::SizeValueType) (imgsz[ii] * m_SmoothScale + 0.5);
+//    //    for(int ii = 0; ii < InputImageType::ImageDimension; ii++) imgsz[ii] = (typename
+// InputImageType::SizeType::SizeValueType) (imgsz[ii] * m_SmoothScale + 0.5);
 //    //
 //    //    SetOutputSize(imgsz);
 //
-//}
+// }
 
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 void
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
 ::PushBackAffineTransform(const TransformType* t)
 {
 
-    if (t){
-        VarTransformType t1;
-        t1.aex.aff = const_cast<TransformType *> (t);
-        m_TransformList.push_back(SingleTransformItemType(EnumAffineType, t1));
+  if( t )
+    {
+    VarTransformType t1;
+    t1.aex.aff = const_cast<TransformType *>(t);
+    m_TransformList.push_back(SingleTransformItemType(EnumAffineType, t1) );
     }
 }
 
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 void
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
 ::PushBackDisplacementFieldTransform(const DisplacementFieldType* t)
 {
-    if (t){
-        VarTransformType t1;
-        t1.dex.field = const_cast<DisplacementFieldType *> (t);
-        t1.dex.vinterp = DefaultVectorInterpolatorType::New();
-        t1.dex.vinterp->SetInputImage(t1.dex.field);
+  if( t )
+    {
+    VarTransformType t1;
+    t1.dex.field = const_cast<DisplacementFieldType *>(t);
+    t1.dex.vinterp = DefaultVectorInterpolatorType::New();
+    t1.dex.vinterp->SetInputImage(t1.dex.field);
 
-        m_TransformList.push_back(SingleTransformItemType(EnumDisplacementFieldType, t1));
+    m_TransformList.push_back(SingleTransformItemType(EnumDisplacementFieldType, t1) );
     }
 
 }
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 bool
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
-::MultiTransformSinglePoint(const PointType &point1, PointType &point2)
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
+::MultiTransformSinglePoint(const PointType & point1, PointType & point2)
 {
-    IndexType null_index;
+  IndexType null_index;
 
-    bool isinside = MultiTransformPoint(point1, point2, false, null_index);
+  bool isinside = MultiTransformPoint(point1, point2, false, null_index);
 
-    return isinside;
+  return isinside;
 }
 
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 bool
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
-::IsOutOfNumericBoundary(const PointType &p)
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
+::IsOutOfNumericBoundary(const PointType & p)
 {
-    const DisplacementScalarValueType kMaxDisp = itk::NumericTraits<DisplacementScalarValueType>::max();
+  const DisplacementScalarValueType kMaxDisp = itk::NumericTraits<DisplacementScalarValueType>::max();
 
-    bool b = false;
-    for (int i = 0; i < ImageDimension; i++) {
-        if (p[i]>=kMaxDisp ){
-            b = true;
-            break;
-        }
+  bool b = false;
+  for( int i = 0; i < ImageDimension; i++ )
+    {
+    if( p[i] >= kMaxDisp )
+      {
+      b = true;
+      break;
+      }
     }
 
-    return b;
+  return b;
 }
 
-
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 void
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
-::ComposeAffineOnlySequence(const PointType &center_output, TransformTypePointer &affine_output)
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
+::ComposeAffineOnlySequence(const PointType & center_output, TransformTypePointer & affine_output)
 {
 //    std::cout << "test " ;
 //    TransformTypePointer affine_output = TransformType::New();
-    affine_output->SetIdentity();
-    affine_output->SetCenter(center_output);
+  affine_output->SetIdentity();
+  affine_output->SetCenter(center_output);
 
 //    std::cout << affine_output;
 
-    typename TransformListType::iterator it = m_TransformList.begin();
-    for(;it!=m_TransformList.end(); it++){
-        SingleTransformType ttype = it->first;
-        switch(ttype){
-        case EnumAffineType:
-        {
-            TransformTypePointer aff = it->second.aex.aff;
+  typename TransformListType::iterator it = m_TransformList.begin();
+  for( ; it != m_TransformList.end(); it++ )
+    {
+    SingleTransformType ttype = it->first;
 
-            affine_output->Compose(aff, 0);
+    switch( ttype )
+      {
+      case EnumAffineType:
+        {
+        TransformTypePointer aff = it->second.aex.aff;
+
+        affine_output->Compose(aff, 0);
 
 //            std::cout << affine_output;
 
-            break;
+        break;
         }
 
-        case EnumDisplacementFieldType:
-            std::cout << " Ignore deformation type ... " << std::endl;
-            break;
-        default:
-            itkExceptionMacro(<< "Single Transform Not Supported!");
-        }
+      case EnumDisplacementFieldType:
+        std::cout << " Ignore deformation type ... " << std::endl;
+        break;
+      default:
+        itkExceptionMacro(<< "Single Transform Not Supported!");
+      }
 
     }
-    return;
+  return;
 }
 
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 bool
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
-::MultiInverseAffineOnlySinglePoint(const PointType &p1, PointType &p2)
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
+::MultiInverseAffineOnlySinglePoint(const PointType & p1, PointType & p2)
 {
-    bool isinside = true;
-    PointType point1 = p1, point2;
+  bool      isinside = true;
+  PointType point1 = p1, point2;
 
+  typename TransformListType::iterator it = m_TransformList.begin();
+  for( ; it != m_TransformList.end(); it++ )
+    {
+    SingleTransformType ttype = it->first;
 
-    typename TransformListType::iterator it = m_TransformList.begin();
-    for(;it!=m_TransformList.end(); it++){
-        SingleTransformType ttype = it->first;
-        switch(ttype){
-        case EnumAffineType:
+    switch( ttype )
+      {
+      case EnumAffineType:
         {
-            TransformTypePointer aff = it->second.aex.aff;
-            TransformTypePointer aff_inv = TransformTypePointer::ObjectType::New();
+        TransformTypePointer aff = it->second.aex.aff;
+        TransformTypePointer aff_inv = TransformTypePointer::ObjectType::New();
 
-            // std::cout << "aff before:" << aff << std::endl;
+        // std::cout << "aff before:" << aff << std::endl;
 
-            aff->GetInverse(aff_inv);
-            // aff->GetInverse(aff);
-            // std::cout << "aff after:" << aff << std::endl;
-            // std::cout << "aff_inv after:" << aff_inv << std::endl;
+        aff->GetInverse(aff_inv);
+        // aff->GetInverse(aff);
+        // std::cout << "aff after:" << aff << std::endl;
+        // std::cout << "aff_inv after:" << aff_inv << std::endl;
 
-            point2 = aff_inv->TransformPoint(point1);
-            point1 = point2;
-            isinside = true;
-            break;
-        }
-
-        case EnumDisplacementFieldType:
-            break;
-        default:
-            itkExceptionMacro(<< "Single Transform Not Supported!");
-        }
-
-        if (IsOutOfNumericBoundary(point2)) {isinside = false; break;}
-
+        point2 = aff_inv->TransformPoint(point1);
         point1 = point2;
+        isinside = true;
+        break;
+        }
+
+      case EnumDisplacementFieldType:
+        break;
+      default:
+        itkExceptionMacro(<< "Single Transform Not Supported!");
+      }
+
+    if( IsOutOfNumericBoundary(point2) )
+      {
+      isinside = false; break;
+      }
+
+    point1 = point2;
     }
 
-    p2 = point2;
+  p2 = point2;
 
-    return isinside;
+  return isinside;
 }
 
-
-
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 bool
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
-::MultiTransformPoint(const PointType &p1, PointType &p2, bool bFisrtDeformNoInterp, const IndexType &index)
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
+::MultiTransformPoint(const PointType & p1, PointType & p2, bool bFisrtDeformNoInterp, const IndexType & index)
 {
-    bool isinside = false;
-    PointType point1 = p1, point2;
+  bool      isinside = false;
+  PointType point1 = p1, point2;
 
+  typename TransformListType::iterator it = m_TransformList.begin();
+  for( ; it != m_TransformList.end(); it++ )
+    {
+    SingleTransformType ttype = it->first;
 
-    typename TransformListType::iterator it = m_TransformList.begin();
-    for(;it!=m_TransformList.end(); it++){
-        SingleTransformType ttype = it->first;
-        switch(ttype){
-        case EnumAffineType:
+    switch( ttype )
+      {
+      case EnumAffineType:
         {
-            TransformTypePointer aff = it->second.aex.aff;
-            point2 = aff->TransformPoint(point1);
-            point1 = point2;
-            isinside = true;
+        TransformTypePointer aff = it->second.aex.aff;
+        point2 = aff->TransformPoint(point1);
+        point1 = point2;
+        isinside = true;
         }
         break;
-        case EnumDisplacementFieldType:
+      case EnumDisplacementFieldType:
         {
-            DisplacementFieldPointer fieldPtr = it->second.dex.field;
-            if (bFisrtDeformNoInterp && it==m_TransformList.begin() ){
-                // use discrete coordinates
-                DisplacementType displacement = fieldPtr->GetPixel(index);
-                for(int j = 0; j<ImageDimension; j++) point2[j] = point1[j] + displacement[j];
-                isinside = true;
+        DisplacementFieldPointer fieldPtr = it->second.dex.field;
+        if( bFisrtDeformNoInterp && it == m_TransformList.begin() )
+          {
+          // use discrete coordinates
+          DisplacementType displacement = fieldPtr->GetPixel(index);
+          for( int j = 0; j < ImageDimension; j++ )
+            {
+            point2[j] = point1[j] + displacement[j];
             }
-            else{
-                // use continous coordinates
-                typename DefaultVectorInterpolatorType::ContinuousIndexType  contind;
+          isinside = true;
+          }
+        else
+          {
+          // use continous coordinates
+          typename DefaultVectorInterpolatorType::ContinuousIndexType  contind;
 
-                // use ITK implementation to use orientation header
-                fieldPtr->TransformPhysicalPointToContinuousIndex(point1, contind);
+          // use ITK implementation to use orientation header
+          fieldPtr->TransformPhysicalPointToContinuousIndex(point1, contind);
 
-                isinside = fieldPtr->GetLargestPossibleRegion().IsInside( contind );
+          isinside = fieldPtr->GetLargestPossibleRegion().IsInside( contind );
 
-                VectorInterpolatorPointer vinterp = it->second.dex.vinterp;
-                typename DefaultVectorInterpolatorType::OutputType disp2;
-                if (isinside) disp2 = vinterp->EvaluateAtContinuousIndex( contind );
-                else disp2.Fill(0);
-
-                for (int jj=0; jj<ImageDimension; jj++) point2[jj]=disp2[jj]+point1[jj];
+          VectorInterpolatorPointer vinterp = it->second.dex.vinterp;
+          typename DefaultVectorInterpolatorType::OutputType disp2;
+          if( isinside )
+            {
+            disp2 = vinterp->EvaluateAtContinuousIndex( contind );
             }
+          else
+            {
+            disp2.Fill(0);
+            }
+          for( int jj = 0; jj < ImageDimension; jj++ )
+            {
+            point2[jj] = disp2[jj] + point1[jj];
+            }
+          }
         }
         break;
-        default:
-            itkExceptionMacro(<< "Single Transform Not Supported!");
-        }
+      default:
+        itkExceptionMacro(<< "Single Transform Not Supported!");
+      }
 
-        if (IsOutOfNumericBoundary(point2)) {isinside = false; break;}
+    if( IsOutOfNumericBoundary(point2) )
+      {
+      isinside = false; break;
+      }
 
-        point1 = point2;
+    point1 = point2;
     }
 
-    p2 = point2;
+  p2 = point2;
 
-    return isinside;
+  return isinside;
 }
 
-template <class TInputImage,class TOutputImage,class TDisplacementField, class TTransform>
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 void
-WarpTensorImageMultiTransformFilter<TInputImage,TOutputImage,TDisplacementField, TTransform>
+WarpTensorImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
 ::DetermineFirstDeformNoInterp()
 {
-    m_bFirstDeformNoInterp = false;
-    if (m_TransformList.size() >0 ){
-        if ((m_TransformList.front().first == EnumDisplacementFieldType)){
+  m_bFirstDeformNoInterp = false;
+  if( m_TransformList.size() > 0 )
+    {
+    if( (m_TransformList.front().first == EnumDisplacementFieldType) )
+      {
 
-            DisplacementFieldPointer field = m_TransformList.front().second.dex.field;
+      DisplacementFieldPointer field = m_TransformList.front().second.dex.field;
 
-            m_bFirstDeformNoInterp = (this->GetOutputSize() == field->GetLargestPossibleRegion().GetSize())
-            & (this->GetOutputSpacing() ==field->GetSpacing())
-            & (this->GetOutputOrigin() == field->GetOrigin());
+      m_bFirstDeformNoInterp = (this->GetOutputSize() == field->GetLargestPossibleRegion().GetSize() )
+        & (this->GetOutputSpacing() == field->GetSpacing() )
+        & (this->GetOutputOrigin() == field->GetOrigin() );
 
 //            std::cout << "in set: field size: " << field->GetLargestPossibleRegion().GetSize()
 //            << "output spacing: " << this->GetOutputSize() << std::endl;
 //            std::cout << field->GetSpacing() << " | " << this->GetOutputSpacing() << std::endl;
 //            std::cout << field->GetOrigin() << " | " << this->GetOutputOrigin() << std::endl;
 
-        }
+      }
     }
 }
 
 } // end namespace itk
 
-#endif  //__itkWarpTensorImageMultiTransformFilter_hxx
-
+#endif  // __itkWarpTensorImageMultiTransformFilter_hxx

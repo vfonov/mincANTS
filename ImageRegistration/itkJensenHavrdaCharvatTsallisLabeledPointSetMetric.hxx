@@ -21,7 +21,8 @@
 #include "itkJensenHavrdaCharvatTsallisLabeledPointSetMetric.h"
 
 #include "itkJensenHavrdaCharvatTsallisPointSetMetric.h"
-namespace itk {
+namespace itk
+{
 
 template <class TPointSet>
 JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
@@ -57,34 +58,35 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
 template <class TPointSet>
 void
 JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
-::Initialize( void ) throw ( ExceptionObject )
+::Initialize( void )
+throw ( ExceptionObject )
 {
   Superclass::Initialize();
 
-  if ( this->m_FixedLabelSet.size() <= 0
-       && this->m_FixedPointSet->GetNumberOfPoints() > 0 )
+  if( this->m_FixedLabelSet.size() <= 0
+      && this->m_FixedPointSet->GetNumberOfPoints() > 0 )
     {
     typename PointSetType::PointDataContainerIterator It
       = this->m_FixedPointSet->GetPointData()->Begin();
-    while ( It != this->m_FixedPointSet->GetPointData()->End() )
+    while( It != this->m_FixedPointSet->GetPointData()->End() )
       {
-      if ( find( this->m_FixedLabelSet.begin(), this->m_FixedLabelSet.end(),
-             It.Value() ) == this->m_FixedLabelSet.end() )
+      if( find( this->m_FixedLabelSet.begin(), this->m_FixedLabelSet.end(),
+                It.Value() ) == this->m_FixedLabelSet.end() )
         {
         this->m_FixedLabelSet.push_back( It.Value() );
         }
       ++It;
       }
     }
-  if ( this->m_MovingLabelSet.size() <= 0
-       && this->m_MovingPointSet->GetNumberOfPoints() > 0 )
+  if( this->m_MovingLabelSet.size() <= 0
+      && this->m_MovingPointSet->GetNumberOfPoints() > 0 )
     {
     typename PointSetType::PointDataContainerIterator It
       = this->m_MovingPointSet->GetPointData()->Begin();
-    while ( It != this->m_MovingPointSet->GetPointData()->End() )
+    while( It != this->m_MovingPointSet->GetPointData()->End() )
       {
-      if ( find( this->m_MovingLabelSet.begin(), this->m_MovingLabelSet.end(),
-             It.Value() ) == this->m_MovingLabelSet.end() )
+      if( find( this->m_MovingLabelSet.begin(), this->m_MovingLabelSet.end(),
+                It.Value() ) == this->m_MovingLabelSet.end() )
         {
         this->m_MovingLabelSet.push_back( It.Value() );
         }
@@ -99,24 +101,23 @@ unsigned int
 JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
 ::GetNumberOfValues() const
 {
-  if ( this->m_UseWithRespectToTheMovingPointSet )
+  if( this->m_UseWithRespectToTheMovingPointSet )
     {
-    if ( this->m_MovingPointSet )
+    if( this->m_MovingPointSet )
       {
-      return  this->m_MovingPointSet->GetPoints()->Size();
+      return this->m_MovingPointSet->GetPoints()->Size();
       }
     }
   else
     {
-    if ( this->m_FixedPointSet )
+    if( this->m_FixedPointSet )
       {
-      return  this->m_FixedPointSet->GetPoints()->Size();
+      return this->m_FixedPointSet->GetPoints()->Size();
       }
     }
 
   return 0;
 }
-
 
 /** Get the match Measure */
 template <class TPointSet>
@@ -125,21 +126,21 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
 ::GetValue( const TransformParametersType & parameters ) const
 {
   MeasureType measure;
+
   measure.SetSize( 1 );
   measure.Fill( 0 );
 
   typename LabelSetType::const_iterator iter;
-
-  for ( iter = this->m_FixedLabelSet.begin();
-        iter != this->m_FixedLabelSet.end(); ++iter )
+  for( iter = this->m_FixedLabelSet.begin();
+       iter != this->m_FixedLabelSet.end(); ++iter )
     {
     PixelType currentLabel = *iter;
 
     /**
      * check to see if the moving label set contains the same label
      */
-    if ( find( this->m_MovingLabelSet.begin(), this->m_MovingLabelSet.end(),
-           currentLabel ) == this->m_MovingLabelSet.end() )
+    if( find( this->m_MovingLabelSet.begin(), this->m_MovingLabelSet.end(),
+              currentLabel ) == this->m_MovingLabelSet.end() )
       {
       continue;
       }
@@ -157,9 +158,9 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     typename PointSetType::PointDataContainerIterator ItFD =
       this->m_FixedPointSet->GetPointData()->Begin();
 
-    while ( ItF != this->m_FixedPointSet->GetPoints()->End() )
+    while( ItF != this->m_FixedPointSet->GetPoints()->End() )
       {
-      if ( ItFD.Value() == currentLabel )
+      if( ItFD.Value() == currentLabel )
         {
         fixedLabelPoints->SetPoint( fixedCount++, ItF.Value() );
         }
@@ -177,9 +178,9 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     typename PointSetType::PointDataContainerIterator ItMD =
       this->m_MovingPointSet->GetPointData()->Begin();
 
-    while ( ItM != this->m_MovingPointSet->GetPoints()->End() )
+    while( ItM != this->m_MovingPointSet->GetPoints()->End() )
       {
-      if ( ItMD.Value() == currentLabel )
+      if( ItMD.Value() == currentLabel )
         {
         movingLabelPoints->SetPoint( movingCount++, ItM.Value() );
         }
@@ -191,7 +192,7 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
      * Invoke the single label JensenTsallis measure
      */
     typedef JensenHavrdaCharvatTsallisPointSetMetric
-      <PointSetType> MetricType;
+    <PointSetType> MetricType;
     typename MetricType::Pointer metric = MetricType::New();
 
     metric->SetFixedPointSet( fixedLabelPoints );
@@ -233,10 +234,11 @@ template <class TPointSet>
 void
 JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
 ::GetDerivative( const TransformParametersType & parameters,
-  DerivativeType & derivative ) const
+                 DerivativeType & derivative ) const
 {
   unsigned long numberOfDerivatives = this->m_FixedPointSet->GetNumberOfPoints();
-  if ( this->m_UseWithRespectToTheMovingPointSet )
+
+  if( this->m_UseWithRespectToTheMovingPointSet )
     {
     numberOfDerivatives = this->m_MovingPointSet->GetNumberOfPoints();
     }
@@ -244,17 +246,16 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
   derivative.Fill( 0 );
 
   typename LabelSetType::const_iterator iter;
-
-  for ( iter = this->m_FixedLabelSet.begin();
-        iter != this->m_FixedLabelSet.end(); ++iter )
+  for( iter = this->m_FixedLabelSet.begin();
+       iter != this->m_FixedLabelSet.end(); ++iter )
     {
     PixelType currentLabel = *iter;
 
     /**
      * check to see if the moving label set contains the same label
      */
-    if ( find( this->m_MovingLabelSet.begin(), this->m_MovingLabelSet.end(),
-           currentLabel ) == this->m_MovingLabelSet.end() )
+    if( find( this->m_MovingLabelSet.begin(), this->m_MovingLabelSet.end(),
+              currentLabel ) == this->m_MovingLabelSet.end() )
       {
       continue;
       }
@@ -275,9 +276,9 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     typename PointSetType::PointDataContainerIterator ItFD =
       this->m_FixedPointSet->GetPointData()->Begin();
 
-    while ( ItF != this->m_FixedPointSet->GetPoints()->End() )
+    while( ItF != this->m_FixedPointSet->GetPoints()->End() )
       {
-      if ( ItFD.Value() == currentLabel )
+      if( ItFD.Value() == currentLabel )
         {
         fixedLabelPoints->SetPoint( fixedCount++, ItF.Value() );
         fixedIndices.push_back( ItF.Index() );
@@ -299,9 +300,9 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     typename PointSetType::PointDataContainerIterator ItMD =
       this->m_MovingPointSet->GetPointData()->Begin();
 
-    while ( ItM != this->m_MovingPointSet->GetPoints()->End() )
+    while( ItM != this->m_MovingPointSet->GetPoints()->End() )
       {
-      if ( ItMD.Value() == currentLabel )
+      if( ItMD.Value() == currentLabel )
         {
         movingLabelPoints->SetPoint( movingCount++, ItM.Value() );
         movingIndices.push_back( ItM.Index() );
@@ -347,10 +348,10 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     metric->GetDerivative( parameters, labelDerivative );
 
     RealType avgNorm = 0.0;
-    for ( unsigned int i = 0; i < metric->GetNumberOfValues(); i++ )
+    for( unsigned int i = 0; i < metric->GetNumberOfValues(); i++ )
       {
       RealType norm = 0.0;
-      for ( unsigned int j = 0; j < PointDimension; j++ )
+      for( unsigned int j = 0; j < PointDimension; j++ )
         {
         norm += ( labelDerivative(i, j) * labelDerivative(i, j) );
         }
@@ -359,13 +360,13 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     avgNorm /= static_cast<RealType>( metric->GetNumberOfValues() );
     labelDerivative /= avgNorm;
 
-    if ( this->m_UseWithRespectToTheMovingPointSet )
+    if( this->m_UseWithRespectToTheMovingPointSet )
       {
       std::vector<long>::const_iterator it;
-      unsigned long index = 0;
-      for ( it = movingIndices.begin(); it != movingIndices.end(); ++it )
+      unsigned long                     index = 0;
+      for( it = movingIndices.begin(); it != movingIndices.end(); ++it )
         {
-        for ( unsigned int d = 0; d < PointDimension; d++ )
+        for( unsigned int d = 0; d < PointDimension; d++ )
           {
           derivative( *it, d ) = labelDerivative( index, d );
           }
@@ -375,10 +376,10 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     else
       {
       std::vector<long>::const_iterator it;
-      unsigned long index = 0;
-      for ( it = fixedIndices.begin(); it != fixedIndices.end(); ++it )
+      unsigned long                     index = 0;
+      for( it = fixedIndices.begin(); it != fixedIndices.end(); ++it )
         {
-        for ( unsigned int d = 0; d < PointDimension; d++ )
+        for( unsigned int d = 0; d < PointDimension; d++ )
           {
           derivative( *it, d ) = labelDerivative( index, d );
           }
@@ -393,10 +394,11 @@ template <class TPointSet>
 void
 JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
 ::GetValueAndDerivative( const TransformParametersType & parameters,
-  MeasureType & value, DerivativeType  & derivative ) const
+                         MeasureType & value, DerivativeType  & derivative ) const
 {
   unsigned long numberOfDerivatives = this->m_FixedPointSet->GetNumberOfPoints();
-  if ( this->m_UseWithRespectToTheMovingPointSet )
+
+  if( this->m_UseWithRespectToTheMovingPointSet )
     {
     numberOfDerivatives = this->m_MovingPointSet->GetNumberOfPoints();
     }
@@ -407,17 +409,16 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
   value.Fill( 0 );
 
   typename LabelSetType::const_iterator iter;
-
-  for ( iter = this->m_FixedLabelSet.begin();
-        iter != this->m_FixedLabelSet.end(); ++iter )
+  for( iter = this->m_FixedLabelSet.begin();
+       iter != this->m_FixedLabelSet.end(); ++iter )
     {
     PixelType currentLabel = *iter;
 
     /**
      * check to see if the moving label set contains the same label
      */
-    if ( find( this->m_MovingLabelSet.begin(), this->m_MovingLabelSet.end(),
-           currentLabel ) == this->m_MovingLabelSet.end() )
+    if( find( this->m_MovingLabelSet.begin(), this->m_MovingLabelSet.end(),
+              currentLabel ) == this->m_MovingLabelSet.end() )
       {
       continue;
       }
@@ -438,9 +439,9 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     typename PointSetType::PointDataContainerIterator ItFD =
       this->m_FixedPointSet->GetPointData()->Begin();
 
-    while ( ItF != this->m_FixedPointSet->GetPoints()->End() )
+    while( ItF != this->m_FixedPointSet->GetPoints()->End() )
       {
-      if ( ItFD.Value() == currentLabel )
+      if( ItFD.Value() == currentLabel )
         {
         fixedLabelPoints->SetPoint( fixedCount++, ItF.Value() );
         fixedIndices.push_back( ItF.Index() );
@@ -462,9 +463,9 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     typename PointSetType::PointDataContainerIterator ItMD =
       this->m_MovingPointSet->GetPointData()->Begin();
 
-    while ( ItM != this->m_MovingPointSet->GetPoints()->End() )
+    while( ItM != this->m_MovingPointSet->GetPoints()->End() )
       {
-      if ( ItMD.Value() == currentLabel )
+      if( ItMD.Value() == currentLabel )
         {
         movingLabelPoints->SetPoint( movingCount++, ItM.Value() );
         movingIndices.push_back( ItM.Index() );
@@ -507,17 +508,17 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     metric->Initialize();
 
     DerivativeType labelDerivative;
-    MeasureType labelValue;
+    MeasureType    labelValue;
 
     metric->GetValueAndDerivative( parameters, labelValue, labelDerivative );
 
     value[0] += labelValue[0];
 
     RealType avgNorm = 0.0;
-    for ( unsigned int i = 0; i < metric->GetNumberOfValues(); i++ )
+    for( unsigned int i = 0; i < metric->GetNumberOfValues(); i++ )
       {
       RealType norm = 0.0;
-      for ( unsigned int j = 0; j < PointDimension; j++ )
+      for( unsigned int j = 0; j < PointDimension; j++ )
         {
         norm += ( labelDerivative(i, j) * labelDerivative(i, j) );
         }
@@ -526,13 +527,13 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     avgNorm /= static_cast<RealType>( metric->GetNumberOfValues() );
     labelDerivative /= avgNorm;
 
-    if ( this->m_UseWithRespectToTheMovingPointSet )
+    if( this->m_UseWithRespectToTheMovingPointSet )
       {
       std::vector<long>::const_iterator it;
-      unsigned long index = 0;
-      for ( it = movingIndices.begin(); it != movingIndices.end(); ++it )
+      unsigned long                     index = 0;
+      for( it = movingIndices.begin(); it != movingIndices.end(); ++it )
         {
-        for ( unsigned int d = 0; d < PointDimension; d++ )
+        for( unsigned int d = 0; d < PointDimension; d++ )
           {
           derivative( *it, d ) = labelDerivative( index, d );
           }
@@ -542,10 +543,10 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
     else
       {
       std::vector<long>::const_iterator it;
-      unsigned long index = 0;
-      for ( it = fixedIndices.begin(); it != fixedIndices.end(); ++it )
+      unsigned long                     index = 0;
+      for( it = fixedIndices.begin(); it != fixedIndices.end(); ++it )
         {
-        for ( unsigned int d = 0; d < PointDimension; d++ )
+        for( unsigned int d = 0; d < PointDimension; d++ )
           {
           derivative( *it, d ) = labelDerivative( index, d );
           }
@@ -566,7 +567,7 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
      << this->m_UseWithRespectToTheMovingPointSet << std::endl;
   os << indent << "Use regularization term: "
      << this->m_UseRegularizationTerm << std::endl;
-  if ( !this->m_UseInputAsSamples )
+  if( !this->m_UseInputAsSamples )
     {
     os << indent << "Number of fixed samples: "
        << this->m_NumberOfFixedSamples << std::endl;
@@ -583,6 +584,5 @@ JensenHavrdaCharvatTsallisLabeledPointSetMetric<TPointSet>
 }
 
 } // end namespace itk
-
 
 #endif

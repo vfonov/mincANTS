@@ -20,27 +20,25 @@
 
 #include "itkFEMElementStd.h"
 
-namespace itk {
-namespace fem {
-
-
-
+namespace itk
+{
+namespace fem
+{
 
 /**
  * \class Element3DC0LinearTriangular
  * \brief 3-noded, linear, C0 continuous finite element in 2D space.
  */
-class Element3DC0LinearTriangular : public ElementStd<3,3>
+class Element3DC0LinearTriangular : public ElementStd<3, 3>
 {
-typedef ElementStd<3,3> TemplatedParentClass;
-FEM_ABSTRACT_CLASS( Element3DC0LinearTriangular, TemplatedParentClass )
+  typedef ElementStd<3, 3> TemplatedParentClass;
+  FEM_ABSTRACT_CLASS( Element3DC0LinearTriangular, TemplatedParentClass )
 public:
 
-
-//////////////////////////////////////////////////////////////////////////
-  /*
-   * Methods related to numeric integration
-   */
+// ////////////////////////////////////////////////////////////////////////
+/*
+ * Methods related to numeric integration
+ */
 
   enum { DefaultIntegrationOrder = 1 };
 
@@ -48,20 +46,20 @@ public:
 
   virtual unsigned int GetNumberOfIntegrationPoints(unsigned int order) const;
 
-
-
-//////////////////////////////////////////////////////////////////////////
-  /*
-   * Methods related to the geometry of an element
-   */
+// ////////////////////////////////////////////////////////////////////////
+/*
+ * Methods related to the geometry of an element
+ */
 
   virtual VectorType ShapeFunctions( const VectorType& pt ) const;
 
   virtual void ShapeFunctionDerivatives( const VectorType& pt, MatrixType& shapeD ) const;
 
   // FIXME: Write a proper implementation
-  virtual bool GetLocalFromGlobalCoordinates( const VectorType& globalPt , VectorType& localPt) const;
+  virtual bool GetLocalFromGlobalCoordinates( const VectorType& globalPt, VectorType& localPt) const;
+
   virtual Float JacobianDeterminant( const VectorType& pt, const MatrixType* pJ = 0 ) const;
+
   virtual void JacobianInverse( const VectorType& pt, MatrixType& invJ, const MatrixType* pJ = 0 ) const;
 
   /**
@@ -69,6 +67,7 @@ public:
    */
 #ifdef FEM_BUILD_VISUALIZATION
   void Draw(CDC* pDC, Solution::ConstPointer sol) const;
+
 #endif
 
   /**
@@ -84,9 +83,7 @@ public:
 
 };
 
-
-
-
-}} // end namespace itk::fem
+}
+}  // end namespace itk::fem
 
 #endif  // #ifndef __itkFEMElement3DC0LinearTriangular_h

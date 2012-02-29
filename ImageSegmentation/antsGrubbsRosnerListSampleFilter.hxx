@@ -23,11 +23,14 @@
 
 #include "itkTDistribution.h"
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
-template<class TScalarListSample>
+template <class TScalarListSample>
 GrubbsRosnerListSampleFilter<TScalarListSample>
 ::GrubbsRosnerListSampleFilter()
 {
@@ -39,13 +42,13 @@ GrubbsRosnerListSampleFilter<TScalarListSample>
   this->m_SignificanceLevel = 0.05;
 }
 
-template<class TScalarListSample>
+template <class TScalarListSample>
 GrubbsRosnerListSampleFilter<TScalarListSample>
 ::~GrubbsRosnerListSampleFilter()
 {
 }
 
-template<class TScalarListSample>
+template <class TScalarListSample>
 void
 GrubbsRosnerListSampleFilter<TScalarListSample>
 ::GenerateData()
@@ -73,7 +76,6 @@ GrubbsRosnerListSampleFilter<TScalarListSample>
       MeasurementVectorType inputMeasurement = It.GetMeasurementVector();
       MeasurementVectorType outputMeasurement;
       outputMeasurement.SetSize( scalarMeasurementVectorSize );
-
       for( unsigned int d = 0; d < scalarMeasurementVectorSize; d++ )
         {
         outputMeasurement[d] = inputMeasurement[d];
@@ -81,6 +83,7 @@ GrubbsRosnerListSampleFilter<TScalarListSample>
       this->GetOutput()->PushBack( outputMeasurement );
       ++It;
       }
+
     return;
     }
 
@@ -98,17 +101,18 @@ GrubbsRosnerListSampleFilter<TScalarListSample>
     MeasurementVectorType inputMeasurement = It.GetMeasurementVector();
 
     count += 1.0;
-    variance += ( count - 1.0 ) *
-      vnl_math_sqr( inputMeasurement[0] - mean ) / count;
+    variance += ( count - 1.0 )
+      * vnl_math_sqr( inputMeasurement[0] - mean ) / count;
     mean = mean + ( inputMeasurement[0] - mean ) / count;
     ++It;
     }
+
   variance /= ( count - 1.0 );
 
   bool outlierFound = true;
   this->m_OutlierInstanceIdentifiers.clear();
   while( outlierFound == true &&
-    ( this->GetInput()->Size() - this->m_OutlierInstanceIdentifiers.size() > 6 ) )
+         ( this->GetInput()->Size() - this->m_OutlierInstanceIdentifiers.size() > 6 ) )
     {
     outlierFound = false;
     InstanceIdentifierType id =
@@ -118,15 +122,15 @@ GrubbsRosnerListSampleFilter<TScalarListSample>
       MeasurementVectorType measurement =
         this->GetInput()->GetMeasurementVector( id );
       outlierFound = this->IsMeasurementAnOutlier( measurement[0], mean, variance,
-        this->GetInput()->Size() - this->m_OutlierInstanceIdentifiers.size() );
+                                                   this->GetInput()->Size() - this->m_OutlierInstanceIdentifiers.size() );
       if( outlierFound )
         {
         /** Retabulate the variance and mean by removing the previous estimate */
-        RealType count2 = this->GetInput()->Size() -
-          this->m_OutlierInstanceIdentifiers.size();
+        RealType count2 = this->GetInput()->Size()
+          - this->m_OutlierInstanceIdentifiers.size();
         mean = ( mean * count2 - measurement[0] ) / ( count2 - 1.0 );
-        variance = ( count2 - 1.0 ) * variance - ( count2 - 1.0 ) *
-          vnl_math_sqr( measurement[0] - mean ) / count2;
+        variance = ( count2 - 1.0 ) * variance - ( count2 - 1.0 )
+          * vnl_math_sqr( measurement[0] - mean ) / count2;
         variance /= ( count2 - 2.0 );
         this->m_OutlierInstanceIdentifiers.push_back( id );
         }
@@ -140,8 +144,8 @@ GrubbsRosnerListSampleFilter<TScalarListSample>
     typename itk::Statistics::TDistribution::Pointer tdistribution =
       itk::Statistics::TDistribution::New();
     RealType t = tdistribution->EvaluateInverseCDF(
-      1.0 - 0.5 * this->m_WinsorizingLevel,
-      this->GetInput()->Size() - this->m_OutlierInstanceIdentifiers.size() );
+        1.0 - 0.5 * this->m_WinsorizingLevel,
+        this->GetInput()->Size() - this->m_OutlierInstanceIdentifiers.size() );
 
     lowerWinsorBound = mean - t * vcl_sqrt( variance );
     upperWinsorBound = mean + t * vcl_sqrt( variance );
@@ -155,9 +159,9 @@ GrubbsRosnerListSampleFilter<TScalarListSample>
     outputMeasurement.SetSize( scalarMeasurementVectorSize );
 
     if( this->m_OutlierHandling == None || std::find(
-      this->m_OutlierInstanceIdentifiers.begin(),
-      this->m_OutlierInstanceIdentifiers.end(), It.GetInstanceIdentifier() ) ==
-      this->m_OutlierInstanceIdentifiers.end() )
+          this->m_OutlierInstanceIdentifiers.begin(),
+          this->m_OutlierInstanceIdentifiers.end(), It.GetInstanceIdentifier() ) ==
+        this->m_OutlierInstanceIdentifiers.end() )
       {
       outputMeasurement[0] = inputMeasurement[0];
       this->GetOutput()->PushBack( outputMeasurement );
@@ -178,26 +182,26 @@ GrubbsRosnerListSampleFilter<TScalarListSample>
     }
 }
 
-template<class TScalarListSample>
+template <class TScalarListSample>
 typename GrubbsRosnerListSampleFilter<TScalarListSample>
 ::InstanceIdentifierType
 GrubbsRosnerListSampleFilter<TScalarListSample>
 ::FindMaximumNonOutlierDeviationValue( RealType mean,
-  RealType itkNotUsed( variance ) )
+                                       RealType itkNotUsed( variance ) )
 {
-  RealType maximumDeviation = 0.0;
+  RealType               maximumDeviation = 0.0;
   InstanceIdentifierType maximumID =
     NumericTraits<InstanceIdentifierType>::max();
 
   typename ScalarListSampleType::ConstIterator It = this->GetInput()->Begin();
   while( It != this->GetInput()->End() )
     {
-    MeasurementVectorType inputMeasurement = It.GetMeasurementVector();
+    MeasurementVectorType  inputMeasurement = It.GetMeasurementVector();
     InstanceIdentifierType inputID = It.GetInstanceIdentifier();
 
     if( std::find( this->m_OutlierInstanceIdentifiers.begin(),
-      this->m_OutlierInstanceIdentifiers.end(), inputID ) ==
-      this->m_OutlierInstanceIdentifiers.end() )
+                   this->m_OutlierInstanceIdentifiers.end(), inputID ) ==
+        this->m_OutlierInstanceIdentifiers.end() )
       {
       if( vnl_math_abs( inputMeasurement[0] - mean ) > maximumDeviation )
         {
@@ -207,14 +211,15 @@ GrubbsRosnerListSampleFilter<TScalarListSample>
       }
     ++It;
     }
+
   return maximumID;
 }
 
-template<class TScalarListSample>
+template <class TScalarListSample>
 bool
 GrubbsRosnerListSampleFilter<TScalarListSample>
 ::IsMeasurementAnOutlier( RealType x, RealType mean, RealType variance,
-  unsigned long N )
+                          unsigned long N )
 {
   /**
    * The Grubb critical two-sided value is defined to be
@@ -230,18 +235,18 @@ GrubbsRosnerListSampleFilter<TScalarListSample>
   RealType t = tdistribution->EvaluateInverseCDF( 1.0 - sig, N - 2 );
 
   RealType nu = static_cast<RealType>( N - 1 );
-  RealType g = nu / vcl_sqrt( nu + 1.0 ) * vcl_sqrt( t*t / ( nu - 1 + t*t ) );
+  RealType g = nu / vcl_sqrt( nu + 1.0 ) * vcl_sqrt( t * t / ( nu - 1 + t * t ) );
 
   return g < ( vnl_math_abs( x - mean ) / vcl_sqrt( variance ) );
 }
 
-template<class TScalarListSample>
+template <class TScalarListSample>
 void
 GrubbsRosnerListSampleFilter<TScalarListSample>
 ::PrintSelf( std::ostream& os, Indent indent ) const
 {
   os << indent << "Significance level: " << this->m_SignificanceLevel
-    << std::endl;
+     << std::endl;
   os << indent << "Outlier handling: ";
   if( this->m_OutlierHandling == None )
     {
@@ -273,6 +278,5 @@ GrubbsRosnerListSampleFilter<TScalarListSample>
 } // end of namespace Statistics
 } // end of namespace ants
 } // end of namespace itk
-
 
 #endif

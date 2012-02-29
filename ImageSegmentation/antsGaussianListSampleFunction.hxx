@@ -26,9 +26,12 @@
 #include "itkWeightedCovarianceSampleFilter.h"
 #include "itkWeightedMeanSampleFilter.h"
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 template <class TListSample, class TOutput, class TCoordRep>
 GaussianListSampleFunction<TListSample, TOutput, TCoordRep>
@@ -60,7 +63,7 @@ GaussianListSampleFunction<TListSample, TOutput, TCoordRep>
     if( this->GetListSampleWeights()->Size() == this->GetInputListSample()->Size() )
       {
       typedef typename itk::Statistics::
-        WeightedCovarianceSampleFilter<InputListSampleType> CovarianceCalculatorType;
+      WeightedCovarianceSampleFilter<InputListSampleType> CovarianceCalculatorType;
       typename CovarianceCalculatorType::Pointer covarianceCalculator =
         CovarianceCalculatorType::New();
 
@@ -70,9 +73,10 @@ GaussianListSampleFunction<TListSample, TOutput, TCoordRep>
 
       typename GaussianType::MeanVectorType mean;
       NumericTraits<typename GaussianType::MeanVectorType>::SetLength( mean,
-        this->GetInputListSample()->GetMeasurementVectorSize() );
+                                                                       this->GetInputListSample()->
+                                                                       GetMeasurementVectorSize() );
       for( unsigned int d = 0; d < this->GetInputListSample()->
-        GetMeasurementVectorSize(); d++ )
+           GetMeasurementVectorSize(); d++ )
         {
         mean[d] = covarianceCalculator->GetMean()[d];
         }
@@ -82,7 +86,7 @@ GaussianListSampleFunction<TListSample, TOutput, TCoordRep>
     else
       {
       typedef itk::Statistics::CovarianceSampleFilter<InputListSampleType>
-        CovarianceCalculatorType;
+      CovarianceCalculatorType;
       typename CovarianceCalculatorType::Pointer covarianceCalculator =
         CovarianceCalculatorType::New();
       covarianceCalculator->SetInput( this->GetInputListSample() );
@@ -90,9 +94,10 @@ GaussianListSampleFunction<TListSample, TOutput, TCoordRep>
 
       typename GaussianType::MeanVectorType mean;
       NumericTraits<typename GaussianType::MeanVectorType>::SetLength( mean,
-        this->GetInputListSample()->GetMeasurementVectorSize() );
+                                                                       this->GetInputListSample()->
+                                                                       GetMeasurementVectorSize() );
       for( unsigned int d = 0; d < this->GetInputListSample()->
-        GetMeasurementVectorSize(); d++ )
+           GetMeasurementVectorSize(); d++ )
         {
         mean[d] = covarianceCalculator->GetMean()[d];
         }
@@ -102,8 +107,8 @@ GaussianListSampleFunction<TListSample, TOutput, TCoordRep>
     }
   else
     {
-    itkWarningMacro( "The input list sample has <= 1 element." <<
-      "Function evaluations will be equal to 0." );
+    itkWarningMacro( "The input list sample has <= 1 element."
+                     << "Function evaluations will be equal to 0." );
     }
 
   // Check to see if the covariance matrix is nonsingular
@@ -119,20 +124,20 @@ GaussianListSampleFunction<TListSample, TOutput, TCoordRep>
   else if( det < 1.0e-6 )
     {
     itkExceptionMacro( "Covariance is singular (determinant = "
-      << det << " < 1.0e-6)" );
+                       << det << " < 1.0e-6)" );
     }
 }
 
 template <class TListSample, class TOutput, class TCoordRep>
 TOutput
 GaussianListSampleFunction<TListSample, TOutput, TCoordRep>
-::Evaluate( const InputMeasurementVectorType &measurement ) const
+::Evaluate( const InputMeasurementVectorType & measurement ) const
 {
   try
     {
     return this->m_Gaussian->Evaluate( measurement );
     }
-  catch(...)
+  catch( ... )
     {
     return 0.0;
     }

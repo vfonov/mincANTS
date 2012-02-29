@@ -32,16 +32,16 @@
 namespace itk
 {
 
-template<unsigned int TDimension = 3, class TReal = float>
+template <unsigned int TDimension = 3, class TReal = float>
 class ITK_EXPORT PICSLAdvancedNormalizationToolKit
-: public Object
+  : public Object
 {
 public:
   /** Standard class typedefs. */
-  typedef PICSLAdvancedNormalizationToolKit                Self;
-  typedef Object                                           Superclass;
-  typedef SmartPointer<Self>                               Pointer;
-  typedef SmartPointer<const Self>                         ConstPointer;
+  typedef PICSLAdvancedNormalizationToolKit Self;
+  typedef Object                            Superclass;
+  typedef SmartPointer<Self>                Pointer;
+  typedef SmartPointer<const Self>          ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro( Self );
@@ -49,82 +49,90 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro( PICSLAdvancedNormalizationToolKit, Object );
   itkStaticConstMacro( Dimension, unsigned int, TDimension );
-typedef double TComp;
-  typedef TReal                                            RealType;
+  typedef double TComp;
+  typedef TReal  RealType;
   typedef Image<RealType,
-    itkGetStaticConstMacro( Dimension )>                   ImageType;
-  typedef typename ImageType::Pointer                      ImagePointer;
-  typedef typename ImageType::PixelType                    PixelType;
+                itkGetStaticConstMacro( Dimension )>                   ImageType;
+  typedef typename ImageType::Pointer   ImagePointer;
+  typedef typename ImageType::PixelType PixelType;
 
-  typedef itk::ANTSImageTransformation<Dimension, TReal>   TransformationModelType;
-  typedef typename TransformationModelType::Pointer        TransformationModelPointer;
+  typedef itk::ANTSImageTransformation<Dimension, TReal>          TransformationModelType;
+  typedef typename TransformationModelType::Pointer               TransformationModelPointer;
   typedef itk::ANTSImageRegistrationOptimizer<Dimension, TReal>   RegistrationOptimizerType;
-  typedef typename RegistrationOptimizerType::Pointer        RegistrationOptimizerPointer;
-  typedef typename TransformationModelType::DisplacementFieldType          DisplacementFieldType;
-  typedef typename TransformationModelType::AffineTransformType     AffineTransformType;
-  typedef typename RegistrationOptimizerType::OptAffineType     OptAffineType;
+  typedef typename RegistrationOptimizerType::Pointer             RegistrationOptimizerPointer;
+  typedef typename TransformationModelType::DisplacementFieldType DisplacementFieldType;
+  typedef typename TransformationModelType::AffineTransformType   AffineTransformType;
+  typedef typename RegistrationOptimizerType::OptAffineType       OptAffineType;
 
   /** Point Set Type */
-  typedef itk::ANTSLabeledPointSet<Dimension>  LabeledPointSetType;
-  typedef typename LabeledPointSetType::Pointer  LabeledPointSetPointer;
+  typedef itk::ANTSLabeledPointSet<Dimension>        LabeledPointSetType;
+  typedef typename LabeledPointSetType::Pointer      LabeledPointSetPointer;
   typedef typename LabeledPointSetType::PointSetType PointSetType;
 
-
   /** Typedefs for similarity metrics */
-  typedef ANTSSimilarityMetric <itkGetStaticConstMacro( Dimension ), TReal>           SimilarityMetricType;
-  typedef typename SimilarityMetricType::Pointer           SimilarityMetricPointer;
-  typedef std::vector<SimilarityMetricPointer>             SimilarityMetricListType;
-  typedef typename SimilarityMetricType::MetricType MetricBaseType;
+  typedef ANTSSimilarityMetric<itkGetStaticConstMacro( Dimension ), TReal> SimilarityMetricType;
+  typedef typename SimilarityMetricType::Pointer                           SimilarityMetricPointer;
+  typedef std::vector<SimilarityMetricPointer>                             SimilarityMetricListType;
+  typedef typename SimilarityMetricType::MetricType                        MetricBaseType;
 
-  typedef ants::CommandLineParser                                ParserType;
-  typedef typename ParserType::OptionType                  OptionType;
+  typedef ants::CommandLineParser         ParserType;
+  typedef typename ParserType::OptionType OptionType;
 
-  void ParseCommandLine( int argc, char **argv );
-  TransformationModelPointer GetTransformationModel( )
-    { return this->m_TransformationModel; }
-  RegistrationOptimizerPointer  SetRegistrationOptimizer(  )
-    { return this->m_RegistrationOptimizer; }
+  void ParseCommandLine( int argc, char * *argv );
+
+  TransformationModelPointer GetTransformationModel()
+  {
+    return this->m_TransformationModel;
+  }
+  RegistrationOptimizerPointer  SetRegistrationOptimizer()
+  {
+    return this->m_RegistrationOptimizer;
+  }
   void SetTransformationModel( TransformationModelPointer T )
-    {this->m_TransformationModel=T; }
+  {
+    this->m_TransformationModel = T;
+  }
   void SetRegistrationOptimizer( RegistrationOptimizerPointer T )
-    {this->m_RegistrationOptimizer=T; }
+  {
+    this->m_RegistrationOptimizer = T;
+  }
 
   void InitializeTransformAndOptimizer();
-  void RunRegistration();
 
+  void RunRegistration();
 
 protected:
   PICSLAdvancedNormalizationToolKit();
-  virtual ~PICSLAdvancedNormalizationToolKit() {}
+  virtual ~PICSLAdvancedNormalizationToolKit()
+  {
+  }
   void PrintSelf( std::ostream& os, Indent indent ) const;
 
 private:
-  PICSLAdvancedNormalizationToolKit( const Self& ); //purposely not implemented
-  void operator=( const Self& ); //purposely not implemented
+  PICSLAdvancedNormalizationToolKit( const Self & ); // purposely not implemented
+  void operator=( const Self & );                    // purposely not implemented
 
   ImagePointer SubsampleImage( ImagePointer, RealType );
   ImagePointer PreprocessImage( ImagePointer );
   ImagePointer ReplaceProblematicPixelValues( ImagePointer, PixelType );
 
   void InitializeCommandLineOptions();
+
   void ReadImagesAndMetrics();
 
   typename ParserType::Pointer                             m_Parser;
 
-  TransformationModelPointer                               m_TransformationModel;
-  RegistrationOptimizerPointer                             m_RegistrationOptimizer;
+  TransformationModelPointer   m_TransformationModel;
+  RegistrationOptimizerPointer m_RegistrationOptimizer;
 
-
-  SimilarityMetricListType                                 m_SimilarityMetrics;
+  SimilarityMetricListType m_SimilarityMetrics;
 
 };
 
 } // end namespace itk
-
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "itkPICSLAdvancedNormalizationToolKit.hxx"
 #endif
 
 #endif
-

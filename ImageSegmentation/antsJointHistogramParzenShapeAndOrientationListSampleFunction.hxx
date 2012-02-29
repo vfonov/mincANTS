@@ -28,9 +28,12 @@
 #include "itkDivideByConstantImageFilter.h"
 #include "itkStatisticsImageFilter.h"
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 template <class TListSample, class TOutput, class TCoordRep>
 JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, TCoordRep>
@@ -43,7 +46,7 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
   this->m_MaximumEigenvalue2 = 0;
   this->m_MinimumEigenvalue1 = 1;
   this->m_MinimumEigenvalue2 = 1;
-  this->m_Interpolator=InterpolatorType::New();
+  this->m_Interpolator = InterpolatorType::New();
   this->m_Interpolator->SetSplineOrder( 3 );
   this->m_JointHistogramImages[0] = NULL;
   this->m_JointHistogramImages[1] = NULL;
@@ -55,7 +58,6 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
 ::~JointHistogramParzenShapeAndOrientationListSampleFunction()
 {
 }
-
 
 template <class TListSample, class TOutput, class TCoordRep>
 void
@@ -116,7 +118,7 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
     shapeIdx[0] = static_cast<typename JointHistogramImageIndexType::IndexValueType>( vcl_floor( shapeCidx[0] + 0.5 ) );
     shapeIdx[1] = static_cast<typename JointHistogramImageIndexType::IndexValueType>( vcl_floor( shapeCidx[1] + 0.5 ) );
     if( this->m_JointHistogramImages[0]->
-      GetLargestPossibleRegion().IsInside( shapeIdx ) )
+        GetLargestPossibleRegion().IsInside( shapeIdx ) )
       {
       RealType oldWeight = this->m_JointHistogramImages[0]->GetPixel( shapeIdx );
       this->m_JointHistogramImages[0]->SetPixel( shapeIdx, 1 + oldWeight );
@@ -127,17 +129,17 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
     /** linear addition */
     shapeIdx[0] = static_cast<IndexValueType>( vcl_floor( shapeCidx[0] ) );
     shapeIdx[1] = static_cast<IndexValueType>( vcl_floor( shapeCidx[1] ) );
-    RealType distance1 = vcl_sqrt( vnl_math_sqr( shapeCidx[0] - shapeIdx[0] ) +
-      vnl_math_sqr( shapeCidx[1] - shapeIdx[1] ) );
+    RealType distance1 = vcl_sqrt( vnl_math_sqr( shapeCidx[0] - shapeIdx[0] )
+                                   + vnl_math_sqr( shapeCidx[1] - shapeIdx[1] ) );
     shapeIdx[0]++;
-    RealType distance2 = vcl_sqrt( vnl_math_sqr( shapeCidx[0] - shapeIdx[0] ) +
-      vnl_math_sqr( shapeCidx[1] - shapeIdx[1] ) );
+    RealType distance2 = vcl_sqrt( vnl_math_sqr( shapeCidx[0] - shapeIdx[0] )
+                                   + vnl_math_sqr( shapeCidx[1] - shapeIdx[1] ) );
     shapeIdx[1]++;
-    RealType distance3 = vcl_sqrt( vnl_math_sqr( shapeCidx[0] - shapeIdx[0] ) +
-      vnl_math_sqr( shapeCidx[1] - shapeIdx[1] ) );
+    RealType distance3 = vcl_sqrt( vnl_math_sqr( shapeCidx[0] - shapeIdx[0] )
+                                   + vnl_math_sqr( shapeCidx[1] - shapeIdx[1] ) );
     shapeIdx[0]--;
-    RealType distance4 = vcl_sqrt( vnl_math_sqr( shapeCidx[0] - shapeIdx[0] ) +
-      vnl_math_sqr( shapeCidx[1] - shapeIdx[1] ) );
+    RealType distance4 = vcl_sqrt( vnl_math_sqr( shapeCidx[0] - shapeIdx[0] )
+                                   + vnl_math_sqr( shapeCidx[1] - shapeIdx[1] ) );
     RealType sumDistance = distance1 + distance2 + distance3 + distance4;
     distance1 /= sumDistance;
     distance2 /= sumDistance;
@@ -148,41 +150,41 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
     shapeIdx[0] = static_cast<IndexValueType>( vcl_floor( shapeCidx[0] ) );
     shapeIdx[1] = static_cast<IndexValueType>( vcl_floor( shapeCidx[1] ) );
     if( this->m_JointHistogramImages[whichHistogram]->
-      GetLargestPossibleRegion().IsInside( shapeIdx ) )
+        GetLargestPossibleRegion().IsInside( shapeIdx ) )
       {
       RealType oldWeight =
         this->m_JointHistogramImages[whichHistogram]->GetPixel( shapeIdx );
       this->m_JointHistogramImages[whichHistogram]->SetPixel( shapeIdx,
-        ( 1.0 - distance1 ) * newWeight + oldWeight );
+                                                              ( 1.0 - distance1 ) * newWeight + oldWeight );
       }
     shapeIdx[0]++;
     if( this->m_JointHistogramImages[whichHistogram]->
-      GetLargestPossibleRegion().IsInside( shapeIdx ) )
+        GetLargestPossibleRegion().IsInside( shapeIdx ) )
       {
       RealType oldWeight =
         this->m_JointHistogramImages[whichHistogram]->GetPixel( shapeIdx );
       this->m_JointHistogramImages[whichHistogram]->SetPixel( shapeIdx,
-        ( 1.0 - distance2 ) * newWeight + oldWeight );
+                                                              ( 1.0 - distance2 ) * newWeight + oldWeight );
       }
     shapeIdx[1]++;
     if( this->m_JointHistogramImages[whichHistogram]->
-      GetLargestPossibleRegion().IsInside( shapeIdx ) )
+        GetLargestPossibleRegion().IsInside( shapeIdx ) )
       {
       RealType oldWeight
         = this->m_JointHistogramImages[whichHistogram]->GetPixel( shapeIdx );
       this->m_JointHistogramImages[whichHistogram]->SetPixel( shapeIdx,
-        ( 1.0 - distance3 ) * newWeight + oldWeight );
+                                                              ( 1.0 - distance3 ) * newWeight + oldWeight );
       }
     shapeIdx[0]--;
     if( this->m_JointHistogramImages[whichHistogram]->
-      GetLargestPossibleRegion().IsInside( shapeIdx ) )
+        GetLargestPossibleRegion().IsInside( shapeIdx ) )
       {
       RealType oldWeight =
         this->m_JointHistogramImages[whichHistogram]->GetPixel( shapeIdx );
       this->m_JointHistogramImages[whichHistogram]->SetPixel( shapeIdx,
-        ( 1.0 - distance4) * newWeight + oldWeight );
+                                                              ( 1.0 - distance4) * newWeight + oldWeight );
       }
-     }
+    }
   return;
 }
 
@@ -222,80 +224,79 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
   // We do this to avoid redundancy in representation of the eigenvectors,
   // because they are all redundant.
 
-  if ( x < 0 )
-   {
-     x*=-1;
-     y*=-1;
-     z*=-1;
-   }
-
+  if( x < 0 )
+    {
+    x *= -1;
+    y *= -1;
+    z *= -1;
+    }
 
   tp[0] = vcl_acos( z );
 
-   // phi goes from 0.0 (+x axis) and goes to -pi/2 and pi/2.
-   // theta goes from 0.0 (+z axis) and wraps at PI
-   // if x and y are 0.0 or very close, return phi == 0
-   // we do this to eliminate redundancy in the distribution of orientations.
+  // phi goes from 0.0 (+x axis) and goes to -pi/2 and pi/2.
+  // theta goes from 0.0 (+z axis) and wraps at PI
+  // if x and y are 0.0 or very close, return phi == 0
+  // we do this to eliminate redundancy in the distribution of orientations.
 
-   if( vnl_math_abs( x ) + vnl_math_abs( y ) < 1e-9 )
-     {
-     tp[1] = 0.0;
-     }
-   else
-     {
-     if( y == 0.0 )
-       {
-       if( x > 0.0 )
-         {
-         tp[1] = 0.0;
-         }
-       else
-         {
-         tp[1] = vnl_math::pi;
-         }
-       }
-     else if( x == 0.0)
-       {
-       // avoid div by zero
-       if( y > 0 )
-         {
-         tp[1] = vnl_math::pi_over_2;
-         }
-       else
-         {
-         tp[1] = - vnl_math::pi_over_2;
-         }
-       }
-     else if( x > 0.0 && y > 0.0 )
-       { // first quadrant
-       tp[1] = vcl_atan( y / x );
-       }
-     else if( x < 0.0 && y > 0.0)
-       { // second quadrant
-       tp[1] = vnl_math::pi + vcl_atan( y / x );
-       }
-     else if( x < 0.0 && y < 0.0 )
-       { // third quadrant
-       tp[1] =  vnl_math::pi + atan( y / x );
-       }
-     else
-       { // fourth quadrant
-       tp[1] = atan( y / x );
-       }
-     }
-   RealType psi = tp[0];
-   RealType theta = tp[1];
+  if( vnl_math_abs( x ) + vnl_math_abs( y ) < 1e-9 )
+    {
+    tp[1] = 0.0;
+    }
+  else
+    {
+    if( y == 0.0 )
+      {
+      if( x > 0.0 )
+        {
+        tp[1] = 0.0;
+        }
+      else
+        {
+        tp[1] = vnl_math::pi;
+        }
+      }
+    else if( x == 0.0 )
+      {
+      // avoid div by zero
+      if( y > 0 )
+        {
+        tp[1] = vnl_math::pi_over_2;
+        }
+      else
+        {
+        tp[1] = -vnl_math::pi_over_2;
+        }
+      }
+    else if( x > 0.0 && y > 0.0 )
+      {     // first quadrant
+      tp[1] = vcl_atan( y / x );
+      }
+    else if( x < 0.0 && y > 0.0 )
+      {     // second quadrant
+      tp[1] = vnl_math::pi + vcl_atan( y / x );
+      }
+    else if( x < 0.0 && y < 0.0 )
+      {     // third quadrant
+      tp[1] =  vnl_math::pi + atan( y / x );
+      }
+    else
+      {     // fourth quadrant
+      tp[1] = atan( y / x );
+      }
+    }
+  RealType psi = tp[0];
+  RealType theta = tp[1];
 
-
-// note, if a point maps to 0 or 2*pi then it should contribute to both bins -- pretty much only difference between this function and matlab code is the next 15 or so lines, as far as we see
+// note, if a point maps to 0 or 2*pi then it should contribute to both bins -- pretty much only difference between this
+// function and matlab code is the next 15 or so lines, as far as we see
   orientPoint[0] = psi / (vnl_math::pi ) *
     ( this->m_NumberOfJointHistogramBins - 1) + 1;
-  orientPoint[1] = ( theta + vnl_math::pi_over_2 ) / vnl_math::pi *
-    ( this->m_NumberOfJointHistogramBins - 1 );
+  orientPoint[1] = ( theta + vnl_math::pi_over_2 ) / vnl_math::pi
+    * ( this->m_NumberOfJointHistogramBins - 1 );
 
   ContinuousIndex<double, 2> orientCidx;
   this->m_JointHistogramImages[whichHistogram]->
-    TransformPhysicalPointToContinuousIndex( orientPoint, orientCidx );
+  TransformPhysicalPointToContinuousIndex( orientPoint, orientCidx );
 
   typedef typename JointHistogramImageType::IndexType JointHistogramImageIndexType;
   JointHistogramImageIndexType orientIdx;
@@ -306,29 +307,29 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
     orientIdx[0] = static_cast<typename JointHistogramImageIndexType::IndexValueType>( vcl_floor( orientCidx[0] + 0.5 ) );
     orientIdx[1] = static_cast<typename JointHistogramImageIndexType::IndexValueType>( vcl_floor( orientCidx[1] + 0.5 ) );
     if( this->m_JointHistogramImages[whichHistogram]->
-      GetLargestPossibleRegion().IsInside( orientIdx ) )
+        GetLargestPossibleRegion().IsInside( orientIdx ) )
       {
       RealType oldWeight =
         this->m_JointHistogramImages[whichHistogram]->GetPixel( orientIdx );
       this->m_JointHistogramImages[whichHistogram]->
-        SetPixel( orientIdx, 1 + oldWeight );
+      SetPixel( orientIdx, 1 + oldWeight );
       }
     }
   else
     {
     orientIdx[0] = static_cast<IndexValueType>( vcl_floor( orientCidx[0] ) );
     orientIdx[1] = static_cast<IndexValueType>( vcl_floor( orientCidx[1] ) );
-    RealType distance1 = vcl_sqrt( vnl_math_sqr( orientCidx[0] - orientIdx[0] ) +
-      vnl_math_sqr( orientCidx[1] - orientIdx[1] ) );
+    RealType distance1 = vcl_sqrt( vnl_math_sqr( orientCidx[0] - orientIdx[0] )
+                                   + vnl_math_sqr( orientCidx[1] - orientIdx[1] ) );
     orientIdx[0]++;
-    RealType distance2 = vcl_sqrt( vnl_math_sqr( orientCidx[0] - orientIdx[0] ) +
-      vnl_math_sqr( orientCidx[1] - orientIdx[1] ) );
+    RealType distance2 = vcl_sqrt( vnl_math_sqr( orientCidx[0] - orientIdx[0] )
+                                   + vnl_math_sqr( orientCidx[1] - orientIdx[1] ) );
     orientIdx[1]++;
-    RealType distance3 = vcl_sqrt( vnl_math_sqr( orientCidx[0] - orientIdx[0] ) +
-      vnl_math_sqr( orientCidx[1] - orientIdx[1] ) );
+    RealType distance3 = vcl_sqrt( vnl_math_sqr( orientCidx[0] - orientIdx[0] )
+                                   + vnl_math_sqr( orientCidx[1] - orientIdx[1] ) );
     orientIdx[0]--;
-    RealType distance4 = vcl_sqrt( vnl_math_sqr( orientCidx[0] - orientIdx[0] ) +
-      vnl_math_sqr( orientCidx[1] - orientIdx[1] ) );
+    RealType distance4 = vcl_sqrt( vnl_math_sqr( orientCidx[0] - orientIdx[0] )
+                                   + vnl_math_sqr( orientCidx[1] - orientIdx[1] ) );
     RealType sumDistance = distance1 + distance2 + distance3 + distance4;
     distance1 /= sumDistance;
     distance2 /= sumDistance;
@@ -338,39 +339,39 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
     orientIdx[0] = static_cast<IndexValueType>( vcl_floor( orientCidx[0] ) );
     orientIdx[1] = static_cast<IndexValueType>( vcl_floor( orientCidx[1] ) );
     if( this->m_JointHistogramImages[whichHistogram]->
-      GetLargestPossibleRegion().IsInside( orientIdx ) )
+        GetLargestPossibleRegion().IsInside( orientIdx ) )
       {
       RealType oldWeight =
         this->m_JointHistogramImages[whichHistogram]->GetPixel( orientIdx );
       this->m_JointHistogramImages[whichHistogram]->SetPixel( orientIdx,
-        ( 1.0 - distance1 ) * newWeight + oldWeight );
+                                                              ( 1.0 - distance1 ) * newWeight + oldWeight );
       }
     orientIdx[0]++;
     if( this->m_JointHistogramImages[whichHistogram]->
-      GetLargestPossibleRegion().IsInside( orientIdx ) )
+        GetLargestPossibleRegion().IsInside( orientIdx ) )
       {
       RealType oldWeight =
         this->m_JointHistogramImages[whichHistogram]->GetPixel( orientIdx );
       this->m_JointHistogramImages[whichHistogram]->SetPixel( orientIdx,
-        ( 1.0 - distance2 ) * newWeight + oldWeight );
+                                                              ( 1.0 - distance2 ) * newWeight + oldWeight );
       }
     orientIdx[1]++;
     if( this->m_JointHistogramImages[whichHistogram]->
-      GetLargestPossibleRegion().IsInside( orientIdx ) )
+        GetLargestPossibleRegion().IsInside( orientIdx ) )
       {
       RealType oldWeight =
         this->m_JointHistogramImages[whichHistogram]->GetPixel( orientIdx );
       this->m_JointHistogramImages[whichHistogram]->SetPixel( orientIdx,
-        ( 1.0 - distance3 ) * newWeight + oldWeight );
+                                                              ( 1.0 - distance3 ) * newWeight + oldWeight );
       }
     orientIdx[0]--;
     if( this->m_JointHistogramImages[whichHistogram]->
-      GetLargestPossibleRegion().IsInside( orientIdx ) )
+        GetLargestPossibleRegion().IsInside( orientIdx ) )
       {
       RealType oldWeight =
         this->m_JointHistogramImages[whichHistogram]->GetPixel(orientIdx );
       this->m_JointHistogramImages[whichHistogram]->SetPixel( orientIdx,
-        ( 1.0 - distance4) * newWeight + oldWeight );
+                                                              ( 1.0 - distance4) * newWeight + oldWeight );
       }
     }
 
@@ -379,7 +380,7 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
 
   typedef itk::ImageRegionIteratorWithIndex<JointHistogramImageType> Iterator;
   Iterator tIter( this->m_JointHistogramImages[whichHistogram],
-    this->m_JointHistogramImages[whichHistogram]->GetBufferedRegion() );
+                  this->m_JointHistogramImages[whichHistogram]->GetBufferedRegion() );
   for( tIter.GoToBegin(); !tIter.IsAtEnd(); ++tIter )
     {
     IndexType index = tIter.GetIndex();
@@ -388,8 +389,8 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
       {
       index2[0] = this->m_NumberOfJointHistogramBins;
       index2[1] = index[1];
-         tIter.Set(
-           this->m_JointHistogramImages[whichHistogram]->GetPixel( index2 ) );
+      tIter.Set(
+        this->m_JointHistogramImages[whichHistogram]->GetPixel( index2 ) );
       }
     if( index[0] == this->m_NumberOfJointHistogramBins + 1 )
       {
@@ -417,8 +418,8 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
 
   if( this->GetInputListSample()->Size() <= 1 )
     {
-    itkWarningMacro( "The input list sample has <= 1 element." <<
-      "Function evaluations will be equal to 0." );
+    itkWarningMacro( "The input list sample has <= 1 element."
+                     << "Function evaluations will be equal to 0." );
     return;
     }
 
@@ -457,16 +458,16 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
     }
 
   RealType L = static_cast<RealType>(
-    this->GetInputListSample()->GetMeasurementVectorSize() );
-  unsigned int D = static_cast<unsigned int>( 0.5 * ( -1 + vcl_sqrt( 1.0 +
-    8.0 * L ) ) );
+      this->GetInputListSample()->GetMeasurementVectorSize() );
+  unsigned int D = static_cast<unsigned int>( 0.5 * ( -1 + vcl_sqrt( 1.0
+                                                                     + 8.0 * L ) ) );
 
   It = this->GetInputListSample()->Begin();
   while( It != this->GetInputListSample()->End() )
     {
     InputMeasurementVectorType inputMeasurement = It.GetMeasurementVector();
     // convert to a tensor then get its shape and primary orientation vector
-    typedef VariableSizeMatrix<RealType>                      TensorType;
+    typedef VariableSizeMatrix<RealType> TensorType;
     TensorType T( D, D );
     T.Fill( 0.0 );
     unsigned int index = 0;
@@ -514,7 +515,7 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
     {
     InputMeasurementVectorType inputMeasurement = It.GetMeasurementVector();
     // convert to a tensor then get its shape and primary orientation vector
-    typedef VariableSizeMatrix<RealType>                      TensorType;
+    typedef VariableSizeMatrix<RealType> TensorType;
     TensorType T( D, D );
     T.Fill( 0.0 );
     unsigned int index = 0;
@@ -541,10 +542,11 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
     eigenvalue1 /= ( this->m_MaximumEigenvalue1 - this->m_MinimumEigenvalue1 );
     eigenvalue2 /= ( this->m_MaximumEigenvalue2 - this->m_MinimumEigenvalue2 );
 
-    //    std::cout << " ev1 " << eigenvalue1 << " oev1 " << W(2,2) << " ev2 " << eigenvalue2 << " oev2 " << W(1,1) << std::endl;
+    //    std::cout << " ev1 " << eigenvalue1 << " oev1 " << W(2,2) << " ev2 " << eigenvalue2 << " oev2 " << W(1,1) <<
+    // std::endl;
 
     /** joint-hist model for the eigenvalues */
-    this->IncrementJointHistogramForShape( eigenvalue1,eigenvalue2 );
+    this->IncrementJointHistogramForShape( eigenvalue1, eigenvalue2 );
 
     RealType x = V(0, 2);
     RealType y = V(1, 2);
@@ -560,13 +562,10 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
 
     ++It;
     }
-
-
-
   for( unsigned int d = 0; d < 3; d++ )
     {
     typedef DiscreteGaussianImageFilter<JointHistogramImageType,
-      JointHistogramImageType> GaussianFilterType;
+                                        JointHistogramImageType> GaussianFilterType;
     typename GaussianFilterType::Pointer gaussian = GaussianFilterType::New();
     gaussian->SetInput( this->m_JointHistogramImages[d] );
     gaussian->SetVariance( this->m_Sigma * this->m_Sigma );
@@ -580,7 +579,7 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
     stats->Update();
 
     typedef DivideByConstantImageFilter<JointHistogramImageType, RealType,
-      JointHistogramImageType> DividerType;
+                                        JointHistogramImageType> DividerType;
     typename DividerType::Pointer divider = DividerType::New();
     divider->SetInput( gaussian->GetOutput() );
     divider->SetConstant( stats->GetSum() );
@@ -593,7 +592,7 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
 template <class TListSample, class TOutput, class TCoordRep>
 TOutput
 JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, TCoordRep>
-::Evaluate( const InputMeasurementVectorType &measurement ) const
+::Evaluate( const InputMeasurementVectorType & measurement ) const
 {
   try
     {
@@ -615,7 +614,7 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
       }
     return probability;
     }
-  catch(...)
+  catch( ... )
     {
     return 0;
     }
@@ -633,15 +632,15 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
 {
   os << indent << "Sigma: " << this->m_Sigma << std::endl;
   os << indent << "Number of histogram bins: "
-    << this->m_NumberOfJointHistogramBins << std::endl;
+     << this->m_NumberOfJointHistogramBins << std::endl;
   os << indent << "Minimum eigenvalue 1: "
-    << this->m_MinimumEigenvalue1;
+     << this->m_MinimumEigenvalue1;
   os << indent << "Minimum eigenvalue 2: "
-    << this->m_MinimumEigenvalue2;
+     << this->m_MinimumEigenvalue2;
   os << indent << "Maximum eigenvalue 1: "
-    << this->m_MaximumEigenvalue1;
+     << this->m_MaximumEigenvalue1;
   os << indent << "Maximum eigenvalue 2: "
-    << this->m_MaximumEigenvalue2;
+     << this->m_MaximumEigenvalue2;
 
   if( this->m_UseNearestNeighborIncrements )
     {

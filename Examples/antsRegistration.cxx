@@ -75,28 +75,31 @@
 
 #include <sstream>
 
-template<class TFilter>
+template <class TFilter>
 class CommandIterationUpdate : public itk::Command
 {
 public:
-  typedef CommandIterationUpdate   Self;
-  typedef itk::Command             Superclass;
-  typedef itk::SmartPointer<Self>  Pointer;
+  typedef CommandIterationUpdate  Self;
+  typedef itk::Command            Superclass;
+  typedef itk::SmartPointer<Self> Pointer;
   itkNewMacro( Self );
 protected:
-  CommandIterationUpdate() {};
+  CommandIterationUpdate()
+  {
+  };
 public:
 
   void Execute(itk::Object *caller, const itk::EventObject & event)
-    {
+  {
     Execute( (const itk::Object *) caller, event);
-    }
+  }
 
   void Execute(const itk::Object * object, const itk::EventObject & event)
-    {
-    TFilter * filter = const_cast<TFilter *>( dynamic_cast< const TFilter * >( object ) );
+  {
+    TFilter * filter = const_cast<TFilter *>( dynamic_cast<const TFilter *>( object ) );
 
     unsigned int currentLevel = 0;
+
     if( typeid( event ) == typeid( itk::IterationEvent ) )
       {
       currentLevel = filter->GetCurrentLevel() + 1;
@@ -105,102 +108,102 @@ public:
       {
       typename TFilter::ShrinkFactorsArrayType shrinkFactors = filter->GetShrinkFactorsPerLevel();
       typename TFilter::SmoothingSigmasArrayType smoothingSigmas = filter->GetSmoothingSigmasPerLevel();
-      typename TFilter::TransformParametersAdaptorsContainerType adaptors = filter->GetTransformParametersAdaptorsPerLevel();
+      typename TFilter::TransformParametersAdaptorsContainerType adaptors =
+        filter->GetTransformParametersAdaptorsPerLevel();
 
       std::cout << "  Current level = " << currentLevel << std::endl;
       std::cout << "    number of iterations = " << this->m_NumberOfIterations[currentLevel] << std::endl;
       std::cout << "    shrink factors = " << shrinkFactors[currentLevel] << std::endl;
       std::cout << "    smoothing sigmas = " << smoothingSigmas[currentLevel] << std::endl;
-      std::cout << "    required fixed parameters = " << adaptors[currentLevel]->GetRequiredFixedParameters() << std::endl;
+      std::cout << "    required fixed parameters = " << adaptors[currentLevel]->GetRequiredFixedParameters()
+                << std::endl;
 
       typedef itk::GradientDescentOptimizerv4 GradientDescentOptimizerType;
       GradientDescentOptimizerType * optimizer = reinterpret_cast<GradientDescentOptimizerType *>(
-        const_cast<typename TFilter::OptimizerType *>( filter->GetOptimizer() ) );
+          const_cast<typename TFilter::OptimizerType *>( filter->GetOptimizer() ) );
       optimizer->SetNumberOfIterations( this->m_NumberOfIterations[currentLevel] );
       }
-    }
+  }
 
   void SetNumberOfIterations( std::vector<unsigned int> iterations )
-    {
+  {
     this->m_NumberOfIterations = iterations;
-    }
+  }
+
 private:
-  std::vector<unsigned int>    m_NumberOfIterations;
+  std::vector<unsigned int> m_NumberOfIterations;
 };
 
 //
 // Transform traits to generalize the rigid transform
 //
-template<unsigned int ImageDimension>
+template <unsigned int ImageDimension>
 class RigidTransformTraits
 {
 // Don't worry about the fact that the default option is the
 // affine Transform, that one will not actually be instantiated.
-
 public:
-   typedef itk::AffineTransform<double, ImageDimension>  TransformType;
+  typedef itk::AffineTransform<double, ImageDimension> TransformType;
 };
 
-template<>
+template <>
 class RigidTransformTraits<2>
 {
 public:
-   typedef itk::Euler2DTransform<double>  TransformType;
+  typedef itk::Euler2DTransform<double> TransformType;
 };
 
-template<>
+template <>
 class RigidTransformTraits<3>
 {
 public:
-  //typedef itk::VersorRigid3DTransform<double> TransformType;
+  // typedef itk::VersorRigid3DTransform<double> TransformType;
   // typedef itk::QuaternionRigidTransform<double>  TransformType;
-  typedef itk::Euler3DTransform<double>  TransformType;
+  typedef itk::Euler3DTransform<double> TransformType;
 };
 
-template<unsigned int ImageDimension>
+template <unsigned int ImageDimension>
 class SimilarityTransformTraits
 {
 // Don't worry about the fact that the default option is the
 // affine Transform, that one will not actually be instantiated.
-
 public:
-   typedef itk::AffineTransform<double, ImageDimension>  TransformType;
+  typedef itk::AffineTransform<double, ImageDimension> TransformType;
 };
 
-template<>
+template <>
 class SimilarityTransformTraits<2>
 {
 public:
-   typedef itk::Similarity2DTransform<double>  TransformType;
+  typedef itk::Similarity2DTransform<double> TransformType;
 };
 
-template<>
+template <>
 class SimilarityTransformTraits<3>
 {
 public:
-   typedef itk::Similarity3DTransform<double>  TransformType;
+  typedef itk::Similarity3DTransform<double> TransformType;
 };
 
-template<unsigned int ImageDimension>
+template <unsigned int ImageDimension>
 class CompositeAffineTransformTraits
 {
 // Don't worry about the fact that the default option is the
 // affine Transform, that one will not actually be instantiated.
-
 public:
-   typedef itk::AffineTransform<double, ImageDimension>  TransformType;
+  typedef itk::AffineTransform<double, ImageDimension> TransformType;
 };
-template<>
+template <>
 class CompositeAffineTransformTraits<2>
 {
 public:
-   typedef itk::ANTSCenteredAffine2DTransform<double>  TransformType;
+  typedef itk::ANTSCenteredAffine2DTransform<double> TransformType;
 };
-template<>
+template <>
 class CompositeAffineTransformTraits<3>
 {
 public:
-   typedef itk::ANTSAffine3DTransform<double>  TransformType;
+  typedef itk::ANTSAffine3DTransform<double> TransformType;
 };
 
 void ConvertToLowerCase( std::string& str )
@@ -211,12 +214,12 @@ void ConvertToLowerCase( std::string& str )
 // other compilers
 }
 
-template<class ImageType>
+template <class ImageType>
 void PreprocessImages( ImageType *fixedImage, ImageType *movingImage,
-  itk::ants::CommandLineParser *parser )
+                       itk::ants::CommandLineParser *parser )
 {
   typedef typename itk::ants::CommandLineParser ParserType;
-  typedef typename ParserType::OptionType OptionType;
+  typedef typename ParserType::OptionType       OptionType;
 
   std::string outputPreprocessingString = "";
 
@@ -261,10 +264,10 @@ void PreprocessImages( ImageType *fixedImage, ImageType *movingImage,
 
   if( doWinsorize || doRescale )
     {
-    typedef itk::Statistics::ImageToHistogramFilter<ImageType>        HistogramFilterType;
-    typedef typename HistogramFilterType::InputBooleanObjectType      InputBooleanObjectType;
-    typedef typename HistogramFilterType::HistogramSizeType           HistogramSizeType;
-    typedef typename HistogramFilterType::HistogramType               HistogramType;
+    typedef itk::Statistics::ImageToHistogramFilter<ImageType>   HistogramFilterType;
+    typedef typename HistogramFilterType::InputBooleanObjectType InputBooleanObjectType;
+    typedef typename HistogramFilterType::HistogramSizeType      HistogramSizeType;
+    typedef typename HistogramFilterType::HistogramType          HistogramType;
 
     HistogramSizeType histogramSize( 1 );
     histogramSize[0] = 256;
@@ -364,10 +367,11 @@ void PreprocessImages( ImageType *fixedImage, ImageType *movingImage,
   std::cout << outputPreprocessingString << std::flush;
 }
 
-template<unsigned int ImageDimension>
+template <unsigned int ImageDimension>
 int antsRegistration( itk::ants::CommandLineParser *parser )
 {
   itk::TimeProbe totalTimer;
+
   totalTimer.Start();
 
   // We infer the number of stages by the number of transformations
@@ -376,7 +380,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
   unsigned numberOfStages = 0;
 
   typedef typename itk::ants::CommandLineParser ParserType;
-  typedef typename ParserType::OptionType OptionType;
+  typedef typename ParserType::OptionType       OptionType;
 
   typename OptionType::Pointer transformOption = parser->GetOption( "transform" );
   if( transformOption && transformOption->GetNumberOfValues() > 0 )
@@ -470,7 +474,6 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
     std::deque<std::string> initialTransformNames;
     std::deque<std::string> initialTransformTypes;
-
     for( unsigned int n = 0; n < initialTransformOption->GetNumberOfValues(); n++ )
       {
       std::string initialTransformName;
@@ -485,10 +488,10 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         initialTransformName = initialTransformOption->GetValue( n );
 
         typedef itk::DisplacementFieldTransform<double, ImageDimension>
-          DisplacementFieldTransformType;
+        DisplacementFieldTransformType;
 
         typedef typename DisplacementFieldTransformType::DisplacementFieldType
-          DisplacementFieldType;
+        DisplacementFieldType;
 
         typedef itk::ImageFileReader<DisplacementFieldType> DisplacementFieldReaderType;
         typename DisplacementFieldReaderType::Pointer fieldReader =
@@ -522,7 +525,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
             initialTransformReader->SetFileName( initialTransformName.c_str() );
             initialTransformReader->Update();
             initialTransform = dynamic_cast<TransformType *>(
-              ( ( initialTransformReader->GetTransformList() )->front() ).GetPointer() );
+                ( ( initialTransformReader->GetTransformList() )->front() ).GetPointer() );
             }
           else
             {
@@ -530,16 +533,16 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
             initialTransformReader->SetFileName( initialTransformName.c_str() );
             initialTransformReader->Update();
             initialTransform = dynamic_cast<TransformType *>(
-              ( ( initialTransformReader->GetTransformList() )->front() ).GetPointer() );
+                ( ( initialTransformReader->GetTransformList() )->front() ).GetPointer() );
             if( ( initialTransformOption->GetNumberOfParameters( n ) > 1 ) &&
-              parser->Convert<bool>( initialTransformOption->GetParameter( n, 1 ) ) )
+                parser->Convert<bool>( initialTransformOption->GetParameter( n, 1 ) ) )
               {
               initialTransform = dynamic_cast<TransformType *>(
-                initialTransform->GetInverseTransform().GetPointer() );
+                  initialTransform->GetInverseTransform().GetPointer() );
               if( !initialTransform )
                 {
                 std::cerr << "Inverse does not exist for " << initialTransformName
-                  << std::endl;
+                          << std::endl;
                 return EXIT_FAILURE;
                 }
               initialTransformName = std::string( "inverse of " ) + initialTransformName;
@@ -548,22 +551,22 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
           }
         catch( const itk::ExceptionObject & e )
           {
-          std::cerr << "Transform reader for " <<
-            initialTransformName << " caught an ITK exception:\n";
+          std::cerr << "Transform reader for "
+                    << initialTransformName << " caught an ITK exception:\n";
           e.Print( std::cerr );
           return EXIT_FAILURE;
           }
         catch( const std::exception & e )
           {
-          std::cerr << "Transform reader for " <<
-            initialTransformName << " caught an exception:\n";
+          std::cerr << "Transform reader for "
+                    << initialTransformName << " caught an exception:\n";
           std::cerr << e.what() << std::endl;
           return EXIT_FAILURE;
           }
         catch( ... )
           {
-          std::cerr << "Transform reader for " <<
-            initialTransformName << " caught an unknown exception!!!\n";
+          std::cerr << "Transform reader for "
+                    << initialTransformName << " caught an unknown exception!!!\n";
           return EXIT_FAILURE;
           }
         }
@@ -574,13 +577,12 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
     std::cout << "Initializing with the following transforms " << "(in order): " << std::endl;
     for( unsigned int n = 0; n < initialTransformNames.size(); n++ )
       {
-      std::cout << "  " << n+1 << ". " << initialTransformNames[n] << " (type = "
-        << initialTransformTypes[n] << ")" << std::endl;
+      std::cout << "  " << n + 1 << ". " << initialTransformNames[n] << " (type = "
+                << initialTransformTypes[n] << ")" << std::endl;
       }
     }
 
   // We iterate backwards because the command line options are stored as a stack (first in last out)
-
   for( int currentStage = numberOfStages - 1; currentStage >= 0; currentStage-- )
     {
     itk::TimeProbe timer;
@@ -588,7 +590,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
     typedef itk::ImageRegistrationMethodv4<ImageType, ImageType> AffineRegistrationType;
 
-    std::cout << std::endl << "Stage " << ( numberOfInitialTransforms + numberOfStages - currentStage - 1 ) << std::endl;
+    std::cout << std::endl << "Stage "
+              << ( numberOfInitialTransforms + numberOfStages - currentStage - 1 ) << std::endl;
     std::stringstream currentStageString;
     currentStageString << ( numberOfInitialTransforms + numberOfStages - currentStage - 1 );
 
@@ -609,7 +612,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       {
       fixedImage->Update();
       }
-    catch( itk::ExceptionObject &excp )
+    catch( itk::ExceptionObject & excp )
       {
       std::cerr << excp << std::endl;
       return EXIT_FAILURE;
@@ -624,7 +627,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       {
       movingImage->Update();
       }
-    catch( itk::ExceptionObject &excp )
+    catch( itk::ExceptionObject & excp )
       {
       std::cerr << excp << std::endl;
       return EXIT_FAILURE;
@@ -637,14 +640,16 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
     // Get the number of iterations and use that information to specify the number of levels
 
-    std::vector<unsigned int> iterations = parser->ConvertVector<unsigned int>( iterationsOption->GetValue( currentStage ) );
+    std::vector<unsigned int> iterations =
+      parser->ConvertVector<unsigned int>( iterationsOption->GetValue( currentStage ) );
     std::cout << "  iterations = " << iterationsOption->GetValue( currentStage ) << std::endl;
     unsigned int numberOfLevels = iterations.size();
     std::cout << "  number of levels = " << numberOfLevels << std::endl;
 
     // Get shrink factors
 
-    std::vector<unsigned int> factors = parser->ConvertVector<unsigned int>( shrinkFactorsOption->GetValue( currentStage ) );
+    std::vector<unsigned int> factors =
+      parser->ConvertVector<unsigned int>( shrinkFactorsOption->GetValue( currentStage ) );
     typename AffineRegistrationType::ShrinkFactorsArrayType shrinkFactorsPerLevel;
     shrinkFactorsPerLevel.SetSize( factors.size() );
 
@@ -751,7 +756,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       unsigned int binOption = parser->Convert<unsigned int>( metricOption->GetParameter( currentStage, 3 ) );
 
       std::cout << "  using the MI metric (number of bins = " << binOption << ")" << std::endl;
-      typedef itk::JointHistogramMutualInformationImageToImageMetricv4<ImageType, ImageType> MutualInformationMetricType;
+      typedef itk::JointHistogramMutualInformationImageToImageMetricv4<ImageType,
+                                                                       ImageType> MutualInformationMetricType;
       typename MutualInformationMetricType::Pointer mutualInformationMetric = MutualInformationMetricType::New();
       mutualInformationMetric = mutualInformationMetric;
       mutualInformationMetric->SetNumberOfHistogramBins( binOption );
@@ -846,7 +852,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         affineObserver->Execute( affineRegistration, itk::StartEvent() );
         affineRegistration->StartRegistration();
         }
-      catch( itk::ExceptionObject &e )
+      catch( itk::ExceptionObject & e )
         {
         std::cerr << "Exception caught: " << e << std::endl;
         return EXIT_FAILURE;
@@ -895,7 +901,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         rigidObserver->Execute( rigidRegistration, itk::StartEvent() );
         rigidRegistration->StartRegistration();
         }
-      catch( itk::ExceptionObject &e )
+      catch( itk::ExceptionObject & e )
         {
         std::cerr << "Exception caught: " << e << std::endl;
         return EXIT_FAILURE;
@@ -910,7 +916,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       transformWriter->SetFileName( filename.c_str() );
       transformWriter->Update();
       }
-    else if( std::strcmp( whichTransform.c_str(), "compositeaffine" ) == 0 || std::strcmp( whichTransform.c_str(), "compaff" ) == 0 )
+    else if( std::strcmp( whichTransform.c_str(),
+                          "compositeaffine" ) == 0 || std::strcmp( whichTransform.c_str(), "compaff" ) == 0 )
       {
       typedef typename CompositeAffineTransformTraits<ImageDimension>::TransformType CompositeAffineTransformType;
       typename CompositeAffineTransformType::Pointer compositeAffineTransform = CompositeAffineTransformType::New();
@@ -942,7 +949,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         affineObserver->Execute( affineRegistration, itk::StartEvent() );
         affineRegistration->StartRegistration();
         }
-      catch( itk::ExceptionObject &e )
+      catch( itk::ExceptionObject & e )
         {
         std::cerr << "Exception caught: " << e << std::endl;
         return EXIT_FAILURE;
@@ -990,7 +997,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         similarityObserver->Execute( similarityRegistration, itk::StartEvent() );
         similarityRegistration->StartRegistration();
         }
-      catch( itk::ExceptionObject &e )
+      catch( itk::ExceptionObject & e )
         {
         std::cerr << "Exception caught: " << e << std::endl;
         return EXIT_FAILURE;
@@ -1010,7 +1017,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       typedef itk::TranslationTransform<RealType, ImageDimension> TranslationTransformType;
       typename TranslationTransformType::Pointer translationTransform = TranslationTransformType::New();
 
-      typedef itk::ImageRegistrationMethodv4<ImageType, ImageType, TranslationTransformType> TranslationRegistrationType;
+      typedef itk::ImageRegistrationMethodv4<ImageType, ImageType,
+                                             TranslationTransformType> TranslationRegistrationType;
       typename TranslationRegistrationType::Pointer translationRegistration = TranslationRegistrationType::New();
 
       translationRegistration->SetFixedImage( fixedImage );
@@ -1038,7 +1046,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         translationObserver->Execute( translationRegistration, itk::StartEvent() );
         translationRegistration->StartRegistration();
         }
-      catch( itk::ExceptionObject &e )
+      catch( itk::ExceptionObject & e )
         {
         std::cerr << "Exception caught: " << e << std::endl;
         return EXIT_FAILURE;
@@ -1053,7 +1061,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       transformWriter->SetFileName( filename.c_str() );
       transformWriter->Update();
       }
-    else if( std::strcmp( whichTransform.c_str(), "gaussiandisplacementfield" ) == 0 ||  std::strcmp( whichTransform.c_str(), "gdf" ) == 0 )
+    else if( std::strcmp( whichTransform.c_str(),
+                          "gaussiandisplacementfield" ) == 0 ||  std::strcmp( whichTransform.c_str(), "gdf" ) == 0 )
       {
       metric->SetDoFixedImagePreWarp( true );
       metric->SetDoMovingImagePreWarp( true );
@@ -1066,13 +1075,16 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       displacementField->Allocate();
       displacementField->FillBuffer( zeroVector );
 
-      typedef itk::GaussianSmoothingOnUpdateDisplacementFieldTransform<RealType, ImageDimension> DisplacementFieldTransformType;
+      typedef itk::GaussianSmoothingOnUpdateDisplacementFieldTransform<RealType,
+                                                                       ImageDimension> DisplacementFieldTransformType;
 
-      typedef itk::ImageRegistrationMethodv4<ImageType, ImageType, DisplacementFieldTransformType> DisplacementFieldRegistrationType;
+      typedef itk::ImageRegistrationMethodv4<ImageType, ImageType,
+                                             DisplacementFieldTransformType> DisplacementFieldRegistrationType;
 
       // Create the transform adaptors
 
-      typedef itk::DisplacementFieldTransformParametersAdaptor<DisplacementFieldTransformType> DisplacementFieldTransformAdaptorType;
+      typedef itk::DisplacementFieldTransformParametersAdaptor<DisplacementFieldTransformType>
+      DisplacementFieldTransformAdaptorType;
       typename DisplacementFieldRegistrationType::TransformParametersAdaptorsContainerType adaptors;
 
       // Extract parameters
@@ -1080,8 +1092,11 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       RealType sigmaForUpdateField = parser->Convert<float>( transformOption->GetParameter( currentStage, 1 ) );
       RealType sigmaForTotalField = parser->Convert<float>( transformOption->GetParameter( currentStage, 2 ) );
 
-      typedef itk::GaussianSmoothingOnUpdateDisplacementFieldTransform<RealType, ImageDimension> GaussianDisplacementFieldTransformType;
-      typename GaussianDisplacementFieldTransformType::Pointer gaussianFieldTransform = GaussianDisplacementFieldTransformType::New();
+      typedef itk::GaussianSmoothingOnUpdateDisplacementFieldTransform<RealType,
+                                                                       ImageDimension>
+      GaussianDisplacementFieldTransformType;
+      typename GaussianDisplacementFieldTransformType::Pointer gaussianFieldTransform =
+        GaussianDisplacementFieldTransformType::New();
       gaussianFieldTransform->SetGaussianSmoothingVarianceForTheUpdateField( sigmaForUpdateField );
       gaussianFieldTransform->SetGaussianSmoothingVarianceForTheTotalField( sigmaForTotalField );
       gaussianFieldTransform->SetDisplacementField( displacementField );
@@ -1091,7 +1106,6 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       // and, in normal practice, we typically don't change these values at each level.  However,
       // if the user wishes to add that option, they can use the class
       // GaussianSmoothingOnUpdateDisplacementFieldTransformAdaptor
-
       for( unsigned int level = 0; level < numberOfLevels; level++ )
         {
         // We use the shrink image filter to calculate the fixed parameters of the virtual
@@ -1104,7 +1118,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         shrinkFilter->SetInput( displacementField );
         shrinkFilter->Update();
 
-        typename DisplacementFieldTransformAdaptorType::Pointer fieldTransformAdaptor = DisplacementFieldTransformAdaptorType::New();
+        typename DisplacementFieldTransformAdaptorType::Pointer fieldTransformAdaptor =
+          DisplacementFieldTransformAdaptorType::New();
         fieldTransformAdaptor->SetRequiredSpacing( shrinkFilter->GetOutput()->GetSpacing() );
         fieldTransformAdaptor->SetRequiredSize( shrinkFilter->GetOutput()->GetBufferedRegion().GetSize() );
         fieldTransformAdaptor->SetRequiredDirection( shrinkFilter->GetOutput()->GetDirection() );
@@ -1114,7 +1129,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         adaptors.push_back( fieldTransformAdaptor.GetPointer() );
         }
 
-      typename DisplacementFieldRegistrationType::Pointer displacementFieldRegistration = DisplacementFieldRegistrationType::New();
+      typename DisplacementFieldRegistrationType::Pointer displacementFieldRegistration =
+        DisplacementFieldRegistrationType::New();
       displacementFieldRegistration->SetFixedImage( fixedImage );
       displacementFieldRegistration->SetMovingImage( movingImage );
       displacementFieldRegistration->SetNumberOfLevels( numberOfLevels );
@@ -1130,7 +1146,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       displacementFieldRegistration->SetTransformParametersAdaptorsPerLevel( adaptors );
 
       typedef CommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
-      typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver = DisplacementFieldCommandType::New();
+      typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver =
+        DisplacementFieldCommandType::New();
       displacementFieldRegistrationObserver->SetNumberOfIterations( iterations );
 
       displacementFieldRegistration->AddObserver( itk::IterationEvent(), displacementFieldRegistrationObserver );
@@ -1138,11 +1155,12 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       try
         {
         std::cout << std::endl << "*** Running gaussian displacement field registration (sigmaForUpdateField = "
-          << sigmaForUpdateField << ", sigmaForTotalField = " << sigmaForTotalField << ") ***" << std::endl << std::endl;
+                  << sigmaForUpdateField << ", sigmaForTotalField = " << sigmaForTotalField << ") ***" << std::endl
+                  << std::endl;
         displacementFieldRegistrationObserver->Execute( displacementFieldRegistration, itk::StartEvent() );
         displacementFieldRegistration->StartRegistration();
         }
-      catch( itk::ExceptionObject &e )
+      catch( itk::ExceptionObject & e )
         {
         std::cerr << "Exception caught: " << e << std::endl;
         return EXIT_FAILURE;
@@ -1154,11 +1172,13 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
       typedef itk::ImageFileWriter<DisplacementFieldType> WriterType;
       typename WriterType::Pointer writer = WriterType::New();
-      writer->SetInput( const_cast<typename DisplacementFieldRegistrationType::TransformType *>( displacementFieldRegistration->GetOutput()->Get() )->GetDisplacementField() );
+      writer->SetInput( const_cast<typename DisplacementFieldRegistrationType::TransformType *>(
+                          displacementFieldRegistration->GetOutput()->Get() )->GetDisplacementField() );
       writer->SetFileName( filename.c_str() );
       writer->Update();
       }
-    else if( std::strcmp( whichTransform.c_str(), "bsplinedisplacementfield" ) == 0 || std::strcmp( whichTransform.c_str(), "dmffd" ) == 0 )
+    else if( std::strcmp( whichTransform.c_str(),
+                          "bsplinedisplacementfield" ) == 0 || std::strcmp( whichTransform.c_str(), "dmffd" ) == 0 )
       {
       typedef itk::Vector<RealType, ImageDimension> VectorType;
       VectorType zeroVector( 0.0 );
@@ -1169,20 +1189,25 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       displacementField->Allocate();
       displacementField->FillBuffer( zeroVector );
 
-      typedef itk::BSplineSmoothingOnUpdateDisplacementFieldTransform<RealType, ImageDimension> DisplacementFieldTransformType;
+      typedef itk::BSplineSmoothingOnUpdateDisplacementFieldTransform<RealType,
+                                                                      ImageDimension> DisplacementFieldTransformType;
       typename DisplacementFieldTransformType::Pointer bsplineFieldTransform = DisplacementFieldTransformType::New();
 
-      typedef itk::ImageRegistrationMethodv4<ImageType, ImageType, DisplacementFieldTransformType> DisplacementFieldRegistrationType;
+      typedef itk::ImageRegistrationMethodv4<ImageType, ImageType,
+                                             DisplacementFieldTransformType> DisplacementFieldRegistrationType;
 
       // Create the transform adaptors
 
-      typedef itk::DisplacementFieldTransformParametersAdaptor<DisplacementFieldTransformType> DisplacementFieldTransformAdaptorType;
+      typedef itk::DisplacementFieldTransformParametersAdaptor<DisplacementFieldTransformType>
+      DisplacementFieldTransformAdaptorType;
       typename DisplacementFieldRegistrationType::TransformParametersAdaptorsContainerType adaptors;
 
       // Extract parameters
 
-      std::vector<unsigned int> meshSizeForTheUpdateField = parser->ConvertVector<unsigned int>( transformOption->GetParameter( currentStage, 1 ) );
-      std::vector<unsigned int> meshSizeForTheTotalField = parser->ConvertVector<unsigned int>( transformOption->GetParameter( currentStage, 2 ) );
+      std::vector<unsigned int> meshSizeForTheUpdateField = parser->ConvertVector<unsigned int>(
+          transformOption->GetParameter( currentStage, 1 ) );
+      std::vector<unsigned int> meshSizeForTheTotalField = parser->ConvertVector<unsigned int>(
+          transformOption->GetParameter( currentStage, 2 ) );
 
       if( meshSizeForTheUpdateField.size() != ImageDimension || meshSizeForTheTotalField.size() != ImageDimension )
         {
@@ -1210,7 +1235,6 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       bsplineFieldTransform->SetDisplacementField( displacementField );
 
       // Create the transform adaptors specific to B-splines
-
       for( unsigned int level = 0; level < numberOfLevels; level++ )
         {
         // We use the shrink image filter to calculate the fixed parameters of the virtual
@@ -1223,8 +1247,10 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         shrinkFilter->SetInput( displacementField );
         shrinkFilter->Update();
 
-        typedef itk::BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor<DisplacementFieldTransformType> BSplineDisplacementFieldTransformAdaptorType;
-        typename BSplineDisplacementFieldTransformAdaptorType::Pointer bsplineFieldTransformAdaptor = BSplineDisplacementFieldTransformAdaptorType::New();
+        typedef itk::BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor<DisplacementFieldTransformType>
+        BSplineDisplacementFieldTransformAdaptorType;
+        typename BSplineDisplacementFieldTransformAdaptorType::Pointer bsplineFieldTransformAdaptor =
+          BSplineDisplacementFieldTransformAdaptorType::New();
         bsplineFieldTransformAdaptor->SetRequiredSpacing( shrinkFilter->GetOutput()->GetSpacing() );
         bsplineFieldTransformAdaptor->SetRequiredSize( shrinkFilter->GetOutput()->GetBufferedRegion().GetSize() );
         bsplineFieldTransformAdaptor->SetRequiredDirection( shrinkFilter->GetOutput()->GetDirection() );
@@ -1234,7 +1260,6 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         // A good heuristic is to double the b-spline mesh resolution at each level
         typename DisplacementFieldTransformType::ArrayType newUpdateMeshSize = updateMeshSize;
         typename DisplacementFieldTransformType::ArrayType newTotalMeshSize = totalMeshSize;
-
         for( unsigned int d = 0; d < ImageDimension; d++ )
           {
           newUpdateMeshSize[d] = newUpdateMeshSize[d] << ( level + 1 );
@@ -1246,7 +1271,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         adaptors.push_back( bsplineFieldTransformAdaptor.GetPointer() );
         }
 
-      typename DisplacementFieldRegistrationType::Pointer displacementFieldRegistration = DisplacementFieldRegistrationType::New();
+      typename DisplacementFieldRegistrationType::Pointer displacementFieldRegistration =
+        DisplacementFieldRegistrationType::New();
       displacementFieldRegistration->SetFixedImage( fixedImage );
       displacementFieldRegistration->SetMovingImage( movingImage );
       displacementFieldRegistration->SetNumberOfLevels( numberOfLevels );
@@ -1262,7 +1288,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       displacementFieldRegistration->SetTransformParametersAdaptorsPerLevel( adaptors );
 
       typedef CommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
-      typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver = DisplacementFieldCommandType::New();
+      typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver =
+        DisplacementFieldCommandType::New();
       displacementFieldRegistrationObserver->SetNumberOfIterations( iterations );
 
       displacementFieldRegistration->AddObserver( itk::IterationEvent(), displacementFieldRegistrationObserver );
@@ -1270,11 +1297,12 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       try
         {
         std::cout << std::endl << "*** Running bspline displacement field registration (updateMeshSizeAtBaseLevel = "
-          << updateMeshSize << ", totalMeshSizeAtBaseLevel = " << totalMeshSize << ") ***" << std::endl << std::endl;
+                  << updateMeshSize << ", totalMeshSizeAtBaseLevel = " << totalMeshSize << ") ***" << std::endl
+                  << std::endl;
         displacementFieldRegistrationObserver->Execute( displacementFieldRegistration, itk::StartEvent() );
         displacementFieldRegistration->StartRegistration();
         }
-      catch( itk::ExceptionObject &e )
+      catch( itk::ExceptionObject & e )
         {
         std::cerr << "Exception caught: " << e << std::endl;
         return EXIT_FAILURE;
@@ -1286,7 +1314,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
       typedef itk::ImageFileWriter<DisplacementFieldType> WriterType;
       typename WriterType::Pointer writer = WriterType::New();
-      writer->SetInput( const_cast<typename DisplacementFieldRegistrationType::TransformType *>( displacementFieldRegistration->GetOutput()->Get() )->GetDisplacementField() );
+      writer->SetInput( const_cast<typename DisplacementFieldRegistrationType::TransformType *>(
+                          displacementFieldRegistration->GetOutput()->Get() )->GetDisplacementField() );
       writer->SetFileName( filename.c_str() );
       writer->Update();
       }
@@ -1298,13 +1327,15 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
       typedef itk::ImageRegistrationMethodv4<ImageType, ImageType, BSplineTransformType> BSplineRegistrationType;
 
-      std::vector<unsigned int> size = parser->ConvertVector<unsigned int>( transformOption->GetParameter( currentStage, 1 ) );
+      std::vector<unsigned int> size =
+        parser->ConvertVector<unsigned int>( transformOption->GetParameter( currentStage, 1 ) );
 
       typename BSplineTransformType::PhysicalDimensionsType physicalDimensions;
       typename BSplineTransformType::MeshSizeType meshSize;
       for( unsigned int d = 0; d < ImageDimension; d++ )
         {
-        physicalDimensions[d] = fixedImage->GetSpacing()[d] * static_cast<RealType>( fixedImage->GetLargestPossibleRegion().GetSize()[d] - 1 );
+        physicalDimensions[d] = fixedImage->GetSpacing()[d]
+          * static_cast<RealType>( fixedImage->GetLargestPossibleRegion().GetSize()[d] - 1 );
         meshSize[d] = size[d];
         }
 
@@ -1320,7 +1351,6 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       typename BSplineRegistrationType::TransformParametersAdaptorsContainerType adaptors;
 
       // Create the transform adaptors specific to B-splines
-
       for( unsigned int level = 0; level < numberOfLevels; level++ )
         {
         // A good heuristic is to double the b-spline mesh resolution at each level
@@ -1337,7 +1367,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         bsplineAdaptor->SetRequiredTransformDomainMeshSize( requiredMeshSize );
         bsplineAdaptor->SetRequiredTransformDomainOrigin( bsplineTransform->GetTransformDomainOrigin() );
         bsplineAdaptor->SetRequiredTransformDomainDirection( bsplineTransform->GetTransformDomainDirection() );
-        bsplineAdaptor->SetRequiredTransformDomainPhysicalDimensions( bsplineTransform->GetTransformDomainPhysicalDimensions() );
+        bsplineAdaptor->SetRequiredTransformDomainPhysicalDimensions(
+          bsplineTransform->GetTransformDomainPhysicalDimensions() );
 
         adaptors.push_back( bsplineAdaptor.GetPointer() );
         }
@@ -1367,11 +1398,12 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
       try
         {
-        std::cout << std::endl << "*** Running bspline registration (meshSizeAtBaseLevel = " << meshSize << ") ***" << std::endl << std::endl;
+        std::cout << std::endl << "*** Running bspline registration (meshSizeAtBaseLevel = " << meshSize << ") ***"
+                  << std::endl << std::endl;
         bsplineObserver->Execute( bsplineRegistration, itk::StartEvent() );
         bsplineRegistration->StartRegistration();
         }
-      catch( itk::ExceptionObject &e )
+      catch( itk::ExceptionObject & e )
         {
         std::cerr << "Exception caught: " << e << std::endl;
         return EXIT_FAILURE;
@@ -1387,7 +1419,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       transformWriter->SetFileName( filename.c_str() );
       transformWriter->Update();
       }
-    else if( std::strcmp( whichTransform.c_str(), "timevaryingvelocityfield" ) == 0 || std::strcmp( whichTransform.c_str(), "tvf" ) == 0 )
+    else if( std::strcmp( whichTransform.c_str(),
+                          "timevaryingvelocityfield" ) == 0 || std::strcmp( whichTransform.c_str(), "tvf" ) == 0 )
       {
 //      metric->SetDoFixedImagePreWarp( true );
 //      metric->SetDoMovingImagePreWarp( true );
@@ -1396,7 +1429,7 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
       // Determine the parameters (size, spacing, etc) for the time-varying velocity field
 
-      typedef itk::Image<VectorType, ImageDimension+1> TimeVaryingVelocityFieldType;
+      typedef itk::Image<VectorType, ImageDimension + 1> TimeVaryingVelocityFieldType;
       typename TimeVaryingVelocityFieldType::Pointer velocityField = TimeVaryingVelocityFieldType::New();
 
       typename TimeVaryingVelocityFieldType::IndexType velocityFieldIndex;
@@ -1419,7 +1452,6 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       velocityFieldOrigin.Fill( 0.0 );
       velocityFieldSpacing.Fill( 1.0 );
       velocityFieldDirection.SetIdentity();
-
       for( unsigned int i = 0; i < ImageDimension; i++ )
         {
         velocityFieldIndex[i] = fixedImageIndex[i];
@@ -1449,7 +1481,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       RealType sigmaForTotalField = parser->Convert<float>( transformOption->GetParameter( currentStage, 4 ) );
       RealType sigmaForTotalFieldTime = parser->Convert<float>( transformOption->GetParameter( currentStage, 5 ) );
 
-      typedef itk::TimeVaryingVelocityFieldImageRegistrationMethodv4<ImageType, ImageType> VelocityFieldRegistrationType;
+      typedef itk::TimeVaryingVelocityFieldImageRegistrationMethodv4<ImageType,
+                                                                     ImageType> VelocityFieldRegistrationType;
       typename VelocityFieldRegistrationType::Pointer velocityFieldRegistration = VelocityFieldRegistrationType::New();
       velocityFieldRegistration->SetFixedImage( fixedImage );
       velocityFieldRegistration->SetMovingImage( movingImage );
@@ -1460,10 +1493,14 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         static_cast<typename VelocityFieldRegistrationType::MetricSamplingStrategyType>( metricSamplingStrategy ) );
       velocityFieldRegistration->SetMetricSamplingPercentage( samplingPercentage );
       velocityFieldRegistration->SetLearningRate( learningRate );
-      velocityFieldRegistration->GetTransform()->SetGaussianSpatialSmoothingVarianceForTheTotalField( sigmaForTotalField );
-      velocityFieldRegistration->GetTransform()->SetGaussianSpatialSmoothingVarianceForTheUpdateField( sigmaForUpdateField );
-      velocityFieldRegistration->GetTransform()->SetGaussianTemporalSmoothingVarianceForTheTotalField( sigmaForTotalFieldTime );
-      velocityFieldRegistration->GetTransform()->SetGaussianTemporalSmoothingVarianceForTheUpdateField( sigmaForUpdateFieldTime );
+      velocityFieldRegistration->GetTransform()->SetGaussianSpatialSmoothingVarianceForTheTotalField(
+        sigmaForTotalField );
+      velocityFieldRegistration->GetTransform()->SetGaussianSpatialSmoothingVarianceForTheUpdateField(
+        sigmaForUpdateField );
+      velocityFieldRegistration->GetTransform()->SetGaussianTemporalSmoothingVarianceForTheTotalField(
+        sigmaForTotalFieldTime );
+      velocityFieldRegistration->GetTransform()->SetGaussianTemporalSmoothingVarianceForTheUpdateField(
+        sigmaForUpdateFieldTime );
 
       velocityFieldRegistration->GetTransform()->SetTimeVaryingVelocityField( velocityField );
       velocityFieldRegistration->GetTransform()->SetLowerTimeBound( 0.0 );
@@ -1479,10 +1516,10 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       velocityFieldRegistration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
       velocityFieldRegistration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
 
-      typedef itk::TimeVaryingVelocityFieldTransformParametersAdaptor<typename VelocityFieldRegistrationType::TransformType> VelocityFieldTransformAdaptorType;
+      typedef itk::TimeVaryingVelocityFieldTransformParametersAdaptor<typename VelocityFieldRegistrationType::
+                                                                      TransformType> VelocityFieldTransformAdaptorType;
 
       typename VelocityFieldRegistrationType::TransformParametersAdaptorsContainerType adaptors;
-
       for( unsigned int level = 0; level < shrinkFactorsPerLevel.Size(); level++ )
         {
         typedef itk::ShrinkImageFilter<ImageType, ImageType> ShrinkFilterType;
@@ -1503,7 +1540,6 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         fixedImageOrigin = shrinkFilter->GetOutput()->GetOrigin();
         fixedImageSpacing = shrinkFilter->GetOutput()->GetSpacing();
         fixedImageDirection = shrinkFilter->GetOutput()->GetDirection();
-
         for( unsigned int i = 0; i < ImageDimension; i++ )
           {
           velocityFieldSize[i] = fixedImageSize[i];
@@ -1515,7 +1551,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
             }
           }
 
-        typename VelocityFieldTransformAdaptorType::Pointer fieldTransformAdaptor = VelocityFieldTransformAdaptorType::New();
+        typename VelocityFieldTransformAdaptorType::Pointer fieldTransformAdaptor =
+          VelocityFieldTransformAdaptorType::New();
         fieldTransformAdaptor->SetRequiredSpacing( velocityFieldSpacing );
         fieldTransformAdaptor->SetRequiredSize( velocityFieldSize );
         fieldTransformAdaptor->SetRequiredDirection( velocityFieldDirection );
@@ -1535,12 +1572,14 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       try
         {
         std::cout << std::endl << "*** Running time-varying velocity field registration (sigmaForUpdateField = "
-          << sigmaForUpdateField << ", sigmaForTotalField = " << sigmaForTotalField << ", sigmaForUpdateFieldTime = "
-          << sigmaForUpdateFieldTime << ", sigmaForTotalFieldTime = " << sigmaForTotalFieldTime << ") ***" << std::endl << std::endl;
+                  << sigmaForUpdateField << ", sigmaForTotalField = " << sigmaForTotalField
+                  << ", sigmaForUpdateFieldTime = "
+                  << sigmaForUpdateFieldTime << ", sigmaForTotalFieldTime = " << sigmaForTotalFieldTime << ") ***"
+                  << std::endl << std::endl;
         velocityFieldRegistrationObserver->Execute( velocityFieldRegistration, itk::StartEvent() );
         velocityFieldRegistration->StartRegistration();
         }
-      catch( itk::ExceptionObject &e )
+      catch( itk::ExceptionObject & e )
         {
         std::cerr << "Exception caught: " << e << std::endl;
         return EXIT_FAILURE;
@@ -1554,7 +1593,9 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
       typedef itk::ImageFileWriter<DisplacementFieldType> WriterType;
       typename WriterType::Pointer writer = WriterType::New();
-      writer->SetInput( const_cast<typename VelocityFieldRegistrationType::TransformType *>( velocityFieldRegistration->GetOutput()->Get() )->GetDisplacementField() );
+      writer->SetInput( const_cast<typename VelocityFieldRegistrationType::TransformType *>( velocityFieldRegistration
+                                                                                             ->GetOutput()->Get() )->
+                        GetDisplacementField() );
       writer->SetFileName( filename.c_str() );
       writer->Update();
 
@@ -1562,11 +1603,14 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
       typedef itk::ImageFileWriter<DisplacementFieldType> InverseWriterType;
       typename InverseWriterType::Pointer inverseWriter = InverseWriterType::New();
-      inverseWriter->SetInput( const_cast<typename VelocityFieldRegistrationType::TransformType *>( velocityFieldRegistration->GetOutput()->Get() )->GetInverseDisplacementField() );
+      inverseWriter->SetInput( const_cast<typename VelocityFieldRegistrationType::TransformType *>(
+                                 velocityFieldRegistration->GetOutput()->Get() )->GetInverseDisplacementField() );
       inverseWriter->SetFileName( inverseFilename.c_str() );
       inverseWriter->Update();
       }
-    else if( std::strcmp( whichTransform.c_str(), "timevaryingbsplinevelocityfield" ) == 0 || std::strcmp( whichTransform.c_str(), "tvdmffd" ) == 0 )
+    else if( std::strcmp( whichTransform.c_str(),
+                          "timevaryingbsplinevelocityfield" ) == 0 ||
+             std::strcmp( whichTransform.c_str(), "tvdmffd" ) == 0 )
       {
       typedef itk::Vector<RealType, ImageDimension> VectorType;
       VectorType zeroVector( 0.0 );
@@ -1577,8 +1621,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       if( meshSize.size() != ImageDimension + 1 )
         {
         std::cerr << "The transform domain mesh size does not have the correct number of elements."
-          << "For image dimension = " << ImageDimension << ", you need " << ImageDimension + 1
-          << "elements. " << std::endl;
+                  << "For image dimension = " << ImageDimension << ", you need " << ImageDimension + 1
+                  << "elements. " << std::endl;
         return EXIT_FAILURE;
         }
 
@@ -1594,7 +1638,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         }
 
       typedef itk::Image<VectorType, ImageDimension + 1> TimeVaryingVelocityFieldControlPointLatticeType;
-      typename TimeVaryingVelocityFieldControlPointLatticeType::Pointer velocityFieldLattice = TimeVaryingVelocityFieldControlPointLatticeType::New();
+      typename TimeVaryingVelocityFieldControlPointLatticeType::Pointer velocityFieldLattice =
+        TimeVaryingVelocityFieldControlPointLatticeType::New();
 
       typename ImageType::SizeType fixedImageSize = fixedImage->GetBufferedRegion().GetSize();
       typename ImageType::PointType fixedImageOrigin = fixedImage->GetOrigin();
@@ -1609,7 +1654,6 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       transformDomainDirection.SetIdentity();
       transformDomainOrigin.Fill( 0.0 );
       transformDomainPhysicalDimensions.Fill( 1.0 );
-
       for( unsigned int i = 0; i < ImageDimension; i++ )
         {
         transformDomainOrigin[i] = fixedImageOrigin[i];
@@ -1624,9 +1668,11 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         {
         transformDomainMeshSize[i] = meshSize[i];
         }
-      typename TimeVaryingVelocityFieldControlPointLatticeType::SizeType initialTransformDomainMeshSize = transformDomainMeshSize;
+      typename TimeVaryingVelocityFieldControlPointLatticeType::SizeType initialTransformDomainMeshSize =
+        transformDomainMeshSize;
 
-      typedef itk::TimeVaryingBSplineVelocityFieldImageRegistrationMethod<ImageType, ImageType> VelocityFieldRegistrationType;
+      typedef itk::TimeVaryingBSplineVelocityFieldImageRegistrationMethod<ImageType,
+                                                                          ImageType> VelocityFieldRegistrationType;
       typename VelocityFieldRegistrationType::Pointer velocityFieldRegistration = VelocityFieldRegistrationType::New();
       velocityFieldRegistration->SetFixedImage( fixedImage );
       velocityFieldRegistration->SetMovingImage( movingImage );
@@ -1644,8 +1690,10 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
       typedef typename VelocityFieldRegistrationType::TransformType TransformType;
 
-      typedef itk::TimeVaryingBSplineVelocityFieldTransformParametersAdaptor<TransformType> VelocityFieldTransformAdaptorType;
-      typename VelocityFieldTransformAdaptorType::Pointer initialFieldTransformAdaptor = VelocityFieldTransformAdaptorType::New();
+      typedef itk::TimeVaryingBSplineVelocityFieldTransformParametersAdaptor<TransformType>
+      VelocityFieldTransformAdaptorType;
+      typename VelocityFieldTransformAdaptorType::Pointer initialFieldTransformAdaptor =
+        VelocityFieldTransformAdaptorType::New();
       initialFieldTransformAdaptor->SetTransform( velocityFieldRegistration->GetTransform() );
       initialFieldTransformAdaptor->SetRequiredTransformDomainOrigin( transformDomainOrigin );
       initialFieldTransformAdaptor->SetRequiredTransformDomainPhysicalDimensions( transformDomainPhysicalDimensions );
@@ -1668,7 +1716,6 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       sampledVelocityFieldSpacing.Fill( 1.0 );
       sampledVelocityFieldSize.Fill( numberOfTimePointSamples );
       sampledVelocityFieldDirection.SetIdentity();
-
       for( unsigned int i = 0; i < ImageDimension; i++ )
         {
         sampledVelocityFieldOrigin[i] = fixedImage->GetOrigin()[i];
@@ -1700,7 +1747,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       typename VelocityFieldRegistrationType::TransformParametersAdaptorsContainerType adaptors;
       for( unsigned int level = 0; level < shrinkFactorsPerLevel.Size(); level++ )
         {
-        typename VelocityFieldTransformAdaptorType::Pointer fieldTransformAdaptor = VelocityFieldTransformAdaptorType::New();
+        typename VelocityFieldTransformAdaptorType::Pointer fieldTransformAdaptor =
+          VelocityFieldTransformAdaptorType::New();
         fieldTransformAdaptor->SetTransform( velocityFieldRegistration->GetTransform() );
         fieldTransformAdaptor->SetRequiredTransformDomainOrigin( transformDomainOrigin );
         fieldTransformAdaptor->SetRequiredTransformDomainMeshSize( transformDomainMeshSize );
@@ -1708,7 +1756,6 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         fieldTransformAdaptor->SetRequiredTransformDomainPhysicalDimensions( transformDomainPhysicalDimensions );
 
         adaptors.push_back( fieldTransformAdaptor.GetPointer() );
-
         for( unsigned int i = 0; i <= ImageDimension; i++ )
           {
           transformDomainMeshSize[i] <<= 1;
@@ -1725,11 +1772,13 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
       try
         {
-        std::cout << std::endl << "*** Running time-varying b-spline velocity field registration (initial mesh size = " << initialTransformDomainMeshSize << ") ***" << std::endl << std::endl;
+        std::cout << std::endl
+                  << "*** Running time-varying b-spline velocity field registration (initial mesh size = "
+                  << initialTransformDomainMeshSize << ") ***" << std::endl << std::endl;
         velocityFieldRegistrationObserver->Execute( velocityFieldRegistration, itk::StartEvent() );
         velocityFieldRegistration->StartRegistration();
         }
-      catch( itk::ExceptionObject &e )
+      catch( itk::ExceptionObject & e )
         {
         std::cerr << "Exception caught: " << e << std::endl;
         return EXIT_FAILURE;
@@ -1743,7 +1792,9 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
       typedef itk::ImageFileWriter<DisplacementFieldType> WriterType;
       typename WriterType::Pointer writer = WriterType::New();
-      writer->SetInput( const_cast<typename VelocityFieldRegistrationType::TransformType *>( velocityFieldRegistration->GetOutput()->Get() )->GetDisplacementField() );
+      writer->SetInput( const_cast<typename VelocityFieldRegistrationType::TransformType *>( velocityFieldRegistration
+                                                                                             ->GetOutput()->Get() )->
+                        GetDisplacementField() );
       writer->SetFileName( filename.c_str() );
       writer->Update();
 
@@ -1751,11 +1802,13 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
       typedef itk::ImageFileWriter<DisplacementFieldType> InverseWriterType;
       typename InverseWriterType::Pointer inverseWriter = InverseWriterType::New();
-      inverseWriter->SetInput( const_cast<typename VelocityFieldRegistrationType::TransformType *>( velocityFieldRegistration->GetOutput()->Get() )->GetInverseDisplacementField() );
+      inverseWriter->SetInput( const_cast<typename VelocityFieldRegistrationType::TransformType *>(
+                                 velocityFieldRegistration->GetOutput()->Get() )->GetInverseDisplacementField() );
       inverseWriter->SetFileName( inverseFilename.c_str() );
       inverseWriter->Update();
       }
-    else if( std::strcmp( whichTransform.c_str(), "syn" ) == 0 ||  std::strcmp( whichTransform.c_str(), "symmetricnormalization" ) == 0 )
+    else if( std::strcmp( whichTransform.c_str(),
+                          "syn" ) == 0 ||  std::strcmp( whichTransform.c_str(), "symmetricnormalization" ) == 0 )
       {
 //      metric->SetDoFixedImagePreWarp( true );
 //      metric->SetDoMovingImagePreWarp( true );
@@ -1779,11 +1832,13 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       displacementFieldTransform->SetDisplacementField( displacementField );
       displacementFieldTransform->SetInverseDisplacementField( inverseDisplacementField );
 
-      typedef itk::SyNImageRegistrationMethod<ImageType, ImageType, DisplacementFieldTransformType> DisplacementFieldRegistrationType;
+      typedef itk::SyNImageRegistrationMethod<ImageType, ImageType,
+                                              DisplacementFieldTransformType> DisplacementFieldRegistrationType;
 
       // Create the transform adaptors
 
-      typedef itk::DisplacementFieldTransformParametersAdaptor<DisplacementFieldTransformType> DisplacementFieldTransformAdaptorType;
+      typedef itk::DisplacementFieldTransformParametersAdaptor<DisplacementFieldTransformType>
+      DisplacementFieldTransformAdaptorType;
       typename DisplacementFieldRegistrationType::TransformParametersAdaptorsContainerType adaptors;
 
       // Create the transform adaptors
@@ -1791,7 +1846,6 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       // and, in normal practice, we typically don't change these values at each level.  However,
       // if the user wishes to add that option, they can use the class
       // GaussianSmoothingOnUpdateDisplacementFieldTransformAdaptor
-
       for( unsigned int level = 0; level < numberOfLevels; level++ )
         {
         // We use the shrink image filter to calculate the fixed parameters of the virtual
@@ -1804,7 +1858,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
         shrinkFilter->SetInput( displacementField );
         shrinkFilter->Update();
 
-        typename DisplacementFieldTransformAdaptorType::Pointer fieldTransformAdaptor = DisplacementFieldTransformAdaptorType::New();
+        typename DisplacementFieldTransformAdaptorType::Pointer fieldTransformAdaptor =
+          DisplacementFieldTransformAdaptorType::New();
         fieldTransformAdaptor->SetRequiredSpacing( shrinkFilter->GetOutput()->GetSpacing() );
         fieldTransformAdaptor->SetRequiredSize( shrinkFilter->GetOutput()->GetBufferedRegion().GetSize() );
         fieldTransformAdaptor->SetRequiredDirection( shrinkFilter->GetOutput()->GetDirection() );
@@ -1825,7 +1880,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       RealType sigmaForUpdateField = parser->Convert<float>( transformOption->GetParameter( currentStage, 1 ) );
       RealType sigmaForTotalField = parser->Convert<float>( transformOption->GetParameter( currentStage, 2 ) );
 
-      typename DisplacementFieldRegistrationType::Pointer displacementFieldRegistration = DisplacementFieldRegistrationType::New();
+      typename DisplacementFieldRegistrationType::Pointer displacementFieldRegistration =
+        DisplacementFieldRegistrationType::New();
       displacementFieldRegistration->SetDownsampleImagesForMetricDerivatives( true );
       displacementFieldRegistration->SetAverageMidPointGradients( false );
       displacementFieldRegistration->SetFixedImage( fixedImage );
@@ -1843,7 +1899,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       displacementFieldRegistration->SetGaussianSmoothingVarianceForTheTotalField( sigmaForTotalField );
 
       typedef CommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
-      typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver = DisplacementFieldCommandType::New();
+      typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver =
+        DisplacementFieldCommandType::New();
       displacementFieldRegistrationObserver->SetNumberOfIterations( iterations );
 
       displacementFieldRegistration->AddObserver( itk::IterationEvent(), displacementFieldRegistrationObserver );
@@ -1851,11 +1908,12 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       try
         {
         std::cout << std::endl << "*** Running SyN registration (sigmaForUpdateField = "
-          << sigmaForUpdateField << ", sigmaForTotalField = " << sigmaForTotalField << ") ***" << std::endl << std::endl;
+                  << sigmaForUpdateField << ", sigmaForTotalField = " << sigmaForTotalField << ") ***" << std::endl
+                  << std::endl;
         displacementFieldRegistrationObserver->Execute( displacementFieldRegistration, itk::StartEvent() );
         displacementFieldRegistration->StartRegistration();
         }
-      catch( itk::ExceptionObject &e )
+      catch( itk::ExceptionObject & e )
         {
         std::cerr << "Exception caught: " << e << std::endl;
         return EXIT_FAILURE;
@@ -1867,14 +1925,16 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
 
       typedef itk::ImageFileWriter<DisplacementFieldType> WriterType;
       typename WriterType::Pointer writer = WriterType::New();
-      writer->SetInput( const_cast<typename DisplacementFieldRegistrationType::TransformType *>( displacementFieldRegistration->GetOutput()->Get() )->GetDisplacementField() );
+      writer->SetInput( const_cast<typename DisplacementFieldRegistrationType::TransformType *>(
+                          displacementFieldRegistration->GetOutput()->Get() )->GetDisplacementField() );
       writer->SetFileName( filename.c_str() );
       writer->Update();
 
       filename = outputPrefix + currentStageString.str() + std::string( "InverseWarp.nii.gz" );
 
       typename WriterType::Pointer inverseWriter = WriterType::New();
-      inverseWriter->SetInput( const_cast<typename DisplacementFieldRegistrationType::TransformType *>( displacementFieldRegistration->GetOutput()->Get() )->GetInverseDisplacementField() );
+      inverseWriter->SetInput( const_cast<typename DisplacementFieldRegistrationType::TransformType *>(
+                                 displacementFieldRegistration->GetOutput()->Get() )->GetInverseDisplacementField() );
       inverseWriter->SetFileName( filename.c_str() );
       inverseWriter->Update();
       }
@@ -1884,7 +1944,8 @@ int antsRegistration( itk::ants::CommandLineParser *parser )
       return EXIT_FAILURE;
       }
     timer.Stop();
-    std::cout << "  Elapsed time (stage " << ( numberOfStages - currentStage - 1 ) << "): " << timer.GetMeanTime() << std::endl << std::endl;
+    std::cout << "  Elapsed time (stage "
+              << ( numberOfStages - currentStage - 1 ) << "): " << timer.GetMeanTime() << std::endl << std::endl;
     }
 
   // Write out warped image(s), if requested.
@@ -1965,196 +2026,214 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
 {
   typedef itk::ants::CommandLineParser::OptionType OptionType;
 
-  {
-  std::string description =
-    std::string( "This option forces the image to be treated as a specified-" ) +
-    std::string( "dimensional image.  If not specified, N4 tries to " ) +
-    std::string( "infer the dimensionality from the input image." );
+    {
+    std::string description =
+      std::string( "This option forces the image to be treated as a specified-" )
+      + std::string( "dimensional image.  If not specified, N4 tries to " )
+      + std::string( "infer the dimensionality from the input image." );
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "dimensionality" );
-  option->SetShortName( 'd' );
-  option->SetUsageOption( 0, "2/3" );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "dimensionality" );
+    option->SetShortName( 'd' );
+    option->SetUsageOption( 0, "2/3" );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  {
-  std::string description = std::string( "Specify the output transform prefix (output format is .nii.gz ). " ) +
-    std::string( "Optionally, one can choose to warp the moving image to the fixed space and, if the " ) +
-    std::string( "inverse transform exists, one can also output the warped fixed image." );
+    {
+    std::string description = std::string( "Specify the output transform prefix (output format is .nii.gz ). " )
+      + std::string( "Optionally, one can choose to warp the moving image to the fixed space and, if the " )
+      + std::string( "inverse transform exists, one can also output the warped fixed image." );
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "output" );
-  option->SetShortName( 'o' );
-  option->SetUsageOption( 0, "outputTransformPrefix" );
-  option->SetUsageOption( 1, "[outputTransformPrefix,<outputWarpedImage>,<outputInverseWarpedImage>]" );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "output" );
+    option->SetShortName( 'o' );
+    option->SetUsageOption( 0, "outputTransformPrefix" );
+    option->SetUsageOption( 1, "[outputTransformPrefix,<outputWarpedImage>,<outputInverseWarpedImage>]" );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  {
-  std::string description = std::string( "Specify the initial transform(s) which get immediately " ) +
-    std::string( "incorporated into the composite transform.  The order of the " ) +
-    std::string( "transforms is stack-esque in that the last transform specified on " ) +
-    std::string( "the command line is the first to be applied.  See antsApplyTransforms " ) +
-    std::string( "for additional information." );
+    {
+    std::string description = std::string( "Specify the initial transform(s) which get immediately " )
+      + std::string( "incorporated into the composite transform.  The order of the " )
+      + std::string( "transforms is stack-esque in that the last transform specified on " )
+      + std::string( "the command line is the first to be applied.  See antsApplyTransforms " )
+      + std::string( "for additional information." );
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "initial-transform" );
-  option->SetShortName( 'r' );
-  option->SetUsageOption( 0, "initialTransform" );
-  option->SetUsageOption( 1, "[initialTransform,<useInverse>]" );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "initial-transform" );
+    option->SetShortName( 'r' );
+    option->SetUsageOption( 0, "initialTransform" );
+    option->SetUsageOption( 1, "[initialTransform,<useInverse>]" );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  {
-  std::string description = std::string( "These image metrics are available--- " ) +
-    std::string( "CC:  ANTS neighborhood cross correlation, MI:  Mutual information, and " ) +
-    std::string( "Demons:  Thirion's Demons (modified mean-squares). " ) +
-    std::string( "GC, Global Correlation. " ) +
-    std::string( "Note that the metricWeight is currently not used.  " ) +
-    std::string( "Rather, it is a temporary place holder until multivariate metrics " ) +
-    std::string( "are available for a single stage. " )+
-    std::string( "The metrics can also employ a sampling strategy defined by a " ) +
-    std::string( "sampling percentage. The sampling strategy defaults to dense, otherwise " ) +
-    std::string( "it defines a point set over which to optimize the metric. " ) +
-    std::string( "The point set can be on a regular lattice or a random lattice of points slightly " ) +
-    std::string( "perturbed to minimize aliasing artifacts. samplingPercentage defines the " ) +
-    std::string( "fraction of points to select from the domain. " );
+    {
+    std::string description = std::string( "These image metrics are available--- " )
+      + std::string( "CC:  ANTS neighborhood cross correlation, MI:  Mutual information, and " )
+      + std::string( "Demons:  Thirion's Demons (modified mean-squares). " )
+      + std::string( "GC, Global Correlation. " )
+      + std::string( "Note that the metricWeight is currently not used.  " )
+      + std::string( "Rather, it is a temporary place holder until multivariate metrics " )
+      + std::string( "are available for a single stage. " )
+      + std::string( "The metrics can also employ a sampling strategy defined by a " )
+      + std::string( "sampling percentage. The sampling strategy defaults to dense, otherwise " )
+      + std::string( "it defines a point set over which to optimize the metric. " )
+      + std::string( "The point set can be on a regular lattice or a random lattice of points slightly " )
+      + std::string( "perturbed to minimize aliasing artifacts. samplingPercentage defines the " )
+      + std::string( "fraction of points to select from the domain. " );
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "metric" );
-  option->SetShortName( 'm' );
-  option->SetUsageOption( 0, "CC[fixedImage,movingImage,metricWeight,radius,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
-  option->SetUsageOption( 1, "MI[fixedImage,movingImage,metricWeight,numberOfBins,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
-  option->SetUsageOption( 2, "Mattes[fixedImage,movingImage,metricWeight,numberOfBins,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
-  option->SetUsageOption( 3, "Demons[fixedImage,movingImage,metricWeight,radius,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
-  option->SetUsageOption( 4, "GC[fixedImage,movingImage,metricWeight,radius,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "metric" );
+    option->SetShortName( 'm' );
+    option->SetUsageOption(
+      0,
+      "CC[fixedImage,movingImage,metricWeight,radius,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
+    option->SetUsageOption(
+      1,
+      "MI[fixedImage,movingImage,metricWeight,numberOfBins,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
+    option->SetUsageOption(
+      2,
+      "Mattes[fixedImage,movingImage,metricWeight,numberOfBins,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
+    option->SetUsageOption(
+      3,
+      "Demons[fixedImage,movingImage,metricWeight,radius,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
+    option->SetUsageOption(
+      4,
+      "GC[fixedImage,movingImage,metricWeight,radius,<samplingStrategy={Regular,Random}>,<samplingPercentage=[0,1]>]" );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  {
-  std::string description = std::string( "Several transform options are available.  The gradientStep or " ) +
-    std::string( "learningRate characterizes the gradient descent optimization and is scaled appropriately " ) +
-    std::string( "for each transform using the shift scales estimator.  Subsequent parameters are " ) +
-    std::string( "transform-specific and can be determined from the usage. " );
+    {
+    std::string description = std::string( "Several transform options are available.  The gradientStep or " )
+      + std::string( "learningRate characterizes the gradient descent optimization and is scaled appropriately " )
+      + std::string( "for each transform using the shift scales estimator.  Subsequent parameters are " )
+      + std::string( "transform-specific and can be determined from the usage. " );
 
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "transform" );
+    option->SetShortName( 't' );
+    option->SetUsageOption( 0, "Rigid[gradientStep]" );
+    option->SetUsageOption( 1, "Affine[gradientStep]" );
+    option->SetUsageOption( 2, "CompositeAffine[gradientStep]" );
+    option->SetUsageOption( 3, "Similarity[gradientStep]" );
+    option->SetUsageOption( 4, "Translation[gradientStep]" );
+    option->SetUsageOption( 5, "BSpline[gradientStep,meshSizeAtBaseLevel]" );
+    option->SetUsageOption(
+      6, "GaussianDisplacementField[gradientStep,updateFieldSigmaInPhysicalSpace,totalFieldSigmaInPhysicalSpace]" );
+    option->SetUsageOption(
+      7,
+      "BSplineDisplacementField[gradientStep,updateFieldMeshSizeAtBaseLevel,totalFieldMeshSizeAtBaseLevel,<splineOrder=3>]" );
+    option->SetUsageOption(
+      8,
+      "TimeVaryingVelocityField[gradientStep,numberOfTimeIndices,updateFieldSigmaInPhysicalSpace,updateFieldTimeSigma,totalFieldSigmaInPhysicalSpace,totalFieldTimeSigma]" );
+    option->SetUsageOption(
+      9,
+      "TimeVaryingBSplineVelocityField[gradientStep,velocityFieldMeshSize,<numberOfTimePointSamples=4>,<splineOrder=3>]" );
+    option->SetUsageOption( 10, "SyN[gradientStep,updateFieldSigmaInPhysicalSpace,totalFieldSigmaInPhysicalSpace]" );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "transform" );
-  option->SetShortName( 't' );
-  option->SetUsageOption( 0, "Rigid[gradientStep]" );
-  option->SetUsageOption( 1, "Affine[gradientStep]" );
-  option->SetUsageOption( 2, "CompositeAffine[gradientStep]" );
-  option->SetUsageOption( 3, "Similarity[gradientStep]" );
-  option->SetUsageOption( 4, "Translation[gradientStep]" );
-  option->SetUsageOption( 5, "BSpline[gradientStep,meshSizeAtBaseLevel]" );
-  option->SetUsageOption( 6, "GaussianDisplacementField[gradientStep,updateFieldSigmaInPhysicalSpace,totalFieldSigmaInPhysicalSpace]" );
-  option->SetUsageOption( 7, "BSplineDisplacementField[gradientStep,updateFieldMeshSizeAtBaseLevel,totalFieldMeshSizeAtBaseLevel,<splineOrder=3>]" );
-  option->SetUsageOption( 8, "TimeVaryingVelocityField[gradientStep,numberOfTimeIndices,updateFieldSigmaInPhysicalSpace,updateFieldTimeSigma,totalFieldSigmaInPhysicalSpace,totalFieldTimeSigma]" );
-  option->SetUsageOption( 9, "TimeVaryingBSplineVelocityField[gradientStep,velocityFieldMeshSize,<numberOfTimePointSamples=4>,<splineOrder=3>]" );
-  option->SetUsageOption( 10, "SyN[gradientStep,updateFieldSigmaInPhysicalSpace,totalFieldSigmaInPhysicalSpace]" );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    {
+    std::string description = std::string( "Specify the number of iterations at each level." );
 
-  {
-  std::string description = std::string( "Specify the number of iterations at each level." );
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "iterations" );
+    option->SetShortName( 'i' );
+    option->SetUsageOption( 0, "MxNx0..." );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "iterations" );
-  option->SetShortName( 'i' );
-  option->SetUsageOption( 0, "MxNx0..." );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    {
+    std::string description = std::string( "Specify the amount of smoothing at each level." );
 
-  {
-  std::string description = std::string( "Specify the amount of smoothing at each level." );
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "smoothing-sigmas" );
+    option->SetShortName( 's' );
+    option->SetUsageOption( 0, "MxNx0..." );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "smoothing-sigmas" );
-  option->SetShortName( 's' );
-  option->SetUsageOption( 0, "MxNx0..." );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    {
+    std::string description = std::string(
+        "Specify the shrink factor for the virtual domain (typically the fixed image) at each level." );
 
-  {
-  std::string description = std::string( "Specify the shrink factor for the virtual domain (typically the fixed image) at each level." );
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "shrink-factors" );
+    option->SetShortName( 'f' );
+    option->SetUsageOption( 0, "MxNx0..." );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "shrink-factors" );
-  option->SetShortName( 'f' );
-  option->SetUsageOption( 0, "MxNx0..." );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    {
+    std::string description = std::string( "Histogram match the images before registration." );
 
-  {
-  std::string description = std::string( "Histogram match the images before registration." );
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "use-histogram-matching" );
+    option->SetShortName( 'u' );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "use-histogram-matching" );
-  option->SetShortName( 'u' );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    {
+    std::string description = std::string( "Rescale the images to [0,1] before registration." );
 
-  {
-  std::string description = std::string( "Rescale the images to [0,1] before registration." );
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "rescale-images" );
+    option->SetShortName( 'c' );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "rescale-images" );
-  option->SetShortName( 'c' );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    {
+    std::string description = std::string( "Winsorize data based on specified quantiles." );
 
-  {
-  std::string description = std::string( "Winsorize data based on specified quantiles." );
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "winsorize-image-intensities" );
+    option->SetShortName( 'w' );
+    option->SetUsageOption( 0, "[lowerQuantile,upperQuantile]" );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "winsorize-image-intensities" );
-  option->SetShortName( 'w' );
-  option->SetUsageOption( 0, "[lowerQuantile,upperQuantile]" );
-  option->SetDescription( description );
-  parser->AddOption( option );
-  }
+    {
+    std::string description = std::string( "Print the help menu (short version)." );
 
-  {
-  std::string description = std::string( "Print the help menu (short version)." );
+    OptionType::Pointer option = OptionType::New();
+    option->SetShortName( 'h' );
+    option->SetDescription( description );
+    option->AddValue( std::string( "0" ) );
+    parser->AddOption( option );
+    }
 
-  OptionType::Pointer option = OptionType::New();
-  option->SetShortName( 'h' );
-  option->SetDescription( description );
-  option->AddValue( std::string( "0" ) );
-  parser->AddOption( option );
-  }
+    {
+    std::string description = std::string( "Print the help menu." );
 
-  {
-  std::string description = std::string( "Print the help menu." );
-
-  OptionType::Pointer option = OptionType::New();
-  option->SetLongName( "help" );
-  option->SetDescription( description );
-  option->AddValue( std::string( "0" ) );
-  parser->AddOption( option );
-  }
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "help" );
+    option->SetDescription( description );
+    option->AddValue( std::string( "0" ) );
+    parser->AddOption( option );
+    }
 }
 
 int main( int argc, char *argv[] )
 {
   itk::ants::CommandLineParser::Pointer parser = itk::ants::CommandLineParser::New();
+
   parser->SetCommand( argv[0] );
 
-  std::string commandDescription = std::string( "This program is a user-level " ) +
-    std::string( "registration application meant to utilize ITKv4-only classes. The user can specify " ) +
-    std::string( "any number of \"stages\" where a stage consists of a transform; an image metric; " ) +
-    std::string( "and iterations, shrink factors, and smoothing sigmas for each level." );
+  std::string commandDescription = std::string( "This program is a user-level " )
+    + std::string( "registration application meant to utilize ITKv4-only classes. The user can specify " )
+    + std::string( "any number of \"stages\" where a stage consists of a transform; an image metric; " )
+    + std::string( "and iterations, shrink factors, and smoothing sigmas for each level." );
 
   parser->SetCommandDescription( commandDescription );
   InitializeCommandLineOptions( parser );
@@ -2186,18 +2265,19 @@ int main( int argc, char *argv[] )
     exit( EXIT_FAILURE );
     }
 
-  std::cout << std::endl << "Running antsRegistration for " << dimension << "-dimensional images." << std::endl << std::endl;
+  std::cout << std::endl << "Running antsRegistration for " << dimension << "-dimensional images." << std::endl
+            << std::endl;
 
   switch( dimension )
-   {
-   case 2:
-     antsRegistration<2>( parser );
-     break;
-   case 3:
-     antsRegistration<3>( parser );
-     break;
-   default:
+    {
+    case 2:
+      antsRegistration<2>( parser );
+      break;
+    case 3:
+      antsRegistration<3>( parser );
+      break;
+    default:
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
-   }
+    }
 }

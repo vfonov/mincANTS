@@ -22,51 +22,53 @@
 #include "itkCrossCorrelationRegistrationFunction.h"
 // #include "itkLandmarkCrossCorrelationRegistrationFunction.h"
 
-
 template <unsigned int ImageDimension>
 int MemoryTest(unsigned int argc, char *argv[])
 {
-  typedef float  PixelType;
-  typedef itk::Vector<float,ImageDimension>         VectorType;
-  typedef itk::Image<VectorType,ImageDimension>     FieldType;
-  typedef itk::Image<PixelType,ImageDimension> ImageType;
-  typedef itk::ImageFileWriter<ImageType> writertype;
-  typedef typename ImageType::IndexType IndexType;
-  typedef typename ImageType::SizeType SizeType;
-  typedef typename ImageType::SpacingType SpacingType;
-  typedef itk::AffineTransform<double,ImageDimension>   AffineTransformType;
-  typedef itk::LinearInterpolateImageFunction<ImageType,double>  InterpolatorType1;
-  typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
+  typedef float                                                  PixelType;
+  typedef itk::Vector<float, ImageDimension>                     VectorType;
+  typedef itk::Image<VectorType, ImageDimension>                 FieldType;
+  typedef itk::Image<PixelType, ImageDimension>                  ImageType;
+  typedef itk::ImageFileWriter<ImageType>                        writertype;
+  typedef typename ImageType::IndexType                          IndexType;
+  typedef typename ImageType::SizeType                           SizeType;
+  typedef typename ImageType::SpacingType                        SpacingType;
+  typedef itk::AffineTransform<double, ImageDimension>           AffineTransformType;
+  typedef itk::LinearInterpolateImageFunction<ImageType, double> InterpolatorType1;
+  typedef itk::ImageRegionIteratorWithIndex<ImageType>           Iterator;
 
-
-  typedef itk::Image<float,2> JointHistType;
+  typedef itk::Image<float, 2>                JointHistType;
   typedef itk::ImageFileWriter<JointHistType> jhwritertype;
 
 // get command line params
-  unsigned int argct=2;
+  unsigned int argct = 2;
   unsigned int whichmetric = atoi(argv[argct]); argct++;
-  std::string fn1 = std::string(argv[argct]); argct++;
-  std::string fn2 = std::string(argv[argct]); argct++;
-  unsigned int numberoffields=11;
-  if (argc > argct) numberoffields=atoi(argv[argct]); argct++;
+  std::string  fn1 = std::string(argv[argct]); argct++;
+  std::string  fn2 = std::string(argv[argct]); argct++;
+  unsigned int numberoffields = 11;
+  if( argc > argct )
+    {
+    numberoffields = atoi(argv[argct]);
+    }
+  argct++;
 
   typename ImageType::Pointer image1 = NULL;
-  ReadImage<ImageType>(image1, fn1.c_str());
+  ReadImage<ImageType>(image1, fn1.c_str() );
   typename ImageType::Pointer image2 = NULL;
-  ReadImage<ImageType>(image2, fn2.c_str());
+  ReadImage<ImageType>(image2, fn2.c_str() );
 
   typedef itk::ImageRegionIteratorWithIndex<FieldType> VIterator;
-  std::vector<typename FieldType::Pointer>  fieldvec;
-  for (unsigned int i=0; i < numberoffields; i++)
+  std::vector<typename FieldType::Pointer> fieldvec;
+  for( unsigned int i = 0; i < numberoffields; i++ )
     {
-    std::cout <<" NFields " << i << " of " << numberoffields << std::endl;
-    typename FieldType::Pointer field=FieldType::New();
+    std::cout << " NFields " << i << " of " << numberoffields << std::endl;
+    typename FieldType::Pointer field = FieldType::New();
     field->SetLargestPossibleRegion( image1->GetLargestPossibleRegion() );
     field->SetBufferedRegion( image1->GetLargestPossibleRegion() );
     field->SetLargestPossibleRegion( image1->GetLargestPossibleRegion() );
     field->Allocate();
-    field->SetSpacing(image1->GetSpacing());
-    field->SetOrigin(image1->GetOrigin());
+    field->SetSpacing(image1->GetSpacing() );
+    field->SetOrigin(image1->GetOrigin() );
     VectorType zero;
     zero.Fill(0);
     VIterator vfIter2( field,  field->GetLargestPossibleRegion() );
@@ -77,27 +79,33 @@ int MemoryTest(unsigned int argc, char *argv[])
     fieldvec.push_back(field);
     }
 
-  typename ImageType::Pointer metricimg=ImageType::New();
+  typename ImageType::Pointer metricimg = ImageType::New();
   metricimg->SetLargestPossibleRegion( image1->GetLargestPossibleRegion() );
   metricimg->SetBufferedRegion( image1->GetLargestPossibleRegion() );
   metricimg->SetLargestPossibleRegion( image1->GetLargestPossibleRegion() );
   metricimg->Allocate();
-  metricimg->SetSpacing(image1->GetSpacing());
-  metricimg->SetOrigin(image1->GetOrigin());
+  metricimg->SetSpacing(image1->GetSpacing() );
+  metricimg->SetOrigin(image1->GetOrigin() );
   Iterator iter( metricimg,  metricimg->GetLargestPossibleRegion() );
-  for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter ) iter.Set(0);
+  for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
+    {
+    iter.Set(0);
+    }
 
   typedef ImageType FixedImageType;
   typedef ImageType MovingImageType;
   typedef FieldType DisplacementFieldType;
 
   // Choose the similarity metric
-  typedef itk::AvantsMutualInformationRegistrationFunction<FixedImageType,MovingImageType,DisplacementFieldType> MIMetricType;
-  typedef itk::CrossCorrelationRegistrationFunction<FixedImageType,MovingImageType,DisplacementFieldType> CCMetricType;
-  //typedef itk::LandmarkCrossCorrelationRegistrationFunction<FixedImageType,MovingImageType,DisplacementFieldType> MetricType;
-  //typename
-  typename MIMetricType::Pointer mimet=MIMetricType::New();
-  typename CCMetricType::Pointer ccmet=CCMetricType::New();
+  typedef itk::AvantsMutualInformationRegistrationFunction<FixedImageType, MovingImageType,
+                                                           DisplacementFieldType> MIMetricType;
+  typedef itk::CrossCorrelationRegistrationFunction<FixedImageType, MovingImageType,
+                                                    DisplacementFieldType>        CCMetricType;
+  // typedef itk::LandmarkCrossCorrelationRegistrationFunction<FixedImageType,MovingImageType,DisplacementFieldType>
+  // MetricType;
+  // typename
+  typename MIMetricType::Pointer mimet = MIMetricType::New();
+  typename CCMetricType::Pointer ccmet = CCMetricType::New();
 
 //  int nbins=32;
 
@@ -121,71 +129,67 @@ int MemoryTest(unsigned int argc, char *argv[])
   ccmet->SetGradientStep(1.e2);
   ccmet->SetNormalizeGradient(false);
 
-  double metricvalue=0;
-  std::string metricname="";
-  if (whichmetric  == 0)
+  double      metricvalue = 0;
+  std::string metricname = "";
+  if( whichmetric  == 0 )
     {
-    hradius=miradius;
+    hradius = miradius;
     unsigned long ct = 0;
     for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter )
       {
-      IndexType index=iter.GetIndex();
-      double fval=image1->GetPixel(index);
-      double mval=image2->GetPixel(index);
-      metricvalue+=fabs(fval-mval);
+      IndexType index = iter.GetIndex();
+      double    fval = image1->GetPixel(index);
+      double    mval = image2->GetPixel(index);
+      metricvalue += fabs(fval - mval);
       ct++;
       }
-    metricvalue/=(float)ct;
-    metricname="MSQ ";
+    metricvalue /= (float)ct;
+    metricname = "MSQ ";
     }
-  else if (whichmetric == 1 ) // imagedifference
+  else if( whichmetric == 1 ) // imagedifference
     {
-    hradius=ccradius;
+    hradius = ccradius;
     ccmet->InitializeIteration();
-    metricvalue=ccmet->ComputeCrossCorrelation();
-    metricname="CC ";
+    metricvalue = ccmet->ComputeCrossCorrelation();
+    metricname = "CC ";
     }
   else
     {
-    hradius=miradius;
+    hradius = miradius;
     mimet->InitializeIteration();
-    metricvalue=mimet->ComputeMutualInformation();
-   metricname="MI ";
-     }
-
+    metricvalue = mimet->ComputeMutualInformation();
+    metricname = "MI ";
+    }
 
   return 0;
 
- }
-
-
+}
 
 int main(int argc, char *argv[])
 {
 
-
-  if ( argc < 3 )
-    { std::cout << "Basic useage ex: " << std::endl;
+  if( argc < 3 )
+    {
+    std::cout << "Basic useage ex: " << std::endl;
     std::cout << argv[0] << " ImageDimension whichmetric image1.ext image2.ext NumberOfFieldsToAllocate " << std::endl;
     std::cout << "  outimage and logfile are optional  " << std::endl;
     std::cout << "  Metric 0 - MeanSquareDifference, 1 - Cross-Correlation, 2-Mutual Information  " << std::endl;
     return 1;
-  }
+    }
 
-   // Get the image dimension
-  switch( atoi(argv[1]))
-   {
-   case 2:
-     MemoryTest<2>(argc,argv);
+  // Get the image dimension
+  switch( atoi(argv[1]) )
+    {
+    case 2:
+      MemoryTest<2>(argc, argv);
       break;
-   case 3:
-     MemoryTest<3>(argc,argv);
+    case 3:
+      MemoryTest<3>(argc, argv);
       break;
-   default:
+    default:
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
-   }
+    }
 
   return 0;
 }
-

@@ -19,7 +19,8 @@
 
 #include "itkJensenHavrdaCharvatTsallisPointSetMetric.h"
 
-namespace itk {
+namespace itk
+{
 
 template <class TPointSet>
 JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
@@ -55,7 +56,8 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
 template <class TPointSet>
 void
 JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
-::Initialize( void ) throw ( ExceptionObject )
+::Initialize( void )
+throw ( ExceptionObject )
 {
   Superclass::Initialize();
 
@@ -71,20 +73,19 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
   this->m_FixedDensityFunction->SetUseAnisotropicCovariances(
     this->m_UseAnisotropicCovariances );
   this->m_FixedDensityFunction->SetCovarianceKNeighborhood(
-      this->m_FixedCovarianceKNeighborhood );
+    this->m_FixedCovarianceKNeighborhood );
   this->m_FixedDensityFunction->SetEvaluationKNeighborhood(
-      this->m_FixedEvaluationKNeighborhood );
+    this->m_FixedEvaluationKNeighborhood );
   this->m_FixedDensityFunction->SetInputPointSet( this->m_FixedPointSet );
 
   if( !this->m_UseInputAsSamples )
     {
     this->m_FixedSamplePoints = PointSetType::New();
     this->m_FixedSamplePoints->Initialize();
-
     for( unsigned long i = 0; i < this->m_NumberOfFixedSamples; i++ )
       {
       this->m_FixedSamplePoints->SetPoint( i,
-        this->m_FixedDensityFunction->GenerateRandomSample() );
+                                           this->m_FixedDensityFunction->GenerateRandomSample() );
       }
     }
 
@@ -100,20 +101,19 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
   this->m_MovingDensityFunction->SetUseAnisotropicCovariances(
     this->m_UseAnisotropicCovariances );
   this->m_MovingDensityFunction->SetCovarianceKNeighborhood(
-      this->m_MovingCovarianceKNeighborhood );
+    this->m_MovingCovarianceKNeighborhood );
   this->m_MovingDensityFunction->SetEvaluationKNeighborhood(
-      this->m_MovingEvaluationKNeighborhood );
+    this->m_MovingEvaluationKNeighborhood );
   this->m_MovingDensityFunction->SetInputPointSet( this->m_MovingPointSet );
 
   if( !this->m_UseInputAsSamples )
     {
     this->m_MovingSamplePoints = PointSetType::New();
     this->m_MovingSamplePoints->Initialize();
-
     for( unsigned long i = 0; i < this->m_NumberOfMovingSamples; i++ )
       {
       this->m_MovingSamplePoints->SetPoint( i,
-        this->m_MovingDensityFunction->GenerateRandomSample() );
+                                            this->m_MovingDensityFunction->GenerateRandomSample() );
       }
     }
 }
@@ -142,11 +142,10 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
   return 0;
 }
 
-
 /** Get the match Measure */
 template <class TPointSet>
 typename JensenHavrdaCharvatTsallisPointSetMetric
-  <TPointSet>::MeasureType
+<TPointSet>::MeasureType
 JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
 ::GetValue( const TransformParametersType & parameters ) const
 {
@@ -164,9 +163,9 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
   if( this->m_UseWithRespectToTheMovingPointSet )
     {
     points[0] = const_cast<PointSetType *>(
-      static_cast<const PointSetType *>( this->m_FixedPointSet ) );
+        static_cast<const PointSetType *>( this->m_FixedPointSet ) );
     points[1] = const_cast<PointSetType *>(
-      static_cast<const PointSetType *>( this->m_MovingPointSet ) );
+        static_cast<const PointSetType *>( this->m_MovingPointSet ) );
 
     if( this->m_UseInputAsSamples )
       {
@@ -184,9 +183,9 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
   else
     {
     points[1] = const_cast<PointSetType *>(
-      static_cast<const PointSetType *>( this->m_FixedPointSet ) );
+        static_cast<const PointSetType *>( this->m_FixedPointSet ) );
     points[0] = const_cast<PointSetType *>(
-      static_cast<const PointSetType *>( this->m_MovingPointSet ) );
+        static_cast<const PointSetType *>( this->m_MovingPointSet ) );
 
     if( this->m_UseInputAsSamples )
       {
@@ -204,10 +203,10 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
 
   RealType totalNumberOfPoints
     = static_cast<RealType>( points[0]->GetNumberOfPoints() )
-    + static_cast<RealType>( points[1]->GetNumberOfPoints() );
+      + static_cast<RealType>( points[1]->GetNumberOfPoints() );
   RealType totalNumberOfSamples
     = static_cast<RealType>( samples[0]->GetNumberOfPoints() )
-    + static_cast<RealType>( samples[1]->GetNumberOfPoints() );
+      + static_cast<RealType>( samples[1]->GetNumberOfPoints() );
 
   MeasureType measure;
   measure.SetSize( 1 );
@@ -233,8 +232,8 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
     RealType probabilityStar =
 //         densityFunctions[0]->Evaluate( samplePoint ) *
 //         static_cast<RealType>( points[0]->GetNumberOfPoints() ) +
-        densityFunctions[1]->Evaluate( samplePoint ) *
-        static_cast<RealType>( points[1]->GetNumberOfPoints() );
+      densityFunctions[1]->Evaluate( samplePoint )
+      * static_cast<RealType>( points[1]->GetNumberOfPoints() );
     probabilityStar /= totalNumberOfPoints;
 
     if( probabilityStar == 0 )
@@ -250,10 +249,11 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
     else
       {
       energyTerm1 += vcl_pow( probabilityStar,
-        static_cast<RealType>( this->m_Alpha - 1.0 ) );
+                              static_cast<RealType>( this->m_Alpha - 1.0 ) );
       }
     ++It;
     }
+
   if( this->m_Alpha != 1.0 )
     {
     energyTerm1 -= 1.0;
@@ -266,8 +266,8 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
   if( this->m_UseRegularizationTerm )
     {
     RealType prefactor2 = -static_cast<RealType>(
-      points[1]->GetNumberOfPoints() ) / ( totalNumberOfPoints *
-      static_cast<RealType>( samples[1]->GetNumberOfPoints() ) );
+        points[1]->GetNumberOfPoints() ) / ( totalNumberOfPoints
+                                             * static_cast<RealType>( samples[1]->GetNumberOfPoints() ) );
     if( this->m_Alpha != 1.0 )
       {
       prefactor2 /= ( this->m_Alpha - 1.0 );
@@ -293,10 +293,11 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
       else
         {
         energyTerm2 += ( prefactor2 * vcl_pow( probability,
-          static_cast<RealType>( this->m_Alpha - 1.0 ) ) );
+                                               static_cast<RealType>( this->m_Alpha - 1.0 ) ) );
         }
       ++It;
       }
+
     if( this->m_Alpha != 1.0 )
       {
       energyTerm2 -= 1.0;
@@ -332,9 +333,9 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
   if( this->m_UseWithRespectToTheMovingPointSet )
     {
     points[0] = const_cast<PointSetType *>(
-      static_cast<const PointSetType *>( this->m_FixedPointSet ) );
+        static_cast<const PointSetType *>( this->m_FixedPointSet ) );
     points[1] = const_cast<PointSetType *>(
-      static_cast<const PointSetType *>( this->m_MovingPointSet ) );
+        static_cast<const PointSetType *>( this->m_MovingPointSet ) );
 
     if( this->m_UseInputAsSamples )
       {
@@ -354,9 +355,9 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
   else
     {
     points[1] = const_cast<PointSetType *>(
-      static_cast<const PointSetType *>( this->m_FixedPointSet ) );
+        static_cast<const PointSetType *>( this->m_FixedPointSet ) );
     points[0] = const_cast<PointSetType *>(
-      static_cast<const PointSetType *>( this->m_MovingPointSet ) );
+        static_cast<const PointSetType *>( this->m_MovingPointSet ) );
 
     if( this->m_UseInputAsSamples )
       {
@@ -375,11 +376,11 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
     }
   RealType totalNumberOfPoints
     = static_cast<RealType>( points[0]->GetNumberOfPoints() )
-    + static_cast<RealType>( points[1]->GetNumberOfPoints() );
+      + static_cast<RealType>( points[1]->GetNumberOfPoints() );
 
   RealType totalNumberOfSamples
     = static_cast<RealType>( samples[0]->GetNumberOfPoints() )
-    + static_cast<RealType>( samples[1]->GetNumberOfPoints() );
+      + static_cast<RealType>( samples[1]->GetNumberOfPoints() );
 
   derivative.SetSize( points[1]->GetPoints()->Size(), PointDimension );
   derivative.Fill( 0 );
@@ -399,8 +400,8 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
     RealType probabilityStar =
 //         densityFunctions[0]->Evaluate( fixedSamplePoint ) *
 //         static_cast<RealType>( points[0]->GetNumberOfPoints() ) +
-        densityFunctions[1]->Evaluate( fixedSamplePoint ) *
-        static_cast<RealType>( points[1]->GetNumberOfPoints() );
+      densityFunctions[1]->Evaluate( fixedSamplePoint )
+      * static_cast<RealType>( points[1]->GetNumberOfPoints() );
     probabilityStar /= totalNumberOfPoints;
 
     if( probabilityStar == 0 )
@@ -410,7 +411,7 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
       }
 
     RealType probabilityStarFactor = vcl_pow( probabilityStar,
-      static_cast<RealType>( 2.0 - this->m_Alpha ) );
+                                              static_cast<RealType>( 2.0 - this->m_Alpha ) );
 
     typename GaussianType::MeasurementVectorType sampleMeasurement;
     for( unsigned int d = 0; d < PointDimension; d++ )
@@ -420,8 +421,7 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
 
     typename DensityFunctionType::NeighborhoodIdentifierType neighbors
       = densityFunctions[1]->GetNeighborhoodIdentifiers(
-        sampleMeasurement, kNeighborhood );
-
+          sampleMeasurement, kNeighborhood );
     for( unsigned int n = 0; n < neighbors.size(); n++ )
       {
       RealType gaussian = densityFunctions[1]->
@@ -434,7 +434,6 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
 
       typename GaussianType::MeanType mean
         = densityFunctions[1]->GetGaussian( neighbors[n] )->GetMean();
-
       for( unsigned int d = 0; d < PointDimension; d++ )
         {
         mean[d] -= fixedSamplePoint[d];
@@ -450,7 +449,7 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
       else
         {
         mean /= vnl_math_sqr(
-          densityFunctions[1]->GetGaussian( neighbors[n] )->GetSigma() );
+            densityFunctions[1]->GetGaussian( neighbors[n] )->GetSigma() );
         }
 
       mean *= ( prefactor * gaussian / probabilityStarFactor );
@@ -468,7 +467,7 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
   if( this->m_UseRegularizationTerm )
     {
     RealType prefactor2 = -1.0 / ( static_cast<RealType>(
-      samples[1]->GetNumberOfPoints() ) * totalNumberOfPoints );
+                                     samples[1]->GetNumberOfPoints() ) * totalNumberOfPoints );
 
     typename PointSetType::PointsContainerConstIterator It
       = samples[1]->GetPoints()->Begin();
@@ -485,9 +484,9 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
         }
 
       RealType probabilityFactor = vcl_pow( probability,
-        static_cast<RealType>( 2.0 - this->m_Alpha ) );
+                                            static_cast<RealType>( 2.0 - this->m_Alpha ) );
       probabilityFactor *= ( samples[1]->GetNumberOfPoints()
-        / totalNumberOfSamples );
+                             / totalNumberOfSamples );
 
       typename GaussianType::MeasurementVectorType sampleMeasurement;
       for( unsigned int d = 0; d < PointDimension; d++ )
@@ -497,8 +496,7 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
 
       typename DensityFunctionType::NeighborhoodIdentifierType neighbors
         = densityFunctions[1]->GetNeighborhoodIdentifiers(
-          sampleMeasurement, kNeighborhood );
-
+            sampleMeasurement, kNeighborhood );
       for( unsigned int i = 0; i < neighbors.size(); i++ )
         {
         RealType gaussian = densityFunctions[1]->
@@ -525,7 +523,7 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
         else
           {
           mean /= vnl_math_sqr(
-            densityFunctions[1]->GetGaussian( neighbors[i] )->GetSigma() );
+              densityFunctions[1]->GetGaussian( neighbors[i] )->GetSigma() );
           }
 
         mean *= ( prefactor2 * gaussian / probabilityFactor );
@@ -545,7 +543,7 @@ template <class TPointSet>
 void
 JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
 ::GetValueAndDerivative( const TransformParametersType & parameters,
-  MeasureType & value, DerivativeType  & derivative ) const
+                         MeasureType & value, DerivativeType  & derivative ) const
 {
 
   /**
@@ -563,9 +561,9 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
   if( this->m_UseWithRespectToTheMovingPointSet )
     {
     points[0] = const_cast<PointSetType *>(
-      static_cast<const PointSetType *>( this->m_FixedPointSet ) );
+        static_cast<const PointSetType *>( this->m_FixedPointSet ) );
     points[1] = const_cast<PointSetType *>(
-      static_cast<const PointSetType *>( this->m_MovingPointSet ) );
+        static_cast<const PointSetType *>( this->m_MovingPointSet ) );
 
     if( this->m_UseInputAsSamples )
       {
@@ -585,9 +583,9 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
   else
     {
     points[1] = const_cast<PointSetType *>(
-      static_cast<const PointSetType *>( this->m_FixedPointSet ) );
+        static_cast<const PointSetType *>( this->m_FixedPointSet ) );
     points[0] = const_cast<PointSetType *>(
-      static_cast<const PointSetType *>( this->m_MovingPointSet ) );
+        static_cast<const PointSetType *>( this->m_MovingPointSet ) );
 
     if( this->m_UseInputAsSamples )
       {
@@ -606,11 +604,11 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
     }
   RealType totalNumberOfPoints
     = static_cast<RealType>( points[0]->GetNumberOfPoints() )
-    + static_cast<RealType>( points[1]->GetNumberOfPoints() );
+      + static_cast<RealType>( points[1]->GetNumberOfPoints() );
 
   RealType totalNumberOfSamples
     = static_cast<RealType>( samples[0]->GetNumberOfPoints() )
-    + static_cast<RealType>( samples[1]->GetNumberOfPoints() );
+      + static_cast<RealType>( samples[1]->GetNumberOfPoints() );
 
   derivative.SetSize( points[1]->GetPoints()->Size(), PointDimension );
   derivative.Fill( 0 );
@@ -641,8 +639,8 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
     RealType probabilityStar =
 //       densityFunctions[0]->Evaluate( fixedSamplePoint ) *
 //       static_cast<RealType>( points[0]->GetNumberOfPoints() ) +
-      densityFunctions[1]->Evaluate( fixedSamplePoint ) *
-      static_cast<RealType>( points[1]->GetNumberOfPoints() );
+      densityFunctions[1]->Evaluate( fixedSamplePoint )
+      * static_cast<RealType>( points[1]->GetNumberOfPoints() );
 
     probabilityStar /= totalNumberOfPoints;
 
@@ -659,11 +657,11 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
     else
       {
       energyTerm1 += ( prefactor[0] * vcl_pow( probabilityStar,
-        static_cast<RealType>( this->m_Alpha - 1.0 ) ) );
+                                               static_cast<RealType>( this->m_Alpha - 1.0 ) ) );
       }
 
     RealType probabilityStarFactor = vcl_pow( probabilityStar,
-      static_cast<RealType>( 2.0 - this->m_Alpha ) );
+                                              static_cast<RealType>( 2.0 - this->m_Alpha ) );
 
     typename GaussianType::MeasurementVectorType sampleMeasurement;
     for( unsigned int d = 0; d < PointDimension; d++ )
@@ -673,8 +671,7 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
 
     typename DensityFunctionType::NeighborhoodIdentifierType neighbors
       = densityFunctions[1]->GetNeighborhoodIdentifiers(
-        sampleMeasurement, kNeighborhood );
-
+          sampleMeasurement, kNeighborhood );
     for( unsigned int n = 0; n < neighbors.size(); n++ )
       {
       RealType gaussian = densityFunctions[1]->
@@ -687,7 +684,6 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
 
       typename GaussianType::MeanType mean
         = densityFunctions[1]->GetGaussian( neighbors[n] )->GetMean();
-
       for( unsigned int d = 0; d < PointDimension; d++ )
         {
         mean[d] -= fixedSamplePoint[d];
@@ -703,7 +699,7 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
       else
         {
         mean /= vnl_math_sqr(
-          densityFunctions[1]->GetGaussian( neighbors[n] )->GetSigma() );
+            densityFunctions[1]->GetGaussian( neighbors[n] )->GetSigma() );
         }
 
       mean *= ( prefactor[1] * gaussian / probabilityStarFactor );
@@ -714,6 +710,7 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
       }
     ++It;
     }
+
   if( this->m_Alpha != 1.0 )
     {
     energyTerm1 -= 1.0;
@@ -727,10 +724,10 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
     {
     RealType prefactor2[2];
     prefactor2[0] = -static_cast<RealType>(
-      points[1]->GetNumberOfPoints() ) / ( totalNumberOfPoints *
-      static_cast<RealType>( samples[1]->GetNumberOfPoints() ) );
+        points[1]->GetNumberOfPoints() ) / ( totalNumberOfPoints
+                                             * static_cast<RealType>( samples[1]->GetNumberOfPoints() ) );
     prefactor2[1] = -1.0 / ( static_cast<RealType>(
-      samples[1]->GetNumberOfPoints() ) * totalNumberOfPoints );
+                               samples[1]->GetNumberOfPoints() ) * totalNumberOfPoints );
     if( this->m_Alpha != 1.0 )
       {
       prefactor2[0] /= ( this->m_Alpha - 1.0 );
@@ -757,13 +754,13 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
       else
         {
         energyTerm2 += ( prefactor2[0] * vcl_pow( probability,
-          static_cast<RealType>( this->m_Alpha - 1.0 ) ) );
+                                                  static_cast<RealType>( this->m_Alpha - 1.0 ) ) );
         }
 
       RealType probabilityFactor = vcl_pow( probability,
-        static_cast<RealType>( 2.0 - this->m_Alpha ) );
+                                            static_cast<RealType>( 2.0 - this->m_Alpha ) );
       probabilityFactor *= ( samples[1]->GetNumberOfPoints()
-        / totalNumberOfSamples );
+                             / totalNumberOfSamples );
 
       typename GaussianType::MeasurementVectorType sampleMeasurement;
       for( unsigned int d = 0; d < PointDimension; d++ )
@@ -773,8 +770,7 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
 
       typename DensityFunctionType::NeighborhoodIdentifierType neighbors
         = densityFunctions[1]->GetNeighborhoodIdentifiers(
-          sampleMeasurement, kNeighborhood );
-
+            sampleMeasurement, kNeighborhood );
       for( unsigned int i = 0; i < neighbors.size(); i++ )
         {
         RealType gaussian = densityFunctions[1]->
@@ -801,7 +797,7 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
         else
           {
           mean /= vnl_math_sqr(
-            densityFunctions[1]->GetGaussian( neighbors[i] )->GetSigma() );
+              densityFunctions[1]->GetGaussian( neighbors[i] )->GetSigma() );
           }
 
         mean *= ( prefactor2[1] * gaussian / probabilityFactor );
@@ -812,6 +808,7 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
         }
       ++It;
       }
+
     if( this->m_Alpha != 1.0 )
       {
       energyTerm2 -= 1.0;
@@ -871,6 +868,5 @@ JensenHavrdaCharvatTsallisPointSetMetric<TPointSet>
 }
 
 } // end namespace itk
-
 
 #endif

@@ -21,9 +21,12 @@
 
 #include "antsListSampleFunction.h"
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 /**
  * Constructor
@@ -35,7 +38,6 @@ ListSampleFunction<TInputListSample, TOutput, TCoordRep>
   this->m_ListSamples.clear();
   this->m_ListSampleWeights.clear();
 }
-
 
 /**
  * Standard "PrintSelf" method
@@ -70,10 +72,10 @@ ListSampleFunction<TInputListSample, TOutput, TCoordRep>
 }
 
 template <class TInputListSample, class TOutput, class TCoordRep>
-typename ListSampleFunction<TInputListSample, TOutput, TCoordRep>::ListSampleWeightArrayType*
-ListSampleFunction<TInputListSample, TOutput, TCoordRep>
+typename ListSampleFunction<TInputListSample, TOutput, TCoordRep>::ListSampleWeightArrayType
+* ListSampleFunction<TInputListSample, TOutput, TCoordRep>
 ::GetListSampleWeights( const unsigned int idx )
-{
+  {
   if( idx < this->m_ListSampleWeights.size() )
     {
     return this->m_ListSampleWeights[idx];
@@ -82,7 +84,7 @@ ListSampleFunction<TInputListSample, TOutput, TCoordRep>
     {
     return NULL;
     }
-}
+  }
 
 /**
  * Initialize by setting the input point set
@@ -107,10 +109,10 @@ ListSampleFunction<TInputListSample, TOutput, TCoordRep>
 
 template <class TInputListSample, class TOutput, class TCoordRep>
 const
-typename ListSampleFunction<TInputListSample, TOutput, TCoordRep>::InputListSampleType*
-ListSampleFunction<TInputListSample, TOutput, TCoordRep>
+typename ListSampleFunction<TInputListSample, TOutput, TCoordRep>::InputListSampleType
+* ListSampleFunction<TInputListSample, TOutput, TCoordRep>
 ::GetInputListSample( const unsigned int idx ) const
-{
+  {
   if( idx < this->m_ListSamples.size() )
     {
     return this->m_ListSamples[idx];
@@ -119,12 +121,10 @@ ListSampleFunction<TInputListSample, TOutput, TCoordRep>
     {
     return NULL;
     }
-}
-
+  }
 
 } // end of namespace Statistics
 } // end of namespace ants
 } // end of namespace itk
 
 #endif
-

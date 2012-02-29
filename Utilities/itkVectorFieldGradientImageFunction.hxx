@@ -37,22 +37,22 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateDeformationGradientTensor( const PointType &point ) const
+::EvaluateDeformationGradientTensor( const PointType & point ) const
 {
 
-  if ( !this->IsInsideBuffer( point ) )
+  if( !this->IsInsideBuffer( point ) )
     {
     unsigned int minDimension = ImageDimension;
 
     MatrixType F;
     F.SetSize( ImageDimension, VectorDimension );
     F.Fill( 0.0 );
-    for ( unsigned int i = 0; i < minDimension; i++ )
+    for( unsigned int i = 0; i < minDimension; i++ )
       {
       F[i][i] = 1.0;
       }
     itkWarningMacro( "The specified point, " << point
-      << ", is outside the image boundaries." );
+                                             << ", is outside the image boundaries." );
     return F;
     }
 
@@ -71,8 +71,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   typename InterpolatorType::PointType ipoint;
   ipoint.CastFrom( point );
   x = interpolator->Evaluate( ipoint );
-
-  for ( unsigned int i = 0; i < ImageDimension; i++ )
+  for( unsigned int i = 0; i < ImageDimension; i++ )
     {
     typename PointType::VectorType delta;
     delta.Fill( 0.0 );
@@ -87,16 +86,16 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
     typename InterpolatorType::OutputType xm1;
     typename InterpolatorType::OutputType xm2;
 
-    if ( !this->IsInsideBuffer( point + delta ) )
+    if( !this->IsInsideBuffer( point + delta ) )
       {
       xp2 = xp1 = x;
       }
     else
       {
       xp1 = interpolator->Evaluate( ipoint + idelta );
-      if ( this->IsInsideBuffer( point + delta*2.0 ) )
+      if( this->IsInsideBuffer( point + delta * 2.0 ) )
         {
-        xp2 = interpolator->Evaluate( ipoint + idelta*2.0 );
+        xp2 = interpolator->Evaluate( ipoint + idelta * 2.0 );
         }
       else
         {
@@ -104,16 +103,16 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
         }
       }
 
-    if ( !this->IsInsideBuffer( point - delta ) )
+    if( !this->IsInsideBuffer( point - delta ) )
       {
       xm2 = xm1 = x;
       }
     else
       {
       xm1 = interpolator->Evaluate( ipoint - idelta );
-      if ( this->IsInsideBuffer( point - delta*2.0 ) )
+      if( this->IsInsideBuffer( point - delta * 2.0 ) )
         {
-        xm2 = interpolator->Evaluate( ipoint - idelta*2.0 );
+        xm2 = interpolator->Evaluate( ipoint - idelta * 2.0 );
         }
       else
         {
@@ -121,20 +120,20 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
         }
       }
 
-    RealType weight = 1.0 / ( 12.0*delta[i] );
-    for ( unsigned int j = 0; j < VectorDimension; j++ )
+    RealType weight = 1.0 / ( 12.0 * delta[i] );
+    for( unsigned int j = 0; j < VectorDimension; j++ )
       {
-      F[i][j] = weight*( -xp2[j] + 8.0*xp1[j] - 8.0*xm1[j] + xm2[j] );
+      F[i][j] = weight * ( -xp2[j] + 8.0 * xp1[j] - 8.0 * xm1[j] + xm2[j] );
       }
     }
 
   unsigned int minDimension = ImageDimension;
-  if ( static_cast<unsigned int>( VectorDimension ) <
-       static_cast<unsigned int>( ImageDimension ) )
+  if( static_cast<unsigned int>( VectorDimension ) <
+      static_cast<unsigned int>( ImageDimension ) )
     {
     minDimension = VectorDimension;
     }
-  for ( unsigned int i = 0; i < minDimension; i++ )
+  for( unsigned int i = 0; i < minDimension; i++ )
     {
     F[i][i] += 1.0;
     }
@@ -146,25 +145,24 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateDeformationGradientTensorAtIndex( const IndexType &index ) const
+::EvaluateDeformationGradientTensorAtIndex( const IndexType & index ) const
 {
 
-  if ( !this->IsInsideBuffer( index ) )
+  if( !this->IsInsideBuffer( index ) )
     {
     unsigned int minDimension = ImageDimension;
 
     MatrixType F;
     F.SetSize( ImageDimension, VectorDimension );
     F.Fill( 0.0 );
-    for ( unsigned int i = 0; i < minDimension; i++ )
+    for( unsigned int i = 0; i < minDimension; i++ )
       {
       F[i][i] = 1.0;
       }
     itkWarningMacro( "The specified index, " << index
-      << ", is outside the image boundaries." );
+                                             << ", is outside the image boundaries." );
     return F;
     }
-
 
   MatrixType F;
   F.SetSize( ImageDimension, VectorDimension );
@@ -174,8 +172,7 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 
   typename InputImageType::SpacingType spacing
     = this->GetInputImage()->GetSpacing();
-
-  for ( unsigned int i = 0; i < ImageDimension; i++ )
+  for( unsigned int i = 0; i < ImageDimension; i++ )
     {
     typename InputImageType::OffsetType offset1;
     offset1.Fill( 0 );
@@ -189,14 +186,14 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
     typename InputImageType::PixelType xm1;
     typename InputImageType::PixelType xm2;
 
-    if ( !this->IsInsideBuffer( index + offset1 ) )
+    if( !this->IsInsideBuffer( index + offset1 ) )
       {
       xp2 = xp1 = x;
       }
     else
       {
       xp1 = this->GetInputImage()->GetPixel( index + offset1 );
-      if ( this->IsInsideBuffer( index + offset2 ) )
+      if( this->IsInsideBuffer( index + offset2 ) )
         {
         xp2 = this->GetInputImage()->GetPixel( index + offset2 );
         }
@@ -206,14 +203,14 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
         }
       }
 
-    if ( !this->IsInsideBuffer( index - offset1 ) )
+    if( !this->IsInsideBuffer( index - offset1 ) )
       {
       xm2 = xm1 = x;
       }
     else
       {
       xm1 = this->GetInputImage()->GetPixel( index - offset1 );
-      if ( this->IsInsideBuffer( index - offset2 ) )
+      if( this->IsInsideBuffer( index - offset2 ) )
         {
         xm2 = this->GetInputImage()->GetPixel( index - offset2 );
         }
@@ -224,20 +221,20 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
       }
 
     RealType weight = 1.0
-      / ( 12.0*static_cast<RealType>( offset1[i] ) * spacing[i] );
-    for ( unsigned int j = 0; j < VectorDimension; j++ )
+      / ( 12.0 * static_cast<RealType>( offset1[i] ) * spacing[i] );
+    for( unsigned int j = 0; j < VectorDimension; j++ )
       {
-      F[i][j] = weight*( -xp2[j] + 8.0*xp1[j] - 8.0*xm1[j] + xm2[j] );
+      F[i][j] = weight * ( -xp2[j] + 8.0 * xp1[j] - 8.0 * xm1[j] + xm2[j] );
       }
     }
 
   unsigned int minDimension = ImageDimension;
-  if ( static_cast<unsigned int>( VectorDimension ) <
-       static_cast<unsigned int>( ImageDimension ) )
+  if( static_cast<unsigned int>( VectorDimension ) <
+      static_cast<unsigned int>( ImageDimension ) )
     {
     minDimension = VectorDimension;
     }
-  for ( unsigned int i = 0; i < minDimension; i++ )
+  for( unsigned int i = 0; i < minDimension; i++ )
     {
     F[i][i] += 1.0;
     }
@@ -249,7 +246,7 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateJacobian( const PointType &point ) const
+::EvaluateJacobian( const PointType & point ) const
 {
   return this->EvaluateDeformationGradientTensor( point );
 }
@@ -258,7 +255,7 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateJacobianAtIndex( const IndexType &index ) const
+::EvaluateJacobianAtIndex( const IndexType & index ) const
 {
   return this->EvaluateDeformationGradientTensorAtIndex( index );
 }
@@ -267,9 +264,10 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::RealType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateJacobianDeterminant( const PointType &point ) const
+::EvaluateJacobianDeterminant( const PointType & point ) const
 {
   MatrixType J = this->EvaluateJacobian( point );
+
   typedef DecomposeTensorFunction<MatrixType, RealType> DecomposerType;
   typename DecomposerType::Pointer decomposer = DecomposerType::New();
   return decomposer->EvaluateDeterminant( J );
@@ -279,9 +277,10 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::RealType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateJacobianDeterminantAtIndex( const IndexType &index ) const
+::EvaluateJacobianDeterminantAtIndex( const IndexType & index ) const
 {
   MatrixType J = this->EvaluateJacobianAtIndex( index );
+
   typedef DecomposeTensorFunction<MatrixType, RealType> DecomposerType;
   typename DecomposerType::Pointer decomposer = DecomposerType::New();
   return decomposer->EvaluateDeterminant( J );
@@ -291,19 +290,18 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateLagrangianStrainTensor( const PointType &point ) const
+::EvaluateLagrangianStrainTensor( const PointType & point ) const
 {
   MatrixType F = this->EvaluateDeformationGradientTensor( point );
   MatrixType E(ImageDimension, ImageDimension);
 
   typename MatrixType::InternalMatrixType ff = F.GetTranspose() * F.GetVnlMatrix();
-
-  for ( unsigned int i = 0; i < ff.rows(); i++ )
+  for( unsigned int i = 0; i < ff.rows(); i++ )
     {
-    for ( unsigned int j = 0; j < ff.columns(); j++ )
+    for( unsigned int j = 0; j < ff.columns(); j++ )
       {
       E[i][j] = ff.get( i, j );
-      if ( i == j )
+      if( i == j )
         {
         E[i][j] -= 1.0;
         }
@@ -317,19 +315,18 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateLagrangianStrainTensorAtIndex( const IndexType &index ) const
+::EvaluateLagrangianStrainTensorAtIndex( const IndexType & index ) const
 {
   MatrixType F = this->EvaluateDeformationGradientTensorAtIndex( index );
   MatrixType E(ImageDimension, ImageDimension);
 
   typename MatrixType::InternalMatrixType ff = F.GetTranspose() * F.GetVnlMatrix();
-
-  for ( unsigned int i = 0; i < ff.rows(); i++ )
+  for( unsigned int i = 0; i < ff.rows(); i++ )
     {
-    for ( unsigned int j = 0; j < ff.columns(); j++ )
+    for( unsigned int j = 0; j < ff.columns(); j++ )
       {
       E[i][j] = ff.get( i, j );
-      if ( i == j )
+      if( i == j )
         {
         E[i][j] -= 1.0;
         }
@@ -343,15 +340,15 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::RealType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateLagrangianDirectionalStrain( const PointType &point, const VectorType &V ) const
+::EvaluateLagrangianDirectionalStrain( const PointType & point, const VectorType & V ) const
 {
   MatrixType E = this->EvaluateLagrangianStrainTensor( point );
 
   vnl_vector<RealType> v = E * V.GetVnlVector();
-  RealType s = 0.0;
-  for ( unsigned int i = 0; i < v.size(); i++ )
+  RealType             s = 0.0;
+  for( unsigned int i = 0; i < v.size(); i++ )
     {
-    s += v[i]*V[i];
+    s += v[i] * V[i];
     }
   return s;
 }
@@ -361,15 +358,15 @@ typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::RealType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::EvaluateLagrangianDirectionalStrainAtIndex
-  ( const IndexType &index, const VectorType &V ) const
+  ( const IndexType & index, const VectorType & V ) const
 {
   MatrixType E = this->EvaluateLagrangianStrainTensorAtIndex( index );
 
   vnl_vector<RealType> v = E * V.GetVnlVector();
-  RealType s = 0.0;
-  for ( unsigned int i = 0; i < v.size(); i++ )
+  RealType             s = 0.0;
+  for( unsigned int i = 0; i < v.size(); i++ )
     {
-    s += v[i]*V[i];
+    s += v[i] * V[i];
     }
   return s;
 }
@@ -378,19 +375,19 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateEulerianStrainTensor( const PointType &point ) const
+::EvaluateEulerianStrainTensor( const PointType & point ) const
 {
   MatrixType F = this->EvaluateDeformationGradientTensor( point );
   MatrixType E(ImageDimension, ImageDimension);
 
   typename MatrixType::InternalMatrixType ff
     = vnl_matrix_inverse<RealType>( F.GetVnlMatrix() * F.GetTranspose()  );
-  for ( unsigned int i = 0; i < ff.rows(); i++ )
+  for( unsigned int i = 0; i < ff.rows(); i++ )
     {
-    for ( unsigned int j = 0; j < ff.columns(); j++ )
+    for( unsigned int j = 0; j < ff.columns(); j++ )
       {
       E[i][j] = -ff.get( i, j );
-      if ( i == j )
+      if( i == j )
         {
         E[i][j] += 1.0;
         }
@@ -404,19 +401,19 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateEulerianStrainTensorAtIndex( const IndexType &index ) const
+::EvaluateEulerianStrainTensorAtIndex( const IndexType & index ) const
 {
   MatrixType F = this->EvaluateDeformationGradientTensorAtIndex( index );
   MatrixType E(ImageDimension, ImageDimension);
 
   typename MatrixType::InternalMatrixType ff
     = vnl_matrix_inverse<RealType>( F.GetVnlMatrix() * F.GetTranspose()  );
-  for ( unsigned int i = 0; i < ff.rows(); i++ )
+  for( unsigned int i = 0; i < ff.rows(); i++ )
     {
-    for ( unsigned int j = 0; j < ff.columns(); j++ )
+    for( unsigned int j = 0; j < ff.columns(); j++ )
       {
       E[i][j] = -ff.get( i, j );
-      if ( i == j )
+      if( i == j )
         {
         E[i][j] += 1.0;
         }
@@ -431,14 +428,15 @@ typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::RealType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::EvaluateEulerianDirectionalStrain(
-  const PointType &point, const VectorType &V ) const
+  const PointType & point, const VectorType & V ) const
 {
   MatrixType E = this->EvaluateEulerianStrainTensor( point );
+
   vnl_vector<RealType> v = E * V.GetVnlVector();
-  RealType s = 0.0;
-  for ( unsigned int i = 0; i < v.size(); i++ )
+  RealType             s = 0.0;
+  for( unsigned int i = 0; i < v.size(); i++ )
     {
-    s += v[i]*V[i];
+    s += v[i] * V[i];
     }
   return s;
 }
@@ -448,14 +446,15 @@ typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::RealType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::EvaluateEulerianDirectionalStrainAtIndex(
-  const IndexType &index, const VectorType &V ) const
+  const IndexType & index, const VectorType & V ) const
 {
   MatrixType E = this->EvaluateEulerianStrainTensorAtIndex( index );
+
   vnl_vector<RealType> v = E * V.GetVnlVector();
-  RealType s = 0.0;
-  for ( unsigned int i = 0; i < v.size(); i++ )
+  RealType             s = 0.0;
+  for( unsigned int i = 0; i < v.size(); i++ )
     {
-    s += v[i]*V[i];
+    s += v[i] * V[i];
     }
   return s;
 }
@@ -464,15 +463,16 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateLeftCauchyGreenDeformationTensor( const PointType &point ) const
+::EvaluateLeftCauchyGreenDeformationTensor( const PointType & point ) const
 {
   MatrixType F = this->EvaluateDeformationGradientTensor( point );
+
   typename MatrixType::InternalMatrixType b = F.GetVnlMatrix() * F.GetTranspose();
   MatrixType B;
   B.SetSize( F.Rows(), F.Cols() );
-  for ( unsigned int i = 0; i < F.Rows(); i++ )
+  for( unsigned int i = 0; i < F.Rows(); i++ )
     {
-    for ( unsigned int j = 0; j < F.Cols(); j++ )
+    for( unsigned int j = 0; j < F.Cols(); j++ )
       {
       B[i][j] = b[i][j];
       }
@@ -484,15 +484,16 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateLeftCauchyGreenDeformationTensorAtIndex( const IndexType &index ) const
+::EvaluateLeftCauchyGreenDeformationTensorAtIndex( const IndexType & index ) const
 {
   MatrixType F = this->EvaluateDeformationGradientTensorAtIndex( index );
+
   typename MatrixType::InternalMatrixType b = F.GetVnlMatrix() * F.GetTranspose();
   MatrixType B;
   B.SetSize( F.Rows(), F.Cols() );
-  for ( unsigned int i = 0; i < F.Rows(); i++ )
+  for( unsigned int i = 0; i < F.Rows(); i++ )
     {
-    for ( unsigned int j = 0; j < F.Cols(); j++ )
+    for( unsigned int j = 0; j < F.Cols(); j++ )
       {
       B[i][j] = b[i][j];
       }
@@ -504,15 +505,16 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateRightCauchyGreenDeformationTensor( const PointType &point ) const
+::EvaluateRightCauchyGreenDeformationTensor( const PointType & point ) const
 {
   MatrixType F = this->EvaluateDeformationGradientTensor( point );
+
   typename MatrixType::InternalMatrixType c = F.GetVnlMatrix() * F.GetTranspose();
   MatrixType C;
   C.SetSize( F.Rows(), F.Cols() );
-  for ( unsigned int i = 0; i < F.Rows(); i++ )
+  for( unsigned int i = 0; i < F.Rows(); i++ )
     {
-    for ( unsigned int j = 0; j < F.Cols(); j++ )
+    for( unsigned int j = 0; j < F.Cols(); j++ )
       {
       C[i][j] = c[i][j];
       }
@@ -524,15 +526,16 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateRightCauchyGreenDeformationTensorAtIndex( const IndexType &index ) const
+::EvaluateRightCauchyGreenDeformationTensorAtIndex( const IndexType & index ) const
 {
   MatrixType F = this->EvaluateDeformationGradientTensorAtIndex( index );
+
   typename MatrixType::InternalMatrixType c = F.GetVnlMatrix() * F.GetTranspose();
   MatrixType C;
   C.SetSize( F.Rows(), F.Cols() );
-  for ( unsigned int i = 0; i < F.Rows(); i++ )
+  for( unsigned int i = 0; i < F.Rows(); i++ )
     {
-    for ( unsigned int j = 0; j < F.Cols(); j++ )
+    for( unsigned int j = 0; j < F.Cols(); j++ )
       {
       C[i][j] = c[i][j];
       }
@@ -544,7 +547,7 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateRightStretchTensor( const PointType &point ) const
+::EvaluateRightStretchTensor( const PointType & point ) const
 {
   MatrixType C = this->EvaluateRightCauchyGreenDeformationTensor( point );
   MatrixType D;
@@ -557,14 +560,14 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   MatrixType U;
   U.SetSize( C.Rows(), C.Cols() );
   U.Fill( 0 );
-  for ( unsigned int d = 0; d < C.Rows(); d++ )
+  for( unsigned int d = 0; d < C.Rows(); d++ )
     {
     RealType lambda = sqrt( D[d][d] );
-    for ( unsigned int i = 0; i < C.Rows(); i++ )
+    for( unsigned int i = 0; i < C.Rows(); i++ )
       {
-      for ( unsigned int j = 0; j < C.Cols(); j++ )
+      for( unsigned int j = 0; j < C.Cols(); j++ )
         {
-        U[i][j] += lambda*V[i][d]*V[j][d];
+        U[i][j] += lambda * V[i][d] * V[j][d];
         }
       }
     }
@@ -575,7 +578,7 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateRightStretchTensorAtIndex( const IndexType &index ) const
+::EvaluateRightStretchTensorAtIndex( const IndexType & index ) const
 {
   MatrixType C = this->EvaluateRightCauchyGreenDeformationTensorAtIndex( index );
   MatrixType D;
@@ -588,14 +591,14 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   MatrixType U;
   U.SetSize( C.Rows(), C.Cols() );
   U.Fill( 0 );
-  for ( unsigned int d = 0; d < C.Rows(); d++ )
+  for( unsigned int d = 0; d < C.Rows(); d++ )
     {
     RealType lambda = sqrt( D[d][d] );
-    for ( unsigned int i = 0; i < C.Rows(); i++ )
+    for( unsigned int i = 0; i < C.Rows(); i++ )
       {
-      for ( unsigned int j = 0; j < C.Cols(); j++ )
+      for( unsigned int j = 0; j < C.Cols(); j++ )
         {
-        U[i][j] += lambda*V[i][d]*V[j][d];
+        U[i][j] += lambda * V[i][d] * V[j][d];
         }
       }
     }
@@ -606,11 +609,12 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateLeftStretchTensor( const PointType &point ) const
+::EvaluateLeftStretchTensor( const PointType & point ) const
 {
   MatrixType B = this->EvaluateLeftCauchyGreenDeformationTensor( point );
   MatrixType D;
   MatrixType V;
+
   typedef DecomposeTensorFunction<MatrixType, RealType> DecomposerType;
   typename DecomposerType::Pointer decomposer = DecomposerType::New();
   decomposer->EvaluateSymmetricEigenDecomposition( B, D, V );
@@ -618,14 +622,14 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   MatrixType U;
   U.SetSize( B.Rows(), B.Cols() );
   U.Fill( 0 );
-  for ( unsigned int d = 0; d < B.Rows(); d++ )
+  for( unsigned int d = 0; d < B.Rows(); d++ )
     {
     RealType lambda = sqrt( D[d][d] );
-    for ( unsigned int i = 0; i < B.Rows(); i++ )
+    for( unsigned int i = 0; i < B.Rows(); i++ )
       {
-      for ( unsigned int j = 0; j < B.Cols(); j++ )
+      for( unsigned int j = 0; j < B.Cols(); j++ )
         {
-        U[i][j] += lambda*V[i][d]*V[j][d];
+        U[i][j] += lambda * V[i][d] * V[j][d];
         }
       }
     }
@@ -636,11 +640,12 @@ template <typename TInputImage, typename TRealType, typename TOutputImage>
 typename VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::MatrixType
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
-::EvaluateLeftStretchTensorAtIndex( const IndexType &index ) const
+::EvaluateLeftStretchTensorAtIndex( const IndexType & index ) const
 {
   MatrixType B = this->EvaluateLeftCauchyGreenDeformationTensorAtIndex( index );
   MatrixType D;
   MatrixType V;
+
   typedef DecomposeTensorFunction<MatrixType, RealType> DecomposerType;
   typename DecomposerType::Pointer decomposer = DecomposerType::New();
   decomposer->EvaluateSymmetricEigenDecomposition( B, D, V );
@@ -648,14 +653,14 @@ VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
   MatrixType U;
   U.SetSize( B.Rows(), B.Cols() );
   U.Fill( 0 );
-  for ( unsigned int d = 0; d < B.Rows(); d++ )
+  for( unsigned int d = 0; d < B.Rows(); d++ )
     {
     RealType lambda = sqrt( D[d][d] );
-    for ( unsigned int i = 0; i < B.Rows(); i++ )
+    for( unsigned int i = 0; i < B.Rows(); i++ )
       {
-      for ( unsigned int j = 0; j < B.Cols(); j++ )
+      for( unsigned int j = 0; j < B.Cols(); j++ )
         {
-        U[i][j] += lambda*V[i][d]*V[j][d];
+        U[i][j] += lambda * V[i][d] * V[j][d];
         }
       }
     }
@@ -667,7 +672,7 @@ void
 VectorFieldGradientImageFunction<TInputImage, TRealType, TOutputImage>
 ::PrintSelf( std::ostream& os, Indent indent ) const
 {
-  Superclass::PrintSelf(os,indent);
+  Superclass::PrintSelf(os, indent);
 }
 
 } // end namespace itk

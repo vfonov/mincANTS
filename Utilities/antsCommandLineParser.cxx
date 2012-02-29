@@ -40,32 +40,32 @@ CommandLineParser
 ::AddOption( OptionType::Pointer option )
 {
   if( ( option->GetShortName() != '\0' ||
-    !this->GetOption( option->GetShortName() ) )
-    || ( !option->GetLongName().empty() ||
-    !this->GetOption( option->GetLongName() ) ) )
+        !this->GetOption( option->GetShortName() ) )
+      || ( !option->GetLongName().empty() ||
+           !this->GetOption( option->GetLongName() ) ) )
     {
     this->m_Options.push_back( option );
     }
   else
     {
     if( option->GetShortName() != '\0' &&
-      this->GetOption( option->GetShortName() ) )
+        this->GetOption( option->GetShortName() ) )
       {
       itkWarningMacro( "Duplicate short option '-"
-        << option->GetShortName() << "'" );
+                       << option->GetShortName() << "'" );
       }
     if( !( option->GetLongName().empty() ) &&
-      this->GetOption( option->GetLongName() ) )
+        this->GetOption( option->GetLongName() ) )
       {
-        itkWarningMacro( "Duplicate long option '--"
-          << option->GetLongName() << "'" );
+      itkWarningMacro( "Duplicate long option '--"
+                       << option->GetLongName() << "'" );
       }
     }
 }
 
 void
 CommandLineParser
-::Parse( unsigned int argc, char **argv )
+::Parse( unsigned int argc, char * *argv )
 {
   std::vector<std::string> arguments =
     this->RegroupCommandLineArguments( argc, argv );
@@ -82,7 +82,7 @@ CommandLineParser
     name.clear();
     if( argument.find( "--" ) == 0 )
       {
-      name = argument.substr( 2, argument.length()-1 );
+      name = argument.substr( 2, argument.length() - 1 );
       }
     else if( argument.find( "-" ) == 0 && argument.find( "--" ) > 0 )
       {
@@ -106,7 +106,7 @@ CommandLineParser
         if( n == arguments.size() )
           {
           unknownOption->AddValue( "1",
-            this->m_LeftDelimiter, this->m_RightDelimiter );
+                                   this->m_LeftDelimiter, this->m_RightDelimiter );
           }
         else
           {
@@ -116,14 +116,14 @@ CommandLineParser
             if( value.find( "-" ) != 0 )
               {
               unknownOption->AddValue( value,
-                this->m_LeftDelimiter, this->m_RightDelimiter );
+                                       this->m_LeftDelimiter, this->m_RightDelimiter );
               }
             else
               {
               if( m == n )
                 {
                 unknownOption->AddValue( "1",
-                  this->m_LeftDelimiter, this->m_RightDelimiter );
+                                         this->m_LeftDelimiter, this->m_RightDelimiter );
                 }
               n = m;
               break;
@@ -137,7 +137,7 @@ CommandLineParser
         if( n == arguments.size() )
           {
           option->AddValue( "1",
-            this->m_LeftDelimiter, this->m_RightDelimiter );
+                            this->m_LeftDelimiter, this->m_RightDelimiter );
           }
         else
           {
@@ -147,14 +147,14 @@ CommandLineParser
             if( value.find( "-" ) != 0 )
               {
               option->AddValue( value,
-                this->m_LeftDelimiter, this->m_RightDelimiter );
+                                this->m_LeftDelimiter, this->m_RightDelimiter );
               }
             else
               {
               if( m == n )
                 {
                 option->AddValue( "1",
-                  this->m_LeftDelimiter, this->m_RightDelimiter );
+                                  this->m_LeftDelimiter, this->m_RightDelimiter );
                 }
               n = m;
               break;
@@ -168,7 +168,7 @@ CommandLineParser
 
 std::vector<std::string>
 CommandLineParser
-::RegroupCommandLineArguments( unsigned int argc, char **argv )
+::RegroupCommandLineArguments( unsigned int argc, char * *argv )
 {
   /**
    * Inclusion of this function allows the user to use spaces inside
@@ -178,7 +178,7 @@ CommandLineParser
   std::vector<std::string> arguments;
 
   std::string currentArg( "" );
-  bool isArgOpen = false;
+  bool        isArgOpen = false;
   for( unsigned int n = 0; n < argc; n++ )
     {
     std::string a( argv[n] );
@@ -204,7 +204,7 @@ CommandLineParser
       std::size_t rightDelimiterPosition = a.find( this->m_RightDelimiter );
       if( rightDelimiterPosition != std::string::npos )
         {
-        if( rightDelimiterPosition < a.length()-1 )
+        if( rightDelimiterPosition < a.length() - 1 )
           {
           itkExceptionMacro( "Incorrect command line specification." );
           }
@@ -240,10 +240,10 @@ CommandLineParser
           }
         }
       else if( leftDelimiterPosition != std::string::npos &&
-        rightDelimiterPosition != std::string::npos &&
-        leftDelimiterPosition < rightDelimiterPosition )
+               rightDelimiterPosition != std::string::npos &&
+               leftDelimiterPosition < rightDelimiterPosition )
         {
-        if( rightDelimiterPosition < a.length()-1 )
+        if( rightDelimiterPosition < a.length() - 1 )
           {
           itkExceptionMacro( "Incorrect command line specification." );
           }
@@ -253,7 +253,7 @@ CommandLineParser
         isArgOpen = false;
         }
       else if( rightDelimiterPosition == std::string::npos &&
-        leftDelimiterPosition != std::string::npos )
+               leftDelimiterPosition != std::string::npos )
         {
         currentArg += a;
         isArgOpen = true;
@@ -315,7 +315,7 @@ CommandLineParser
     ss2 << this->m_CommandDescription;
 
     std::string description = this->BreakUpStringIntoNewLines(
-      ss2.str(), ss1.str(), 80 );
+        ss2.str(), ss1.str(), 80 );
 
     os << indent << indent << description << std::endl;
     }
@@ -371,7 +371,7 @@ CommandLineParser
       ss2 << (*it)->GetDescription();
 
       std::string description = this->BreakUpStringIntoNewLines(
-        ss2.str(), ss1.str(), 80 );
+          ss2.str(), ss1.str(), 80 );
 
       os << indent << indent << description << std::endl;
       }
@@ -390,11 +390,11 @@ CommandLineParser
           else
             {
             for( unsigned int i = 0;
-              i < (*it)->GetParameters( 0 ).size()-1; i++ )
+                 i < (*it)->GetParameters( 0 ).size() - 1; i++ )
               {
               os << (*it)->GetParameter( 0, i ) << ",";
               }
-            os << (*it)->GetParameter( 0, (*it)->GetParameters( 0 ).size()-1 );
+            os << (*it)->GetParameter( 0, (*it)->GetParameters( 0 ).size() - 1 );
             }
           os << "]";
           }
@@ -403,7 +403,7 @@ CommandLineParser
       else if( (*it)->GetValues().size() > 1 )
         {
         os << indent << indent << "<VALUES>: ";
-        for( unsigned int n = 0; n < (*it)->GetValues().size()-1; n++ )
+        for( unsigned int n = 0; n < (*it)->GetValues().size() - 1; n++ )
           {
           os << (*it)->GetValue( n );
           if( (*it)->GetParameters( n ).size() > 0 )
@@ -416,12 +416,12 @@ CommandLineParser
             else
               {
               for( unsigned int i = 0;
-                i < (*it)->GetParameters( n ).size()-1; i++ )
+                   i < (*it)->GetParameters( n ).size() - 1; i++ )
                 {
                 os << (*it)->GetParameter( n, i ) << ",";
                 }
               os << (*it)->GetParameter( n,
-                (*it)->GetParameters( n ).size()-1 ) << "], ";
+                                         (*it)->GetParameters( n ).size() - 1 ) << "], ";
               }
             }
           else
@@ -430,7 +430,7 @@ CommandLineParser
             }
           }
 
-        unsigned int nn = (*it)->GetValues().size()-1;
+        unsigned int nn = (*it)->GetValues().size() - 1;
 
         os << (*it)->GetValue( nn );
         if( (*it)->GetParameters( nn ).size() > 0 )
@@ -443,12 +443,12 @@ CommandLineParser
           else
             {
             for( unsigned int i = 0;
-              i < (*it)->GetParameters( nn ).size()-1; i++ )
+                 i < (*it)->GetParameters( nn ).size() - 1; i++ )
               {
               os << (*it)->GetParameter( nn, i ) << ",";
               }
             os << (*it)->GetParameter( nn,
-              (*it)->GetParameters( nn ).size()-1 ) << "]";
+                                       (*it)->GetParameters( nn ).size() - 1 ) << "]";
             }
           }
         }
@@ -460,25 +460,25 @@ CommandLineParser
 std::string
 CommandLineParser
 ::BreakUpStringIntoNewLines( std::string longString,
-std::string indentString, unsigned int numberOfCharactersPerLine ) const
+                             std::string indentString, unsigned int numberOfCharactersPerLine ) const
 {
   std::vector<std::string> tokens;
   this->TokenizeString( longString, tokens, " " );
 
-  std::string newString( "" );
+  std::string  newString( "" );
   unsigned int currentTokenId = 0;
   unsigned int currentLineLength = 0;
   while( currentTokenId < tokens.size() )
     {
     if( tokens[currentTokenId].length() >= numberOfCharactersPerLine )
       {
-      newString += ( std::string( "\n" ) + tokens[currentTokenId] +
-        std::string( "\n" ) );
+      newString += ( std::string( "\n" ) + tokens[currentTokenId]
+                     + std::string( "\n" ) );
       currentTokenId++;
       currentLineLength = 0;
       }
-    else if( currentTokenId < tokens.size() && currentLineLength +
-      tokens[currentTokenId].length() > numberOfCharactersPerLine )
+    else if( currentTokenId < tokens.size() && currentLineLength
+             + tokens[currentTokenId].length() > numberOfCharactersPerLine )
       {
       newString += ( std::string( "\n" ) + indentString );
       currentLineLength = 0;
@@ -490,20 +490,21 @@ std::string indentString, unsigned int numberOfCharactersPerLine ) const
       currentTokenId++;
       }
     }
+
   return newString;
 }
 
 void
 CommandLineParser
-::TokenizeString( std::string str, std::vector<std::string> &tokens,
-std::string delimiters ) const
+::TokenizeString( std::string str, std::vector<std::string> & tokens,
+                  std::string delimiters ) const
 {
   // Skip delimiters at beginning.
   std::string::size_type lastPos = str.find_first_not_of( delimiters, 0 );
   // Find first "non-delimiter".
   std::string::size_type pos = str.find_first_of( delimiters, lastPos );
 
-  while( std::string::npos != pos || std::string::npos != lastPos)
+  while( std::string::npos != pos || std::string::npos != lastPos )
     {
     // Found a token, add it to the vector.
     tokens.push_back( str.substr( lastPos, pos - lastPos ) );
@@ -537,7 +538,7 @@ CommandLineParser
     os << indent << "Unknown Options: " << std::endl;
     OptionListType::const_iterator its;
     for( its = this->m_UnknownOptions.begin();
-      its != this->m_UnknownOptions.end(); its++ )
+         its != this->m_UnknownOptions.end(); its++ )
       {
       (*its)->Print( os, indent );
       }

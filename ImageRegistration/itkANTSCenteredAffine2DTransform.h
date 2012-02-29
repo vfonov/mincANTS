@@ -8,18 +8,19 @@
 namespace itk
 {
 
-template < class TScalarType=double >    // Data type for scalars (float or double)
-  //class ITK_EXPORT Rigid2DTransform :
-  class ITK_EXPORT ANTSCenteredAffine2DTransform:
-        public MatrixOffsetTransformBase< TScalarType, 2, 2> // Dimensions of input and output spaces
+template <class TScalarType = double>
+// Data type for scalars (float or double)
+// class ITK_EXPORT Rigid2DTransform :
+class ITK_EXPORT ANTSCenteredAffine2DTransform :
+  public MatrixOffsetTransformBase<TScalarType, 2, 2>        // Dimensions of input and output spaces
 {
 public:
   /** Standard class typedefs. */
   //  typedef Rigid2DTransform Self;
-  typedef ANTSCenteredAffine2DTransform Self;
-  typedef MatrixOffsetTransformBase< TScalarType, 2, 2 > Superclass;
-  typedef SmartPointer<Self>        Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef ANTSCenteredAffine2DTransform                Self;
+  typedef MatrixOffsetTransformBase<TScalarType, 2, 2> Superclass;
+  typedef SmartPointer<Self>                           Pointer;
+  typedef SmartPointer<const Self>                     ConstPointer;
 
   /** Run-time type information (and related methods). */
   // itkTypeMacro( Rigid2DTransform, MatrixOffsetTransformBase );
@@ -35,35 +36,35 @@ public:
   itkStaticConstMacro(ParametersDimension, unsigned int, 8);
 
   /** Scalar type. */
-  typedef typename Superclass::ScalarType  ScalarType;
+  typedef typename Superclass::ScalarType ScalarType;
 
   /** Parameters type. */
-  typedef typename Superclass::ParametersType  ParametersType;
+  typedef typename Superclass::ParametersType ParametersType;
 
   /** Jacobian type. */
-  typedef typename Superclass::JacobianType  JacobianType;
+  typedef typename Superclass::JacobianType JacobianType;
 
-  /// Standard matrix type for this class
+  // / Standard matrix type for this class
   typedef typename Superclass::MatrixType MatrixType;
 
-  /// Standard vector type for this class
+  // / Standard vector type for this class
   typedef typename Superclass::OffsetType OffsetType;
 
-  /// Standard vector type for this class
-  typedef typename Superclass::InputVectorType InputVectorType;
+  // / Standard vector type for this class
+  typedef typename Superclass::InputVectorType  InputVectorType;
   typedef typename Superclass::OutputVectorType OutputVectorType;
 
-  /// Standard covariant vector type for this class
-  typedef typename Superclass::InputCovariantVectorType InputCovariantVectorType;
+  // / Standard covariant vector type for this class
+  typedef typename Superclass::InputCovariantVectorType  InputCovariantVectorType;
   typedef typename Superclass::OutputCovariantVectorType OutputCovariantVectorType;
 
-  /// Standard vnl_vector type for this class
-  typedef typename Superclass::InputVnlVectorType InputVnlVectorType;
+  // / Standard vnl_vector type for this class
+  typedef typename Superclass::InputVnlVectorType  InputVnlVectorType;
   typedef typename Superclass::OutputVnlVectorType OutputVnlVectorType;
 
-  /// Standard coordinate point type for this class
-  typedef typename Superclass::InputPointType    InputPointType;
-  typedef typename Superclass::OutputPointType    OutputPointType;
+  // / Standard coordinate point type for this class
+  typedef typename Superclass::InputPointType  InputPointType;
+  typedef typename Superclass::OutputPointType OutputPointType;
 
   /**
    * Set the rotation Matrix of a Rigid2D Transform
@@ -89,7 +90,6 @@ public:
 //   const MatrixType & GetRotationMatrix() const
 //    { return this->GetMatrix(); }
 
-
   /**
    * Compose the transformation with a translation
    *
@@ -107,17 +107,21 @@ public:
    * an inverse transform and  then perform the transform using that
    * inverted transform.
    **/
-   inline InputPointType      BackTransform(const OutputPointType  &point ) const;
-   inline InputVectorType     BackTransform(const OutputVectorType &vector) const;
-   inline InputVnlVectorType  BackTransform(const OutputVnlVectorType &vector) const;
+  inline InputPointType      BackTransform(const OutputPointType  & point ) const;
 
-   inline InputCovariantVectorType BackTransform(
-                         const OutputCovariantVectorType &vector) const;
+  inline InputVectorType     BackTransform(const OutputVectorType & vector) const;
+
+  inline InputVnlVectorType  BackTransform(const OutputVnlVectorType & vector) const;
+
+  inline InputCovariantVectorType BackTransform(const OutputCovariantVectorType & vector) const;
 
   /** Set/Get the angle of rotation in radians */
   void SetAngle(TScalarType angle);
+
   void SetS1(TScalarType S1);
+
   void SetS2(TScalarType S2);
+
   void SetK(TScalarType K);
 
   itkGetConstReferenceMacro( Angle, TScalarType );
@@ -173,8 +177,6 @@ public:
    */
   virtual void ComputeJacobianWithRespectToParameters(const InputPointType  & p, JacobianType & j) const;
 
-
-
   /**
    * This method creates and returns a new ANTSCenteredAffine2DTransform object
    * which is the inverse of self.
@@ -196,16 +198,15 @@ protected:
 
   //  Rigid2DTransform( unsigned int outputSpaceDimension,
   //                    unsigned int parametersDimension);
-  ANTSCenteredAffine2DTransform( unsigned int outputSpaceDimension,
-                    unsigned int parametersDimension);
+  ANTSCenteredAffine2DTransform( unsigned int outputSpaceDimension, unsigned int parametersDimension);
 
   //  ~Rigid2DTransform();
   ~ANTSCenteredAffine2DTransform();
 
- /**
-   * Print contents of an ANTSCenteredAffine2DTransform
-   **/
-  void PrintSelf(std::ostream &os, Indent indent) const;
+  /**
+    * Print contents of an ANTSCenteredAffine2DTransform
+    **/
+  void PrintSelf(std::ostream & os, Indent indent) const;
 
   /** Compute the matrix from angle. This is used in Set methods
    * to update the underlying matrix whenever a transform parameter
@@ -220,29 +221,33 @@ protected:
 
   /** Update angle without recomputation of other internal variables. */
   void SetVarAngle( TScalarType angle )
-    { m_Angle = angle; }
+  {
+    m_Angle = angle;
+  }
   void SetVarS1( TScalarType S1)
-    { m_S1 = S1; }
+  {
+    m_S1 = S1;
+  }
   void SetVarS2( TScalarType S2)
-    { m_S2 = S2; }
+  {
+    m_S2 = S2;
+  }
   void SetVarK( TScalarType K)
-    { m_K = K; }
-
+  {
+    m_K = K;
+  }
 private:
-  ANTSCenteredAffine2DTransform(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  ANTSCenteredAffine2DTransform(const Self &); // purposely not implemented
+  void operator=(const Self &);                // purposely not implemented
 
-  TScalarType         m_Angle;
-  TScalarType         m_S1;
-  TScalarType         m_S2;
-  TScalarType         m_K;
+  TScalarType m_Angle;
+  TScalarType m_S1;
+  TScalarType m_S2;
+  TScalarType m_K;
 
-
-}; //class ANTSCenteredAffine2DTransform
-
+}; // class ANTSCenteredAffine2DTransform
 
 }  // namespace itk
-
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "itkANTSCenteredAffine2DTransform.hxx"

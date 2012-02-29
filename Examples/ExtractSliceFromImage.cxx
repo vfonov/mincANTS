@@ -10,8 +10,8 @@ int ExtractSliceFromImage( int itkNotUsed( argc ), char *argv[] )
 {
   typedef float PixelType;
 
-  typedef itk::Image<PixelType, ImageDimension> ImageType;
-  typedef itk::Image<PixelType, ImageDimension-1> SliceType;
+  typedef itk::Image<PixelType, ImageDimension>     ImageType;
+  typedef itk::Image<PixelType, ImageDimension - 1> SliceType;
 
   typedef itk::ImageFileReader<ImageType> ReaderType;
   typename ReaderType::Pointer reader = ReaderType::New();
@@ -40,31 +40,31 @@ int ExtractSliceFromImage( int itkNotUsed( argc ), char *argv[] )
   writer->SetInput( extracter->GetOutput() );
   writer->Update();
 
-
   return 0;
 }
 
 int main( int argc, char *argv[] )
 {
-  if ( argc != 6 )
+  if( argc != 6 )
     {
-    std::cout << "Usage: " << argv[0] << " imageDimension inputImage outputSlice direction(e.g. 0, 1, 2) slice_number" << std::endl;
+    std::cout << "Usage: " << argv[0]
+              << " imageDimension inputImage outputSlice direction(e.g. 0, 1, 2) slice_number" << std::endl;
     exit( 1 );
     }
 
   switch( atoi( argv[1] ) )
-   {
-   case 2:
-     ExtractSliceFromImage<2>( argc, argv );
-     break;
-   case 3:
-     ExtractSliceFromImage<3>( argc, argv );
-     break;
-   case 4:
-     ExtractSliceFromImage<4>( argc, argv );
-     break;
-   default:
+    {
+    case 2:
+      ExtractSliceFromImage<2>( argc, argv );
+      break;
+    case 3:
+      ExtractSliceFromImage<3>( argc, argv );
+      break;
+    case 4:
+      ExtractSliceFromImage<4>( argc, argv );
+      break;
+    default:
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
-   }
+    }
 }

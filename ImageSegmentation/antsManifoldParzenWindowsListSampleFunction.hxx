@@ -21,9 +21,12 @@
 
 #include "antsManifoldParzenWindowsListSampleFunction.h"
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 template <class TListSample, class TOutput, class TCoordRep>
 ManifoldParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
@@ -58,8 +61,8 @@ ManifoldParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
 
   if( this->GetInputListSample()->Size() <= 1 )
     {
-    itkWarningMacro( "The input list sample has <= 1 element." <<
-      "Function evaluations will be equal to 0." );
+    itkWarningMacro( "The input list sample has <= 1 element."
+                     << "Function evaluations will be equal to 0." );
     return;
     }
 
@@ -68,7 +71,7 @@ ManifoldParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
    */
   this->m_KdTreeGenerator = TreeGeneratorType::New();
   this->m_KdTreeGenerator->SetSample( const_cast<InputListSampleType *>(
-    this->GetInputListSample() ) );
+                                        this->GetInputListSample() ) );
   this->m_KdTreeGenerator->SetBucketSize( 16 );
   this->m_KdTreeGenerator->Update();
 
@@ -106,10 +109,10 @@ ManifoldParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
       Cov.Fill( 0 );
 
       typename TreeGeneratorType::KdTreeType
-        ::InstanceIdentifierVectorType neighbors;
+      ::InstanceIdentifierVectorType neighbors;
       unsigned int numberOfNeighbors = vnl_math_min(
-           this->m_CovarianceKNeighborhood, static_cast<unsigned int>(
-           this->GetInputListSample()->Size() ) );
+          this->m_CovarianceKNeighborhood, static_cast<unsigned int>(
+            this->GetInputListSample()->Size() ) );
       this->m_KdTreeGenerator->GetOutput()->Search(
         inputMeasurement, numberOfNeighbors, neighbors );
 
@@ -117,11 +120,11 @@ ManifoldParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
       for( unsigned int j = 0; j < numberOfNeighbors; j++ )
         {
         if( neighbors[j] != count
-          && neighbors[j] < this->GetInputListSample()->Size() )
+            && neighbors[j] < this->GetInputListSample()->Size() )
           {
           InputMeasurementVectorType neighbor
             = this->m_KdTreeGenerator->GetOutput()->GetMeasurementVector(
-              neighbors[j] );
+                neighbors[j] );
 
           RealType kernelValue = this->m_Gaussians[count]->Evaluate( neighbor );
           if( this->GetListSampleWeights()->Size() == this->m_Gaussians.size() )
@@ -136,9 +139,9 @@ ManifoldParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
               {
               for( unsigned int n = m; n < Dimension; n++ )
                 {
-                RealType covariance = kernelValue *
-                  ( neighbor[m] - inputMeasurement[m] ) *
-                    ( neighbor[n] - inputMeasurement[n] );
+                RealType covariance = kernelValue
+                  * ( neighbor[m] - inputMeasurement[m] )
+                  * ( neighbor[n] - inputMeasurement[n] );
                 Cov( m, n ) += covariance;
                 Cov( n, m ) += covariance;
                 }
@@ -188,14 +191,14 @@ ManifoldParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
 template <class TListSample, class TOutput, class TCoordRep>
 TOutput
 ManifoldParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
-::Evaluate( const InputMeasurementVectorType &measurement ) const
+::Evaluate( const InputMeasurementVectorType & measurement ) const
 {
 
   try
     {
     unsigned int numberOfNeighbors = vnl_math_min(
-      this->m_EvaluationKNeighborhood,
-      static_cast<unsigned int>( this->m_Gaussians.size() ) );
+        this->m_EvaluationKNeighborhood,
+        static_cast<unsigned int>( this->m_Gaussians.size() ) );
 
     OutputType sum = 0.0;
 
@@ -204,25 +207,24 @@ ManifoldParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
       for( unsigned int j = 0; j < this->m_Gaussians.size(); j++ )
         {
         sum += static_cast<OutputType>(
-          this->m_Gaussians[j]->Evaluate( measurement ) );
+            this->m_Gaussians[j]->Evaluate( measurement ) );
         }
       }
     else
       {
       typename TreeGeneratorType::KdTreeType
-        ::InstanceIdentifierVectorType neighbors;
+      ::InstanceIdentifierVectorType neighbors;
       this->m_KdTreeGenerator->GetOutput()->Search( measurement,
-        numberOfNeighbors, neighbors );
-
+                                                    numberOfNeighbors, neighbors );
       for( unsigned int j = 0; j < numberOfNeighbors; j++ )
         {
         sum += static_cast<OutputType>(
-          this->m_Gaussians[neighbors[j]]->Evaluate( measurement ) );
+            this->m_Gaussians[neighbors[j]]->Evaluate( measurement ) );
         }
       }
     return static_cast<OutputType>( sum / this->m_NormalizationFactor );
     }
-  catch(...)
+  catch( ... )
     {
     return 0;
     }
@@ -239,15 +241,15 @@ ManifoldParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
   Indent indent) const
 {
   os << indent << "Regularization sigma: "
-               << this->m_RegularizationSigma << std::endl;
+     << this->m_RegularizationSigma << std::endl;
   os << indent << "Evaluation K neighborhood: "
-               << this->m_EvaluationKNeighborhood << std::endl;
+     << this->m_EvaluationKNeighborhood << std::endl;
   if( this->m_CovarianceKNeighborhood > 0 )
     {
     os << indent << "Covariance K neighborhood: "
-                 << this->m_CovarianceKNeighborhood << std::endl;
+       << this->m_CovarianceKNeighborhood << std::endl;
     os << indent << "Kernel sigma: "
-                 << this->m_KernelSigma << std::endl;
+       << this->m_KernelSigma << std::endl;
     }
 }
 
@@ -256,5 +258,3 @@ ManifoldParzenWindowsListSampleFunction<TListSample, TOutput, TCoordRep>
 } // end of namespace itk
 
 #endif
-
-

@@ -21,11 +21,10 @@
 #include "itkFEMElementBase.h"
 #include "itkFEMMaterialLinearElasticity.h"
 
-namespace itk {
-namespace fem {
-
-
-
+namespace itk
+{
+namespace fem
+{
 
 /**
  * \class Element3DMembrane1DOF
@@ -41,21 +40,21 @@ namespace fem {
  *                to use this class at any level of element definition.
  *                If not specified, it defaults to the Element base class.
  */
-template<class TBaseClass=Element>
+template <class TBaseClass = Element>
 class Element3DMembrane1DOF : public TBaseClass
 {
-FEM_ABSTRACT_CLASS(Element3DMembrane1DOF,TBaseClass)
+  FEM_ABSTRACT_CLASS(Element3DMembrane1DOF, TBaseClass)
 public:
 
   // Repeat the required typedefs and enums from parent class
-  typedef typename Superclass::Float Float;
+  typedef typename Superclass::Float      Float;
   typedef typename Superclass::MatrixType MatrixType;
   typedef typename Superclass::VectorType VectorType;
 
   /**
    * Read data for this class from input stream
    */
-  virtual void Read( std::istream&, void* info );
+  virtual void Read( std::istream &, void* info );
 
   /**
    * Write this class to output stream
@@ -67,13 +66,10 @@ public:
    */
   Element3DMembrane1DOF();
 
-
-
-
-//////////////////////////////////////////////////////////////////////////
-  /*
-   * Methods related to the physics of the problem.
-   */
+// ////////////////////////////////////////////////////////////////////////
+/*
+ * Methods related to the physics of the problem.
+ */
 
   /**
    * Compute the B matrix.
@@ -90,14 +86,13 @@ public:
    */
   void GetMassMatrix(MatrixType& Me) const;
 
-
   /**
    * 3D membrane elements have 3 DOFs per node.
    */
   virtual unsigned int GetNumberOfDegreesOfFreedomPerNode( void ) const
-  { return 3; }
-
-
+  {
+    return 3;
+  }
 
   virtual void GetStiffnessMatrix( MatrixType& Ke ) const;
 
@@ -107,13 +102,16 @@ public:
    * Pointer to material properties of the element
    */
   MaterialLinearElasticity::ConstPointer m_mat;
-  virtual Material::ConstPointer GetMaterial(void) const { return m_mat; }
-  virtual void SetMaterial(Material::ConstPointer mat_ ) { m_mat=dynamic_cast<const MaterialLinearElasticity*>(&*mat_); }
+  virtual Material::ConstPointer GetMaterial(void) const
+  {
+    return m_mat;
+  }
+  virtual void SetMaterial(Material::ConstPointer mat_ )
+  {
+    m_mat = dynamic_cast<const MaterialLinearElasticity *>(&*mat_);
+  }
 
-}; // class Element3DMembrane1DOF
-
-
-
+};  // class Element3DMembrane1DOF
 
 #ifdef _MSC_VER
 // Declare a static dummy function to prevent a MSVC 6.0 SP5 from crashing.
@@ -121,9 +119,11 @@ public:
 // looks like this declaration makes compiler forget about some of the
 // troubles it has with templates.
 static void Dummy( void );
+
 #endif // #ifdef _MSC_VER
 
-}} // end namespace itk::fem
+}
+}  // end namespace itk::fem
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "itkFEMElement3DMembrane1DOF.hxx"

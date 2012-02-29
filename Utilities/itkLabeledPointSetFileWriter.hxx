@@ -31,7 +31,7 @@ namespace itk
 //
 // Constructor
 //
-template<class TInputMesh>
+template <class TInputMesh>
 LabeledPointSetFileWriter<TInputMesh>
 ::LabeledPointSetFileWriter()
 {
@@ -46,7 +46,7 @@ LabeledPointSetFileWriter<TInputMesh>
 //
 // Destructor
 //
-template<class TInputMesh>
+template <class TInputMesh>
 LabeledPointSetFileWriter<TInputMesh>
 ::~LabeledPointSetFileWriter()
 {
@@ -55,7 +55,7 @@ LabeledPointSetFileWriter<TInputMesh>
 //
 // Set the input mesh
 //
-template<class TInputMesh>
+template <class TInputMesh>
 void
 LabeledPointSetFileWriter<TInputMesh>
 ::SetInput(InputMeshType * input)
@@ -66,7 +66,7 @@ LabeledPointSetFileWriter<TInputMesh>
 //
 // Write the input mesh to the output file
 //
-template<class TInputMesh>
+template <class TInputMesh>
 void LabeledPointSetFileWriter<TInputMesh>
 ::Update()
 {
@@ -76,14 +76,14 @@ void LabeledPointSetFileWriter<TInputMesh>
 //
 // Write the input mesh to the output file
 //
-template<class TInputMesh>
+template <class TInputMesh>
 void LabeledPointSetFileWriter<TInputMesh>
 ::Write()
 {
   this->GenerateData();
 }
 
-template<class TInputMesh>
+template <class TInputMesh>
 void
 LabeledPointSetFileWriter<TInputMesh>
 ::GenerateData()
@@ -97,17 +97,16 @@ LabeledPointSetFileWriter<TInputMesh>
   if( this->m_ImageSize[0] == 0 )
     {
     typedef BoundingBox<unsigned long, Dimension,
-      typename TInputMesh::CoordRepType, typename TInputMesh::PointsContainer>
-      BoundingBoxType;
+                        typename TInputMesh::CoordRepType, typename TInputMesh::PointsContainer>
+    BoundingBoxType;
     typename BoundingBoxType::Pointer bbox = BoundingBoxType::New();
     bbox->SetPoints( this->m_Input->GetPoints() );
     bbox->ComputeBoundingBox();
-
     for( unsigned int d = 0; d < Dimension; d++ )
       {
       this->m_ImageSpacing[d] = (
-        bbox->GetMaximum()[d] -
-        bbox->GetMinimum()[d] )
+          bbox->GetMaximum()[d]
+          - bbox->GetMinimum()[d] )
         / static_cast<double>( this->m_ImageSize[d] + 1 );
       }
     this->m_ImageDirection.SetIdentity();
@@ -121,7 +120,7 @@ LabeledPointSetFileWriter<TInputMesh>
   if( !outputFile.is_open() )
     {
     itkExceptionMacro( "Unable to open file\n"
-        "outputFilename= " << m_FileName );
+                       "outputFilename= " << m_FileName );
     return;
     }
   else
@@ -134,7 +133,7 @@ LabeledPointSetFileWriter<TInputMesh>
    */
 
   std::string::size_type pos = this->m_FileName.rfind( "." );
-  std::string extension( this->m_FileName, pos+1, this->m_FileName.length()-1 );
+  std::string            extension( this->m_FileName, pos + 1, this->m_FileName.length() - 1 );
 
   if( extension == "txt" )
     {
@@ -150,14 +149,15 @@ LabeledPointSetFileWriter<TInputMesh>
       {
       this->WritePointsToImageFile();
       }
-    catch(...)
+    catch( ... )
       {
       itkExceptionMacro( "Unknown extension: " << extension );
       }
     }
 
 }
-template<class TInputMesh>
+
+template <class TInputMesh>
 void
 LabeledPointSetFileWriter<TInputMesh>
 ::WriteVTKFile()
@@ -167,7 +167,7 @@ LabeledPointSetFileWriter<TInputMesh>
   this->WriteScalarsToVTKFile();
 }
 
-template<class TInputMesh>
+template <class TInputMesh>
 void
 LabeledPointSetFileWriter<TInputMesh>
 ::WritePointsToVTKFile()
@@ -177,7 +177,7 @@ LabeledPointSetFileWriter<TInputMesh>
   //
   std::ofstream outputFile( this->m_FileName.c_str() );
 
-  outputFile << "# vtk DataFile Version 2.0" << std::endl;
+  outputFile << "#vtk DataFile Version 2.0" << std::endl;
   outputFile << "File written by itkLabeledPointSetFileWriter" << std::endl;
   outputFile << "ASCII" << std::endl;
   outputFile << "DATASET POLYDATA" << std::endl;
@@ -205,10 +205,11 @@ LabeledPointSetFileWriter<TInputMesh>
       }
     pointIterator++;
     }
+
   outputFile.close();
 }
 
-template<class TInputMesh>
+template <class TInputMesh>
 void
 LabeledPointSetFileWriter<TInputMesh>
 ::WriteScalarsToVTKFile()
@@ -219,8 +220,14 @@ LabeledPointSetFileWriter<TInputMesh>
   std::ofstream outputFile( this->m_FileName.c_str(), std::ios::app );
 
   // No point data conditions
-  if (!this->m_Input->GetPointData()) return;
-  if (this->m_Input->GetPointData()->Size() == 0) return;
+  if( !this->m_Input->GetPointData() )
+    {
+    return;
+    }
+  if( this->m_Input->GetPointData()->Size() == 0 )
+    {
+    return;
+    }
 
   unsigned int numberOfPoints = this->m_Input->GetNumberOfPoints();
 
@@ -232,7 +239,7 @@ LabeledPointSetFileWriter<TInputMesh>
   if( !this->m_MultiComponentScalars )
     {
     outputFile << "SCALARS pointLabels " << type
-      << " 1" << std::endl;
+               << " 1" << std::endl;
     outputFile << "LOOKUP_TABLE default" << std::endl;
 
     typename InputMeshType::PointDataContainerIterator pointDataIterator
@@ -245,6 +252,7 @@ LabeledPointSetFileWriter<TInputMesh>
       outputFile << pointDataIterator.Value() << " ";
       pointDataIterator++;
       }
+
     outputFile << std::endl;
     }
   else
@@ -254,7 +262,7 @@ LabeledPointSetFileWriter<TInputMesh>
     unsigned int numberOfComponents = scalar.GetSize();
 
     outputFile << "SCALARS scalars " << type
-      << numberOfComponents << std::endl;
+               << numberOfComponents << std::endl;
     outputFile << "LOOKUP_TABLE default" << std::endl;
 
     typename MultiComponentScalarSetType::Iterator It
@@ -267,12 +275,13 @@ LabeledPointSetFileWriter<TInputMesh>
       outputFile << It.Value() << " ";
       It++;
       }
+
     outputFile << std::endl;
     }
   outputFile.close();
 }
 
-template<class TInputMesh>
+template <class TInputMesh>
 void
 LabeledPointSetFileWriter<TInputMesh>
 ::WriteLinesToVTKFile()
@@ -296,8 +305,8 @@ LabeledPointSetFileWriter<TInputMesh>
       It++;
       }
 
-    outputFile << "LINES " <<
-      numberOfLines << " " << totalSize << std::endl;
+    outputFile << "LINES "
+               << numberOfLines << " " << totalSize << std::endl;
 
     It = this->m_Lines->Begin();
     while( It != ItEnd )
@@ -311,13 +320,13 @@ LabeledPointSetFileWriter<TInputMesh>
       outputFile << std::endl;
       ++It;
       }
+
     outputFile << std::endl;
     outputFile.close();
     }
 }
 
-
-template<class TInputMesh>
+template <class TInputMesh>
 void
 LabeledPointSetFileWriter<TInputMesh>
 ::WritePointsToAvantsFile()
@@ -362,7 +371,7 @@ LabeledPointSetFileWriter<TInputMesh>
   outputFile.close();
 }
 
-template<class TInputMesh>
+template <class TInputMesh>
 void
 LabeledPointSetFileWriter<TInputMesh>
 ::WritePointsToImageFile()
@@ -410,16 +419,16 @@ LabeledPointSetFileWriter<TInputMesh>
   writer->Update();
 }
 
-template<class TInputMesh>
+template <class TInputMesh>
 void
 LabeledPointSetFileWriter<TInputMesh>
 ::PrintSelf( std::ostream& os, Indent indent ) const
 {
-  Superclass::PrintSelf(os,indent);
+  Superclass::PrintSelf(os, indent);
 
   os << indent << "FileName: " << this->m_FileName << std::endl;
 }
 
-} //end of namespace itk
+} // end of namespace itk
 
 #endif

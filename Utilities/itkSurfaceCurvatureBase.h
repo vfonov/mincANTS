@@ -32,7 +32,6 @@
 namespace itk
 {
 
-
 /** \class SurfaceCurvatureBase
  *
  * This class takes a surface as input and creates a local
@@ -42,40 +41,40 @@ namespace itk
  *       the first point entered into and the
  *       last point stored in the list.
  */
-template < typename TSurface, unsigned int TDimension=3 >
-           class SurfaceCurvatureBase : public ProcessObject
+template <typename TSurface, unsigned int TDimension = 3>
+class SurfaceCurvatureBase : public ProcessObject
 {
 public:
 
   /** Standard class typedefs. */
-  typedef SurfaceCurvatureBase Self;
-  typedef ProcessObject Superclass;
-  typedef SmartPointer<Self> Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  typedef SurfaceCurvatureBase     Self;
+  typedef ProcessObject            Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(SurfaceCurvatureBase,ProcessObject);
+  itkTypeMacro(SurfaceCurvatureBase, ProcessObject);
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Image types. */
-  typedef TSurface               SurfaceType;
+  typedef TSurface SurfaceType;
 
   /** Image dimension. */
 //  itkStaticConstMacro(ImageDimension, unsigned int, TImage::ImageDimension);
   itkStaticConstMacro(ImageDimension, unsigned int, TDimension);
   itkStaticConstMacro(SurfaceDimension, unsigned int, TDimension);
 
-  typedef float                     RealType;
-  typedef vnl_vector<RealType>      VectorType;
-  typedef vnl_vector_fixed<RealType,itkGetStaticConstMacro(ImageDimension)>
-    FixedVectorType;
-  typedef vnl_vector_fixed<RealType,itkGetStaticConstMacro(ImageDimension)>
-    PointType;
-  typedef vnl_matrix<double>        MatrixType;
-  typedef std::vector<PointType>      PointContainerType;
-  typedef std::vector<float>      FunctionContainerType;
+  typedef float                RealType;
+  typedef vnl_vector<RealType> VectorType;
+  typedef vnl_vector_fixed<RealType, itkGetStaticConstMacro(ImageDimension)>
+  FixedVectorType;
+  typedef vnl_vector_fixed<RealType, itkGetStaticConstMacro(ImageDimension)>
+  PointType;
+  typedef vnl_matrix<double>     MatrixType;
+  typedef std::vector<PointType> PointContainerType;
+  typedef std::vector<float>     FunctionContainerType;
 
   /** Set input parameter file */
   itkSetStringMacro( ParameterFileName );
@@ -84,8 +83,7 @@ public:
   itkGetStringMacro( ParameterFileName );
 
   /** Fill the point list with the points neighboring the current origin */
-  virtual void FindNeighborhood(unsigned int temp=0);
-
+  virtual void FindNeighborhood(unsigned int temp = 0);
 
   /** A Euclidean relative of L.D. Griffin's compactness.*/
   RealType    ComputeMeanEuclideanDistance();
@@ -93,7 +91,7 @@ public:
   /** */
   void    ComputeAveragePoint();
 
-  void    ProjectToTangentPlane(PointType);
+  void ProjectToTangentPlane(PointType);
 
   void    EigenDecomposition(MatrixType D);
 
@@ -121,61 +119,57 @@ public:
   /** */
   void    ComputeFrameAndKappa(PointType origin);
 
-
   void    ShimshoniFrame(PointType origin);
 
   /** */
   void    ComputeJoshiFrame(PointType origin);
 
   /** */
-  void    EstimateCurvature(RealType w1=3./8.,RealType w2=1./8.,
-    RealType w3=1./8.,RealType w4=3./8.);
-
+  void    EstimateCurvature(RealType w1 = 3. / 8., RealType w2 = 1. / 8., RealType w3 = 1. / 8., RealType w4 = 3. / 8.);
 
   /** Use the Besl and Jain analytical curvature computation.
     * We use a least square polynomial fit to the local neighborhood
     * to estimate the mean and gaussian curvature.
     */
-  void   JainMeanAndGaussianCurvature(PointType);
-
+  void JainMeanAndGaussianCurvature(PointType);
 
   /** This function returns a weight given a distance
    *  It may be the identity function, a normalization
    *  or a gaussianization of the input distance. */
-  virtual RealType  GetWeight(PointType, PointType);
+  virtual RealType GetWeight(PointType, PointType);
 
   /** This function returns the angle between the reference tangent
       and the projection onto the tangent plane of the vector between
       the neighborhood focus and its neighbor. */
-  virtual RealType  GetTheta(PointType Neighbor,PointType origin);
+  virtual RealType  GetTheta(PointType Neighbor, PointType origin);
 
   /** Estimate the directional curvature using Shimshoni's method (eq 6).*/
-  virtual void    EstimateDirectionalCurvature(PointType, PointType);
+  virtual void EstimateDirectionalCurvature(PointType, PointType);
 
   void PrintFrame();
 
-  virtual void    ComputeFrameOverDomain(unsigned int /* which */ =3) {};
+  virtual void    ComputeFrameOverDomain(unsigned int /* which */ = 3)
+  {
+  };
 
-  RealType ErrorEstimate(PointType, RealType sign=1.0 );
-
+  RealType ErrorEstimate(PointType, RealType sign = 1.0 );
 
   unsigned int CharacterizeSurface();
 
-  itkSetMacro(Origin,PointType);
-  itkGetMacro(Origin,PointType);
+  itkSetMacro(Origin, PointType);
+  itkGetMacro(Origin, PointType);
 
-  itkSetMacro(AveragePoint,PointType);
-  itkGetMacro(AveragePoint,PointType);
+  itkSetMacro(AveragePoint, PointType);
+  itkGetMacro(AveragePoint, PointType);
 
-  itkGetMacro(Normal,FixedVectorType);
+  itkGetMacro(Normal, FixedVectorType);
 
-  itkGetMacro(Sigma,RealType);
-  itkGetMacro(MeanKappa,RealType);
-  itkSetMacro(Sigma,RealType);
+  itkGetMacro(Sigma, RealType);
+  itkGetMacro(MeanKappa, RealType);
+  itkSetMacro(Sigma, RealType);
 
-
-  itkGetMacro(UseGeodesicNeighborhood,bool);
-  itkSetMacro(UseGeodesicNeighborhood,bool);
+  itkGetMacro(UseGeodesicNeighborhood, bool);
+  itkSetMacro(UseGeodesicNeighborhood, bool);
 
   /** Set normal estimates a 3D frame from a given normal */
   void SetFrameFromNormal(FixedVectorType);
@@ -187,9 +181,15 @@ public:
   /** We estimate the integral as a sum, assuming the local
       area (from compute local area) scales the value of the
       function at the pixel.  See http://mathworld.wolfram.com/SurfaceIntegral.html*/
-  virtual RealType IntegrateFunctionOverNeighborhood(bool /* norm */ =false) { return 0; }
+  virtual RealType IntegrateFunctionOverNeighborhood(bool /* norm */ = false)
+  {
+    return 0;
+  }
 
-  void SwitchNormalSign() { m_Normal*=(-1.0); }
+  void SwitchNormalSign()
+  {
+    m_Normal *= (-1.0);
+  }
 
   // for conjugate harmonic function
   float dstarUestimate();
@@ -200,92 +200,86 @@ public:
 protected:
 
   SurfaceCurvatureBase();
-  virtual ~SurfaceCurvatureBase(){};
-
-
+  virtual ~SurfaceCurvatureBase()
+  {
+  };
 
   /** Holds the value of Pi. */
-  double                         m_Pi;
+  double m_Pi;
 
-  bool                           m_Debug;
+  bool m_Debug;
 
   /** Data structures to contain points. */
-  PointContainerType                m_PointList;
-
+  PointContainerType m_PointList;
 
   /** Data structures to contain function
       values associated with points. */
-  FunctionContainerType                m_FunctionValueList;
+  FunctionContainerType m_FunctionValueList;
 
   /** This list contains the projection of the vectors onto
       the tangent plane (T_i Shimshoni). */
-  PointContainerType                m_TangentProjectionList;
+  PointContainerType m_TangentProjectionList;
 
   /** The point that is the origin of the current neighborhood. */
-  PointType                          m_Origin;
-  PointType                          m_AveragePoint;
-  PointType                          m_PlaneVector;
-
+  PointType m_Origin;
+  PointType m_AveragePoint;
+  PointType m_PlaneVector;
 
 /** Data that represents single vectors */
-  FixedVectorType                    m_ArbitraryTangent;
-  FixedVectorType                    m_Normal;
-  FixedVectorType                    m_Tangent1;
-  FixedVectorType                    m_Tangent2;
-  RealType                           m_dX; // size in local x dir
-  RealType                           m_dY; // size in local y dir
-  FixedVectorType                    m_MetricTensor;
+  FixedVectorType m_ArbitraryTangent;
+  FixedVectorType m_Normal;
+  FixedVectorType m_Tangent1;
+  FixedVectorType m_Tangent2;
+  RealType        m_dX;                    // size in local x dir
+  RealType        m_dY;                    // size in local y dir
+  FixedVectorType m_MetricTensor;
 
-  VectorType                         m_ThetaVector;
-  VectorType                         m_WeightVector;
-  VectorType                         m_DirectionalKappaVector;
+  VectorType m_ThetaVector;
+  VectorType m_WeightVector;
+  VectorType m_DirectionalKappaVector;
 
 /** Data for representing neighborhoods and derived from the vector frames*/
 
   /** Approximate directional curvature */
-  RealType                      m_DirectionalKappa;
+  RealType m_DirectionalKappa;
 
-  RealType                      m_MetricTensorDeterminant;
+  RealType m_MetricTensorDeterminant;
   /** Approximate principal curvature 1*/
-  RealType                      m_Kappa1;
+  RealType m_Kappa1;
   /** Approximate principal curvature 2*/
-  RealType                      m_Kappa2;
-  RealType                      m_GaussianKappa;
-  RealType                      m_MeanKappa;
+  RealType m_Kappa2;
+  RealType m_GaussianKappa;
+  RealType m_MeanKappa;
 
   /** Solution weights eq. (7) (8) Shimshoni */
-  RealType                      m_A;
-  RealType                      m_B;
-  RealType                      m_C;
+  RealType m_A;
+  RealType m_B;
+  RealType m_C;
 
   /** True Eigenvector weights */
-  RealType                      m_W1;
-  RealType                      m_W2;
+  RealType m_W1;
+  RealType m_W2;
 
   /** Eigenvalues */
-  RealType                      m_Eval0;
-  RealType                      m_Eval1;
-  RealType                      m_Eval2;
+  RealType m_Eval0;
+  RealType m_Eval1;
+  RealType m_Eval2;
 
-  unsigned int                  m_CurrentNeighborhoodPointIndex;
+  unsigned int m_CurrentNeighborhoodPointIndex;
 
-  std::string                   m_ParameterFileName;
+  std::string m_ParameterFileName;
 
   /** We use this to avoid computing the frame in degenerate cases. */
-  RealType                      m_TotalDKap;
+  RealType m_TotalDKap;
 
-  RealType                      m_TotalArea;
+  RealType m_TotalArea;
 
+  RealType m_Sigma;
 
-  RealType                      m_Sigma;
-
-  bool                          m_UseGeodesicNeighborhood;
-
+  bool m_UseGeodesicNeighborhood;
 private:
 
 };
-
-
 
 } // namespace itk
 

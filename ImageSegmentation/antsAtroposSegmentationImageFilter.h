@@ -40,8 +40,10 @@
 #include <map>
 #include <utility>
 
-namespace itk {
-namespace ants {
+namespace itk
+{
+namespace ants
+{
 
 /** \class AtroposSegmentationImageFilter
  * \brief Atropos:  A Priori Classification with Registration Initialized
@@ -62,18 +64,18 @@ namespace ants {
  *
  */
 
-template<class TInputImage, class TMaskImage
-  = Image<unsigned char,::itk::GetImageDimension<TInputImage>::ImageDimension>,
-  class TClassifiedImage = TMaskImage>
+template <class TInputImage, class TMaskImage
+            = Image<unsigned char, ::itk::GetImageDimension<TInputImage>::ImageDimension>,
+          class TClassifiedImage = TMaskImage>
 class ITK_EXPORT AtroposSegmentationImageFilter :
-    public ImageToImageFilter<TInputImage, TClassifiedImage>
+  public ImageToImageFilter<TInputImage, TClassifiedImage>
 {
 public:
   /** Standard class typdedefs. */
-  typedef AtroposSegmentationImageFilter                     Self;
-  typedef ImageToImageFilter<TInputImage, TClassifiedImage>  Superclass;
-  typedef SmartPointer<Self>                                 Pointer;
-  typedef SmartPointer<const Self>                           ConstPointer;
+  typedef AtroposSegmentationImageFilter                    Self;
+  typedef ImageToImageFilter<TInputImage, TClassifiedImage> Superclass;
+  typedef SmartPointer<Self>                                Pointer;
+  typedef SmartPointer<const Self>                          ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro( Self );
@@ -90,67 +92,67 @@ public:
                        TMaskImage::ImageDimension );
 
   /** Typedef support of input types. */
-  typedef TInputImage                                 ImageType;
-  typedef typename ImageType::PixelType               PixelType;
-  typedef typename ImageType::IndexType               IndexType;
-  typedef typename ImageType::SizeType                SizeType;
+  typedef TInputImage                   ImageType;
+  typedef typename ImageType::PixelType PixelType;
+  typedef typename ImageType::IndexType IndexType;
+  typedef typename ImageType::SizeType  SizeType;
 
-  typedef TMaskImage                                  MaskImageType;
-  typedef typename MaskImageType::PixelType           MaskLabelType;
-  typedef TClassifiedImage                            ClassifiedImageType;
-  typedef typename ClassifiedImageType::Pointer       ClassifiedImagePointer;
-  typedef typename ClassifiedImageType::PixelType     LabelType;
+  typedef TMaskImage                              MaskImageType;
+  typedef typename MaskImageType::PixelType       MaskLabelType;
+  typedef TClassifiedImage                        ClassifiedImageType;
+  typedef typename ClassifiedImageType::Pointer   ClassifiedImagePointer;
+  typedef typename ClassifiedImageType::PixelType LabelType;
 
   /** Some convenient typedefs. */
-  typedef float                                       RealType;
-  typedef Image<RealType, ImageDimension>             RealImageType;
-  typedef typename RealImageType::Pointer             RealImagePointer;
+  typedef float                           RealType;
+  typedef Image<RealType, ImageDimension> RealImageType;
+  typedef typename RealImageType::Pointer RealImagePointer;
 
-  typedef FixedArray<unsigned, ImageDimension>        ArrayType;
-  typedef PointSet<RealType, 1>                       SparseImageType;
-  typedef typename SparseImageType::Pointer           SparseImagePointer;
+  typedef FixedArray<unsigned, ImageDimension> ArrayType;
+  typedef PointSet<RealType, 1>                SparseImageType;
+  typedef typename SparseImageType::Pointer    SparseImagePointer;
 
   /** Mixture model component typedefs */
-  typedef Array<RealType>                             MeasurementVectorType;
+  typedef Array<RealType> MeasurementVectorType;
   typedef typename itk::Statistics::ListSample
-    <MeasurementVectorType>                           SampleType;
-  typedef SmartPointer<SampleType>                    SamplePointer;
+  <MeasurementVectorType>                           SampleType;
+  typedef SmartPointer<SampleType> SamplePointer;
   typedef ants::Statistics::ListSampleFunction
-    <SampleType, RealType, RealType>                  LikelihoodFunctionType;
-  typedef typename LikelihoodFunctionType::Pointer    LikelihoodFunctionPointer;
+  <SampleType, RealType, RealType>                  LikelihoodFunctionType;
+  typedef typename LikelihoodFunctionType::Pointer LikelihoodFunctionPointer;
   typedef typename LikelihoodFunctionType::
-    ListSampleWeightArrayType                         WeightArrayType;
+  ListSampleWeightArrayType                         WeightArrayType;
 
-  typedef std::vector<LabelType>                      PartialVolumeLabelSetType;
-  typedef std::vector<PartialVolumeLabelSetType>      PartialVolumeClassesType;
+  typedef std::vector<LabelType>                 PartialVolumeLabelSetType;
+  typedef std::vector<PartialVolumeLabelSetType> PartialVolumeClassesType;
 
   /** Outlier handling typedefs */
   typedef ants::Statistics::
-    ListSampleToListSampleFilter
-    <SampleType, SampleType>                          OutlierHandlingFilterType;
+  ListSampleToListSampleFilter
+  <SampleType, SampleType>                          OutlierHandlingFilterType;
 
   /** Randomizer typedefs */
   typedef itk::Statistics::
-    MersenneTwisterRandomVariateGenerator             RandomizerType;
+  MersenneTwisterRandomVariateGenerator             RandomizerType;
 
   /** B-spline fitting typedefs */
-  typedef Vector<RealType, 1>                         ScalarType;
-  typedef Image<ScalarType, ImageDimension>           ScalarImageType;
-  typedef PointSet<ScalarType, ImageDimension>        PointSetType;
+  typedef Vector<RealType, 1>                  ScalarType;
+  typedef Image<ScalarType, ImageDimension>    ScalarImageType;
+  typedef PointSet<ScalarType, ImageDimension> PointSetType;
   typedef BSplineScatteredDataPointSetToImageFilter
-    <PointSetType, ScalarImageType>                   BSplineFilterType;
+  <PointSetType, ScalarImageType>                   BSplineFilterType;
   typedef typename
-    BSplineFilterType::PointDataImageType             ControlPointLatticeType;
-  typedef typename ControlPointLatticeType::Pointer   ControlPointLatticePointer;
-  typedef std::vector<ControlPointLatticePointer>     ControlPointLatticeContainerType;
+  BSplineFilterType::PointDataImageType             ControlPointLatticeType;
+  typedef typename ControlPointLatticeType::Pointer ControlPointLatticePointer;
+  typedef std::vector<ControlPointLatticePointer>   ControlPointLatticeContainerType;
 
   /** Initialization typedefs */
   enum InitializationStrategyType
-    { Random, KMeans, Otsu, PriorProbabilityImages, PriorLabelImage };
+        { Random, KMeans, Otsu, PriorProbabilityImages, PriorLabelImage };
 
-  typedef std::pair<RealType, RealType>               LabelParametersType;
-  typedef std::map<LabelType, LabelParametersType>    LabelParameterMapType;
-  typedef Array<RealType>                             ParametersType;
+  typedef std::pair<RealType, RealType>            LabelParametersType;
+  typedef std::map<LabelType, LabelParametersType> LabelParameterMapType;
+  typedef Array<RealType>                          ParametersType;
 
   /** Posterior probability formulation typedefs */
   enum PosteriorProbabilityFormulationType { Socrates, Plato, Aristotle };
@@ -162,7 +164,7 @@ public:
    * Default = 3.
    */
   itkSetClampMacro( NumberOfTissueClasses, LabelType, 2,
-    NumericTraits<unsigned int>::max() );
+                    NumericTraits<unsigned int>::max() );
 
   /**
    * Get the number of segmentation classes.
@@ -302,7 +304,7 @@ public:
    * = 0.1.
    */
   itkSetClampMacro( MinimumAnnealingTemperature, RealType, 0.0,
-    NumericTraits<RealType>::max() );
+                    NumericTraits<RealType>::max() );
 
   /**
    * Get the minimum annealing temperature for ICM asynchronous updating.
@@ -358,13 +360,13 @@ public:
    * default.  Default = Socrates.
    */
   itkSetMacro( PosteriorProbabilityFormulation,
-    PosteriorProbabilityFormulationType );
+               PosteriorProbabilityFormulationType );
 
   /**
    * Get the posterior probability formulation.
    */
   itkGetConstMacro( PosteriorProbabilityFormulation,
-    PosteriorProbabilityFormulationType );
+                    PosteriorProbabilityFormulationType );
 
   /**
    * Set whether or not to use the mixture model proportions.  These proportion
@@ -453,9 +455,10 @@ public:
    * seperate smoothing weight value.
    */
   void SetAdaptiveSmoothingWeight( unsigned int idx, RealType weight )
-    {
+  {
     RealType clampedWeight = vnl_math_min( NumericTraits<RealType>::One,
-      vnl_math_max( NumericTraits<RealType>::Zero, weight ) );
+                                           vnl_math_max( NumericTraits<RealType>::Zero, weight ) );
+
     if( idx >= this->m_AdaptiveSmoothingWeights.size() )
       {
       this->m_AdaptiveSmoothingWeights.resize( idx + 1 );
@@ -467,13 +470,13 @@ public:
       this->m_AdaptiveSmoothingWeights[idx] = clampedWeight;
       this->Modified();
       }
-    }
+  }
 
   /**
    * Get the adaptive smoothing weight for a specific intensity image.
    */
   RealType GetAdaptiveSmoothingWeight( unsigned int idx )
-    {
+  {
     if( idx < this->m_AdaptiveSmoothingWeights.size() )
       {
       return this->m_AdaptiveSmoothingWeights[idx];
@@ -482,7 +485,7 @@ public:
       {
       return 0;
       }
-    }
+  }
 
   /**
    * Set the prior label parameters.  For each class/label for label propagation
@@ -493,18 +496,18 @@ public:
    * by an exponential characterized by the decay parameter.
    */
   void SetPriorLabelParameterMap( LabelParameterMapType m )
-    {
+  {
     this->m_PriorLabelParameterMap = m;
     this->Modified();
-    }
+  }
 
   /**
    * Get the prior label parameters.
    */
   void GetPriorLabelParameterMap()
-    {
+  {
     return this->m_PriorLabelParameterMap;
-    }
+  }
 
   /**
    * Set the prior probability weight.  Determines what percentage of the
@@ -618,9 +621,9 @@ public:
    * A likelihood function must be assigned for each class.
    */
   void SetLikelihoodFunction( unsigned int n, LikelihoodFunctionType *prob )
-    {
+  {
     if( n < this->m_MixtureModelComponents.size() &&
-      this->m_MixtureModelComponents[n] != prob )
+        this->m_MixtureModelComponents[n] != prob )
       {
       this->m_MixtureModelComponents[n] = prob;
       this->Modified();
@@ -631,13 +634,13 @@ public:
       this->m_MixtureModelComponents[n] = prob;
       this->Modified();
       }
-    }
+  }
 
   /**
    * Get the likelihood function for a specified class.
    */
   LikelihoodFunctionType * GetLikelihoodFunction( unsigned int n )
-    {
+  {
     if( n < this->m_MixtureModelComponents.size() )
       {
       return this->m_MixtureModelComponents[n].GetPointer();
@@ -646,7 +649,7 @@ public:
       {
       return NULL;
       }
-    }
+  }
 
   /**
    * Get the likelihood image for a specified class.  Note that this function
@@ -665,8 +668,7 @@ public:
    * Get the smooth intensity image.  Available when adaptive smoothing is
    * enabled.
    */
-  RealImagePointer
-    GetSmoothIntensityImageFromPriorImage( unsigned int, unsigned int );
+  RealImagePointer GetSmoothIntensityImageFromPriorImage( unsigned int, unsigned int );
 
   /**
    * Get the distance prior probability image.  Available when prior images are
@@ -717,21 +719,20 @@ public:
    * Get the ICM code image.
    */
   ClassifiedImagePointer GetICMCodeImage()
-    {
+  {
     return this->m_ICMCodeImage;
-    };
+  };
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
   itkConceptMacro( SameDimensionCheck1,
-    ( Concept::SameDimension<ImageDimension,
-    ClassifiedImageDimension> ) );
+                   ( Concept::SameDimension<ImageDimension,
+                                            ClassifiedImageDimension> ) );
   itkConceptMacro( SameDimensionCheck2,
-    ( Concept::SameDimension<ImageDimension,
-    MaskImageDimension> ) );
+                   ( Concept::SameDimension<ImageDimension,
+                                            MaskImageDimension> ) );
   /** End concept checking */
 #endif
-
 protected:
   AtroposSegmentationImageFilter();
   ~AtroposSegmentationImageFilter();
@@ -741,8 +742,8 @@ protected:
   void GenerateData();
 
 private:
-  AtroposSegmentationImageFilter( const Self& ); //purposely not implemented
-  void operator=( const Self& ); //purposely not implemented
+  AtroposSegmentationImageFilter( const Self & ); // purposely not implemented
+  void operator=( const Self & );                 // purposely not implemented
 
   /**
    * Initialize the segmentation labeling.
@@ -788,79 +789,76 @@ private:
    * Calculate the local posterior probability.
    */
   RealType CalculateLocalPosteriorProbability( RealType, RealType, RealType,
-    RealType, RealType, IndexType, unsigned int );
+                                               RealType, RealType, IndexType, unsigned int );
 
-  void EvaluateMRFNeighborhoodWeights(
-    ConstNeighborhoodIterator<ClassifiedImageType>, Array<RealType> & );
+  void EvaluateMRFNeighborhoodWeights(ConstNeighborhoodIterator<ClassifiedImageType>, Array<RealType> & );
 
-  RealType PerformLocalLabelingUpdate(
-    NeighborhoodIterator<ClassifiedImageType> );
-
+  RealType PerformLocalLabelingUpdate(NeighborhoodIterator<ClassifiedImageType> );
 
   // ivars
 
-  unsigned int                                   m_NumberOfTissueClasses;
-  unsigned int                                   m_NumberOfPartialVolumeClasses;
-  PartialVolumeClassesType                       m_PartialVolumeClasses;
-  bool                                           m_UsePartialVolumeLikelihoods;
+  unsigned int             m_NumberOfTissueClasses;
+  unsigned int             m_NumberOfPartialVolumeClasses;
+  PartialVolumeClassesType m_PartialVolumeClasses;
+  bool                     m_UsePartialVolumeLikelihoods;
 
-  unsigned int                                   m_NumberOfIntensityImages;
+  unsigned int m_NumberOfIntensityImages;
 
-  unsigned int                                   m_ElapsedIterations;
-  unsigned int                                   m_MaximumNumberOfIterations;
-  RealType                                       m_CurrentPosteriorProbability;
-  RealType                                       m_ConvergenceThreshold;
+  unsigned int m_ElapsedIterations;
+  unsigned int m_MaximumNumberOfIterations;
+  RealType     m_CurrentPosteriorProbability;
+  RealType     m_ConvergenceThreshold;
 
-  MaskLabelType                                  m_MaskLabel;
+  MaskLabelType m_MaskLabel;
 
-  std::vector<LikelihoodFunctionPointer>         m_MixtureModelComponents;
-  Array<RealType>                                m_MixtureModelProportions;
+  std::vector<LikelihoodFunctionPointer> m_MixtureModelComponents;
+  Array<RealType>                        m_MixtureModelProportions;
 
-  InitializationStrategyType                     m_InitializationStrategy;
-  ParametersType                                 m_InitialKMeansParameters;
+  InitializationStrategyType m_InitializationStrategy;
+  ParametersType             m_InitialKMeansParameters;
 
-  PosteriorProbabilityFormulationType            m_PosteriorProbabilityFormulation;
-  bool                                           m_UseMixtureModelProportions;
-  RealType                                       m_InitialAnnealingTemperature;
-  RealType                                       m_MinimumAnnealingTemperature;
-  RealType                                       m_AnnealingRate;
+  PosteriorProbabilityFormulationType m_PosteriorProbabilityFormulation;
+  bool                                m_UseMixtureModelProportions;
+  RealType                            m_InitialAnnealingTemperature;
+  RealType                            m_MinimumAnnealingTemperature;
+  RealType                            m_AnnealingRate;
 
   typename OutlierHandlingFilterType::Pointer    m_OutlierHandlingFilter;
 
   typename RandomizerType::Pointer               m_Randomizer;
 
-  ArrayType                                      m_MRFRadius;
-  RealType                                       m_MRFSmoothingFactor;
-  RealImagePointer                               m_MRFCoefficientImage;
+  ArrayType        m_MRFRadius;
+  RealType         m_MRFSmoothingFactor;
+  RealImagePointer m_MRFCoefficientImage;
 
-  unsigned int                                   m_MaximumICMCode;
-  ClassifiedImagePointer                         m_ICMCodeImage;
-  bool                                           m_UseAsynchronousUpdating;
-  unsigned int                                   m_MaximumNumberOfICMIterations;
+  unsigned int           m_MaximumICMCode;
+  ClassifiedImagePointer m_ICMCodeImage;
+  bool                   m_UseAsynchronousUpdating;
+  unsigned int           m_MaximumNumberOfICMIterations;
 
-  std::vector<RealType>                          m_AdaptiveSmoothingWeights;
-  RealType                                       m_PriorProbabilityWeight;
-  LabelParameterMapType                          m_PriorLabelParameterMap;
-  RealType                                       m_ProbabilityThreshold;
-  std::vector<RealImagePointer>                  m_PriorProbabilityImages;
-  std::vector<SparseImagePointer>                m_PriorProbabilitySparseImages;
+  std::vector<RealType>           m_AdaptiveSmoothingWeights;
+  RealType                        m_PriorProbabilityWeight;
+  LabelParameterMapType           m_PriorLabelParameterMap;
+  RealType                        m_ProbabilityThreshold;
+  std::vector<RealImagePointer>   m_PriorProbabilityImages;
+  std::vector<SparseImagePointer> m_PriorProbabilitySparseImages;
 
-  unsigned int                                   m_SplineOrder;
-  ArrayType                                      m_NumberOfLevels;
-  ArrayType                                      m_NumberOfControlPoints;
-  std::vector<ControlPointLatticeContainerType>  m_ControlPointLattices;
+  unsigned int                                  m_SplineOrder;
+  ArrayType                                     m_NumberOfLevels;
+  ArrayType                                     m_NumberOfControlPoints;
+  std::vector<ControlPointLatticeContainerType> m_ControlPointLattices;
 
-  RealImagePointer                               m_SumDistancePriorProbabilityImage;
-  RealImagePointer                               m_SumPosteriorProbabilityImage;
-  bool                                           m_MinimizeMemoryUsage;
+  RealImagePointer m_SumDistancePriorProbabilityImage;
+  RealImagePointer m_SumPosteriorProbabilityImage;
+  bool             m_MinimizeMemoryUsage;
 
-  bool                                           m_UseEuclideanDistanceForPriorLabels;
-  std::vector<RealImagePointer>                  m_DistancePriorProbabilityImages;
-  std::vector<RealImagePointer>                  m_PosteriorProbabilityImages;
+  bool                          m_UseEuclideanDistanceForPriorLabels;
+  std::vector<RealImagePointer> m_DistancePriorProbabilityImages;
+  std::vector<RealImagePointer> m_PosteriorProbabilityImages;
 
-  itk::Array<unsigned long>                      m_LabelVolumes;
+  itk::Array<unsigned long> m_LabelVolumes;
 
-  std::vector<const ImageType *>                 m_IntensityImages;
+  std::vector<const ImageType *> m_IntensityImages;
 
   typename ClassifiedImageType::ConstPointer     m_PriorLabelImage;
   typename MaskImageType::ConstPointer           m_MaskImage;
@@ -869,39 +867,40 @@ private:
 
   inline typename RealImageType::IndexType NumberToIndex(
     unsigned long number, const SizeType size ) const
-    {
+  {
     IndexType k;
-    k[0] = 1;
 
-    for ( unsigned int i = 1; i < ImageDimension; i++ )
+    k[0] = 1;
+    for( unsigned int i = 1; i < ImageDimension; i++ )
       {
-      k[i] = size[i-1]*k[i-1];
+      k[i] = size[i - 1] * k[i - 1];
       }
     IndexType index;
-    for ( unsigned int i = 0; i < ImageDimension; i++ )
+    for( unsigned int i = 0; i < ImageDimension; i++ )
       {
-      index[ImageDimension-i-1]
-        = static_cast<unsigned long>( number/k[ImageDimension-i-1] );
-      number %= k[ImageDimension-i-1];
+      index[ImageDimension - i - 1]
+        = static_cast<unsigned long>( number / k[ImageDimension - i - 1] );
+      number %= k[ImageDimension - i - 1];
       }
     return index;
-    }
+  }
 
   inline unsigned long IndexToNumber( const IndexType k,
-    const SizeType size ) const
-    {
+                                      const SizeType size ) const
+  {
     unsigned long number = k[0];
-    for ( unsigned int i = 1; i < ImageDimension; i++ )
+    for( unsigned int i = 1; i < ImageDimension; i++ )
       {
       unsigned long s = 1;
       for( unsigned int j = 0; j < i; j++ )
         {
         s *= size[j];
         }
-      number += s*k[i];
+      number += s * k[i];
       }
     return number;
-    }
+  }
+
 };
 
 } // namespace ants

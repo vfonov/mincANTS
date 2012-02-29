@@ -1,65 +1,65 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
-//#include "itkVectorImageFileReader.h"
+// #include "itkVectorImageFileReader.h"
 #include "itkVector.h"
 #include "itkMatrixOffsetTransformBase.h"
 #include "itkWarpImageMultiTransformFilter.h"
 #include "itkGridImageSource.h"
 
-template<class TValue>
+template <class TValue>
 TValue Convert( std::string optionString )
-            {
-            TValue value;
-            std::istringstream iss( optionString );
-            iss >> value;
-            return value;
-            }
+{
+  TValue             value;
+  std::istringstream iss( optionString );
 
-template<class TValue>
+  iss >> value;
+  return value;
+}
+
+template <class TValue>
 std::vector<TValue> ConvertVector( std::string optionString )
-            {
-            std::vector<TValue> values;
-            std::string::size_type crosspos = optionString.find( 'x', 0 );
+{
+  std::vector<TValue>    values;
+  std::string::size_type crosspos = optionString.find( 'x', 0 );
 
-            if ( crosspos == std::string::npos )
-                    {
-                    values.push_back( Convert<TValue>( optionString ) );
-                    }
-            else
-                    {
-                    std::string element = optionString.substr( 0, crosspos ) ;
-                    TValue value;
-                    std::istringstream iss( element );
-                    iss >> value;
-                    values.push_back( value );
-                    while ( crosspos != std::string::npos )
-                            {
-                            std::string::size_type crossposfrom = crosspos;
-                            crosspos = optionString.find( 'x', crossposfrom + 1 );
-                            if ( crosspos == std::string::npos )
-                                    {
-                                    element = optionString.substr( crossposfrom + 1, optionString.length() );
-                                    }
-                            else
-                                    {
-                                    element = optionString.substr( crossposfrom + 1, crosspos ) ;
-                                    }
-                            iss.str( element );
-                            iss >> value;
-                            values.push_back( value );
-                            }
-                    }
-            return values;
-            }
-
+  if( crosspos == std::string::npos )
+    {
+    values.push_back( Convert<TValue>( optionString ) );
+    }
+  else
+    {
+    std::string        element = optionString.substr( 0, crosspos );
+    TValue             value;
+    std::istringstream iss( element );
+    iss >> value;
+    values.push_back( value );
+    while( crosspos != std::string::npos )
+      {
+      std::string::size_type crossposfrom = crosspos;
+      crosspos = optionString.find( 'x', crossposfrom + 1 );
+      if( crosspos == std::string::npos )
+        {
+        element = optionString.substr( crossposfrom + 1, optionString.length() );
+        }
+      else
+        {
+        element = optionString.substr( crossposfrom + 1, crosspos );
+        }
+      iss.str( element );
+      iss >> value;
+      values.push_back( value );
+      }
+    }
+  return values;
+}
 
 template <unsigned int ImageDimension>
 int CreateWarpedGridImage( int argc, char *argv[] )
 {
 
-  typedef float RealType;
-  typedef itk::Image<RealType, ImageDimension> RealImageType;
-  typedef itk::Vector<RealType, ImageDimension> VectorType;
+  typedef float                                  RealType;
+  typedef itk::Image<RealType, ImageDimension>   RealImageType;
+  typedef itk::Vector<RealType, ImageDimension>  VectorType;
   typedef itk::Image<VectorType, ImageDimension> VectorImageType;
 
   /**
@@ -96,18 +96,17 @@ int CreateWarpedGridImage( int argc, char *argv[] )
       }
     else
       {
-      for ( unsigned int i = 0; i < ImageDimension; i++ )
+      for( unsigned int i = 0; i < ImageDimension; i++ )
         {
         which[i] = static_cast<bool>( directions[i] );
         }
       }
     }
-
-  for ( unsigned int i = 0; i < ImageDimension; i++ )
+  for( unsigned int i = 0; i < ImageDimension; i++ )
     {
     gridSpacing[i] = reader->GetOutput()->GetLargestPossibleRegion().GetSize()[i]
-      *reader->GetOutput()->GetSpacing()[i]/25.0;
-    gridSigma[i] = gridSpacing[i]/10.0;
+      * reader->GetOutput()->GetSpacing()[i] / 25.0;
+    gridSigma[i] = gridSpacing[i] / 10.0;
     }
   if( argc > 5 )
     {
@@ -120,10 +119,10 @@ int CreateWarpedGridImage( int argc, char *argv[] )
       }
     else
       {
-      for ( unsigned int i = 0; i < ImageDimension; i++ )
+      for( unsigned int i = 0; i < ImageDimension; i++ )
         {
         gridSpacing[i] = spacing[i];
-        gridSigma[i] = gridSpacing[i]/10.0;
+        gridSigma[i] = gridSpacing[i] / 10.0;
         }
       }
     }
@@ -138,9 +137,9 @@ int CreateWarpedGridImage( int argc, char *argv[] )
       }
     else
       {
-      for ( unsigned int i = 0; i < ImageDimension; i++ )
+      for( unsigned int i = 0; i < ImageDimension; i++ )
         {
-        gridSigma[i] = sigma[i]/10.0;
+        gridSigma[i] = sigma[i] / 10.0;
         }
       }
     }
@@ -149,23 +148,25 @@ int CreateWarpedGridImage( int argc, char *argv[] )
   gridder->SetSigma( gridSigma );
   gridder->SetWhichDimensions( which );
   gridder->Update();
-  typename RealImageType::Pointer grid=gridder->GetOutput();
-  grid->SetDirection(reader->GetOutput()->GetDirection());
-  grid->SetOrigin(reader->GetOutput()->GetOrigin());
-  grid->SetSpacing(reader->GetOutput()->GetSpacing());
+  typename RealImageType::Pointer grid = gridder->GetOutput();
+  grid->SetDirection(reader->GetOutput()->GetDirection() );
+  grid->SetOrigin(reader->GetOutput()->GetOrigin() );
+  grid->SetSpacing(reader->GetOutput()->GetSpacing() );
 
-    typedef itk::MatrixOffsetTransformBase< double, ImageDimension, ImageDimension > TransformType;
-    typedef itk::WarpImageMultiTransformFilter<RealImageType,RealImageType, VectorImageType, TransformType> WarperType;
-    typename WarperType::Pointer  warper = WarperType::New();
-    warper->SetInput(grid);
-    warper->SetEdgePaddingValue( 0);
-    warper->SetSmoothScale(1);
-    warper->PushBackDisplacementFieldTransform(reader->GetOutput());
-    warper->SetOutputOrigin(reader->GetOutput()->GetOrigin());
-    warper->SetOutputSize(reader->GetOutput()->GetLargestPossibleRegion().GetSize());
-    warper->SetOutputSpacing(reader->GetOutput()->GetSpacing());
-    warper->SetOutputDirection(reader->GetOutput()->GetDirection());
-    warper->Update();
+  typedef itk::MatrixOffsetTransformBase<double, ImageDimension,
+                                         ImageDimension>
+                                                                                                           TransformType;
+  typedef itk::WarpImageMultiTransformFilter<RealImageType, RealImageType, VectorImageType, TransformType> WarperType;
+  typename WarperType::Pointer  warper = WarperType::New();
+  warper->SetInput(grid);
+  warper->SetEdgePaddingValue( 0);
+  warper->SetSmoothScale(1);
+  warper->PushBackDisplacementFieldTransform(reader->GetOutput() );
+  warper->SetOutputOrigin(reader->GetOutput()->GetOrigin() );
+  warper->SetOutputSize(reader->GetOutput()->GetLargestPossibleRegion().GetSize() );
+  warper->SetOutputSpacing(reader->GetOutput()->GetSpacing() );
+  warper->SetOutputDirection(reader->GetOutput()->GetDirection() );
+  warper->Update();
 
   std::string file = std::string( argv[3] );
   typedef itk::ImageFileWriter<RealImageType> ImageWriterType;
@@ -179,26 +180,24 @@ int CreateWarpedGridImage( int argc, char *argv[] )
 
 int main( int argc, char *argv[] )
 {
-  if ( argc < 4 )
+  if( argc < 4 )
     {
     std::cout << "Usage: " << argv[0] << " ImageDimension deformationField "
-      << "outputImage [directions,e.g. 1x0x0] [gridSpacing] [gridSigma]"
-      << std::endl;
+              << "outputImage [directions,e.g. 1x0x0] [gridSpacing] [gridSigma]"
+              << std::endl;
     exit( 1 );
     }
 
   switch( atoi( argv[1] ) )
-   {
-   case 2:
-     CreateWarpedGridImage<2>( argc, argv );
-     break;
-   case 3:
-     CreateWarpedGridImage<3>( argc, argv );
-     break;
-   default:
+    {
+    case 2:
+      CreateWarpedGridImage<2>( argc, argv );
+      break;
+    case 3:
+      CreateWarpedGridImage<3>( argc, argv );
+      break;
+    default:
       std::cerr << "Unsupported dimension" << std::endl;
       exit( EXIT_FAILURE );
-   }
+    }
 }
-
-

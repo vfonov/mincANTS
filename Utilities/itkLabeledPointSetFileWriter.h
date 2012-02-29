@@ -36,10 +36,10 @@ class LabeledPointSetFileWriter : public Object
 {
 public:
   /** Standard "Self" typedef. */
-  typedef LabeledPointSetFileWriter               Self;
-  typedef Object                                  Superclass;
-  typedef SmartPointer<Self>                      Pointer;
-  typedef SmartPointer<const Self>                ConstPointer;
+  typedef LabeledPointSetFileWriter Self;
+  typedef Object                    Superclass;
+  typedef SmartPointer<Self>        Pointer;
+  typedef SmartPointer<const Self>  ConstPointer;
 
   /** Method for creation through the object factory */
   itkNewMacro( Self );
@@ -47,39 +47,38 @@ public:
   /** Write the Input mesh to the Output file.
    * Use either Update() or Write(). */
   void Update( void );
+
   void Write( void );
 
   /** Extract dimension from the output mesh. */
   itkStaticConstMacro( Dimension, unsigned int,
                        TInputMesh::PointType::Dimension );
 
-
   /** Run-time type information (and related methods). */
   itkTypeMacro( LabeledPointSetFileWriter, Object );
 
   /** Hold on to the type information specified by the template parameters. */
-  typedef TInputMesh                             InputMeshType;
-  typedef typename TInputMesh::Pointer           InputMeshPointer;
-  typedef typename InputMeshType::MeshTraits     MeshTraits;
-  typedef typename InputMeshType::Superclass     PointSetType;
-  typedef typename InputMeshType::PointType      PointType;
-  typedef typename MeshTraits::PixelType         PixelType;
-  typedef Array<PixelType>                       MultiComponentScalarType;
-  typedef Array<unsigned long>                   LineType;
+  typedef TInputMesh                         InputMeshType;
+  typedef typename TInputMesh::Pointer       InputMeshPointer;
+  typedef typename InputMeshType::MeshTraits MeshTraits;
+  typedef typename InputMeshType::Superclass PointSetType;
+  typedef typename InputMeshType::PointType  PointType;
+  typedef typename MeshTraits::PixelType     PixelType;
+  typedef Array<PixelType>                   MultiComponentScalarType;
+  typedef Array<unsigned long>               LineType;
   typedef VectorContainer<long,
-    MultiComponentScalarType>                    MultiComponentScalarSetType;
-  typedef VectorContainer<long, LineType>        LineSetType;
+                          MultiComponentScalarType>                    MultiComponentScalarSetType;
+  typedef VectorContainer<long, LineType> LineSetType;
   typedef Image<PixelType,
-    itkGetStaticConstMacro( Dimension )>         LabeledPointSetImageType;
+                itkGetStaticConstMacro( Dimension )>         LabeledPointSetImageType;
   typedef typename
-    LabeledPointSetImageType::SizeType           ImageSizeType;
+  LabeledPointSetImageType::SizeType           ImageSizeType;
   typedef typename
-    LabeledPointSetImageType::PointType          ImageOriginType;
+  LabeledPointSetImageType::PointType          ImageOriginType;
   typedef typename
-    LabeledPointSetImageType::SpacingType        ImageSpacingType;
+  LabeledPointSetImageType::SpacingType        ImageSpacingType;
   typedef typename
-    LabeledPointSetImageType::DirectionType      ImageDirectionType;
-
+  LabeledPointSetImageType::DirectionType      ImageDirectionType;
 
   /** Set the Input */
   void SetInput( InputMeshType * input );
@@ -92,7 +91,7 @@ public:
   itkSetMacro( Lines, typename LineSetType::Pointer );
 
   itkSetMacro( MultiComponentScalars,
-    typename MultiComponentScalarSetType::Pointer );
+               typename MultiComponentScalarSetType::Pointer );
 
   /** Specify image attributes if output is an image. */
   itkSetMacro( ImageSize, ImageSizeType );
@@ -106,15 +105,14 @@ public:
 
   itkSetMacro( ImageDirection, ImageDirectionType );
   itkGetConstMacro( ImageDirection, ImageDirectionType );
-
 protected:
   LabeledPointSetFileWriter();
   virtual ~LabeledPointSetFileWriter();
 
   virtual void GenerateData();
 
-  std::string                         m_FileName;
-  InputMeshPointer                    m_Input;
+  std::string      m_FileName;
+  InputMeshPointer m_Input;
 
   typename MultiComponentScalarSetType::Pointer   m_MultiComponentScalars;
   typename LineSetType::Pointer                   m_Lines;
@@ -122,30 +120,32 @@ protected:
   /**
    * If output is an image type, the attributes must be specified.
    */
-  ImageSizeType                       m_ImageSize;
-  ImageSpacingType                    m_ImageSpacing;
-  ImageOriginType                     m_ImageOrigin;
-  ImageDirectionType                  m_ImageDirection;
+  ImageSizeType      m_ImageSize;
+  ImageSpacingType   m_ImageSpacing;
+  ImageOriginType    m_ImageOrigin;
+  ImageDirectionType m_ImageDirection;
 
   void PrintSelf(std::ostream& os, Indent indent) const;
 
 private:
-  LabeledPointSetFileWriter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  LabeledPointSetFileWriter(const Self &); // purposely not implemented
+  void operator=(const Self &);            // purposely not implemented
 
   void WritePointsToAvantsFile();
+
   void WritePointsToImageFile();
 
-
   void WriteVTKFile();
+
   void WritePointsToVTKFile();
+
   void WriteScalarsToVTKFile();
+
   void WriteLinesToVTKFile();
 
 };
 
 } // namespace itk
-
 
 #ifndef ITK_MANUAL_INSTANTIATION
 #include "itkLabeledPointSetFileWriter.hxx"

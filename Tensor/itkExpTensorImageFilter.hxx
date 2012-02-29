@@ -40,33 +40,29 @@ ExpTensorImageFilter<TInputImage, TOutputImage>
 
 }
 
-template< class TInputImage, class TOutputImage>
+template <class TInputImage, class TOutputImage>
 void
-ExpTensorImageFilter< TInputImage, TOutputImage >
+ExpTensorImageFilter<TInputImage, TOutputImage>
 ::GenerateData()
 {
 
-  InputImagePointer input = this->GetInput();
+  InputImagePointer  input = this->GetInput();
   OutputImagePointer output = this->GetOutput();
 
-  ImageRegionConstIterator< InputImageType > inputIt( input, input->GetLargestPossibleRegion() );
+  ImageRegionConstIterator<InputImageType> inputIt( input, input->GetLargestPossibleRegion() );
 
   output->SetRegions( input->GetLargestPossibleRegion() );
   output->Allocate();
 
-  ImageRegionIterator< OutputImageType > outputIt( output, output->GetLargestPossibleRegion() );
-
-  for ( inputIt.GoToBegin(), outputIt.GoToBegin();
-    !inputIt.IsAtEnd() && !outputIt.IsAtEnd(); ++inputIt, ++outputIt)
-  {
+  ImageRegionIterator<OutputImageType> outputIt( output, output->GetLargestPossibleRegion() );
+  for( inputIt.GoToBegin(), outputIt.GoToBegin();
+       !inputIt.IsAtEnd() && !outputIt.IsAtEnd(); ++inputIt, ++outputIt )
+    {
     InputPixelType result = TensorLogAndExp<InputPixelType>(inputIt.Value(), false);
     outputIt.Set( result );
-  }
+    }
 
 }
-
-
-
 
 /**
  * Standard "PrintSelf" method
@@ -75,8 +71,8 @@ template <class TInputImage, class TOutput>
 void
 ExpTensorImageFilter<TInputImage, TOutput>
 ::PrintSelf(
-std::ostream& os,
-Indent indent) const
+  std::ostream& os,
+  Indent indent) const
 {
   Superclass::PrintSelf( os, indent );
 

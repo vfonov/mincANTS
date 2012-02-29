@@ -16,13 +16,12 @@
 
 =========================================================================*/
 
-
 #include <vector>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
 #include "ReadWriteImage.h"
-//#include "DoSomethingToImage.cxx"
+// #include "DoSomethingToImage.cxx"
 
 #include "itkMersenneTwisterRandomVariateGenerator.h"
 #include "itkHistogramMatchingImageFilter.h"
@@ -37,81 +36,88 @@
 
 // We divide the 2nd input image by its mean and add it to the first
 // input image with weight 1/n.
-//The output overwrites the 1st img with the sum.
+// The output overwrites the 1st img with the sum.
 
-//Note: could easily add variance computation
-//http://people.revoledu.com/kardi/tutorial/RecursiveStatistic/Time-Variance.htm
+// Note: could easily add variance computation
+// http://people.revoledu.com/kardi/tutorial/RecursiveStatistic/Time-Variance.htm
 #include "itkDiscreteGaussianImageFilter.h"
 
-
 template <class TImageType>
-void ReadImage(itk::SmartPointer<TImageType> &target, const char *file, bool copy)
+void ReadImage(itk::SmartPointer<TImageType> & target, const char *file, bool copy)
 {
   //  std::cout << " reading b " << std::string(file) << std::endl;
   typedef itk::ImageFileReader<TImageType> readertype;
   typename readertype::Pointer reader = readertype::New();
   reader->SetFileName(file);
   reader->Update();
-  if (!copy) target=(reader->GetOutput() );
-   else
+  if( !copy )
     {
-      typedef itk::ImageRegionIteratorWithIndex<TImageType> Iterator;
-      Iterator vfIter2( target,  target->GetLargestPossibleRegion() );
-      for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
-    {
-      vfIter2.Set( reader->GetOutput()->GetPixel(vfIter2.GetIndex() ));
+    target = (reader->GetOutput() );
     }
+  else
+    {
+    typedef itk::ImageRegionIteratorWithIndex<TImageType> Iterator;
+    Iterator vfIter2( target,  target->GetLargestPossibleRegion() );
+    for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+      {
+      vfIter2.Set( reader->GetOutput()->GetPixel(vfIter2.GetIndex() ) );
+      }
     }
 
 }
-
 
 double TProb(double t, int df)
 {
-  if (t == 0) return 0;
-        double a = 0.36338023;
-        double w = atan(t / sqrt((double)df));
-        double s = sin(w);
-        double c = cos(w);
+  if( t == 0 )
+    {
+    return 0;
+    }
+  double a = 0.36338023;
+  double w = atan(t / sqrt( (double)df) );
+  double s = sin(w);
+  double c = cos(w);
 
-        double t1, t2;
-        int j1, j2, k2;
+  double t1, t2;
+  int    j1, j2, k2;
 
-        if (df % 2 == 0)       // even
-        {
-                t1 = s;
-                if (df == 2)   // special case df=2
-                        return (0.5 * (1 + t1));
-                t2 = s;
-                j1 = -1;
-                j2 = 0;
-                k2 = (df - 2) / 2;
-        }
-        else
-        {
-                t1 = w;
-                if (df == 1)            // special case df=1
-                        return 1 - (0.5 * (1 + (t1 * (1 - a))));
-                t2 = s * c;
-                t1 = t1 + t2;
-                if (df == 3)            // special case df=3
-                        return 1 - (0.5 * (1 + (t1 * (1 - a))));
-                j1 = 0;
-                j2 = 1;
-                k2 = (df - 3)/2;
-        }
-        for (int i=1; i >= k2; i++)
-        {
-                j1 = j1 + 2;
-                j2 = j2 + 2;
-                t2 = t2 * c * c * j1/j2;
-                t1 = t1 + t2;
-        }
-        return 1 - (0.5 * (1 + (t1 * (1 - a * (df % 2)))));
+  if( df % 2 == 0 )            // even
+    {
+    t1 = s;
+    if( df == 2 )              // special case df=2
+      {
+      return 0.5 * (1 + t1);
+      }
+    t2 = s;
+    j1 = -1;
+    j2 = 0;
+    k2 = (df - 2) / 2;
+    }
+  else
+    {
+    t1 = w;
+    if( df == 1 )                       // special case df=1
+      {
+      return 1 - (0.5 * (1 + (t1 * (1 - a) ) ) );
+      }
+    t2 = s * c;
+    t1 = t1 + t2;
+    if( df == 3 )                       // special case df=3
+      {
+      return 1 - (0.5 * (1 + (t1 * (1 - a) ) ) );
+      }
+    j1 = 0;
+    j2 = 1;
+    k2 = (df - 3) / 2;
+    }
+  for( int i = 1; i >= k2; i++ )
+    {
+    j1 = j1 + 2;
+    j2 = j2 + 2;
+    t2 = t2 * c * c * j1 / j2;
+    t1 = t1 + t2;
+    }
+  return 1 - (0.5 * (1 + (t1 * (1 - a * (df % 2) ) ) ) );
 }
-
-
-
 
 template <class TImage>
 typename TImage::Pointer
@@ -127,15 +133,19 @@ SmoothImage(typename TImage::Pointer image, float sig)
   return filter->GetOutput();
 }
 
-
 template <class TInputImage>
-//typename TInputImage::Pointer
+// typename TInputImage::Pointer
 void
-HistogramMatch(typename TInputImage::Pointer m_InputFixedImage,  typename TInputImage::Pointer m_InputMovingImage)//  typename TInputImage::Pointer m_OutputMovingImage )
+HistogramMatch(typename TInputImage::Pointer m_InputFixedImage,  typename TInputImage::Pointer m_InputMovingImage) //
+                                                                                                                   //
+                                                                                                                   // typename
+                                                                                                                   // TInputImage::Pointer
+                                                                                                                   // m_OutputMovingImage
+                                                                                                                   // )
 {
   std::cout << " MATCHING INTENSITIES " << std::endl;
 
-  typedef itk::HistogramMatchingImageFilter<TInputImage,TInputImage> FilterType;
+  typedef itk::HistogramMatchingImageFilter<TInputImage, TInputImage> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
   filter->SetInput( m_InputMovingImage );
   filter->SetReferenceImage( m_InputFixedImage );
@@ -150,108 +160,109 @@ HistogramMatch(typename TInputImage::Pointer m_InputFixedImage,  typename TInput
   Iterator vfIter( img,   img->GetLargestPossibleRegion() );
   for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
     {
-      m_InputMovingImage->SetPixel(vfIter.GetIndex(), vfIter.Get() );
+    m_InputMovingImage->SetPixel(vfIter.GetIndex(), vfIter.Get() );
     }
-
 
   return;
 }
-
 
 template <class TImage>
 void
 LocalMean(typename TImage::Pointer image, unsigned int nhood,  typename TImage::Pointer meanimage )
 {
 
-  typename TImage::Pointer localmean=MakeNewImage<TImage>(image,0);
+  typename TImage::Pointer localmean = MakeNewImage<TImage>(image, 0);
 
   typedef itk::ImageRegionIteratorWithIndex<TImage> Iterator;
   Iterator outIter(image, image->GetLargestPossibleRegion() );
-  typename TImage::SizeType imagesize=image->GetLargestPossibleRegion().GetSize();
+  typename TImage::SizeType imagesize = image->GetLargestPossibleRegion().GetSize();
   const unsigned int ImageDimension = 3;
 
-  typedef itk::NeighborhoodIterator<TImage>  iteratorType;
+  typedef itk::NeighborhoodIterator<TImage> iteratorType;
   typename iteratorType::RadiusType rad;
-  for( unsigned int j = 0; j < ImageDimension; j++ )    rad[j] = nhood;
+  for( unsigned int j = 0; j < ImageDimension; j++ )
+    {
+    rad[j] = nhood;
+    }
   for( outIter.GoToBegin(); !outIter.IsAtEnd(); ++outIter )
     {
 
-      itk::NeighborhoodIterator<TImage>  hoodIt( rad,image ,image->GetLargestPossibleRegion());
-      typename TImage::IndexType oindex = outIter.GetIndex();
-      hoodIt.SetLocation(oindex);
+    itk::NeighborhoodIterator<TImage> hoodIt( rad, image, image->GetLargestPossibleRegion() );
+    typename TImage::IndexType oindex = outIter.GetIndex();
+    hoodIt.SetLocation(oindex);
 
-      double fixedMean=0;
-      //double movingMean=0;
+    double fixedMean = 0;
+    // double movingMean=0;
 
-      unsigned int indct;
-      unsigned int hoodlen=hoodIt.Size();
+    unsigned int indct;
+    unsigned int hoodlen = hoodIt.Size();
 
-      //unsigned int inct=0;
+    // unsigned int inct=0;
 
-      bool takesample = true;
+    bool takesample = true;
 
-      //double sumj=0;
-      //double sumi=0;
-      if (takesample)
-    {
+    // double sumj=0;
+    // double sumi=0;
+    if( takesample )
+      {
 
-      //double sumj=0;
-      double sumi=0;
-      unsigned int cter=0;
-      for(indct=0; indct<hoodlen; indct++)
-    {
-      typename TImage::IndexType index=hoodIt.GetIndex(indct);
-      bool inimage=true;
-      for (unsigned int dd=0; dd<ImageDimension; dd++)
+      // double sumj=0;
+      double       sumi = 0;
+      unsigned int cter = 0;
+      for( indct = 0; indct < hoodlen; indct++ )
         {
-          if ( index[dd] < 0 || index[dd] > static_cast<typename TImage::IndexType::IndexValueType>(imagesize[dd]-1) ) inimage=false;
-        }
+        typename TImage::IndexType index = hoodIt.GetIndex(indct);
+        bool inimage = true;
+        for( unsigned int dd = 0; dd < ImageDimension; dd++ )
+          {
+          if( index[dd] < 0 || index[dd] > static_cast<typename TImage::IndexType::IndexValueType>(imagesize[dd] - 1) )
+            {
+            inimage = false;
+            }
+          }
 
-      if (inimage)
-        {
-          sumi+=image->GetPixel(index);
+        if( inimage )
+          {
+          sumi += image->GetPixel(index);
           cter++;
+          }
         }
-    }
 
-      if (cter > 0) fixedMean=sumi/(float)cter;
-    }
+      if( cter > 0 )
+        {
+        fixedMean = sumi / (float)cter;
+        }
+      }
 
-      float val = image->GetPixel(oindex) - fixedMean;
-      meanimage->SetPixel( oindex, meanimage->GetPixel(oindex) +fixedMean);
-      localmean->SetPixel( oindex, val );
+    float val = image->GetPixel(oindex) - fixedMean;
+    meanimage->SetPixel( oindex, meanimage->GetPixel(oindex) + fixedMean);
+    localmean->SetPixel( oindex, val );
     }
-
 
   typedef itk::ImageRegionIteratorWithIndex<TImage> Iterator;
   Iterator vfIter( image,   image->GetLargestPossibleRegion() );
   for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
     {
-      vfIter.Set(  localmean->GetPixel( vfIter.GetIndex() ));
+    vfIter.Set(  localmean->GetPixel( vfIter.GetIndex() ) );
 
     }
 
-
-
-  return;// localmean;
+  return; // localmean;
 
 }
 
-
-
-
 template <class TImage>
-//std::vector<unsigned int>
+// std::vector<unsigned int>
 float
 GetClusterStat(typename TImage::Pointer image, float Tthreshold, unsigned int minSize, unsigned int whichstat,
-           std::string outfn, bool TRUTH)
+               std::string outfn, bool TRUTH)
 {
-  typedef float InternalPixelType;
-  typedef TImage InternalImageType;
-  typedef TImage OutputImageType;
-  typedef itk::BinaryThresholdImageFilter< InternalImageType, InternalImageType > ThresholdFilterType;
-  typedef itk::ConnectedComponentImageFilter< InternalImageType, OutputImageType > FilterType;
-  typedef itk::RelabelComponentImageFilter< OutputImageType, OutputImageType > RelabelType;
+  typedef float                                                                  InternalPixelType;
+  typedef TImage                                                                 InternalImageType;
+  typedef TImage                                                                 OutputImageType;
+  typedef itk::BinaryThresholdImageFilter<InternalImageType, InternalImageType>  ThresholdFilterType;
+  typedef itk::ConnectedComponentImageFilter<InternalImageType, OutputImageType> FilterType;
+  typedef itk::RelabelComponentImageFilter<OutputImageType, OutputImageType>     RelabelType;
 
   typename ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
   typename FilterType::Pointer filter = FilterType::New();
@@ -261,22 +272,22 @@ GetClusterStat(typename TImage::Pointer image, float Tthreshold, unsigned int mi
   threshold_low = Tthreshold;
   threshold_hi = 1.e9;
 
-  threshold->SetInput (image);
+  threshold->SetInput(image);
   threshold->SetInsideValue(itk::NumericTraits<InternalPixelType>::One);
   threshold->SetOutsideValue(itk::NumericTraits<InternalPixelType>::Zero);
   threshold->SetLowerThreshold(threshold_low);
   threshold->SetUpperThreshold(threshold_hi);
   threshold->Update();
 
-  filter->SetInput (threshold->GetOutput());
+  filter->SetInput(threshold->GetOutput() );
   // if (argc > 5)
     {
-      int fullyConnected = 1;//atoi( argv[5] );
-      filter->SetFullyConnected( fullyConnected );
+    int fullyConnected = 1;  // atoi( argv[5] );
+    filter->SetFullyConnected( fullyConnected );
     }
-    relabel->SetInput( filter->GetOutput() );
-    relabel->SetMinimumObjectSize( minSize );
-    //    relabel->SetUseHistograms(true);
+  relabel->SetInput( filter->GetOutput() );
+  relabel->SetMinimumObjectSize( minSize );
+  //    relabel->SetUseHistograms(true);
 
   try
     {
@@ -288,8 +299,8 @@ GetClusterStat(typename TImage::Pointer image, float Tthreshold, unsigned int mi
     std::cerr << excep << std::endl;
     }
 
-  typename TImage::Pointer Clusters=MakeNewImage<TImage>(relabel->GetOutput(),0);
-  //typename TImage::Pointer Clusters=relabel->GetOutput();
+  typename TImage::Pointer Clusters = MakeNewImage<TImage>(relabel->GetOutput(), 0);
+  // typename TImage::Pointer Clusters=relabel->GetOutput();
   typedef itk::ImageRegionIteratorWithIndex<TImage> Iterator;
   Iterator vfIter( relabel->GetOutput(),  relabel->GetOutput()->GetLargestPossibleRegion() );
 
@@ -322,265 +333,354 @@ GetClusterStat(typename TImage::Pointer image, float Tthreshold, unsigned int mi
     }
     }
   */
-  float maximum=relabel->GetNumberOfObjects();
-  float maxtstat=0;
-  std::vector<unsigned int> histogram((int)maximum+1);
-  std::vector<float> clustersum((int)maximum+1);
-  for (int i=0; i<=maximum; i++)
+  float                     maximum = relabel->GetNumberOfObjects();
+  float                     maxtstat = 0;
+  std::vector<unsigned int> histogram( (int)maximum + 1);
+  std::vector<float>        clustersum( (int)maximum + 1);
+  for( int i = 0; i <= maximum; i++ )
     {
-      histogram[i]=0;
-      clustersum[i]=0;
+    histogram[i] = 0;
+    clustersum[i] = 0;
     }
   for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
     {
-      if (vfIter.Get() > 0 )
-    {
-      float vox=image->GetPixel(vfIter.GetIndex());
-      histogram[(unsigned int)vfIter.Get()]=histogram[(unsigned int)vfIter.Get()]+1;
-      clustersum[(unsigned int)vfIter.Get()]+=vox;
-      if (vox > maxtstat) maxtstat=vox;
+    if( vfIter.Get() > 0 )
+      {
+      float vox = image->GetPixel(vfIter.GetIndex() );
+      histogram[(unsigned int)vfIter.Get()] = histogram[(unsigned int)vfIter.Get()] + 1;
+      clustersum[(unsigned int)vfIter.Get()] += vox;
+      if( vox > maxtstat )
+        {
+        maxtstat = vox;
+        }
+      }
     }
-    }
-
   for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
     {
-      if (vfIter.Get() > 0 )
-    {
-      if (whichstat == 0) //size
+    if( vfIter.Get() > 0 )
+      {
+      if( whichstat == 0 ) // size
         {
-          Clusters->SetPixel( vfIter.GetIndex(), histogram[(unsigned int)vfIter.Get()]  );
+        Clusters->SetPixel( vfIter.GetIndex(), histogram[(unsigned int)vfIter.Get()]  );
         }
-      if (whichstat == 1) //sum
+      if( whichstat == 1 ) // sum
         {
-          Clusters->SetPixel( vfIter.GetIndex(), clustersum[(unsigned int)vfIter.Get()] );
+        Clusters->SetPixel( vfIter.GetIndex(), clustersum[(unsigned int)vfIter.Get()] );
         }
-      if (whichstat == 2) //mean
+      if( whichstat == 2 ) // mean
         {
-          Clusters->SetPixel( vfIter.GetIndex(), clustersum[(unsigned int)vfIter.Get()]/(float)histogram[(unsigned int)vfIter.Get()]  );
+        Clusters->SetPixel( vfIter.GetIndex(), clustersum[(unsigned int)vfIter.Get()]
+                            / (float)histogram[(unsigned int)vfIter.Get()]  );
         }
-      if (whichstat == 3) //max
+      if( whichstat == 3 ) // max
         {
-          Clusters->SetPixel( vfIter.GetIndex(), histogram[(unsigned int)vfIter.Get()]  );
+        Clusters->SetPixel( vfIter.GetIndex(), histogram[(unsigned int)vfIter.Get()]  );
         }
-    }
-      else Clusters->SetPixel(vfIter.GetIndex(),0);
+      }
+    else
+      {
+      Clusters->SetPixel(vfIter.GetIndex(), 0);
+      }
     }
 
   //  for (int i=0; i<=maximum; i++)
   //  std::cout << " label " << i << " ct is: " << histogram[i] << std::endl;
 
-  if (TRUTH)
-  {
+  if( TRUTH )
+    {
     typedef itk::ImageFileWriter<InternalImageType> writertype;
     typename writertype::Pointer writer = writertype::New();
-    writer->SetFileName(  (outfn+std::string("Clusters.nii")).c_str());
+    writer->SetFileName(  (outfn + std::string("Clusters.nii") ).c_str() );
     writer->SetInput( Clusters );
     writer->Write();
-  }
-
-  if (whichstat == 0)  return histogram[1];
-  else if (whichstat == 1)
-    {
-      float mx=0;
-      for (int i=1; i<=maximum; i++) if (clustersum[i] > mx) mx=clustersum[i];
-      return mx;
     }
-  else if (whichstat == 2)
-    {
-      float mx=0;
-      for (int i=1; i<=maximum; i++)
-    if (clustersum[i]/(float)histogram[i] > mx) mx=clustersum[i]/(float)histogram[i]*1000.0;
-      return mx;
-    }
-  else if (whichstat == 3) return maxtstat*1000.0;
-  else return histogram[1];
 
+  if( whichstat == 0 )
+    {
+    return histogram[1];
+    }
+  else if( whichstat == 1 )
+    {
+    float mx = 0;
+    for( int i = 1; i <= maximum; i++ )
+      {
+      if( clustersum[i] > mx )
+        {
+        mx = clustersum[i];
+        }
+      }
+    return mx;
+    }
+  else if( whichstat == 2 )
+    {
+    float mx = 0;
+    for( int i = 1; i <= maximum; i++ )
+      {
+      if( clustersum[i] / (float)histogram[i] > mx )
+        {
+        mx = clustersum[i] / (float)histogram[i] * 1000.0;
+        }
+      }
+    return mx;
+    }
+  else if( whichstat == 3 )
+    {
+    return maxtstat * 1000.0;
+    }
+  else
+    {
+    return histogram[1];
+    }
 
 }
 
+float median(std::vector<float> vec)
+{
+  typedef  std::vector<float>::size_type vec_sz;
+  vec_sz size = vec.size();
 
-  float median(std::vector<float> vec) {
-        typedef  std::vector<float>::size_type vec_sz;
-        vec_sz size = vec.size();
+  if( size == 0 )
+    {
+    return 0;
+    }
+  //            throw domain_error("median of an empty vector");
 
-        if (size == 0) return 0;
-          //            throw domain_error("median of an empty vector");
+  sort(vec.begin(), vec.end() );
 
-        sort(vec.begin(),vec.end());
+  vec_sz mid = size / 2;
 
-        vec_sz mid = size/2;
+  return size % 2 == 0
+         ? (vec[mid] + vec[mid - 1]) / 2
+         : vec[mid];
+}
 
-        return size % 2 == 0
-            ? (vec[mid] + vec[mid-1]) / 2
-            : vec[mid];
-     }
+float npdf(std::vector<float> vec, bool opt,  float www)
+{
+  typedef  std::vector<float>::size_type vec_sz;
+  vec_sz size = vec.size();
 
-float npdf(std::vector<float> vec, bool opt,  float www) {
-        typedef  std::vector<float>::size_type vec_sz;
-        vec_sz size = vec.size();
+  if( size == 0 )
+    {
+    return 0;
+    }
+  //            throw domain_error("median of an empty vector");
 
-        if (size == 0) return 0;
-          //            throw domain_error("median of an empty vector");
+  float mean = 0, var = 0;
+  float max = -1.e9, min = 1.e9;
+  for( unsigned int i = 0; i < size; i++ )
+    {
+    float val = vec[i];
+    if( val > max )
+      {
+      max = val;
+      }
+    else if( val < min )
+      {
+      min = val;
+      }
+    float n = (float) (i + 1);
+    float wt1 = 1.0 / (float)n;
+    float wt2 = 1.0 - wt1;
+    mean = mean * wt2 + val * wt1;
+    if( i > 0 )
+      {
+      float wt3 = 1.0 / ( (float) n - 1.0 );
+      var = var * wt2 + ( val - mean ) * ( val - mean) * wt3;
+      }
+    }
 
-        float mean=0,var=0;
-        float max=-1.e9,min=1.e9;
-        for (unsigned int i=0; i<size; i++)
-          {
-            float val = vec[i];
-            if (val > max) max=val;
-            else if (val < min) min=val;
-            float n = (float) (i+1);
-            float wt1 = 1.0/(float)n;
-            float wt2 = 1.0-wt1;
-            mean = mean*wt2+val*wt1;
-            if ( i > 0)
-              {
-            float wt3 = 1.0/( (float) n - 1.0 );
-            var = var*wt2 + ( val - mean )*( val - mean)*wt3;
-              }
-          }
+  if( var == 0 )
+    {
+    return mean;
+    }
+  //    else std::cout << " Mean " << mean << " var " << var << std::endl;
 
-        if (var == 0) return mean;
-        //    else std::cout << " Mean " << mean << " var " << var << std::endl;
-
-        // eval parzen probability
-        std::vector<float> prob(size);
-        float maxprob=0;
+  // eval parzen probability
+  std::vector<float> prob(size);
+  float              maxprob = 0;
 //        float maxprobval=0;
-        float weightedmean=0;
-        float weighttotal=0;
-        unsigned int maxprobind=0;
+  float        weightedmean = 0;
+  float        weighttotal = 0;
+  unsigned int maxprobind = 0;
 //        float sample=0.0;
-        float width;
-        if (www > 0 ) width = www;  else width = sqrt(var)/2.0;
-        //        std::cout << " using width " << width << std::endl;
+  float width;
+  if( www > 0 )
+    {
+    width = www;
+    }
+  else
+    {
+    width = sqrt(var) / 2.0;
+    }
+  //        std::cout << " using width " << width << std::endl;
 //        float N=(float)size;
-        for (unsigned int j=0; j<size; j++)
-          {
-        float sample=vec[j];
-        float total=0.0;
-        for (unsigned int i=0; i<size; i++)
-          {
-            float delt=vec[i]-sample;
-            delt*=delt;
-            prob[i]=1.0/(2.0*3.1214*width)*exp(-0.5*delt/(width*width));
-            total+=prob[i];
-            //            maxprobval+=prob[i]
-          }
-        if (total > maxprob){ maxprob=total; maxprobind=j; }
+  for( unsigned int j = 0; j < size; j++ )
+    {
+    float sample = vec[j];
+    float total = 0.0;
+    for( unsigned int i = 0; i < size; i++ )
+      {
+      float delt = vec[i] - sample;
+      delt *= delt;
+      prob[i] = 1.0 / (2.0 * 3.1214 * width) * exp(-0.5 * delt / (width * width) );
+      total += prob[i];
+      //            maxprobval+=prob[i]
+      }
+    if( total > maxprob )
+      {
+      maxprob = total; maxprobind = j;
+      }
 
-        weightedmean+=sample*total;
-        weighttotal+=total;
-        //        for (unsigned int i=0; i<size; i++) prob[i]=prob[i]/total;
-          }
+    weightedmean += sample * total;
+    weighttotal += total;
+    //        for (unsigned int i=0; i<size; i++) prob[i]=prob[i]/total;
+    }
 
-        weightedmean/=weighttotal;
-        // pxa = 1./N * total ( gaussian )
-        maxprob=vec[maxprobind];
-        if ( opt ) return maxprob;
-        else return weightedmean;//vec[maxprobind];
+  weightedmean /= weighttotal;
+  // pxa = 1./N * total ( gaussian )
+  maxprob = vec[maxprobind];
+  if( opt )
+    {
+    return maxprob;
+    }
+  else
+    {
+    return weightedmean;         // vec[maxprobind];
 
-  }
+    }
+}
 
+float trimmean(std::vector<float> vec)
+{
+  typedef  std::vector<float>::size_type vec_sz;
+  vec_sz size = vec.size();
 
-  float trimmean(std::vector<float> vec) {
-        typedef  std::vector<float>::size_type vec_sz;
-        vec_sz size = vec.size();
+  if( size == 0 )
+    {
+    return 0;
+    }
+  //            throw domain_error("median of an empty vector");
 
-        if (size == 0) return 0;
-          //            throw domain_error("median of an empty vector");
+  sort(vec.begin(), vec.end() );
 
-        sort(vec.begin(),vec.end());
+  vec_sz mid = size / 2;
 
-        vec_sz mid = size/2;
+  float lo = mid - (0.1 * size + 1);
+  float hi = mid + (0.1 * size + 1);
+  lo = 0;
+  hi = size;
+  float ct = hi - lo;
+  float total = 0;
+  for( unsigned int i = (unsigned int)lo; i < hi; i++ )
+    {
+    total += vec[i];
+    }
+  return total / (float)ct;
 
-        float lo=mid-(0.1*size+1);
-        float hi=mid+(0.1*size+1);
-        lo=0;
-        hi=size;
-        float ct=hi-lo;
-        float total=0;
-        for (unsigned int i=(unsigned int)lo; i<hi; i++) total+=vec[i];
-        return total/(float)ct;
+}
 
+float myantsmax(std::vector<float> vec)
+{
+  typedef  std::vector<float>::size_type vec_sz;
+  vec_sz size = vec.size();
+  if( size == 0 )
+    {
+    return 0;
+    }
 
-     }
+  float max = -1.e9;
+  for( unsigned int i = 0; i < size; i++ )
+    {
+    float val = vec[i];
+    if( val > max )
+      {
+      max = val;
+      }
+    }
+  return max;
+}
 
+float myantssimilaritymaxlabel(std::vector<float> labelvec, std::vector<float> similarityvec, bool opt)
+{
+  typedef  std::vector<float>::size_type vec_sz;
+  vec_sz size = labelvec.size();
+  if( size == 0 )
+    {
+    return 0;
+    }
 
-
-  float myantsmax(std::vector<float> vec) {
-        typedef  std::vector<float>::size_type vec_sz;
-        vec_sz size = vec.size();
-        if (size == 0) return 0;
-
-        float max=-1.e9;
-        for (unsigned int i=0; i<size; i++)
-          {
-            float val = vec[i];
-            if (val > max) max=val;
-          }
-        return max;
-     }
-
-float myantssimilaritymaxlabel(std::vector<float> labelvec, std::vector<float> similarityvec, bool opt) {
-        typedef  std::vector<float>::size_type vec_sz;
-        vec_sz size = labelvec.size();
-        if (size == 0) return 0;
-
-        unsigned int max=0;
-        float maxsim=-1.e9;
-        float totalsim=0;
-        float estapp=0;
-        for (unsigned int i=0; i<size; i++) totalsim+=similarityvec[i];
-        if ( fabs(totalsim) <= 0 ) return 0;
-        for (unsigned int i=0; i<size; i++)
-          {
-            float simval = similarityvec[i];
-            float appval = labelvec[i];
-            estapp+=appval*simval/totalsim;
-            if (simval > maxsim) { maxsim=simval; max=i; }
-            //            std::cout << " simval " << simval << " i " << i << " appval " << appval << " maxsim " << maxsim << " max " << max << std::endl;
-          }
-        //        std::cout <<"  estapp " << estapp << " max " << max << std::endl;
-        //return estapp;
-        if ( opt == true )
-        return labelvec[max];
-        else
-          return max;
-     }
-
-
+  unsigned int max = 0;
+  float        maxsim = -1.e9;
+  float        totalsim = 0;
+  float        estapp = 0;
+  for( unsigned int i = 0; i < size; i++ )
+    {
+    totalsim += similarityvec[i];
+    }
+  if( fabs(totalsim) <= 0 )
+    {
+    return 0;
+    }
+  for( unsigned int i = 0; i < size; i++ )
+    {
+    float simval = similarityvec[i];
+    float appval = labelvec[i];
+    estapp += appval * simval / totalsim;
+    if( simval > maxsim )
+      {
+      maxsim = simval; max = i;
+      }
+    //            std::cout << " simval " << simval << " i " << i << " appval " << appval << " maxsim " << maxsim << "
+    // max " << max << std::endl;
+    }
+  //        std::cout <<"  estapp " << estapp << " max " << max << std::endl;
+  // return estapp;
+  if( opt == true )
+    {
+    return labelvec[max];
+    }
+  else
+    {
+    return max;
+    }
+}
 
 template <unsigned int ImageDimension>
 int ImageSetStatistics(int argc, char *argv[])
 {
-  typedef float  PixelType;
-  typedef itk::Vector<float,ImageDimension>         VectorType;
-  typedef itk::Image<VectorType,ImageDimension>     FieldType;
-  typedef itk::Image<PixelType,ImageDimension> ImageType;
-  typedef itk::ImageFileReader<ImageType> readertype;
-  typedef itk::ImageFileWriter<ImageType> writertype;
-  typedef typename ImageType::IndexType IndexType;
-  typedef typename ImageType::SizeType SizeType;
-  typedef typename ImageType::SpacingType SpacingType;
-  typedef itk::AffineTransform<double,ImageDimension>   AffineTransformType;
-  typedef itk::LinearInterpolateImageFunction<ImageType,double>  InterpolatorType1;
-  typedef itk::NearestNeighborInterpolateImageFunction<ImageType,double>  InterpolatorType2;
-  typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-  unsigned int mch=0;
-  int argct=2;
-  std::string fn1 = std::string(argv[argct]); argct++;
-  std::string outfn = std::string(argv[argct]);argct++;
-  unsigned int whichstat = atoi(argv[argct]);argct++;
-  std::string roifn="";
-  if (argc > argct){ roifn=std::string(argv[argct]); argct++; }
-  std::string simimagelist=std::string("");
-  if (argc > argct){ simimagelist=std::string(argv[argct]); argct++; }
+  typedef float                                                           PixelType;
+  typedef itk::Vector<float, ImageDimension>                              VectorType;
+  typedef itk::Image<VectorType, ImageDimension>                          FieldType;
+  typedef itk::Image<PixelType, ImageDimension>                           ImageType;
+  typedef itk::ImageFileReader<ImageType>                                 readertype;
+  typedef itk::ImageFileWriter<ImageType>                                 writertype;
+  typedef typename ImageType::IndexType                                   IndexType;
+  typedef typename ImageType::SizeType                                    SizeType;
+  typedef typename ImageType::SpacingType                                 SpacingType;
+  typedef itk::AffineTransform<double, ImageDimension>                    AffineTransformType;
+  typedef itk::LinearInterpolateImageFunction<ImageType, double>          InterpolatorType1;
+  typedef itk::NearestNeighborInterpolateImageFunction<ImageType, double> InterpolatorType2;
+  typedef itk::ImageRegionIteratorWithIndex<ImageType>                    Iterator;
+  unsigned int mch = 0;
+  int          argct = 2;
+  std::string  fn1 = std::string(argv[argct]); argct++;
+  std::string  outfn = std::string(argv[argct]); argct++;
+  unsigned int whichstat = atoi(argv[argct]); argct++;
+  std::string  roifn = "";
+  if( argc > argct )
+    {
+    roifn = std::string(argv[argct]); argct++;
+    }
+  std::string simimagelist = std::string("");
+  if( argc > argct )
+    {
+    simimagelist = std::string(argv[argct]); argct++;
+    }
   float www = 0;
   // if (argc > argct) { www=atof(argv[argct]);argct++;}
   //  unsigned int mchmax= 0;
   // if (argc > argct) { mchmax=atoi(argv[argct]); argct++;}
-  unsigned int localmeanrad= 0;
+  unsigned int localmeanrad = 0;
   // if (argc > argct) { localmeanrad=atoi(argv[argct]);argct++;}
 
   //  std::cout <<" roifn " << roifn << " fn1 " << fn1 << " whichstat " << whichstat << std::endl;
@@ -588,277 +688,338 @@ int ImageSetStatistics(int argc, char *argv[])
   typename ImageType::Pointer outimage = NULL;
   typename ImageType::Pointer ROIimg = NULL;
 
-  if (roifn.length() > 4)
+  if( roifn.length() > 4 )
     {
-      std::cout <<" reading roi image " << roifn << std::endl;
-      typename readertype::Pointer reader2 = readertype::New();
-      reader2->SetFileName(roifn.c_str());
-      reader2->UpdateLargestPossibleRegion();
-      try
-    {
+    std::cout << " reading roi image " << roifn << std::endl;
+    typename readertype::Pointer reader2 = readertype::New();
+    reader2->SetFileName(roifn.c_str() );
+    reader2->UpdateLargestPossibleRegion();
+    try
+      {
       ROIimg = reader2->GetOutput();
-    }
-      catch(...)
-    {
-      ROIimg=NULL;
+      }
+    catch( ... )
+      {
+      ROIimg = NULL;
       std::cout << " Error reading ROI image " << std::endl;
       //  return 0;
-    }
+      }
 
     }
-
 
   // now do the recursive average
   const unsigned int maxChar = 512;
-  char lineBuffer[maxChar];
-  char filenm[maxChar];
-  unsigned int filecount1=0;
-  {
-  std::ifstream inputStreamA( fn1.c_str(), std::ios::in );
-  if ( !inputStreamA.is_open() )
+  char               lineBuffer[maxChar];
+  char               filenm[maxChar];
+  unsigned int       filecount1 = 0;
     {
+    std::ifstream inputStreamA( fn1.c_str(), std::ios::in );
+    if( !inputStreamA.is_open() )
+      {
       std::cout << "Can't open parameter file: " << fn1 << std::endl;
       return -1;
-    }
-  while ( !inputStreamA.eof() )
-    {
+      }
+    while( !inputStreamA.eof() )
+      {
 
       inputStreamA.getline( lineBuffer, maxChar, '\n' );
 
-      if ( sscanf( lineBuffer, "%s ",filenm) != 1 )
-    {
-      //      std::cout << "Done.  read " << lineBuffer << " n " << ct1 << " files " << std::endl;
-      //std::cout << std::endl;
-      continue;
-    }
+      if( sscanf( lineBuffer, "%s ", filenm) != 1 )
+        {
+        //      std::cout << "Done.  read " << lineBuffer << " n " << ct1 << " files " << std::endl;
+        // std::cout << std::endl;
+        continue;
+        }
       else
-    {
-      filecount1++;
+        {
+        filecount1++;
+        }
+      }
+
+    inputStreamA.close();
     }
-    }
-  inputStreamA.close();
-  }
   std::cout << " NFiles1 " << filecount1 << std::endl;
 
-
-  unsigned int filecount2=0;
-  if ( simimagelist.length() > 2 && ( whichstat == 5 || whichstat == 6 ) )
-  {
-  std::ifstream inputStreamA( simimagelist.c_str(), std::ios::in );
-  if ( !inputStreamA.is_open() )
+  unsigned int filecount2 = 0;
+  if( simimagelist.length() > 2 && ( whichstat == 5 || whichstat == 6 ) )
     {
+    std::ifstream inputStreamA( simimagelist.c_str(), std::ios::in );
+    if( !inputStreamA.is_open() )
+      {
       std::cout << "Can't open parameter file: " << fn1 << std::endl;
       return -1;
-    }
-  while ( !inputStreamA.eof() )
-    {
+      }
+    while( !inputStreamA.eof() )
+      {
 
       inputStreamA.getline( lineBuffer, maxChar, '\n' );
 
-      if ( sscanf( lineBuffer, "%s ",filenm) != 1 )
-    {
-      //      std::cout << "Done.  read " << lineBuffer << " n " << ct1 << " files " << std::endl;
-      //std::cout << std::endl;
-      continue;
-    }
+      if( sscanf( lineBuffer, "%s ", filenm) != 1 )
+        {
+        //      std::cout << "Done.  read " << lineBuffer << " n " << ct1 << " files " << std::endl;
+        // std::cout << std::endl;
+        continue;
+        }
       else
-    {
-      filecount2++;
-    }
-    }
-  inputStreamA.close();
-  if ( filecount1 != filecount2 )
-    {
-      std::cout << " the number of similarity images does not match the number of label images --- thus, we have to get out of here !! i.e. something's wrong. " << std::endl;
+        {
+        filecount2++;
+        }
+      }
+
+    inputStreamA.close();
+    if( filecount1 != filecount2 )
+      {
+      std::cout
+      <<
+      " the number of similarity images does not match the number of label images --- thus, we have to get out of here !! i.e. something's wrong. "
+      << std::endl;
       return 1;
-    }
-  } // fi simimagelist
+      }
+    } // fi simimagelist
   std::cout << " NFiles2 " << filecount2 << std::endl;
 
   typename ImageType::Pointer meanimage;
-  std::vector<typename ImageType::Pointer>  imagestack;
+  std::vector<typename ImageType::Pointer> imagestack;
   imagestack.resize(filecount1);
   //  imagestack.fill(NULL);
   std::vector<std::string> filenames(filecount1);
   typename ImageType::Pointer StatImage;
-    unsigned int ct = 0;
+  unsigned int  ct = 0;
   std::ifstream inputStreamA( fn1.c_str(), std::ios::in );
-  if ( !inputStreamA.is_open() )
+  if( !inputStreamA.is_open() )
     {
-      std::cout << "Can't open parameter file: " << fn1 << std::endl;
-      return -1;
+    std::cout << "Can't open parameter file: " << fn1 << std::endl;
+    return -1;
     }
-  while ( !inputStreamA.eof() )
+  while( !inputStreamA.eof() )
     {
 
-      inputStreamA.getline( lineBuffer, maxChar, '\n' );
+    inputStreamA.getline( lineBuffer, maxChar, '\n' );
 
-      if ( sscanf( lineBuffer, "%s ",filenm) != 1 )
-    {
+    if( sscanf( lineBuffer, "%s ", filenm) != 1 )
+      {
       //      std::cout << "Done.  read " << lineBuffer << " n " << ct1 << " files " << std::endl;
-      //std::cout << std::endl;
+      // std::cout << std::endl;
       continue;
-    }
-      else
-    {
-      filenames[ct]=std::string(filenm);
-      ReadImage<ImageType>(imagestack[ct] , filenm ,false);
-      if (ct ==0)   meanimage=MakeNewImage<ImageType>(imagestack[ct],0);
-      if (localmeanrad > 0) LocalMean<ImageType>(imagestack[ct],localmeanrad,meanimage);
+      }
+    else
+      {
+      filenames[ct] = std::string(filenm);
+      ReadImage<ImageType>(imagestack[ct], filenm, false);
+      if( ct == 0 )
+        {
+        meanimage = MakeNewImage<ImageType>(imagestack[ct], 0);
+        }
+      if( localmeanrad > 0 )
+        {
+        LocalMean<ImageType>(imagestack[ct], localmeanrad, meanimage);
+        }
       std::cout << " done reading " << (float) ct / (float ) filecount1 << std::endl;
       ct++;
+      }
     }
-    }
+
   inputStreamA.close();
 
   // read similarity images, if needed
-  std::vector<typename ImageType::Pointer>  simimagestack;
+  std::vector<typename ImageType::Pointer> simimagestack;
   simimagestack.resize(filecount2);
   std::vector<std::string> simfilenames(filecount2);
   ct = 0;
-  if ( simimagelist.length() > 2 && ( whichstat == 5 || whichstat == 6 ) )
-  {
-  inputStreamA.open( simimagelist.c_str() );
-  if ( !inputStreamA.is_open() )
+  if( simimagelist.length() > 2 && ( whichstat == 5 || whichstat == 6 ) )
     {
+    inputStreamA.open( simimagelist.c_str() );
+    if( !inputStreamA.is_open() )
+      {
       std::cout << "Can't open parameter file: " << fn1 << std::endl;
       return -1;
-    }
-  while ( !inputStreamA.eof() )
-    {
+      }
+    while( !inputStreamA.eof() )
+      {
       inputStreamA.getline( lineBuffer, maxChar, '\n' );
-      if ( sscanf( lineBuffer, "%s ",filenm) != 1 )
-    {
-      continue;
-    }
+      if( sscanf( lineBuffer, "%s ", filenm) != 1 )
+        {
+        continue;
+        }
       else
-    {
-      simfilenames[ct]=std::string(filenm);
-      ReadImage<ImageType>(simimagestack[ct] , filenm ,false);
-      ct++;
-    }
-    }
-  inputStreamA.close();
-  } // fi read similarity images
+        {
+        simfilenames[ct] = std::string(filenm);
+        ReadImage<ImageType>(simimagestack[ct], filenm, false);
+        ct++;
+        }
+      }
 
+    inputStreamA.close();
+    } // fi read similarity images
 
-  ReadImage<ImageType>( StatImage , filenames[0].c_str() , false);
-  Iterator vfIter(StatImage , StatImage->GetLargestPossibleRegion() );
+  ReadImage<ImageType>( StatImage, filenames[0].c_str(), false);
+  Iterator           vfIter(StatImage, StatImage->GetLargestPossibleRegion() );
   std::vector<float> voxels(filecount1);
   std::vector<float> similarities(filecount2);
-  unsigned long nvox=1;
-  for (unsigned int i=0; i<ImageDimension; i++) nvox*=StatImage->GetLargestPossibleRegion().GetSize()[i];
-
-  ct=0;
-      unsigned long  prog = nvox/15;
-      for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
+  unsigned long      nvox = 1;
+  for( unsigned int i = 0; i < ImageDimension; i++ )
     {
-      if (ct % prog == 0) std::cout << " % " << (float) ct / (float) nvox << std::endl;
-      ct++;
-      IndexType ind=vfIter.GetIndex();
-      unsigned int maxval=0;
-      bool takesample=true;
-      if ( ROIimg )
+    nvox *= StatImage->GetLargestPossibleRegion().GetSize()[i];
+    }
+
+  ct = 0;
+  unsigned long prog = nvox / 15;
+  for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
+    {
+    if( ct % prog == 0 )
+      {
+      std::cout << " % " << (float) ct / (float) nvox << std::endl;
+      }
+    ct++;
+    IndexType    ind = vfIter.GetIndex();
+    unsigned int maxval = 0;
+    bool         takesample = true;
+    if( ROIimg )
+      {
+      if( ROIimg->GetPixel(ind) < 0.5 )
         {
-           if ( ROIimg->GetPixel(ind) < 0.5 )  takesample=false;
-          else maxval=(unsigned int)(ROIimg->GetPixel(ind)-1);
+        takesample = false;
         }
-      if ( takesample ) {
-      if (mch == 0) meanimage->SetPixel(ind, meanimage->GetPixel(ind)/filecount1 );
-      for (unsigned int j=0; j<filecount1; j++)
+      else
         {
-          voxels[j]=imagestack[j]->GetPixel(ind);
+        maxval = (unsigned int)(ROIimg->GetPixel(ind) - 1);
         }
-      for (unsigned int j=0; j<filecount2; j++)
+      }
+    if( takesample )
+      {
+      if( mch == 0 )
         {
-          similarities[j]=simimagestack[j]->GetPixel(ind);
+        meanimage->SetPixel(ind, meanimage->GetPixel(ind) / filecount1 );
+        }
+      for( unsigned int j = 0; j < filecount1; j++ )
+        {
+        voxels[j] = imagestack[j]->GetPixel(ind);
+        }
+      for( unsigned int j = 0; j < filecount2; j++ )
+        {
+        similarities[j] = simimagestack[j]->GetPixel(ind);
         }
       float stat = 0;
+
       switch( whichstat )
         {
-           case 1:
-         stat=npdf(voxels,true,www);
-          if (ct == 1)    std::cout << "the max prob appearance \n";
-            break;
-           case 2:
-         stat=npdf(voxels,false,www);
-         if (ct == 1)    std::cout << "the probabilistically weighted appearance " << www << " \n";
+        case 1:
+          stat = npdf(voxels, true, www);
+          if( ct == 1 )
+            {
+            std::cout << "the max prob appearance \n";
+            }
+          break;
+        case 2:
+          stat = npdf(voxels, false, www);
+          if( ct == 1 )
+            {
+            std::cout << "the probabilistically weighted appearance " << www << " \n";
+            }
 
-            break;
+          break;
 
-           case 3:
-          stat=trimmean(voxels);
-          if (ct == 1)    std::cout << "the trimmed mean appearance \n";
-            break;
+        case 3:
+          stat = trimmean(voxels);
+          if( ct == 1 )
+            {
+            std::cout << "the trimmed mean appearance \n";
+            }
+          break;
 
-           case 4:
-          stat=myantsmax(voxels);
-          if (ct == 1)    std::cout << "the maximum appearance \n";
-            break;
-           case 5:
-         stat=myantssimilaritymaxlabel(voxels,similarities,true);
-          if (ct == 1)    std::cout << "the maximum similarity-based label \n";
-            break;
-           case 6:
-         stat=myantssimilaritymaxlabel(voxels,similarities,false);
-          if (ct == 1)    std::cout << "which image provides the maximum similarity-based label \n";
-            break;
-           case 7:
-         stat=voxels[maxval];
-          if (ct == 1)    std::cout << "which image provides the maximum similarity-based label \n";
-            break;
+        case 4:
+          stat = myantsmax(voxels);
+          if( ct == 1 )
+            {
+            std::cout << "the maximum appearance \n";
+            }
+          break;
+        case 5:
+          stat = myantssimilaritymaxlabel(voxels, similarities, true);
+          if( ct == 1 )
+            {
+            std::cout << "the maximum similarity-based label \n";
+            }
+          break;
+        case 6:
+          stat = myantssimilaritymaxlabel(voxels, similarities, false);
+          if( ct == 1 )
+            {
+            std::cout << "which image provides the maximum similarity-based label \n";
+            }
+          break;
+        case 7:
+          stat = voxels[maxval];
+          if( ct == 1 )
+            {
+            std::cout << "which image provides the maximum similarity-based label \n";
+            }
+          break;
 
-           default:
-          stat=median(voxels);
-          if (ct == 1)    std::cout << "the median appearance \n";
-            break;
+        default:
+          stat = median(voxels);
+          if( ct == 1 )
+            {
+            std::cout << "the median appearance \n";
+            }
+          break;
         }
-      float sval=stat;
-      if ( localmeanrad > 0 ) sval+= meanimage->GetPixel(ind);
+      float sval = stat;
+      if( localmeanrad > 0 )
+        {
+        sval += meanimage->GetPixel(ind);
+        }
       StatImage->SetPixel(ind, sval);
       }
-      else StatImage->SetPixel(ind, 0);
+    else
+      {
+      StatImage->SetPixel(ind, 0);
+      }
     }
-      WriteImage<ImageType>(StatImage, outfn.c_str() );
+  WriteImage<ImageType>(StatImage, outfn.c_str() );
 
-      std::cout << " Done " << std::endl;
-      return 0;
-
-}
-
-
-
-int main( int argc, char * argv[] )
-{
-
-
-  if ( argc < 4 )
-  {
-    std::cout << "Usage:  "<< std::endl;
-    std::cout << argv[0] << " ImageDimension controlslist.txt outimage.nii whichstat {roi.nii} {imagelist2forsimilarityweightedstats.txt}" << std::endl;
-    std::cout << " whichstat = 0:  median,  1:  max prob appearance  , 2: weighted mean appearance ,  3: trimmed mean , 4 : max value , option 5 : similarity-weighted (must pass imagelist2 as well) else median , option 6 : same as similarity-weighted option 5 but the label corresponds to the image that provides the best local match ... useful if you want to MRF smooth these indices  , option 7 : similar to 5 but expects the max-value to be stored in the ROI image and uses it to get the intensity ... "  << std::endl;
-    std::cout << " example:   ImageSetStatistics  3   imagelist.txt  maxvalueimage.nii.gz 4 " << std::endl;
-    std::cout << " similarity weighted --- pass in a list of similarity images here which will be used to select the best label --- thus, number of similarity images must match the number of label images . " << std::endl;
-    return 1;
-  }
-
-
-   // Get the image dimension
-
-  switch ( atoi(argv[1]))
-   {
-   case 2:
-     ImageSetStatistics<2>(argc,argv);
-      break;
-   case 3:
-     ImageSetStatistics<3>(argc,argv);
-      break;
-   default:
-      std::cerr << "Unsupported dimension" << std::endl;
-      exit( EXIT_FAILURE );
-   }
-
+  std::cout << " Done " << std::endl;
   return 0;
 
 }
 
+int main( int argc, char * argv[] )
+{
+
+  if( argc < 4 )
+    {
+    std::cout << "Usage:  " << std::endl;
+    std::cout << argv[0]
+              <<
+    " ImageDimension controlslist.txt outimage.nii whichstat {roi.nii} {imagelist2forsimilarityweightedstats.txt}"
+              << std::endl;
+    std::cout
+    <<
+    " whichstat = 0:  median,  1:  max prob appearance  , 2: weighted mean appearance ,  3: trimmed mean , 4 : max value , option 5 : similarity-weighted (must pass imagelist2 as well) else median , option 6 : same as similarity-weighted option 5 but the label corresponds to the image that provides the best local match ... useful if you want to MRF smooth these indices  , option 7 : similar to 5 but expects the max-value to be stored in the ROI image and uses it to get the intensity ... "
+    << std::endl;
+    std::cout << " example:   ImageSetStatistics  3   imagelist.txt  maxvalueimage.nii.gz 4 " << std::endl;
+    std::cout
+    <<
+    " similarity weighted --- pass in a list of similarity images here which will be used to select the best label --- thus, number of similarity images must match the number of label images . "
+    << std::endl;
+    return 1;
+    }
+
+  // Get the image dimension
+
+  switch( atoi(argv[1]) )
+    {
+    case 2:
+      ImageSetStatistics<2>(argc, argv);
+      break;
+    case 3:
+      ImageSetStatistics<3>(argc, argv);
+      break;
+    default:
+      std::cerr << "Unsupported dimension" << std::endl;
+      exit( EXIT_FAILURE );
+    }
+
+  return 0;
+
+}

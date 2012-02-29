@@ -41,13 +41,13 @@ namespace itk
 
 template <class TPointSet, class TOutput = double, class TCoordRep = double>
 class ITK_EXPORT ManifoldParzenWindowsPointSetFunction
-: public PointSetFunction<TPointSet, TOutput, TCoordRep>
+  : public PointSetFunction<TPointSet, TOutput, TCoordRep>
 {
 public:
-  typedef ManifoldParzenWindowsPointSetFunction            Self;
-  typedef PointSetFunction<TPointSet, TOutput, TCoordRep>  Superclass;
-  typedef SmartPointer<Self>                               Pointer;
-  typedef SmartPointer<const Self>                         ConstPointer;
+  typedef ManifoldParzenWindowsPointSetFunction           Self;
+  typedef PointSetFunction<TPointSet, TOutput, TCoordRep> Superclass;
+  typedef SmartPointer<Self>                              Pointer;
+  typedef SmartPointer<const Self>                        ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -56,37 +56,37 @@ public:
   itkStaticConstMacro( Dimension, unsigned int,
                        TPointSet::PointDimension );
 
-  typedef typename Superclass::InputPointSetType   InputPointSetType;
-  typedef typename Superclass::InputPointType      InputPointType;
+  typedef typename Superclass::InputPointSetType InputPointSetType;
+  typedef typename Superclass::InputPointType    InputPointType;
 
   /** Point set typedef support. */
-  typedef TPointSet                                PointSetType;
-  typedef typename PointSetType::PointType         PointType;
+  typedef TPointSet                        PointSetType;
+  typedef typename PointSetType::PointType PointType;
   typedef typename PointSetType
-    ::PointsContainerConstIterator                 PointsContainerConstIterator;
+  ::PointsContainerConstIterator                 PointsContainerConstIterator;
 
   typedef Vector
-    <typename PointSetType::CoordRepType,
-    itkGetStaticConstMacro( Dimension )>           MeasurementVectorType;
+  <typename PointSetType::CoordRepType,
+   itkGetStaticConstMacro( Dimension )>           MeasurementVectorType;
   typedef typename Statistics::ListSample
-    <MeasurementVectorType>                        SampleType;
+  <MeasurementVectorType>                        SampleType;
   typedef typename Statistics
-    ::WeightedCentroidKdTreeGenerator<SampleType>  TreeGeneratorType;
-  typedef typename TreeGeneratorType::KdTreeType   KdTreeType;
+  ::WeightedCentroidKdTreeGenerator<SampleType>  TreeGeneratorType;
+  typedef typename TreeGeneratorType::KdTreeType KdTreeType;
   typedef typename KdTreeType
-    ::InstanceIdentifierVectorType                 NeighborhoodIdentifierType;
+  ::InstanceIdentifierVectorType                 NeighborhoodIdentifierType;
 
   /** Other typedef */
-  typedef TOutput                                  RealType;
-  typedef TOutput                                  OutputType;
+  typedef TOutput RealType;
+  typedef TOutput OutputType;
 
   typedef typename Statistics
-    ::MersenneTwisterRandomVariateGenerator              RandomizerType;
+  ::MersenneTwisterRandomVariateGenerator              RandomizerType;
   typedef typename Statistics::
   GaussianMembershipFunction
-    <MeasurementVectorType>                              GaussianType;
-  typedef std::vector<typename GaussianType::Pointer>    GaussianContainerType;
-  typedef typename GaussianType::MatrixType              CovarianceMatrixType;
+  <MeasurementVectorType>                              GaussianType;
+  typedef std::vector<typename GaussianType::Pointer> GaussianContainerType;
+  typedef typename GaussianType::MatrixType           CovarianceMatrixType;
 
   /** Helper functions */
 
@@ -120,8 +120,8 @@ public:
   PointType GenerateRandomSample();
 
   typename GaussianType::Pointer GetGaussian( unsigned int i )
-    {
-    if ( i < this->m_Gaussians.size() )
+  {
+    if( i < this->m_Gaussians.size() )
       {
       return this->m_Gaussians[i].GetPointer();
       }
@@ -130,17 +130,17 @@ public:
       return NULL;
       }
     this->Modified();
-    }
+  }
 
   void SetGaussian( unsigned int i, typename GaussianType::Pointer gaussian )
-    {
-    if ( i >= this->m_Gaussians.size() )
+  {
+    if( i >= this->m_Gaussians.size() )
       {
-      this->m_Gaussians.resize( i+1 );
+      this->m_Gaussians.resize( i + 1 );
       }
     this->m_Gaussians[i] = gaussian;
     this->Modified();
-    }
+  }
 
   void GenerateKdTree();
 
@@ -148,7 +148,6 @@ public:
     MeasurementVectorType, unsigned int );
   NeighborhoodIdentifierType GetNeighborhoodIdentifiers(
     InputPointType, unsigned int );
-
 protected:
   ManifoldParzenWindowsPointSetFunction();
   virtual ~ManifoldParzenWindowsPointSetFunction();
@@ -157,23 +156,23 @@ protected:
   void GenerateData();
 
 private:
-  //purposely not implemented
-  ManifoldParzenWindowsPointSetFunction( const Self& );
-  void operator=( const Self& );
+  // purposely not implemented
+  ManifoldParzenWindowsPointSetFunction( const Self & );
+  void operator=( const Self & );
 
-  unsigned int                                  m_CovarianceKNeighborhood;
-  unsigned int                                  m_EvaluationKNeighborhood;
-  unsigned int                                  m_BucketSize;
-  RealType                                      m_RegularizationSigma;
-  RealType                                      m_KernelSigma;
+  unsigned int m_CovarianceKNeighborhood;
+  unsigned int m_EvaluationKNeighborhood;
+  unsigned int m_BucketSize;
+  RealType     m_RegularizationSigma;
+  RealType     m_KernelSigma;
 
   typename TreeGeneratorType::Pointer           m_KdTreeGenerator;
   typename SampleType::Pointer                  m_SamplePoints;
 
   typename RandomizerType::Pointer              m_Randomizer;
-  GaussianContainerType                         m_Gaussians;
-  bool                                          m_Normalize;
-  bool                                          m_UseAnisotropicCovariances;
+  GaussianContainerType m_Gaussians;
+  bool                  m_Normalize;
+  bool                  m_UseAnisotropicCovariances;
 };
 
 } // end namespace itk

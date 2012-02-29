@@ -23,9 +23,12 @@
 
 #include "itkArray.h"
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 /** \class ListSampleFunction
  * \brief Evaluates a function of an image at specified position.
@@ -48,10 +51,10 @@ class ITK_EXPORT ListSampleFunction :
 public:
 
   /** Standard class typedefs. */
-  typedef ListSampleFunction                              Self;
-  typedef FunctionBase<TInputListSample, TOutput>         Superclass;
-  typedef SmartPointer<Self>                              Pointer;
-  typedef SmartPointer<const Self>                        ConstPointer;
+  typedef ListSampleFunction                      Self;
+  typedef FunctionBase<TInputListSample, TOutput> Superclass;
+  typedef SmartPointer<Self>                      Pointer;
+  typedef SmartPointer<const Self>                ConstPointer;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro( ListSampleFunction, FunctionBase );
@@ -63,45 +66,45 @@ public:
   typedef Array<double> ListSampleWeightArrayType;
 
   /** InputPixel typedef support */
-  typedef typename InputListSampleType::MeasurementVectorType   InputMeasurementVectorType;
-  typedef typename InputListSampleType::MeasurementType         InputMeasurementType;
+  typedef typename InputListSampleType::MeasurementVectorType InputMeasurementVectorType;
+  typedef typename InputListSampleType::MeasurementType       InputMeasurementType;
 
   /** OutputType typedef support. */
-  typedef TOutput                                       OutputType;
+  typedef TOutput OutputType;
 
   /** CoordRepType typedef support. */
-  typedef TCoordRep                                     CoordRepType;
+  typedef TCoordRep CoordRepType;
 
   /** Set the input point set.
    * \warning this method caches BufferedRegion information.
    * If the BufferedRegion has changed, user must call
    * SetInputListSample again to update cached values. */
   virtual void SetInputListSample( const InputListSampleType * ptr )
-    {
+  {
     this->SetInputListSample( 0, ptr );
-    }
+  }
 
   virtual void SetInputListSample( unsigned int d, const InputListSampleType * ptr );
 
   /** Sets the weights using an array */
   virtual void SetListSampleWeights( ListSampleWeightArrayType *array )
-    {
+  {
     this->SetListSampleWeights( 0, array );
-    }
+  }
 
-  virtual void SetListSampleWeights( unsigned int, ListSampleWeightArrayType* );
-
+  virtual void SetListSampleWeights( unsigned int, ListSampleWeightArrayType * );
 
   /** Get the input image. */
-  virtual const InputListSampleType * GetInputListSample(
-    const unsigned int idx = 0 ) const;
+  virtual const InputListSampleType * GetInputListSample(const unsigned int idx = 0 ) const;
 
   /** Clear the input list sample to free memory */
   virtual void ClearInputListSample( unsigned int idx = 0 )
-    { this->SetInputListSample( idx, NULL ); }
+  {
+    this->SetInputListSample( idx, NULL );
+  }
 
   /** Gets the weights array */
-  virtual ListSampleWeightArrayType* GetListSampleWeights( unsigned int idx = 0 );
+  virtual ListSampleWeightArrayType * GetListSampleWeights( unsigned int idx = 0 );
 
   /** Evaluate the function at specified Point position.
    * Subclasses must provide this method. */
@@ -109,16 +112,17 @@ public:
 
 protected:
   ListSampleFunction();
-  ~ListSampleFunction() {}
+  ~ListSampleFunction()
+  {
+  }
   void PrintSelf(std::ostream& os, Indent indent) const;
 
   /** Const pointer to the input image. */
-  std::vector<typename InputListSampleType::ConstPointer>        m_ListSamples;
-  std::vector<ListSampleWeightArrayType *>                       m_ListSampleWeights;
-
+  std::vector<typename InputListSampleType::ConstPointer> m_ListSamples;
+  std::vector<ListSampleWeightArrayType *>                m_ListSampleWeights;
 private:
-  ListSampleFunction(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  ListSampleFunction(const Self &); // purposely not implemented
+  void operator=(const Self &);     // purposely not implemented
 
 };
 
@@ -128,16 +132,16 @@ private:
 
 // Define instantiation macro for this template.
 #define ITK_TEMPLATE_ListSampleFunction(_, EXPORT, x, y) namespace itk { \
-  _(3(class EXPORT ListSampleFunction< ITK_TEMPLATE_3 x >)) \
-  namespace Templates { typedef ListSampleFunction< ITK_TEMPLATE_3 x > ListSampleFunction##y; } \
+  _(3 (class EXPORT ListSampleFunction<ITK_TEMPLATE_3 x> ) ) \
+  namespace Templates { typedef ListSampleFunction<ITK_TEMPLATE_3 x> ListSampleFunction##y; } \
   }
 
 #if ITK_TEMPLATE_EXPLICIT
-# include "Templates/antsListSampleFunction+-.h"
+#include "Templates/antsListSampleFunction+-.h"
 #endif
 
 #if ITK_TEMPLATE_TXX
-# include "antsListSampleFunction.hxx"
+#include "antsListSampleFunction.hxx"
 #endif
 
 #endif

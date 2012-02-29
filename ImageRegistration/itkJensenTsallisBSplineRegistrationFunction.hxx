@@ -22,15 +22,16 @@
 
 #include "itkContinuousIndex.h"
 #include "itkImageLinearConstIteratorWithIndex.h"
-//#include "itkBSplineControlPointImageFilter.h"
+// #include "itkBSplineControlPointImageFilter.h"
 
-namespace itk {
+namespace itk
+{
 
-template<class TFixedImage, class TFixedPointSet,
-         class TMovingImage, class TMovingPointSet,
-         class TDisplacementField>
+template <class TFixedImage, class TFixedPointSet,
+          class TMovingImage, class TMovingPointSet,
+          class TDisplacementField>
 JensenTsallisBSplineRegistrationFunction<TFixedImage,
-  TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>
+                                         TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>
 ::JensenTsallisBSplineRegistrationFunction()
 {
   this->m_UseRegularizationTerm = false;
@@ -48,7 +49,8 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
   this->m_MovingEvaluationKNeighborhood = 50;
 
   unsigned int covarianceKNeighborhood = static_cast<unsigned int>( vcl_pow( 3.0,
-    static_cast<RealType>( ImageDimension ) ) ) - 1;
+                                                                             static_cast<RealType>( ImageDimension ) ) )
+    - 1;
 
   this->m_FixedCovarianceKNeighborhood = covarianceKNeighborhood;
   this->m_MovingCovarianceKNeighborhood = covarianceKNeighborhood;
@@ -60,19 +62,19 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
 
   this->m_DerivativeFixedField = NULL;
   this->m_DerivativeMovingField = NULL;
-  this->m_IsPointSetMetric=true;
+  this->m_IsPointSetMetric = true;
 
   this->m_SplineOrder = 3;
   this->m_NumberOfLevels = 1;
   this->m_MeshResolution.Fill( 1 );
 }
 
-template<class TFixedImage, class TFixedPointSet,
-         class TMovingImage, class TMovingPointSet,
-         class TDisplacementField>
+template <class TFixedImage, class TFixedPointSet,
+          class TMovingImage, class TMovingPointSet,
+          class TDisplacementField>
 void
 JensenTsallisBSplineRegistrationFunction<TFixedImage,
-  TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>
+                                         TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>
 ::InitializeIteration( void )
 {
   if( this->m_FixedKernelSigma == 0 )
@@ -100,7 +102,6 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
       }
     this->m_MovingKernelSigma = 2.0 * maxMovingSpacing;
     }
-
 
   typename PointSetMetricType::Pointer pointSetMetric
     = PointSetMetricType::New();
@@ -136,7 +137,7 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
   typename PointSetMetricType::MeasureType movingMeasure;
 
   pointSetMetric->GetValueAndDerivative( parameters, movingMeasure,
-    movingGradient );
+                                         movingGradient );
   this->m_Energy += movingMeasure[0];
 
   typename BSplinePointSetType::Pointer movingGradientPoints =
@@ -238,10 +239,10 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
   ArrayType numberOfMovingControlPoints;
   for( unsigned int d = 0; d < ImageDimension; d++ )
     {
-    numberOfMovingControlPoints[d] = this->m_SplineOrder +
-      static_cast<unsigned int>( vcl_floor( 0.5 + static_cast<RealType>(
-        this->GetMovingImage()->GetLargestPossibleRegion().GetSize()[d] )
-        / static_cast<RealType>( this->m_MeshResolution[d] ) ) );
+    numberOfMovingControlPoints[d] = this->m_SplineOrder
+      + static_cast<unsigned int>( vcl_floor( 0.5 + static_cast<RealType>(
+                                                this->GetMovingImage()->GetLargestPossibleRegion().GetSize()[d] )
+                                              / static_cast<RealType>( this->m_MeshResolution[d] ) ) );
     }
 
   typename MovingImageType::SpacingType movingParametricSpacing;
@@ -283,7 +284,7 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
   typename PointSetMetricType::DerivativeType fixedGradient;
   typename PointSetMetricType::MeasureType fixedMeasure;
   pointSetMetric->GetValueAndDerivative( parameters, fixedMeasure,
-    fixedGradient );
+                                         fixedGradient );
   this->m_Energy += fixedMeasure[0];
 
   typename BSplinePointSetType::Pointer fixedGradientPoints =
@@ -384,10 +385,10 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
   ArrayType numberOfFixedControlPoints;
   for( unsigned int d = 0; d < ImageDimension; d++ )
     {
-    numberOfFixedControlPoints[d] = this->m_SplineOrder +
-      static_cast<unsigned int>( vcl_floor( 0.5 + static_cast<RealType>(
-        this->GetFixedImage()->GetLargestPossibleRegion().GetSize()[d] )
-        / static_cast<RealType>( this->m_MeshResolution[d] ) ) );
+    numberOfFixedControlPoints[d] = this->m_SplineOrder
+      + static_cast<unsigned int>( vcl_floor( 0.5 + static_cast<RealType>(
+                                                this->GetFixedImage()->GetLargestPossibleRegion().GetSize()[d] )
+                                              / static_cast<RealType>( this->m_MeshResolution[d] ) ) );
     }
 
   typename FixedImageType::SpacingType fixedParametricSpacing;
@@ -422,15 +423,16 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
 
 }
 
-template<class TFixedImage, class TFixedPointSet,
-         class TMovingImage, class TMovingPointSet,
-         class TDisplacementField>
+template <class TFixedImage, class TFixedPointSet,
+          class TMovingImage, class TMovingPointSet,
+          class TDisplacementField>
 typename JensenTsallisBSplineRegistrationFunction<TFixedImage,
-  TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>::VectorType
+                                                  TFixedPointSet, TMovingImage, TMovingPointSet,
+                                                  TDisplacementField>::VectorType
 JensenTsallisBSplineRegistrationFunction<TFixedImage,
-  TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>
-::ComputeUpdate( const NeighborhoodType &neighborhood,
-    void *globalData, const FloatOffsetType &offset )
+                                         TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>
+::ComputeUpdate( const NeighborhoodType & neighborhood,
+                 void *globalData, const FloatOffsetType & offset )
 {
   if( this->m_DerivativeFixedField )
     {
@@ -462,15 +464,16 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
 */
 }
 
-template<class TFixedImage, class TFixedPointSet,
-         class TMovingImage, class TMovingPointSet,
-         class TDisplacementField>
+template <class TFixedImage, class TFixedPointSet,
+          class TMovingImage, class TMovingPointSet,
+          class TDisplacementField>
 typename JensenTsallisBSplineRegistrationFunction<TFixedImage,
-  TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>::VectorType
+                                                  TFixedPointSet, TMovingImage, TMovingPointSet,
+                                                  TDisplacementField>::VectorType
 JensenTsallisBSplineRegistrationFunction<TFixedImage,
-  TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>
-::ComputeUpdateInv( const NeighborhoodType &neighborhood,
-    void *globalData, const FloatOffsetType &offset )
+                                         TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>
+::ComputeUpdateInv( const NeighborhoodType & neighborhood,
+                    void *globalData, const FloatOffsetType & offset )
 {
 
   if( this->m_DerivativeMovingField )
@@ -503,12 +506,12 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
 */
 }
 
-template<class TFixedImage, class TFixedPointSet,
-         class TMovingImage, class TMovingPointSet,
-         class TDisplacementField>
+template <class TFixedImage, class TFixedPointSet,
+          class TMovingImage, class TMovingPointSet,
+          class TDisplacementField>
 void
 JensenTsallisBSplineRegistrationFunction<TFixedImage,
-  TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>
+                                         TFixedPointSet, TMovingImage, TMovingPointSet, TDisplacementField>
 ::PrintSelf( std::ostream& os, Indent indent ) const
 {
   Superclass::PrintSelf( os, indent );
@@ -536,8 +539,6 @@ JensenTsallisBSplineRegistrationFunction<TFixedImage,
   os << indent << "Number of control points: "
      << this->m_MeshResolution << std::endl;
 }
-
-
 
 } // end namespace itk
 

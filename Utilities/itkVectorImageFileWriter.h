@@ -35,20 +35,19 @@ public:
   itkTypeMacro( VectorImageFileWriterException, ExceptionObject );
 
   /** Constructor. */
-  VectorImageFileWriterException(const char *file, unsigned int line,
-                           const char* message = "Error in IO",
-                           const char* loc = "Unknown" ) :
+  VectorImageFileWriterException(const char *file, unsigned int line, const char* message = "Error in IO",
+                                 const char* loc = "Unknown" ) :
     ExceptionObject(file, line, message, loc)
   {
   }
 
   /** Constructor. */
-  VectorImageFileWriterException(const std::string &file, unsigned int line,
-                           const char* message = "Error in IO",
-                           const char* loc = "Unknown" ) :
+  VectorImageFileWriterException(const std::string & file, unsigned int line, const char* message = "Error in IO",
+                                 const char* loc = "Unknown" ) :
     ExceptionObject(file, line, message, loc)
   {
   }
+
 };
 
 /** \class VectorImageFileWriter
@@ -66,10 +65,10 @@ class ITK_EXPORT VectorImageFileWriter :
 {
 public:
   /** Standard class typedefs. */
-  typedef VectorImageFileWriter                  Self;
-  typedef ProcessObject    Superclass;
-  typedef SmartPointer<Self>                      Pointer;
-  typedef SmartPointer<const Self>                ConstPointer;
+  typedef VectorImageFileWriter    Self;
+  typedef ProcessObject            Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -78,18 +77,20 @@ public:
   itkTypeMacro(VectorImageFileWriter, VectorImageFileWriter);
 
   /** Some convenient typedefs. */
-  typedef TVectorImage VectorImageType;
-  typedef typename VectorImageType::Pointer VectorImagePointer;
+  typedef TVectorImage                         VectorImageType;
+  typedef typename VectorImageType::Pointer    VectorImagePointer;
   typedef typename VectorImageType::RegionType VectorImageRegionType;
-  typedef typename VectorImageType::PixelType VectorImagePixelType;
-  typedef TImage ImageType;
-  typedef typename ImageType::Pointer ImagePointer;
-  typedef typename ImageType::RegionType ImageRegionType;
-  typedef typename ImageType::PixelType ImagePixelType;
+  typedef typename VectorImageType::PixelType  VectorImagePixelType;
+  typedef TImage                               ImageType;
+  typedef typename ImageType::Pointer          ImagePointer;
+  typedef typename ImageType::RegionType       ImageRegionType;
+  typedef typename ImageType::PixelType        ImagePixelType;
 
   /** Set/Get the image input of this writer.  */
   void SetInput(const VectorImageType *input);
+
   const VectorImageType * GetInput(void);
+
   const VectorImageType * GetInput(unsigned int idx);
 
   /** Specify the name of the output file to write. */
@@ -106,16 +107,17 @@ public:
    * correct choice and will allow a file to be created regardless of
    * the file extension. If the factory has set the ImageIO, the
    * extension must be supported by the specified ImageIO. */
-  void SetImageIO (ImageIOBase* io)
+  void SetImageIO(ImageIOBase* io)
   {
-    if (this->m_ImageIO != io)
+    if( this->m_ImageIO != io )
       {
       this->Modified();
       this->m_ImageIO = io;
       }
     m_FactorySpecifiedImageIO = false;
   }
-  itkGetObjectMacro(ImageIO,ImageIOBase);
+
+  itkGetObjectMacro(ImageIO, ImageIOBase);
 
   /** A special version of the Update() method for writers.  It
    * invokes start and end events and handles releasing data. It
@@ -129,26 +131,29 @@ public:
   /** Specify the region to write. If left NULL, then the whole image
    * is written. */
   void SetIORegion(const ImageIORegion & region);
+
   itkGetConstReferenceMacro( IORegion, ImageIORegion );
 
   /** Aliased to the Write() method to be consistent with the rest of the
    * pipeline. */
   virtual void Update()
-  {this->Write();}
+  {
+    this->Write();
+  }
 
   /** Set the compression On or Off */
-  itkSetMacro(UseCompression,bool);
-  itkGetConstReferenceMacro(UseCompression,bool);
+  itkSetMacro(UseCompression, bool);
+  itkGetConstReferenceMacro(UseCompression, bool);
   itkBooleanMacro(UseCompression);
 
   /** Set the Avants' naming convention On or Off */
-  itkSetMacro(UseAvantsNamingConvention,bool);
-  itkGetConstReferenceMacro(UseAvantsNamingConvention,bool);
+  itkSetMacro(UseAvantsNamingConvention, bool);
+  itkGetConstReferenceMacro(UseAvantsNamingConvention, bool);
   itkBooleanMacro(UseAvantsNamingConvention);
 
   /** Set the Avants' naming convention On or Off */
-  itkSetMacro(UseZhangNamingConvention,bool);
-  itkGetConstReferenceMacro(UseZhangNamingConvention,bool);
+  itkSetMacro(UseZhangNamingConvention, bool);
+  itkGetConstReferenceMacro(UseZhangNamingConvention, bool);
   itkBooleanMacro(UseZhangNamingConvention);
 
   /** By default the MetaDataDictionary is taken from the input image and
@@ -157,11 +162,9 @@ public:
    *  the ImageSeriesWriter. This flag defined whether the MetaDataDictionary
    *  to use will be the one from the input image or the one already set in
    *  the ImageIO object. */
-  itkSetMacro(UseInputMetaDataDictionary,bool);
-  itkGetConstReferenceMacro(UseInputMetaDataDictionary,bool);
+  itkSetMacro(UseInputMetaDataDictionary, bool);
+  itkGetConstReferenceMacro(UseInputMetaDataDictionary, bool);
   itkBooleanMacro(UseInputMetaDataDictionary);
-
-
 protected:
   VectorImageFileWriter();
   ~VectorImageFileWriter();
@@ -171,27 +174,26 @@ protected:
   void GenerateData(void);
 
 private:
-  VectorImageFileWriter(const Self&); //purposely not implemented
-  void operator=(const Self&); //purposely not implemented
+  VectorImageFileWriter(const Self &); // purposely not implemented
+  void operator=(const Self &);        // purposely not implemented
 
-  std::string        m_FileName;
-  std::string        m_ComponentImageFileName;
-  bool               m_UseAvantsNamingConvention;
-  bool               m_UseZhangNamingConvention;
+  std::string m_FileName;
+  std::string m_ComponentImageFileName;
+  bool        m_UseAvantsNamingConvention;
+  bool        m_UseZhangNamingConvention;
 
   ImagePointer m_Image;
 
   ImageIOBase::Pointer m_ImageIO;
-  bool m_UserSpecifiedImageIO; //track whether the ImageIO is user specified
+  bool                 m_UserSpecifiedImageIO; // track whether the ImageIO is user specified
 
   ImageIORegion m_IORegion;
-  bool m_UserSpecifiedIORegion; //
-                                //track whether the region is user specified
-  bool m_FactorySpecifiedImageIO; //track whether the factory mechanism set the ImageIO
+  bool          m_UserSpecifiedIORegion; //
+                                         // track whether the region is user specified
+  bool m_FactorySpecifiedImageIO;        // track whether the factory mechanism set the ImageIO
   bool m_UseCompression;
   bool m_UseInputMetaDataDictionary; // whether to use the MetaDataDictionary from the input or not.
 };
-
 
 } // end namespace itk
 
@@ -200,4 +202,3 @@ private:
 #endif
 
 #endif // __itkVectorImageFileWriter_h
-

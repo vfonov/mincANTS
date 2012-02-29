@@ -1,8 +1,8 @@
 #ifndef _TensorFunctions_cxx_
 #define _TensorFunctions_cxx_
 
-//#include "itkSmallStrainDiffusionTensorReorientationImageFilter.h"
-//#include "itkVectorIndexSelectionCastImageFilter.h"
+// #include "itkSmallStrainDiffusionTensorReorientationImageFilter.h"
+// #include "itkVectorIndexSelectionCastImageFilter.h"
 
 #include "vnl/algo/vnl_matrix_inverse.h"
 /*

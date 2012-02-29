@@ -21,15 +21,18 @@
 
 #include "antsListSampleToListSampleFilter.h"
 
-namespace itk {
-namespace ants {
-namespace Statistics {
+namespace itk
+{
+namespace ants
+{
+namespace Statistics
+{
 
 /**
  *
  */
 template <class TInputListSample, class TOutputListSample>
-ListSampleToListSampleFilter<TInputListSample,TOutputListSample>
+ListSampleToListSampleFilter<TInputListSample, TOutputListSample>
 ::ListSampleToListSampleFilter()
 {
   // Modify superclass default values, can be overridden by subclasses
@@ -39,22 +42,22 @@ ListSampleToListSampleFilter<TInputListSample,TOutputListSample>
 
 template <class TInputListSample, class TOutputListSample>
 void
-ListSampleToListSampleFilter<TInputListSample,TOutputListSample>
+ListSampleToListSampleFilter<TInputListSample, TOutputListSample>
 ::SetInputListSample( const TInputListSample *input )
 {
 //   this->m_InputListSample = const_cast<InputListSampleType *>( input );
   this->ProcessObject::SetNthInput( 0,
-    reinterpret_cast<DataObject *>(
-    const_cast<InputListSampleType *>( input ) ) );
+                                    reinterpret_cast<DataObject *>(
+                                      const_cast<InputListSampleType *>( input ) ) );
 }
 
 template <class TInputListSample, class TOutputListSample>
 void
-ListSampleToListSampleFilter<TInputListSample,TOutputListSample>
+ListSampleToListSampleFilter<TInputListSample, TOutputListSample>
 ::AllocateOutput()
 {
   typename DataObject::Pointer obj =
-    reinterpret_cast<DataObject *>(TOutputListSample::New().GetPointer());
+    reinterpret_cast<DataObject *>(TOutputListSample::New().GetPointer() );
 
 //   typename TOutputListSample::Pointer output
 //     = reinterpret_cast<TOutputListSample*>(obj.GetPointer());
@@ -68,28 +71,28 @@ ListSampleToListSampleFilter<TInputListSample,TOutputListSample>
  *
  */
 template <class TInputListSample, class TOutputListSample>
-typename ListSampleToListSampleFilter<TInputListSample,TOutputListSample>::InputListSampleType *
-ListSampleToListSampleFilter<TInputListSample,TOutputListSample>
+typename ListSampleToListSampleFilter<TInputListSample, TOutputListSample>::InputListSampleType
+* ListSampleToListSampleFilter<TInputListSample, TOutputListSample>
 ::GetInput()
-{
+  {
   return reinterpret_cast<TInputListSample *>(
-  this->ProcessObject::GetInput( 0 ) );
-}
+           this->ProcessObject::GetInput( 0 ) );
+  }
 
 template <class TInputListSample, class TOutputListSample>
-typename ListSampleToListSampleFilter<TInputListSample,TOutputListSample>::OutputListSampleType *
-ListSampleToListSampleFilter<TInputListSample,TOutputListSample>
+typename ListSampleToListSampleFilter<TInputListSample, TOutputListSample>::OutputListSampleType
+* ListSampleToListSampleFilter<TInputListSample, TOutputListSample>
 ::GetOutput()
-{
-  if (this->GetNumberOfOutputs() < 1)
+  {
+  if( this->GetNumberOfOutputs() < 1 )
     {
     return 0;
     }
 
   // we assume that the first output is of the templated type
-  return reinterpret_cast<TOutputListSample*>( this->ProcessObject::GetOutput( 0 ) );
+  return reinterpret_cast<TOutputListSample *>( this->ProcessObject::GetOutput( 0 ) );
 //   return this->m_OutputListSample.GetPointer();
-}
+  }
 
 } // end of namespace Statistics
 } // end of namespace ants

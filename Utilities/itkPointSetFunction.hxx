@@ -33,7 +33,6 @@ PointSetFunction<TInputPointSet, TOutput, TCoordRep>
   m_PointSet = NULL;
 }
 
-
 /**
  * Standard "PrintSelf" method
  */
@@ -48,7 +47,6 @@ PointSetFunction<TInputPointSet, TOutput, TCoordRep>
   os << indent << "InputPointSet: " << m_PointSet.GetPointer() << std::endl;
 }
 
-
 /**
  * Initialize by setting the input point set
  */
@@ -62,9 +60,6 @@ PointSetFunction<TInputPointSet, TOutput, TCoordRep>
   m_PointSet = ptr;
 }
 
-
-
 } // end namespace itk
 
 #endif
-
