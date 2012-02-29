@@ -414,41 +414,45 @@ WarpImageWAffineFilter<TInputImage, TOutputImage, TDisplacementField, TTransform
     switch( m_TransformOrder )
       {
       case AffineFirst:
-        for( unsigned int j = 0; j < ImageDimension; j++ )
           {
-          point2[j] = point1[j] + displacement[j];
+          for( unsigned int j = 0; j < ImageDimension; j++ )
+            {
+            point2[j] = point1[j] + displacement[j];
+            }
+          point3 = aff->TransformPoint(point2);
+          isinside = true;     // affine transform is always valid
           }
-        point3 = aff->TransformPoint(point2);
-        isinside = true;     // affine transform is always valid
         break;
       case AffineLast:
-        point2 = aff->TransformPoint(point1);
+          {
+          point2 = aff->TransformPoint(point1);
 
-        typedef itk::VectorLinearInterpolateImageFunction<DisplacementFieldType, float> DefaultInterpolatorType;
-        typename DefaultInterpolatorType::Pointer vinterp =  DefaultInterpolatorType::New();
-        vinterp->SetInputImage(fieldPtr);
+          typedef itk::VectorLinearInterpolateImageFunction<DisplacementFieldType, float> DefaultInterpolatorType;
+          typename DefaultInterpolatorType::Pointer vinterp =  DefaultInterpolatorType::New();
+          vinterp->SetInputImage(fieldPtr);
 
-        typename DefaultInterpolatorType::ContinuousIndexType  contind;
-        // isinside = fieldPtr->TransformPhysicalPointToContinuousIndex(point2, contind);
-        // explicitly written to avoid double / float type dismatching
-        for( unsigned int i = 0; i < ImageDimension; i++ )
-          {
-          contind[i] = ( (point2[i] - fieldPtr->GetOrigin()[i]) / fieldPtr->GetSpacing()[i] );
-          }
-        isinside = fieldPtr->GetLargestPossibleRegion().IsInside( contind );
+          typename DefaultInterpolatorType::ContinuousIndexType  contind;
+          // isinside = fieldPtr->TransformPhysicalPointToContinuousIndex(point2, contind);
+          // explicitly written to avoid double / float type dismatching
+          for( unsigned int i = 0; i < ImageDimension; i++ )
+            {
+            contind[i] = ( (point2[i] - fieldPtr->GetOrigin()[i]) / fieldPtr->GetSpacing()[i] );
+            }
+          isinside = fieldPtr->GetLargestPossibleRegion().IsInside( contind );
 
-        typename DefaultInterpolatorType::OutputType disp2;
-        if( isinside )
-          {
-          disp2 = vinterp->EvaluateAtContinuousIndex( contind );
-          }
-        else
-          {
-          disp2.Fill(0);
-          }
-        for( int jj = 0; jj < ImageDimension; jj++ )
-          {
-          point3[jj] = disp2[jj] + point2[jj];
+          typename DefaultInterpolatorType::OutputType disp2;
+          if( isinside )
+            {
+            disp2 = vinterp->EvaluateAtContinuousIndex( contind );
+            }
+          else
+            {
+            disp2.Fill(0);
+            }
+          for( int jj = 0; jj < ImageDimension; jj++ )
+            {
+            point3[jj] = disp2[jj] + point2[jj];
+            }
           }
         break;
       default:
