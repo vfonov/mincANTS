@@ -149,7 +149,6 @@ CrossCorrelationRegistrationFunction<TFixedImage, TMovingImage, TDisplacementFie
     }
   m_Normalizer /= static_cast<double>( ImageDimension );
 
-  typename FixedImageType::SpacingType spacing = this->GetFixedImage()->GetSpacing();
 
   bool makeimg = false;
   if( m_Iteration == 0 )

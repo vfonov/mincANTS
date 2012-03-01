@@ -174,11 +174,9 @@ void  SurfaceImageCurvature<TSurface>::FindEuclideanNeighborhood
   typename ImageType::SizeType rad;
   IndexType oindex, index;
 
-  long offset = 0;
   for( unsigned int i = 0; i < ImageDimension; i++ )
     {
     rad[i] = (long)(m_NeighborhoodRadius);
-    offset = (long)m_NeighborhoodRadius;
     oindex[i] = (long) (rootpoint[i] + 0.5);
     }
 
@@ -258,11 +256,9 @@ void  SurfaceImageCurvature<TSurface>::FindGeodesicNeighborhood()
   unsigned int  k = 0;
   unsigned long longindex = 0;
 
-  long offset = 0;
   for( unsigned int i = 0; i < ImageDimension; i++ )
     {
     rad[i] = (long)(m_NeighborhoodRadius);
-    offset = (long)m_NeighborhoodRadius;
     oindex[i] = (long) (this->m_Origin[i] + 0.5);
     }
   index = oindex;
@@ -625,13 +621,11 @@ void  SurfaceImageCurvature<TSurface>
 //  compute dif of normal with grad at point
 
   PointType Q = this->m_Origin;
-  PointType QN = this->m_Normal;
+
   for( j = 0; j < npts; j++ )
     {
 
     PointType Dif = Q - this->m_PointList[j];
-    float     difmag = Dif.magnitude();
-    PointType unitDif = Dif / difmag;
 
     float u1 = 0.0;
     float u2 = 0.0;

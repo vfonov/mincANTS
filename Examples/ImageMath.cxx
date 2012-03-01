@@ -687,8 +687,8 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
     mask = ImageType::New();
     try
       {
-      typedef itk::ImageFileReader<ImageType> ReaderType;
-      typename ReaderType::Pointer labelImageReader = ReaderType::New();
+      typedef itk::ImageFileReader<ImageType> LabelReaderType;
+      typename LabelReaderType::Pointer labelImageReader = LabelReaderType::New();
       labelImageReader->SetFileName( argv[argct] );
       labelImageReader->Update();
       mask = labelImageReader->GetOutput();
@@ -1570,7 +1570,6 @@ int PadImage(int argc, char *argv[])
     ReadImage<ImageType>(image1, fn1.c_str() );
     }
 
-  typename ImageType::PointType origin = image1->GetOrigin();
   typename ImageType::PointType origin2 = image1->GetOrigin();
 
   typename ImageType::SizeType size = image1->GetLargestPossibleRegion().GetSize();
@@ -2828,7 +2827,6 @@ int StackImage(int argc, char *argv[])
     ReadImage<ImageType>(image2, fn2.c_str() );
     }
 
-  typename ImageType::PointType origin = image1->GetOrigin();
   typename ImageType::PointType origin2 = image1->GetOrigin();
 
   typename ImageType::SizeType size = image1->GetLargestPossibleRegion().GetSize();
@@ -6026,14 +6024,14 @@ int DistanceMap(int argc, char *argv[])
   typedef itk::ImageRegionIteratorWithIndex<ImageType>                    Iterator;
 
   int         argct = 2;
+  if(argc < 5)
+    {
+    std::cerr << "Missing required arguments ( output name, operation & fn1)" << std::endl;
+    throw;
+    }
   std::string outname = std::string(argv[argct]); argct++;
   std::string operation = std::string(argv[argct]);  argct++;
   std::string fn1 = std::string(argv[argct]);   argct++;
-  float       sigma = 1.0;
-  if( argc > argct )
-    {
-    sigma = atof(argv[argct]);
-    }
 
   typename ImageType::Pointer image1 = NULL;
   ReadImage<ImageType>(image1, fn1.c_str() );
@@ -6138,8 +6136,9 @@ int FillHoles(int argc, char *argv[])
   if( holeparam == 2 )
     {
     std::cout << " Filling all holes " <<  std::endl;
-    typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-    Iterator vfIter( relabel->GetOutput(),  relabel->GetOutput()->GetLargestPossibleRegion() );
+    typedef itk::ImageRegionIteratorWithIndex<ImageType> RelabelIterator;
+    RelabelIterator vfIter( relabel->GetOutput(),
+                            relabel->GetOutput()->GetLargestPossibleRegion() );
     for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
       {
       if( vfIter.Get() > 1 )
@@ -6209,8 +6208,9 @@ int FillHoles(int argc, char *argv[])
     if( erat > holeparam ) // fill the hole
       {
       std::cout << " Filling " << lab << " of " << maximum <<  std::endl;
-      typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-      Iterator vfIter( relabel->GetOutput(),  relabel->GetOutput()->GetLargestPossibleRegion() );
+      typedef itk::ImageRegionIteratorWithIndex<ImageType> RelabelIterator;
+      RelabelIterator vfIter( relabel->GetOutput(),
+                              relabel->GetOutput()->GetLargestPossibleRegion() );
       for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
         {
         if( vfIter.Get() == lab )
@@ -8477,7 +8477,7 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
   typename ImageType::Pointer image2 = NULL;
   typename ImageType::SizeType size;
   size.Fill(0);
-  unsigned int bigimage = 0;
+
   for( unsigned int j = argct; j < argc; j++ )
     {
     numberofimages++;
@@ -8492,7 +8492,6 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
       if( imageIO->GetDimensions(i) > size[i] )
         {
         size[i] = imageIO->GetDimensions(i);
-        bigimage = j;
         std::cout << " bigimage " << j << " size " << size << std::endl;
         }
       }
@@ -8796,7 +8795,7 @@ int ConvertImageSetToEigenvectors(unsigned int argc, char *argv[])
   typename ImageType::Pointer image2 = NULL;
   typename ImageType::SizeType size;
   size.Fill(0);
-  unsigned int bigimage = 0;
+
   for( unsigned int j = argct; j < argc; j++ )
     {
     numberofimages++;
@@ -8811,7 +8810,7 @@ int ConvertImageSetToEigenvectors(unsigned int argc, char *argv[])
       if( imageIO->GetDimensions(i) > size[i] )
         {
         size[i] = imageIO->GetDimensions(i);
-        bigimage = j;
+
         std::cout << " bigimage " << j << " size " << size << std::endl;
         }
       }
@@ -8887,10 +8886,10 @@ int ConvertImageSetToEigenvectors(unsigned int argc, char *argv[])
       typedef double                                            Scalar;
       typedef itk::ants::antsMatrixUtilities<ImageType, Scalar> matrixOpType;
       typename matrixOpType::Pointer matrixOps = matrixOpType::New();
-      typedef vnl_vector<Scalar> VectorType;
+      typedef vnl_vector<Scalar> ScalarVectorType;
       MatrixType evec_matrix(xsize, n_evecs + 1);
       evec_matrix.Fill(0);
-      VectorType avg = matrixOps->AverageColumns(matrix);
+      ScalarVectorType avg = matrixOps->AverageColumns(matrix);
       avg_matrix.set_column(mv, avg);
       evec_matrix.set_column(0, avg);
       MatrixType tempm = matrixOps->GetCovMatEigenvectors(matrix);
@@ -8992,8 +8991,8 @@ int ConvertImageToFile(      int argc, char *argv[])
   logfile.open(outname.c_str() );
   if( logfile.good() )
     {
-    typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-    Iterator vfIter( image,  image->GetLargestPossibleRegion() );
+    typedef itk::ImageRegionIteratorWithIndex<ImageType> ImageIterator;
+    ImageIterator vfIter( image,  image->GetLargestPossibleRegion() );
     for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
       {
       bool getval = true;
