@@ -735,7 +735,7 @@ int ants_motion( itk::ants::CommandLineParser *parser )
         affineRegistration->SetMetric( metric );
         affineRegistration->SetOptimizer( optimizer );
         affineRegistration->SetTransform( affineTransform );
-        affineRegistration->SetCompositeTransform( compositeTransform );
+        affineRegistration->SetMovingInitialTransform( compositeTransform );
 
         typedef CommandIterationUpdate<AffineRegistrationType> AffineCommandType;
         typename AffineCommandType::Pointer affineObserver = AffineCommandType::New();
@@ -790,7 +790,7 @@ int ants_motion( itk::ants::CommandLineParser *parser )
         rigidRegistration->SetMetricSamplingPercentage( samplingPercentage );
         rigidRegistration->SetOptimizer( optimizer );
         rigidRegistration->SetTransform( rigidTransform );
-        rigidRegistration->SetCompositeTransform( compositeTransform );
+        rigidRegistration->SetMovingInitialTransform( compositeTransform );
         typedef CommandIterationUpdate<RigidRegistrationType> RigidCommandType;
         typename RigidCommandType::Pointer rigidObserver = RigidCommandType::New();
         rigidObserver->SetNumberOfIterations( iterations );
@@ -883,7 +883,7 @@ int ants_motion( itk::ants::CommandLineParser *parser )
         displacementFieldRegistration->SetFixedImage( fixed_time_slice );
         displacementFieldRegistration->SetMovingImage( moving_time_slice );
         displacementFieldRegistration->SetNumberOfLevels( numberOfLevels );
-        displacementFieldRegistration->SetCompositeTransform( compositeTransform );
+        displacementFieldRegistration->SetMovingInitialTransform( compositeTransform );
         displacementFieldRegistration->SetTransform( gaussianFieldTransform );
         displacementFieldRegistration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
         displacementFieldRegistration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
