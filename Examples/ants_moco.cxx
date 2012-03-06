@@ -499,8 +499,6 @@ int ants_moco( itk::ants::CommandLineParser *parser )
         typename CorrelationMetricType::RadiusType radius;
         radius.Fill( radiusOption );
         correlationMetric->SetRadius( radius );
-        correlationMetric->SetDoFixedImagePreWarp( true );
-        correlationMetric->SetDoMovingImagePreWarp( true );
         correlationMetric->SetUseMovingImageGradientFilter( false );
         correlationMetric->SetUseFixedImageGradientFilter( false );
 
@@ -515,8 +513,6 @@ int ants_moco( itk::ants::CommandLineParser *parser )
         typename MutualInformationMetricType::Pointer mutualInformationMetric = MutualInformationMetricType::New();
         mutualInformationMetric = mutualInformationMetric;
         mutualInformationMetric->SetNumberOfHistogramBins( binOption );
-        mutualInformationMetric->SetDoFixedImagePreWarp( true );
-        mutualInformationMetric->SetDoMovingImagePreWarp( true );
         mutualInformationMetric->SetUseMovingImageGradientFilter( false );
         mutualInformationMetric->SetUseFixedImageGradientFilter( false );
         typedef typename MutualInformationMetricType::FixedSampledPointSetType PointSetType;
@@ -548,8 +544,6 @@ int ants_moco( itk::ants::CommandLineParser *parser )
         typedef itk::DemonsImageToImageMetricv4<FixedImageType, FixedImageType> DemonsMetricType;
         typename DemonsMetricType::Pointer demonsMetric = DemonsMetricType::New();
         demonsMetric = demonsMetric;
-        demonsMetric->SetDoFixedImagePreWarp( true );
-        demonsMetric->SetDoMovingImagePreWarp( true );
 
         metric = demonsMetric;
         }
