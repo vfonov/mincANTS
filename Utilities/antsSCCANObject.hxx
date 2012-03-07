@@ -1803,7 +1803,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       std::cout << " xk12n " << x_k1.two_norm() << " alpha_k " << alpha_k << " pk2n " << p_k.two_norm()
                 << " xk1-min " << x_k1.min_value() << std::endl;
       }
-    if ( loorth > 0 && hiorth > 0   ) 
+    if ( hiorth > loorth   ) 
       for (  unsigned int wv = loorth; wv < hiorth; wv++ ) 
         x_k1 = this->Orthogonalize( x_k1 , this->m_VariatesP.get_column( wv ) );
 
@@ -1902,7 +1902,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     }
   unsigned int repspervec = this->m_MaximumNumberOfIterations;
   this->m_VariatesP.set_size( this->m_MatrixP.cols() , repspervec * n_vecs );
-  this->m_VariatesP.fill( 0 );
+  this->m_VariatesP.fill( 0 ); 
   for (  unsigned int colind = 0; colind < n_vecs; colind++ )  
     { 
     /******key part of algorithm******/
