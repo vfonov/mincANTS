@@ -63,9 +63,10 @@ public:
   itkNewMacro( Self );
 protected:
   CommandIterationUpdate()
-    {
-      this->m_LogStream = &std::cout;
-    }
+  {
+    this->m_LogStream = &std::cout;
+  }
+
 public:
 
   void Execute(itk::Object *caller, const itk::EventObject & event)
@@ -95,7 +96,7 @@ public:
       this->Logger() << "    shrink factors = " << shrinkFactors[currentLevel] << std::endl;
       this->Logger() << "    smoothing sigmas = " << smoothingSigmas[currentLevel] << std::endl;
       this->Logger() << "    required fixed parameters = " << adaptors[currentLevel]->GetRequiredFixedParameters()
-                << std::endl;
+                     << std::endl;
 
       typedef itk::GradientDescentOptimizerv4 GradientDescentOptimizerType;
       GradientDescentOptimizerType * optimizer = reinterpret_cast<GradientDescentOptimizerType *>(
@@ -109,14 +110,19 @@ public:
     this->m_NumberOfIterations = iterations;
   }
 
-  void SetLogStream(std::ostream &logStream)
-    {
-      this->m_LogStream = &logStream;
-    }
+  void SetLogStream(std::ostream & logStream)
+  {
+    this->m_LogStream = &logStream;
+  }
+
 private:
-  std::ostream &Logger() const { return *m_LogStream; }
+  std::ostream & Logger() const
+  {
+    return *m_LogStream;
+  }
+
   std::vector<unsigned int> m_NumberOfIterations;
-  std::ostream                             *m_LogStream;
+  std::ostream *            m_LogStream;
 };
 
 //
@@ -229,7 +235,7 @@ typename ImageType::Pointer PreprocessImage( ImageType * inputImage,
                                              float winsorizeLowerQuantile, float winsorizeUpperQuantile,
                                              ImageType *histogramMatchSourceImage = NULL )
 {
-  typedef Statistics::ImageToHistogramFilter<ImageType>   HistogramFilterType;
+  typedef Statistics::ImageToHistogramFilter<ImageType>        HistogramFilterType;
   typedef typename HistogramFilterType::InputBooleanObjectType InputBooleanObjectType;
   typedef typename HistogramFilterType::HistogramSizeType      HistogramSizeType;
   typedef typename HistogramFilterType::HistogramType          HistogramType;
@@ -289,34 +295,35 @@ typename ImageType::Pointer PreprocessImage( ImageType * inputImage,
 template <unsigned VImageDimension>
 void
 RegistrationHelper<VImageDimension>
-::AddInitialTransform(const std::string &filename, bool useInverse)
+::AddInitialTransform(const std::string & filename, bool useInverse)
 {
-  InitialTransform init(filename,useInverse);
+  InitialTransform init(filename, useInverse);
+
   this->m_InitialTransforms.push_back(init);
 }
 
 template <unsigned VImageDimension>
 typename RegistrationHelper<VImageDimension>::MetricEnumeration
 RegistrationHelper<VImageDimension>
-::StringToMetricType(const std::string &str) const
+::StringToMetricType(const std::string & str) const
 {
-  if(str == "cc")
+  if( str == "cc" )
     {
     return CC;
     }
-  else if(str == "mi2")
+  else if( str == "mi2" )
     {
     return MI;
     }
-  else if(str == "mattes" || str == "mi")
+  else if( str == "mattes" || str == "mi" )
     {
     return Mattes;
     }
-  else if(str == "meansquares" || str == "msq")
+  else if( str == "meansquares" || str == "msq" )
     {
     return MeanSquares;
     }
-  else if(str == "gc")
+  else if( str == "gc" )
     {
     return GC;
     }
@@ -326,78 +333,78 @@ RegistrationHelper<VImageDimension>
 template <unsigned VImageDimension>
 typename RegistrationHelper<VImageDimension>::XfrmMethod
 RegistrationHelper<VImageDimension>
-::StringToXfrmMethod(const std::string &str) const
+::StringToXfrmMethod(const std::string & str) const
 {
-  if(str == "rigid")
+  if( str == "rigid" )
     {
     return Rigid;
     }
-  else if(str == "affine")
+  else if( str == "affine" )
     {
     return Affine;
     }
-  if(str == "compositeaffine" || str == "compaff")
+  if( str == "compositeaffine" || str == "compaff" )
     {
     return CompositeAffine;
     }
-  if(str == "similarity")
+  if( str == "similarity" )
     {
     return Similarity;
     }
-  if(str == "translation")
+  if( str == "translation" )
     {
     return Translation;
     }
-  if(str == "bspline" ||
-     str == "ffd")
+  if( str == "bspline" ||
+      str == "ffd" )
     {
     return BSpline;
     }
-  if(str == "gaussiandisplacementfield" ||
-     str == "gdf")
+  if( str == "gaussiandisplacementfield" ||
+      str == "gdf" )
     {
     return GaussianDisplacementField;
     }
-  if(str == "bsplinedisplacementfield" ||
-     str == "dmffd")
+  if( str == "bsplinedisplacementfield" ||
+      str == "dmffd" )
     {
     return BSplineDisplacementField;
     }
-  if(str == "timevaryingvelocityfield" ||
-     str == "tvf")
+  if( str == "timevaryingvelocityfield" ||
+      str == "tvf" )
     {
     return TimeVaryingVelocityField;
     }
-  if(str == "timevaryingbsplinevelocityfield" ||
-     str == "tvdmffd")
+  if( str == "timevaryingbsplinevelocityfield" ||
+      str == "tvdmffd" )
     {
     return TimeVaryingBSplineVelocityField;
     }
-  if(str == "syn" ||
-     str == "symmetricnormalization")
+  if( str == "syn" ||
+      str == "symmetricnormalization" )
     {
     return SyN;
     }
   return UnknownXfrm;
 }
 
-
 template <unsigned VImageDimension>
 void
 RegistrationHelper<VImageDimension>
 ::AddMetric(MetricEnumeration metricType,
-            typename ImageType::Pointer &fixedImage,
-            typename ImageType::Pointer &movingImage,
+            typename ImageType::Pointer & fixedImage,
+            typename ImageType::Pointer & movingImage,
             double weighting,
             SamplingStrategy samplingStrategy,
             int numberOfBins,
             unsigned int  radius,
             double samplingPercentage)
 {
-  Metric init(metricType,fixedImage,movingImage,
-              weighting,samplingStrategy,numberOfBins,
+  Metric init(metricType, fixedImage, movingImage,
+              weighting, samplingStrategy, numberOfBins,
               radius,
               samplingPercentage);
+
   this->m_Metrics.push_back(init);
 }
 
@@ -407,6 +414,7 @@ RegistrationHelper<VImageDimension>
 ::AddRigidTransform(double GradientStep)
 {
   TransformMethod init;
+
   init.m_XfrmMethod = Rigid;
   init.m_GradientStep = GradientStep;
   this->m_TransformMethods.push_back(init);
@@ -418,6 +426,7 @@ RegistrationHelper<VImageDimension>
 ::AddAffineTransform(double GradientStep)
 {
   TransformMethod init;
+
   init.m_XfrmMethod = Affine;
   init.m_GradientStep = GradientStep;
   this->m_TransformMethods.push_back(init);
@@ -429,6 +438,7 @@ RegistrationHelper<VImageDimension>
 ::AddCompositeAffineTransform(double GradientStep)
 {
   TransformMethod init;
+
   init.m_XfrmMethod = CompositeAffine;
   init.m_GradientStep = GradientStep;
   this->m_TransformMethods.push_back(init);
@@ -440,6 +450,7 @@ RegistrationHelper<VImageDimension>
 ::AddSimilarityTransform(double GradientStep)
 {
   TransformMethod init;
+
   init.m_XfrmMethod = Similarity;
   init.m_GradientStep = GradientStep;
   this->m_TransformMethods.push_back(init);
@@ -451,6 +462,7 @@ RegistrationHelper<VImageDimension>
 ::AddTranslationTransform(double GradientStep)
 {
   TransformMethod init;
+
   init.m_XfrmMethod = Translation;
   init.m_GradientStep = GradientStep;
   this->m_TransformMethods.push_back(init);
@@ -459,9 +471,10 @@ RegistrationHelper<VImageDimension>
 template <unsigned VImageDimension>
 void
 RegistrationHelper<VImageDimension>
-::AddBSplineTransform(double GradientStep,std::vector<unsigned int> &MeshSizeAtBaseLevel)
+::AddBSplineTransform(double GradientStep, std::vector<unsigned int> & MeshSizeAtBaseLevel)
 {
   TransformMethod init;
+
   init.m_XfrmMethod = BSpline;
   init.m_GradientStep = GradientStep;
   init.m_MeshSizeAtBaseLevel = MeshSizeAtBaseLevel;
@@ -475,6 +488,7 @@ RegistrationHelper<VImageDimension>
                                         double TotalFieldSigmaInPhysicalSpace)
 {
   TransformMethod init;
+
   init.m_XfrmMethod = GaussianDisplacementField;
   init.m_GradientStep = GradientStep;
   init.m_UpdateFieldSigmaInPhysicalSpace = UpdateFieldSigmaInPhysicalSpace;
@@ -486,11 +500,12 @@ template <unsigned VImageDimension>
 void
 RegistrationHelper<VImageDimension>
 ::AddBSplineDisplacementFieldTransform(double GradientStep,
-                                       std::vector<unsigned int> &UpdateFieldMeshSizeAtBaseLevel,
-                                       std::vector<unsigned int> &TotalFieldMeshSizeAtBaseLevel,
+                                       std::vector<unsigned int> & UpdateFieldMeshSizeAtBaseLevel,
+                                       std::vector<unsigned int> & TotalFieldMeshSizeAtBaseLevel,
                                        unsigned int SplineOrder)
 {
   TransformMethod init;
+
   init.m_XfrmMethod = BSplineDisplacementField;
   init.m_GradientStep = GradientStep;
   init.m_UpdateFieldMeshSizeAtBaseLevel = UpdateFieldMeshSizeAtBaseLevel;
@@ -510,6 +525,7 @@ RegistrationHelper<VImageDimension>
                                        double TotalFieldTimeSigma)
 {
   TransformMethod init;
+
   init.m_XfrmMethod = TimeVaryingVelocityField;
   init.m_GradientStep = GradientStep;
   init.m_NumberOfTimeIndices = NumberOfTimeIndices;
@@ -527,6 +543,7 @@ RegistrationHelper<VImageDimension>
                                               unsigned int NumberOfTimePointSamples, unsigned int SplineOrder)
 {
   TransformMethod init;
+
   init.m_XfrmMethod = TimeVaryingBSplineVelocityField;;
   init.m_GradientStep = GradientStep;
   init.m_VelocityFieldMeshSize = VelocityFieldMeshSize;
@@ -538,9 +555,10 @@ RegistrationHelper<VImageDimension>
 template <unsigned VImageDimension>
 void
 RegistrationHelper<VImageDimension>
-::AddSyNTransform(double GradientStep,double UpdateFieldSigmaInPhysicalSpace, double TotalFieldSigmaInPhysicalSpace)
+::AddSyNTransform(double GradientStep, double UpdateFieldSigmaInPhysicalSpace, double TotalFieldSigmaInPhysicalSpace)
 {
   TransformMethod init;
+
   init.m_XfrmMethod = SyN;
   init.m_GradientStep = GradientStep;
   init.m_UpdateFieldSigmaInPhysicalSpace = UpdateFieldSigmaInPhysicalSpace;
@@ -551,7 +569,7 @@ RegistrationHelper<VImageDimension>
 template <unsigned VImageDimension>
 void
 RegistrationHelper<VImageDimension>
-::SetIterations(const std::vector<std::vector<unsigned int> > &Iterations)
+::SetIterations(const std::vector<std::vector<unsigned int> > & Iterations)
 {
   this->m_Iterations = Iterations;
 }
@@ -559,7 +577,7 @@ RegistrationHelper<VImageDimension>
 template <unsigned VImageDimension>
 void
 RegistrationHelper<VImageDimension>
-::SetSmoothingSigmas(const std::vector<std::vector<float> > &SmoothingSigmas)
+::SetSmoothingSigmas(const std::vector<std::vector<float> > & SmoothingSigmas)
 {
   this->m_SmoothingSigmas = SmoothingSigmas;
 }
@@ -567,7 +585,7 @@ RegistrationHelper<VImageDimension>
 template <unsigned VImageDimension>
 void
 RegistrationHelper<VImageDimension>
-::SetShrinkFactors(const std::vector<std::vector<unsigned int> > &ShrinkFactors)
+::SetShrinkFactors(const std::vector<std::vector<unsigned int> > & ShrinkFactors)
 {
   this->m_ShrinkFactors = ShrinkFactors;
 }
@@ -587,45 +605,45 @@ int
 RegistrationHelper<VImageDimension>
 ::ValidateParameters()
 {
-  if(this->m_NumberOfStages == 0)
+  if( this->m_NumberOfStages == 0 )
     {
     std::cerr << "No transformations are specified." << std::endl;
     return EXIT_FAILURE;
     }
-  if(this->m_Metrics.size() != this->m_NumberOfStages)
+  if( this->m_Metrics.size() != this->m_NumberOfStages )
     {
     std::cerr << "The number of metrics specified does not match the number of stages." << std::endl;
     return EXIT_FAILURE;
     }
-  if(this->m_Iterations.size() != this->m_NumberOfStages)
+  if( this->m_Iterations.size() != this->m_NumberOfStages )
     {
     std::cerr << "The number of iteration sets specified does not match the number of stages." << std::endl;
     return EXIT_FAILURE;
     }
-  if(this->m_ShrinkFactors.size() != this->m_NumberOfStages)
+  if( this->m_ShrinkFactors.size() != this->m_NumberOfStages )
     {
     std::cerr << "The number of shrinkFactors specified does not match the number of stages." << std::endl;
     return EXIT_FAILURE;
     }
-  if(this->m_SmoothingSigmas.size() != this->m_NumberOfStages)
+  if( this->m_SmoothingSigmas.size() != this->m_NumberOfStages )
     {
     std::cerr << "The number of smoothing sigma sets specified does not match the number of stages." << std::endl;
     return EXIT_FAILURE;
     }
-  if(this->m_OutputTransformPrefix == "")
+  if( this->m_OutputTransformPrefix == "" )
     {
     std::cerr << "Output option not specified." << std::endl;
     return EXIT_FAILURE;
     }
-  if(this->m_WriteOutputs && this->m_OutputTransformPrefix == "")
+  if( this->m_WriteOutputs && this->m_OutputTransformPrefix == "" )
     {
     std::cerr << "Output option not specified." << std::endl;
     return EXIT_FAILURE;
     }
-  for(unsigned int i = 0; i < this->m_NumberOfStages; i++)
+  for( unsigned int i = 0; i < this->m_NumberOfStages; i++ )
     {
-    if(this->m_Metrics[i].m_FixedImage.IsNull() ||
-       this->m_Metrics[i].m_MovingImage.IsNull())
+    if( this->m_Metrics[i].m_FixedImage.IsNull() ||
+        this->m_Metrics[i].m_MovingImage.IsNull() )
       {
       std::cerr << "Must either add Metrics with filenames, or pointers to images" << std::endl;
       return EXIT_FAILURE;
@@ -637,7 +655,7 @@ RegistrationHelper<VImageDimension>
 template <unsigned VImageDimension>
 int
 RegistrationHelper<VImageDimension>
-::SetupInitialTransform(typename CompositeTransformType::Pointer &compositeTransform)
+::SetupInitialTransform(typename CompositeTransformType::Pointer & compositeTransform)
 {
   // Register the matrix offset transform base class to the
   // transform factory for compatibility with the current ANTs.
@@ -652,7 +670,7 @@ RegistrationHelper<VImageDimension>
   compositeTransform->AddTransform( identityTransform );
   compositeTransform->SetAllTransformsToOptimize( false );
 
-  if(this->m_InitialTransforms.size() == 0)
+  if( this->m_InitialTransforms.size() == 0 )
     {
     return EXIT_SUCCESS;
     }
@@ -689,7 +707,7 @@ RegistrationHelper<VImageDimension>
       hasTransformBeenRead = false;
       }
 
-    if(hasTransformBeenRead)
+    if( hasTransformBeenRead )
       {
       typename DisplacementFieldTransformType::Pointer displacementFieldTransform =
         DisplacementFieldTransformType::New();
@@ -731,7 +749,7 @@ RegistrationHelper<VImageDimension>
       initialTransform =
         dynamic_cast<TransformType *>( ( ( initialTransformReader->GetTransformList() )->front() ).GetPointer() );
 
-      if(this->m_InitialTransforms[n].m_UseInverse)
+      if( this->m_InitialTransforms[n].m_UseInverse )
         {
         initialTransform =
           dynamic_cast<TransformType *>(initialTransform->GetInverseTransform().GetPointer() );
@@ -751,7 +769,7 @@ RegistrationHelper<VImageDimension>
   for( unsigned int n = 0; n < initialTransformNames.size(); n++ )
     {
     this->Logger() << "  " << n + 1 << ". " << initialTransformNames[n] << " (type = "
-              << initialTransformTypes[n] << ")" << std::endl;
+                   << initialTransformTypes[n] << ")" << std::endl;
     }
   return EXIT_SUCCESS;
 }
@@ -762,11 +780,12 @@ RegistrationHelper<VImageDimension>
 ::DoRegistration()
 {
   itk::TimeProbe totalTimer;
+
   totalTimer.Start();
 
   this->m_NumberOfStages = this->m_TransformMethods.size();
 
-  if(this->ValidateParameters() != EXIT_SUCCESS)
+  if( this->ValidateParameters() != EXIT_SUCCESS )
     {
     return EXIT_FAILURE;
     }
@@ -777,13 +796,18 @@ RegistrationHelper<VImageDimension>
   this->m_CompositeTransform = CompositeTransformType::New();
 
   // Load an initial initialTransform if requested
-  if(this->SetupInitialTransform(this->m_CompositeTransform) != EXIT_SUCCESS)
+  if( this->SetupInitialTransform(this->m_CompositeTransform) != EXIT_SUCCESS )
     {
     return EXIT_FAILURE;
     }
 
-  const size_t numberOfInitialTransforms = this->m_CompositeTransform->GetNumberOfTransforms() -1; //NOTE:  the -1 is to ignore the initial identity transform that is part of the composit transform.
-
+  const size_t numberOfInitialTransforms = this->m_CompositeTransform->GetNumberOfTransforms() - 1; // NOTE:  the -1 is
+                                                                                                    // to ignore the
+                                                                                                    // initial identity
+                                                                                                    // transform that is
+                                                                                                    // part of the
+                                                                                                    // composit
+                                                                                                    // transform.
   for( int currentStage = this->m_NumberOfStages - 1; currentStage >= 0; currentStage-- )
     {
     itk::TimeProbe timer;
@@ -791,9 +815,9 @@ RegistrationHelper<VImageDimension>
 
     typedef itk::ImageRegistrationMethodv4<ImageType, ImageType> AffineRegistrationType;
 
-    const int stageNumber=numberOfInitialTransforms + this->m_NumberOfStages - currentStage - 1;
+    const int stageNumber = numberOfInitialTransforms + this->m_NumberOfStages - currentStage - 1;
     this->Logger() << std::endl << "Stage "
-      << ( stageNumber ) << std::endl;
+                   << ( stageNumber ) << std::endl;
     std::stringstream currentStageString;
     currentStageString << ( stageNumber );
 
@@ -807,7 +831,7 @@ RegistrationHelper<VImageDimension>
     PixelType lowerScaleValue = 0.0;
     PixelType upperScaleValue = 1.0;
 
-    if(this->m_WinsorizeImageIntensities)
+    if( this->m_WinsorizeImageIntensities )
       {
       outputPreprocessingString += "  preprocessing:  winsorizing the image intensities\n";
       }
@@ -842,11 +866,11 @@ RegistrationHelper<VImageDimension>
     // Get the number of iterations and use that information to specify the number of levels
 
     std::vector<unsigned int> iterations = this->m_Iterations[currentStage];
-    this->Logger() << "  iterations = " ;
-    for(unsigned m = 0; m < iterations.size(); m++)
+    this->Logger() << "  iterations = ";
+    for( unsigned m = 0; m < iterations.size(); m++ )
       {
       this->Logger() << iterations[m];
-      if(m < iterations.size() - 1)
+      if( m < iterations.size() - 1 )
         {
         this->Logger() << 'x';
         }
@@ -867,7 +891,6 @@ RegistrationHelper<VImageDimension>
                 << " does not match the number of levels." << std::endl;
       return EXIT_FAILURE;
       }
-
     for( unsigned int n = 0; n < shrinkFactorsPerLevel.Size(); n++ )
       {
       shrinkFactorsPerLevel[n] = factors[n];
@@ -897,15 +920,15 @@ RegistrationHelper<VImageDimension>
     typedef itk::ImageToImageMetricv4<ImageType, ImageType> MetricType;
     typename MetricType::Pointer metric;
 
-    float samplingPercentage = this->m_Metrics[currentStage].m_SamplingPercentage;
+    float            samplingPercentage = this->m_Metrics[currentStage].m_SamplingPercentage;
     SamplingStrategy samplingStrategy = this->m_Metrics[currentStage].m_SamplingStrategy;
     typename AffineRegistrationType::MetricSamplingStrategyType metricSamplingStrategy = AffineRegistrationType::NONE;
-    if( samplingStrategy == random)
+    if( samplingStrategy == random )
       {
       this->Logger() << "  random sampling (percentage = " << samplingPercentage << ")" << std::endl;
       metricSamplingStrategy = AffineRegistrationType::RANDOM;
       }
-    else if( samplingStrategy == regular)
+    else if( samplingStrategy == regular )
       {
       this->Logger() << "  regular sampling (percentage = " << samplingPercentage << ")" << std::endl;
       metricSamplingStrategy = AffineRegistrationType::REGULAR;
@@ -915,14 +938,14 @@ RegistrationHelper<VImageDimension>
       std::cout << "  Using default NONE metricSamplingStrategy " << std::endl;
       }
 
-    switch(this->m_Metrics[currentStage].m_MetricType)
+    switch( this->m_Metrics[currentStage].m_MetricType )
       {
       case CC:
         {
         unsigned int radiusOption = this->m_Metrics[currentStage].m_Radius;
 
         this->Logger() << "  using the CC metric (radius = "
-                  << radiusOption << ")" << std::endl;
+                       << radiusOption << ")" << std::endl;
         typedef itk::ANTSNeighborhoodCorrelationImageToImageMetricv4<ImageType, ImageType> CorrelationMetricType;
         typename CorrelationMetricType::Pointer correlationMetric = CorrelationMetricType::New();
         typename CorrelationMetricType::RadiusType radius;
@@ -938,9 +961,9 @@ RegistrationHelper<VImageDimension>
         {
         unsigned int binOption = this->m_Metrics[currentStage].m_NumberOfBins;
         this->Logger() << "  using the Mattes MI metric (number of bins = "
-                  << binOption << ")" << std::endl;
+                       << binOption << ")" << std::endl;
         typedef itk::MattesMutualInformationImageToImageMetricv4<ImageType, ImageType>
-          MutualInformationMetricType;
+        MutualInformationMetricType;
         typename MutualInformationMetricType::Pointer mutualInformationMetric =
           MutualInformationMetricType::New();
         mutualInformationMetric = mutualInformationMetric;
@@ -1015,11 +1038,10 @@ RegistrationHelper<VImageDimension>
     //    optimizer->SetMinimumConvergenceValue( -1 );
     //    optimizer->SetConvergenceWindowSize( 10 );
 
-
-
     // Set up the image registration methods along with the transforms
     XfrmMethod whichTransform = this->m_TransformMethods[currentStage].m_XfrmMethod;
-    switch(whichTransform)
+
+    switch( whichTransform )
       {
       case Affine:
         {
@@ -1058,10 +1080,11 @@ RegistrationHelper<VImageDimension>
           }
 
         // Add calculated transform to the composite transform
-        this->m_CompositeTransform->AddTransform( const_cast<AffineTransformType *>( affineRegistration->GetOutput()->Get() ) );
+        this->m_CompositeTransform->AddTransform( const_cast<AffineTransformType *>( affineRegistration->GetOutput()->
+                                                                                     Get() ) );
 
         // Write out the affine transform
-        if(this->m_WriteOutputs)
+        if( this->m_WriteOutputs )
           {
           std::string filename = this->m_OutputTransformPrefix;
           filename += currentStageString.str();
@@ -1115,7 +1138,7 @@ RegistrationHelper<VImageDimension>
         // Add calculated transform to the composite transform
         this->m_CompositeTransform->AddTransform( const_cast<RigidTransformType *>( rigidRegistration->GetOutput()->Get() ) );
 
-        if(this->m_WriteOutputs)
+        if( this->m_WriteOutputs )
           {
           // Write out the rigid transform
           std::string filename = this->m_OutputTransformPrefix;
@@ -1134,7 +1157,8 @@ RegistrationHelper<VImageDimension>
         {
         typedef typename CompositeAffineTransformTraits<VImageDimension>::TransformType CompositeAffineTransformType;
 
-        typedef itk::ImageRegistrationMethodv4<ImageType, ImageType, CompositeAffineTransformType> AffineRegistrationType;
+        typedef itk::ImageRegistrationMethodv4<ImageType, ImageType,
+                                               CompositeAffineTransformType> AffineRegistrationType;
         typename AffineRegistrationType::Pointer affineRegistration = AffineRegistrationType::New();
 
         affineRegistration->SetFixedImage( preprocessFixedImage );
@@ -1168,12 +1192,13 @@ RegistrationHelper<VImageDimension>
           return EXIT_FAILURE;
           }
         // Add calculated transform to the composite transform
-        this->m_CompositeTransform->AddTransform( const_cast<CompositeAffineTransformType *>( affineRegistration->GetOutput()->
+        this->m_CompositeTransform->AddTransform( const_cast<CompositeAffineTransformType *>( affineRegistration->
+                                                                                              GetOutput()->
                                                                                               Get() ) );
 
         // Write out the affine transform
 
-        if(this->m_WriteOutputs)
+        if( this->m_WriteOutputs )
           {
           std::string filename = this->m_OutputTransformPrefix;
           filename += currentStageString.str();
@@ -1191,7 +1216,8 @@ RegistrationHelper<VImageDimension>
         {
         typedef typename SimilarityTransformTraits<VImageDimension>::TransformType SimilarityTransformType;
 
-        typedef itk::ImageRegistrationMethodv4<ImageType, ImageType, SimilarityTransformType> SimilarityRegistrationType;
+        typedef itk::ImageRegistrationMethodv4<ImageType, ImageType,
+                                               SimilarityTransformType> SimilarityRegistrationType;
         typename SimilarityRegistrationType::Pointer similarityRegistration = SimilarityRegistrationType::New();
 
         similarityRegistration->SetFixedImage( preprocessFixedImage );
@@ -1225,11 +1251,12 @@ RegistrationHelper<VImageDimension>
           return EXIT_FAILURE;
           }
         // Add calculated transform to the composite transform
-        this->m_CompositeTransform->AddTransform( const_cast<SimilarityTransformType *>( similarityRegistration->GetOutput()->Get() ) );
+        this->m_CompositeTransform->AddTransform( const_cast<SimilarityTransformType *>( similarityRegistration->
+                                                                                         GetOutput()->Get() ) );
 
         // Write out the similarity transform
 
-        if(this->m_WriteOutputs)
+        if( this->m_WriteOutputs )
           {
           std::string filename = this->m_OutputTransformPrefix;
           filename += currentStageString.str();
@@ -1282,12 +1309,13 @@ RegistrationHelper<VImageDimension>
           return EXIT_FAILURE;
           }
         // Add calculated transform to the composite transform
-        this->m_CompositeTransform->AddTransform( const_cast<TranslationTransformType *>( translationRegistration->GetOutput()->
+        this->m_CompositeTransform->AddTransform( const_cast<TranslationTransformType *>( translationRegistration->
+                                                                                          GetOutput()->
                                                                                           Get() ) );
 
         // Write out the translation transform
 
-        if(this->m_WriteOutputs)
+        if( this->m_WriteOutputs )
           {
           std::string filename = this->m_OutputTransformPrefix;
           filename += currentStageString.str();
@@ -1325,7 +1353,7 @@ RegistrationHelper<VImageDimension>
         // Create the transform adaptors
 
         typedef itk::DisplacementFieldTransformParametersAdaptor<DisplacementFieldTransformType>
-          DisplacementFieldTransformAdaptorType;
+        DisplacementFieldTransformAdaptorType;
         typename DisplacementFieldRegistrationType::TransformParametersAdaptorsContainerType adaptors;
 
         // Extract parameters
@@ -1387,9 +1415,10 @@ RegistrationHelper<VImageDimension>
 
         try
           {
-          this->Logger() << std::endl << "*** Running gaussian displacement field registration (varianceForUpdateField = "
-                    << varianceForUpdateField << ", varianceForTotalField = " << varianceForTotalField << ") ***"
-                    << std::endl << std::endl;
+          this->Logger() << std::endl
+                         << "*** Running gaussian displacement field registration (varianceForUpdateField = "
+                         << varianceForUpdateField << ", varianceForTotalField = " << varianceForTotalField << ") ***"
+                         << std::endl << std::endl;
           displacementFieldRegistrationObserver->Execute( displacementFieldRegistration, itk::StartEvent() );
           displacementFieldRegistration->StartRegistration();
           }
@@ -1404,7 +1433,7 @@ RegistrationHelper<VImageDimension>
 
         // Write out the displacement field
 
-        if(this->m_WriteOutputs)
+        if( this->m_WriteOutputs )
           {
           std::string filename = this->m_OutputTransformPrefix;
           filename += currentStageString.str();
@@ -1443,12 +1472,12 @@ RegistrationHelper<VImageDimension>
         // Create the transform adaptors
 
         typedef itk::DisplacementFieldTransformParametersAdaptor<DisplacementFieldTransformType>
-          DisplacementFieldTransformAdaptorType;
+        DisplacementFieldTransformAdaptorType;
         typename DisplacementFieldRegistrationType::TransformParametersAdaptorsContainerType adaptors;
 
         // Extract parameters
 
-        const std::vector<unsigned int> &meshSizeForTheUpdateField =
+        const std::vector<unsigned int> & meshSizeForTheUpdateField =
           this->m_TransformMethods[currentStage].m_UpdateFieldMeshSizeAtBaseLevel;
         std::vector<unsigned int> meshSizeForTheTotalField =
           this->m_TransformMethods[currentStage].m_TotalFieldMeshSizeAtBaseLevel;
@@ -1479,8 +1508,9 @@ RegistrationHelper<VImageDimension>
           shrinkFilter->SetInput( displacementField );
           shrinkFilter->Update();
 
-          typedef itk::BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor<DisplacementFieldTransformType>
-            BSplineDisplacementFieldTransformAdaptorType;
+          typedef itk::BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor<
+            DisplacementFieldTransformType>
+          BSplineDisplacementFieldTransformAdaptorType;
           typename BSplineDisplacementFieldTransformAdaptorType::Pointer bsplineFieldTransformAdaptor =
             BSplineDisplacementFieldTransformAdaptorType::New();
           bsplineFieldTransformAdaptor->SetRequiredSpacing( shrinkFilter->GetOutput()->GetSpacing() );
@@ -1526,9 +1556,10 @@ RegistrationHelper<VImageDimension>
 
         try
           {
-          this->Logger() << std::endl << "*** Running bspline displacement field registration (updateMeshSizeAtBaseLevel = "
-                    << updateMeshSize << ", totalMeshSizeAtBaseLevel = " << totalMeshSize << ") ***" << std::endl
-                    << std::endl;
+          this->Logger() << std::endl
+                         << "*** Running bspline displacement field registration (updateMeshSizeAtBaseLevel = "
+                         << updateMeshSize << ", totalMeshSizeAtBaseLevel = " << totalMeshSize << ") ***" << std::endl
+                         << std::endl;
           displacementFieldRegistrationObserver->Execute( displacementFieldRegistration, itk::StartEvent() );
           displacementFieldRegistration->StartRegistration();
           }
@@ -1543,7 +1574,7 @@ RegistrationHelper<VImageDimension>
 
         // Write out the displacement field
 
-        if(this->m_WriteOutputs)
+        if( this->m_WriteOutputs )
           {
           std::string filename = this->m_OutputTransformPrefix;
           filename += currentStageString.str();
@@ -1568,7 +1599,7 @@ RegistrationHelper<VImageDimension>
         typename BSplineTransformType::Pointer outputBSplineTransform =
           const_cast<BSplineTransformType *>( bsplineRegistration->GetOutput()->Get() );
 
-        const std::vector<unsigned int> &size =
+        const std::vector<unsigned int> & size =
           this->m_TransformMethods[currentStage].m_MeshSizeAtBaseLevel;
 
         typename BSplineTransformType::PhysicalDimensionsType physicalDimensions;
@@ -1635,8 +1666,9 @@ RegistrationHelper<VImageDimension>
 
         try
           {
-          this->Logger() << std::endl << "*** Running bspline registration (meshSizeAtBaseLevel = " << meshSize << ") ***"
-                    << std::endl << std::endl;
+          this->Logger() << std::endl << "*** Running bspline registration (meshSizeAtBaseLevel = " << meshSize
+                         << ") ***"
+                         << std::endl << std::endl;
           bsplineObserver->Execute( bsplineRegistration, itk::StartEvent() );
           bsplineRegistration->StartRegistration();
           }
@@ -1650,11 +1682,11 @@ RegistrationHelper<VImageDimension>
 
         // Write out B-spline transform
 
-        if(this->m_WriteOutputs)
+        if( this->m_WriteOutputs )
           {
           std::string filename = this->m_OutputTransformPrefix;
           filename += currentStageString.str();
-          filename +="BSpline.txt";
+          filename += "BSpline.txt";
 
           typedef itk::TransformFileWriter TransformWriterType;
           typename TransformWriterType::Pointer transformWriter = TransformWriterType::New();
@@ -1724,7 +1756,7 @@ RegistrationHelper<VImageDimension>
         RealType varianceForTotalFieldTime = this->m_TransformMethods[currentStage].m_TotalFieldTimeSigma;
 
         typedef itk::TimeVaryingVelocityFieldImageRegistrationMethodv4<ImageType,
-          ImageType> VelocityFieldRegistrationType;
+                                                                       ImageType> VelocityFieldRegistrationType;
         typename VelocityFieldRegistrationType::Pointer velocityFieldRegistration = VelocityFieldRegistrationType::New();
 
         typedef typename VelocityFieldRegistrationType::OutputTransformType OutputTransformType;
@@ -1760,7 +1792,7 @@ RegistrationHelper<VImageDimension>
         velocityFieldRegistration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
 
         typedef itk::TimeVaryingVelocityFieldTransformParametersAdaptor<OutputTransformType>
-          VelocityFieldTransformAdaptorType;
+        VelocityFieldTransformAdaptorType;
 
         typename VelocityFieldRegistrationType::TransformParametersAdaptorsContainerType adaptors;
         for( unsigned int level = 0; level < shrinkFactorsPerLevel.Size(); level++ )
@@ -1815,11 +1847,12 @@ RegistrationHelper<VImageDimension>
 
         try
           {
-          this->Logger() << std::endl << "*** Running time-varying velocity field registration (varianceForUpdateField = "
-                    << varianceForUpdateField << ", varianceForTotalField = " << varianceForTotalField
-                    << ", varianceForUpdateFieldTime = "
-                    << varianceForUpdateFieldTime << ", varianceForTotalFieldTime = " << varianceForTotalFieldTime
-                    << ") ***" << std::endl << std::endl;
+          this->Logger() << std::endl
+                         << "*** Running time-varying velocity field registration (varianceForUpdateField = "
+                         << varianceForUpdateField << ", varianceForTotalField = " << varianceForTotalField
+                         << ", varianceForUpdateFieldTime = "
+                         << varianceForUpdateFieldTime << ", varianceForTotalFieldTime = " << varianceForTotalFieldTime
+                         << ") ***" << std::endl << std::endl;
           velocityFieldRegistrationObserver->Execute( velocityFieldRegistration, itk::StartEvent() );
           velocityFieldRegistration->StartRegistration();
           }
@@ -1833,7 +1866,7 @@ RegistrationHelper<VImageDimension>
 
         // Write out the displacement fields
 
-        if(this->m_WriteOutputs)
+        if( this->m_WriteOutputs )
           {
           std::string filename = this->m_OutputTransformPrefix;
           filename += currentStageString.str();
@@ -1847,7 +1880,8 @@ RegistrationHelper<VImageDimension>
           writer->SetFileName( filename.c_str() );
           writer->Update();
 
-          std::string inverseFilename = this->m_OutputTransformPrefix + currentStageString.str() + std::string( "InverseWarp.nii.gz" );
+          std::string inverseFilename = this->m_OutputTransformPrefix + currentStageString.str() + std::string(
+              "InverseWarp.nii.gz" );
 
           typedef itk::ImageFileWriter<DisplacementFieldType> InverseWriterType;
           typename InverseWriterType::Pointer inverseWriter = InverseWriterType::New();
@@ -1864,7 +1898,7 @@ RegistrationHelper<VImageDimension>
 
         // Determine the parameters (size, spacing, etc) for the time-varying velocity field control point lattice
 
-        const std::vector<unsigned int> &meshSize = this->m_TransformMethods[currentStage].m_VelocityFieldMeshSize;
+        const std::vector<unsigned int> & meshSize = this->m_TransformMethods[currentStage].m_VelocityFieldMeshSize;
         if( meshSize.size() != VImageDimension + 1 )
           {
           std::cerr << "The transform domain mesh size does not have the correct number of elements."
@@ -1911,7 +1945,7 @@ RegistrationHelper<VImageDimension>
           transformDomainMeshSize;
 
         typedef itk::TimeVaryingBSplineVelocityFieldImageRegistrationMethod<ImageType,
-          ImageType> VelocityFieldRegistrationType;
+                                                                            ImageType> VelocityFieldRegistrationType;
         typename VelocityFieldRegistrationType::Pointer velocityFieldRegistration = VelocityFieldRegistrationType::New();
 
         typedef typename VelocityFieldRegistrationType::OutputTransformType OutputTransformType;
@@ -1933,7 +1967,7 @@ RegistrationHelper<VImageDimension>
         outputTransform->SetUpperTimeBound( 1.0 );
 
         typedef itk::TimeVaryingBSplineVelocityFieldTransformParametersAdaptor<OutputTransformType>
-          VelocityFieldTransformAdaptorType;
+        VelocityFieldTransformAdaptorType;
         typename VelocityFieldTransformAdaptorType::Pointer initialFieldTransformAdaptor =
           VelocityFieldTransformAdaptorType::New();
         initialFieldTransformAdaptor->SetTransform( outputTransform );
@@ -2015,8 +2049,8 @@ RegistrationHelper<VImageDimension>
         try
           {
           this->Logger() << std::endl
-                    << "*** Running time-varying b-spline velocity field registration (initial mesh size = "
-                    << initialTransformDomainMeshSize << ") ***" << std::endl << std::endl;
+                         << "*** Running time-varying b-spline velocity field registration (initial mesh size = "
+                         << initialTransformDomainMeshSize << ") ***" << std::endl << std::endl;
           velocityFieldRegistrationObserver->Execute( velocityFieldRegistration, itk::StartEvent() );
           velocityFieldRegistration->StartRegistration();
           }
@@ -2030,7 +2064,7 @@ RegistrationHelper<VImageDimension>
 
         // Write out the displacement fields
 
-        if(this->m_WriteOutputs)
+        if( this->m_WriteOutputs )
           {
           std::string filename = this->m_OutputTransformPrefix;
           filename += currentStageString.str();
@@ -2044,8 +2078,8 @@ RegistrationHelper<VImageDimension>
           writer->SetFileName( filename.c_str() );
           writer->Update();
 
-          std::string inverseFilename = this->m_OutputTransformPrefix +
-            currentStageString.str() + std::string( "InverseWarp.nii.gz" );
+          std::string inverseFilename = this->m_OutputTransformPrefix
+            + currentStageString.str() + std::string( "InverseWarp.nii.gz" );
 
           typedef itk::ImageFileWriter<DisplacementFieldType> InverseWriterType;
           typename InverseWriterType::Pointer inverseWriter = InverseWriterType::New();
@@ -2075,7 +2109,7 @@ RegistrationHelper<VImageDimension>
         typedef itk::DisplacementFieldTransform<RealType, VImageDimension> DisplacementFieldTransformType;
 
         typedef itk::SyNImageRegistrationMethod<ImageType, ImageType,
-          DisplacementFieldTransformType> DisplacementFieldRegistrationType;
+                                                DisplacementFieldTransformType> DisplacementFieldRegistrationType;
         typename DisplacementFieldRegistrationType::Pointer displacementFieldRegistration =
           DisplacementFieldRegistrationType::New();
 
@@ -2085,7 +2119,7 @@ RegistrationHelper<VImageDimension>
         // Create the transform adaptors
 
         typedef itk::DisplacementFieldTransformParametersAdaptor<DisplacementFieldTransformType>
-          DisplacementFieldTransformAdaptorType;
+        DisplacementFieldTransformAdaptorType;
         typename DisplacementFieldRegistrationType::TransformParametersAdaptorsContainerType adaptors;
         // Create the transform adaptors
         // For the gaussian displacement field, the specified variances are in image spacing terms
@@ -2154,8 +2188,8 @@ RegistrationHelper<VImageDimension>
         try
           {
           this->Logger() << std::endl << "*** Running SyN registration (varianceForUpdateField = "
-                    << varianceForUpdateField << ", varianceForTotalField = " << varianceForTotalField << ") ***"
-                    << std::endl << std::endl;
+                         << varianceForUpdateField << ", varianceForTotalField = " << varianceForTotalField << ") ***"
+                         << std::endl << std::endl;
           displacementFieldRegistrationObserver->Execute( displacementFieldRegistration, itk::StartEvent() );
           displacementFieldRegistration->StartRegistration();
           }
@@ -2169,7 +2203,7 @@ RegistrationHelper<VImageDimension>
         this->m_CompositeTransform->AddTransform( outputDisplacementFieldTransform );
 
         // Write out the displacement field and its inverse
-        if(this->m_WriteOutputs)
+        if( this->m_WriteOutputs )
           {
           std::string filename = this->m_OutputTransformPrefix;
           filename += currentStageString.str();
@@ -2196,12 +2230,13 @@ RegistrationHelper<VImageDimension>
       }
     timer.Stop();
     this->Logger() << "  Elapsed time (stage "
-              << ( this->m_NumberOfStages - currentStage - 1 ) << "): " << timer.GetMeanTime() << std::endl << std::endl;
+                   << ( this->m_NumberOfStages - currentStage
+         - 1 ) << "): " << timer.GetMeanTime() << std::endl << std::endl;
     }
 
   // if writing outputs is turned off, still want to save warped &
   // inverse images for retrieval via member functions
-  if( this->m_OutputWarpedImageName != "" || !this->m_WriteOutputs)
+  if( this->m_OutputWarpedImageName != "" || !this->m_WriteOutputs )
     {
 
     this->Logger() << "Warping moving image to fixed image space" << std::endl;
@@ -2222,7 +2257,7 @@ RegistrationHelper<VImageDimension>
 
     this->m_WarpedImage = resampler->GetOutput();
 
-    if(this->m_WriteOutputs)
+    if( this->m_WriteOutputs )
       {
       std::string fileName = this->m_OutputWarpedImageName;
 
@@ -2253,7 +2288,7 @@ RegistrationHelper<VImageDimension>
 
       this->m_InverseWarpedImage = inverseResampler->GetOutput();
 
-      if(this->m_WriteOutputs)
+      if( this->m_WriteOutputs )
         {
         std::string inverseFileName = this->m_OutputInverseWarpedImageName;
 
@@ -2286,31 +2321,32 @@ RegistrationHelper<VImageDimension>
                  << "Use Histogram Matching " << (this->m_UseHistogramMatching ? "true" : "false")
                  << std::endl
                  << "Winsorize Image Intensities "
-                 << (this->m_WinsorizeImageIntensities ? "true" : "false")<< std::endl;
-
-  for(unsigned i = 0; i < this->m_NumberOfStages; i++)
+                 << (this->m_WinsorizeImageIntensities ? "true" : "false") << std::endl;
+  for( unsigned i = 0; i < this->m_NumberOfStages; i++ )
     {
-    this->Logger() << "Stage " << i + 1 << " State" << std::endl; //NOTE: + 1 for consistency.
-    const Metric &curMetric = this->m_Metrics[i];
-    const TransformMethod &curTransform = this->m_TransformMethods[i];
+    this->Logger() << "Stage " << i + 1 << " State" << std::endl; // NOTE: + 1 for consistency.
+    const Metric &          curMetric = this->m_Metrics[i];
+    const TransformMethod & curTransform = this->m_TransformMethods[i];
     this->Logger() << "   Metric = " << curMetric.GetMetricAsString() << std::endl
-              << "     Fixed Image = " << curMetric.m_FixedImage << std::endl
-              << "     Moving Image = " << curMetric.m_MovingImage << std::endl
-              << "     Weighting = " << curMetric.m_Weighting << std::endl
-              << "     Sampling Strategy = "
-              << (curMetric.m_SamplingStrategy == random ? "random" : "regular")
-              << std::endl
-              << "     NumberOfBins = " << curMetric.m_NumberOfBins << std::endl
-              << "     Radius = " << curMetric.m_Radius << std::endl
-              << "     Sampling percentage  = " << curMetric.m_SamplingPercentage << std::endl
-              << "   Transform = " << curTransform.XfrmMethodAsString() << std::endl
-              << "     Gradient Step = " << curTransform.m_GradientStep << std::endl
-              << "     Update Field Sigma (physical space) = " << curTransform.m_UpdateFieldSigmaInPhysicalSpace << std::endl
-              << "     Total Field Sigma (physical space) = " << curTransform.m_TotalFieldSigmaInPhysicalSpace << std::endl
-              << "     Update Field Time Sigma = " << curTransform.m_UpdateFieldTimeSigma << std::endl
-              << "     Total Field Time Sigma  = " << curTransform.m_TotalFieldTimeSigma << std::endl
-              << "     Number of Time Indices = " << curTransform.m_NumberOfTimeIndices << std::endl
-              << "     Number of Time Point Samples = " << curTransform.m_NumberOfTimeIndices << std::endl;
+                   << "     Fixed Image = " << curMetric.m_FixedImage << std::endl
+                   << "     Moving Image = " << curMetric.m_MovingImage << std::endl
+                   << "     Weighting = " << curMetric.m_Weighting << std::endl
+                   << "     Sampling Strategy = "
+                   << (curMetric.m_SamplingStrategy == random ? "random" : "regular")
+                   << std::endl
+                   << "     NumberOfBins = " << curMetric.m_NumberOfBins << std::endl
+                   << "     Radius = " << curMetric.m_Radius << std::endl
+                   << "     Sampling percentage  = " << curMetric.m_SamplingPercentage << std::endl
+                   << "   Transform = " << curTransform.XfrmMethodAsString() << std::endl
+                   << "     Gradient Step = " << curTransform.m_GradientStep << std::endl
+                   << "     Update Field Sigma (physical space) = "
+                   << curTransform.m_UpdateFieldSigmaInPhysicalSpace << std::endl
+                   << "     Total Field Sigma (physical space) = " << curTransform.m_TotalFieldSigmaInPhysicalSpace
+                   << std::endl
+                   << "     Update Field Time Sigma = " << curTransform.m_UpdateFieldTimeSigma << std::endl
+                   << "     Total Field Time Sigma  = " << curTransform.m_TotalFieldTimeSigma << std::endl
+                   << "     Number of Time Indices = " << curTransform.m_NumberOfTimeIndices << std::endl
+                   << "     Number of Time Point Samples = " << curTransform.m_NumberOfTimeIndices << std::endl;
     }
 }
 

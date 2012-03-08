@@ -27,7 +27,6 @@ void ConvertToLowerCase( std::string& str )
 // other compilers
 }
 
-
 void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
 {
   typedef itk::ants::CommandLineParser::OptionType OptionType;
@@ -225,10 +224,10 @@ typedef ParserType::OptionType       OptionType;
 
 template <unsigned VDimension>
 int
-DoRegistration(typename ParserType::Pointer &parser)
+DoRegistration(typename ParserType::Pointer & parser)
 {
   typedef typename itk::ants::RegistrationHelper<VDimension> RegistrationHelperType;
-  typedef typename RegistrationHelperType::ImageType ImageType;
+  typedef typename RegistrationHelperType::ImageType         ImageType;
 
   typename RegistrationHelperType::Pointer regHelper =
     RegistrationHelperType::New();
@@ -259,12 +258,12 @@ DoRegistration(typename ParserType::Pointer &parser)
     outputPrefix = outputOption->GetParameter( 0, 0 );
     }
   regHelper->SetOutputTransformPrefix(outputPrefix);
-  if(outputOption->GetNumberOfParameters(0) > 1)
+  if( outputOption->GetNumberOfParameters(0) > 1 )
     {
     std::string outputWarpedImageName = outputOption->GetParameter( 0, 1 );
     regHelper->SetOutputWarpedImageName(outputWarpedImageName);
     }
-  if(outputOption->GetNumberOfParameters(0) > 2)
+  if( outputOption->GetNumberOfParameters(0) > 2 )
     {
     std::string outputInverseWarpedImageName = outputOption->GetParameter( 0, 2 );
     regHelper->SetOutputInverseWarpedImageName(outputInverseWarpedImageName);
@@ -280,25 +279,25 @@ DoRegistration(typename ParserType::Pointer &parser)
 
       bool useInverse(false);
 
-      if(initialTransformOption->GetNumberOfParameters(n) == 0)
+      if( initialTransformOption->GetNumberOfParameters(n) == 0 )
         {
         initialTransformName = initialTransformOption->GetValue( n );
         }
       else
         {
         initialTransformName = initialTransformOption->GetParameter( n, 0 );
-          if( initialTransformOption->GetNumberOfParameters( n ) > 1 )
+        if( initialTransformOption->GetNumberOfParameters( n ) > 1 )
           {
           useInverse = parser->Convert<bool>( initialTransformOption->GetParameter( n, 1  ) );
           }
         }
-      regHelper->AddInitialTransform(initialTransformName,useInverse);
+      regHelper->AddInitialTransform(initialTransformName, useInverse);
       }
     }
 
   unsigned int numberOfStages;
 
-  if(transformOption.IsNull() || ( numberOfStages = transformOption->GetNumberOfValues() ) == 0 )
+  if( transformOption.IsNull() || ( numberOfStages = transformOption->GetNumberOfValues() ) == 0 )
     {
     std::cerr << "No transformations are specified." << std::endl;
     return EXIT_FAILURE;
@@ -306,8 +305,7 @@ DoRegistration(typename ParserType::Pointer &parser)
   std::vector<std::vector<unsigned int> > iterationList;
   std::vector<std::vector<unsigned int> > shrinkFactorsList;
   std::vector<std::vector<float> >        smoothingSigmasList;
-
-  for(unsigned int currentStage = 0; currentStage < numberOfStages; currentStage++ )
+  for( unsigned int currentStage = 0; currentStage < numberOfStages; currentStage++ )
     {
     // Get the fixed and moving images
 
@@ -315,7 +313,6 @@ DoRegistration(typename ParserType::Pointer &parser)
     std::string movingImageFileName = metricOption->GetParameter( currentStage, 1 );
     std::cout << "  fixed image: " << fixedImageFileName << std::endl;
     std::cout << "  moving image: " << movingImageFileName << std::endl;
-
 
     typename ImageType::Pointer fixedImage;
     typename ImageType::Pointer movingImage;
@@ -352,7 +349,6 @@ DoRegistration(typename ParserType::Pointer &parser)
       }
     movingImage->DisconnectPipeline();
 
-
     std::string whichMetric = metricOption->GetValue( currentStage );
     ConvertToLowerCase( whichMetric );
 
@@ -363,7 +359,7 @@ DoRegistration(typename ParserType::Pointer &parser)
     float upperQuantile = 1.0;
 
     OptionType::Pointer winsorizeOption = parser->GetOption( "winsorize-image-intensities" );
-    bool doWinsorize(false);
+    bool                doWinsorize(false);
 
     if( winsorizeOption && winsorizeOption->GetNumberOfParameters( 0 ) > 0 )
       {
@@ -377,9 +373,9 @@ DoRegistration(typename ParserType::Pointer &parser)
         upperQuantile = parser->Convert<float>( winsorizeOption->GetParameter( 0, 1 ) );
         }
       }
-    regHelper->SetWinsorizeImageIntensities(doWinsorize,lowerQuantile,upperQuantile);
+    regHelper->SetWinsorizeImageIntensities(doWinsorize, lowerQuantile, upperQuantile);
 
-    bool doHistogramMatch = false;
+    bool                doHistogramMatch = false;
     OptionType::Pointer histOption = parser->GetOption( "use-histogram-matching" );
     if( histOption && histOption->GetNumberOfValues() > 0 )
       {
@@ -426,12 +422,12 @@ DoRegistration(typename ParserType::Pointer &parser)
     ConvertToLowerCase( Strategy );
 
     typename RegistrationHelperType::SamplingStrategy samplingStrategy = RegistrationHelperType::none;
-    if( Strategy == "random")
+    if( Strategy == "random" )
       {
       samplingStrategy = RegistrationHelperType::random;
       }
 
-    switch(curMetric)
+    switch( curMetric )
       {
       case RegistrationHelperType::CC:
         {
@@ -486,7 +482,7 @@ DoRegistration(typename ParserType::Pointer &parser)
 
     typename RegistrationHelperType::XfrmMethod xfrmMethod = regHelper->StringToXfrmMethod(whichTransform);
 
-    switch(xfrmMethod)
+    switch( xfrmMethod )
       {
       case RegistrationHelperType::Affine:
         regHelper->AddAffineTransform(learningRate);
@@ -506,14 +502,14 @@ DoRegistration(typename ParserType::Pointer &parser)
         {
         const float varianceForUpdateField = parser->Convert<float>( transformOption->GetParameter( currentStage, 1 ) );
         const float varianceForTotalField = parser->Convert<float>( transformOption->GetParameter( currentStage, 2 ) );
-        regHelper->AddGaussianDisplacementFieldTransform(learningRate,varianceForUpdateField, varianceForTotalField);
+        regHelper->AddGaussianDisplacementFieldTransform(learningRate, varianceForUpdateField, varianceForTotalField);
         }
       case RegistrationHelperType::BSplineDisplacementField:
         {
         std::vector<unsigned int> meshSizeForTheUpdateField = parser->ConvertVector<unsigned int>(
-          transformOption->GetParameter( currentStage, 1 ) );
+            transformOption->GetParameter( currentStage, 1 ) );
         std::vector<unsigned int> meshSizeForTheTotalField = parser->ConvertVector<unsigned int>(
-          transformOption->GetParameter( currentStage, 2 ) );
+            transformOption->GetParameter( currentStage, 2 ) );
 
         unsigned int splineOrder = 3;
         if( transformOption->GetNumberOfParameters( currentStage ) > 3 )
@@ -521,7 +517,7 @@ DoRegistration(typename ParserType::Pointer &parser)
           splineOrder = parser->Convert<unsigned int>( transformOption->GetParameter( currentStage, 3 ) );
           }
 
-        regHelper->AddBSplineDisplacementFieldTransform(learningRate,meshSizeForTheUpdateField,
+        regHelper->AddBSplineDisplacementFieldTransform(learningRate, meshSizeForTheUpdateField,
                                                         meshSizeForTheTotalField,
                                                         splineOrder);
 
@@ -546,7 +542,7 @@ DoRegistration(typename ParserType::Pointer &parser)
       case RegistrationHelperType::TimeVaryingBSplineVelocityField:
         {
         std::vector<unsigned int> meshSize = parser->ConvertVector<unsigned int>( transformOption->GetParameter( 0, 1 ) );
-        unsigned int numberOfTimePointSamples = 4;
+        unsigned int              numberOfTimePointSamples = 4;
         if( transformOption->GetNumberOfParameters( currentStage ) > 2 )
           {
           numberOfTimePointSamples = parser->Convert<unsigned int>( transformOption->GetParameter( currentStage, 2 ) );
@@ -565,9 +561,9 @@ DoRegistration(typename ParserType::Pointer &parser)
         {
         const float varianceForUpdateField = parser->Convert<float>( transformOption->GetParameter( currentStage, 1 ) );
         const float varianceForTotalField = parser->Convert<float>( transformOption->GetParameter( currentStage, 2 ) );
-        regHelper->AddSyNTransform(learningRate,varianceForUpdateField,varianceForTotalField);
+        regHelper->AddSyNTransform(learningRate, varianceForUpdateField, varianceForTotalField);
         }
-      break;
+        break;
       default:
         std::cerr << "Unknown registration method " << whichTransform << std::endl;
         break;
@@ -580,7 +576,7 @@ DoRegistration(typename ParserType::Pointer &parser)
   regHelper->SetSmoothingSigmas(smoothingSigmasList);
   regHelper->SetShrinkFactors(shrinkFactorsList);
 
-  if(regHelper->DoRegistration() == EXIT_FAILURE)
+  if( regHelper->DoRegistration() == EXIT_FAILURE )
     {
     return EXIT_FAILURE;
     }
@@ -629,7 +625,8 @@ int main( int argc, char *argv[] )
     std::cerr << "Image dimensionality not specified.  See command line option --dimensionality" << std::endl;
     return EXIT_FAILURE;
     }
-  switch(dimension)
+
+  switch( dimension )
     {
     case 2:
       return DoRegistration<2>(parser);
