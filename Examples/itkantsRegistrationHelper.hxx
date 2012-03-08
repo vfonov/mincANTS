@@ -338,7 +338,7 @@ RegistrationHelper<VImageDimension>
   if(str == "syn" ||
      str == "symmetricnormalization")
     {
-    return Syn;
+    return SyN;
     }
   return UnknownXfrm;
 }
@@ -500,10 +500,10 @@ RegistrationHelper<VImageDimension>
 template <unsigned VImageDimension>
 void
 RegistrationHelper<VImageDimension>
-::AddSynTransform(double GradientStep,double UpdateFieldSigmaInPhysicalSpace, double TotalFieldSigmaInPhysicalSpace)
+::AddSyNTransform(double GradientStep,double UpdateFieldSigmaInPhysicalSpace, double TotalFieldSigmaInPhysicalSpace)
 {
   TransformMethod init;
-  init.m_XfrmMethod = Syn;
+  init.m_XfrmMethod = SyN;
   init.m_GradientStep = GradientStep;
   this->m_TransformMethods.push_back(init);
   init.m_UpdateFieldSigmaInPhysicalSpace = UpdateFieldSigmaInPhysicalSpace;
@@ -1973,7 +1973,7 @@ RegistrationHelper<VImageDimension>
         }
       }
       break;
-      case Syn:
+      case SyN:
       {
       typedef itk::Vector<RealType, VImageDimension> VectorType;
       VectorType zeroVector( 0.0 );
