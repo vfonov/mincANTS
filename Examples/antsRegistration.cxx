@@ -2422,8 +2422,6 @@ int main( int argc, char *argv[] )
       CorrelationMetricType::RadiusType radius;
       radius.Fill( radiusOption );
       correlationMetric->SetRadius( radius );
-      correlationMetric->SetDoFixedImagePreWarp( false );
-      correlationMetric->SetDoMovingImagePreWarp( false );
       correlationMetric->SetUseMovingImageGradientFilter( false );
       correlationMetric->SetUseFixedImageGradientFilter( false );
 
@@ -2437,8 +2435,6 @@ int main( int argc, char *argv[] )
       MutualInformationMetricType::Pointer mutualInformationMetric = MutualInformationMetricType::New();
       mutualInformationMetric = mutualInformationMetric;
       mutualInformationMetric->SetNumberOfHistogramBins( binOption );
-      mutualInformationMetric->SetDoFixedImagePreWarp( false );
-      mutualInformationMetric->SetDoMovingImagePreWarp( false );
       mutualInformationMetric->SetUseMovingImageGradientFilter( false );
       mutualInformationMetric->SetUseFixedImageGradientFilter( false );
       mutualInformationMetric->SetUseFixedSampledPointSet( false );
@@ -2454,8 +2450,6 @@ int main( int argc, char *argv[] )
       MutualInformationMetricType::Pointer mutualInformationMetric = MutualInformationMetricType::New();
       mutualInformationMetric = mutualInformationMetric;
       mutualInformationMetric->SetNumberOfHistogramBins( binOption );
-      mutualInformationMetric->SetDoFixedImagePreWarp( false );
-      mutualInformationMetric->SetDoMovingImagePreWarp( false );
       mutualInformationMetric->SetUseMovingImageGradientFilter( false );
       mutualInformationMetric->SetUseFixedImageGradientFilter( false );
       mutualInformationMetric->SetUseFixedSampledPointSet( false );
@@ -2469,8 +2463,6 @@ int main( int argc, char *argv[] )
       typedef itk::MeanSquaresImageToImageMetricv4<ImageType, ImageType> MeanSquaresMetricType;
       MeanSquaresMetricType::Pointer meanSquaresMetric = MeanSquaresMetricType::New();
       meanSquaresMetric = meanSquaresMetric;
-      meanSquaresMetric->SetDoFixedImagePreWarp( false );
-      meanSquaresMetric->SetDoMovingImagePreWarp( false );
 
       metric = meanSquaresMetric;
       }
@@ -2479,8 +2471,6 @@ int main( int argc, char *argv[] )
       std::cout << "  using the global correlation metric." << std::endl;
       typedef itk::CorrelationImageToImageMetricv4<ImageType, ImageType> corrMetricType;
       corrMetricType::Pointer corrMetric = corrMetricType::New();
-      corrMetric->SetDoFixedImagePreWarp( false );
-      corrMetric->SetDoMovingImagePreWarp( false );
       metric = corrMetric;
       }
     else
@@ -2764,8 +2754,6 @@ int main( int argc, char *argv[] )
     else if( std::strcmp( whichTransform.c_str(),
                           "gaussiandisplacementfield" ) == 0 ||  std::strcmp( whichTransform.c_str(), "gdf" ) == 0 )
       {
-      metric->SetDoFixedImagePreWarp( true );
-      metric->SetDoMovingImagePreWarp( true );
       typedef itk::Vector<RealType, ImageDimension> VectorType;
       VectorType zeroVector( 0.0 );
       typedef itk::Image<VectorType, ImageDimension> DisplacementFieldType;
@@ -3118,8 +3106,6 @@ int main( int argc, char *argv[] )
     else if( std::strcmp( whichTransform.c_str(),
                           "timevaryingvelocityfield" ) == 0 || std::strcmp( whichTransform.c_str(), "tvf" ) == 0 )
       {
-//      metric->SetDoFixedImagePreWarp( true );
-//      metric->SetDoMovingImagePreWarp( true );
       typedef itk::Vector<RealType, ImageDimension> VectorType;
       VectorType zeroVector( 0.0 );
 
@@ -3508,8 +3494,6 @@ int main( int argc, char *argv[] )
     else if( std::strcmp( whichTransform.c_str(),
                           "syn" ) == 0 ||  std::strcmp( whichTransform.c_str(), "symmetricnormalization" ) == 0 )
       {
-//      metric->SetDoFixedImagePreWarp( true );
-//      metric->SetDoMovingImagePreWarp( true );
       typedef itk::Vector<RealType, ImageDimension> VectorType;
       VectorType zeroVector( 0.0 );
       typedef itk::Image<VectorType, ImageDimension> DisplacementFieldType;
