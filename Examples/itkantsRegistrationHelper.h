@@ -39,8 +39,8 @@ public:
   typedef SmartPointer< const Self > ConstPointer;
   typedef WeakPointer< const Self >  ConstWeakPointer;
 
-  typedef double                                             RealType;
-  typedef float                                              PixelType;
+  typedef double                                        RealType;
+  typedef float                                         PixelType;
   typedef Image<PixelType, VImageDimension>             ImageType;
   typedef CompositeTransform<RealType, VImageDimension> CompositeTransformType;
 
@@ -181,7 +181,10 @@ public:
    * and dimension) when they need compile time access to the dimension of
    * the image. */
   itkStaticConstMacro(ImageDimension, unsigned int, VImageDimension);
-  
+
+  itkSetMacro(WriteOutputs,bool);
+  itkGetMacro(WriteOutputs,bool);
+
   itkSetStringMacro(OutputTransformPrefix);
   itkGetStringMacro(OutputTransformPrefix);
 
@@ -247,33 +250,40 @@ public:
 
   void SetWinsorizeImageIntensities(bool Winsorize, float LowerQuantile = 0.0, float UpperQuantile = 1.0);
 
+  itkGetObjectMacro(CompositeTransform,CompositeTransformType);
+
+  itkGetObjectMacro(WarpedImage,ImageType);
+  itkGetObjectMacro(InverseWarpedImage,ImageType);
 
   int DoRegistration();
 
 private:
-
-
   int ValidateParameters();
-
   int SetupInitialTransform(typename CompositeTransformType::Pointer &compositeTransform);
-
-  unsigned int                            m_NumberOfStages;
-  std::string                             m_OutputTransformPrefix;
-  std::string                             m_OutputWarpedImageName;
-  std::string                             m_OutputInverseWarpedImageName;
-  InitialTransformListType                m_InitialTransforms;
-  MetricListType                          m_Metrics;
-  TransformMethodListType                 m_TransformMethods;
-  std::vector<std::vector<unsigned int> > m_Iterations;
-  std::vector<std::vector<float> >        m_SmoothingSigmas;
-  std::vector<std::vector<unsigned int> > m_ShrinkFactors;
-  bool                                    m_UseHistogramMatching;
-  bool                                    m_WinsorizeImageIntensities;
-  double                                  m_LowerQuantile;
-  double                                  m_UpperQuantile;
+  typename CompositeTransformType::Pointer m_CompositeTransform;
+  typename ImageType::Pointer              m_WarpedImage;
+  typename ImageType::Pointer              m_InverseWarpedImage;
+  bool                                     m_WriteOutputs;
+  unsigned int                             m_NumberOfStages;
+  std::string                              m_OutputTransformPrefix;
+  std::string                              m_OutputWarpedImageName;
+  std::string                              m_OutputInverseWarpedImageName;
+  InitialTransformListType                 m_InitialTransforms;
+  MetricListType                           m_Metrics;
+  TransformMethodListType                  m_TransformMethods;
+  std::vector<std::vector<unsigned int> >  m_Iterations;
+  std::vector<std::vector<float> >         m_SmoothingSigmas;
+  std::vector<std::vector<unsigned int> >  m_ShrinkFactors;
+  bool                                     m_UseHistogramMatching;
+  bool                                     m_WinsorizeImageIntensities;
+  double                                   m_LowerQuantile;
+  double                                   m_UpperQuantile;
 };
+
 
 } // namespace ants
 } // namespace itk
+
+#include "itkantsRegistrationHelper.hxx"
 
 #endif
