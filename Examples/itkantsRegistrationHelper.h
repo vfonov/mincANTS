@@ -76,24 +76,6 @@ public:
   {
   public:
     Metric(MetricEnumeration metricType,
-           const std::string fixedImage,
-           const std::string movingImage,
-           double weighting,
-           SamplingStrategy samplingStrategy,
-           int numberOfBins,
-           unsigned int radius,
-           double samplingPercentage) :
-      m_MetricType(metricType),
-      m_FixedImageFileName(fixedImage),
-      m_MovingImageFileName(movingImage),
-      m_Weighting(weighting),
-      m_SamplingStrategy(samplingStrategy),
-      m_NumberOfBins(numberOfBins),
-      m_Radius(radius),
-      m_SamplingPercentage(samplingPercentage)
-      {
-      }
-    Metric(MetricEnumeration metricType,
            typename ImageType::Pointer &fixedImage,
            typename ImageType::Pointer & movingImage,
            double weighting,
@@ -126,8 +108,6 @@ public:
         return "";
       }
     MetricEnumeration m_MetricType;
-    const std::string m_FixedImageFileName;
-    const std::string m_MovingImageFileName;
     typename ImageType::Pointer m_FixedImage;
     typename ImageType::Pointer m_MovingImage;
     double m_Weighting;
@@ -236,8 +216,8 @@ public:
   itkGetStringMacro(OutputInverseWarpedImageName);
 
   void  AddMetric(MetricEnumeration metricType,
-                  const std::string fixedImage,
-                  const std::string movingImage,
+                  typename ImageType::Pointer &fixedImage,
+                  typename ImageType::Pointer &movingImage,
                   double weighting,
                   SamplingStrategy samplingStrategy,
                   int numberOfBins,
