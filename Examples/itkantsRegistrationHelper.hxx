@@ -63,8 +63,9 @@ public:
   itkNewMacro( Self );
 protected:
   CommandIterationUpdate()
-  {
-  };
+    {
+      this->m_LogStream = &std::cout;
+    }
 public:
 
   void Execute(itk::Object *caller, const itk::EventObject & event)
@@ -89,11 +90,11 @@ public:
       typename TFilter::TransformParametersAdaptorsContainerType adaptors =
         filter->GetTransformParametersAdaptorsPerLevel();
 
-      std::cout << "  Current level = " << currentLevel << std::endl;
-      std::cout << "    number of iterations = " << this->m_NumberOfIterations[currentLevel] << std::endl;
-      std::cout << "    shrink factors = " << shrinkFactors[currentLevel] << std::endl;
-      std::cout << "    smoothing sigmas = " << smoothingSigmas[currentLevel] << std::endl;
-      std::cout << "    required fixed parameters = " << adaptors[currentLevel]->GetRequiredFixedParameters()
+      this->Logger() << "  Current level = " << currentLevel << std::endl;
+      this->Logger() << "    number of iterations = " << this->m_NumberOfIterations[currentLevel] << std::endl;
+      this->Logger() << "    shrink factors = " << shrinkFactors[currentLevel] << std::endl;
+      this->Logger() << "    smoothing sigmas = " << smoothingSigmas[currentLevel] << std::endl;
+      this->Logger() << "    required fixed parameters = " << adaptors[currentLevel]->GetRequiredFixedParameters()
                 << std::endl;
 
       typedef itk::GradientDescentOptimizerv4 GradientDescentOptimizerType;
@@ -108,8 +109,14 @@ public:
     this->m_NumberOfIterations = iterations;
   }
 
+  void SetLogStream(std::ostream &logStream)
+    {
+      this->m_LogStream = &logStream;
+    }
 private:
+  std::ostream &Logger() const { return *m_LogStream; }
   std::vector<unsigned int> m_NumberOfIterations;
+  std::ostream                             *m_LogStream;
 };
 
 //
@@ -183,6 +190,18 @@ class CompositeAffineTransformTraits<3>
 public:
   typedef itk::ANTSAffine3DTransform<double> TransformType;
 };
+
+template <unsigned VImageDimension>
+RegistrationHelper<VImageDimension>
+::RegistrationHelper()
+{
+  this->m_LogStream = &std::cout;
+}
+template <unsigned VImageDimension>
+RegistrationHelper<VImageDimension>
+::~RegistrationHelper()
+{
+}
 
 template <class ImageType>
 typename ImageType::Pointer PreprocessImage( ImageType * inputImage,
@@ -700,10 +719,10 @@ RegistrationHelper<VImageDimension>
     initialTransformNames.push_back( initialTransformName );
     initialTransformTypes.push_back( initialTransform->GetNameOfClass() );
     }
-  std::cout << "Initializing with the following transforms " << "(in order): " << std::endl;
+  this->Logger() << "Initializing with the following transforms " << "(in order): " << std::endl;
   for( unsigned int n = 0; n < initialTransformNames.size(); n++ )
     {
-    std::cout << "  " << n + 1 << ". " << initialTransformNames[n] << " (type = "
+    this->Logger() << "  " << n + 1 << ". " << initialTransformNames[n] << " (type = "
               << initialTransformTypes[n] << ")" << std::endl;
     }
   return EXIT_SUCCESS;
@@ -723,7 +742,9 @@ RegistrationHelper<VImageDimension>
     {
     return EXIT_FAILURE;
     }
-  std::cout << "Registration using " << this->m_NumberOfStages << " total stages." << std::endl;
+  this->PrintState();
+
+  this->Logger() << "Registration using " << this->m_NumberOfStages << " total stages." << std::endl;
 
   this->m_CompositeTransform = CompositeTransformType::New();
 
@@ -742,7 +763,7 @@ RegistrationHelper<VImageDimension>
 
     typedef itk::ImageRegistrationMethodv4<ImageType, ImageType> AffineRegistrationType;
 
-    std::cout << std::endl << "Stage "
+    this->Logger() << std::endl << "Stage "
               << ( numberOfInitialTransforms + this->m_NumberOfStages - currentStage - 1 ) << std::endl;
     std::stringstream currentStageString;
     currentStageString << ( numberOfInitialTransforms + this->m_NumberOfStages - currentStage - 1 );
@@ -752,8 +773,8 @@ RegistrationHelper<VImageDimension>
     std::string fixedImageFileName = this->m_Metrics[currentStage].m_FixedImage;
     std::string movingImageFileName = this->m_Metrics[currentStage].m_MovingImage;
 
-    std::cout << "  fixed image: " << fixedImageFileName << std::endl;
-    std::cout << "  moving image: " << movingImageFileName << std::endl;
+    this->Logger() << "  fixed image: " << fixedImageFileName << std::endl;
+    this->Logger() << "  moving image: " << movingImageFileName << std::endl;
 
     typedef itk::ImageFileReader<ImageType> ImageReaderType;
     typename ImageReaderType::Pointer fixedImageReader = ImageReaderType::New();
@@ -823,23 +844,23 @@ RegistrationHelper<VImageDimension>
                                     NULL );
       }
 
-    std::cout << outputPreprocessingString << std::flush;
+    this->Logger() << outputPreprocessingString << std::flush;
 
     // Get the number of iterations and use that information to specify the number of levels
 
     std::vector<unsigned int> iterations = this->m_Iterations[currentStage];
-    std::cout << "  iterations = " ;
+    this->Logger() << "  iterations = " ;
     for(unsigned m = 0; m < iterations.size(); m++)
       {
-      std::cout << iterations[m];
+      this->Logger() << iterations[m];
       if(m < iterations.size() - 1)
         {
-        std::cout << 'x';
+        this->Logger() << 'x';
         }
       }
-    std::cout << std::endl;
+    this->Logger() << std::endl;
     unsigned int numberOfLevels = iterations.size();
-    std::cout << "  number of levels = " << numberOfLevels << std::endl;
+    this->Logger() << "  number of levels = " << numberOfLevels << std::endl;
 
     // Get shrink factors
 
@@ -858,7 +879,7 @@ RegistrationHelper<VImageDimension>
       {
       shrinkFactorsPerLevel[n] = factors[n];
       }
-    std::cout << "  shrink factors per level: " << shrinkFactorsPerLevel << std::endl;
+    this->Logger() << "  shrink factors per level: " << shrinkFactorsPerLevel << std::endl;
 
     // Get smoothing sigmas
 
@@ -876,7 +897,7 @@ RegistrationHelper<VImageDimension>
       {
       smoothingSigmasPerLevel[n] = sigmas[n];
       }
-    std::cout << "  smoothing sigmas per level: " << smoothingSigmasPerLevel << std::endl;
+    this->Logger() << "  smoothing sigmas per level: " << smoothingSigmasPerLevel << std::endl;
 
     // Set up the image metric and scales estimator
 
@@ -889,12 +910,12 @@ RegistrationHelper<VImageDimension>
       = AffineRegistrationType::NONE;
     if( samplingStrategy == random)
       {
-      std::cout << "  random sampling (percentage = " << samplingPercentage << ")" << std::endl;
+      this->Logger() << "  random sampling (percentage = " << samplingPercentage << ")" << std::endl;
       metricSamplingStrategy = AffineRegistrationType::RANDOM;
       }
     else if( samplingStrategy == regular)
       {
-      std::cout << "  regular sampling (percentage = " << samplingPercentage << ")" << std::endl;
+      this->Logger() << "  regular sampling (percentage = " << samplingPercentage << ")" << std::endl;
       metricSamplingStrategy = AffineRegistrationType::REGULAR;
       }
 
@@ -904,7 +925,7 @@ RegistrationHelper<VImageDimension>
         {
         unsigned int radiusOption = this->m_Metrics[currentStage].m_Radius;
 
-        std::cout << "  using the CC metric (radius = "
+        this->Logger() << "  using the CC metric (radius = "
                   << radiusOption << ")" << std::endl;
         typedef itk::ANTSNeighborhoodCorrelationImageToImageMetricv4<ImageType, ImageType> CorrelationMetricType;
         typename CorrelationMetricType::Pointer correlationMetric = CorrelationMetricType::New();
@@ -920,7 +941,7 @@ RegistrationHelper<VImageDimension>
       case Mattes:
         {
         unsigned int binOption = this->m_Metrics[currentStage].m_NumberOfBins;
-        std::cout << "  using the Mattes MI metric (number of bins = "
+        this->Logger() << "  using the Mattes MI metric (number of bins = "
                   << binOption << ")" << std::endl;
         typedef itk::MattesMutualInformationImageToImageMetricv4<ImageType, ImageType>
           MutualInformationMetricType;
@@ -938,7 +959,7 @@ RegistrationHelper<VImageDimension>
         {
         unsigned int binOption = this->m_Metrics[currentStage].m_NumberOfBins;
 
-        std::cout << "  using the MI metric (number of bins = " << binOption << ")" << std::endl;
+        this->Logger() << "  using the MI metric (number of bins = " << binOption << ")" << std::endl;
         typedef itk::JointHistogramMutualInformationImageToImageMetricv4<ImageType,
                                                                          ImageType> MutualInformationMetricType;
         typename MutualInformationMetricType::Pointer mutualInformationMetric =
@@ -954,7 +975,7 @@ RegistrationHelper<VImageDimension>
         break;
       case MeanSquares:
         {
-        std::cout << "  using the MeanSquares metric." << std::endl;
+        this->Logger() << "  using the MeanSquares metric." << std::endl;
 
         typedef itk::MeanSquaresImageToImageMetricv4<ImageType, ImageType> MeanSquaresMetricType;
         typename MeanSquaresMetricType::Pointer meanSquaresMetric = MeanSquaresMetricType::New();
@@ -965,7 +986,7 @@ RegistrationHelper<VImageDimension>
         break;
       case GC:
         {
-        std::cout << "  using the global correlation metric." << std::endl;
+        this->Logger() << "  using the global correlation metric." << std::endl;
         typedef itk::CorrelationImageToImageMetricv4<ImageType, ImageType> corrMetricType;
         typename corrMetricType::Pointer corrMetric = corrMetricType::New();
         metric = corrMetric;
@@ -1023,13 +1044,14 @@ RegistrationHelper<VImageDimension>
 
         typedef CommandIterationUpdate<AffineRegistrationType> AffineCommandType;
         typename AffineCommandType::Pointer affineObserver = AffineCommandType::New();
+        affineObserver->SetLogStream(*this->m_LogStream);
         affineObserver->SetNumberOfIterations( iterations );
 
         affineRegistration->AddObserver( itk::IterationEvent(), affineObserver );
 
         try
           {
-          std::cout << std::endl << "*** Running affine registration ***" << std::endl << std::endl;
+          this->Logger() << std::endl << "*** Running affine registration ***" << std::endl << std::endl;
           affineObserver->Execute( affineRegistration, itk::StartEvent() );
           affineRegistration->StartRegistration();
           }
@@ -1078,13 +1100,14 @@ RegistrationHelper<VImageDimension>
 
         typedef CommandIterationUpdate<RigidRegistrationType> RigidCommandType;
         typename RigidCommandType::Pointer rigidObserver = RigidCommandType::New();
+        rigidObserver->SetLogStream(*this->m_LogStream);
         rigidObserver->SetNumberOfIterations( iterations );
 
         rigidRegistration->AddObserver( itk::IterationEvent(), rigidObserver );
 
         try
           {
-          std::cout << std::endl << "*** Running rigid registration ***" << std::endl << std::endl;
+          this->Logger() << std::endl << "*** Running rigid registration ***" << std::endl << std::endl;
           rigidObserver->Execute( rigidRegistration, itk::StartEvent() );
           rigidRegistration->StartRegistration();
           }
@@ -1132,13 +1155,14 @@ RegistrationHelper<VImageDimension>
 
         typedef CommandIterationUpdate<AffineRegistrationType> AffineCommandType;
         typename AffineCommandType::Pointer affineObserver = AffineCommandType::New();
+        affineObserver->SetLogStream(*this->m_LogStream);
         affineObserver->SetNumberOfIterations( iterations );
 
         affineRegistration->AddObserver( itk::IterationEvent(), affineObserver );
 
         try
           {
-          std::cout << std::endl << "*** Running composite affine registration ***" << std::endl << std::endl;
+          this->Logger() << std::endl << "*** Running composite affine registration ***" << std::endl << std::endl;
           affineObserver->Execute( affineRegistration, itk::StartEvent() );
           affineRegistration->StartRegistration();
           }
@@ -1188,13 +1212,14 @@ RegistrationHelper<VImageDimension>
 
         typedef CommandIterationUpdate<SimilarityRegistrationType> SimilarityCommandType;
         typename SimilarityCommandType::Pointer similarityObserver = SimilarityCommandType::New();
+        similarityObserver->SetLogStream(*this->m_LogStream);
         similarityObserver->SetNumberOfIterations( iterations );
 
         similarityRegistration->AddObserver( itk::IterationEvent(), similarityObserver );
 
         try
           {
-          std::cout << std::endl << "*** Running similarity registration ***" << std::endl << std::endl;
+          this->Logger() << std::endl << "*** Running similarity registration ***" << std::endl << std::endl;
           similarityObserver->Execute( similarityRegistration, itk::StartEvent() );
           similarityRegistration->StartRegistration();
           }
@@ -1244,13 +1269,14 @@ RegistrationHelper<VImageDimension>
 
         typedef CommandIterationUpdate<TranslationRegistrationType> TranslationCommandType;
         typename TranslationCommandType::Pointer translationObserver = TranslationCommandType::New();
+        translationObserver->SetLogStream(*this->m_LogStream);
         translationObserver->SetNumberOfIterations( iterations );
 
         translationRegistration->AddObserver( itk::IterationEvent(), translationObserver );
 
         try
           {
-          std::cout << std::endl << "*** Running translation registration ***" << std::endl << std::endl;
+          this->Logger() << std::endl << "*** Running translation registration ***" << std::endl << std::endl;
           translationObserver->Execute( translationRegistration, itk::StartEvent() );
           translationRegistration->StartRegistration();
           }
@@ -1358,13 +1384,14 @@ RegistrationHelper<VImageDimension>
         typedef CommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
         typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver =
           DisplacementFieldCommandType::New();
+        displacementFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
         displacementFieldRegistrationObserver->SetNumberOfIterations( iterations );
 
         displacementFieldRegistration->AddObserver( itk::IterationEvent(), displacementFieldRegistrationObserver );
 
         try
           {
-          std::cout << std::endl << "*** Running gaussian displacement field registration (varianceForUpdateField = "
+          this->Logger() << std::endl << "*** Running gaussian displacement field registration (varianceForUpdateField = "
                     << varianceForUpdateField << ", varianceForTotalField = " << varianceForTotalField << ") ***"
                     << std::endl << std::endl;
           displacementFieldRegistrationObserver->Execute( displacementFieldRegistration, itk::StartEvent() );
@@ -1496,13 +1523,14 @@ RegistrationHelper<VImageDimension>
         typedef CommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
         typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver =
           DisplacementFieldCommandType::New();
+        displacementFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
         displacementFieldRegistrationObserver->SetNumberOfIterations( iterations );
 
         displacementFieldRegistration->AddObserver( itk::IterationEvent(), displacementFieldRegistrationObserver );
 
         try
           {
-          std::cout << std::endl << "*** Running bspline displacement field registration (updateMeshSizeAtBaseLevel = "
+          this->Logger() << std::endl << "*** Running bspline displacement field registration (updateMeshSizeAtBaseLevel = "
                     << updateMeshSize << ", totalMeshSizeAtBaseLevel = " << totalMeshSize << ") ***" << std::endl
                     << std::endl;
           displacementFieldRegistrationObserver->Execute( displacementFieldRegistration, itk::StartEvent() );
@@ -1604,13 +1632,14 @@ RegistrationHelper<VImageDimension>
 
         typedef CommandIterationUpdate<BSplineRegistrationType> BSplineCommandType;
         typename BSplineCommandType::Pointer bsplineObserver = BSplineCommandType::New();
+        bsplineObserver->SetLogStream(*this->m_LogStream);
         bsplineObserver->SetNumberOfIterations( iterations );
 
         bsplineRegistration->AddObserver( itk::IterationEvent(), bsplineObserver );
 
         try
           {
-          std::cout << std::endl << "*** Running bspline registration (meshSizeAtBaseLevel = " << meshSize << ") ***"
+          this->Logger() << std::endl << "*** Running bspline registration (meshSizeAtBaseLevel = " << meshSize << ") ***"
                     << std::endl << std::endl;
           bsplineObserver->Execute( bsplineRegistration, itk::StartEvent() );
           bsplineRegistration->StartRegistration();
@@ -1783,13 +1812,14 @@ RegistrationHelper<VImageDimension>
 
         typedef CommandIterationUpdate<VelocityFieldRegistrationType> VelocityFieldCommandType;
         typename VelocityFieldCommandType::Pointer velocityFieldRegistrationObserver = VelocityFieldCommandType::New();
+        velocityFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
         velocityFieldRegistrationObserver->SetNumberOfIterations( iterations );
 
         velocityFieldRegistration->AddObserver( itk::IterationEvent(), velocityFieldRegistrationObserver );
 
         try
           {
-          std::cout << std::endl << "*** Running time-varying velocity field registration (varianceForUpdateField = "
+          this->Logger() << std::endl << "*** Running time-varying velocity field registration (varianceForUpdateField = "
                     << varianceForUpdateField << ", varianceForTotalField = " << varianceForTotalField
                     << ", varianceForUpdateFieldTime = "
                     << varianceForUpdateFieldTime << ", varianceForTotalFieldTime = " << varianceForTotalFieldTime
@@ -1981,13 +2011,14 @@ RegistrationHelper<VImageDimension>
 
         typedef CommandIterationUpdate<VelocityFieldRegistrationType> VelocityFieldCommandType;
         typename VelocityFieldCommandType::Pointer velocityFieldRegistrationObserver = VelocityFieldCommandType::New();
+        velocityFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
         velocityFieldRegistrationObserver->SetNumberOfIterations( iterations );
 
         velocityFieldRegistration->AddObserver( itk::IterationEvent(), velocityFieldRegistrationObserver );
 
         try
           {
-          std::cout << std::endl
+          this->Logger() << std::endl
                     << "*** Running time-varying b-spline velocity field registration (initial mesh size = "
                     << initialTransformDomainMeshSize << ") ***" << std::endl << std::endl;
           velocityFieldRegistrationObserver->Execute( velocityFieldRegistration, itk::StartEvent() );
@@ -2119,17 +2150,18 @@ RegistrationHelper<VImageDimension>
         typedef CommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
         typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver =
           DisplacementFieldCommandType::New();
+        displacementFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
         displacementFieldRegistrationObserver->SetNumberOfIterations( iterations );
 
         displacementFieldRegistration->AddObserver( itk::IterationEvent(), displacementFieldRegistrationObserver );
 
         try
           {
-          std::cout << std::endl << "*** Running SyN registration (varianceForUpdateField = "
+          this->Logger() << std::endl << "*** Running SyN registration (varianceForUpdateField = "
                     << varianceForUpdateField << ", varianceForTotalField = " << varianceForTotalField << ") ***"
                     << std::endl << std::endl;
           displacementFieldRegistrationObserver->Execute( displacementFieldRegistration, itk::StartEvent() );
-          std::cout << "HACK" << displacementFieldRegistration << std::endl;
+          this->Logger() << "HACK" << displacementFieldRegistration << std::endl;
           displacementFieldRegistration->StartRegistration();
           }
         catch( itk::ExceptionObject & e )
@@ -2168,7 +2200,7 @@ RegistrationHelper<VImageDimension>
         return EXIT_FAILURE;
       }
     timer.Stop();
-    std::cout << "  Elapsed time (stage "
+    this->Logger() << "  Elapsed time (stage "
               << ( this->m_NumberOfStages - currentStage - 1 ) << "): " << timer.GetMeanTime() << std::endl << std::endl;
     }
 
@@ -2179,7 +2211,7 @@ RegistrationHelper<VImageDimension>
     std::string fixedImageFileName = this->m_Metrics[0].m_FixedImage;
     std::string movingImageFileName = this->m_Metrics[0].m_MovingImage;
 
-    std::cout << "Warping " << movingImageFileName << " to " << fixedImageFileName << std::endl;
+    this->Logger() << "Warping " << movingImageFileName << " to " << fixedImageFileName << std::endl;
 
     typedef itk::ImageFileReader<ImageType> ImageReaderType;
     typename ImageReaderType::Pointer fixedImageReader = ImageReaderType::New();
@@ -2222,7 +2254,7 @@ RegistrationHelper<VImageDimension>
     if( (this->m_OutputInverseWarpedImageName != "" || !this->m_WriteOutputs) &&
         this->m_CompositeTransform->GetInverseTransform().IsNotNull() )
       {
-      std::cout << "Warping " << fixedImageFileName << " to " << movingImageFileName << std::endl;
+      this->Logger() << "Warping " << fixedImageFileName << " to " << movingImageFileName << std::endl;
 
       typedef itk::ResampleImageFilter<ImageType, ImageType> InverseResampleFilterType;
       typename InverseResampleFilterType::Pointer inverseResampler = ResampleFilterType::New();
@@ -2250,7 +2282,7 @@ RegistrationHelper<VImageDimension>
       }
     }
   totalTimer.Stop();
-  std::cout << std::endl << "Total elapsed time: " << totalTimer.GetMeanTime() << std::endl;
+  this->Logger() << std::endl << "Total elapsed time: " << totalTimer.GetMeanTime() << std::endl;
   return EXIT_SUCCESS;
 }
 
@@ -2259,20 +2291,25 @@ void
 RegistrationHelper<VImageDimension>
 ::PrintState() const
 {
-  std::cout << "Dimension = " << Self::ImageDimension << std::endl
-            << "WriteOutputs = " << this->m_WriteOutputs << std::endl
-            << "Number of stages = " << this->m_NumberOfStages << std::endl
-            << "Output transform prefix = " << this->m_OutputTransformPrefix << std::endl
-            << "Output Transform Prefix = " << this->m_OutputTransformPrefix << std::endl
-            << "Output Warped Image Name = " << this->m_OutputWarpedImageName << std::endl
-            << "Output Inverse Warped ImageName = " << this->m_OutputInverseWarpedImageName << std::endl
-            << "Initial Transforms Size = " << this->m_InitialTransforms.size() << std::endl;
+  this->Logger() << "Dimension = " << Self::ImageDimension << std::endl
+                 << "WriteOutputs = " << this->m_WriteOutputs << std::endl
+                 << "Number of stages = " << this->m_NumberOfStages << std::endl
+                 << "Output transform prefix = " << this->m_OutputTransformPrefix << std::endl
+                 << "Output Transform Prefix = " << this->m_OutputTransformPrefix << std::endl
+                 << "Output Warped Image Name = " << this->m_OutputWarpedImageName << std::endl
+                 << "Output Inverse Warped ImageName = " << this->m_OutputInverseWarpedImageName << std::endl
+                 << "Initial Transforms Size = " << this->m_InitialTransforms.size() << std::endl
+                 << "Use Histogram Matching " << (this->m_UseHistogramMatching ? "true" : "false")
+                 << std::endl
+                 << "Winsorize Image Intensities "
+                 << (this->m_WinsorizeImageIntensities ? "true" : "false")<< std::endl;
+
   for(unsigned i = 0; i < this->m_NumberOfStages; i++)
     {
-    std::cout << "Stage " << i << std::endl;
+    this->Logger() << "Stage " << i << std::endl;
     const Metric &curMetric = this->m_Metrics[i];
     const TransformMethod &curTransform = this->m_TransformMethods[i];
-    std::cout << "   Metric = " << curMetric.GetMetricAsString() << std::endl
+    this->Logger() << "   Metric = " << curMetric.GetMetricAsString() << std::endl
               << "     Fixed Image = " << curMetric.m_FixedImage << std::endl
               << "     Moving Image = " << curMetric.m_MovingImage << std::endl
               << "     Weighting = " << curMetric.m_Weighting << std::endl
