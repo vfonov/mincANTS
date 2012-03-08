@@ -383,8 +383,7 @@ DoRegistration(typename ParserType::Pointer &parser)
       }
     ConvertToLowerCase( Strategy );
 
-    typename RegistrationHelperType::SamplingStrategy samplingStrategy =
-      RegistrationHelperType::regular;
+    typename RegistrationHelperType::SamplingStrategy samplingStrategy = RegistrationHelperType::none;
     if( Strategy == "random")
       {
       samplingStrategy = RegistrationHelperType::random;

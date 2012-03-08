@@ -193,10 +193,29 @@ public:
 
 template <unsigned VImageDimension>
 RegistrationHelper<VImageDimension>
-::RegistrationHelper()
+::RegistrationHelper() :
+  m_CompositeTransform(NULL),
+  m_WarpedImage(NULL),
+  m_InverseWarpedImage(NULL),
+  m_WriteOutputs(false),
+  m_NumberOfStages(0),
+  m_OutputTransformPrefix(""),
+  m_OutputWarpedImageName(""),
+  m_OutputInverseWarpedImageName(""),
+  m_InitialTransforms(),
+  m_Metrics(),
+  m_TransformMethods(),
+  m_Iterations(),
+  m_SmoothingSigmas(),
+  m_ShrinkFactors(),
+  m_UseHistogramMatching(true),
+  m_WinsorizeImageIntensities(false),
+  m_LowerQuantile(0.0),
+  m_UpperQuantile(1.0),
+  m_LogStream(&std::cout)
 {
-  this->m_LogStream = &std::cout;
 }
+
 template <unsigned VImageDimension>
 RegistrationHelper<VImageDimension>
 ::~RegistrationHelper()
@@ -754,7 +773,7 @@ RegistrationHelper<VImageDimension>
     return EXIT_FAILURE;
     }
 
-  size_t numberOfInitialTransforms = this->m_CompositeTransform->GetNumberOfTransforms();
+  const size_t numberOfInitialTransforms = this->m_CompositeTransform->GetNumberOfTransforms() -1; //NOTE:  the -1 is to ignore the initial identity transform that is part of the composit transform.
 
   for( int currentStage = this->m_NumberOfStages - 1; currentStage >= 0; currentStage-- )
     {
@@ -763,10 +782,11 @@ RegistrationHelper<VImageDimension>
 
     typedef itk::ImageRegistrationMethodv4<ImageType, ImageType> AffineRegistrationType;
 
+    const int stageNumber=numberOfInitialTransforms + this->m_NumberOfStages - currentStage - 1;
     this->Logger() << std::endl << "Stage "
-              << ( numberOfInitialTransforms + this->m_NumberOfStages - currentStage - 1 ) << std::endl;
+      << ( stageNumber ) << std::endl;
     std::stringstream currentStageString;
-    currentStageString << ( numberOfInitialTransforms + this->m_NumberOfStages - currentStage - 1 );
+    currentStageString << ( stageNumber );
 
     // Get the fixed and moving images
 
@@ -906,8 +926,7 @@ RegistrationHelper<VImageDimension>
 
     float samplingPercentage = this->m_Metrics[currentStage].m_SamplingPercentage;
     SamplingStrategy samplingStrategy = this->m_Metrics[currentStage].m_SamplingStrategy;
-    typename AffineRegistrationType::MetricSamplingStrategyType metricSamplingStrategy
-      = AffineRegistrationType::NONE;
+    typename AffineRegistrationType::MetricSamplingStrategyType metricSamplingStrategy = AffineRegistrationType::NONE;
     if( samplingStrategy == random)
       {
       this->Logger() << "  random sampling (percentage = " << samplingPercentage << ")" << std::endl;
@@ -917,6 +936,10 @@ RegistrationHelper<VImageDimension>
       {
       this->Logger() << "  regular sampling (percentage = " << samplingPercentage << ")" << std::endl;
       metricSamplingStrategy = AffineRegistrationType::REGULAR;
+      }
+    else
+      {
+      std::cout << "  Using default NONE metricSamplingStrategy " << std::endl;
       }
 
     switch(this->m_Metrics[currentStage].m_MetricType)
@@ -2161,7 +2184,6 @@ RegistrationHelper<VImageDimension>
                     << varianceForUpdateField << ", varianceForTotalField = " << varianceForTotalField << ") ***"
                     << std::endl << std::endl;
           displacementFieldRegistrationObserver->Execute( displacementFieldRegistration, itk::StartEvent() );
-          this->Logger() << "HACK" << displacementFieldRegistration << std::endl;
           displacementFieldRegistration->StartRegistration();
           }
         catch( itk::ExceptionObject & e )
@@ -2306,7 +2328,7 @@ RegistrationHelper<VImageDimension>
 
   for(unsigned i = 0; i < this->m_NumberOfStages; i++)
     {
-    this->Logger() << "Stage " << i << std::endl;
+    this->Logger() << "Stage " << i + 1 << " State" << std::endl; //NOTE: + 1 for consistency.
     const Metric &curMetric = this->m_Metrics[i];
     const TransformMethod &curTransform = this->m_TransformMethods[i];
     this->Logger() << "   Metric = " << curMetric.GetMetricAsString() << std::endl
