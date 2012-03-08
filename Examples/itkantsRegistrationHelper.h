@@ -54,7 +54,8 @@ public:
     MI = 1,
     Mattes = 2,
     MeanSquares = 3,
-    GC = 4
+    GC = 4,
+    IllegalMetric = 5
   };
   enum SamplingStrategy
   {
@@ -70,7 +71,7 @@ public:
            double weighting,
            SamplingStrategy samplingStrategy,
            int numberOfBins,
-           double radius,
+           unsigned int radius,
            double samplingPercentage) :
       m_MetricType(metricType),
       m_FixedImage(fixedImage),
@@ -88,9 +89,11 @@ public:
           {
           case CC: return "CC";
           case MI: return "MI";
-          case Mattes: return " = 2CC";
+          case Mattes: return "Mattes";;
           case MeanSquares: return "MeanSquares";
           case GC: return "GC";
+          default:
+            break;
           }
         return "";
       }
@@ -100,9 +103,11 @@ public:
     double m_Weighting;
     SamplingStrategy m_SamplingStrategy;
     int m_NumberOfBins;
-    double m_Radius;
+    unsigned int m_Radius;
     double m_SamplingPercentage;
   };
+
+
   typedef std::deque<Metric> MetricListType;
 
   enum XfrmMethod
@@ -117,7 +122,8 @@ public:
     BSplineDisplacementField = 7,
     TimeVaryingVelocityField = 8,
     TimeVaryingBSplineVelocityField = 9,
-    Syn = 10
+    Syn = 10,
+    UnknownXfrm = 11
   };
 
   class TransformMethod
@@ -180,9 +186,12 @@ public:
                   double weighting,
                   SamplingStrategy samplingStrategy,
                   int numberOfBins,
-                  double radius,
+                  unsigned int radius,
                   double samplingPercentage);
-  MetricType StringToMetricType(const std::string &str);
+  
+  MetricType StringToMetricType(const std::string &str) const;
+
+  XfrmMethod StringToXfrmMethod(const std::string &str) const;
 
   void AddInitialTransform(const std::string &filename, bool useInverse);
 
@@ -198,7 +207,8 @@ public:
 
   void AddBSplineTransform(double GradientStep,std::vector<unsigned int> &MeshSizeAtBaseLevel);
 
-  void AddGaussianDisplacementFieldTransform(double GradientStep, double UpdateFieldSigmaInPhysicalSpace);
+  void AddGaussianDisplacementFieldTransform(double GradientStep, double UpdateFieldSigmaInPhysicalSpace,
+                                             double TotalFieldSigmaInPhysicalSpace);
 
   void AddBSplineDisplacementFieldTransform(double GradientStep,
                                             std::vector<unsigned int> &UpdateFieldMeshSizeAtBaseLevel,
@@ -213,7 +223,7 @@ public:
   void AddTimeVaryingBSplineVelocityFieldTransform(double GradientStep, std::vector<unsigned int> VelocityFieldMeshSize,
                                                    unsigned int NumberOfTimePointSamples, unsigned int SplineOrder);
 
-  void AddSyNTransform(double GradientStep,double UpdateFieldSigmaInPhysicalSpace, double TotalFieldSigmaInPhysicalSpace);
+  void AddSynTransform(double GradientStep,double UpdateFieldSigmaInPhysicalSpace, double TotalFieldSigmaInPhysicalSpace);
 
   void SetIterations(const std::vector<std::vector<unsigned int> > &Iterations);
 
