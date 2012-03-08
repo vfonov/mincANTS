@@ -182,6 +182,7 @@ public:
                   int numberOfBins,
                   double radius,
                   double samplingPercentage);
+  MetricType StringToMetricType(const std::string &str);
 
   void AddInitialTransform(const std::string &filename, bool useInverse);
 
