@@ -220,52 +220,16 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
     }
 }
 
-int main( int argc, char *argv[] )
+typedef itk::ants::CommandLineParser ParserType;
+typedef ParserType::OptionType       OptionType;
+
+template <unsigned VDimension>
+int
+DoRegistration(typename ParserType::Pointer &parser)
 {
-  typedef itk::ants::CommandLineParser ParserType;
-  typedef ParserType::OptionType       OptionType;
-
-  ParserType::Pointer parser = ParserType::New();
-
-  parser->SetCommand( argv[0] );
-
-  std::string commandDescription = std::string( "This program is a user-level " )
-    + std::string( "registration application meant to utilize ITKv4-only classes. The user can specify " )
-    + std::string( "any number of \"stages\" where a stage consists of a transform; an image metric; " )
-    + std::string( "and iterations, shrink factors, and smoothing sigmas for each level." );
-
-  parser->SetCommandDescription( commandDescription );
-  InitializeCommandLineOptions( parser );
-
-  parser->Parse( argc, argv );
-
-  if( argc < 2 || parser->Convert<bool>( parser->GetOption( "help" )->GetValue() ) )
-    {
-    parser->PrintMenu( std::cout, 5, false );
-    return EXIT_FAILURE;
-    }
-  else if( parser->Convert<bool>( parser->GetOption( 'h' )->GetValue() ) )
-    {
-    parser->PrintMenu( std::cout, 5, true );
-    return EXIT_FAILURE;
-    }
-
-  itk::ants::RegistrationHelper::Pointer regHelper =
-    itk::ants::RegistrationHelper::New();
-
-  unsigned int dimension = 3;
-
-  ParserType::OptionType::Pointer dimOption = parser->GetOption( "dimensionality" );
-  if( dimOption && dimOption->GetNumberOfValues() > 0 )
-    {
-    dimension = parser->Convert<unsigned int>( dimOption->GetValue() );
-    }
-  else
-    {
-    std::cerr << "Image dimensionality not specified.  See command line option --dimensionality" << std::endl;
-    return EXIT_FAILURE;
-    }
-  regHelper->SetImageDimension(dimension);
+  typedef typename itk::ants::RegistrationHelper<VDimension> RegistrationHelperType;
+  typename RegistrationHelperType::Pointer regHelper =
+    RegistrationHelperType::New();
 
   OptionType::Pointer transformOption = parser->GetOption( "transform" );
 
@@ -347,7 +311,7 @@ int main( int argc, char *argv[] )
     std::string whichMetric = metricOption->GetValue( currentStage );
     ConvertToLowerCase( whichMetric );
 
-    itk::ants::RegistrationHelper::MetricType curMetric =
+    typename RegistrationHelperType::MetricType curMetric =
       regHelper->StringToMetricType(whichMetric);
 
     float lowerQuantile = 0.0;
@@ -412,16 +376,16 @@ int main( int argc, char *argv[] )
       }
     ConvertToLowerCase( Strategy );
 
-    itk::ants::RegistrationHelper::SamplingStrategy samplingStrategy =
-      itk::ants::RegistrationHelper::regular;
+    typename RegistrationHelperType::SamplingStrategy samplingStrategy =
+      RegistrationHelperType::regular;
     if( Strategy == "random")
       {
-      samplingStrategy = itk::ants::RegistrationHelper::random;
+      samplingStrategy = RegistrationHelperType::random;
       }
 
     switch(curMetric)
       {
-      case itk::ants::RegistrationHelper::CC:
+      case RegistrationHelperType::CC:
         {
         unsigned int radiusOption = parser->Convert<unsigned int>( metricOption->GetParameter( currentStage, 3 ) );
         regHelper->AddMetric(curMetric,
@@ -434,8 +398,8 @@ int main( int argc, char *argv[] )
                              samplingPercentage);
         }
         break;
-      case itk::ants::RegistrationHelper::GC:
-      case itk::ants::RegistrationHelper::MeanSquares:
+      case RegistrationHelperType::GC:
+      case RegistrationHelperType::MeanSquares:
         regHelper->AddMetric(curMetric,
                              fixedImageFileName,
                              movingImageFileName,
@@ -445,8 +409,8 @@ int main( int argc, char *argv[] )
                              1,
                              samplingPercentage);
         break;
-      case itk::ants::RegistrationHelper::Mattes:
-      case itk::ants::RegistrationHelper::MI:
+      case RegistrationHelperType::Mattes:
+      case RegistrationHelperType::MI:
         {
         unsigned int binOption = parser->Convert<unsigned int>( metricOption->GetParameter( currentStage, 3 ) );
         regHelper->AddMetric(curMetric,
@@ -472,31 +436,31 @@ int main( int argc, char *argv[] )
     std::string whichTransform = transformOption->GetValue( currentStage );
     ConvertToLowerCase( whichTransform );
 
-    itk::ants::RegistrationHelper::XfrmMethod xfrmMethod = regHelper->StringToXfrmMethod(whichTransform);
+    typename RegistrationHelperType::XfrmMethod xfrmMethod = regHelper->StringToXfrmMethod(whichTransform);
 
     switch(xfrmMethod)
       {
-      case itk::ants::RegistrationHelper::Affine:
+      case RegistrationHelperType::Affine:
         regHelper->AddAffineTransform(learningRate);
         break;
-      case itk::ants::RegistrationHelper::Rigid:
+      case RegistrationHelperType::Rigid:
         regHelper->AddRigidTransform(learningRate);
         break;
-      case itk::ants::RegistrationHelper::CompositeAffine:
+      case RegistrationHelperType::CompositeAffine:
         regHelper->AddCompositeAffineTransform(learningRate);
         break;
-      case itk::ants::RegistrationHelper::Similarity:
+      case RegistrationHelperType::Similarity:
         regHelper->AddSimilarityTransform(learningRate);
         break;
-      case itk::ants::RegistrationHelper::Translation:
+      case RegistrationHelperType::Translation:
         regHelper->AddTranslationTransform(learningRate);
-      case itk::ants::RegistrationHelper::GaussianDisplacementField:
+      case RegistrationHelperType::GaussianDisplacementField:
         {
         float varianceForUpdateField = parser->Convert<float>( transformOption->GetParameter( currentStage, 1 ) );
         float varianceForTotalField = parser->Convert<float>( transformOption->GetParameter( currentStage, 2 ) );
         regHelper->AddGaussianDisplacementFieldTransform(learningRate,varianceForUpdateField, varianceForTotalField);
         }
-      case itk::ants::RegistrationHelper::BSplineDisplacementField:
+      case RegistrationHelperType::BSplineDisplacementField:
         {
         std::vector<unsigned int> meshSizeForTheUpdateField = parser->ConvertVector<unsigned int>(
           transformOption->GetParameter( currentStage, 1 ) );
@@ -515,7 +479,7 @@ int main( int argc, char *argv[] )
 
         }
         break;
-      case itk::ants::RegistrationHelper::TimeVaryingVelocityField:
+      case RegistrationHelperType::TimeVaryingVelocityField:
         {
         unsigned int numberOfTimeIndices = parser->Convert<unsigned int>( transformOption->GetParameter( 0, 1 ) );
 
@@ -531,7 +495,7 @@ int main( int argc, char *argv[] )
                                                         varianceForTotalFieldTime);
         }
         break;
-      case itk::ants::RegistrationHelper::TimeVaryingBSplineVelocityField:
+      case RegistrationHelperType::TimeVaryingBSplineVelocityField:
         {
         std::vector<unsigned int> meshSize = parser->ConvertVector<unsigned int>( transformOption->GetParameter( 0, 1 ) );
         unsigned int numberOfTimePointSamples = 4;
@@ -549,7 +513,7 @@ int main( int argc, char *argv[] )
                                                                numberOfTimePointSamples,
                                                                splineOrder);
         }
-      case itk::ants::RegistrationHelper::Syn:
+      case RegistrationHelperType::Syn:
         {
         float varianceForUpdateField = parser->Convert<float>( transformOption->GetParameter( currentStage, 1 ) );
         float varianceForTotalField = parser->Convert<float>( transformOption->GetParameter( currentStage, 2 ) );
@@ -576,4 +540,56 @@ int main( int argc, char *argv[] )
 
   // Write out warped image(s), if requested.
 
-} 
+}
+
+int main( int argc, char *argv[] )
+{
+
+  ParserType::Pointer parser = ParserType::New();
+
+  parser->SetCommand( argv[0] );
+
+  std::string commandDescription = std::string( "This program is a user-level " )
+    + std::string( "registration application meant to utilize ITKv4-only classes. The user can specify " )
+    + std::string( "any number of \"stages\" where a stage consists of a transform; an image metric; " )
+    + std::string( "and iterations, shrink factors, and smoothing sigmas for each level." );
+
+  parser->SetCommandDescription( commandDescription );
+  InitializeCommandLineOptions( parser );
+
+  parser->Parse( argc, argv );
+
+  if( argc < 2 || parser->Convert<bool>( parser->GetOption( "help" )->GetValue() ) )
+    {
+    parser->PrintMenu( std::cout, 5, false );
+    return EXIT_FAILURE;
+    }
+  else if( parser->Convert<bool>( parser->GetOption( 'h' )->GetValue() ) )
+    {
+    parser->PrintMenu( std::cout, 5, true );
+    return EXIT_FAILURE;
+    }
+  unsigned int dimension = 3;
+
+  ParserType::OptionType::Pointer dimOption = parser->GetOption( "dimensionality" );
+  if( dimOption && dimOption->GetNumberOfValues() > 0 )
+    {
+    dimension = parser->Convert<unsigned int>( dimOption->GetValue() );
+    }
+  else
+    {
+    std::cerr << "Image dimensionality not specified.  See command line option --dimensionality" << std::endl;
+    return EXIT_FAILURE;
+    }
+  switch(dimension)
+    {
+    case 2:
+      return DoRegistration<2>(parser);
+    case 3:
+      return DoRegistration<3>(parser);
+    default:
+      std::cerr << "bad image dimension " << dimension << std::endl;
+      return EXIT_FAILURE;
+    }
+  return EXIT_SUCCESS;
+}
