@@ -321,8 +321,11 @@ DoRegistration(typename ParserType::Pointer &parser)
     float upperQuantile = 1.0;
 
     OptionType::Pointer winsorizeOption = parser->GetOption( "winsorize-image-intensities" );
+    bool doWinsorize(false);
+
     if( winsorizeOption && winsorizeOption->GetNumberOfParameters( 0 ) > 0 )
       {
+      doWinsorize = true;
       if( winsorizeOption->GetNumberOfParameters( 0 ) > 0 )
         {
         lowerQuantile = parser->Convert<float>( winsorizeOption->GetParameter( 0, 0 ) );
@@ -332,6 +335,7 @@ DoRegistration(typename ParserType::Pointer &parser)
         upperQuantile = parser->Convert<float>( winsorizeOption->GetParameter( 0, 1 ) );
         }
       }
+    regHelper->SetWinsorizeImageIntensities(doWinsorize,lowerQuantile,upperQuantile);
 
     bool doHistogramMatch = false;
     OptionType::Pointer histOption = parser->GetOption( "use-histogram-matching" );

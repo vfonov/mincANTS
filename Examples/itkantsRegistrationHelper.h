@@ -91,7 +91,7 @@ public:
       m_SamplingPercentage(samplingPercentage)
       {
       }
-    const std::string GetMetricAsString()
+    const std::string GetMetricAsString() const
       {
         switch(this->m_MetricType)
           {
@@ -147,6 +147,25 @@ public:
                         m_NumberOfTimeIndices(0),
                         m_NumberOfTimePointSamples(4)
       {
+      }
+    std::string XfrmMethodAsString() const
+      {
+        switch(this->m_XfrmMethod)
+          {
+          case Rigid: return std::string("Rigid");
+          case Affine: return std::string("Affine");
+          case CompositeAffine: return std::string("CompositeAffine");
+          case Similarity: return std::string("Similarity");
+          case Translation: return std::string("Translation");
+          case BSpline: return std::string("BSpline");
+          case GaussianDisplacementField: return std::string("GaussianDisplacementField");
+          case BSplineDisplacementField: return std::string("BSplineDisplacementField");
+          case TimeVaryingVelocityField: return std::string("TimeVaryingVelocityField");
+          case TimeVaryingBSplineVelocityField: return std::string("TimeVaryingBSplineVelocityField");
+          case SyN: return std::string("SyN");
+          case UnknownXfrm: return std::string("UnknownXfrm");
+          }
+        return std::string("Impossible");
       }
     XfrmMethod m_XfrmMethod;
     // all transforms
@@ -256,6 +275,8 @@ public:
   itkGetObjectMacro(InverseWarpedImage,ImageType);
 
   int DoRegistration();
+
+  void PrintState() const;
 
 private:
   int ValidateParameters();
