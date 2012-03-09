@@ -21,6 +21,7 @@
 #include <deque>
 #include "itkObject.h"
 #include "itkWeakPointer.h"
+#include "itkDisplacementFieldTransform.h"
 #include "itkCompositeTransform.h"
 #include "itkImage.h"
 
@@ -34,20 +35,21 @@ class RegistrationHelper : public Object
 {
 public:
   /** Standard class typedefs */
-  typedef RegistrationHelper       Self;
-  typedef Object                   Superclass;
-  typedef SmartPointer<Self>       Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
-  typedef WeakPointer<const Self>  ConstWeakPointer;
+  typedef RegistrationHelper         Self;
+  typedef Object                     Superclass;
+  typedef SmartPointer< Self >       Pointer;
+  typedef SmartPointer< const Self > ConstPointer;
+  typedef WeakPointer< const Self >  ConstWeakPointer;
 
   typedef double                                        RealType;
   typedef float                                         PixelType;
   typedef Image<PixelType, VImageDimension>             ImageType;
   typedef CompositeTransform<RealType, VImageDimension> CompositeTransformType;
+  typedef DisplacementFieldTransform<RealType, VImageDimension> DisplacementFieldTransformType;
 
   class InitialTransform
   {
-public:
+  public:
     InitialTransform(const std::string & filename, bool useInverse) :
       m_Filename(filename), m_UseInverse(useInverse)
     {
@@ -75,7 +77,7 @@ public:
     };
   class Metric
   {
-public:
+  public:
     Metric(MetricEnumeration metricType, typename ImageType::Pointer & fixedImage,
            typename ImageType::Pointer & movingImage, double weighting, SamplingStrategy samplingStrategy,
            int numberOfBins,
@@ -89,32 +91,32 @@ public:
       m_NumberOfBins(numberOfBins),
       m_Radius(radius),
       m_SamplingPercentage(samplingPercentage)
-    {
-    }
+      {
+      }
 
     const std::string GetMetricAsString() const
-    {
-      switch( this->m_MetricType )
-        {
-        case CC: return "CC";
-        case MI: return "MI";
-        case Mattes: return "Mattes";;
-        case MeanSquares: return "MeanSquares";
-        case GC: return "GC";
-        default:
-          break;
-        }
-      return "";
-    }
+      {
+        switch( this->m_MetricType )
+          {
+          case CC: return "CC";
+          case MI: return "MI";
+          case Mattes: return "Mattes";;
+          case MeanSquares: return "MeanSquares";
+          case GC: return "GC";
+          default:
+            break;
+          }
+        return "";
+      }
 
-    MetricEnumeration m_MetricType;
+    MetricEnumeration           m_MetricType;
     typename ImageType::Pointer m_FixedImage;
     typename ImageType::Pointer m_MovingImage;
-    double           m_Weighting;
-    SamplingStrategy m_SamplingStrategy;
-    int              m_NumberOfBins;
-    unsigned int     m_Radius;
-    double           m_SamplingPercentage;
+    double                      m_Weighting;
+    SamplingStrategy            m_SamplingStrategy;
+    int                         m_NumberOfBins;
+    unsigned int                m_Radius;
+    double                      m_SamplingPercentage;
   };
 
   typedef std::deque<Metric> MetricListType;
@@ -137,38 +139,38 @@ public:
 
   class TransformMethod
   {
-public:
+  public:
     TransformMethod() : m_XfrmMethod(Rigid),
-      m_GradientStep(0),
-      m_UpdateFieldSigmaInPhysicalSpace(0.0),
-      m_TotalFieldSigmaInPhysicalSpace(0.0),
-      m_SplineOrder(3),
-      m_UpdateFieldTimeSigma(0.0),
-      m_TotalFieldTimeSigma(0.0),
-      m_NumberOfTimeIndices(0),
-      m_NumberOfTimePointSamples(4)
-    {
-    }
+                        m_GradientStep(0),
+                        m_UpdateFieldSigmaInPhysicalSpace(0.0),
+                        m_TotalFieldSigmaInPhysicalSpace(0.0),
+                        m_SplineOrder(3),
+                        m_UpdateFieldTimeSigma(0.0),
+                        m_TotalFieldTimeSigma(0.0),
+                        m_NumberOfTimeIndices(0),
+                        m_NumberOfTimePointSamples(4)
+      {
+      }
 
     std::string XfrmMethodAsString() const
-    {
-      switch( this->m_XfrmMethod )
-        {
-        case Rigid: return std::string("Rigid");
-        case Affine: return std::string("Affine");
-        case CompositeAffine: return std::string("CompositeAffine");
-        case Similarity: return std::string("Similarity");
-        case Translation: return std::string("Translation");
-        case BSpline: return std::string("BSpline");
-        case GaussianDisplacementField: return std::string("GaussianDisplacementField");
-        case BSplineDisplacementField: return std::string("BSplineDisplacementField");
-        case TimeVaryingVelocityField: return std::string("TimeVaryingVelocityField");
-        case TimeVaryingBSplineVelocityField: return std::string("TimeVaryingBSplineVelocityField");
-        case SyN: return std::string("SyN");
-        case UnknownXfrm: return std::string("UnknownXfrm");
-        }
-      return std::string("Impossible");
-    }
+      {
+        switch( this->m_XfrmMethod )
+          {
+          case Rigid: return std::string("Rigid");
+          case Affine: return std::string("Affine");
+          case CompositeAffine: return std::string("CompositeAffine");
+          case Similarity: return std::string("Similarity");
+          case Translation: return std::string("Translation");
+          case BSpline: return std::string("BSpline");
+          case GaussianDisplacementField: return std::string("GaussianDisplacementField");
+          case BSplineDisplacementField: return std::string("BSplineDisplacementField");
+          case TimeVaryingVelocityField: return std::string("TimeVaryingVelocityField");
+          case TimeVaryingBSplineVelocityField: return std::string("TimeVaryingBSplineVelocityField");
+          case SyN: return std::string("SyN");
+          case UnknownXfrm: return std::string("UnknownXfrm");
+          }
+        return std::string("Impossible");
+      }
 
     XfrmMethod m_XfrmMethod;
     // all transforms
@@ -204,32 +206,20 @@ public:
    * the image. */
   itkStaticConstMacro(ImageDimension, unsigned int, VImageDimension);
 
-  itkSetMacro(WriteOutputs, bool);
-  itkGetMacro(WriteOutputs, bool);
+  void  AddMetric(MetricEnumeration metricType,
+                  typename ImageType::Pointer &fixedImage,
+                  typename ImageType::Pointer &movingImage,
+                  double weighting,
+                  SamplingStrategy samplingStrategy,
+                  int numberOfBins,
+                  unsigned int radius,
+                  double samplingPercentage);
 
-  itkSetStringMacro(OutputTransformPrefix);
-  itkGetStringMacro(OutputTransformPrefix);
+  MetricEnumeration StringToMetricType(const std::string &str) const;
 
-  itkSetStringMacro(OutputWarpedImageName);
-  itkGetStringMacro(OutputWarpedImageName);
+  XfrmMethod StringToXfrmMethod(const std::string &str) const;
 
-  itkSetStringMacro(OutputInverseWarpedImageName);
-  itkGetStringMacro(OutputInverseWarpedImageName);
-
-  void AddMetric(MetricEnumeration metricType,
-                 typename ImageType::Pointer & fixedImage,
-                 typename ImageType::Pointer & movingImage,
-                 double weighting,
-                 SamplingStrategy samplingStrategy,
-                 int numberOfBins,
-                 unsigned int radius,
-                 double samplingPercentage);
-
-  MetricEnumeration StringToMetricType(const std::string & str) const;
-
-  XfrmMethod StringToXfrmMethod(const std::string & str) const;
-
-  void AddInitialTransform(const std::string & filename, bool useInverse);
+  void AddInitialTransform(const std::string &filename, bool useInverse);
 
   void AddRigidTransform(double GradientStep);
 
@@ -276,8 +266,8 @@ public:
 
   itkGetObjectMacro(CompositeTransform, CompositeTransformType);
 
-  itkGetObjectMacro(WarpedImage, ImageType);
-  itkGetObjectMacro(InverseWarpedImage, ImageType);
+  ImageType *GetWarpedImage();
+  ImageType *GetInverseWarpedImage();
 
   int DoRegistration();
 
@@ -293,32 +283,26 @@ protected:
   virtual ~RegistrationHelper();
 private:
   int ValidateParameters();
-
-  int SetupInitialTransform(typename CompositeTransformType::Pointer & compositeTransform);
-  std::ostream & Logger() const
-  {
-    return *m_LogStream;
-  }
-
+  int SetupInitialTransform(typename CompositeTransformType::Pointer &compositeTransform);
+  std::ostream &Logger() const
+    {
+      return *m_LogStream;
+    }
   typename CompositeTransformType::Pointer m_CompositeTransform;
   typename ImageType::Pointer              m_WarpedImage;
   typename ImageType::Pointer              m_InverseWarpedImage;
-  bool                                    m_WriteOutputs;
-  unsigned int                            m_NumberOfStages;
-  std::string                             m_OutputTransformPrefix;
-  std::string                             m_OutputWarpedImageName;
-  std::string                             m_OutputInverseWarpedImageName;
-  InitialTransformListType                m_InitialTransforms;
-  MetricListType                          m_Metrics;
-  TransformMethodListType                 m_TransformMethods;
-  std::vector<std::vector<unsigned int> > m_Iterations;
-  std::vector<std::vector<float> >        m_SmoothingSigmas;
-  std::vector<std::vector<unsigned int> > m_ShrinkFactors;
-  bool                                    m_UseHistogramMatching;
-  bool                                    m_WinsorizeImageIntensities;
-  double                                  m_LowerQuantile;
-  double                                  m_UpperQuantile;
-  std::ostream *                          m_LogStream;
+  unsigned int                             m_NumberOfStages;
+  InitialTransformListType                 m_InitialTransforms;
+  MetricListType                           m_Metrics;
+  TransformMethodListType                  m_TransformMethods;
+  std::vector<std::vector<unsigned int> >  m_Iterations;
+  std::vector<std::vector<float> >         m_SmoothingSigmas;
+  std::vector<std::vector<unsigned int> >  m_ShrinkFactors;
+  bool                                     m_UseHistogramMatching;
+  bool                                     m_WinsorizeImageIntensities;
+  double                                   m_LowerQuantile;
+  double                                   m_UpperQuantile;
+  std::ostream                             *m_LogStream;
 };
 
 } // namespace ants
