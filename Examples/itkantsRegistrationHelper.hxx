@@ -664,9 +664,6 @@ RegistrationHelper<VImageDimension>
     bool hasTransformBeenRead = false;
     initialTransformName = this->m_InitialTransforms[n].m_Filename;
 
-    typedef itk::DisplacementFieldTransform<double,
-                                            VImageDimension> DisplacementFieldTransformType;
-
     typedef typename DisplacementFieldTransformType::DisplacementFieldType DisplacementFieldType;
 
     typedef itk::ImageFileReader<DisplacementFieldType> DisplacementFieldReaderType;
@@ -781,8 +778,10 @@ RegistrationHelper<VImageDimension>
   typename ImageType::Pointer fixedImage = this->m_Metrics[0].m_FixedImage;
   typename ImageType::Pointer movingImage = this->m_Metrics[0].m_MovingImage;
 
-  if(this->m_CompositeTransform->GetInverseTransform().IsNull() )
+  if( this->m_CompositeTransform->GetInverseTransform().IsNull() )
+    {
     return 0;
+    }
   typedef itk::ResampleImageFilter<ImageType, ImageType> ResampleFilterType;
   typename ResampleFilterType::Pointer inverseResampler = ResampleFilterType::New();
   inverseResampler->SetTransform( this->m_CompositeTransform->GetInverseTransform() );
@@ -1278,6 +1277,7 @@ RegistrationHelper<VImageDimension>
                                                                                           GetOutput()->
                                                                                           Get() ) );
         }
+        break;
       case GaussianDisplacementField:
         {
         typedef itk::Vector<RealType, VImageDimension> VectorType;
@@ -1290,19 +1290,19 @@ RegistrationHelper<VImageDimension>
         displacementField->FillBuffer( zeroVector );
 
         typedef GaussianSmoothingOnUpdateDisplacementFieldTransform<RealType,
-                                                                    VImageDimension> DisplacementFieldTransformType;
+                                                                    VImageDimension> GaussianDisplacementFieldTransformType;
 
         typedef ImageRegistrationMethodv4<ImageType, ImageType,
-                                          DisplacementFieldTransformType> DisplacementFieldRegistrationType;
+                                          GaussianDisplacementFieldTransformType> DisplacementFieldRegistrationType;
         typename DisplacementFieldRegistrationType::Pointer displacementFieldRegistration =
           DisplacementFieldRegistrationType::New();
 
-        typename DisplacementFieldTransformType::Pointer outputDisplacementFieldTransform =
-          const_cast<DisplacementFieldTransformType *>( displacementFieldRegistration->GetOutput()->Get() );
+        typename GaussianDisplacementFieldTransformType::Pointer outputDisplacementFieldTransform =
+          const_cast<GaussianDisplacementFieldTransformType *>( displacementFieldRegistration->GetOutput()->Get() );
 
         // Create the transform adaptors
 
-        typedef itk::DisplacementFieldTransformParametersAdaptor<DisplacementFieldTransformType>
+        typedef itk::GaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor<GaussianDisplacementFieldTransformType>
           DisplacementFieldTransformAdaptorType;
         typename DisplacementFieldRegistrationType::TransformParametersAdaptorsContainerType adaptors;
 
@@ -1381,6 +1381,7 @@ RegistrationHelper<VImageDimension>
         // Add calculated transform to the composite transform
         this->m_CompositeTransform->AddTransform( outputDisplacementFieldTransform );
         }
+        break;
       case BSplineDisplacementField:
         {
         typedef itk::Vector<RealType, VImageDimension> VectorType;
@@ -1393,20 +1394,20 @@ RegistrationHelper<VImageDimension>
         displacementField->FillBuffer( zeroVector );
 
         typedef itk::BSplineSmoothingOnUpdateDisplacementFieldTransform<RealType,
-                                                                        VImageDimension> DisplacementFieldTransformType;
+                                                                        VImageDimension> BSplineDisplacementFieldTransformType;
 
         typedef itk::ImageRegistrationMethodv4<ImageType, ImageType,
-                                               DisplacementFieldTransformType> DisplacementFieldRegistrationType;
+                                               BSplineDisplacementFieldTransformType> DisplacementFieldRegistrationType;
         typename DisplacementFieldRegistrationType::Pointer displacementFieldRegistration =
           DisplacementFieldRegistrationType::New();
 
-        typename DisplacementFieldTransformType::Pointer outputDisplacementFieldTransform =
-          const_cast<DisplacementFieldTransformType *>( displacementFieldRegistration->GetOutput()->Get() );
+        typename BSplineDisplacementFieldTransformType::Pointer outputDisplacementFieldTransform =
+          const_cast<BSplineDisplacementFieldTransformType *>( displacementFieldRegistration->GetOutput()->Get() );
         outputDisplacementFieldTransform->SetDisplacementField( displacementField );
 
         // Create the transform adaptors
 
-        typedef itk::DisplacementFieldTransformParametersAdaptor<DisplacementFieldTransformType>
+        typedef itk::BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor<BSplineDisplacementFieldTransformType>
           DisplacementFieldTransformAdaptorType;
         typename DisplacementFieldRegistrationType::TransformParametersAdaptorsContainerType adaptors;
 
@@ -1423,8 +1424,8 @@ RegistrationHelper<VImageDimension>
           return EXIT_FAILURE;
           }
 
-        typename DisplacementFieldTransformType::ArrayType updateMeshSize;
-        typename DisplacementFieldTransformType::ArrayType totalMeshSize;
+        typename BSplineDisplacementFieldTransformType::ArrayType updateMeshSize;
+        typename BSplineDisplacementFieldTransformType::ArrayType totalMeshSize;
         for( unsigned int d = 0; d < VImageDimension; d++ )
           {
           updateMeshSize[d] = meshSizeForTheUpdateField[d];
@@ -1444,7 +1445,7 @@ RegistrationHelper<VImageDimension>
           shrinkFilter->Update();
 
           typedef itk::BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor<
-            DisplacementFieldTransformType>
+            BSplineDisplacementFieldTransformType>
             BSplineDisplacementFieldTransformAdaptorType;
           typename BSplineDisplacementFieldTransformAdaptorType::Pointer bsplineFieldTransformAdaptor =
             BSplineDisplacementFieldTransformAdaptorType::New();
@@ -1455,8 +1456,8 @@ RegistrationHelper<VImageDimension>
           bsplineFieldTransformAdaptor->SetTransform( outputDisplacementFieldTransform );
 
           // A good heuristic is to double the b-spline mesh resolution at each level
-          typename DisplacementFieldTransformType::ArrayType newUpdateMeshSize = updateMeshSize;
-          typename DisplacementFieldTransformType::ArrayType newTotalMeshSize = totalMeshSize;
+          typename BSplineDisplacementFieldTransformType::ArrayType newUpdateMeshSize = updateMeshSize;
+          typename BSplineDisplacementFieldTransformType::ArrayType newTotalMeshSize = totalMeshSize;
           for( unsigned int d = 0; d < VImageDimension; d++ )
             {
             newUpdateMeshSize[d] = newUpdateMeshSize[d] << ( level + 1 );
@@ -1958,8 +1959,6 @@ RegistrationHelper<VImageDimension>
         inverseDisplacementField->SetRegions( fixedImage->GetBufferedRegion() );
         inverseDisplacementField->Allocate();
         inverseDisplacementField->FillBuffer( zeroVector );
-
-        typedef itk::DisplacementFieldTransform<RealType, VImageDimension> DisplacementFieldTransformType;
 
         typedef itk::SyNImageRegistrationMethod<ImageType, ImageType,
                                                 DisplacementFieldTransformType> DisplacementFieldRegistrationType;
