@@ -2026,29 +2026,37 @@ TRealType antsSCCANObject<TInputImage, TRealType>
   if ( extra_cols > 0 ) this->m_VariatesP.set_column( 0 , intercept );
   RealType   lmerror = 0.0;
   VectorType original_b =  this->m_MatrixR.get_column( 0 );
-  for(  unsigned int colind = extra_cols; colind < this->m_VariatesP.cols(); colind++ )
+  unsigned int colind = extra_cols;
+  while (  colind < this->m_VariatesP.cols()  )
     {
     VectorType b =  original_b;
     VectorType x_k = this->m_VariatesP.get_column( colind );
     MatrixType pmod = this->m_MatrixP;
     /***************************************/
-    VectorType randv = this->InitializeV( this->m_MatrixP, false );
     std::cout << " col : " << colind << " : ";
     A = this->m_MatrixP * this->m_VariatesP;
     VectorType lmsolv( A.cols() , 1 );
     this->ConjGrad(  A ,  lmsolv, original_b, 0, 10000 );
     b = original_b - A * lmsolv;
-    VectorType bp = b * pmod;
-    RealType minerr1 = this->SparseNLConjGrad( pmod, randv, bp, 1.e-1, 30, false , true );
-    bool keepgoing = true;
-    while ( keepgoing )
+    for ( unsigned int cl = colind; cl < colind + 2; cl++ )
+      {
+      VectorType randv = this->InitializeV( this->m_MatrixP, false );
+      VectorType bp = b * pmod;
+      if ( cl % 2 == 0 ) this->PosNegVector( bp , false ); else this->PosNegVector( bp , true );
+      RealType minerr1 = this->SparseNLConjGrad( pmod, randv, bp, 1.e-1, 30, true , true );
+      bool keepgoing = true;
+      while ( keepgoing )
       {
       VectorType randv2 = randv;
-      RealType minerr2 = this->SparseNLConjGrad( pmod, randv2, bp, 1.e-1, 30, false , true );
+      RealType minerr2 = this->SparseNLConjGrad( pmod, randv2, bp, 1.e-1, 30, true , true );
       keepgoing = false;
       if ( minerr2 < minerr1 ) { randv = randv2; keepgoing = true; minerr1 = minerr2 ; }
       }
-    this->m_VariatesP.set_column( colind, randv );
+      //      std::cout <<" colind  " << cl <<" min-val " << bp.min_value() << " minerr " << minerr1 << std::endl; 
+      if ( cl < this->m_VariatesP.cols() - 1 )
+	this->m_VariatesP.set_column( cl, randv );
+      }
+    colind = colind + 2;
     /***************************************/
     /* Now get the LSQ regression solution */
     /***************************************/
