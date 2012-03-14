@@ -1090,7 +1090,7 @@ int main(int argc, char *argv[])
     polydata = normalGenerator->GetOutput();
     if( fixdir == 1 )
       {
-      Display( (vtkUnstructuredGrid *)polydata);
+      Display( static_cast<vtkUnstructuredGrid *>(polydata) );
       }
     //    if ( fixdir == 1 )  Display((vtkUnstructuredGrid*)fltReader->GetOutput());
     std::cout << " m_Smooth " << param << std::endl;

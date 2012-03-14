@@ -150,7 +150,7 @@ float vtkComputeTopology(vtkPolyData* pd)
 //    gp->SetInput(con->GetOutput());
 
 //    marchingCubes->Delete();
-
+#if 0
   int inputNumberOfPoints = con->GetOutput()->GetNumberOfPoints();
   int inputNumberOfPolys = con->GetOutput()->GetNumberOfPolys();
 
@@ -184,6 +184,7 @@ float vtkComputeTopology(vtkPolyData* pd)
   std::cout << "genus " << genus << std::endl;
 
   return genus;
+#endif
 }
 
 template <class TImage>
