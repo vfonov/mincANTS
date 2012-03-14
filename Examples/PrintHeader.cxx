@@ -290,9 +290,7 @@ int PrintHeader(int argc, char *argv[])
       }
 
     }
-
   return 1;
-
 }
 
 bool FileExists(string strFilename)
@@ -335,7 +333,8 @@ int main(int argc, char *argv[])
   std::string fn = std::string(argv[1]);
   if( !FileExists(fn) )
     {
-    std::cout << " file " << fn << " does not exist . " << std::endl;  return 1;
+    std::cout << " file " << fn << " does not exist . " << std::endl;
+    return 1;
     }
   itk::ImageIOBase::Pointer imageIO =
     itk::ImageIOFactory::CreateImageIO(
