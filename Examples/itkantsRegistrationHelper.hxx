@@ -54,18 +54,18 @@ namespace ants
 {
 
 template <class TFilter>
-class CommandIterationUpdate : public itk::Command
+class antsRegistrationCommandIterationUpdate : public itk::Command
 {
 public:
-  typedef CommandIterationUpdate  Self;
+  typedef antsRegistrationCommandIterationUpdate  Self;
   typedef itk::Command            Superclass;
   typedef itk::SmartPointer<Self> Pointer;
   itkNewMacro( Self );
 protected:
-  CommandIterationUpdate()
-    {
-      this->m_LogStream = &std::cout;
-    }
+  antsRegistrationCommandIterationUpdate()
+  {
+    this->m_LogStream = &std::cout;
+  }
 public:
 
   void Execute(itk::Object *caller, const itk::EventObject & event)
@@ -1083,7 +1083,7 @@ RegistrationHelper<VImageDimension>
         affineRegistration->SetOptimizer( optimizer );
         affineRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
 
-        typedef CommandIterationUpdate<AffineRegistrationType> AffineCommandType;
+        typedef antsRegistrationCommandIterationUpdate<AffineRegistrationType> AffineCommandType;
         typename AffineCommandType::Pointer affineObserver = AffineCommandType::New();
         affineObserver->SetLogStream(*this->m_LogStream);
         affineObserver->SetNumberOfIterations( iterations );
@@ -1125,7 +1125,7 @@ RegistrationHelper<VImageDimension>
         rigidRegistration->SetOptimizer( optimizer );
         rigidRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
 
-        typedef CommandIterationUpdate<RigidRegistrationType> RigidCommandType;
+        typedef antsRegistrationCommandIterationUpdate<RigidRegistrationType> RigidCommandType;
         typename RigidCommandType::Pointer rigidObserver = RigidCommandType::New();
         rigidObserver->SetLogStream(*this->m_LogStream);
         rigidObserver->SetNumberOfIterations( iterations );
@@ -1167,7 +1167,7 @@ RegistrationHelper<VImageDimension>
         affineRegistration->SetOptimizer( optimizer );
         affineRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
 
-        typedef CommandIterationUpdate<AffineRegistrationType> AffineCommandType;
+        typedef antsRegistrationCommandIterationUpdate<AffineRegistrationType> AffineCommandType;
         typename AffineCommandType::Pointer affineObserver = AffineCommandType::New();
         affineObserver->SetLogStream(*this->m_LogStream);
         affineObserver->SetNumberOfIterations( iterations );
@@ -1211,7 +1211,7 @@ RegistrationHelper<VImageDimension>
         similarityRegistration->SetOptimizer( optimizer );
         similarityRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
 
-        typedef CommandIterationUpdate<SimilarityRegistrationType> SimilarityCommandType;
+        typedef antsRegistrationCommandIterationUpdate<SimilarityRegistrationType> SimilarityCommandType;
         typename SimilarityCommandType::Pointer similarityObserver = SimilarityCommandType::New();
         similarityObserver->SetLogStream(*this->m_LogStream);
         similarityObserver->SetNumberOfIterations( iterations );
@@ -1254,7 +1254,7 @@ RegistrationHelper<VImageDimension>
         translationRegistration->SetOptimizer( optimizer );
         translationRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
 
-        typedef CommandIterationUpdate<TranslationRegistrationType> TranslationCommandType;
+        typedef antsRegistrationCommandIterationUpdate<TranslationRegistrationType> TranslationCommandType;
         typename TranslationCommandType::Pointer translationObserver = TranslationCommandType::New();
         translationObserver->SetLogStream(*this->m_LogStream);
         translationObserver->SetNumberOfIterations( iterations );
@@ -1355,7 +1355,7 @@ RegistrationHelper<VImageDimension>
         displacementFieldRegistration->SetTransformParametersAdaptorsPerLevel( adaptors );
         displacementFieldRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
 
-        typedef CommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
+        typedef antsRegistrationCommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
         typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver =
           DisplacementFieldCommandType::New();
         displacementFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
@@ -1482,7 +1482,7 @@ RegistrationHelper<VImageDimension>
         displacementFieldRegistration->SetOptimizer( optimizer );
         displacementFieldRegistration->SetTransformParametersAdaptorsPerLevel( adaptors );
 
-        typedef CommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
+        typedef antsRegistrationCommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
         typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver =
           DisplacementFieldCommandType::New();
         displacementFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
@@ -1578,7 +1578,7 @@ RegistrationHelper<VImageDimension>
         outputBSplineTransform->SetTransformDomainDirection( fixedImage->GetDirection() );
         outputBSplineTransform->SetIdentity();
 
-        typedef CommandIterationUpdate<BSplineRegistrationType> BSplineCommandType;
+        typedef antsRegistrationCommandIterationUpdate<BSplineRegistrationType> BSplineCommandType;
         typename BSplineCommandType::Pointer bsplineObserver = BSplineCommandType::New();
         bsplineObserver->SetLogStream(*this->m_LogStream);
         bsplineObserver->SetNumberOfIterations( iterations );
@@ -1744,7 +1744,7 @@ RegistrationHelper<VImageDimension>
 
         velocityFieldRegistration->SetTransformParametersAdaptorsPerLevel( adaptors );
 
-        typedef CommandIterationUpdate<VelocityFieldRegistrationType> VelocityFieldCommandType;
+        typedef antsRegistrationCommandIterationUpdate<VelocityFieldRegistrationType> VelocityFieldCommandType;
         typename VelocityFieldCommandType::Pointer velocityFieldRegistrationObserver = VelocityFieldCommandType::New();
         velocityFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
         velocityFieldRegistrationObserver->SetNumberOfIterations( iterations );
@@ -1919,7 +1919,7 @@ RegistrationHelper<VImageDimension>
           }
         velocityFieldRegistration->SetTransformParametersAdaptorsPerLevel( adaptors );
 
-        typedef CommandIterationUpdate<VelocityFieldRegistrationType> VelocityFieldCommandType;
+        typedef antsRegistrationCommandIterationUpdate<VelocityFieldRegistrationType> VelocityFieldCommandType;
         typename VelocityFieldCommandType::Pointer velocityFieldRegistrationObserver = VelocityFieldCommandType::New();
         velocityFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
         velocityFieldRegistrationObserver->SetNumberOfIterations( iterations );
@@ -2029,7 +2029,7 @@ RegistrationHelper<VImageDimension>
         outputDisplacementFieldTransform->SetDisplacementField( displacementField );
         outputDisplacementFieldTransform->SetInverseDisplacementField( inverseDisplacementField );
 
-        typedef CommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
+        typedef antsRegistrationCommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
         typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver =
           DisplacementFieldCommandType::New();
         displacementFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
