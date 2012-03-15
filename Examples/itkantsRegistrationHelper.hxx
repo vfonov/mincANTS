@@ -2123,7 +2123,7 @@ RegistrationHelper<VImageDimension>
         outputDisplacementFieldTransform->SetDisplacementField( displacementField );
         outputDisplacementFieldTransform->SetInverseDisplacementField( inverseDisplacementField );
 
-        typedef CommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
+        typedef antsRegistrationCommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
         typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver =
           DisplacementFieldCommandType::New();
         displacementFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
