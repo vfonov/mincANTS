@@ -146,6 +146,7 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
       9,
       "TimeVaryingBSplineVelocityField[gradientStep,velocityFieldMeshSize,<numberOfTimePointSamples=4>,<splineOrder=3>]" );
     option->SetUsageOption( 10, "SyN[gradientStep,updateFieldSigmaInPhysicalSpace,totalFieldSigmaInPhysicalSpace]" );
+    option->SetUsageOption( 11, "BSplineSyN[gradientStep,updateFieldMeshSizeAtBaseLevel,totalFieldMeshSizeAtBaseLevel,<splineOrder=3>]" );
     option->SetDescription( description );
     parser->AddOption( option );
     }
@@ -244,6 +245,7 @@ RegTypeToFileName(const std::string &type,bool &writeInverse, bool &writeVelocit
   ConvertToLowerCase(str);
   if(str == "syn" ||
      str == "symmetricnormalization" ||
+     str == "bsplinesyn" ||
      str == "timevaryingbsplinevelocityfield" ||
      str == "tvdmffd" ||
      str == "timevaryingvelocityfield" ||
@@ -296,6 +298,7 @@ RegTypeToFileName(const std::string &type,bool &writeInverse, bool &writeVelocit
      str == "dmffd" ||
      str == "syn" ||
      str == "symmetricnormalization" ||
+     str == "bsplinesyn" ||
      str == "timevaryingvelocityfield" ||
      str == "tvf" ||
      str == "timevaryingbsplinevelocityfield" ||
@@ -718,8 +721,6 @@ DoRegistration(typename ParserType::Pointer & parser)
     std::string whichTransform = transformOption->GetValue( currentStage );
     ConvertToLowerCase( whichTransform );
 
-    std::cout << whichTransform << std::endl;
-
     TransformTypeNames.push_back(whichTransform);
 
     typename RegistrationHelperType::XfrmMethod xfrmMethod = regHelper->StringToXfrmMethod(whichTransform);
@@ -813,6 +814,24 @@ DoRegistration(typename ParserType::Pointer & parser)
         const float varianceForUpdateField = parser->Convert<float>( transformOption->GetParameter( currentStage, 1 ) );
         const float varianceForTotalField = parser->Convert<float>( transformOption->GetParameter( currentStage, 2 ) );
         regHelper->AddSyNTransform(learningRate, varianceForUpdateField, varianceForTotalField);
+        }
+        break;
+      case RegistrationHelperType::BSplineSyN:
+        {
+        std::vector<unsigned int> meshSizeForTheUpdateField =
+          parser->ConvertVector<unsigned int>( transformOption->GetParameter( currentStage, 1 ) );
+        std::vector<unsigned int> meshSizeForTheTotalField =
+          parser->ConvertVector<unsigned int>( transformOption->GetParameter( currentStage, 2 ) );
+
+        unsigned int splineOrder = 3;
+        if( transformOption->GetNumberOfParameters( currentStage ) > 3 )
+          {
+          splineOrder = parser->Convert<unsigned int>( transformOption->GetParameter( currentStage, 3 ) );
+          }
+
+        regHelper->AddBSplineSyNTransform(learningRate, meshSizeForTheUpdateField,
+                                                        meshSizeForTheTotalField,
+                                                        splineOrder);
         }
         break;
       default:
