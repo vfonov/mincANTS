@@ -122,6 +122,7 @@ public:
       if ( fabs( v2( i ) ) > 0 ) v1( i ) = 0;
   }
 
+  void DeleteRow( MatrixType& , unsigned int );
   void PosNegVector( VectorType& v1 , bool pos  )
   {
     for ( unsigned int i = 0; i < v1.size(); i++ ) 
