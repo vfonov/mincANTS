@@ -258,9 +258,7 @@ RegTypeToFileName(const std::string &type,bool &writeInverse, bool &writeVelocit
     writeInverse = false;
     }
 
-  if(str == "timevaryingbsplinevelocityfield" ||
-     str == "tvdmffd" ||
-     str == "timevaryingvelocityfield" ||
+  if(str == "timevaryingvelocityfield" ||
      str == "tvf")
     {
     writeVelocityField = true;
