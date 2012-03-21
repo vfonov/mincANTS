@@ -713,10 +713,13 @@ int ants_motion( itk::ants::CommandLineParser *parser )
         metric->SetFixedImage( fixed_time_slice );
         metric->SetVirtualDomainImage( fixed_time_slice );
         metric->SetMovingImage( moving_time_slice );
-        metric->SetTransform( affineTransform );
         scalesEstimator->SetMetric(metric);
         scalesEstimator->EstimateScales(scales);
         optimizer->SetScales(scales);
+        if(compositeTransform->GetNumberOfTransforms() > 0)
+          {
+          affineRegistration->SetMovingInitialTransform( compositeTransform );
+          }
         affineRegistration->SetFixedImage( fixed_time_slice );
         affineRegistration->SetMovingImage( moving_time_slice );
         affineRegistration->SetNumberOfLevels( numberOfLevels );
@@ -726,8 +729,6 @@ int ants_motion( itk::ants::CommandLineParser *parser )
         affineRegistration->SetMetricSamplingPercentage( samplingPercentage );
         affineRegistration->SetMetric( metric );
         affineRegistration->SetOptimizer( optimizer );
-	//        affineRegistration->SetTransform( affineTransform );
-        affineRegistration->SetMovingInitialTransform( compositeTransform );
 
         typedef CommandIterationUpdate<AffineRegistrationType> AffineCommandType;
         typename AffineCommandType::Pointer affineObserver = AffineCommandType::New();
@@ -745,7 +746,7 @@ int ants_motion( itk::ants::CommandLineParser *parser )
           std::cerr << "Exception caught: " << e << std::endl;
           return EXIT_FAILURE;
           }
-
+        compositeTransform->AddTransform( const_cast<AffineTransformType *>( affineRegistration->GetOutput()->Get() ) );
         // Write out the affine transform
         std::string filename = outputPrefix + std::string("TimeSlice") + ants_moco_to_string<unsigned int>(timedim)
           + std::string( "Affine.txt" );
@@ -781,8 +782,11 @@ int ants_motion( itk::ants::CommandLineParser *parser )
           static_cast<typename RigidRegistrationType::MetricSamplingStrategyType>( metricSamplingStrategy ) );
         rigidRegistration->SetMetricSamplingPercentage( samplingPercentage );
         rigidRegistration->SetOptimizer( optimizer );
-	//        rigidRegistration->SetTransform( rigidTransform );
-        rigidRegistration->SetMovingInitialTransform( compositeTransform );
+        if(compositeTransform->GetNumberOfTransforms() > 0)
+          {
+          rigidRegistration->SetMovingInitialTransform( compositeTransform );
+          }
+
         typedef CommandIterationUpdate<RigidRegistrationType> RigidCommandType;
         typename RigidCommandType::Pointer rigidObserver = RigidCommandType::New();
         rigidObserver->SetNumberOfIterations( iterations );
@@ -797,6 +801,7 @@ int ants_motion( itk::ants::CommandLineParser *parser )
           std::cerr << "Exception caught: " << e << std::endl;
           return EXIT_FAILURE;
           }
+        compositeTransform->AddTransform( const_cast<RigidTransformType *>( rigidRegistration->GetOutput()->Get() ) );
         // Write out the rigid transform
         std::string filename = outputPrefix + std::string("TimeSlice") + ants_moco_to_string<unsigned int>(timedim)
           + std::string( "Rigid.txt" );
@@ -875,8 +880,6 @@ int ants_motion( itk::ants::CommandLineParser *parser )
         displacementFieldRegistration->SetFixedImage( fixed_time_slice );
         displacementFieldRegistration->SetMovingImage( moving_time_slice );
         displacementFieldRegistration->SetNumberOfLevels( numberOfLevels );
-        displacementFieldRegistration->SetMovingInitialTransform( compositeTransform );
-	//        displacementFieldRegistration->SetTransform( gaussianFieldTransform );
         displacementFieldRegistration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
         displacementFieldRegistration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
         displacementFieldRegistration->SetMetricSamplingStrategy(
@@ -885,6 +888,10 @@ int ants_motion( itk::ants::CommandLineParser *parser )
         displacementFieldRegistration->SetMetric( metric );
         displacementFieldRegistration->SetOptimizer( optimizer );
         displacementFieldRegistration->SetTransformParametersAdaptorsPerLevel( adaptors );
+        if(compositeTransform->GetNumberOfTransforms() > 0)
+          {
+          displacementFieldRegistration->SetMovingInitialTransform( compositeTransform );
+          }
         typedef CommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
         typename DisplacementFieldCommandType::Pointer dfObserver = DisplacementFieldCommandType::New();
         dfObserver->SetNumberOfIterations( iterations );
@@ -902,6 +909,10 @@ int ants_motion( itk::ants::CommandLineParser *parser )
           std::cerr << "Exception caught: " << e << std::endl;
           return EXIT_FAILURE;
           }
+        typename GaussianDisplacementFieldTransformType::Pointer outputDisplacementFieldTransform =
+          const_cast<GaussianDisplacementFieldTransformType *>( displacementFieldRegistration->GetOutput()->Get() );
+        outputDisplacementFieldTransform->SetDisplacementField( displacementField );
+        compositeTransform->AddTransform( outputDisplacementFieldTransform );
         if( timedim == 0 )
           {
           param_values.set_size(timedims, nparams);
