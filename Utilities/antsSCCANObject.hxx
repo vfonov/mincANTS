@@ -27,6 +27,9 @@
 #include <vnl/algo/vnl_generalized_eigensystem.h>
 #include "antsSCCANObject.h"
 #include <time.h>
+#include "itkCSVNumericObjectFileWriter.h"
+#include "itkCSVArray2DDataObject.h"
+#include "itkCSVArray2DFileReader.h"
 
 namespace itk
 {
@@ -1863,7 +1866,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     x_k = x_k * ( -1 );
     b = b * ( -1 );
     }
-  return minerr;
+  return minerr / A.rows() ;
 }
 
 template <class TInputImage, class TRealType>
@@ -2119,12 +2122,13 @@ TRealType antsSCCANObject<TInputImage, TRealType>
   if ( extra_cols > 0 ) this->m_VariatesP.set_column( 0 , intercept );
   VectorType original_b =  matrixR.get_column( 0 );
   unsigned int colind = extra_cols;
+  RealType minerr1;
   while (  colind < this->m_VariatesP.cols()  )
     {
     VectorType b =  original_b;
     VectorType x_k = this->m_VariatesP.get_column( colind );
     /***************************************/
-    std::cout << " col : " << colind << " : ";
+    //    std::cout << " col : " << colind << " : ";
     if ( colind > 0 )
       {
       A = matrixP * this->m_VariatesP.extract( matrixP.cols()  , colind + 1   , 0 , 0);
@@ -2139,7 +2143,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       VectorType randv = this->InitializeV( matrixP, false );
       VectorType bp = b * matrixP;
       if ( cl % 2 == 0 ) this->PosNegVector( bp , true ); else this->PosNegVector( bp , false );
-      RealType minerr1 = this->SparseNLConjGrad( matrixP, randv, bp, 1.e-1, 30, true , true );
+      minerr1 = this->SparseNLConjGrad( matrixP, randv, bp, 1.e-1, 30, true , true );
       bool keepgoing = true;
       unsigned int cter = 0;
       while ( keepgoing && cter < 200 )
@@ -2164,11 +2168,20 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     RealType lmerror = this->ConjGrad(  A ,  lmsolv, original_b, 0, 10000 );
     //    vnl_svd< double > eig( A );
     // VectorType lmsolv = eig.solve( original_b );
-    std::cout << " lmsolv " << lmsolv << std::endl;
-    A = p_leave_out * this->m_VariatesP ;
+    // std::cout << " lmsolv " << lmsolv << std::endl;
+    A = p_leave_out * this->m_VariatesP.extract( matrixP.cols()  , colind  , 0 , 0);
     this->AddColumnsToMatrix( A , r_leave_out , 1 , this->m_MatrixR.cols() - 1 );
+    /*    std::cout << " A  " << std::endl;
+    typedef itk::CSVNumericObjectFileWriter<double> CWriterType;
+    CWriterType::Pointer cwriter = CWriterType::New();
+    cwriter->SetFileName( "temp.csv" );
+    cwriter->SetInput( &A );
+    cwriter->Write(); 
+    std::cout << " lmsovl " << lmsolv.two_norm() << " Int " << this->m_Intercept << " rlo " << r_leave_out.get_column( 0 ).two_norm() << " sz " << soln.size( ) <<   "  rlosz " << r_leave_out.get_column( 0 ).size( ) << " solnnorm " << soln.two_norm( ) << std::endl; 
+*/
+
     VectorType soln = A * lmsolv + this->m_Intercept;
-    RealType loerror = ( soln - r_leave_out.get_column( 0 ) ).two_norm() / ( foldct + 1);
+    RealType loerror = ( soln - r_leave_out.get_column( 0 ) ).two_norm();
     unsigned int fleave_out = 0;
     if ( foldnum == 1 )  this->m_CanonicalCorrelations = soln;
     else
@@ -2183,8 +2196,8 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 	}
       }
     if ( predct > 0 )
-    std::cout << "Fold: " << fold << " minerr," << loerror << ",col," << colind  << " totalpredictionerr " << avgprederr / predct << std::endl;
-    else std::cout << "Fold: " << fold << " minerr," << loerror << ",col," << colind  << std::endl;
+      std::cout << "Fold: " << fold << ",col," << colind  << " minerr," << minerr1 << " local-error " << loerror << " totalpredictionerr " << avgprederr / predct << std::endl;
+    else std::cout << "Fold: " << fold << " minerr," << minerr1 << ",col," << colind  << std::endl;
     }
   this->m_VariatesQ = this->m_VariatesQ + this->m_VariatesP * ( 1.0 / ( RealType ) foldnum );
   }
