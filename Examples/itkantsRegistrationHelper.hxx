@@ -196,6 +196,7 @@ template <unsigned VImageDimension>
 RegistrationHelper<VImageDimension>
 ::RegistrationHelper() :
   m_CompositeTransform(NULL),
+  m_FixedInitialTransform(NULL),
   m_WarpedImage(NULL),
   m_InverseWarpedImage(NULL),
   m_NumberOfStages(0),
@@ -572,6 +573,22 @@ RegistrationHelper<VImageDimension>
 template <unsigned VImageDimension>
 void
 RegistrationHelper<VImageDimension>
+::SetConvergenceThresholds(const std::vector<double> & thresholds)
+{
+  this->m_ConvergenceThresholds = thresholds;
+}
+
+template <unsigned VImageDimension>
+void
+RegistrationHelper<VImageDimension>
+::SetConvergenceWindowSizes(const std::vector<unsigned int> & windowSizes)
+{
+  this->m_ConvergenceWindowSizes = windowSizes;
+}
+
+template <unsigned VImageDimension>
+void
+RegistrationHelper<VImageDimension>
 ::SetSmoothingSigmas(const std::vector<std::vector<float> > & SmoothingSigmas)
 {
   this->m_SmoothingSigmas = SmoothingSigmas;
@@ -809,6 +826,12 @@ RegistrationHelper<VImageDimension>
         }
       }
     this->Logger() << std::endl;
+
+    double convergenceThreshold = this->m_ConvergenceThresholds[currentStage];
+    this->Logger() << "  convergence threshold = " << convergenceThreshold << std::endl;
+    unsigned int convergenceWindowSize = this->m_ConvergenceWindowSizes[currentStage];
+    this->Logger() << "  convergence window size = " << convergenceWindowSize << std::endl;
+
     unsigned int numberOfLevels = iterations.size();
     this->Logger() << "  number of levels = " << numberOfLevels << std::endl;
 
@@ -961,7 +984,7 @@ RegistrationHelper<VImageDimension>
     // Set up the optimizer.  To change the iteration number for each level we rely
     // on the command observer.
 
-    float learningRate = this->m_TransformMethods[currentStage].m_GradientStep;
+    double learningRate = this->m_TransformMethods[currentStage].m_GradientStep;
 
     typedef itk::RegistrationParameterScalesFromShift<MetricType> ScalesEstimatorType;
     typename ScalesEstimatorType::Pointer scalesEstimator = ScalesEstimatorType::New();
@@ -974,8 +997,8 @@ RegistrationHelper<VImageDimension>
     optimizer->SetMaximumStepSizeInPhysicalUnits( learningRate );
     optimizer->SetNumberOfIterations( iterations[0] );
     optimizer->SetScalesEstimator( scalesEstimator );
-    //    optimizer->SetMinimumConvergenceValue( -1 );
-    //    optimizer->SetConvergenceWindowSize( 10 );
+    optimizer->SetMinimumConvergenceValue( convergenceThreshold );
+    optimizer->SetConvergenceWindowSize( convergenceWindowSize );
 
     // Set up the image registration methods along with the transforms
     XfrmMethod whichTransform = this->m_TransformMethods[currentStage].m_XfrmMethod;
@@ -1000,6 +1023,10 @@ RegistrationHelper<VImageDimension>
         if(this->m_CompositeTransform->GetNumberOfTransforms() > 0)
           {
           affineRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
+          }
+        if(this->m_FixedInitialTransform->GetNumberOfTransforms() > 0)
+          {
+          affineRegistration->SetFixedInitialTransform( this->m_FixedInitialTransform );
           }
 
         typedef antsRegistrationCommandIterationUpdate<AffineRegistrationType> AffineCommandType;
@@ -1046,6 +1073,10 @@ RegistrationHelper<VImageDimension>
           {
           rigidRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
           }
+        if(this->m_FixedInitialTransform->GetNumberOfTransforms() > 0)
+          {
+          rigidRegistration->SetFixedInitialTransform( this->m_FixedInitialTransform );
+          }
 
         typedef antsRegistrationCommandIterationUpdate<RigidRegistrationType> RigidCommandType;
         typename RigidCommandType::Pointer rigidObserver = RigidCommandType::New();
@@ -1090,6 +1121,10 @@ RegistrationHelper<VImageDimension>
         if(this->m_CompositeTransform->GetNumberOfTransforms() > 0)
           {
           affineRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
+          }
+        if(this->m_FixedInitialTransform->GetNumberOfTransforms() > 0)
+          {
+          affineRegistration->SetFixedInitialTransform( this->m_FixedInitialTransform );
           }
 
         typedef antsRegistrationCommandIterationUpdate<AffineRegistrationType> AffineCommandType;
@@ -1138,6 +1173,10 @@ RegistrationHelper<VImageDimension>
           {
           similarityRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
           }
+        if(this->m_FixedInitialTransform->GetNumberOfTransforms() > 0)
+          {
+          similarityRegistration->SetFixedInitialTransform( this->m_FixedInitialTransform );
+          }
 
         typedef antsRegistrationCommandIterationUpdate<SimilarityRegistrationType> SimilarityCommandType;
         typename SimilarityCommandType::Pointer similarityObserver = SimilarityCommandType::New();
@@ -1183,6 +1222,10 @@ RegistrationHelper<VImageDimension>
         if(this->m_CompositeTransform->GetNumberOfTransforms() > 0)
           {
           translationRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
+          }
+        if(this->m_FixedInitialTransform->GetNumberOfTransforms() > 0)
+          {
+          translationRegistration->SetFixedInitialTransform( this->m_FixedInitialTransform );
           }
 
         typedef antsRegistrationCommandIterationUpdate<TranslationRegistrationType> TranslationCommandType;
@@ -1287,6 +1330,10 @@ RegistrationHelper<VImageDimension>
         if(this->m_CompositeTransform->GetNumberOfTransforms() > 0)
           {
           displacementFieldRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
+          }
+        if(this->m_FixedInitialTransform->GetNumberOfTransforms() > 0)
+          {
+          displacementFieldRegistration->SetFixedInitialTransform( this->m_FixedInitialTransform );
           }
 
         typedef antsRegistrationCommandIterationUpdate<DisplacementFieldRegistrationType> DisplacementFieldCommandType;
@@ -1413,6 +1460,10 @@ RegistrationHelper<VImageDimension>
         if(this->m_CompositeTransform->GetNumberOfTransforms() > 0)
           {
           displacementFieldRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
+          }
+        if(this->m_FixedInitialTransform->GetNumberOfTransforms() > 0)
+          {
+          displacementFieldRegistration->SetFixedInitialTransform( this->m_FixedInitialTransform );
           }
         displacementFieldRegistration->SetMetric( metric );
         displacementFieldRegistration->SetMetricSamplingStrategy(
@@ -1614,12 +1665,18 @@ RegistrationHelper<VImageDimension>
           {
           velocityFieldRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
           }
+        if(this->m_FixedInitialTransform->GetNumberOfTransforms() > 0)
+          {
+          velocityFieldRegistration->SetFixedInitialTransform( this->m_FixedInitialTransform );
+          }
         velocityFieldRegistration->SetNumberOfLevels( numberOfLevels );
         velocityFieldRegistration->SetMetric( metric );
         velocityFieldRegistration->SetMetricSamplingStrategy(
           static_cast<typename VelocityFieldRegistrationType::MetricSamplingStrategyType>( metricSamplingStrategy ) );
         velocityFieldRegistration->SetMetricSamplingPercentage( samplingPercentage );
         velocityFieldRegistration->SetLearningRate( learningRate );
+        velocityFieldRegistration->SetConvergenceThreshold( convergenceThreshold );
+        velocityFieldRegistration->SetConvergenceWindowSize( convergenceWindowSize );
         outputTransform->SetGaussianSpatialSmoothingVarianceForTheTotalField( varianceForTotalField );
         outputTransform->SetGaussianSpatialSmoothingVarianceForTheUpdateField( varianceForUpdateField );
         outputTransform->SetGaussianTemporalSmoothingVarianceForTheTotalField( varianceForTotalFieldTime );
@@ -1780,6 +1837,10 @@ RegistrationHelper<VImageDimension>
           {
           velocityFieldRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
           }
+        if(this->m_FixedInitialTransform->GetNumberOfTransforms() > 0)
+          {
+          velocityFieldRegistration->SetFixedInitialTransform( this->m_FixedInitialTransform );
+          }
         velocityFieldRegistration->SetNumberOfLevels( numberOfLevels );
         velocityFieldRegistration->SetNumberOfTimePointSamples( numberOfTimePointSamples );
         velocityFieldRegistration->SetMetric( metric );
@@ -1787,6 +1848,8 @@ RegistrationHelper<VImageDimension>
           static_cast<typename VelocityFieldRegistrationType::MetricSamplingStrategyType>( metricSamplingStrategy ) );
         velocityFieldRegistration->SetMetricSamplingPercentage( samplingPercentage );
         velocityFieldRegistration->SetLearningRate( learningRate );
+        velocityFieldRegistration->SetConvergenceThreshold( convergenceThreshold );
+        velocityFieldRegistration->SetConvergenceWindowSize( convergenceWindowSize );
         outputTransform->SetSplineOrder( splineOrder );
         outputTransform->SetLowerTimeBound( 0.0 );
         outputTransform->SetUpperTimeBound( 1.0 );
@@ -1965,11 +2028,17 @@ RegistrationHelper<VImageDimension>
           {
           displacementFieldRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
           }
+        if(this->m_FixedInitialTransform->GetNumberOfTransforms() > 0)
+          {
+          displacementFieldRegistration->SetFixedInitialTransform( this->m_FixedInitialTransform );
+          }
         displacementFieldRegistration->SetNumberOfLevels( numberOfLevels );
         displacementFieldRegistration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
         displacementFieldRegistration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
         displacementFieldRegistration->SetMetric( metric );
         displacementFieldRegistration->SetLearningRate( learningRate );
+        displacementFieldRegistration->SetConvergenceThreshold( convergenceThreshold );
+        displacementFieldRegistration->SetConvergenceWindowSize( convergenceWindowSize );
         displacementFieldRegistration->SetNumberOfIterationsPerLevel( numberOfIterationsPerLevel );
         displacementFieldRegistration->SetTransformParametersAdaptorsPerLevel( adaptors );
         displacementFieldRegistration->SetGaussianSmoothingVarianceForTheUpdateField( varianceForUpdateField );
@@ -2112,12 +2181,21 @@ RegistrationHelper<VImageDimension>
         displacementFieldRegistration->SetAverageMidPointGradients( false );
         displacementFieldRegistration->SetFixedImage( preprocessFixedImage );
         displacementFieldRegistration->SetMovingImage( preprocessMovingImage );
-        displacementFieldRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
+        if(this->m_CompositeTransform->GetNumberOfTransforms() > 0)
+          {
+          displacementFieldRegistration->SetMovingInitialTransform( this->m_CompositeTransform );
+          }
+        if(this->m_FixedInitialTransform->GetNumberOfTransforms() > 0)
+          {
+          displacementFieldRegistration->SetFixedInitialTransform( this->m_FixedInitialTransform );
+          }
         displacementFieldRegistration->SetNumberOfLevels( numberOfLevels );
         displacementFieldRegistration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
         displacementFieldRegistration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
         displacementFieldRegistration->SetMetric( metric );
         displacementFieldRegistration->SetLearningRate( learningRate );
+        displacementFieldRegistration->SetConvergenceThreshold( convergenceThreshold );
+        displacementFieldRegistration->SetConvergenceWindowSize( convergenceWindowSize );
         displacementFieldRegistration->SetNumberOfIterationsPerLevel( numberOfIterationsPerLevel );
         displacementFieldRegistration->SetTransformParametersAdaptorsPerLevel( adaptors );
         outputDisplacementFieldTransform->SetDisplacementField( displacementField );
@@ -2167,7 +2245,7 @@ RegistrationHelper<VImageDimension>
 template <unsigned VImageDimension>
 void
 RegistrationHelper<VImageDimension>
-::SetInitialTransform(const TransformType *initialTransform)
+::SetMovingInitialTransform(const TransformType *initialTransform)
 {
   typename CompositeTransformType::Pointer compToAdd;
 
@@ -2186,6 +2264,27 @@ RegistrationHelper<VImageDimension>
   this->m_CompositeTransform = compToAdd;
 }
 
+template <unsigned VImageDimension>
+void
+RegistrationHelper<VImageDimension>
+::SetFixedInitialTransform(const TransformType *initialTransform)
+{
+  typename CompositeTransformType::Pointer compToAdd;
+
+  typename CompositeTransformType::ConstPointer compXfrm =
+    dynamic_cast<const CompositeTransformType *>(initialTransform);
+  if( compXfrm.IsNotNull() )
+    {
+    compToAdd = compXfrm->Clone();
+    }
+  else
+    {
+    compToAdd = CompositeTransformType::New();
+    typename TransformType::Pointer xfrm = initialTransform->Clone();
+    compToAdd->AddTransform(xfrm);
+    }
+  this->m_FixedInitialTransform = compToAdd;
+}
 
 template <unsigned VImageDimension>
 void
