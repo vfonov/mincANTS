@@ -130,7 +130,6 @@ antsSCCANObject<TInputImage, TRealType>
   typedef unsigned long                                                    ULPixelType;
   typedef itk::Image<ULPixelType, ImageDimension>                          labelimagetype;
   typedef TInputImage                                                      InternalImageType;
-  typedef TInputImage                                                      OutputImageType;
   typedef itk::ImageRegionIteratorWithIndex<ImageType>                     fIterator;
   typedef itk::ImageRegionIteratorWithIndex<labelimagetype>                Iterator;
   typedef itk::ConnectedComponentImageFilter<TInputImage, labelimagetype>  FilterType;
@@ -2135,7 +2134,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       A = matrixP * this->m_VariatesP.extract( matrixP.cols()  , colind    , 0 , 0);
       if ( addcol ) this->AddColumnsToMatrix( A , matrixR , 1 , this->m_MatrixR.cols() - 1 );
       VectorType lmsolv( A.cols( ) , 1 );
-      RealType lmerror = this->ConjGrad(  A ,  lmsolv, original_b, 0, 10000 );
+      (void)this->ConjGrad( A, lmsolv, original_b, 0, 10000 );
       VectorType v = ( A * lmsolv + this->m_Intercept ); 
       b = this->Orthogonalize( b , v );
       }
