@@ -597,6 +597,7 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
     this->m_JointHistogramImages[d] = divider->GetOutput();
 
     }
+/*  write out histograms--for debugging
     static int which_class=0;
     which_class++;
     std::string string;
@@ -616,6 +617,7 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
     writer2->SetInput(this->m_JointHistogramImages[1] );
     writer2->Update();
     std::cout << "Writing output of histograms." << std::endl; 
+*/
 }
 
 template <class TListSample, class TOutput, class TCoordRep>
