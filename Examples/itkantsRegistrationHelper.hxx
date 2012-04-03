@@ -104,7 +104,7 @@ public:
       }
   }
 
-  void SetNumberOfIterations( std::vector<unsigned int> iterations )
+  void SetNumberOfIterations( const std::vector<unsigned int> & iterations )
   {
     this->m_NumberOfIterations = iterations;
   }
@@ -826,36 +826,40 @@ RegistrationHelper<VImageDimension>
 
     // Get the number of iterations and use that information to specify the number of levels
 
-    std::vector<unsigned int> iterations = this->m_Iterations[currentStage];
+    const std::vector<unsigned int> & currentStageIterations = this->m_Iterations[currentStage];
     this->Logger() << "  iterations = ";
-    for( unsigned m = 0; m < iterations.size(); m++ )
+    for( unsigned m = 0; m < currentStageIterations.size(); m++ )
       {
-      this->Logger() << iterations[m];
-      if( m < iterations.size() - 1 )
+      this->Logger() << currentStageIterations[m];
+      if( m < currentStageIterations.size() - 1 )
         {
         this->Logger() << 'x';
         }
       }
     this->Logger() << std::endl;
 
-    double convergenceThreshold = this->m_ConvergenceThresholds[currentStage];
+    const double convergenceThreshold = this->m_ConvergenceThresholds[currentStage];
     this->Logger() << "  convergence threshold = " << convergenceThreshold << std::endl;
-    unsigned int convergenceWindowSize = this->m_ConvergenceWindowSizes[currentStage];
+    const unsigned int convergenceWindowSize = this->m_ConvergenceWindowSizes[currentStage];
     this->Logger() << "  convergence window size = " << convergenceWindowSize << std::endl;
 
-    unsigned int numberOfLevels = iterations.size();
+    const unsigned int numberOfLevels = currentStageIterations.size();
     this->Logger() << "  number of levels = " << numberOfLevels << std::endl;
 
     // Get shrink factors
 
-    std::vector<unsigned int> factors = this->m_ShrinkFactors[currentStage];
+    const std::vector<unsigned int> factors = this->m_ShrinkFactors[currentStage];
     typename AffineRegistrationType::ShrinkFactorsArrayType shrinkFactorsPerLevel;
     shrinkFactorsPerLevel.SetSize( factors.size() );
 
     if( factors.size() != numberOfLevels )
       {
-      std::cerr << "ERROR:  The number of shrink factors"
-                << " does not match the number of levels." << std::endl;
+      std::cerr << "\n\n\n"
+                << "ERROR:  The number of shrink factors does not match the number of levels."
+                << "\nShrink Factors: " << factors.size()
+                << "\nNumber Of Levels: " << numberOfLevels
+                << "\n\n\n"
+                << std::endl;
       return EXIT_FAILURE;
       }
     for( unsigned int n = 0; n < shrinkFactorsPerLevel.Size(); n++ )
@@ -1006,7 +1010,7 @@ RegistrationHelper<VImageDimension>
     typename GradientDescentOptimizerType::Pointer optimizer = GradientDescentOptimizerType::New();
     optimizer->SetLearningRate( learningRate );
     optimizer->SetMaximumStepSizeInPhysicalUnits( learningRate );
-    optimizer->SetNumberOfIterations( iterations[0] );
+    optimizer->SetNumberOfIterations( currentStageIterations[0] );
     optimizer->SetScalesEstimator( scalesEstimator );
     optimizer->SetMinimumConvergenceValue( convergenceThreshold );
     optimizer->SetConvergenceWindowSize( convergenceWindowSize );
@@ -1043,7 +1047,7 @@ RegistrationHelper<VImageDimension>
         typedef antsRegistrationCommandIterationUpdate<AffineRegistrationType> AffineCommandType;
         typename AffineCommandType::Pointer affineObserver = AffineCommandType::New();
         affineObserver->SetLogStream(*this->m_LogStream);
-        affineObserver->SetNumberOfIterations( iterations );
+        affineObserver->SetNumberOfIterations( currentStageIterations );
 
         affineRegistration->AddObserver( itk::IterationEvent(), affineObserver );
 
@@ -1092,7 +1096,7 @@ RegistrationHelper<VImageDimension>
         typedef antsRegistrationCommandIterationUpdate<RigidRegistrationType> RigidCommandType;
         typename RigidCommandType::Pointer rigidObserver = RigidCommandType::New();
         rigidObserver->SetLogStream(*this->m_LogStream);
-        rigidObserver->SetNumberOfIterations( iterations );
+        rigidObserver->SetNumberOfIterations( currentStageIterations );
 
         rigidRegistration->AddObserver( itk::IterationEvent(), rigidObserver );
 
@@ -1141,7 +1145,7 @@ RegistrationHelper<VImageDimension>
         typedef antsRegistrationCommandIterationUpdate<AffineRegistrationType> AffineCommandType;
         typename AffineCommandType::Pointer affineObserver = AffineCommandType::New();
         affineObserver->SetLogStream(*this->m_LogStream);
-        affineObserver->SetNumberOfIterations( iterations );
+        affineObserver->SetNumberOfIterations( currentStageIterations );
 
         affineRegistration->AddObserver( itk::IterationEvent(), affineObserver );
 
@@ -1192,7 +1196,7 @@ RegistrationHelper<VImageDimension>
         typedef antsRegistrationCommandIterationUpdate<SimilarityRegistrationType> SimilarityCommandType;
         typename SimilarityCommandType::Pointer similarityObserver = SimilarityCommandType::New();
         similarityObserver->SetLogStream(*this->m_LogStream);
-        similarityObserver->SetNumberOfIterations( iterations );
+        similarityObserver->SetNumberOfIterations( currentStageIterations );
 
         similarityRegistration->AddObserver( itk::IterationEvent(), similarityObserver );
 
@@ -1242,7 +1246,7 @@ RegistrationHelper<VImageDimension>
         typedef antsRegistrationCommandIterationUpdate<TranslationRegistrationType> TranslationCommandType;
         typename TranslationCommandType::Pointer translationObserver = TranslationCommandType::New();
         translationObserver->SetLogStream(*this->m_LogStream);
-        translationObserver->SetNumberOfIterations( iterations );
+        translationObserver->SetNumberOfIterations( currentStageIterations );
 
         translationRegistration->AddObserver( itk::IterationEvent(), translationObserver );
 
@@ -1351,7 +1355,7 @@ RegistrationHelper<VImageDimension>
         typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver =
           DisplacementFieldCommandType::New();
         displacementFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
-        displacementFieldRegistrationObserver->SetNumberOfIterations( iterations );
+        displacementFieldRegistrationObserver->SetNumberOfIterations( currentStageIterations );
 
         displacementFieldRegistration->AddObserver( itk::IterationEvent(), displacementFieldRegistrationObserver );
 
@@ -1487,7 +1491,7 @@ RegistrationHelper<VImageDimension>
         typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver =
           DisplacementFieldCommandType::New();
         displacementFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
-        displacementFieldRegistrationObserver->SetNumberOfIterations( iterations );
+        displacementFieldRegistrationObserver->SetNumberOfIterations( currentStageIterations );
 
         displacementFieldRegistration->AddObserver( itk::IterationEvent(), displacementFieldRegistrationObserver );
 
@@ -1582,7 +1586,7 @@ RegistrationHelper<VImageDimension>
         typedef antsRegistrationCommandIterationUpdate<BSplineRegistrationType> BSplineCommandType;
         typename BSplineCommandType::Pointer bsplineObserver = BSplineCommandType::New();
         bsplineObserver->SetLogStream(*this->m_LogStream);
-        bsplineObserver->SetNumberOfIterations( iterations );
+        bsplineObserver->SetNumberOfIterations( currentStageIterations );
 
         bsplineRegistration->AddObserver( itk::IterationEvent(), bsplineObserver );
 
@@ -1701,7 +1705,7 @@ RegistrationHelper<VImageDimension>
         numberOfIterationsPerLevel.SetSize( numberOfLevels );
         for( unsigned int d = 0; d < numberOfLevels; d++ )
           {
-          numberOfIterationsPerLevel[d] = iterations[d];
+          numberOfIterationsPerLevel[d] = currentStageIterations[d];
           }
         velocityFieldRegistration->SetNumberOfIterationsPerLevel( numberOfIterationsPerLevel );
         velocityFieldRegistration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
@@ -1757,7 +1761,7 @@ RegistrationHelper<VImageDimension>
         typedef antsRegistrationCommandIterationUpdate<VelocityFieldRegistrationType> VelocityFieldCommandType;
         typename VelocityFieldCommandType::Pointer velocityFieldRegistrationObserver = VelocityFieldCommandType::New();
         velocityFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
-        velocityFieldRegistrationObserver->SetNumberOfIterations( iterations );
+        velocityFieldRegistrationObserver->SetNumberOfIterations( currentStageIterations );
 
         velocityFieldRegistration->AddObserver( itk::IterationEvent(), velocityFieldRegistrationObserver );
 
@@ -1912,7 +1916,7 @@ RegistrationHelper<VImageDimension>
         numberOfIterationsPerLevel.SetSize( numberOfLevels );
         for( unsigned int d = 0; d < numberOfLevels; d++ )
           {
-          numberOfIterationsPerLevel[d] = iterations[d];
+          numberOfIterationsPerLevel[d] = currentStageIterations[d];
           }
         velocityFieldRegistration->SetNumberOfIterationsPerLevel( numberOfIterationsPerLevel );
         velocityFieldRegistration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
@@ -1941,7 +1945,7 @@ RegistrationHelper<VImageDimension>
         typedef antsRegistrationCommandIterationUpdate<VelocityFieldRegistrationType> VelocityFieldCommandType;
         typename VelocityFieldCommandType::Pointer velocityFieldRegistrationObserver = VelocityFieldCommandType::New();
         velocityFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
-        velocityFieldRegistrationObserver->SetNumberOfIterations( iterations );
+        velocityFieldRegistrationObserver->SetNumberOfIterations( currentStageIterations );
 
         velocityFieldRegistration->AddObserver( itk::IterationEvent(), velocityFieldRegistrationObserver );
 
@@ -2025,7 +2029,7 @@ RegistrationHelper<VImageDimension>
         numberOfIterationsPerLevel.SetSize( numberOfLevels );
         for( unsigned int d = 0; d < numberOfLevels; d++ )
           {
-          numberOfIterationsPerLevel[d] = iterations[d];
+          numberOfIterationsPerLevel[d] = currentStageIterations[d];
           }
 
         RealType varianceForUpdateField = this->m_TransformMethods[currentStage].m_UpdateFieldSigmaInPhysicalSpace;
@@ -2061,7 +2065,7 @@ RegistrationHelper<VImageDimension>
         typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver =
           DisplacementFieldCommandType::New();
         displacementFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
-        displacementFieldRegistrationObserver->SetNumberOfIterations( iterations );
+        displacementFieldRegistrationObserver->SetNumberOfIterations( currentStageIterations );
 
         displacementFieldRegistration->AddObserver( itk::IterationEvent(), displacementFieldRegistrationObserver );
 
@@ -2185,7 +2189,7 @@ RegistrationHelper<VImageDimension>
         numberOfIterationsPerLevel.SetSize( numberOfLevels );
         for( unsigned int d = 0; d < numberOfLevels; d++ )
           {
-          numberOfIterationsPerLevel[d] = iterations[d];
+          numberOfIterationsPerLevel[d] = currentStageIterations[d];
           }
 
         displacementFieldRegistration->SetDownsampleImagesForMetricDerivatives( true );
@@ -2216,7 +2220,7 @@ RegistrationHelper<VImageDimension>
         typename DisplacementFieldCommandType::Pointer displacementFieldRegistrationObserver =
           DisplacementFieldCommandType::New();
         displacementFieldRegistrationObserver->SetLogStream(*this->m_LogStream);
-        displacementFieldRegistrationObserver->SetNumberOfIterations( iterations );
+        displacementFieldRegistrationObserver->SetNumberOfIterations( currentStageIterations );
 
         displacementFieldRegistration->AddObserver( itk::IterationEvent(), displacementFieldRegistrationObserver );
 

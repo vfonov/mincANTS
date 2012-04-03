@@ -14,18 +14,13 @@ template <unsigned VImageDimension>
 typename itk::Transform<double, VImageDimension, VImageDimension>::Pointer
 ReadTransform(const std::string &filename)
 {
-  typedef typename itk::DisplacementFieldTransform<double, VImageDimension>   DisplacementFieldTransformType;
-  typedef typename itk::Transform<double, VImageDimension, VImageDimension> TransformType;
-
-  typename TransformType::Pointer transform;
 
   bool hasTransformBeenRead = false;
 
+  typedef typename itk::DisplacementFieldTransform<double, VImageDimension>   DisplacementFieldTransformType;
   typedef typename DisplacementFieldTransformType::DisplacementFieldType DisplacementFieldType;
-
   typedef itk::ImageFileReader<DisplacementFieldType> DisplacementFieldReaderType;
-  typename DisplacementFieldReaderType::Pointer fieldReader =
-    DisplacementFieldReaderType::New();
+  typename DisplacementFieldReaderType::Pointer fieldReader = DisplacementFieldReaderType::New();
   try
     {
     fieldReader->SetFileName( filename.c_str() );
@@ -37,6 +32,8 @@ ReadTransform(const std::string &filename)
     hasTransformBeenRead = false;
     }
 
+  typedef typename itk::Transform<double, VImageDimension, VImageDimension> TransformType;
+  typename TransformType::Pointer transform;
   if( hasTransformBeenRead )
     {
     typename DisplacementFieldTransformType::Pointer displacementFieldTransform =
