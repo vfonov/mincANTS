@@ -404,10 +404,12 @@ DiReCTImageFilter<TInputImage, TOutputImage>
         {
         if( ItSegmentationImage.Get() == grayMatterPixel )
           {
-          RealType norm = ( ItGradientImage.Get() ).GetNorm();
+	  typename DisplacementFieldType::PixelType grad = ItGradientImage.Get();
+	  if ( ImageDimension == 4 ) grad[3] = 0;
+          RealType norm = grad.GetNorm();
           if( norm > 1e-3 && !vnl_math_isnan( norm ) && !vnl_math_isinf( norm ) )
             {
-            ItGradientImage.Set( ItGradientImage.Get() / norm );
+            ItGradientImage.Set( grad / norm );
             }
           else
             {

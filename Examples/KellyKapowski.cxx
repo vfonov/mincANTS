@@ -1521,6 +1521,33 @@ int main( int argc, char *argv[] )
         }
       break;
       }
+    case 4:
+      {
+      switch( whichDiReCTVersion )
+        {
+        case 0:
+          {
+          DiReCT0<4>( parser );
+          break;
+          }
+        case 926: default:
+          {
+          DiReCT1<4>( parser );
+          break;
+          }
+        case 949:
+          {
+          DiReCT2<4>( parser );
+          break;
+          }
+        case 953:
+          {
+          DiReCT3<4>( parser );
+          break;
+          }
+        }
+      break;
+      }
     default:
       {
       std::cerr << "Unsupported dimension" << std::endl;
