@@ -103,8 +103,6 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
   // Set fixed and moving landmarks
   TransformInitializerType::LandmarkPointContainer fixedLandmarks;
   TransformInitializerType::LandmarkPointContainer movingLandmarks;
-  TransformInitializerType::LandmarkPointType      point;
-  TransformInitializerType::LandmarkPointType      tmp;
 
   // compute the CoM's of all the landmarks
   ImageType::SpacingType spacing = fixedimage->GetSpacing();
@@ -117,17 +115,17 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
     for( It.GoToBegin(); !It.IsAtEnd(); ++It )
       {
       PixelType label = It.Get();
-      if(  label == currentlabel  )
+      if( fabs( label - currentlabel ) < 0.001  )
         {
         totalct++;
         // compute center of mass
-        ImageType::PointType _point;
+        ImageType::PointType point;
         fixedimage->TransformIndexToPhysicalPoint(It.GetIndex(), point);
         for( unsigned int i = 0; i < spacing.Size(); i++ )
           {
-          myCenterOfMass[i] += _point[i];
+          myCenterOfMass[i] += point[i];
           }
-        // std::cout << " point " << point << std::endl;
+	std::cout << " point " << point << std::endl;
         }
       }
     for( unsigned int i = 0; i < spacing.Size(); i++ )
@@ -154,11 +152,11 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
         {
         totalct++;
         // compute center of mass
-        ImageType::PointType _point;
+        ImageType::PointType point;
         movingimage->TransformIndexToPhysicalPoint(ItM.GetIndex(), point);
         for( unsigned int i = 0; i < spacing.Size(); i++ )
           {
-          myCenterOfMass[i] += _point[i];
+          myCenterOfMass[i] += point[i];
           }
         }
       }
