@@ -1,3 +1,6 @@
+
+#include "antscout.hxx"
+
 #include "itkBSplineControlPointImageFilter.h"
 #include "itkExpImageFilter.h"
 #include "itkImageFileReader.h"
@@ -6,6 +9,10 @@
 #include "itkN3MRIBiasFieldCorrectionImageFilter.h"
 #include "itkOtsuThresholdImageFilter.h"
 #include "itkShrinkImageFilter.h"
+
+namespace ants
+{
+
 
 template <class TFilter>
 class CommandIterationUpdate : public itk::Command
@@ -36,9 +43,9 @@ public:
       return;
       }
 
-    std::cout << "Iteration " << filter->GetElapsedIterations()
+    antscout << "Iteration " << filter->GetElapsedIterations()
               << " (of " << filter->GetMaximumNumberOfIterations() << ").  ";
-    std::cout << " Current convergence value = "
+    antscout << " Current convergence value = "
               << filter->GetCurrentConvergenceMeasurement()
               << " (threshold = " << filter->GetConvergenceThreshold()
               << ")" << std::endl;
@@ -58,7 +65,7 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
   typename ReaderType::Pointer reader = ReaderType::New();
   if( argc < 3 )
     {
-    std::cerr << "missing 1st filename" << std::endl;
+    antscout << "missing 1st filename" << std::endl;
     throw;
     }
   reader->SetFileName( argv[2] );
@@ -84,7 +91,7 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
       }
     catch( ... )
       {
-      std::cout << "Mask file not read.  Generating mask file using otsu"
+      antscout << "Mask file not read.  Generating mask file using otsu"
                 << " thresholding." << std::endl;
       }
     }
@@ -139,11 +146,11 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
     }
   catch( ... )
     {
-    std::cerr << "Exception caught." << std::endl;
+    antscout << "Exception caught." << std::endl;
     return EXIT_FAILURE;
     }
 
-//  correcter->Print( std::cout, 3 );
+//  correcter->Print( antscout, 3 );
 
   /**
    * Reconstruct the bias field at full image resolution.  Divide
@@ -196,7 +203,7 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
   typename WriterType::Pointer writer = WriterType::New();
   if( argc < 4 )
     {
-    std::cerr << "missing divider image filename" << std::endl;
+    antscout << "missing divider image filename" << std::endl;
     throw;
     }
   writer->SetFileName( argv[3] );
@@ -214,14 +221,54 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
   return EXIT_SUCCESS;
 }
 
-int main( int argc, char *argv[] )
+// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
+int N3BiasFieldCorrection( std::vector<std::string> args , std::ostream* out_stream = NULL )
 {
+  // put the arguments coming in as 'args' into standard (argc,argv) format;
+  // 'args' doesn't have the command name as first, argument, so add it manually;
+  // 'args' may have adjacent arguments concatenated into one argument,
+  // which the parser should handle
+  args.insert( args.begin() , "N3BiasFieldCorrection" ) ;
+
+  int argc = args.size() ;
+  char** argv = new char*[args.size()+1] ;
+  for( unsigned int i = 0 ; i < args.size() ; ++i )
+    {
+      // allocate space for the string plus a null character
+      argv[i] = new char[args[i].length()+1] ;
+      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
+      // place the null character in the end
+      argv[i][args[i].length()] = '\0' ;
+    }
+  argv[argc] = 0 ;
+  // class to automatically cleanup argv upon destruction
+  class Cleanup_argv
+  {
+  public:
+    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
+    {}
+    ~Cleanup_argv()
+    {
+      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
+	{
+	  delete[] argv[i] ;
+	}
+      delete[] argv ;
+    }
+  private:
+    char** argv ;
+    unsigned int argc_plus_one ;
+  } ;
+  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
+
+  antscout.set_ostream( out_stream ) ;
+
   if( argc < 4 )
     {
-    std::cerr << "Usage: " << argv[0] << " imageDimension inputImage "
+    antscout << "Usage: " << argv[0] << " imageDimension inputImage "
               << "outputImage [shrinkFactor] [maskImage] [numberOfIterations] "
               << "[numberOfFittingLevels] [outputBiasField] " << std::endl;
-    exit( EXIT_FAILURE );
+    throw std::exception();
     }
 
   switch( atoi( argv[1] ) )
@@ -233,7 +280,13 @@ int main( int argc, char *argv[] )
       N3BiasFieldCorrection<3>( argc, argv );
       break;
     default:
-      std::cerr << "Unsupported dimension" << std::endl;
-      exit( EXIT_FAILURE );
+      antscout << "Unsupported dimension" << std::endl;
+      throw std::exception();
     }
 }
+
+
+
+} // namespace ants
+
+

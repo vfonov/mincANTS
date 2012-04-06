@@ -72,11 +72,8 @@ if(NOT DEFINED ${extProjName}_DIR AND NOT ${USE_SYSTEM_${extProjName}})
       -DUSE_WRAP_ITK:BOOL=OFF ## HACK:  QUICK CHANGE
     )
   ### --- End Project specific additions
-  #set(${proj}_REPOSITORY ${git_protocol}://itk.org/ITK.git CACHE STRING "" FORCE)
-  #set(${proj}_GIT_TAG d55f6fac703d34e43ff9d0f5be8c5f44a6d4a578 CACHE STRING "" FORCE)
-
-  set(${proj}_REPOSITORY ${git_protocol}://github.com/hjmjohnson/ITK.git CACHE STRING "" FORCE)
-  set(${proj}_GIT_TAG 99182325b487ba3cda7f2f657c9aadbfe89ceef4 CACHE STRING "" FORCE)
+  set(${proj}_REPOSITORY ${git_protocol}://itk.org/ITK.git CACHE STRING "" FORCE)
+  set(${proj}_GIT_TAG d55f6fac703d34e43ff9d0f5be8c5f44a6d4a578 CACHE STRING "" FORCE)
   ExternalProject_Add(${proj}
     GIT_REPOSITORY ${${proj}_REPOSITORY}
     GIT_TAG ${${proj}_GIT_TAG}

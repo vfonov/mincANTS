@@ -16,6 +16,9 @@
 
 =========================================================================*/
 
+
+#include "antscout.hxx"
+
 #include <vector>
 #include <cstdlib>
 #include <ctime>
@@ -42,10 +45,14 @@
 // http://people.revoledu.com/kardi/tutorial/RecursiveStatistic/Time-Variance.htm
 #include "itkDiscreteGaussianImageFilter.h"
 
+namespace ants
+{
+
+
 template <class TImageType>
 void ReadImage(itk::SmartPointer<TImageType> & target, const char *file, bool copy)
 {
-  //  std::cout << " reading b " << std::string(file) << std::endl;
+  //  antscout << " reading b " << std::string(file) << std::endl;
   typedef itk::ImageFileReader<TImageType> readertype;
   typename readertype::Pointer reader = readertype::New();
   reader->SetFileName(file);
@@ -143,7 +150,7 @@ HistogramMatch(typename TInputImage::Pointer m_InputFixedImage,  typename TInput
                                                                                                                    // m_OutputMovingImage
                                                                                                                    // )
 {
-  std::cout << " MATCHING INTENSITIES " << std::endl;
+  antscout << " MATCHING INTENSITIES " << std::endl;
 
   typedef itk::HistogramMatchingImageFilter<TInputImage, TInputImage> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
@@ -295,8 +302,8 @@ GetClusterStat(typename TImage::Pointer image, float Tthreshold, unsigned int mi
     }
   catch( itk::ExceptionObject & excep )
     {
-    std::cerr << "Relabel: exception caught !" << std::endl;
-    std::cerr << excep << std::endl;
+    antscout << "Relabel: exception caught !" << std::endl;
+    antscout << excep << std::endl;
     }
 
   typename TImage::Pointer Clusters = MakeNewImage<TImage>(relabel->GetOutput(), 0);
@@ -384,7 +391,7 @@ GetClusterStat(typename TImage::Pointer image, float Tthreshold, unsigned int mi
     }
 
   //  for (int i=0; i<=maximum; i++)
-  //  std::cout << " label " << i << " ct is: " << histogram[i] << std::endl;
+  //  antscout << " label " << i << " ct is: " << histogram[i] << std::endl;
 
   if( TRUTH )
     {
@@ -493,7 +500,7 @@ float npdf(std::vector<float> vec, bool opt,  float www)
     {
     return mean;
     }
-  //    else std::cout << " Mean " << mean << " var " << var << std::endl;
+  //    else antscout << " Mean " << mean << " var " << var << std::endl;
 
   // eval parzen probability
   std::vector<float> prob(size);
@@ -512,7 +519,7 @@ float npdf(std::vector<float> vec, bool opt,  float www)
     {
     width = sqrt(var) / 2.0;
     }
-  //        std::cout << " using width " << width << std::endl;
+  //        antscout << " using width " << width << std::endl;
 //        float N=(float)size;
   for( unsigned int j = 0; j < size; j++ )
     {
@@ -630,10 +637,10 @@ float myantssimilaritymaxlabel(std::vector<float> labelvec, std::vector<float> s
       {
       maxsim = simval; max = i;
       }
-    //            std::cout << " simval " << simval << " i " << i << " appval " << appval << " maxsim " << maxsim << "
+    //            antscout << " simval " << simval << " i " << i << " appval " << appval << " maxsim " << maxsim << "
     // max " << max << std::endl;
     }
-  //        std::cout <<"  estapp " << estapp << " max " << max << std::endl;
+  //        antscout <<"  estapp " << estapp << " max " << max << std::endl;
   // return estapp;
   if( opt == true )
     {
@@ -683,14 +690,14 @@ int ImageSetStatistics(int argc, char *argv[])
   unsigned int localmeanrad = 0;
   // if (argc > argct) { localmeanrad=atoi(argv[argct]);argct++;}
 
-  //  std::cout <<" roifn " << roifn << " fn1 " << fn1 << " whichstat " << whichstat << std::endl;
+  //  antscout <<" roifn " << roifn << " fn1 " << fn1 << " whichstat " << whichstat << std::endl;
 
   typename ImageType::Pointer outimage = NULL;
   typename ImageType::Pointer ROIimg = NULL;
 
   if( roifn.length() > 4 )
     {
-    std::cout << " reading roi image " << roifn << std::endl;
+    antscout << " reading roi image " << roifn << std::endl;
     typename readertype::Pointer reader2 = readertype::New();
     reader2->SetFileName(roifn.c_str() );
     reader2->UpdateLargestPossibleRegion();
@@ -701,7 +708,7 @@ int ImageSetStatistics(int argc, char *argv[])
     catch( ... )
       {
       ROIimg = NULL;
-      std::cout << " Error reading ROI image " << std::endl;
+      antscout << " Error reading ROI image " << std::endl;
       //  return 0;
       }
 
@@ -716,7 +723,7 @@ int ImageSetStatistics(int argc, char *argv[])
     std::ifstream inputStreamA( fn1.c_str(), std::ios::in );
     if( !inputStreamA.is_open() )
       {
-      std::cout << "Can't open parameter file: " << fn1 << std::endl;
+      antscout << "Can't open parameter file: " << fn1 << std::endl;
       return -1;
       }
     while( !inputStreamA.eof() )
@@ -726,8 +733,8 @@ int ImageSetStatistics(int argc, char *argv[])
 
       if( sscanf( lineBuffer, "%s ", filenm) != 1 )
         {
-        //      std::cout << "Done.  read " << lineBuffer << " n " << ct1 << " files " << std::endl;
-        // std::cout << std::endl;
+        //      antscout << "Done.  read " << lineBuffer << " n " << ct1 << " files " << std::endl;
+        // antscout << std::endl;
         continue;
         }
       else
@@ -738,7 +745,7 @@ int ImageSetStatistics(int argc, char *argv[])
 
     inputStreamA.close();
     }
-  std::cout << " NFiles1 " << filecount1 << std::endl;
+  antscout << " NFiles1 " << filecount1 << std::endl;
 
   unsigned int filecount2 = 0;
   if( simimagelist.length() > 2 && ( whichstat == 5 || whichstat == 6 ) )
@@ -746,7 +753,7 @@ int ImageSetStatistics(int argc, char *argv[])
     std::ifstream inputStreamA( simimagelist.c_str(), std::ios::in );
     if( !inputStreamA.is_open() )
       {
-      std::cout << "Can't open parameter file: " << fn1 << std::endl;
+      antscout << "Can't open parameter file: " << fn1 << std::endl;
       return -1;
       }
     while( !inputStreamA.eof() )
@@ -756,8 +763,8 @@ int ImageSetStatistics(int argc, char *argv[])
 
       if( sscanf( lineBuffer, "%s ", filenm) != 1 )
         {
-        //      std::cout << "Done.  read " << lineBuffer << " n " << ct1 << " files " << std::endl;
-        // std::cout << std::endl;
+        //      antscout << "Done.  read " << lineBuffer << " n " << ct1 << " files " << std::endl;
+        // antscout << std::endl;
         continue;
         }
       else
@@ -769,14 +776,14 @@ int ImageSetStatistics(int argc, char *argv[])
     inputStreamA.close();
     if( filecount1 != filecount2 )
       {
-      std::cout
+      antscout
       <<
       " the number of similarity images does not match the number of label images --- thus, we have to get out of here !! i.e. something's wrong. "
       << std::endl;
       return 1;
       }
     } // fi simimagelist
-  std::cout << " NFiles2 " << filecount2 << std::endl;
+  antscout << " NFiles2 " << filecount2 << std::endl;
 
   typename ImageType::Pointer meanimage;
   std::vector<typename ImageType::Pointer> imagestack;
@@ -788,7 +795,7 @@ int ImageSetStatistics(int argc, char *argv[])
   std::ifstream inputStreamA( fn1.c_str(), std::ios::in );
   if( !inputStreamA.is_open() )
     {
-    std::cout << "Can't open parameter file: " << fn1 << std::endl;
+    antscout << "Can't open parameter file: " << fn1 << std::endl;
     return -1;
     }
   while( !inputStreamA.eof() )
@@ -798,8 +805,8 @@ int ImageSetStatistics(int argc, char *argv[])
 
     if( sscanf( lineBuffer, "%s ", filenm) != 1 )
       {
-      //      std::cout << "Done.  read " << lineBuffer << " n " << ct1 << " files " << std::endl;
-      // std::cout << std::endl;
+      //      antscout << "Done.  read " << lineBuffer << " n " << ct1 << " files " << std::endl;
+      // antscout << std::endl;
       continue;
       }
     else
@@ -814,7 +821,7 @@ int ImageSetStatistics(int argc, char *argv[])
         {
         LocalMean<ImageType>(imagestack[ct], localmeanrad, meanimage);
         }
-      std::cout << " done reading " << (float) ct / (float ) filecount1 << std::endl;
+      antscout << " done reading " << (float) ct / (float ) filecount1 << std::endl;
       ct++;
       }
     }
@@ -831,7 +838,7 @@ int ImageSetStatistics(int argc, char *argv[])
     inputStreamA.open( simimagelist.c_str() );
     if( !inputStreamA.is_open() )
       {
-      std::cout << "Can't open parameter file: " << fn1 << std::endl;
+      antscout << "Can't open parameter file: " << fn1 << std::endl;
       return -1;
       }
     while( !inputStreamA.eof() )
@@ -868,7 +875,7 @@ int ImageSetStatistics(int argc, char *argv[])
     {
     if( ct % prog == 0 )
       {
-      std::cout << " % " << (float) ct / (float) nvox << std::endl;
+      antscout << " % " << (float) ct / (float) nvox << std::endl;
       }
     ct++;
     IndexType    ind = vfIter.GetIndex();
@@ -907,14 +914,14 @@ int ImageSetStatistics(int argc, char *argv[])
           stat = npdf(voxels, true, www);
           if( ct == 1 )
             {
-            std::cout << "the max prob appearance \n";
+            antscout << "the max prob appearance \n";
             }
           break;
         case 2:
           stat = npdf(voxels, false, www);
           if( ct == 1 )
             {
-            std::cout << "the probabilistically weighted appearance " << www << " \n";
+            antscout << "the probabilistically weighted appearance " << www << " \n";
             }
 
           break;
@@ -923,7 +930,7 @@ int ImageSetStatistics(int argc, char *argv[])
           stat = trimmean(voxels);
           if( ct == 1 )
             {
-            std::cout << "the trimmed mean appearance \n";
+            antscout << "the trimmed mean appearance \n";
             }
           break;
 
@@ -931,28 +938,28 @@ int ImageSetStatistics(int argc, char *argv[])
           stat = myantsmax(voxels);
           if( ct == 1 )
             {
-            std::cout << "the maximum appearance \n";
+            antscout << "the maximum appearance \n";
             }
           break;
         case 5:
           stat = myantssimilaritymaxlabel(voxels, similarities, true);
           if( ct == 1 )
             {
-            std::cout << "the maximum similarity-based label \n";
+            antscout << "the maximum similarity-based label \n";
             }
           break;
         case 6:
           stat = myantssimilaritymaxlabel(voxels, similarities, false);
           if( ct == 1 )
             {
-            std::cout << "which image provides the maximum similarity-based label \n";
+            antscout << "which image provides the maximum similarity-based label \n";
             }
           break;
         case 7:
           stat = voxels[maxval];
           if( ct == 1 )
             {
-            std::cout << "which image provides the maximum similarity-based label \n";
+            antscout << "which image provides the maximum similarity-based label \n";
             }
           break;
 
@@ -960,7 +967,7 @@ int ImageSetStatistics(int argc, char *argv[])
           stat = median(voxels);
           if( ct == 1 )
             {
-            std::cout << "the median appearance \n";
+            antscout << "the median appearance \n";
             }
           break;
         }
@@ -978,27 +985,66 @@ int ImageSetStatistics(int argc, char *argv[])
     }
   WriteImage<ImageType>(StatImage, outfn.c_str() );
 
-  std::cout << " Done " << std::endl;
+  antscout << " Done " << std::endl;
   return 0;
 
 }
 
-int main( int argc, char * argv[] )
+// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
+int ImageSetStatistics( std::vector<std::string> args , std::ostream* out_stream = NULL )
 {
+  // put the arguments coming in as 'args' into standard (argc,argv) format;
+  // 'args' doesn't have the command name as first, argument, so add it manually;
+  // 'args' may have adjacent arguments concatenated into one argument,
+  // which the parser should handle
+  args.insert( args.begin() , "ImageSetStatistics" ) ;
+
+  int argc = args.size() ;
+  char** argv = new char*[args.size()+1] ;
+  for( unsigned int i = 0 ; i < args.size() ; ++i )
+    {
+      // allocate space for the string plus a null character
+      argv[i] = new char[args[i].length()+1] ;
+      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
+      // place the null character in the end
+      argv[i][args[i].length()] = '\0' ;
+    }
+  argv[argc] = 0 ;
+  // class to automatically cleanup argv upon destruction
+  class Cleanup_argv
+  {
+  public:
+    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
+    {}
+    ~Cleanup_argv()
+    {
+      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
+	{
+	  delete[] argv[i] ;
+	}
+      delete[] argv ;
+    }
+  private:
+    char** argv ;
+    unsigned int argc_plus_one ;
+  } ;
+  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
+
+  antscout.set_ostream( out_stream ) ;
 
   if( argc < 4 )
     {
-    std::cout << "Usage:  " << std::endl;
-    std::cout << argv[0]
+    antscout << "Usage:  " << std::endl;
+    antscout << argv[0]
               <<
     " ImageDimension controlslist.txt outimage.nii whichstat {roi.nii} {imagelist2forsimilarityweightedstats.txt}"
               << std::endl;
-    std::cout
+    antscout
     <<
     " whichstat = 0:  median,  1:  max prob appearance  , 2: weighted mean appearance ,  3: trimmed mean , 4 : max value , option 5 : similarity-weighted (must pass imagelist2 as well) else median , option 6 : same as similarity-weighted option 5 but the label corresponds to the image that provides the best local match ... useful if you want to MRF smooth these indices  , option 7 : similar to 5 but expects the max-value to be stored in the ROI image and uses it to get the intensity ... "
     << std::endl;
-    std::cout << " example:   ImageSetStatistics  3   imagelist.txt  maxvalueimage.nii.gz 4 " << std::endl;
-    std::cout
+    antscout << " example:   ImageSetStatistics  3   imagelist.txt  maxvalueimage.nii.gz 4 " << std::endl;
+    antscout
     <<
     " similarity weighted --- pass in a list of similarity images here which will be used to select the best label --- thus, number of similarity images must match the number of label images . "
     << std::endl;
@@ -1016,10 +1062,16 @@ int main( int argc, char * argv[] )
       ImageSetStatistics<3>(argc, argv);
       break;
     default:
-      std::cerr << "Unsupported dimension" << std::endl;
-      exit( EXIT_FAILURE );
+      antscout << "Unsupported dimension" << std::endl;
+      throw std::exception();
     }
 
   return 0;
 
 }
+
+
+
+} // namespace ants
+
+
