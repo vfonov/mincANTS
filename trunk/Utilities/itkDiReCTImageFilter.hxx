@@ -404,12 +404,10 @@ DiReCTImageFilter<TInputImage, TOutputImage>
         {
         if( ItSegmentationImage.Get() == grayMatterPixel )
           {
-	  typename DisplacementFieldType::PixelType grad = ItGradientImage.Get();
-	  if ( ImageDimension == 4 ) grad[3] = 0;
-          RealType norm = grad.GetNorm();
+          RealType norm = ( ItGradientImage.Get() ).GetNorm();
           if( norm > 1e-3 && !vnl_math_isnan( norm ) && !vnl_math_isinf( norm ) )
             {
-            ItGradientImage.Set( grad / norm );
+            ItGradientImage.Set( ItGradientImage.Get() / norm );
             }
           else
             {
@@ -793,23 +791,23 @@ DiReCTImageFilter<TInputImage, TOutputImage>
 {
   Superclass::PrintSelf( os, indent );
 
-  std::cout << indent << "Gray matter label = "
+  ::ants::antscout << indent << "Gray matter label = "
             << this->m_GrayMatterLabel << std::endl;
-  std::cout << indent << "White matter label = "
+  ::ants::antscout << indent << "White matter label = "
             << this->m_WhiteMatterLabel << std::endl;
-  std::cout << indent << "Maximum number of iterations = "
+  ::ants::antscout << indent << "Maximum number of iterations = "
             << this->m_MaximumNumberOfIterations << std::endl;
-  std::cout << indent << "Thickness prior estimate = "
+  ::ants::antscout << indent << "Thickness prior estimate = "
             << this->m_ThicknessPriorEstimate << std::endl;
-  std::cout << indent << "Smoothing sigma = "
+  ::ants::antscout << indent << "Smoothing sigma = "
             << this->m_SmoothingSigma << std::endl;
-  std::cout << indent << "Initial gradient step = "
+  ::ants::antscout << indent << "Initial gradient step = "
             << this->m_InitialGradientStep << std::endl;
-  std::cout << indent << "Current gradient step = "
+  ::ants::antscout << indent << "Current gradient step = "
             << this->m_CurrentGradientStep << std::endl;
-  std::cout << indent << "Convergence threshold = "
+  ::ants::antscout << indent << "Convergence threshold = "
             << this->m_ConvergenceThreshold << std::endl;
-  std::cout << indent << "Convergence window size = "
+  ::ants::antscout << indent << "Convergence window size = "
             << this->m_ConvergenceWindowSize << std::endl;
 }
 
