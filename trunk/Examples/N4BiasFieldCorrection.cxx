@@ -1,6 +1,3 @@
-
-#include "antscout.hxx"
-
 #include "itkBSplineControlPointImageFilter.h"
 #include "antsCommandLineParser.h"
 #include "itkConstantPadImageFilter.h"
@@ -19,10 +16,6 @@
 #include <string>
 #include <algorithm>
 #include <vector>
-
-namespace ants
-{
-
 
 template <class TFilter>
 class CommandIterationUpdate : public itk::Command
@@ -54,14 +47,14 @@ public:
       }
     if( filter->GetElapsedIterations() == 1 )
       {
-      antscout << "Current level = " << filter->GetCurrentLevel() + 1
+      std::cout << "Current level = " << filter->GetCurrentLevel() + 1
                 << std::endl;
       }
-    antscout << "  Iteration " << filter->GetElapsedIterations()
+    std::cout << "  Iteration " << filter->GetElapsedIterations()
               << " (of "
               << filter->GetMaximumNumberOfIterations()[filter->GetCurrentLevel()]
               << ").  ";
-    antscout << " Current convergence value = "
+    std::cout << " Current convergence value = "
               << filter->GetCurrentConvergenceMeasurement()
               << " (threshold = " << filter->GetConvergenceThreshold()
               << ")" << std::endl;
@@ -100,7 +93,7 @@ int N4( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    antscout << "Input image not specified." << std::endl;
+    std::cerr << "Input image not specified." << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -128,7 +121,7 @@ int N4( itk::ants::CommandLineParser *parser )
     }
   if( !maskImage )
     {
-    antscout << "Mask not read.  Creating Otsu mask." << std::endl;
+    std::cout << "Mask not read.  Creating Otsu mask." << std::endl;
     typedef itk::OtsuThresholdImageFilter<ImageType, MaskImageType>
     ThresholderType;
     typename ThresholderType::Pointer otsu = ThresholderType::New();
@@ -293,7 +286,7 @@ int N4( itk::ants::CommandLineParser *parser )
         }
       else
         {
-        antscout << "Incorrect mesh resolution" << std::endl;
+        std::cerr << "Incorrect mesh resolution" << std::endl;
         return EXIT_FAILURE;
         }
       correcter->SetNumberOfControlPoints( numberOfControlPoints );
@@ -374,14 +367,14 @@ int N4( itk::ants::CommandLineParser *parser )
     }
   catch( itk::ExceptionObject & e )
     {
-    antscout << "Exception caught: " << e << std::endl;
+    std::cerr << "Exception caught: " << e << std::endl;
     return EXIT_FAILURE;
     }
 
-  correcter->Print( antscout, 3 );
+  correcter->Print( std::cout, 3 );
 
   timer.Stop();
-  antscout << "Elapsed time: " << timer.GetMeanTime() << std::endl;
+  std::cout << "Elapsed time: " << timer.GetMeanTime() << std::endl;
 
   /**
    * output
@@ -672,48 +665,8 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
 
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int N4BiasFieldCorrection( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main( int argc, char *argv[] )
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "N4BiasFieldCorrection" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
-
   itk::ants::CommandLineParser::Pointer parser =
     itk::ants::CommandLineParser::New();
 
@@ -741,14 +694,14 @@ int N4BiasFieldCorrection( std::vector<std::string> args , std::ostream* out_str
   if( argc < 2 || parser->Convert<bool>(
         parser->GetOption( "help" )->GetValue() ) )
     {
-    parser->PrintMenu( antscout, 5, false );
-    throw std::exception();
+    parser->PrintMenu( std::cout, 5, false );
+    exit( EXIT_FAILURE );
     }
   else if( parser->Convert<bool>(
              parser->GetOption( 'h' )->GetValue() ) )
     {
-    parser->PrintMenu( antscout, 5, true );
-    throw std::exception();
+    parser->PrintMenu( std::cout, 5, true );
+    exit( EXIT_FAILURE );
     }
 
   // Get dimensionality
@@ -780,7 +733,7 @@ int N4BiasFieldCorrection( std::vector<std::string> args , std::ostream* out_str
       }
     else
       {
-      antscout << "No input images were specified.  Specify an input image"
+      std::cerr << "No input images were specified.  Specify an input image"
                 << " with the -i option" << std::endl;
       return EXIT_FAILURE;
       }
@@ -789,7 +742,7 @@ int N4BiasFieldCorrection( std::vector<std::string> args , std::ostream* out_str
     dimension = imageIO->GetNumberOfDimensions();
     }
 
-  antscout << std::endl << "Running N4 for "
+  std::cout << std::endl << "Running N4 for "
             << dimension << "-dimensional images." << std::endl << std::endl;
 
   switch( dimension )
@@ -804,13 +757,7 @@ int N4BiasFieldCorrection( std::vector<std::string> args , std::ostream* out_str
       N4<4>( parser );
       break;
     default:
-      antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      std::cerr << "Unsupported dimension" << std::endl;
+      exit( EXIT_FAILURE );
     }
 }
-
-
-
-} // namespace ants
-
-

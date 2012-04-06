@@ -1,7 +1,3 @@
-
-
-#include "antscout.hxx"
-
 #include "itkVectorIndexSelectionCastImageFilter.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "vnl/algo/vnl_determinant.h"
@@ -28,11 +24,6 @@
 #include "ReadWriteImage.h"
 
 #include "itkGradientRecursiveGaussianImageFilter.h"
-
-
-namespace ants
-{
-
 
 template <unsigned int ImageDimension>
 int IntegrateVelocityField(int argc, char *argv[])
@@ -62,7 +53,7 @@ int IntegrateVelocityField(int argc, char *argv[])
     dT = atof(argv[argct]);
     }
   argct++;
-  antscout << " time-0 " << timezero << " dt " << dT << " time-1 " << timeone << std::endl;
+  std::cout << " time-0 " << timezero << " dt " << dT << " time-1 " << timeone << std::endl;
   PixelType starttime = timezero;
   PixelType finishtime = timeone;
   typedef float                                                          PixelType;
@@ -92,7 +83,7 @@ int IntegrateVelocityField(int argc, char *argv[])
   deformation->FillBuffer(zero);
   if( !timeVaryingVelocity )
     {
-    antscout << " No TV Field " << std::endl;  return EXIT_FAILURE;
+    std::cout << " No TV Field " << std::endl;  return EXIT_FAILURE;
     }
   typedef itk::ImageRegionIteratorWithIndex<DisplacementFieldType> FieldIterator;
   typedef itk::ImageRegionIteratorWithIndex<tvt>                   TVFieldIterator;
@@ -134,62 +125,23 @@ int IntegrateVelocityField(int argc, char *argv[])
 
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int ANTSIntegrateVelocityField( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main(int argc, char *argv[])
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "ANTSIntegrateVelocityField" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
 
   if( argc < 4 )
     {
-    antscout << "Usage:   " << argv[0]
+    std::cout << "Usage:   " << argv[0]
               << " reference_image  VelocityIn.mhd DeformationOut.nii.gz  time0 time1 dT  " << std::endl;
     return 1;
     }
-  antscout << " start " << std::endl;
+  std::cout << " start " << std::endl;
   std::string               ifn = std::string(argv[1]);
   itk::ImageIOBase::Pointer imageIO =
     itk::ImageIOFactory::CreateImageIO(ifn.c_str(), itk::ImageIOFactory::ReadMode);
   imageIO->SetFileName(ifn.c_str() );
   imageIO->ReadImageInformation();
   unsigned int dim =  imageIO->GetNumberOfDimensions();
-  antscout << " dim " << dim << std::endl;
+  std::cout << " dim " << dim << std::endl;
 
   switch( dim )
     {
@@ -203,16 +155,10 @@ int ANTSIntegrateVelocityField( std::vector<std::string> args , std::ostream* ou
       IntegrateVelocityField<4>(argc, argv);
       break;
     default:
-      antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      std::cerr << "Unsupported dimension" << std::endl;
+      exit( EXIT_FAILURE );
     }
 
   return EXIT_SUCCESS;
 
 }
-
-
-
-} // namespace ants
-
-

@@ -1,9 +1,6 @@
 
 
 
-
-#include "antscout.hxx"
-
 #include <string>
 
 #include <math.h>
@@ -68,10 +65,6 @@
 #include "itkImageRegionIterator.h"
 #include "itkPointSet.h"
 
-namespace ants
-{
-
-
 template <class TImage>
 typename TImage::Pointer BinaryThreshold(
   typename TImage::PixelType bkg,
@@ -122,9 +115,9 @@ float ComputeGenus(vtkPolyData* pd1)
   int       nfac = pd1->GetNumberOfPolys();
 
   float g = 0.5 * (2.0 - vers + nedg - nfac);
-  antscout << " Genus " << g << std::endl;
+  std::cout << " Genus " << g << std::endl;
 
-  antscout << " face " << nfac << " edg " << nedg <<  " vert " << vers << std::endl;
+  std::cout << " face " << nfac << " edg " << nedg <<  " vert " << vers << std::endl;
 
   return g;
 }
@@ -133,14 +126,14 @@ float vtkComputeTopology(vtkPolyData* pd)
 {
 
   // Marching cubes
-//    antscout << " Marching Cubes ";
+//    std::cout << " Marching Cubes ";
 //    vtkMarchingCubes *marchingCubes = vtkMarchingCubes::New();
 //    vtkContourFilter *marchingCubes = vtkContourFilter::New();
 //    vtkKitwareContourFilter *marchingCubes = vtkKitwareContourFilter::New();
 //    marchingCubes->SetInput((vtkDataSet*) vds);
 //    marchingCubes->SetValue(0, hithresh);
 //    int nc;
-//    antscout << " Input #conts "; std::cin >> nc;
+//    std::cout << " Input #conts "; std::cin >> nc;
 //    marchingCubes->SetNumberOfContours(2);
 //    marchingCubes->SetComputeScalars(false);
 //    marchingCubes->SetComputeGradients(false);
@@ -187,8 +180,8 @@ float vtkComputeTopology(vtkPolyData* pd)
   double genus = 0.5 * ( 2 * connectivityNumberOfExtractedRegions
                          - EulerCharacteristic );
 
-  antscout << "EulerCharacteristic " << EulerCharacteristic << std::endl;
-  antscout << "genus " << genus << std::endl;
+  std::cout << "EulerCharacteristic " << EulerCharacteristic << std::endl;
+  std::cout << "genus " << genus << std::endl;
 
   return genus;
 #endif
@@ -199,7 +192,7 @@ void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image
                   const char* paramname, float scaledata,
                   float aaParm )
 {
-  //  antscout << " parname " << std::string(paramname) << std::endl;
+  //  std::cout << " parname " << std::string(paramname) << std::endl;
   typedef TImage      ImageType;
   typedef ImageType   itype;
   typedef vtkPolyData MeshType;
@@ -235,7 +228,7 @@ void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image
   smoother->Update();
   vtkmesh = smoother->GetOutput();
 
-  antscout << " Genus " << vtkComputeTopology(vtkmesh) << std::endl;
+  std::cout << " Genus " << vtkComputeTopology(vtkmesh) << std::endl;
 
   typename itype::SpacingType spacing = image->GetSpacing();
 
@@ -262,7 +255,7 @@ void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image
       }
     meank += fabs(temp);
     }
-  antscout << " max kap " << mx << " mn k " << mn <<  std::endl;
+  std::cout << " max kap " << mx << " mn k " << mn <<  std::endl;
   meank /= numPoints;
 //  mx=1.3;
 //  mx=2.0;
@@ -291,7 +284,7 @@ void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image
       //    float temp=surfk->CurvatureAtIndex(index);
       if( i % 1000 == 0 )
         {
-        antscout << " kappa " << temp << std::endl;
+        std::cout << " kappa " << temp << std::endl;
         }
       // =fabs(manifoldIntegrator->GetGraphNode(i)->GetTotalCost());
 
@@ -312,17 +305,17 @@ void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image
       }
     vtkmesh->GetPointData()->SetScalars(param);
     //  Display((vtkUnstructuredGrid*)vtkmesh);
-//  antscout<<"DOne? "; std::cin >> done;
+//  std::cout<<"DOne? "; std::cin >> done;
     }
-  antscout << " done with mesh map ";
+  std::cout << " done with mesh map ";
   vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
   writer->SetInput(vtkmesh);
-  antscout << " writing " << outfn << std::endl;
+  std::cout << " writing " << outfn << std::endl;
   // outnm="C:\\temp\\mesh.vtk";
   writer->SetFileName(outfn.c_str() );
   writer->SetFileTypeToBinary();
   writer->Update();
-  antscout << " done writing ";
+  std::cout << " done writing ";
   return;
 
 }
@@ -345,63 +338,24 @@ float GetImageTopology(typename TImage::Pointer image)
 //  Display((vtkUnstructuredGrid*)vtkmesh);
 
   float genus =  vtkComputeTopology(vtkmesh);
-  antscout << " Genus " << genus << std::endl;
+  std::cout << " Genus " << genus << std::endl;
 
   return genus;
 
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int GetMeshAndTopology( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main(int argc, char *argv[])
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "GetMeshAndTopology" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
 
   if( argc < 2 )
     {
-    antscout << argv[0] << " binaryimage valueimage  out paramname ValueScale AntiaAliasParm=0.001" << std::endl;
-    antscout << " outputs vtk version of input image -- assumes object is defined by non-zero values " << std::endl;
-    antscout << " mesh is colored by the value of the image voxel " << std::endl;
-    antscout <<  " the AA-Param could cause topo problems but makes nicer meshes  " << std::endl;
-    antscout << " ValueScale controls contrast in image appearance - lower increaseses -- should be <= 1 "
+    std::cout << argv[0] << " binaryimage valueimage  out paramname ValueScale AntiaAliasParm=0.001" << std::endl;
+    std::cout << " outputs vtk version of input image -- assumes object is defined by non-zero values " << std::endl;
+    std::cout << " mesh is colored by the value of the image voxel " << std::endl;
+    std::cout <<  " the AA-Param could cause topo problems but makes nicer meshes  " << std::endl;
+    std::cout << " ValueScale controls contrast in image appearance - lower increaseses -- should be <= 1 "
               << std::endl;
-    throw std::exception();
+    exit(0);
     }
 
   // Define the dimension of the images
@@ -447,16 +401,10 @@ int GetMeshAndTopology( std::vector<std::string> args , std::ostream* out_stream
     {
     aaParm = atof(argv[6]);
     }
-  antscout << "aaParm " << aaParm << std::endl;
+  std::cout << "aaParm " << aaParm << std::endl;
   GetValueMesh<ImageType>(image, image2, outfn, paramname, scaledata, aaParm);
   //  GetImageTopology<ImageType>(image);
 
   return 0;
 
 }
-
-
-
-} // namespace ants
-
-

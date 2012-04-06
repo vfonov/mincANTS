@@ -14,9 +14,6 @@
   PURPOSE.
 
 =========================================================================*/
-
-#include "antscout.hxx"
-
 #include <stdio.h>
 
 #include "itkImage.h"
@@ -31,50 +28,8 @@
 #include "ReadWriteImage.h"
 #include "itkRGBPixel.h"
 
-namespace ants
+int main( int argc, char *argv[] )
 {
-
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int TensorDerivedImage( std::vector<std::string> args , std::ostream* out_stream = NULL )
-{
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "TensorDerivedImage" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
 
   // Pixel and Image typedefs
   typedef float                                 PixelType;
@@ -92,7 +47,7 @@ int TensorDerivedImage( std::vector<std::string> args , std::ostream* out_stream
   // Check for valid input paramters
   if( argc < 3 )
     {
-    antscout << "Usage: " << argv[0] << " tensorvolume outputvolume outputtype" << std::endl;
+    std::cout << "Usage: " << argv[0] << " tensorvolume outputvolume outputtype" << std::endl;
     return 1;
     }
 
@@ -104,8 +59,8 @@ int TensorDerivedImage( std::vector<std::string> args , std::ostream* out_stream
   TensorImageType::Pointer dtimg;
   ReadTensorImage<TensorImageType>(dtimg, inputName, false);
 
-  antscout << "tensor_image: " << inputName << std::endl;
-  antscout << "output_image: " << outputName << std::endl;
+  std::cout << "tensor_image: " << inputName << std::endl;
+  std::cout << "output_image: " << outputName << std::endl;
 
   ScalarImageType::Pointer outImage;
   ColorImageType::Pointer  colorImage;
@@ -157,7 +112,7 @@ int TensorDerivedImage( std::vector<std::string> args , std::ostream* out_stream
     outType = "5";
     }
 
-  antscout << "Calculating output..." << std::flush;
+  std::cout << "Calculating output..." << std::flush;
 
   while( !inputIt.IsAtEnd() )
     {
@@ -199,7 +154,7 @@ int TensorDerivedImage( std::vector<std::string> args , std::ostream* out_stream
         current = 0;
         }
       outImage->SetPixel(inputIt.GetIndex(), current);
-      // antscout << "Found " << invalids << " invalid tensors" << std::endl;
+      // std::cout << "Found " << invalids << " invalid tensors" << std::endl;
       }
     else if( outType == "FA" )
       {
@@ -214,22 +169,22 @@ int TensorDerivedImage( std::vector<std::string> args , std::ostream* out_stream
       }
     }
 
-  antscout << "Done. " << std::endl;
+  std::cout << "Done. " << std::endl;
 
   if( outType == "DEC" )
     {
-    antscout << "output origin: " << colorImage->GetOrigin() << std::endl;
-    antscout << "output size: " << colorImage->GetLargestPossibleRegion().GetSize() << std::endl;
-    antscout << "output spacing: " << colorImage->GetSpacing() << std::endl;
-    antscout << "output direction: " << colorImage->GetDirection() << std::endl;
+    std::cout << "output origin: " << colorImage->GetOrigin() << std::endl;
+    std::cout << "output size: " << colorImage->GetLargestPossibleRegion().GetSize() << std::endl;
+    std::cout << "output spacing: " << colorImage->GetSpacing() << std::endl;
+    std::cout << "output direction: " << colorImage->GetDirection() << std::endl;
 
     }
   else
     {
-    antscout << "output origin: " << outImage->GetOrigin() << std::endl;
-    antscout << "output size: " << outImage->GetLargestPossibleRegion().GetSize() << std::endl;
-    antscout << "output spacing: " << outImage->GetSpacing() << std::endl;
-    antscout << "output direction: " << outImage->GetDirection() << std::endl;
+    std::cout << "output origin: " << outImage->GetOrigin() << std::endl;
+    std::cout << "output size: " << outImage->GetLargestPossibleRegion().GetSize() << std::endl;
+    std::cout << "output spacing: " << outImage->GetSpacing() << std::endl;
+    std::cout << "output direction: " << outImage->GetDirection() << std::endl;
     }
 
   if( outType == "DEC" )
@@ -250,9 +205,3 @@ int TensorDerivedImage( std::vector<std::string> args , std::ostream* out_stream
   return 0;
 
 }
-
-
-
-} // namespace ants
-
-

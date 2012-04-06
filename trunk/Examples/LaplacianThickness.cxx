@@ -1,7 +1,4 @@
 // #include "DoSomethingToImage.cxx"
-
-#include "antscout.hxx"
-
 #include "itkVectorIndexSelectionCastImageFilter.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "vnl/algo/vnl_determinant.h"
@@ -26,17 +23,13 @@
 #include "ReadWriteImage.h"
 
 #include "itkGradientRecursiveGaussianImageFilter.h"
-
-namespace ants
-{
-
 template <class TImage>
 typename TImage::Pointer BinaryThreshold(
   typename TImage::PixelType low,
   typename TImage::PixelType high,
   typename TImage::PixelType replaceval, typename TImage::Pointer input)
 {
-  // antscout << " Binary Thresh " << std::endl;
+  // std::cout << " Binary Thresh " << std::endl;
 
   typedef typename TImage::PixelType PixelType;
   // Begin Threshold Image
@@ -157,7 +150,7 @@ typename TImage::Pointer
 LabelSurface(typename TImage::PixelType foreground,
              typename TImage::PixelType newval, typename TImage::Pointer input, float distthresh )
 {
-  antscout << " Label Surf " << std::endl;
+  std::cout << " Label Surf " << std::endl;
   typedef TImage ImageType;
   enum { ImageDimension = ImageType::ImageDimension };
   typename   ImageType::Pointer     Image = ImageType::New();
@@ -177,7 +170,7 @@ LabelSurface(typename TImage::PixelType foreground,
 
   GHood.GoToBegin();
 
-//  antscout << " foreg " << (int) foreground;
+//  std::cout << " foreg " << (int) foreground;
   while( !GHood.IsAtEnd() )
     {
     typename TImage::PixelType p = GHood.GetCenterPixel();
@@ -224,11 +217,11 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input, float r
 
   if( !option )
     {
-    antscout << " eroding the image " << std::endl;
+    std::cout << " eroding the image " << std::endl;
     }
   else
     {
-    antscout << " dilating the image " << std::endl;
+    std::cout << " dilating the image " << std::endl;
     }
   typedef itk::BinaryBallStructuringElement<
     PixelType,
@@ -433,7 +426,7 @@ LaplacianGrad(typename TImage::Pointer wm, typename TImage::Pointer gm, float si
   while( fabs(meanvalue - lastmean) > tolerance  && iterations < numits )
     {
     iterations++;
-    antscout << "  % " << (float) iterations
+    std::cout << "  % " << (float) iterations
     / (float)(numits + 1) << " delta-mean " << fabs(meanvalue - lastmean) <<  std::endl;
     laplacian = SmoothImage<TImage>(laplacian, sqrt(sig) );
     Iterator.GoToBegin();
@@ -524,7 +517,7 @@ float IntegrateLength( typename TImage::Pointer /* gmsurf */,  typename TImage::
     while( !timedone )
       {
       float scale = 1; // *m_DT[timeind]/m_DS[timeind];
-      //     antscout << " scale " << scale << std::endl;
+      //     std::cout << " scale " << scale << std::endl;
       double itimetn1 = itime - timesign * deltaTime * scale;
       double itimetn1h = itime - timesign * deltaTime * 0.5 * scale;
       if( itimetn1h < 0 )
@@ -550,7 +543,7 @@ float IntegrateLength( typename TImage::Pointer /* gmsurf */,  typename TImage::
         index[jj] = velind[jj];
         pointIn1[jj] = velind[jj] * lapgrad->GetSpacing()[jj];
         }
-      //      antscout << " ind " << index  << std::endl;
+      //      std::cout << " ind " << index  << std::endl;
       // now index the time varying field at that position.
       typename DefaultInterpolatorType::OutputType f1;  f1.Fill(0);
       typename DefaultInterpolatorType::OutputType f2;  f2.Fill(0);
@@ -679,7 +672,7 @@ float IntegrateLength( typename TImage::Pointer /* gmsurf */,  typename TImage::
 
       if( printprobability )
         {
-        antscout << " ind " << Y1 << " prob " << sinterp->EvaluateAtContinuousIndex(Y1) << " t " << itime << std::endl;
+        std::cout << " ind " << Y1 << " prob " << sinterp->EvaluateAtContinuousIndex(Y1) << " t " << itime << std::endl;
         }
 
       }
@@ -730,7 +723,7 @@ int LaplacianThickness(int argc, char *argv[])
     tolerance = atof(argv[argct]);
     }
   argct++;
-  antscout << " using tolerance " << tolerance << std::endl;
+  std::cout << " using tolerance " << tolerance << std::endl;
   typedef float                                      PixelType;
   typedef itk::Vector<float, ImageDimension>         VectorType;
   typedef itk::Image<VectorType, ImageDimension>     DisplacementFieldType;
@@ -767,7 +760,7 @@ int LaplacianThickness(int argc, char *argv[])
   typename ImageType::Pointer sulci = NULL;
   if( dosulc > 0 )
     {
-    antscout << "  using sulcal prior " << std::endl;
+    std::cout << "  using sulcal prior " << std::endl;
     typedef itk::DanielssonDistanceMapImageFilter<ImageType, ImageType> FilterType;
     typename  FilterType::Pointer distmap = FilterType::New();
     distmap->InputIsBinaryOn();
@@ -794,7 +787,7 @@ int LaplacianThickness(int argc, char *argv[])
     Iterator.GoToBegin();
     while(  !Iterator.IsAtEnd()  )
       {
-//    antscout << " a good value for use sulcus prior is 0.002  -- in a function :
+//    std::cout << " a good value for use sulcus prior is 0.002  -- in a function :
 //  1/(1.+exp(-0.1*(sulcprob-0.275)/use-sulcus-prior)) " << std::endl;
 //
       float gmprob = gm->GetPixel(Iterator.GetIndex() );
@@ -805,11 +798,11 @@ int LaplacianThickness(int argc, char *argv[])
       float sprob = sulci->GetPixel(Iterator.GetIndex() );
       sprob = 1 / (1. + exp(-0.1 * (sprob - 0.5) / dosulc) );
       sulci->SetPixel(Iterator.GetIndex(), sprob );
-//    if (gmprob > 0) antscout << " gmp " << gmprob << std::endl;
+//    if (gmprob > 0) std::cout << " gmp " << gmprob << std::endl;
       ++Iterator;
       }
 
-    antscout << " modified gm prior by sulcus prior " << std::endl;
+    std::cout << " modified gm prior by sulcus prior " << std::endl;
     WriteImage<ImageType>(sulci, "sulcigm.nii");
 
     typedef itk::GradientRecursiveGaussianImageFilter<ImageType, DisplacementFieldType>
@@ -845,7 +838,7 @@ int LaplacianThickness(int argc, char *argv[])
 
   float starttime = timezero; // timezero;
   float finishtime = timeone; // s[ImageDimension]-1;//timeone;
-  // antscout << " MUCKING WITH START FINISH TIME " <<  finishtime <<  std::endl;
+  // std::cout << " MUCKING WITH START FINISH TIME " <<  finishtime <<  std::endl;
 
   typename DisplacementFieldType::IndexType velind;
   typename ImageType::Pointer smooththick = NULL;
@@ -917,7 +910,7 @@ int LaplacianThickness(int argc, char *argv[])
   bool propagate = false;
   for( unsigned int smoothit = 0; smoothit < nsmooth; smoothit++ )
     {
-    antscout << " smoothit " << smoothit << std::endl;
+    std::cout << " smoothit " << smoothit << std::endl;
     Iterator.GoToBegin();
     unsigned int cter = 0;
     while(  !Iterator.IsAtEnd()  )
@@ -937,7 +930,7 @@ int LaplacianThickness(int argc, char *argv[])
         bool   domeasure = false;
         float  gradsign = 1.0;
         bool   printprobability = false;
-//    antscout << " wmb " << wmb->GetPixel(velind) << " gm " << gm->GetPixel(velind) << std::endl;
+//    std::cout << " wmb " << wmb->GetPixel(velind) << " gm " << gm->GetPixel(velind) << std::endl;
 //    if (surf->GetPixel(velind) != 0) printprobability=true;
         if( gm->GetPixel(velind) > 0.25 ) // && wmb->GetPixel(velind) < 1 )
           {
@@ -980,7 +973,7 @@ int LaplacianThickness(int argc, char *argv[])
               sulci );
           }
         float totalength = len1 + len2;
-//    if (totalength > 5 && totalength <  8) antscout<< " t1 " << len3+len4 << " t2 " << len1+len2 << std::endl;
+//    if (totalength > 5 && totalength <  8) std::cout<< " t1 " << len3+len4 << " t2 " << len1+len2 << std::endl;
         if( len3 + len4 < totalength )
           {
           totalength = len3 + len4;
@@ -1004,7 +997,7 @@ int LaplacianThickness(int argc, char *argv[])
 
         if( domeasure && (totalength) > 0 && cter % 10000 == 0 )
           {
-          antscout << " len1 " << len1 << " len2 " << len2 << " ind " << velind << std::endl;
+          std::cout << " len1 " << len1 << " len2 " << len2 << " ind " << velind << std::endl;
           }
 
         }
@@ -1025,7 +1018,7 @@ int LaplacianThickness(int argc, char *argv[])
       ++gIterator;
       }
 
-    antscout << " writing " << outname << std::endl;
+    std::cout << " writing " << outname << std::endl;
     WriteImage<ImageType>(thickimage2, outname.c_str() );
 
     }
@@ -1035,55 +1028,16 @@ int LaplacianThickness(int argc, char *argv[])
 
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int LaplacianThickness( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main(int argc, char *argv[])
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "LaplacianThickness" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
 
   if( argc < 4 )
     {
-    antscout << "Usage:   " << argv[0]
+    std::cout << "Usage:   " << argv[0]
               <<
     " WM.nii GM.nii   Out.nii  {smoothparam=3} {priorthickval=5}  {dT=0.01}  use-sulcus-prior optional-laplacian-tolerance=0.001"
               << std::endl;
-    antscout
+    std::cout
     <<
     " a good value for use sulcus prior is 0.15 -- in a function :  1/(1.+exp(-0.1*(laplacian-img-value-sulcprob)/0.01)) "
     << std::endl;
@@ -1091,7 +1045,7 @@ int LaplacianThickness( std::vector<std::string> args , std::ostream* out_stream
     }
 
   std::string ifn = std::string(argv[1]);
-  //  antscout << " image " << ifn << std::endl;
+  //  std::cout << " image " << ifn << std::endl;
   // Get the image dimension
   itk::ImageIOBase::Pointer imageIO =
     itk::ImageIOFactory::CreateImageIO(ifn.c_str(), itk::ImageIOFactory::ReadMode);
@@ -1099,7 +1053,7 @@ int LaplacianThickness( std::vector<std::string> args , std::ostream* out_stream
   imageIO->ReadImageInformation();
   unsigned int dim =  imageIO->GetNumberOfDimensions();
 
-  //   antscout << " dim " << dim << std::endl;
+  //   std::cout << " dim " << dim << std::endl;
   switch( dim )
     {
     case 2:
@@ -1109,15 +1063,9 @@ int LaplacianThickness( std::vector<std::string> args , std::ostream* out_stream
       LaplacianThickness<3>(argc, argv);
       break;
     default:
-      antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      std::cerr << "Unsupported dimension" << std::endl;
+      exit( EXIT_FAILURE );
     }
 
   return EXIT_SUCCESS;
 }
-
-
-
-} // namespace ants
-
-

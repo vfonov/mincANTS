@@ -1,6 +1,3 @@
-
-#include "antscout.hxx"
-
 #include <algorithm>
 #include <vector>
 #include <iostream>
@@ -24,10 +21,6 @@
 #include "itkTDistribution.h"
 #include "vnl/vnl_math.h"
 #include "vnl/vnl_erf.h"
-
-namespace ants
-{
-
 
 // for computing F distribution
 extern "C" double dbetai_(double *x, double *pin, double *qin);
@@ -60,7 +53,7 @@ int smallerStatElem(StatElement * elem1, StatElement * elem2)
 template <class TImageType>
 void ReadImage(itk::SmartPointer<TImageType> & target, const char *file, bool copy)
 {
-  //  antscout << " reading b " << std::string(file) << std::endl;
+  //  std::cout << " reading b " << std::string(file) << std::endl;
   typedef itk::ImageFileReader<TImageType> readertype;
   typename readertype::Pointer reader = readertype::New();
   reader->SetFileName(file);
@@ -391,7 +384,7 @@ double TTest(int numSubjects,   int* groupLabel, double * featureValue )
       }
     else
       {
-      antscout << " group label " << groupLabel[subj] << " does not exist" << std::endl;
+      std::cerr << " group label " << groupLabel[subj] << " does not exist" << std::endl;
       }
     }
   meanA /= (float)numSubjA;
@@ -463,7 +456,7 @@ int StudentsTestOnImages(int argc, char *argv[])
     feature[i] = 0;
     }
 
-  antscout << " Numvals " << numvals << std::endl;
+  std::cout << " Numvals " << numvals << std::endl;
   // Get the image dimension
   std::string               fn = std::string(argv[5]);
   itk::ImageIOBase::Pointer imageIO =
@@ -480,8 +473,8 @@ int StudentsTestOnImages(int argc, char *argv[])
     size[i] = imageIO->GetDimensions(i);
 //       if (size[i] !=  mask->GetLargestPossibleRegion().GetSize()[i])
     // {
-    //  antscout <<  " mask not same size as data !! " << std::endl;
-    //  throw std::exception();
+    //  std::cout <<  " mask not same size as data !! " << std::endl;
+    //  exit(0);
     // }
 
     spacing[i] = imageIO->GetSpacing(i);
@@ -499,7 +492,7 @@ int StudentsTestOnImages(int argc, char *argv[])
         }
       }
     }
-  antscout << " size " << size << std::endl;
+  std::cout << " size " << size << std::endl;
   typename ImageType::RegionType region;
   region.SetSize(size );
   typename ImageType::Pointer StatImage = ImageType::New();
@@ -526,7 +519,7 @@ int StudentsTestOnImages(int argc, char *argv[])
   for( unsigned int j = 0; j < numvals; j++ )
     {
     std::string ifn = std::string(argv[5 + j]);
-    antscout << "reading " << ifn << std::endl;
+    std::cout << "reading " << ifn << std::endl;
     ReadImage<ImageType>(imagestack[j], ifn.c_str(), false);
     }
 
@@ -540,7 +533,7 @@ int StudentsTestOnImages(int argc, char *argv[])
 
   unsigned long ct = 0;
   unsigned long prog = nvox / 20;
-  antscout << " NVals " << numvals << " NSub " << numSubjects <<  std::endl;
+  std::cout << " NVals " << numvals << " NSub " << numSubjects <<  std::endl;
   for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
     {
     typename ImageType::IndexType index = vfIter.GetIndex();
@@ -550,7 +543,7 @@ int StudentsTestOnImages(int argc, char *argv[])
       }
     if( ct % prog == 0 )
       {
-      antscout << " % " << (float) ct / (float) nvox << std::endl;
+      std::cout << " % " << (float) ct / (float) nvox << std::endl;
       }
 
     double stat = 0;
@@ -576,73 +569,33 @@ int StudentsTestOnImages(int argc, char *argv[])
 
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int StudentsTestOnImages( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main(int argc, char *argv[])
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "StudentsTestOnImages" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
-
-  antscout <<  " df     P = 0.05  P = 0.01   P = 0.001  " << std::endl;
-  antscout << " 1             12.71     63.66     636.61  " << std::endl;
-  antscout << " 2    4.30     9.92     31.60    " << std::endl;
-  antscout << " 3    3.18     5.84     12.92" << std::endl;
-  antscout << " 4    2.78     4.60     8.61" << std::endl;
-  antscout << " 5    2.57     4.03     6.87" << std::endl;
-  antscout << " 6     2.45     3.71     5.96" << std::endl;
-  antscout << " 7    2.36     3.50     5.41" << std::endl;
-  antscout << " 8    2.31     3.36     5.04" << std::endl;
-  antscout << " 9    2.26     3.25     4.78" << std::endl;
-  antscout << " 10    2.23     3.17     4.59" << std::endl;
-  antscout << " 15    2.13     2.95     4.07" << std::endl;
-  antscout << " 20    2.09     2.85     3.85" << std::endl;
-  antscout << " 30    2.04     2.75     3.65" << std::endl;
-  antscout << " 50    2.01     2.68     3.50" << std::endl;
-  antscout << " 100    1.98     2.63     3.39  " << std::endl;
+  std::cout <<  " df     P = 0.05  P = 0.01   P = 0.001  " << std::endl;
+  std::cout << " 1             12.71     63.66     636.61  " << std::endl;
+  std::cout << " 2    4.30     9.92     31.60    " << std::endl;
+  std::cout << " 3    3.18     5.84     12.92" << std::endl;
+  std::cout << " 4    2.78     4.60     8.61" << std::endl;
+  std::cout << " 5    2.57     4.03     6.87" << std::endl;
+  std::cout << " 6     2.45     3.71     5.96" << std::endl;
+  std::cout << " 7    2.36     3.50     5.41" << std::endl;
+  std::cout << " 8    2.31     3.36     5.04" << std::endl;
+  std::cout << " 9    2.26     3.25     4.78" << std::endl;
+  std::cout << " 10    2.23     3.17     4.59" << std::endl;
+  std::cout << " 15    2.13     2.95     4.07" << std::endl;
+  std::cout << " 20    2.09     2.85     3.85" << std::endl;
+  std::cout << " 30    2.04     2.75     3.65" << std::endl;
+  std::cout << " 50    2.01     2.68     3.50" << std::endl;
+  std::cout << " 100    1.98     2.63     3.39  " << std::endl;
 
   if( argc < 6 )
     {
-    antscout << "Usage: " << argv[0] <<  " ImageDimension  OutName NGroup1 NGroup2 ControlV1*   SubjectV1*   "
+    std::cout << "Usage: " << argv[0] <<  " ImageDimension  OutName NGroup1 NGroup2 ControlV1*   SubjectV1*   "
               << std::endl;
-    antscout << " Assume all images the same size " << std::endl;
-    antscout << " Writes out an F-Statistic image " << std::endl;
-    antscout <<  " \n example call \n  \n ";
-    antscout << argv[0] << "  2  TEST.nii.gz 4 8 FawtJandADCcon/*SUB.nii  FawtJandADCsub/*SUB.nii  \n ";
+    std::cout << " Assume all images the same size " << std::endl;
+    std::cout << " Writes out an F-Statistic image " << std::endl;
+    std::cout <<  " \n example call \n  \n ";
+    std::cout << argv[0] << "  2  TEST.nii.gz 4 8 FawtJandADCcon/*SUB.nii  FawtJandADCsub/*SUB.nii  \n ";
     return 1;
     }
 
@@ -655,15 +608,9 @@ int StudentsTestOnImages( std::vector<std::string> args , std::ostream* out_stre
       StudentsTestOnImages<3>(argc, argv);
       break;
     default:
-      antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      std::cerr << "Unsupported dimension" << std::endl;
+      exit( EXIT_FAILURE );
     }
 
   return 0;
 }
-
-
-
-} // namespace ants
-
-

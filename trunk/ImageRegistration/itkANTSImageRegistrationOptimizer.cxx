@@ -106,7 +106,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   resampler->SetTransform( transform );
   if( aff )
     {
-//      ::ants::antscout << " Setting Aff to " << this->m_AffineTransform << std::endl;
+//      std::cout << " Setting Aff to " << this->m_AffineTransform << std::endl;
     resampler->SetTransform( aff );
     }
   resampler->SetInput( image );
@@ -168,7 +168,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 {
   if( this->m_Debug )
     {
-    ::ants::antscout << " enter gauss smooth " <<  sig  << std::endl;
+    std::cout << " enter gauss smooth " <<  sig  << std::endl;
     }
   if( sig <= 0 )
     {
@@ -176,7 +176,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     }
   if( !field )
     {
-    ::ants::antscout << " No Field in gauss Smoother " << std::endl; return;
+    std::cout << " No Field in gauss Smoother " << std::endl; return;
     }
   DisplacementFieldPointer tempField = DisplacementFieldType::New();
   tempField->SetSpacing( field->GetSpacing() );
@@ -274,7 +274,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 
   if( this->m_Debug )
     {
-    ::ants::antscout << " done gauss smooth " << std::endl;
+    std::cout << " done gauss smooth " << std::endl;
     }
 
   delete oper;
@@ -292,7 +292,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     }
   if( !field )
     {
-    ::ants::antscout << " No Field in gauss Smoother " << std::endl; return;
+    std::cout << " No Field in gauss Smoother " << std::endl; return;
     }
   TimeVaryingVelocityFieldPointer tempField = TimeVaryingVelocityFieldType::New();
   tempField->SetSpacing( field->GetSpacing() );
@@ -385,7 +385,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 
   if( this->m_Debug )
     {
-    ::ants::antscout << " done gauss smooth " << std::endl;
+    std::cout << " done gauss smooth " << std::endl;
     }
 
   delete oper;
@@ -400,11 +400,11 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 {
   if( this->m_Debug )
     {
-    ::ants::antscout << " enter bspline smooth " << std::endl;
+    std::cout << " enter bspline smooth " << std::endl;
     }
   if( !field )
     {
-    ::ants::antscout << " No Field in bspline Smoother " << std::endl; return;
+    std::cout << " No Field in bspline Smoother " << std::endl; return;
     }
 
   if( splineorder <= 0 )
@@ -431,7 +431,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 //  writer->SetInput( field );
 //  writer->SetFileName( "field.nii.gz" );
 //  writer->Update();
-//  std::exception();
+//  exit( 0 );
 
   typename ImageType::DirectionType originalDirection = field->GetDirection();
   typename ImageType::DirectionType identityDirection;
@@ -477,7 +477,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 
   if( this->m_Debug )
     {
-    ::ants::antscout << " done bspline smooth " << std::endl;
+    std::cout << " done bspline smooth " << std::endl;
     }
 
 }
@@ -535,7 +535,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   unsigned int ct = 0;
   // iterate through fieldtowarpby finding the points that it maps to via field.
   // then take the difference from the original point and put it in the output field.
-  //      ::ants::antscout << " begin iteration " << std::endl;
+  //      std::cout << " begin iteration " << std::endl;
   FieldIterator m_FieldIter( fieldtowarpby, fieldtowarpby->GetLargestPossibleRegion() );
   for(  m_FieldIter.GoToBegin(); !m_FieldIter.IsAtEnd(); ++m_FieldIter )
     {
@@ -626,11 +626,11 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 
   if( !fixedwarp )
     {
-    ::ants::antscout << " NO F WARP " << std::endl;  fixedwarp = this->m_DisplacementField;
+    std::cout << " NO F WARP " << std::endl;  fixedwarp = this->m_DisplacementField;
     }
-  // if ( !movingwarp) ::ants::antscout<< " NO M WARP " << std::endl;
+  // if ( !movingwarp) std::cout<< " NO M WARP " << std::endl;
 
-  // /     ::ants::antscout << " get upd field " << std::endl;
+  // /     std::cout << " get upd field " << std::endl;
   typename ImageType::SpacingType spacing = fixedwarp->GetSpacing();
   VectorType zero;
   zero.Fill(0);
@@ -697,7 +697,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 
 //        TimeStepType timeStep;
     void *globalData;
-//    ::ants::antscout << " B " << std::endl;
+//    std::cout << " B " << std::endl;
 
     AffineTransformPointer faffinverse = NULL;
     if( this->m_FixedImageAffineTransform )
@@ -733,7 +733,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
                                       this->m_SmoothMovingImages[metricCount]->GetDirection(),  NULL);
       }
 
-//    ::ants::antscout << " C " << std::endl;
+//    std::cout << " C " << std::endl;
     ImagePointer wfimage = NULL;
     if( movingwarp )
       {
@@ -781,7 +781,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       }
     else if( ispointsetmetric )
       {
-      ::ants::antscout << "NO POINTS!! " << std::endl;
+      std::cout << "NO POINTS!! " << std::endl;
       }
     if( wpoints && ispointsetmetric )
       {
@@ -789,7 +789,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       }
     else if( ispointsetmetric )
       {
-      ::ants::antscout << "NO POINTS!! " << std::endl;
+      std::cout << "NO POINTS!! " << std::endl;
       }
     typename ImageType::SizeType  radius = df->GetRadius();
     df->InitializeIteration();
@@ -946,7 +946,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
         if ( f2mag > 0.05 ) updateFieldInv->SetPixel(index,F2);
         tmag+=umag;
       }
-        //           ::ants::antscout << " total mag " << tmag << std::endl;
+        //           std::cout << " total mag " << tmag << std::endl;
       }
     //smooth the total field
     this->SmoothDisplacementField(updateField,true);
@@ -971,18 +971,18 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
         mag += vec[jj] / spacing[jj] * vec[jj] / spacing[jj];
         }
       mag = sqrt(mag);
-//            if (mag > 0. ) ::ants::antscout << " mag " << mag << " max " << max << " vec " << vec << std::endl;
+//            if (mag > 0. ) std::cout << " mag " << mag << " max " << max << " vec " << vec << std::endl;
       if( mag > max )
         {
         max = mag;
         }
       ct++;
       total += mag;
-      //    ::ants::antscout << " mag " << mag << std::endl;
+      //    std::cout << " mag " << mag << std::endl;
       }
     if( this->m_Debug )
       {
-      ::ants::antscout << "PRE MAX " << max << std::endl;
+      std::cout << "PRE MAX " << max << std::endl;
       }
     TReal max2 = 0;
     if( max <= 0 )
@@ -1004,7 +1004,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
         {
         max2 = mag;
         }
-//            if (mag > 0.95) ::ants::antscout << " mag " << mag << " max " << max << " vec " << vec << " ind " << index <<
+//            if (mag > 0.95) std::cout << " mag " << mag << " max " << max << " vec " << vec << " ind " << index <<
 // std::endl;
       /** FIXME need weights between metrics */
 
@@ -1058,18 +1058,18 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
           mag += vec[jj] / spacing[jj] * vec[jj] / spacing[jj];
           }
         mag = sqrt(mag);
-//            if (mag > 0. ) ::ants::antscout << " mag " << mag << " max " << max << " vec " << vec << std::endl;
+//            if (mag > 0. ) std::cout << " mag " << mag << " max " << max << " vec " << vec << std::endl;
         if( mag > max )
           {
           max = mag;
           }
         ct++;
         total += mag;
-        //    ::ants::antscout << " mag " << mag << std::endl;
+        //    std::cout << " mag " << mag << std::endl;
         }
       if( this->m_Debug )
         {
-        ::ants::antscout << "PRE MAX " << max << std::endl;
+        std::cout << "PRE MAX " << max << std::endl;
         }
       max2 = 0;
       if( max <= 0 )
@@ -1091,7 +1091,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
           {
           max2 = mag;
           }
-//            if (mag > 0.95) ::ants::antscout << " mag " << mag << " max " << max << " vec " << vec << " ind " << index <<
+//            if (mag > 0.95) std::cout << " mag " << mag << " max " << max << " vec " << vec << " ind " << index <<
 // std::endl;
         /** FIXME need weights between metrics */
 
@@ -1131,7 +1131,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       }
     if( this->m_Debug )
       {
-      ::ants::antscout << "PO MAX " << max2 << " sz" << totalUpdateField->GetLargestPossibleRegion().GetSize() << std::endl;
+      std::cout << "PO MAX " << max2 << " sz" << totalUpdateField->GetLargestPossibleRegion().GetSize() << std::endl;
       }
 
     }
@@ -1166,11 +1166,11 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 
   if( !fixedwarp )
     {
-    ::ants::antscout << " NO F WARP " << std::endl;  fixedwarp = this->m_DisplacementField;
+    std::cout << " NO F WARP " << std::endl;  fixedwarp = this->m_DisplacementField;
     }
-  // if ( !movingwarp) ::ants::antscout<< " NO M WARP " << std::endl;
+  // if ( !movingwarp) std::cout<< " NO M WARP " << std::endl;
 
-  // /     ::ants::antscout << " get upd field " << std::endl;
+  // /     std::cout << " get upd field " << std::endl;
   typename ImageType::SpacingType spacing = fixedwarp->GetSpacing();
   VectorType zero;
   zero.Fill(0);
@@ -1245,7 +1245,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 
 //        TimeStepType timeStep;
     void *globalData;
-//    ::ants::antscout << " B " << std::endl;
+//    std::cout << " B " << std::endl;
 
 // for each metric, warp the assoc. Images
 /** We loop Over This To Do MultiVariate */
@@ -1268,7 +1268,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
                                       this->m_SmoothMovingImages[metricCount]->GetDirection(),  NULL);
       }
 
-//    ::ants::antscout << " C " << std::endl;
+//    std::cout << " C " << std::endl;
     ImagePointer wfimage = NULL;
     if( movingwarp )
       {
@@ -1284,7 +1284,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
                                       this->m_SmoothFixedImages[metricCount]->GetDirection(),  NULL);
       }
 
-//    ::ants::antscout << " D " << std::endl;
+//    std::cout << " D " << std::endl;
 
 /** MV Loop END -- Would have to collect update fields then add them
 * together somehow -- Would also have to eliminate the similarity
@@ -1304,7 +1304,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       }
     else if( ispointsetmetric )
       {
-      ::ants::antscout << "NO POINTS!! " << std::endl;
+      std::cout << "NO POINTS!! " << std::endl;
       }
     if( wpoints && ispointsetmetric )
       {
@@ -1312,7 +1312,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       }
     else if( ispointsetmetric )
       {
-      ::ants::antscout << "NO POINTS!! " << std::endl;
+      std::cout << "NO POINTS!! " << std::endl;
       }
     typename ImageType::SizeType  radius = df->GetRadius();
     df->InitializeIteration();
@@ -1434,7 +1434,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
         if ( f2mag > 0.05 ) updateFieldInv->SetPixel(index,F2);
         tmag+=umag;
       }
-        //           ::ants::antscout << " total mag " << tmag << std::endl;
+        //           std::cout << " total mag " << tmag << std::endl;
       }
     //smooth the total field
     this->SmoothDisplacementField(updateField,true);
@@ -1459,18 +1459,18 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
         mag += vec[jj] / spacing[jj] * vec[jj] / spacing[jj];
         }
       mag = sqrt(mag);
-//            if (mag > 0. ) ::ants::antscout << " mag " << mag << " max " << max << " vec " << vec << std::endl;
+//            if (mag > 0. ) std::cout << " mag " << mag << " max " << max << " vec " << vec << std::endl;
       if( mag > max )
         {
         max = mag;
         }
       ct++;
       total += mag;
-      //    ::ants::antscout << " mag " << mag << std::endl;
+      //    std::cout << " mag " << mag << std::endl;
       }
     if( this->m_Debug )
       {
-      ::ants::antscout << "PRE MAX " << max << std::endl;
+      std::cout << "PRE MAX " << max << std::endl;
       }
     TReal max2 = 0;
     if( max <= 0 )
@@ -1492,7 +1492,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
         {
         max2 = mag;
         }
-//            if (mag > 0.95) ::ants::antscout << " mag " << mag << " max " << max << " vec " << vec << " ind " << index <<
+//            if (mag > 0.95) std::cout << " mag " << mag << " max " << max << " vec " << vec << " ind " << index <<
 // std::endl;
       /** FIXME need weights between metrics */
 
@@ -1535,18 +1535,18 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
           mag += vec[jj] / spacing[jj] * vec[jj] / spacing[jj];
           }
         mag = sqrt(mag);
-//            if (mag > 0. ) ::ants::antscout << " mag " << mag << " max " << max << " vec " << vec << std::endl;
+//            if (mag > 0. ) std::cout << " mag " << mag << " max " << max << " vec " << vec << std::endl;
         if( mag > max )
           {
           max = mag;
           }
         ct++;
         total += mag;
-        //    ::ants::antscout << " mag " << mag << std::endl;
+        //    std::cout << " mag " << mag << std::endl;
         }
       if( this->m_Debug )
         {
-        ::ants::antscout << "PRE MAX " << max << std::endl;
+        std::cout << "PRE MAX " << max << std::endl;
         }
       max2 = 0;
       if( max <= 0 )
@@ -1568,7 +1568,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
           {
           max2 = mag;
           }
-//            if (mag > 0.95) ::ants::antscout << " mag " << mag << " max " << max << " vec " << vec << " ind " << index <<
+//            if (mag > 0.95) std::cout << " mag " << mag << " max " << max << " vec " << vec << " ind " << index <<
 // std::endl;
         /** FIXME need weights between metrics */
 
@@ -1597,7 +1597,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       }
     if( this->m_Debug )
       {
-      ::ants::antscout << "PO MAX " << max2 << " sz" << totalUpdateField->GetLargestPossibleRegion().GetSize() << std::endl;
+      std::cout << "PO MAX " << max2 << " sz" << totalUpdateField->GetLargestPossibleRegion().GetSize() << std::endl;
       }
 
     }
@@ -1715,7 +1715,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     }
   this->ComposeDiffs(updateField, totalField, totalField, 1);
   //    maxl= this->MeasureDeformation(totalField);
-  //    ::ants::antscout << " maxl " << maxl << " gsa " << this->m_GradstepAltered   << std::endl;
+  //    std::cout << " maxl " << maxl << " gsa " << this->m_GradstepAltered   << std::endl;
   //    totalField=this->CopyDisplacementField(totalUpdateField);
   this->SmoothDisplacementField(totalField, false);
 
@@ -1750,7 +1750,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>::AffineOptimization(OptAffineT
 
   AffineTransformPointer transform = AffineTransformType::New();
 
-  // ::ants::antscout << "In AffineOptimization: transform_init.IsNotNull()=" << transform_init.IsNotNull() << std::endl;
+  // std::cout << "In AffineOptimization: transform_init.IsNotNull()=" << transform_init.IsNotNull() << std::endl;
   // compute_single_affine_transform(fixedImage, movingImage, maskImage, transform, transform_init);
 
   // OptAffine<AffineTransformPointer, ImagePointer> opt;
@@ -1780,7 +1780,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   totalUpdateInvField->FillBuffer(zero);
   if( !this->m_SyNF )
     {
-    ::ants::antscout << " Allocating " << std::endl;
+    std::cout << " Allocating " << std::endl;
     this->m_SyNF = this->CopyDisplacementField(totalUpdateInvField);
     this->m_SyNFInv = this->CopyDisplacementField(this->m_SyNF);
     this->m_SyNM = this->CopyDisplacementField(totalUpdateInvField);
@@ -1788,23 +1788,23 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     // this->m_Debug=true;
     if( this->m_Debug )
       {
-      ::ants::antscout << " SyNFInv" << this->m_SyNFInv->GetLargestPossibleRegion().GetSize() << std::endl;
+      std::cout << " SyNFInv" << this->m_SyNFInv->GetLargestPossibleRegion().GetSize() << std::endl;
       }
     if( this->m_Debug )
       {
-      ::ants::antscout << " t updIf " << totalUpdateInvField->GetLargestPossibleRegion().GetSize() << std::endl;
+      std::cout << " t updIf " << totalUpdateInvField->GetLargestPossibleRegion().GetSize() << std::endl;
       }
     if( this->m_Debug )
       {
-      ::ants::antscout << " synf " << this->m_SyNF->GetLargestPossibleRegion().GetSize() << std::endl;
+      std::cout << " synf " << this->m_SyNF->GetLargestPossibleRegion().GetSize() << std::endl;
       }
     // this->m_Debug=false;
-    ::ants::antscout << " Allocating Done " << std::endl;
+    std::cout << " Allocating Done " << std::endl;
     }
 
   if( !this->m_SyNF )
     {
-    ::ants::antscout << " F'D UP " << std::endl;
+    std::cout << " F'D UP " << std::endl;
     }
 
   PointSetPointer        wfpoints = NULL, wmpoints = NULL;
@@ -1844,9 +1844,9 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   this->InvertField(this->m_SyNFInv, this->m_SyNF);
   this->InvertField(this->m_SyNMInv, this->m_SyNM);
 
-//      ::ants::antscout <<  " F " << this->MeasureDeformation(this->m_SyNF) << " F1 " <<
+//      std::cout <<  " F " << this->MeasureDeformation(this->m_SyNF) << " F1 " <<
 // this->MeasureDeformation(this->m_SyNFInv) << std::endl;
-//      ::ants::antscout <<  " M " << this->MeasureDeformation(this->m_SyNM) << " M1 " <<
+//      std::cout <<  " M " << this->MeasureDeformation(this->m_SyNM) << " M1 " <<
 // this->MeasureDeformation(this->m_SyNMInv) << std::endl;
   return;
 
@@ -1858,7 +1858,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 ::SyNExpRegistrationUpdate(ImagePointer fixedImage, ImagePointer movingImage, PointSetPointer fpoints,
                            PointSetPointer mpoints)
 {
-  ::ants::antscout << " SyNEX";
+  std::cout << " SyNEX";
   typename ImageType::SpacingType spacing = fixedImage->GetSpacing();
   VectorType zero;
   zero.Fill(0);
@@ -1873,17 +1873,17 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   totalUpdateInvField->FillBuffer(zero);
   if( !this->m_SyNF )
     {
-    ::ants::antscout << " Allocating " << std::endl;
+    std::cout << " Allocating " << std::endl;
     this->m_SyNF = this->CopyDisplacementField(totalUpdateInvField);
     this->m_SyNFInv = this->CopyDisplacementField(this->m_SyNF);
     this->m_SyNM = this->CopyDisplacementField(totalUpdateInvField);
     this->m_SyNMInv = this->CopyDisplacementField(this->m_SyNF);
-    ::ants::antscout << " Allocating Done " << std::endl;
+    std::cout << " Allocating Done " << std::endl;
     }
 
   if( !this->m_SyNF )
     {
-    ::ants::antscout << " F'D UP " << std::endl;
+    std::cout << " F'D UP " << std::endl;
     }
 
   ImagePointer           wfimage, wmimage;
@@ -1944,7 +1944,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     this->SmoothDisplacementField( this->m_SyNF, false);
     this->SmoothDisplacementField( this->m_SyNM, false);
     }
-//      ::ants::antscout <<  " TUF " << this->MeasureDeformation(this->m_SyNF) << " TUM " <<
+//      std::cout <<  " TUF " << this->MeasureDeformation(this->m_SyNF) << " TUM " <<
 // this->MeasureDeformation(this->m_SyNM) << std::endl;
 
   return;
@@ -2048,7 +2048,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       }
     }
 
-//  ::ants::antscout <<" ALlocated TV F "<< std::endl;
+//  std::cout <<" ALlocated TV F "<< std::endl;
 }
 
 template <unsigned int TDimension, class TReal>
@@ -2067,7 +2067,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   typedef typename TimeVaryingVelocityFieldType::IndexType         VIndexType;
   typedef typename TimeVaryingVelocityFieldType::PointType         VPointType;
   int tpupdate = (unsigned int) ( ( (TReal) this->m_NTimeSteps - 1.0) * timept + 0.5);
-  // ::ants::antscout <<"  add to " << tpupdate << std::endl;
+  // std::cout <<"  add to " << tpupdate << std::endl;
   TReal           tmag = 0;
   TVFieldIterator m_FieldIter(velocity, velocity->GetLargestPossibleRegion() );
   for(  m_FieldIter.GoToBegin(); !m_FieldIter.IsAtEnd(); ++m_FieldIter )
@@ -2095,7 +2095,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       m_FieldIter.Set(vel + m_FieldIter.Get() );
       }
     }
-  //  ::ants::antscout << " tmag " << tmag << std::endl;
+  //  std::cout << " tmag " << tmag << std::endl;
 }
 
 template <unsigned int TDimension, class TReal>
@@ -2118,17 +2118,17 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   totalUpdateInvField->FillBuffer(zero);
   if( !this->m_SyNF )
     {
-    ::ants::antscout << " Allocating " << std::endl;
+    std::cout << " Allocating " << std::endl;
     this->m_SyNF = this->CopyDisplacementField(totalUpdateInvField);
     this->m_SyNFInv = this->CopyDisplacementField(this->m_SyNF);
     this->m_SyNM = this->CopyDisplacementField(totalUpdateInvField);
     this->m_SyNMInv = this->CopyDisplacementField(this->m_SyNF);
-    ::ants::antscout << " Allocating Done " << std::endl;
+    std::cout << " Allocating Done " << std::endl;
     }
 
   if( !this->m_SyNF )
     {
-    ::ants::antscout << " F'D UP " << std::endl;
+    std::cout << " F'D UP " << std::endl;
     }
 
   ImagePointer           wfimage, wmimage;
@@ -2156,7 +2156,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     {
 /**FIXME -- NEED INTEGRATION FOR POINTS ONLY  -- warp landmarks for
 * tv-field */
-//      ::ants::antscout <<" aff " << std::endl;
+//      std::cout <<" aff " << std::endl;
 /** NOte, totalUpdateInvField is filled with zeroes! -- we only want
       affine mapping */
     wmpoints =
@@ -2348,17 +2348,17 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     }
   if( !this->m_SyNF )
     {
-    ::ants::antscout << " Allocating " << std::endl;
+    std::cout << " Allocating " << std::endl;
     this->m_SyNF = this->CopyDisplacementField(totalUpdateInvField);
     this->m_SyNFInv = this->CopyDisplacementField(this->m_SyNF);
     this->m_SyNM = this->CopyDisplacementField(totalUpdateInvField);
     this->m_SyNMInv = this->CopyDisplacementField(this->m_SyNF);
-    ::ants::antscout << " Allocating Done " << std::endl;
+    std::cout << " Allocating Done " << std::endl;
     }
 
   if( !this->m_SyNF )
     {
-    ::ants::antscout << " F'D UP " << std::endl;
+    std::cout << " F'D UP " << std::endl;
     }
 
   ImagePointer           wfimage, wmimage;
@@ -2392,7 +2392,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       //  writer->SetUseAvantsNamingConvention( true );
       writer->SetInput( this->m_SyNFInv );
       writer->SetFileName( fnm.c_str() );
-      ::ants::antscout << " write " << fnm << std::endl;
+      std::cout << " write " << fnm << std::endl;
       writer->Update();
       // writer->SetInput( this->m_SyNMInv );
       // writer->SetFileName( fnm2.c_str() );
@@ -2408,7 +2408,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       {
 /**FIXME -- NEED INTEGRATION FOR POINTS ONLY  -- warp landmarks for
 * tv-field */
-//      ::ants::antscout <<" aff " << std::endl;
+//      std::cout <<" aff " << std::endl;
 /** NOte, totalUpdateInvField is filled with zeroes! -- we only want
       affine mapping */
       wmpoints =
@@ -2474,7 +2474,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       {
       alpha = 1;
       }
-    //        ::ants::antscout <<" beta " << beta << " alpha " << alpha << " it " << this->m_CurrentIteration << std::endl;
+    //        std::cout <<" beta " << beta << " alpha " << alpha << " it " << this->m_CurrentIteration << std::endl;
     VectorType newupd = (vec1);
     if( this->m_CurrentIteration  > 2 )
       {
@@ -2494,7 +2494,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     tmag += sqrt(mag);
     }
   tmag /= ( (TReal) this->m_NTimeSteps * (TReal)numpx);
-  ::ants::antscout << " DiffLength " << tmag << std::endl;
+  std::cout << " DiffLength " << tmag << std::endl;
   if(  this->m_TotalSmoothingparam > 0
        || this->m_TotalSmoothingMeshSize[0] > 0 )
     {
@@ -2525,14 +2525,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
                                  this->m_MaskImage->GetOrigin(), this->m_MaskImage->GetDirection(),  NULL);
     }
 
-//  ::ants::antscout << " st " << starttimein << " ft " << finishtimein << std::endl;
-  typedef TReal                              PixelType;
-  typedef itk::Vector<TReal, TDimension>     VectorType;
-  typedef itk::Image<VectorType, TDimension> DisplacementFieldType;
-  typedef itk::Image<PixelType, TDimension>  ImageType;
-  typedef typename  ImageType::IndexType     IndexType;
-  typedef typename  ImageType::SizeType      SizeType;
-  typedef typename  ImageType::SpacingType   SpacingType;
+//  std::cout << " st " << starttimein << " ft " << finishtimein << std::endl;
   typedef TimeVaryingVelocityFieldType       tvt;
 
   bool dothick = false;
@@ -2583,7 +2576,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     }
   if( !this->m_TimeVaryingVelocity )
     {
-    ::ants::antscout << " No TV Field " << std::endl;  return intfield;
+    std::cout << " No TV Field " << std::endl;  return intfield;
     }
   this->m_VelocityFieldInterpolator->SetInputImage(this->m_TimeVaryingVelocity);
 
@@ -2613,7 +2606,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 
 
   FieldIterator m_FieldIter(this->GetDisplacementField(), this->GetDisplacementField()->GetLargestPossibleRegion() );
-//  ::ants::antscout << " Start Int " << starttimein <<  std::endl;
+//  std::cout << " Start Int " << starttimein <<  std::endl;
   if( mask  && !this->m_ComputeThickness )
     {
     for(  m_FieldIter.GoToBegin(); !m_FieldIter.IsAtEnd(); ++m_FieldIter )
@@ -2644,7 +2637,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     {
     std::string outname = this->localANTSGetFilePrefix(this->m_OutputNamingConvention.c_str() ) + std::string(
         "thick.nii.gz");
-    ::ants::antscout << " write " << outname << std::endl;
+    std::cout << " write " << outname << std::endl;
     WriteImage<ImageType>(this->m_ThickImage, outname.c_str() );
     }
 
@@ -2681,7 +2674,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
     }
   if( !this->m_TimeVaryingVelocity )
     {
-    ::ants::antscout << " No TV Field " << std::endl;  return intfield;
+    std::cout << " No TV Field " << std::endl;  return intfield;
     }
   this->m_VelocityFieldInterpolator->SetInputImage(this->m_TimeVaryingVelocity);
 
@@ -2713,9 +2706,9 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
   for( unsigned long ii = 0; ii < sz1; ii++ )
     {
     PointType point;
-    // ::ants::antscout <<" get point " << std::endl;
+    // std::cout <<" get point " << std::endl;
     mypoints->GetPoint(ii, &point);
-    // ::ants::antscout <<" get point index " << point << std::endl;
+    // std::cout <<" get point index " << point << std::endl;
 
     ImagePointType pt, wpt;
     for( unsigned int jj = 0;  jj < ImageDimension; jj++ )
@@ -2724,12 +2717,12 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       }
     IndexType velind;
     bool      bisinside = intfield->TransformPhysicalPointToIndex( pt, velind );
-    // ::ants::antscout <<" inside? " << bisinside  << std::endl;
+    // std::cout <<" inside? " << bisinside  << std::endl;
     if( bisinside )
       {
-//      ::ants::antscout <<  "integrate " << std::endl;
+//      std::cout <<  "integrate " << std::endl;
       VectorType disp = this->IntegratePointVelocity(starttimein, finishtimein, velind);
-//      ::ants::antscout <<  "put inside " << std::endl;
+//      std::cout <<  "put inside " << std::endl;
       intfield->SetPixel(velind, disp);
       }
     }
@@ -2746,7 +2739,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 
   typedef Point<TReal, itkGetStaticConstMacro(ImageDimension + 1)> xPointType;
   this->m_Debug = false;
-//  ::ants::antscout <<"Enter IP "<< std::endl;
+//  std::cout <<"Enter IP "<< std::endl;
   typedef typename VelocityFieldInterpolatorType::OutputType InterpPointType;
 
   typedef TimeVaryingVelocityFieldType       tvt;
@@ -2867,7 +2860,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       }
     if( this->m_Debug )
       {
-      ::ants::antscout << " p2 " << pointIn2 << std::endl;
+      std::cout << " p2 " << pointIn2 << std::endl;
       }
 
     Y1x[TDimension] = itimetn1 * (TReal)(m_NumberOfTimePoints - 1);
@@ -2877,7 +2870,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 
     if( this->m_Debug )
       {
-      ::ants::antscout << " p2 " << pointIn2 << " y1 " <<  Y1x[TDimension] <<  " y4 " <<   Y4x[TDimension]  << std::endl;
+      std::cout << " p2 " << pointIn2 << " y1 " <<  Y1x[TDimension] <<  " y4 " <<   Y4x[TDimension]  << std::endl;
       }
 
     if( this->m_VelocityFieldInterpolator->IsInsideBuffer(Y1x) )
@@ -2924,7 +2917,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       disp[jj] = out[jj];
       }
 
-//      ::ants::antscout << " p3 " << pointIn3 << std::endl;
+//      std::cout << " p3 " << pointIn3 << std::endl;
     dmag = sqrt(dmag);
     totalmag += sqrt(mag);
     ct++;
@@ -3012,7 +3005,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
         }
       if( this->m_Debug )
         {
-        ::ants::antscout << " p2 " << pointIn2 << std::endl;
+        std::cout << " p2 " << pointIn2 << std::endl;
         }
 
       Y1x[TDimension] = itimetn1 * (TReal)(m_NumberOfTimePoints - 1);
@@ -3021,7 +3014,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
       Y4x[TDimension] = itime * (TReal)(m_NumberOfTimePoints - 1);
       if( this->m_Debug )
         {
-        ::ants::antscout << " p2 " << pointIn2 << " y1 " <<  Y1x[TDimension] <<  " y4 " <<   Y4x[TDimension]  << std::endl;
+        std::cout << " p2 " << pointIn2 << " y1 " <<  Y1x[TDimension] <<  " y4 " <<   Y4x[TDimension]  << std::endl;
         }
 
       if( this->m_VelocityFieldInterpolator->IsInsideBuffer(Y1x) )
@@ -3106,7 +3099,7 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
             }
           else
             {
-            ::ants::antscout << " thind " << thind << " edist " << euclideandist << " p3 " << pointIn3 << " p1 "
+            std::cout << " thind " << thind << " edist " << euclideandist << " p3 " << pointIn3 << " p1 "
                       << pointIn1 << std::endl;
             }
           //        this->m_ThickImage->SetPixel(thind, thislength );
@@ -3116,11 +3109,11 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 
     }
 
-//  if (!isinside) { ::ants::antscout << " velind " << velind << " not inside " << Y1 << std::endl;   }
+//  if (!isinside) { std::cout << " velind " << velind << " not inside " << Y1 << std::endl;   }
 
   if( this->m_Debug )
     {
-    ::ants::antscout << " Length " << thislength << std::endl;
+    std::cout << " Length " << thislength << std::endl;
     }
   this->m_Debug = false;
   return disp;

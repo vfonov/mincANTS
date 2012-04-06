@@ -1,6 +1,3 @@
-
-#include "antscout.hxx"
-
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkLabelGeometryImageFilter.h"
@@ -9,10 +6,6 @@
 #include <iostream>
 #include <ostream>
 #include <sstream>
-
-namespace ants
-{
-
 
 template <unsigned int ImageDimension>
 int LabelGeometryMeasures( int argc, char * argv[] )
@@ -54,9 +47,9 @@ int LabelGeometryMeasures( int argc, char * argv[] )
 
   typename FilterType::LabelsType allLabels = filter->GetLabels();
   typename FilterType::LabelsType::iterator allLabelsIt;
-//   antscout << "Number of labels: " << labelGeometryFilter->GetNumberOfLabels() << std::endl;
-//   antscout << "Label geometry measures." << std::endl;
-  antscout << std::left << std::setw( 7 )  << "Label"
+//   std::cout << "Number of labels: " << labelGeometryFilter->GetNumberOfLabels() << std::endl;
+//   std::cout << "Label geometry measures." << std::endl;
+  std::cout << std::left << std::setw( 7 )  << "Label"
             << std::left << std::setw( 10 ) << "Volume"
             << std::left << std::setw( 15 ) << "Eccentricity"
             << std::left << std::setw( 15 ) << "Elongation"
@@ -66,98 +59,58 @@ int LabelGeometryMeasures( int argc, char * argv[] )
             << std::left << std::setw( 30 ) << "Bounding Box";
   if( filter->GetIntensityInput() )
     {
-    antscout << std::left << std::setw( 20 )  << "Integrated Int."
+    std::cout << std::left << std::setw( 20 )  << "Integrated Int."
               << std::left << std::setw( 30 ) << "Weighted Centroid";
     }
-  antscout << std::endl;
+  std::cout << std::endl;
   for( allLabelsIt = allLabels.begin(); allLabelsIt != allLabels.end(); allLabelsIt++ )
     {
     if( *allLabelsIt == 0 )
       {
       continue;
       }
-    antscout << std::setw( 7 ) << *allLabelsIt;
-    antscout << std::setw( 10 ) << filter->GetVolume( *allLabelsIt );
-    antscout << std::setw( 15 ) << filter->GetEccentricity( *allLabelsIt );
-    antscout << std::setw( 15 ) << filter->GetElongation( *allLabelsIt );
-    antscout << std::setw( 15 ) << filter->GetOrientation( *allLabelsIt );
+    std::cout << std::setw( 7 ) << *allLabelsIt;
+    std::cout << std::setw( 10 ) << filter->GetVolume( *allLabelsIt );
+    std::cout << std::setw( 15 ) << filter->GetEccentricity( *allLabelsIt );
+    std::cout << std::setw( 15 ) << filter->GetElongation( *allLabelsIt );
+    std::cout << std::setw( 15 ) << filter->GetOrientation( *allLabelsIt );
 
     std::stringstream oss;
     oss << filter->GetCentroid( *allLabelsIt );
-    antscout << std::setw( 30 ) << ( oss.str() ).c_str();
+    std::cout << std::setw( 30 ) << ( oss.str() ).c_str();
     oss.str( "" );
 
     oss << filter->GetAxesLength( *allLabelsIt );
-    antscout << std::setw( 30 ) << ( oss.str() ).c_str();
+    std::cout << std::setw( 30 ) << ( oss.str() ).c_str();
     oss.str( "" );
 
     oss << filter->GetBoundingBox( *allLabelsIt );
-    antscout << std::setw( 30 ) << ( oss.str() ).c_str();
+    std::cout << std::setw( 30 ) << ( oss.str() ).c_str();
     oss.str( "" );
 
-//     antscout << filter->GetMajorAxisLength( *allLabelsIt ) << "\t";
-//     antscout << filter->GetMinorAxisLength( *allLabelsIt ) << "\t";
+//     std::cout << filter->GetMajorAxisLength( *allLabelsIt ) << "\t";
+//     std::cout << filter->GetMinorAxisLength( *allLabelsIt ) << "\t";
     if( filter->GetIntensityInput() )
       {
       oss << filter->GetIntegratedIntensity( *allLabelsIt );
-      antscout << std::setw( 20 ) << ( oss.str() ).c_str();
+      std::cout << std::setw( 20 ) << ( oss.str() ).c_str();
       oss.str( "" );
 
       oss << filter->GetWeightedCentroid( *allLabelsIt );
-      antscout << std::setw( 30 ) << ( oss.str() ).c_str();
+      std::cout << std::setw( 30 ) << ( oss.str() ).c_str();
       oss.str( "" );
       }
-    antscout << std::endl;
+    std::cout << std::endl;
     }
 
   return EXIT_SUCCESS;
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int LabelGeometryMeasures( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main( int argc, char *argv[] )
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "LabelGeometryMeasures" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
-
   if( argc < 3 )
     {
-    antscout << "Usage: " << argv[0] << " imageDimension labelImage [intensityImage]"
+    std::cerr << "Usage: " << argv[0] << " imageDimension labelImage [intensityImage]"
               << std::endl;
     return EXIT_FAILURE;
     }
@@ -171,13 +124,7 @@ int LabelGeometryMeasures( std::vector<std::string> args , std::ostream* out_str
       LabelGeometryMeasures<3>( argc, argv );
       break;
     default:
-      antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      std::cerr << "Unsupported dimension" << std::endl;
+      exit( EXIT_FAILURE );
     }
 }
-
-
-
-} // namespace ants
-
-

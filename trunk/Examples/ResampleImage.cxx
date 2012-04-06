@@ -1,6 +1,3 @@
-
-#include "antscout.hxx"
-
 #include <stdio.h>
 
 #include "itkImage.h"
@@ -19,10 +16,6 @@
 
 #include <string>
 #include <vector>
-
-namespace ants
-{
-
 
 template <class TValue>
 TValue Convert( std::string optionString )
@@ -157,7 +150,7 @@ int ResampleImage( int argc, char *argv[] )
       }
     else
       {
-      antscout << "Invalid spacing." << std::endl;
+      std::cerr << "Invalid spacing." << std::endl;
       }
     for( unsigned int i = 0; i < ImageDimension; i++ )
       {
@@ -181,7 +174,7 @@ int ResampleImage( int argc, char *argv[] )
       }
     else
       {
-      antscout << "Invalid size." << std::endl;
+      std::cerr << "Invalid size." << std::endl;
       }
     for( unsigned int i = 0; i < ImageDimension; i++ )
       {
@@ -288,59 +281,19 @@ int ResampleImage( int argc, char *argv[] )
   return 0;
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int ResampleImage( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main( int argc, char *argv[] )
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "ResampleImage" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
-
   if( argc < 5 )
     {
-    antscout << "Usage: " << argv[0] << " imageDimension inputImage "
+    std::cout << "Usage: " << argv[0] << " imageDimension inputImage "
               << "outputImage MxNxO [size=1,spacing=0] [interpolate type]" << std::endl;
-    antscout << "  Interpolation type: " << std::endl;
-    antscout << "    0. linear (default)" << std::endl;
-    antscout << "    1. nn " << std::endl;
-    antscout << "    2. gaussian [sigma=imageSpacing] [alpha=1.0]" << std::endl;
-    antscout << "    3. windowedSinc [type = 'c'osine, 'w'elch, 'b'lackman, 'l'anczos, 'h'amming]" << std::endl;
-    antscout << "    4. B-Spline [order=3]" << std::endl;
-    throw std::exception();
+    std::cout << "  Interpolation type: " << std::endl;
+    std::cout << "    0. linear (default)" << std::endl;
+    std::cout << "    1. nn " << std::endl;
+    std::cout << "    2. gaussian [sigma=imageSpacing] [alpha=1.0]" << std::endl;
+    std::cout << "    3. windowedSinc [type = 'c'osine, 'w'elch, 'b'lackman, 'l'anczos, 'h'amming]" << std::endl;
+    std::cout << "    4. B-Spline [order=3]" << std::endl;
+    exit( 1 );
     }
 
   switch( atoi( argv[1] ) )
@@ -355,13 +308,7 @@ int ResampleImage( std::vector<std::string> args , std::ostream* out_stream = NU
       ResampleImage<4>( argc, argv );
       break;
     default:
-      antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      std::cerr << "Unsupported dimension" << std::endl;
+      exit( EXIT_FAILURE );
     }
 }
-
-
-
-} // namespace ants
-
-

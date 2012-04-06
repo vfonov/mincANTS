@@ -1,6 +1,3 @@
-
-#include "antscout.hxx"
-
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -31,10 +28,6 @@
 #include <algorithm>
 #include <vector>
 
-namespace ants
-{
-
-
 template <class TFilter>
 class CommandIterationUpdate : public itk::Command
 {
@@ -64,9 +57,9 @@ public:
       return;
       }
 
-    antscout << "  Iteration " << filter->GetElapsedIterations()
+    std::cout << "  Iteration " << filter->GetElapsedIterations()
               << " (of " << filter->GetMaximumNumberOfIterations() << "): ";
-    antscout << "posterior probability = "
+    std::cout << "posterior probability = "
               << filter->GetCurrentPosteriorProbability();
 
     typedef typename TFilter::RealType RealType;
@@ -78,7 +71,7 @@ public:
     annealingTemperature = vnl_math_max( annealingTemperature,
                                          filter->GetMinimumAnnealingTemperature() );
 
-    antscout << " (annealing temperature = "
+    std::cout << " (annealing temperature = "
               << annealingTemperature << ")" << std::endl;
   }
 
@@ -131,8 +124,8 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
   if( initializationOption
       && initializationOption->GetNumberOfParameters() < 1 )
     {
-    antscout << "Incorrect initialization option specification." << std::endl;
-    antscout << "   " << initializationOption->GetDescription() << std::endl;
+    std::cerr << "Incorrect initialization option specification." << std::endl;
+    std::cerr << "   " << initializationOption->GetDescription() << std::endl;
     return EXIT_FAILURE;
     }
   else
@@ -159,7 +152,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
             initializationOption->GetParameter( 1 ) );
         if( clusterCenters.size() != segmenter->GetNumberOfTissueClasses() )
           {
-          antscout << "The cluster center vector size does not equal the "
+          std::cerr << "The cluster center vector size does not equal the "
                     << "specified number of classes." << std::endl;
           return EXIT_FAILURE;
           }
@@ -182,9 +175,9 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
         SegmentationFilterType::PriorProbabilityImages );
       if( initializationOption->GetNumberOfParameters() < 3 )
         {
-        antscout << "Incorrect initialization option specification."
+        std::cerr << "Incorrect initialization option specification."
                   << std::endl;
-        antscout << "   " << initializationOption->GetDescription()
+        std::cerr << "   " << initializationOption->GetDescription()
                   << std::endl;
         return EXIT_FAILURE;
         }
@@ -228,7 +221,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
         if(  reader->GetOutput()->GetNumberOfComponentsPerPixel()
              != segmenter->GetNumberOfTissueClasses() )
           {
-          antscout << "The number of components does not match the number of "
+          std::cerr << "The number of components does not match the number of "
                     << "classes." << std::endl;
           return EXIT_FAILURE;
           }
@@ -257,8 +250,8 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
 
       if( initializationOption->GetNumberOfParameters() < 3 )
         {
-        antscout << "Incorrect initialization option specification." << std::endl;
-        antscout << "   " << initializationOption->GetDescription() << std::endl;
+        std::cerr << "Incorrect initialization option specification." << std::endl;
+        std::cerr << "   " << initializationOption->GetDescription() << std::endl;
         return EXIT_FAILURE;
         }
       segmenter->SetPriorProbabilityWeight( parser->Convert<float>(
@@ -274,7 +267,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
       }
     else
       {
-      antscout << "Unrecognized initialization strategy request." << std::endl;
+      std::cerr << "Unrecognized initialization strategy request." << std::endl;
       return EXIT_FAILURE;
       }
     }
@@ -298,7 +291,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
           parser->Convert<RealType>( posteriorOption->GetParameter( 1 ) );
         if( annealingTemperature <= 0.0 )
           {
-          antscout << "Annealing temperature must be positive." << std::endl;
+          std::cerr << "Annealing temperature must be positive." << std::endl;
           return EXIT_FAILURE;
           }
         }
@@ -311,7 +304,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
           parser->Convert<RealType>( posteriorOption->GetParameter( 2 ) );
         if( annealingRate < 0.0 || annealingRate > 1.0 )
           {
-          antscout << "Annealing rate must be in the range [0, 1]." << std::endl;
+          std::cerr << "Annealing rate must be in the range [0, 1]." << std::endl;
           return EXIT_FAILURE;
           }
         }
@@ -394,15 +387,15 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
           {
           if( ItM.Get() == segmenter->GetMaskLabel() && ItP.Get() == 0 )
             {
-            antscout << std::endl;
-            antscout << "Warning: the labels in the the prior label image do "
+            std::cout << std::endl;
+            std::cout << "Warning: the labels in the the prior label image do "
                       << "not encompass the entire mask region.  As a result each unlabeled voxel will be "
                       << "initially assigned a random label.  The user might want to consider "
                       << "various alternative strategies like assigning an additional "
                       << "\"background\" label to the unlabeled voxels or propagating "
                       << "the labels within the mask region."
                       << std::endl;
-            antscout << std::endl;
+            std::cout << std::endl;
             break;
             }
           }
@@ -424,8 +417,8 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
               }
             if( sumPriorProbability < segmenter->GetProbabilityThreshold() )
               {
-              antscout << std::endl;
-              antscout << "Warning: the sum of the priors from the the prior probability images are "
+              std::cout << std::endl;
+              std::cout << "Warning: the sum of the priors from the the prior probability images are "
                         << "less than the probability threshold within the mask region.  As a result "
                         << "each zero probability voxel will be "
                         << "initially assigned a random label.  The user might want to consider "
@@ -433,7 +426,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
                         << "\"background\" label to the zero probability voxels or propagating "
                         << "the probabilities within the mask region."
                         << std::endl;
-              antscout << std::endl;
+              std::cout << std::endl;
               break;
               }
             }
@@ -446,7 +439,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    antscout << "An image mask is required.  Specify a mask image"
+    std::cerr << "An image mask is required.  Specify a mask image"
               << " with the -x option." << std::endl;
     return EXIT_FAILURE;
     }
@@ -477,7 +470,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
         }
       else
         {
-        antscout << "Incorrect number of levels" << std::endl;
+        std::cerr << "Incorrect number of levels" << std::endl;
         return EXIT_FAILURE;
         }
       segmenter->SetNumberOfLevels( numberOfFittingLevels );
@@ -505,7 +498,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
         }
       else
         {
-        antscout << "Incorrect mesh resolution" << std::endl;
+        std::cerr << "Incorrect mesh resolution" << std::endl;
         return EXIT_FAILURE;
         }
       segmenter->SetNumberOfControlPoints( numberOfControlPoints );
@@ -621,7 +614,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    antscout << "No input images were specified.  Specify an input image"
+    std::cerr << "No input images were specified.  Specify an input image"
               << " with the -a option." << std::endl;
     return EXIT_FAILURE;
     }
@@ -676,7 +669,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
         }
       else
         {
-        antscout << "MRF radius size needs to be equal to the image dimension."
+        std::cerr << "MRF radius size needs to be equal to the image dimension."
                   << std::endl;
         return EXIT_FAILURE;
         }
@@ -813,9 +806,9 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
       if( segmenter->GetNumberOfIntensityImages() !=
           static_cast<unsigned int>( ImageDimension * ( ImageDimension + 1 ) / 2 ) )
         {
-        antscout << " Expect images in upper triangular order " << std::endl;
-        antscout << " xx xy xz yy yz zz " << std::endl;
-        antscout << "Incorrect number of intensity images specified." << std::endl;
+        std::cerr << " Expect images in upper triangular order " << std::endl;
+        std::cerr << " xx xy xz yy yz zz " << std::endl;
+        std::cerr << "Incorrect number of intensity images specified." << std::endl;
         return EXIT_FAILURE;
         }
       typedef typename SegmentationFilterType::SampleType SampleType;
@@ -864,9 +857,9 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
       if( segmenter->GetNumberOfIntensityImages() !=
           static_cast<unsigned int>( ImageDimension * ( ImageDimension + 1 ) / 2 ) )
         {
-        antscout << " Expect images in upper triangular order " << std::endl;
-        antscout << " xx xy xz yy yz zz " << std::endl;
-        antscout << "Incorrect number of intensity images specified." << std::endl;
+        std::cerr << " Expect images in upper triangular order " << std::endl;
+        std::cerr << " xx xy xz yy yz zz " << std::endl;
+        std::cerr << "Incorrect number of intensity images specified." << std::endl;
         return EXIT_FAILURE;
         }
       typedef typename SegmentationFilterType::SampleType SampleType;
@@ -881,7 +874,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
       }
     else
       {
-      antscout << "Unrecognized likelihood model request." << std::endl;
+      std::cerr << "Unrecognized likelihood model request." << std::endl;
       return EXIT_FAILURE;
       }
     }
@@ -901,7 +894,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
         parser->ConvertVector<LabelType>( pvOption->GetValue( n ) );
       if( labelSet.size() != 2 )
         {
-        antscout << "Error:  Currently Atropos only supports partial "
+        std::cerr << "Error:  Currently Atropos only supports partial "
                   << "volume label sets of size equal to 2." << std::endl;
         return EXIT_FAILURE;
         }
@@ -994,7 +987,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
       }
     else
       {
-      antscout << "Unrecognized outlier handling strategy request." << std::endl;
+      std::cerr << "Unrecognized outlier handling strategy request." << std::endl;
       return EXIT_FAILURE;
       }
     }
@@ -1004,7 +997,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
 
   try
     {
-    antscout << std::endl << "Progress: " << std::endl;
+    std::cout << std::endl << "Progress: " << std::endl;
 
 //    segmenter->DebugOn();
     segmenter->Update();
@@ -1012,7 +1005,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
     }
   catch( itk::ExceptionObject exp )
     {
-    antscout << exp << std::endl;
+    std::cerr << exp << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -1033,7 +1026,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
       }
     }
 
-  antscout << std::endl << "Writing output:" << std::endl;
+  std::cout << std::endl << "Writing output:" << std::endl;
   typename itk::ants::CommandLineParser::OptionType::Pointer outputOption =
     parser->GetOption( "output" );
   if( outputOption && outputOption->GetNumberOfValues() > 0 )
@@ -1067,7 +1060,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
         = fileNamesCreator->GetFileNames();
       for( unsigned int i = 0; i < imageNames.size(); i++ )
         {
-        antscout << "  Writing posterior image (class " << i + 1 << ")"
+        std::cout << "  Writing posterior image (class " << i + 1 << ")"
                   << std::endl;
         typename InputImageType::Pointer probabilityImage
           = segmenter->GetPosteriorProbabilityImage( i + 1 );
@@ -1105,7 +1098,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
         = fileNamesCreator->GetFileNames();
       for( unsigned int i = 0; i < segmenter->GetNumberOfTissueClasses(); i++ )
         {
-        antscout << "  Writing likelihood image (class " << i + 1 << ")"
+        std::cout << "  Writing likelihood image (class " << i + 1 << ")"
                   << std::endl;
         typename InputImageType::Pointer likelihoodImage = segmenter->
           GetLikelihoodImage( i + 1 );
@@ -1132,7 +1125,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
         if( segmenter->GetPriorProbabilityImage( i + 1 ) ||
             segmenter->GetPriorLabelImage() )
           {
-          antscout << "  Writing distance image (class " << i + 1 << ")"
+          std::cout << "  Writing distance image (class " << i + 1 << ")"
                     << std::endl;
 
           typename InputImageType::Pointer distanceImage = segmenter->
@@ -1165,7 +1158,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
           if( segmenter->GetPriorProbabilityImage( i + 1 ) ||
               segmenter->GetPriorLabelImage() )
             {
-            antscout << "  Writing B-spline image (class " << i + 1 << ")"
+            std::cout << "  Writing B-spline image (class " << i + 1 << ")"
                       << std::endl;
 
             typename InputImageType::Pointer bsplineImage = segmenter->
@@ -1182,9 +1175,9 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
       }
     }
 
-  antscout << std::endl;
-  segmenter->Print( std::cout , 2 );
-  antscout << "Elapsed time: " << timer.GetMeanTime() << std::endl;
+  std::cout << std::endl;
+  segmenter->Print( std::cout, 2 );
+  std::cout << "Elapsed time: " << timer.GetMeanTime() << std::endl;
 
   return EXIT_SUCCESS;
 }
@@ -1577,48 +1570,8 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
 
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int Atropos( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main( int argc, char *argv[] )
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "Atropos" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
-
   itk::ants::CommandLineParser::Pointer parser =
     itk::ants::CommandLineParser::New();
 
@@ -1641,14 +1594,14 @@ int Atropos( std::vector<std::string> args , std::ostream* out_stream = NULL )
   if( argc < 2 || parser->Convert<bool>(
         parser->GetOption( "help" )->GetValue() ) )
     {
-    parser->PrintMenu( antscout, 5, false );
-    throw std::exception();
+    parser->PrintMenu( std::cout, 5, false );
+    exit( EXIT_FAILURE );
     }
   else if( parser->GetOption( 'h' ) &&
            parser->Convert<bool>( parser->GetOption( 'h' )->GetValue() ) )
     {
-    parser->PrintMenu( antscout, 5, true );
-    throw std::exception();
+    parser->PrintMenu( std::cout, 5, true );
+    exit( EXIT_FAILURE );
     }
 
   // Get dimensionality
@@ -1680,7 +1633,7 @@ int Atropos( std::vector<std::string> args , std::ostream* out_stream = NULL )
       }
     else
       {
-      antscout << "No input images were specified.  Specify an input image"
+      std::cerr << "No input images were specified.  Specify an input image"
                 << " with the -a option" << std::endl;
       return EXIT_FAILURE;
       }
@@ -1689,7 +1642,7 @@ int Atropos( std::vector<std::string> args , std::ostream* out_stream = NULL )
     dimension = imageIO->GetNumberOfDimensions();
     }
 
-  antscout << std::endl << "Running Atropos for "
+  std::cout << std::endl << "Running Atropos for "
             << dimension << "-dimensional images." << std::endl;
 
   switch( dimension )
@@ -1704,13 +1657,7 @@ int Atropos( std::vector<std::string> args , std::ostream* out_stream = NULL )
       AtroposSegmentation<4>( parser );
       break;
     default:
-      antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      std::cerr << "Unsupported dimension" << std::endl;
+      exit( EXIT_FAILURE );
     }
 }
-
-
-
-} // namespace ants
-
-

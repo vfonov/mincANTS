@@ -1,6 +1,3 @@
-
-#include "antscout.hxx"
-
 #include "antsCommandLineParser.h"
 #include "itkImage.h"
 #include "itkImageFileReader.h"
@@ -20,10 +17,6 @@
 #include <string>
 #include <algorithm>
 #include <vector>
-
-namespace ants
-{
-
 
 template <class TFilter>
 class CommandIterationUpdate : public itk::Command
@@ -55,9 +48,9 @@ public:
       return;
       }
 
-    antscout << "Iteration " << filter->GetElapsedIterations()
+    std::cout << "Iteration " << filter->GetElapsedIterations()
               << " (of " << filter->GetMaximumNumberOfIterations() << "): ";
-    antscout << filter->GetCurrentConvergenceMeasurement()
+    std::cout << filter->GetCurrentConvergenceMeasurement()
               << " (threshold = " << filter->GetConvergenceThreshold()
               << ")" << std::endl;
   }
@@ -230,13 +223,13 @@ int ANTSConformalMapping( itk::ants::CommandLineParser *parser )
       {
       inflate_param = parser->Convert<float>(infOption->GetParameter( 0 ) );
       inflate_iterations = parser->Convert<unsigned int>(infOption->GetParameter( 1 ) );
-      antscout << " you will inflate before flattening with params " << inflate_param << " applied over  "
+      std::cout << " you will inflate before flattening with params " << inflate_param << " applied over  "
                 << inflate_iterations << " iterations. " <<  std::endl;
       }
     else
       {
-      antscout << " wrong params for inflation. ignoring. " << std::endl;
-      antscout << "   " << infOption->GetDescription() << std::endl;
+      std::cerr << " wrong params for inflation. ignoring. " << std::endl;
+      std::cerr << "   " << infOption->GetDescription() << std::endl;
       return EXIT_FAILURE;
       }
     }
@@ -254,8 +247,8 @@ int ANTSConformalMapping( itk::ants::CommandLineParser *parser )
       }
     else
       {
-      antscout << " wrong params for cost weights. " << std::endl;
-      antscout << "   " << costOption->GetDescription() << std::endl;
+      std::cerr << " wrong params for cost weights. " << std::endl;
+      std::cerr << "   " << costOption->GetDescription() << std::endl;
       return EXIT_FAILURE;
       }
     }
@@ -266,7 +259,7 @@ int ANTSConformalMapping( itk::ants::CommandLineParser *parser )
     if( displayOption->GetNumberOfParameters() > 0 )
       {
       std::string dispm = displayOption->GetParameter( 0 );
-      antscout << " render " << dispm << std::endl;
+      std::cout << " render " << dispm << std::endl;
       // read the vtk file ...
       vtkPolyDataReader *fltReader = vtkPolyDataReader::New();
       fltReader->SetFileName(dispm.c_str() );
@@ -324,10 +317,10 @@ int ANTSConformalMapping( itk::ants::CommandLineParser *parser )
     vtkDataArray* labels = labelmesh->GetPointData()->GetArray("Label");
     if( !labels )
       {
-      antscout << "  Cannot find vtk Array named 'Label' in " << innm << std::endl;
-      antscout << "  This could cause problems " << std::endl;
-      //      antscout <<" exiting " << std::endl;
-      // throw std::exception();
+      std::cout << "  Cannot find vtk Array named 'Label' in " << innm << std::endl;
+      std::cout << "  This could cause problems " << std::endl;
+      //      std::cout <<" exiting " << std::endl;
+      // exit(1);
       }
     innm = inOption->GetParameter( 1 );
     vtkSmartPointer<vtkPolyDataReader> fltReader = vtkSmartPointer<vtkPolyDataReader>::New();
@@ -337,8 +330,8 @@ int ANTSConformalMapping( itk::ants::CommandLineParser *parser )
     vtkDataArray* feats = featuremesh->GetPointData()->GetArray("Feature");
     if( !feats )
       {
-      antscout << "  Cannot find vtk Array named 'Feature' in " << innm << std::endl;
-      antscout << " continuing " << std::endl;
+      std::cout << "  Cannot find vtk Array named 'Feature' in " << innm << std::endl;
+      std::cout << " continuing " << std::endl;
       }
 
     /** inflation */
@@ -357,7 +350,7 @@ int ANTSConformalMapping( itk::ants::CommandLineParser *parser )
       smoother->NormalizeCoordinatesOff();
       smoother->Update();
       inflatedmesh = vtkSmartPointer<vtkPolyData>(smoother->GetOutput() );
-      antscout << " done smoothing " << std::endl;
+      std::cout << " done smoothing " << std::endl;
       flattener->SetSurfaceMesh(inflatedmesh);
       if( outputOption->GetNumberOfParameters() > 0 )
         {
@@ -368,7 +361,7 @@ int ANTSConformalMapping( itk::ants::CommandLineParser *parser )
             vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
             writer->SetInput(inflatedmesh);
             std::string outnm = outputOption->GetParameter( 2 );
-            antscout << " writing " << outnm << std::endl;
+            std::cout << " writing " << outnm << std::endl;
             writer->SetFileName(outnm.c_str() );
             writer->SetFileTypeToBinary();
             writer->Update();
@@ -391,7 +384,7 @@ int ANTSConformalMapping( itk::ants::CommandLineParser *parser )
   flattener->SetLabelToFlatten(labeltoflatten);
   std::string canonicaldomain = parser->GetOption( "canonical-domain" )->GetValue();
   //    canonicaldomain=ConvertToLowerCase( canonicaldomain );
-  antscout << " you will map label " << labeltoflatten << " to a " << canonicaldomain << std::endl;
+  std::cout << " you will map label " << labeltoflatten << " to a " << canonicaldomain << std::endl;
   if( canonicaldomain == std::string("circle") )
     {
     flattener->SetMapToCircle();
@@ -402,7 +395,7 @@ int ANTSConformalMapping( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    antscout << " that domain is not an option -- exiting. " << std::endl;
+    std::cout << " that domain is not an option -- exiting. " << std::endl;
     return 1;
     }
 
@@ -410,15 +403,15 @@ int ANTSConformalMapping( itk::ants::CommandLineParser *parser )
   // do stuff -- but not implemented yet
   //   flattener->SetDiscBoundaryList(NULL);
 
-  antscout << " you will flatten " << labeltoflatten << ".  param while searching? " << paramws << std::endl;
+  std::cout << " you will flatten " << labeltoflatten << ".  param while searching? " << paramws << std::endl;
   flattener->SetSigma(1);
 
   flattener->SetMaxCost(maxCost);
   flattener->SetDistanceCostWeight(distCostW);
   flattener->SetLabelCostWeight(labelCostW);
-  antscout << " MC " << maxCost << " DW " << distCostW << " LW " << labelCostW << std::endl;
+  std::cout << " MC " << maxCost << " DW " << distCostW << " LW " << labelCostW << std::endl;
   flattener->ExtractSurfaceDisc();
-  antscout << " begin conformal mapping ";
+  std::cout << " begin conformal mapping ";
   flattener->ConformalMap();
 
   /**
@@ -435,7 +428,7 @@ int ANTSConformalMapping( itk::ants::CommandLineParser *parser )
           vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
           writer->SetInput(flattener->m_DiskSurfaceMesh);
           std::string outnm = outputOption->GetParameter( p );
-          antscout << " writing " << outnm << std::endl;
+          std::cout << " writing " << outnm << std::endl;
           writer->SetFileName(outnm.c_str() );
           writer->SetFileTypeToBinary();
           if( flattener->m_DiskSurfaceMesh )
@@ -448,7 +441,7 @@ int ANTSConformalMapping( itk::ants::CommandLineParser *parser )
           vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
           writer->SetInput(flattener->m_ExtractedSurfaceMesh);
           std::string outnm = outputOption->GetParameter( 1 );
-          antscout << " writing " << outnm << std::endl;
+          std::cout << " writing " << outnm << std::endl;
           writer->SetFileName(outnm.c_str() );
           writer->SetFileTypeToBinary();
           if( flattener->m_ExtractedSurfaceMesh )
@@ -461,7 +454,7 @@ int ANTSConformalMapping( itk::ants::CommandLineParser *parser )
           vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
           writer->SetInput(inflatedmesh);
           std::string outnm = outputOption->GetParameter( 2 );
-          antscout << " writing " << outnm << std::endl;
+          std::cout << " writing " << outnm << std::endl;
           writer->SetFileName(outnm.c_str() );
           writer->SetFileTypeToBinary();
           writer->Update();
@@ -474,54 +467,14 @@ int ANTSConformalMapping( itk::ants::CommandLineParser *parser )
 
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int ANTSConformalMapping( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main( int argc, char *argv[] )
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "ANTSConformalMapping" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
-
   if( argc < 2 )
     {
-    antscout << "Usage: " << argv[0]
+    std::cout << "Usage: " << argv[0]
               << " args" << std::endl;
-    antscout << " try " << argv[0] << " --help or -h " << std::endl;
-    throw std::exception();
+    std::cout << " try " << argv[0] << " --help or -h " << std::endl;
+    exit( 1 );
     }
 
   itk::ants::CommandLineParser::Pointer parser = itk::ants::CommandLineParser::New();
@@ -541,22 +494,16 @@ int ANTSConformalMapping( std::vector<std::string> args , std::ostream* out_stre
   if( argc < 2 || parser->Convert<bool>(
         parser->GetOption( "help" )->GetValue() ) )
     {
-    parser->PrintMenu( antscout, 5, false );
-    throw std::exception();
+    parser->PrintMenu( std::cout, 5, false );
+    exit( EXIT_FAILURE );
     }
   else if( parser->Convert<bool>(
              parser->GetOption( 'h' )->GetValue() ) )
     {
-    parser->PrintMenu( antscout, 5, true );
-    throw std::exception();
+    parser->PrintMenu( std::cout, 5, true );
+    exit( EXIT_FAILURE );
     }
 
   ANTSConformalMapping<3>( parser );
 
 }
-
-
-
-} // namespace ants
-
-

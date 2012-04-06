@@ -16,9 +16,6 @@
 
 =========================================================================*/
 
-
-#include "antscout.hxx"
-
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -41,15 +38,11 @@
 
 #include <fstream>
 
-namespace ants
-{
-
-
 template <class TImage>
 typename TImage::Pointer
 MultiplyImage(typename TImage::Pointer image1, typename TImage::Pointer image2)
 {
-  antscout << " Multiply " << std::endl;
+  std::cout << " Multiply " << std::endl;
   // Begin Multiply Images
   typedef TImage tImageType;
   //  output will be the speed image for FMM
@@ -73,7 +66,7 @@ typename TImage::Pointer BinaryThreshold(
   typename TImage::PixelType insideval, typename TImage::PixelType outsideval,
   typename TImage::Pointer input )
 {
-  antscout << " Binary Thresh " << std::endl;
+  std::cout << " Binary Thresh " << std::endl;
 
   typedef typename TImage::PixelType PixelType;
   // Begin Threshold Image
@@ -102,7 +95,7 @@ typename TImage::Pointer
 LabelSurface(typename TImage::PixelType foreground,
              typename TImage::PixelType newval, typename TImage::Pointer input)
 {
-  antscout << " Label Surf " << std::endl;
+  std::cout << " Label Surf " << std::endl;
   typedef TImage ImageType;
   enum { ImageDimension = ImageType::ImageDimension };
   typename   ImageType::Pointer     Image = ImageType::New();
@@ -122,7 +115,7 @@ LabelSurface(typename TImage::PixelType foreground,
 
   GHood.GoToBegin();
 
-//  antscout << " foreg " << (int) foreground;
+//  std::cout << " foreg " << (int) foreground;
   while( !GHood.IsAtEnd() )
     {
     typename TImage::PixelType p = GHood.GetCenterPixel();
@@ -167,7 +160,7 @@ DanielssonDistanceMap(
   typename TImage::PixelType pixhi,
   typename TImage::Pointer input)
 {
-  antscout << " DDMap " << std::endl;
+  std::cout << " DDMap " << std::endl;
 
   typedef TImage ImageType;
 
@@ -193,7 +186,7 @@ template <class TImage>
 typename TImage::Pointer OtsuThreshold(
   int NumberOfThresholds, typename TImage::Pointer input)
 {
-  antscout << " Otsu Thresh with " << NumberOfThresholds << " thresholds" << std::endl;
+  std::cout << " Otsu Thresh with " << NumberOfThresholds << " thresholds" << std::endl;
 
   typedef typename TImage::PixelType PixelType;
   // Begin Threshold Image
@@ -237,8 +230,8 @@ int ThresholdImage( int argc, char * argv[] )
     }
   catch( itk::ExceptionObject & excp )
     {
-    antscout << "Exception thrown " << std::endl;
-    antscout << excp << std::endl;
+    std::cerr << "Exception thrown " << std::endl;
+    std::cerr << excp << std::endl;
     return EXIT_FAILURE;
     }
   // Label the surface of the image
@@ -269,56 +262,17 @@ int ThresholdImage( int argc, char * argv[] )
   return EXIT_SUCCESS;
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int ThresholdImage( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main( int argc, char * argv[] )
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "ThresholdImage" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
 
   if( argc < 3 )
     {
-    antscout << "Usage: " << argv[0];
-    antscout << "   ImageDimension ImageIn.ext outImage.ext  threshlo threshhi <insideValue> <outsideValue>"
+    std::cerr << "Usage: " << argv[0];
+    std::cerr << "   ImageDimension ImageIn.ext outImage.ext  threshlo threshhi <insideValue> <outsideValue>"
               << std::endl;
-    antscout << "   ImageDimension ImageIn.ext outImage.ext  Otsu NumberofThresholds " << std::endl;
+    std::cerr << "   ImageDimension ImageIn.ext outImage.ext  Otsu NumberofThresholds " << std::endl;
 
-    antscout << " Inclusive thresholds " << std::endl;
+    std::cout << " Inclusive thresholds " << std::endl;
     return 1;
     }
 
@@ -336,16 +290,10 @@ int ThresholdImage( std::vector<std::string> args , std::ostream* out_stream = N
       ThresholdImage<4>(argc, argv);
       break;
     default:
-      antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      std::cerr << "Unsupported dimension" << std::endl;
+      exit( EXIT_FAILURE );
     }
 
   return 0;
 
 }
-
-
-
-} // namespace ants
-
-

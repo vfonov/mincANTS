@@ -192,7 +192,7 @@ WarpImageWAffineFilter<TInputImage, TOutputImage, TDisplacementField, TTransform
 //    DisplacementFieldPointer fieldPtr = this->GetDisplacementField();
 //    TransformTypePointer aff = this->GetAffineTransform();
 //
-//    // ::ants::antscout << aff << std::endl;
+//    // std::cout << aff << std::endl;
 //
 //    // support progress methods/callbacks
 //    ProgressReporter progress(this, threadId, outputRegionForThread.GetNumberOfPixels());
@@ -344,7 +344,7 @@ WarpImageWAffineFilter<TInputImage, TOutputImage, TDisplacementField, TTransform
       smoother->SetDirection( d );
       smoother->SetNormalizeAcrossScale( false );
 
-//            ::ants::antscout << "scale = " << scale << " => " << "sigma of dim " << d << ": " << sigma << " outsize " <<
+//            std::cout << "scale = " << scale << " => " << "sigma of dim " << d << ": " << sigma << " outsize " <<
 // outputSize <<  std::endl;
 
       smoother->SetSigma( sigma );
@@ -380,7 +380,7 @@ WarpImageWAffineFilter<TInputImage, TOutputImage, TDisplacementField, TTransform
   DisplacementFieldPointer fieldPtr = this->GetDisplacementField();
   TransformTypePointer     aff = this->GetAffineTransform();
 
-  // ::ants::antscout << aff << std::endl;
+  // std::cout << aff << std::endl;
 
   // support progress methods/callbacks
   ProgressReporter progress(this, threadId, outputRegionForThread.GetNumberOfPixels() );
@@ -397,7 +397,7 @@ WarpImageWAffineFilter<TInputImage, TOutputImage, TDisplacementField, TTransform
   PointType        point1, point2, point3;
   DisplacementType displacement;
 
-  ::ants::antscout << "m_TransformOrder: " << m_TransformOrder << std::endl;
+  std::cout << "m_TransformOrder: " << m_TransformOrder << std::endl;
 
   while( !outputIt.IsAtEnd() )
     {

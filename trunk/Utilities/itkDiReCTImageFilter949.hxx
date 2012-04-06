@@ -1008,21 +1008,21 @@ DiReCTImageFilter949<TInputImage, TOutputImage>
 {
   Superclass::PrintSelf( os, indent );
 
-  ::ants::antscout << indent << "Gray matter label = "
+  std::cout << indent << "Gray matter label = "
             << this->m_GrayMatterLabel << std::endl;
-  ::ants::antscout << indent << "White matter label = "
+  std::cout << indent << "White matter label = "
             << this->m_WhiteMatterLabel << std::endl;
-  ::ants::antscout << indent << "Maximum number of iterations = "
+  std::cout << indent << "Maximum number of iterations = "
             << this->m_MaximumNumberOfIterations << std::endl;
-  ::ants::antscout << indent << "Thickness prior estimate = "
+  std::cout << indent << "Thickness prior estimate = "
             << this->m_ThicknessPriorEstimate << std::endl;
-  ::ants::antscout << indent << "Smoothing sigma = "
+  std::cout << indent << "Smoothing sigma = "
             << this->m_SmoothingSigma << std::endl;
-  ::ants::antscout << indent << "Gradient step = "
+  std::cout << indent << "Gradient step = "
             << this->m_GradientStep << std::endl;
-  ::ants::antscout << indent << "Convergence threshold = "
+  std::cout << indent << "Convergence threshold = "
             << this->m_ConvergenceThreshold << std::endl;
-  ::ants::antscout << indent << "Convergence window size = "
+  std::cout << indent << "Convergence window size = "
             << this->m_ConvergenceWindowSize << std::endl;
 }
 

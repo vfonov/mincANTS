@@ -13,9 +13,6 @@ $Revision: 1.8 $
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-
-#include "antscout.hxx"
-
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
@@ -50,10 +47,6 @@ $Revision: 1.8 $
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkLabelStatisticsImageFilter.h"
 
-namespace ants
-{
-
-
 float random_range(float lowest_number, float highest_number)
 {
   float range = highest_number - lowest_number;
@@ -72,8 +65,8 @@ float ComputeGenus(vtkPolyData* pd1)
   vtkIdType    vers = pd1->GetNumberOfPoints();
   int          nfac = pd1->GetNumberOfPolys();
   float        g = 0.5 * (2.0 - vers + nedg - nfac);
-  antscout << " Genus " << g << std::endl;
-  antscout << " face " << nfac << " edg " << nedg <<  " vert " << vers << std::endl;
+  std::cout << " Genus " << g << std::endl;
+  std::cout << " face " << nfac << " edg " << nedg <<  " vert " << vers << std::endl;
 
   // edg1->Delete(); //caused malloc err
   edgeex->Delete();   // should be deleted b/c of New() above !!
@@ -105,9 +98,9 @@ float GetImageTopology(typename TImage::Pointer image)
   fltMesh->SetSmoothingIterations(0);
   fltMesh->Update();
   vtkPolyData* vtkmesh = fltMesh->GetMesh();
-  antscout << " start topo " << std::endl;
+  std::cout << " start topo " << std::endl;
   float genus =  vtkComputeTopology(vtkmesh);
-  antscout << " Genus " << genus << std::endl;
+  std::cout << " Genus " << genus << std::endl;
   //  vtkmesh->Delete();
   return genus;
 }
@@ -222,7 +215,7 @@ GetLargestComponent(typename TImage::Pointer image)
     }
   relabel->SetInput( filter->GetOutput() );
   unsigned int minSize = 50;
-  antscout << " min Size " << minSize << std::endl;
+  std::cout << " min Size " << minSize << std::endl;
   relabel->SetMinimumObjectSize( minSize );
   //    relabel->SetUseHistograms(true);
 
@@ -232,8 +225,8 @@ GetLargestComponent(typename TImage::Pointer image)
     }
   catch( itk::ExceptionObject & excep )
     {
-    antscout << "Relabel: exception caught !" << std::endl;
-    antscout << excep << std::endl;
+    std::cerr << "Relabel: exception caught !" << std::endl;
+    std::cerr << excep << std::endl;
     }
 
   typename TImage::Pointer Clusters = TImage::New();  // typename TImage::Pointer Clusters=relabel->GetOutput();
@@ -294,7 +287,7 @@ GetLargestComponent(typename TImage::Pointer image)
       }
     }
 
-  antscout << " max size " << maximgval << std::endl;
+  std::cout << " max size " << maximgval << std::endl;
   for(  vfIter.GoToBegin(); !vfIter.IsAtEnd(); ++vfIter )
     {
     if( Clusters->GetPixel( vfIter.GetIndex() ) >= maximgval )
@@ -308,7 +301,7 @@ GetLargestComponent(typename TImage::Pointer image)
     }
 
   //  for (int i=0; i<=maximum; i++)
-  //  antscout << " label " << i << " ct is: " << histogram[i] << std::endl;
+  //  std::cout << " label " << i << " ct is: " << histogram[i] << std::endl;
 
   return Clusters;
 
@@ -323,11 +316,11 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input, float r
 
   if( !option )
     {
-    antscout << " eroding the image " << std::endl;
+    std::cout << " eroding the image " << std::endl;
     }
   else
     {
-    antscout << " dilating the image " << std::endl;
+    std::cout << " dilating the image " << std::endl;
     }
   typedef itk::BinaryBallStructuringElement<
     PixelType,
@@ -398,54 +391,15 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input, float r
 
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int CheckTopology( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main(int argc, char *argv[])
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "CheckTopology" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
 
   if( argc < 2 )
     {
-    antscout << "Parameter  missing" << std::endl;
-    antscout << std::endl;
-    antscout << "Usage:" << argv[0] << "  image.nii  {g0image.nii}  {threshold}" << std::endl;
-    antscout
+    std::cout << "Parameter  missing" << std::endl;
+    std::cout << std::endl;
+    std::cout << "Usage:" << argv[0] << "  image.nii  {g0image.nii}  {threshold}" << std::endl;
+    std::cout
     <<
     " If you put an arg for g0image then image will be smoothed and thresholded \n until it has genus zero or the smoothing kernel gets too large "
     << std::endl;
@@ -469,7 +423,7 @@ int CheckTopology( std::vector<std::string> args , std::ostream* out_stream = NU
 
   if( initG < 0 && argc > 2 )
     {
-    antscout <<  "smoothing into a Genus Zero image with thresh " << thresh <<  std::endl;
+    std::cout <<  "smoothing into a Genus Zero image with thresh " << thresh <<  std::endl;
     float              G = 1;
     float              smooth = 1;
     ImageType::Pointer simage;
@@ -482,10 +436,10 @@ int CheckTopology( std::vector<std::string> args , std::ostream* out_stream = NU
       G = GetImageTopology<ImageType>(bigimage);
       smooth = smooth + 1;
       simage = bigimage;
-      antscout << " G " <<  G << " at smoothing " << smooth << std::endl;
+      std::cout << " G " <<  G << " at smoothing " << smooth << std::endl;
       }
 
-    antscout << " Final G " <<  G << " at smoothing " << smooth << std::endl;
+    std::cout << " Final G " <<  G << " at smoothing " << smooth << std::endl;
 
     float        G2 = 0;
     unsigned int mct = 0;
@@ -509,7 +463,7 @@ int CheckTopology( std::vector<std::string> args , std::ostream* out_stream = NU
 
       mct++;
       derr = lasterr - err;
-      antscout << " G2 " <<  G2 << " at morph " << mct << " err " << err << std::endl;
+      std::cout << " G2 " <<  G2 << " at morph " << mct << " err " << err << std::endl;
       if( G2 == 0 && derr > 0 )
         {
         simage = GetLargestComponent<ImageType>(out);
@@ -527,9 +481,3 @@ int CheckTopology( std::vector<std::string> args , std::ostream* out_stream = NU
   return 0;
 
 }
-
-
-
-} // namespace ants
-
-

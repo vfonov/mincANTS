@@ -1,7 +1,4 @@
 // #include "DoSomethingToImage.cxx"
-
-#include "antscout.hxx"
-
 #include "itkVectorIndexSelectionCastImageFilter.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include "vnl/algo/vnl_determinant.h"
@@ -33,10 +30,6 @@
 #include "itkCentralDifferenceImageFunction.h"
 #include "itkSurfaceCurvatureBase.h"
 #include "itkSurfaceImageCurvature.h"
-
-namespace ants
-{
-
 
 template <class TField, class TImage>
 typename TImage::Pointer
@@ -73,7 +66,7 @@ typename TImage::Pointer BinaryThreshold(
   typename TImage::PixelType high,
   typename TImage::PixelType replaceval, typename TImage::Pointer input)
 {
-  // antscout << " Binary Thresh " << std::endl;
+  // std::cout << " Binary Thresh " << std::endl;
 
   typedef typename TImage::PixelType PixelType;
   // Begin Threshold Image
@@ -108,7 +101,7 @@ MaurerDistanceMap(
   typename TImage::PixelType pixhi,
   typename TImage::Pointer input)
 {
-  // antscout << " DDMap " << std::endl;
+  // std::cout << " DDMap " << std::endl;
 
   typedef TImage ImageType;
 
@@ -219,7 +212,7 @@ typename TImage::Pointer
 LabelSurface(typename TImage::PixelType foreground,
              typename TImage::PixelType newval, typename TImage::Pointer input, double distthresh )
 {
-  antscout << " Label Surf " << std::endl;
+  std::cout << " Label Surf " << std::endl;
   typedef TImage ImageType;
   enum { ImageDimension = ImageType::ImageDimension };
   typename   ImageType::Pointer     Image = ImageType::New();
@@ -240,7 +233,7 @@ LabelSurface(typename TImage::PixelType foreground,
 
   GHood.GoToBegin();
 
-//  antscout << " foreg " << (int) foreground;
+//  std::cout << " foreg " << (int) foreground;
   while( !GHood.IsAtEnd() )
     {
     typename TImage::PixelType p = GHood.GetCenterPixel();
@@ -287,11 +280,11 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input, double 
 
   if( !option )
     {
-    antscout << " eroding the image " << std::endl;
+    std::cout << " eroding the image " << std::endl;
     }
   else
     {
-    antscout << " dilating the image " << std::endl;
+    std::cout << " dilating the image " << std::endl;
     }
   typedef itk::BinaryBallStructuringElement<
     PixelType,
@@ -692,7 +685,7 @@ InvertField( typename TField::Pointer field,
     inverseFieldIN->SetPixel(index, inverseField->GetPixel(index) );
     }
 
-  //    antscout <<" difmag " << difmag << ": its " << ct <<  " len " << m_MFR->MeasureDeformation(inverseField ) <<
+  //    std::cout <<" difmag " << difmag << ": its " << ct <<  " len " << m_MFR->MeasureDeformation(inverseField ) <<
   // std::endl;
 
   return;
@@ -747,7 +740,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   //   useEuclidean = atoi(argv[argct]);
   //   }
   argct++;
-  antscout << " smooth " << smoothingsigma << " thp " << thickprior << " gs " << gradstep << std::endl;
+  std::cout << " smooth " << smoothingsigma << " thp " << thickprior << " gs " << gradstep << std::endl;
   typedef RealType                                                      PixelType;
   typedef itk::Vector<RealType, ImageDimension>                         VectorType;
   typedef itk::Image<VectorType, ImageDimension>                        DisplacementFieldType;
@@ -768,7 +761,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
   typename ImageType::DirectionType omat = wm->GetDirection();
   typename ImageType::DirectionType fmat = wm->GetDirection();
   fmat.SetIdentity();
-  antscout << " Setting Identity Direction  " << fmat << std::endl;
+  std::cout << " Setting Identity Direction  " << fmat << std::endl;
   wm->SetDirection(fmat);
   typename ImageType::Pointer totalimage;
   ReadImage<ImageType>(totalimage, wfn.c_str() );
@@ -899,7 +892,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
     }
 
   //  m_MFR->SmoothDisplacementFieldGauss(lapgrad,1.7);
-  antscout << " Scaling done " << std::endl;
+  std::cout << " Scaling done " << std::endl;
 
   typename ImageType::Pointer thickimage = laplacian;
   VectorType disp;
@@ -922,7 +915,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
     its++;
     if( totalerr > lasterr )
       {
-      badct++; antscout << " badct " << badct << std::endl;
+      badct++; std::cout << " badct " << badct << std::endl;
       }
     else
       {
@@ -963,14 +956,14 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 
       if( debug )
         {
-        antscout << " exp " << std::endl;
+        std::cout << " exp " << std::endl;
         }
       // Integrate the negative velocity field to generate diffeomorphism corrfield step 3(a)
       //      corrfield=ExpDiffMap<ImageType,DisplacementFieldType>( velofield,  wm, -1, numtimepoints-ttiter);
-      //      antscout  << " corrf len " << m_MFR->MeasureDeformation( corrfield ) << std::endl;
+      //      std::cout  << " corrf len " << m_MFR->MeasureDeformation( corrfield ) << std::endl;
       if( debug )
         {
-        antscout << " gmdef " << std::endl;
+        std::cout << " gmdef " << std::endl;
         }
       typename ImageType::Pointer gmdef = gm; // m_MFR->WarpImageBackward(gm,corrfield);
       totalerr = 0;
@@ -978,12 +971,12 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
       typename ImageType::Pointer surfdef = m_MFR->WarpImageBackward(wm, invfield);
       if( debug )
         {
-        antscout << " thkdef " << std::endl;
+        std::cout << " thkdef " << std::endl;
         }
       typename ImageType::Pointer thkdef = m_MFR->WarpImageBackward(thickimage, invfield);
       if( debug )
         {
-        antscout << " thindef " << std::endl;
+        std::cout << " thindef " << std::endl;
         }
       typename ImageType::Pointer thindef = m_MFR->WarpImageBackward(bsurf, invfield);
       if( spatprior )
@@ -1088,7 +1081,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
           }
         }
       /* Now that we have the gradient image, we need to visit each voxel and compute objective function */
-      //      antscout << " maxlapgrad2mag " << maxlapgrad2mag << std::endl;
+      //      std::cout << " maxlapgrad2mag " << maxlapgrad2mag << std::endl;
       Iterator.GoToBegin();
       while(  !Iterator.IsAtEnd()  )
         {
@@ -1188,7 +1181,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
         }
       if( thkval > 10 )
         {
-        antscout << "thkval " << thkval << " hitval " << hitval << " total " << totalimage->GetPixel(velind)
+        std::cout << "thkval " << thkval << " hitval " << hitval << " total " << totalimage->GetPixel(velind)
                   << std::endl;
         }
       if( thkval < 0 )
@@ -1216,7 +1209,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 
     if( debug )
       {
-      antscout << " now smooth " << std::endl;
+      std::cout << " now smooth " << std::endl;
       }
     m_MFR->SmoothDisplacementFieldGauss(velofield, smoothingsigma);
     WriteImage<DisplacementFieldType>(corrfield, "corrfield.nii.gz");
@@ -1235,7 +1228,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
       {
       thickerrct = 1;
       }
-    antscout << " error " << totalerr << " at it " << its  << " th-err " << thicknesserror / (RealType)thickerrct
+    std::cout << " error " << totalerr << " at it " << its  << " th-err " << thicknesserror / (RealType)thickerrct
               << " max thick " << maxth << std::endl;
 //    std::string sulcthickname =outname + "sulcthick.nii";
     //    if (ImageDimension==2) WriteJpg<ImageType>(finalthickimage,"thick.jpg");
@@ -1243,7 +1236,7 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
     // WriteDisplacementField<DisplacementFieldType>(velofield,velofieldname.c_str());
     if( debug )
       {
-      antscout << "outside it " << its << std::endl;
+      std::cout << "outside it " << its << std::endl;
       }
     // std::cin.get();
 
@@ -1278,63 +1271,24 @@ int LaplacianThicknessExpDiff2(int argc, char *argv[])
 
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int KellySlater( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main(int argc, char *argv[])
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "KellySlater" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
 
   if( argc < 6 )
     {
-    antscout << "Usage:   " << argv[0]
+    std::cout << "Usage:   " << argv[0]
               <<
     " ImageDimension Segmentation.nii.gz WMProb.nii.gz GMProb.nii.gz   Out.nii {GradStep-1-2D,2-3D}   {#Its-~50}  {ThickPriorValue-6} {Bool-use-curvature-prior} {smoothing} {BoolUseEuclidean?}"
               << std::endl;
-    antscout << " this is a kind of binary image registration thing with diffeomorphisms " << std::endl;
-    antscout
+    std::cout << " this is a kind of binary image registration thing with diffeomorphisms " << std::endl;
+    std::cout
     << " Segmentation.nii.gz -- should contain the value 3 where WM exists and the value 2 where GM exists "
     << std::endl;
     return 1;
     }
 
   unsigned int dim = atoi(argv[1]);
-  antscout << " dim " << dim << std::endl;
+  std::cout << " dim " << dim << std::endl;
 
   switch( dim )
     {
@@ -1345,15 +1299,9 @@ int KellySlater( std::vector<std::string> args , std::ostream* out_stream = NULL
       LaplacianThicknessExpDiff2<3>(argc, argv);
       break;
     default:
-      antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      std::cerr << "Unsupported dimension" << std::endl;
+      exit( EXIT_FAILURE );
     }
 
   return EXIT_SUCCESS;
 }
-
-
-
-} // namespace ants
-
-

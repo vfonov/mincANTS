@@ -1,14 +1,7 @@
-
-#include "antscout.hxx"
-
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkImageRegionIteratorWithIndex.h"
-
-namespace ants
-{
-
 
 /* See usage output below */
 
@@ -52,8 +45,8 @@ void CreateDisplacementField( int argc, char *argv[] )
     componentImage = reader->GetOutput();
     if( componentImage->GetLargestPossibleRegion() != regionOfFirstComponent )
       {
-      antscout << "LargestPossibleRegion of component " << n << " does not match 1st component image." << std::endl;
-      throw std::exception();
+      std::cerr << "LargestPossibleRegion of component " << n << " does not match 1st component image." << std::endl;
+      exit( 1 );
       }
     // Walk the images
     comIt.GoToBegin();
@@ -108,85 +101,45 @@ void CreateDisplacementField( int argc, char *argv[] )
   typename VectorImageType::IndexType index;
   index[0] = col;
   index[1] = 0;
-  antscout << "Debug output of field: " << std::endl;
-  antscout << "Middle column: " << std::endl;
+  std::cout << "Debug output of field: " << std::endl;
+  std::cout << "Middle column: " << std::endl;
   while( it.GetIndex()[1] < row * 2 )
     {
     it.SetIndex( index );
-    antscout << it.Get() << " ";
+    std::cout << it.Get() << " ";
     index[1]++;
 
     }
 
-  antscout << std::endl;
+  std::cout << std::endl;
 
   index[0] = 0;
   index[1] = row;
-  antscout << "Middle row: " << std::endl;
+  std::cout << "Middle row: " << std::endl;
   while( it.GetIndex()[0] < col * 2 )
     {
     it.SetIndex( index );
-    antscout << it.Get() << " ";
+    std::cout << it.Get() << " ";
     index[0]++;
     }
 
-  antscout << std::endl;
+  std::cout << std::endl;
 #endif   // debug
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int CreateDisplacementField( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main(int argc, char *argv[])
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "CreateDisplacementField" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
-
   if( argc < 4 )
     {
-    antscout
+    std::cout
     <<
     "Create an itkImage of itkVector pixels (NOT an itkVectorImage), using each scalar input component image for each vector component. An itkImage of itkVectors is the standard type for displacement fields in ITK. All component images (up to 8) are assumed to have the same size, offset, origin, and spacing. The 'EnforceZeroBoundaryFlag' option will create zero-valued vectors along the borders when enabled (pass 1), and is recommended for better displacement field behavior."
     << std::endl;
-    antscout << "Usage: " << argv[0]
+    std::cout << "Usage: " << argv[0]
               <<
     " ImageDimension EnforceZeroBoundaryFlag{0/1} ComponentImage1 [ ComponentImage2 [...ComponentImageN] ] OutputImage "
               << std::endl;
-    throw std::exception();
+    exit( 1 );
     }
   itk::SizeValueType imageDimension = atoi( argv[1] );
 
@@ -223,8 +176,8 @@ int CreateDisplacementField( std::vector<std::string> args , std::ostream* out_s
           CreateDisplacementField<2, 8>( argc, argv );
           break;
         default:
-          antscout << "Unsupported number of components: " << numberOfComponents << std::endl;
-          throw std::exception();
+          std::cerr << "Unsupported number of components: " << numberOfComponents << std::endl;
+          exit( 1 );
         }
       break;
     case 3:
@@ -256,18 +209,12 @@ int CreateDisplacementField( std::vector<std::string> args , std::ostream* out_s
           CreateDisplacementField<3, 8>( argc, argv );
           break;
         default:
-          antscout << "Unsupported number of components: " << numberOfComponents << std::endl;
-          throw std::exception();
+          std::cerr << "Unsupported number of components: " << numberOfComponents << std::endl;
+          exit( 1 );
         }
       break;
     default:
-      antscout << "Unsupported number of dimensions: " << imageDimension << std::endl;
-      throw std::exception();
+      std::cerr << "Unsupported number of dimensions: " << imageDimension << std::endl;
+      exit( 1 );
     }
 }
-
-
-
-} // namespace ants
-
-

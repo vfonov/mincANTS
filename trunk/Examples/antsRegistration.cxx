@@ -16,17 +16,11 @@
 *
 *=========================================================================*/
 
-#include "antscout.hxx"
-
 #include <iostream>
 #include "antsCommandLineParser.h"
 #include "itkantsRegistrationHelper.h"
 #include "itkantsReadWriteTransform.h"
 #include "itkImageFileWriter.h"
-
-namespace ants
-{
-
 
 typedef itk::ants::CommandLineParser ParserType;
 typedef ParserType::OptionType       OptionType;
@@ -380,7 +374,7 @@ AddInitialTransform(typename itk::ants::RegistrationHelper<VImageDimension>::Com
       dynamic_cast<TransformType *>(initialTransform->GetInverseTransform().GetPointer() );
     if( initialTransform.IsNull() )
       {
-      antscout << "Inverse does not exist for " << filename
+      std::cerr << "Inverse does not exist for " << filename
                 << std::endl;
       return EXIT_FAILURE;
       }
@@ -416,7 +410,7 @@ DoRegistration(typename ParserType::Pointer & parser)
 
   if( !outputOption )
     {
-    antscout << "Output option not specified." << std::endl;
+    std::cerr << "Output option not specified." << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -464,7 +458,7 @@ DoRegistration(typename ParserType::Pointer & parser)
 
       if( AddInitialTransform<VImageDimension>(compositeTransform,initialMovingTransformName, useInverse) != EXIT_SUCCESS)
         {
-        antscout << "Can't read initial moving transform " << initialMovingTransformName << std::endl;
+        std::cerr << "Can't read initial moving transform " << initialMovingTransformName << std::endl;
         return EXIT_FAILURE;
         }
       }
@@ -498,7 +492,7 @@ DoRegistration(typename ParserType::Pointer & parser)
 
       if( AddInitialTransform<VImageDimension>(compositeTransform,initialFixedTransformName, useInverse) != EXIT_SUCCESS)
         {
-        antscout << "Can't read initial fixed transform " << initialFixedTransformName << std::endl;
+        std::cerr << "Can't read initial fixed transform " << initialFixedTransformName << std::endl;
         return EXIT_FAILURE;
         }
       }
@@ -525,9 +519,9 @@ DoRegistration(typename ParserType::Pointer & parser)
         }
       catch( itk::ExceptionObject & err )
         {
-        antscout << "Can't read specified mask image " << fname.c_str() << std::endl;
-        antscout << "Exception Object caught: " << std::endl;
-        antscout << err << std::endl;
+        std::cerr << "Can't read specified mask image " << fname.c_str() << std::endl;
+        std::cerr << "Exception Object caught: " << std::endl;
+        std::cerr << err << std::endl;
         return EXIT_FAILURE;
         }
       if(m == 0)
@@ -545,7 +539,7 @@ DoRegistration(typename ParserType::Pointer & parser)
 
   if( transformOption.IsNull() || ( numberOfStages = transformOption->GetNumberOfValues() ) == 0 )
     {
-    antscout << "No transformations are specified." << std::endl;
+    std::cerr << "No transformations are specified." << std::endl;
     return EXIT_FAILURE;
     }
   std::vector<std::vector<unsigned int> > iterationList;
@@ -562,8 +556,8 @@ DoRegistration(typename ParserType::Pointer & parser)
 
     std::string fixedImageFileName = metricOption->GetParameter( currentStage, 0 );
     std::string movingImageFileName = metricOption->GetParameter( currentStage, 1 );
-    antscout << "  fixed image: " << fixedImageFileName << std::endl;
-    antscout << "  moving image: " << movingImageFileName << std::endl;
+    std::cout << "  fixed image: " << fixedImageFileName << std::endl;
+    std::cout << "  moving image: " << movingImageFileName << std::endl;
 
     typename ImageType::Pointer fixedImage;
     typename ImageType::Pointer movingImage;
@@ -580,7 +574,7 @@ DoRegistration(typename ParserType::Pointer & parser)
       }
     catch( itk::ExceptionObject & excp )
       {
-      antscout << excp << std::endl;
+      std::cerr << excp << std::endl;
       return EXIT_FAILURE;
       }
     fixedImage->DisconnectPipeline();
@@ -595,7 +589,7 @@ DoRegistration(typename ParserType::Pointer & parser)
       }
     catch( itk::ExceptionObject & excp )
       {
-      antscout << excp << std::endl;
+      std::cerr << excp << std::endl;
       return EXIT_FAILURE;
       }
     movingImage->DisconnectPipeline();
@@ -679,7 +673,7 @@ DoRegistration(typename ParserType::Pointer & parser)
     convergenceWindowSizeList.push_back(convergenceWindowSize);
 
     unsigned int numberOfLevels = iterations.size();
-    antscout << "  number of levels = " << numberOfLevels << std::endl;
+    std::cout << "  number of levels = " << numberOfLevels << std::endl;
 
     // Get shrink factors
 
@@ -755,7 +749,7 @@ DoRegistration(typename ParserType::Pointer & parser)
         }
         break;
       default:
-        antscout << "ERROR: Unrecognized image metric: " << whichMetric << std::endl;
+        std::cerr << "ERROR: Unrecognized image metric: " << whichMetric << std::endl;
         return EXIT_FAILURE;
       }
 
@@ -881,7 +875,7 @@ DoRegistration(typename ParserType::Pointer & parser)
         }
         break;
       default:
-        antscout << "Unknown registration method " << whichTransform << std::endl;
+        std::cerr << "Unknown registration method " << whichTransform << std::endl;
         break;
       }
 
@@ -951,9 +945,9 @@ DoRegistration(typename ParserType::Pointer & parser)
             }
           catch( itk::ExceptionObject & err )
             {
-            antscout << "Can't write transform file " << curInverseFileName.str().c_str() << std::endl;
-            antscout << "Exception Object caught: " << std::endl;
-            antscout << err << std::endl;
+            std::cerr << "Can't write transform file " << curInverseFileName.str().c_str() << std::endl;
+            std::cerr << "Exception Object caught: " << std::endl;
+            std::cerr << err << std::endl;
             }
           }
         }
@@ -981,9 +975,9 @@ DoRegistration(typename ParserType::Pointer & parser)
             }
           catch( itk::ExceptionObject & err )
             {
-            antscout << "Can't write velocity field transform file " << curVelocityFieldFileName.str().c_str() << std::endl;
-            antscout << "Exception Object caught: " << std::endl;
-            antscout << err << std::endl;
+            std::cerr << "Can't write velocity field transform file " << curVelocityFieldFileName.str().c_str() << std::endl;
+            std::cerr << "Exception Object caught: " << std::endl;
+            std::cerr << err << std::endl;
             }
           }
         }
@@ -1003,9 +997,9 @@ DoRegistration(typename ParserType::Pointer & parser)
       }
     catch( itk::ExceptionObject & err )
       {
-      antscout << "Can't write warped image " << outputWarpedImageName << std::endl;
-      antscout << "Exception Object caught: " << std::endl;
-      antscout << err << std::endl;
+      std::cerr << "Can't write warped image " << outputWarpedImageName << std::endl;
+      std::cerr << "Exception Object caught: " << std::endl;
+      std::cerr << err << std::endl;
       }
     }
 
@@ -1023,9 +1017,9 @@ DoRegistration(typename ParserType::Pointer & parser)
         }
       catch( itk::ExceptionObject & err )
         {
-        antscout << "Can't write inverse warped image " << outputInverseWarpedImageName << std::endl;
-        antscout << "Exception Object caught: " << std::endl;
-        antscout << err << std::endl;
+        std::cerr << "Can't write inverse warped image " << outputInverseWarpedImageName << std::endl;
+        std::cerr << "Exception Object caught: " << std::endl;
+        std::cerr << err << std::endl;
         }
       }
     }
@@ -1033,47 +1027,8 @@ DoRegistration(typename ParserType::Pointer & parser)
   return EXIT_SUCCESS;
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int antsRegistration( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main( int argc, char *argv[] )
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "antsRegistration" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
 
   ParserType::Pointer parser = ParserType::New();
 
@@ -1091,12 +1046,12 @@ int antsRegistration( std::vector<std::string> args , std::ostream* out_stream =
 
   if( argc < 2 || parser->Convert<bool>( parser->GetOption( "help" )->GetValue() ) )
     {
-    parser->PrintMenu( antscout, 5, false );
+    parser->PrintMenu( std::cout, 5, false );
     return EXIT_FAILURE;
     }
   else if( parser->Convert<bool>( parser->GetOption( 'h' )->GetValue() ) )
     {
-    parser->PrintMenu( antscout, 5, true );
+    parser->PrintMenu( std::cout, 5, true );
     return EXIT_FAILURE;
     }
   unsigned int dimension = 3;
@@ -1108,7 +1063,7 @@ int antsRegistration( std::vector<std::string> args , std::ostream* out_stream =
     }
   else
     {
-    antscout << "Image dimensionality not specified.  See command line option --dimensionality" << std::endl;
+    std::cerr << "Image dimensionality not specified.  See command line option --dimensionality" << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -1119,11 +1074,8 @@ int antsRegistration( std::vector<std::string> args , std::ostream* out_stream =
     case 3:
       return DoRegistration<3>(parser);
     default:
-      antscout << "bad image dimension " << dimension << std::endl;
+      std::cerr << "bad image dimension " << dimension << std::endl;
       return EXIT_FAILURE;
     }
   return EXIT_SUCCESS;
 }
-
-
-} // namespace ants

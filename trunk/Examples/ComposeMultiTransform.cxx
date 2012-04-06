@@ -1,6 +1,3 @@
-
-#include "antscout.hxx"
-
 #include <vector>
 #include <string>
 #include "itkImageFileReader.h"
@@ -14,10 +11,6 @@
 #include "itkDisplacementFieldFromMultiTransformFilter.h"
 #include "itkTransformFileReader.h"
 #include "itkTransformFileWriter.h"
-
-namespace ants
-{
-
 
 typedef enum
   {
@@ -98,7 +91,7 @@ bool ParseInput(int argc, char * *argv, char *& output_image_filename,
       opt.filename = argv[ind];
       if( CheckFileType(opt.filename) != AFFINE_FILE )
         {
-        antscout << "file: " << opt.filename
+        std::cout << "file: " << opt.filename
                   << " is not an affine .txt file. Invalid to use '-i' "
                   << std::endl;
         return false;
@@ -119,7 +112,7 @@ bool ParseInput(int argc, char * *argv, char *& output_image_filename,
     }
 
 //    if (reference_image_filename == NULL) {
-//        antscout << "the reference image file (-R) must be given!!!"
+//        std::cout << "the reference image file (-R) must be given!!!"
 //        << std::endl;
 //        return false;
 //    }
@@ -132,25 +125,25 @@ void DisplayOptQueue(const TRAN_OPT_QUEUE & opt_queue)
   const int kQueueSize = opt_queue.size();
   for( int i = 0; i < kQueueSize; i++ )
     {
-    antscout << "[" << i << "/" << kQueueSize << "]: ";
+    std::cout << "[" << i << "/" << kQueueSize << "]: ";
 
     switch( opt_queue[i].file_type )
       {
       case AFFINE_FILE:
-        antscout << "AFFINE";
+        std::cout << "AFFINE";
         if( opt_queue[i].do_affine_inv )
           {
-          antscout << "-INV";
+          std::cout << "-INV";
           }
         break;
       case DEFORMATION_FILE:
-        antscout << "FIELD";
+        std::cout << "FIELD";
         break;
       default:
-        antscout << "Invalid Format!!!";
+        std::cout << "Invalid Format!!!";
         break;
       }
-    antscout << ": " << opt_queue[i].filename << std::endl;
+    std::cout << ": " << opt_queue[i].filename << std::endl;
     }
 
 }
@@ -187,7 +180,7 @@ void ComposeMultiTransform(char *output_image_filename,
     }
   else
     {
-    antscout << "the reference image file (-R) must be given!!!"
+    std::cout << "the reference image file (-R) must be given!!!"
               << std::endl;
     return;
     }
@@ -223,7 +216,7 @@ void ComposeMultiTransform(char *output_image_filename,
           {
           aff->GetInverse(aff);
           }
-        // antscout << aff << std::endl;
+        // std::cout << aff << std::endl;
         warper->PushBackAffineTransform(aff);
         break;
         }
@@ -234,12 +227,12 @@ void ComposeMultiTransform(char *output_image_filename,
         field_reader->Update();
         typename DisplacementFieldType::Pointer field =
           field_reader->GetOutput();
-        // antscout << field << std::endl;
+        // std::cout << field << std::endl;
         warper->PushBackDisplacementFieldTransform(field);
         break;
         }
       default:
-        antscout << "Unknown file type!" << std::endl;
+        std::cout << "Unknown file type!" << std::endl;
       }
     }
 
@@ -248,8 +241,8 @@ void ComposeMultiTransform(char *output_image_filename,
   warper->SetOutputOrigin(img_ref->GetOrigin() );
   warper->SetOutputDirection(img_ref->GetDirection() );
 
-  antscout << "output size: " << warper->GetOutputSize() << std::endl;
-  antscout << "output spacing: " << warper->GetOutputSpacing() << std::endl;
+  std::cout << "output size: " << warper->GetOutputSize() << std::endl;
+  std::cout << "output spacing: " << warper->GetOutputSpacing() << std::endl;
 
   // warper->PrintTransformList();
   warper->DetermineFirstDeformNoInterp();
@@ -265,7 +258,7 @@ void ComposeMultiTransform(char *output_image_filename,
                                                  - 1);
   filePrefix = std::string(filePrefix, 0, pos);
 
-  antscout << "output extension is: " << extension << std::endl;
+  std::cout << "output extension is: " << extension << std::endl;
 
   if( extension != std::string(".mha") )
     {
@@ -345,18 +338,18 @@ void ComposeMultiAffine(char *output_affine_txt,
           {
           aff->GetInverse(aff);
           }
-        // antscout << aff << std::endl;
+        // std::cout << aff << std::endl;
         warper->PushBackAffineTransform(aff);
         cnt_affine++;
         break;
         }
       case DEFORMATION_FILE: {
-        antscout << "Compose affine only files: ignore "
+        std::cout << "Compose affine only files: ignore "
                   << opt.filename << std::endl;
         break;
         }
       default:
-        antscout << "Unknown file type!" << std::endl;
+        std::cout << "Unknown file type!" << std::endl;
       }
     }
 
@@ -376,18 +369,18 @@ void ComposeMultiAffine(char *output_affine_txt,
     {
     if( cnt_affine > 0 )
       {
-      antscout << "the reference affine file for center is selected as the first affine!" << std::endl;
+      std::cout << "the reference affine file for center is selected as the first affine!" << std::endl;
       aff_ref_tmp = ( (warper->GetTransformList() ).begin() )->second.aex.aff;
       }
     else
       {
-      antscout << "No affine input is given. nothing to do ......" << std::endl;
+      std::cout << "No affine input is given. nothing to do ......" << std::endl;
       return;
       }
     }
 
   aff_center = aff_ref_tmp->GetCenter();
-  antscout << "new center is : " << aff_center << std::endl;
+  std::cout << "new center is : " << aff_center << std::endl;
 
   // warper->PrintTransformList();
 
@@ -400,78 +393,38 @@ void ComposeMultiAffine(char *output_affine_txt,
   tran_writer->SetInput(aff_output);
   tran_writer->Update();
 
-  antscout << "wrote file to : " << output_affine_txt << std::endl;
+  std::cout << "wrote file to : " << output_affine_txt << std::endl;
 
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int ComposeMultiTransform( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main(int argc, char * *argv)
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "ComposeMultiTransform" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
-
   if( argc <= 3 )
     {
-    antscout
+    std::cout
     << "ComposeMultiTransform ImageDimension output_field [-R reference_image] "
     << "{[deformation_field | [-i] affine_transform_txt ]}"
     << std::endl;
-    antscout << "  Usage has the same form as WarpImageMultiTransform " << std::endl;
-    antscout << " For Example: " << std::endl;
-    antscout << std::endl;
-    antscout <<   argv[0]  << " Dimension  outwarp.nii   -R template.nii   ExistingWarp.nii  ExistingAffine.nii "
+    std::cout << "  Usage has the same form as WarpImageMultiTransform " << std::endl;
+    std::cout << " For Example: " << std::endl;
+    std::cout << std::endl;
+    std::cout <<   argv[0]  << " Dimension  outwarp.nii   -R template.nii   ExistingWarp.nii  ExistingAffine.nii "
               << std::endl;
-    antscout << " or for an inverse mapping : " << std::endl;
-    antscout << argv[0]
+    std::cout << " or for an inverse mapping : " << std::endl;
+    std::cout << argv[0]
               << " Dimension  outwarp.nii   -R template.nii   -i ExistingAffine.nii ExistingInverseWarp.nii "
               << std::endl;
-    antscout << " recalling that the -i option takes the inverse of the affine mapping " << std::endl;
-    antscout << std::endl;
-    antscout << "Or: to compose multiple affine text file into one: "        << std::endl;
-    antscout << "ComposeMultiTransform ImageDimension output_affine_txt [-R reference_affine_txt] "
+    std::cout << " recalling that the -i option takes the inverse of the affine mapping " << std::endl;
+    std::cout << std::endl;
+    std::cout << "Or: to compose multiple affine text file into one: "        << std::endl;
+    std::cout << "ComposeMultiTransform ImageDimension output_affine_txt [-R reference_affine_txt] "
               << "{[-i] affine_transform_txt}" << std::endl
               << "This will be evoked if a text file is given as the second parameter. In this case "
               << "reference_affine_txt is used to define the center of the output affine.  "
               << "The default reference is the first given affine text file. "
               << "This ignores all non-txt files among the following parameters."
               << std::endl;
-    throw std::exception();
+    exit(0);
     }
 
   TRAN_OPT_QUEUE opt_queue;
@@ -494,21 +447,21 @@ int ComposeMultiTransform( std::vector<std::string> args , std::ostream* out_str
 
         if( reference_image_filename == NULL )
           {
-          antscout << "the reference image file (-R) must be given!!!"
+          std::cout << "the reference image file (-R) must be given!!!"
                     << std::endl;
           return false;
           }
 
-        antscout << "output_image_filename: " << output_image_filename
+        std::cout << "output_image_filename: " << output_image_filename
                   << std::endl;
-        antscout << "reference_image_filename: ";
+        std::cout << "reference_image_filename: ";
         if( reference_image_filename )
           {
-          antscout << reference_image_filename << std::endl;
+          std::cout << reference_image_filename << std::endl;
           }
         else
           {
-          antscout << "NULL" << std::endl;
+          std::cout << "NULL" << std::endl;
           }
         DisplayOptQueue(opt_queue);
 
@@ -529,16 +482,16 @@ int ComposeMultiTransform( std::vector<std::string> args , std::ostream* out_str
         }
 
       case AFFINE_FILE: {
-        antscout << "output_affine_txt: " << output_image_filename
+        std::cout << "output_affine_txt: " << output_image_filename
                   << std::endl;
-        antscout << "reference_affine_txt: ";
+        std::cout << "reference_affine_txt: ";
         if( reference_image_filename )
           {
-          antscout << reference_image_filename << std::endl;
+          std::cout << reference_image_filename << std::endl;
           }
         else
           {
-          antscout << "NULL" << std::endl;
+          std::cout << "NULL" << std::endl;
           }
         DisplayOptQueue(opt_queue);
 
@@ -559,7 +512,7 @@ int ComposeMultiTransform( std::vector<std::string> args , std::ostream* out_str
         }
 
       default:
-        antscout << "Unknow output file format: " << output_image_filename << std::endl;
+        std::cout << "Unknow output file format: " << output_image_filename << std::endl;
         break;
 
       }
@@ -567,15 +520,9 @@ int ComposeMultiTransform( std::vector<std::string> args , std::ostream* out_str
     }
   else
     {
-    antscout << "Input error!" << std::endl;
+    std::cout << "Input error!" << std::endl;
     }
 
-  throw std::exception();
+  exit(0);
 
 }
-
-
-
-} // namespace ants
-
-

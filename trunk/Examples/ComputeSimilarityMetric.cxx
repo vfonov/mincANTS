@@ -15,18 +15,11 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-
-#include "antscout.hxx"
-
 #include "ReadWriteImage.h"
 #include "itkDiscreteGaussianImageFilter.h"
 #include "itkAvantsMutualInformationRegistrationFunction.h"
 #include "itkProbabilisticRegistrationFunction.h"
 #include "itkCrossCorrelationRegistrationFunction.h"
-
-namespace ants
-{
-
 // #include "itkLandmarkCrossCorrelationRegistrationFunction.h"
 
 template <unsigned int ImageDimension>
@@ -169,7 +162,7 @@ int ComputeSimilarityMetric(int argc, char *argv[])
     metricvalue = mimet->ComputeMutualInformation();
     metricname = "MI ";
     }
-  antscout << fn1 << " : " << fn2 << " => " <<  metricname << metricvalue << std::endl;
+  std::cout << fn1 << " : " << fn2 << " => " <<  metricname << metricvalue << std::endl;
   if( logfilename.length() > 3 )
     {
     std::ofstream logfile;
@@ -180,7 +173,7 @@ int ComputeSimilarityMetric(int argc, char *argv[])
       }
     else
       {
-      antscout << " cant open file ";
+      std::cout << " cant open file ";
       }
     logfile.close();
 
@@ -201,21 +194,21 @@ int ComputeSimilarityMetric(int argc, char *argv[])
       met->ComputeMetricAtPairB(index,  zero);
       metricimg->SetPixel(index, val);
       //if (ct % 10000 == 0)
-      //        antscout << val << " index " << index << std::endl;
+      //        std::cout << val << " index " << index << std::endl;
       //      asamIt.SetLocation(index);
       //      totval+=met->localProbabilistic;
       ct++;
     }
 
-  antscout << " AvantsMI : " << totval/(double)ct << " E " <<  met->GetEnergy() <<  std::endl;
-  antscout << " write begin " << std::endl;
+  std::cout << " AvantsMI : " << totval/(double)ct << " E " <<  met->GetEnergy() <<  std::endl;
+  std::cout << " write begin " << std::endl;
   typedef itk::ImageFileWriter<ImageType> writertype;
   writertype::Pointer w= writertype::New();
   w->SetInput(metricimg);
   w->SetFileName(outname.c_str());
   w->Write();  //  met->WriteImages();
 
-  antscout << " write end " << std::endl;
+  std::cout << " write end " << std::endl;
 */
     }
 
@@ -223,53 +216,14 @@ int ComputeSimilarityMetric(int argc, char *argv[])
 
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int ComputeSimilarityMetric( std::vector<std::string> args , std::ostream* out_stream = NULL )
+int main(int argc, char *argv[])
 {
-  // put the arguments coming in as 'args' into standard (argc,argv) format;
-  // 'args' doesn't have the command name as first, argument, so add it manually;
-  // 'args' may have adjacent arguments concatenated into one argument,
-  // which the parser should handle
-  args.insert( args.begin() , "ComputeSimilarityMetric" ) ;
-
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
-    {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
-  argv[argc] = 0 ;
-  // class to automatically cleanup argv upon destruction
-  class Cleanup_argv
-  {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
-    ~Cleanup_argv()
-    {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
-  antscout.set_ostream( out_stream ) ;
 
   if( argc < 3 )
     {
-    antscout << "Basic useage ex: " << std::endl;
-    antscout << argv[0] << " ImageDimension whichmetric image1.ext image2.ext {logfile} {outimage.ext}  " << std::endl;
-    antscout << "  outimage and logfile are optional  " << std::endl;
+    std::cout << "Basic useage ex: " << std::endl;
+    std::cout << argv[0] << " ImageDimension whichmetric image1.ext image2.ext {logfile} {outimage.ext}  " << std::endl;
+    std::cout << "  outimage and logfile are optional  " << std::endl;
     return 1;
     }
 
@@ -283,15 +237,9 @@ int ComputeSimilarityMetric( std::vector<std::string> args , std::ostream* out_s
       ComputeSimilarityMetric<3>(argc, argv);
       break;
     default:
-      antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      std::cerr << "Unsupported dimension" << std::endl;
+      exit( EXIT_FAILURE );
     }
 
   return 0;
 }
-
-
-
-} // namespace ants
-
-
