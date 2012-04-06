@@ -1,0 +1,51 @@
+XGrid README - Craig Stark - June 21, 2010
+
+XGrid is the cluster computing engine built into Apple's OS X (and available
+only for OS X).  It can work very well to turn a lab of Macs into a cluster, 
+but there are a number of things you need to do to make it work well.  One key 
+thing to know is that it will run jobs as the user "nobody" inside a sandbox 
+environment.  When you submit a job, you're not running as you, but as this 
+limited-access "nobody" user.  Your path isn't set, you don't have access to 
+a number of directories, etc. in the name of security.  This README won't tell 
+you how to get XGrid up and going.  For that, look to Apple's docs and things 
+like the XGrid Wiki: http://tengrid.com/wiki1/index.php?title=Main_Page  
+What it will do is to give you some pointers on how XGrid can be used with 
+ANTS.
+
+XGrid lets you pass in a directory (-in) and this whole directory will be 
+copied to each client machine as a means of getting your data to that machine.  
+While this works, for MRI data, this can be awkward given the size of the data.
+If all you have are a dozen subject's structurals, this would be reasonable.  
+If you have structural, functional, DTI, etc. data for each subject, we're 
+talking vast amounts of data just to do each stage of the alignment.  That 
+won't work.  The solution is to setup a shared filesystem, preferably one that 
+is automounted ("nobody" cannot run the mount command).  You'll find in that 
+Wiki instructions for doing this and a suggestion to have the automount mount 
+things in /tmp.  (Note, I've had the most luck with using NFS for this, having 
+each machine have an automount_mymount file that has lines like, 
+"/tmp/mridata1 Data1.local:/mridata1").  When properly setup on each client, 
+you can know that you can always refer to places like /tmp/mrdata1/mystudy to 
+locate your data.
+
+In ANTS, XGrid support is currently in place for buildtemplateparallel.sh.  
+Clusters won't let you speed up one registration but they will speed up N 
+registrations by forking them each off to a different client.  The script has 
+several parameters that will be used for XGrid computing:
+
+-c 3: Mandatory -- this tells BTP (buildtemplateparallel) to run on an XGrid 
+      setup rather than an SGE or local setup.
+-x: Optional -- Flags to pass into your xgrid call.  You may want to tell XGrid 
+    to run on a specific controller with a certain password, for example.  You 
+    might do this with -x "-p password -h myhost".  Note the quotes there.  If 
+    there are >1 things to pass into xgrid here (there will be), you want all of 
+    that to be treated as a single string.
+-p: Optional -- Commands to be pre-pended to your XGrid (or other) job calls.  
+    For example, you might want to change into the working directory.
+
+A typical call would look like this:
+
+buildtemplateparallel.sh -d 3 -o xgridtest1 \
+   -x "-p password -h host" -c 3 \
+   -p "umask 0;cd /tmp/mridata1/mystudy;export ANTSPATH=/usr/local/ants/" \
+   struct*.nii
+
