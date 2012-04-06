@@ -1,5 +1,8 @@
 /** ANTS Landmarks used to initialize an affine transform ... */
 
+
+#include "antscout.hxx"
+
 #include "itkLandmarkBasedTransformInitializer.h"
 #include "itkImage.h"
 #include "itkImageIOBase.h"
@@ -12,6 +15,10 @@
 #include <vnl/vnl_matrix.h>
 // #include <vnl/vnl_qr.h>
 #include "vnl/algo/vnl_qr.h"
+
+namespace ants
+{
+
 
 template <class TransformAPointer, class StringType>
 void DumpTransformForANTS3D(const TransformAPointer & transform, StringType & ANTS_prefix);
@@ -55,7 +62,7 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
       if( find( myFixLabelSet.begin(), myFixLabelSet.end(), label )
           == myFixLabelSet.end() )
         {
-        //          std::cout <<" f-label " << label << std::endl;
+        //          antscout <<" f-label " << label << std::endl;
         myFixLabelSet.push_back( label );
         }
       }
@@ -69,7 +76,7 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
       if( find( myMovLabelSet.begin(), myMovLabelSet.end(), label )
           == myMovLabelSet.end() )
         {
-        //          std::cout <<" m-label " << label << std::endl;
+        //          antscout <<" m-label " << label << std::endl;
         myMovLabelSet.push_back( label );
         }
       }
@@ -84,11 +91,11 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
     {
     float fixlabel = *fit;
     float movlabel = *mit;
-    std::cout << " fix-label " << fixlabel << " movlabel " << movlabel << std::endl;
+    antscout << " fix-label " << fixlabel << " movlabel " << movlabel << std::endl;
     if( movlabel != fixlabel )
       {
-      std::cout << " labels do not match -- exiting " << std::endl;
-      exit(1);
+      antscout << " labels do not match -- exiting " << std::endl;
+      throw std::exception();
       }
     ++mit;
     }
@@ -103,6 +110,8 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
   // Set fixed and moving landmarks
   TransformInitializerType::LandmarkPointContainer fixedLandmarks;
   TransformInitializerType::LandmarkPointContainer movingLandmarks;
+  TransformInitializerType::LandmarkPointType      point;
+  TransformInitializerType::LandmarkPointType      tmp;
 
   // compute the CoM's of all the landmarks
   ImageType::SpacingType spacing = fixedimage->GetSpacing();
@@ -115,24 +124,24 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
     for( It.GoToBegin(); !It.IsAtEnd(); ++It )
       {
       PixelType label = It.Get();
-      if( fabs( label - currentlabel ) < 0.001  )
+      if(  label == currentlabel  )
         {
         totalct++;
         // compute center of mass
-        ImageType::PointType point;
+        ImageType::PointType _point;
         fixedimage->TransformIndexToPhysicalPoint(It.GetIndex(), point);
         for( unsigned int i = 0; i < spacing.Size(); i++ )
           {
-          myCenterOfMass[i] += point[i];
+          myCenterOfMass[i] += _point[i];
           }
-	std::cout << " point " << point << std::endl;
+        // antscout << " point " << point << std::endl;
         }
       }
     for( unsigned int i = 0; i < spacing.Size(); i++ )
       {
       myCenterOfMass[i] /= (float)totalct;
       }
-    // std::cout << " pushing-fix " <<  myCenterOfMass << std::endl;
+    // antscout << " pushing-fix " <<  myCenterOfMass << std::endl;
     fixedLandmarks.push_back( myCenterOfMass );
 
     }
@@ -152,11 +161,11 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
         {
         totalct++;
         // compute center of mass
-        ImageType::PointType point;
+        ImageType::PointType _point;
         movingimage->TransformIndexToPhysicalPoint(ItM.GetIndex(), point);
         for( unsigned int i = 0; i < spacing.Size(); i++ )
           {
-          myCenterOfMass[i] += point[i];
+          myCenterOfMass[i] += _point[i];
           }
         }
       }
@@ -164,7 +173,7 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
       {
       myCenterOfMass[i] /= (float)totalct;
       }
-    //    std::cout << " pushing-mov " <<  myCenterOfMass << std::endl;
+    //    antscout << " pushing-mov " <<  myCenterOfMass << std::endl;
     movingLandmarks.push_back( myCenterOfMass );
 
     }
@@ -175,7 +184,7 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
     mitr = movingLandmarks.begin();
   while( mitr != movingLandmarks.end() )
     {
-    std::cout << "  Fixed Landmark: " << *fitr << " Moving landmark " << *mitr << std::endl;
+    antscout << "  Fixed Landmark: " << *fitr << " Moving landmark " << *mitr << std::endl;
     ++fitr;
     ++mitr;
     }
@@ -188,7 +197,7 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
   initializer->SetTransform( transform );
   initializer->InitializeTransform();
 
-  transform->Print(std::cout);
+  transform->Print(antscout);
   // to transform a point
   //         transform->TransformPoint( *fitr ) << std::endl;
 
@@ -198,7 +207,7 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
   typedef itk::AffineTransform<double, 3> AffineTransformType;
   AffineTransformType::Pointer aff = AffineTransformType::New();
   GetAffineTransformFromTwoPointSets3D(fixedLandmarks, movingLandmarks, aff);
-  std::cout << "affine:" << aff;
+  antscout << "affine:" << aff;
 
   if( bRigid )
     {
@@ -279,12 +288,12 @@ void GetAffineTransformFromTwoPointSets3D(PointContainerType & fixedLandmarks, P
   vnl_matrix<double> A(Dim, Dim);
   A = A11.extract(Dim, Dim, 0, 0);
 
-  std::cout << "y=" << y << std::endl;
-  std::cout << "x=" << x << std::endl;
+  antscout << "y=" << y << std::endl;
+  antscout << "x=" << x << std::endl;
 
-  std::cout << "y1=" << y1 << std::endl;
-  std::cout << "x11=" << x11 << std::endl;
-  std::cout << "A11=" << A11 << std::endl;
+  antscout << "y1=" << y1 << std::endl;
+  antscout << "x11=" << x11 << std::endl;
+  antscout << "A11=" << A11 << std::endl;
 
   vnl_vector<double> t = A11.get_column(Dim);
 
@@ -333,7 +342,7 @@ void WriteAffineTransformFile(TransformPointerType & transform, StringType filen
     }
   catch( itk::ExceptionObject & err )
     {
-    std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
+    antscout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
               << "Exception in writing tranform file: " << std::endl
               << filename << std::endl;
     return;
@@ -361,8 +370,8 @@ inline void PostConversionInAffine(RunningAffineTransformPointerType& transform_
   transform->SetMatrix(*(reinterpret_cast<typename AffineTransformType::MatrixType *>
                          (const_cast<typename RunningAffineTransformType::MatrixType *>(&(transform_running->GetMatrix() ) ) ) ) );
 
-  // std::cout << "transform_running" << transform_running << std::endl;
-  // std::cout << "transform" << transform << std::endl;
+  // antscout << "transform_running" << transform_running << std::endl;
+  // antscout << "transform" << transform << std::endl;
 }
 
 template <class TransformAPointer, class StringType>
@@ -376,12 +385,12 @@ void DumpTransformForANTS3D(const TransformAPointer & transform, StringType & AN
 
   //    typedef TransformAPointer::ObjectType TransformA;
 
-  // std::cout << " writing " << ANTS_prefix << " affine " << std::endl;
+  // antscout << " writing " << ANTS_prefix << " affine " << std::endl;
   // std::string ANTS_affine_filename = ANTS_prefix + std::string( "Affine.txt" );
 
   std::string ANTS_affine_filename = ANTS_prefix;
 
-  std::cout << " writing ANTS affine file:" << ANTS_affine_filename << std::endl;
+  antscout << " writing ANTS affine file:" << ANTS_affine_filename << std::endl;
   PostConversionInAffine(transform, transform_ANTS);
   WriteAffineTransformFile(transform_ANTS, ANTS_affine_filename);
 
@@ -389,7 +398,7 @@ void DumpTransformForANTS3D(const TransformAPointer & transform, StringType & AN
 
 int LandmarkBasedTransformInitializer2D(int, char * [])
 {
-  std::cout << " not implemented " << std::endl;
+  antscout << " not implemented " << std::endl;
   return 1;
 
   /*
@@ -410,21 +419,60 @@ typedef itk::Rigid2DTransform< double > TransformType;
    */
 }
 
-int main(int argc, char *argv[])
+// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
+int ANTSUseLandmarkImagesToGetAffineTransform( std::vector<std::string> args , std::ostream* out_stream = NULL )
 {
+  // put the arguments coming in as 'args' into standard (argc,argv) format;
+  // 'args' doesn't have the command name as first, argument, so add it manually;
+  // 'args' may have adjacent arguments concatenated into one argument,
+  // which the parser should handle
+  args.insert( args.begin() , "ANTSUseLandmarkImagesToGetAffineTransform" ) ;
+
+  int argc = args.size() ;
+  char** argv = new char*[args.size()+1] ;
+  for( unsigned int i = 0 ; i < args.size() ; ++i )
+    {
+      // allocate space for the string plus a null character
+      argv[i] = new char[args[i].length()+1] ;
+      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
+      // place the null character in the end
+      argv[i][args[i].length()] = '\0' ;
+    }
+  argv[argc] = 0 ;
+  // class to automatically cleanup argv upon destruction
+  class Cleanup_argv
+  {
+  public:
+    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
+    {}
+    ~Cleanup_argv()
+    {
+      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
+	{
+	  delete[] argv[i] ;
+	}
+      delete[] argv ;
+    }
+  private:
+    char** argv ;
+    unsigned int argc_plus_one ;
+  } ;
+  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
+
+  antscout.set_ostream( out_stream ) ;
 
   if( argc < 3 )
     {
-    std::cout << "Usage:   " << argv[0]
+    antscout << "Usage:   " << argv[0]
               <<
     " FixedImageWithLabeledLandmarks.nii.gz  MovingImageWithLabeledLandmarks.nii.gz [rigid | affine] OutAffine.txt "
               << std::endl;
-    std::cout
+    antscout
     << " we expect the input images to be (1) N-ary  (2) in the same physical space as the images you want to "
     << std::endl;
-    std::cout << " register and (3 ) to have the same landmark points defined within them ... " << std::endl;
-    std::cout << " landmarks will be defined from the center of mass of the labels in the input images . " << std::endl;
-    std::cout << " You can use ITK-snap to generate the label images. " << std::endl;
+    antscout << " register and (3 ) to have the same landmark points defined within them ... " << std::endl;
+    antscout << " landmarks will be defined from the center of mass of the labels in the input images . " << std::endl;
+    antscout << " You can use ITK-snap to generate the label images. " << std::endl;
     return 1;
     }
 
@@ -444,9 +492,15 @@ int main(int argc, char *argv[])
       LandmarkBasedTransformInitializer3D(argc, argv);
       break;
     default:
-      std::cerr << "Unsupported dimension" << std::endl;
-      exit( EXIT_FAILURE );
+      antscout << "Unsupported dimension" << std::endl;
+      throw std::exception();
     }
 
   return 0;
 }
+
+
+
+} // namespace ants
+
+

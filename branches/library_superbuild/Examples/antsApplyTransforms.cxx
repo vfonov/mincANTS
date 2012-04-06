@@ -1,3 +1,7 @@
+
+
+#include "antscout.hxx"
+
 #include "antsCommandLineParser.h"
 
 #include "itkAffineTransform.h"
@@ -23,6 +27,11 @@
 #include <deque>
 #include <string>
 #include <vector>
+
+
+namespace ants
+{
+
 
 void ConvertToLowerCase( std::string& str )
 {
@@ -78,7 +87,7 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
     parser->GetOption( "output" );
   if( inputOption && inputOption->GetNumberOfValues() > 0 )
     {
-    std::cout << "Input object: " << inputOption->GetValue() << std::endl;
+    antscout << "Input object: " << inputOption->GetValue() << std::endl;
 
     typedef itk::ImageFileReader<ImageType> ReaderType;
     typename ReaderType::Pointer reader = ReaderType::New();
@@ -92,7 +101,7 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
     if( outputOption->GetNumberOfParameters( 0 ) > 1 &&
         parser->Convert<unsigned int>( outputOption->GetParameter( 0, 1 ) ) == 0 )
       {
-      std::cerr << "An input image is required." << std::endl;
+      antscout << "An input image is required." << std::endl;
       return EXIT_FAILURE;
       }
     }
@@ -109,7 +118,7 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
     parser->GetOption( "reference-image" );
   if( referenceOption && referenceOption->GetNumberOfValues() > 0 )
     {
-    std::cout << "Reference image: " << referenceOption->GetValue() << std::endl;
+    antscout << "Reference image: " << referenceOption->GetValue() << std::endl;
 
     // read in the image as char since we only need the header information.
     typedef itk::Image<char, Dimension>              ReferenceImageType;
@@ -124,7 +133,7 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    std::cerr << "Error:  No reference image specified." << std::endl;
+    antscout << "Error:  No reference image specified." << std::endl;
     return EXIT_FAILURE;
     }
   resampleFilter->SetOutputParametersFromImage( referenceImage );
@@ -213,7 +222,7 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
               }
             catch( itk::ExceptionObject & excp )
               {
-              std::cerr << excp << std::endl;
+              antscout << excp << std::endl;
               return EXIT_FAILURE;
               }
             transform = dynamic_cast<TransformType *>(
@@ -230,7 +239,7 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
               }
             catch( itk::ExceptionObject & excp )
               {
-              std::cerr << excp << std::endl;
+              antscout << excp << std::endl;
               return EXIT_FAILURE;
               }
 
@@ -243,7 +252,7 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
                   transform->GetInverseTransform().GetPointer() );
               if( !transform )
                 {
-                std::cerr << "Inverse does not exist for " << transformName
+                antscout << "Inverse does not exist for " << transformName
                           << std::endl;
                 return EXIT_FAILURE;
                 }
@@ -253,21 +262,21 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
           }
         catch( const itk::ExceptionObject & e )
           {
-          std::cerr << "Transform reader for "
+          antscout << "Transform reader for "
                     << transformName << " caught an ITK exception:\n";
-          e.Print( std::cerr );
+          e.Print( antscout );
           return EXIT_FAILURE;
           }
         catch( const std::exception & e )
           {
-          std::cerr << "Transform reader for "
+          antscout << "Transform reader for "
                     << transformName << " caught an exception:\n";
-          std::cerr << e.what() << std::endl;
+          antscout << e.what() << std::endl;
           return EXIT_FAILURE;
           }
         catch( ... )
           {
-          std::cerr << "Transform reader for "
+          antscout << "Transform reader for "
                     << transformName << " caught an unknown exception!!!\n";
           return EXIT_FAILURE;
           }
@@ -277,11 +286,11 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
       transformNames.push_back( transformName );
       transformTypes.push_back( transform->GetNameOfClass() );
       }
-    std::cout << "The composite transform is comprised of the following transforms "
+    antscout << "The composite transform is comprised of the following transforms "
               << "(in order): " << std::endl;
     for( unsigned int n = 0; n < transformNames.size(); n++ )
       {
-      std::cout << "  " << n + 1 << ". " << transformNames[n] << " (type = "
+      antscout << "  " << n + 1 << ". " << transformNames[n] << " (type = "
                 << transformTypes[n] << ")" << std::endl;
       }
     }
@@ -465,11 +474,11 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
       }
     else
       {
-      std::cerr << "Error:  Unrecognized interpolation option." << std::endl;
+      antscout << "Error:  Unrecognized interpolation option." << std::endl;
       return EXIT_FAILURE;
       }
     }
-  std::cout << "Interpolation type: "
+  antscout << "Interpolation type: "
             << resampleFilter->GetInterpolator()->GetNameOfClass() << std::endl;
 
   /**
@@ -484,7 +493,7 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
       parser->Convert<PixelType>( defaultOption->GetValue() );
     resampleFilter->SetDefaultPixelValue( defaultValue );
     }
-  std::cout << "Default pixel value: "
+  antscout << "Default pixel value: "
             << resampleFilter->GetDefaultPixelValue() << std::endl;
 
   /**
@@ -495,7 +504,7 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
     if( outputOption->GetNumberOfParameters( 0 ) > 1 &&
         parser->Convert<unsigned int>( outputOption->GetParameter( 0, 1 ) ) != 0 )
       {
-      std::cout << "Output composite transform displacement field: " << outputOption->GetParameter( 0, 0 ) << std::endl;
+      antscout << "Output composite transform displacement field: " << outputOption->GetParameter( 0, 0 ) << std::endl;
 
       typedef typename itk::TransformToDisplacementFieldSource<DisplacementFieldType> ConverterType;
       typename ConverterType::Pointer converter = ConverterType::New();
@@ -520,7 +529,7 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
         {
         outputFileName = outputOption->GetValue();
         }
-      std::cout << "Output warped image: " << outputFileName << std::endl;
+      antscout << "Output warped image: " << outputFileName << std::endl;
 
       typedef  itk::ImageFileWriter<ImageType> WriterType;
       typename WriterType::Pointer writer = WriterType::New();
@@ -678,8 +687,48 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
     }
 }
 
-int main( int argc, char *argv[] )
+// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
+int antsApplyTransforms( std::vector<std::string> args , std::ostream* out_stream = NULL )
 {
+  // put the arguments coming in as 'args' into standard (argc,argv) format;
+  // 'args' doesn't have the command name as first, argument, so add it manually;
+  // 'args' may have adjacent arguments concatenated into one argument,
+  // which the parser should handle
+  args.insert( args.begin() , "antsApplyTransforms" ) ;
+
+  int argc = args.size() ;
+  char** argv = new char*[args.size()+1] ;
+  for( unsigned int i = 0 ; i < args.size() ; ++i )
+    {
+      // allocate space for the string plus a null character
+      argv[i] = new char[args[i].length()+1] ;
+      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
+      // place the null character in the end
+      argv[i][args[i].length()] = '\0' ;
+    }
+  argv[argc] = 0 ;
+  // class to automatically cleanup argv upon destruction
+  class Cleanup_argv
+  {
+  public:
+    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
+    {}
+    ~Cleanup_argv()
+    {
+      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
+	{
+	  delete[] argv[i] ;
+	}
+      delete[] argv ;
+    }
+  private:
+    char** argv ;
+    unsigned int argc_plus_one ;
+  } ;
+  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
+
+  antscout.set_ostream( out_stream ) ;
+
   itk::ants::CommandLineParser::Pointer parser =
     itk::ants::CommandLineParser::New();
 
@@ -698,14 +747,14 @@ int main( int argc, char *argv[] )
   if( argc < 2 || ( parser->GetOption( "help" ) &&
                     ( parser->Convert<bool>( parser->GetOption( "help" )->GetValue() ) ) ) )
     {
-    parser->PrintMenu( std::cout, 5, false );
-    exit( EXIT_FAILURE );
+    parser->PrintMenu( antscout, 5, false );
+    throw std::exception();
     }
   else if( parser->GetOption( 'h' ) &&
            ( parser->Convert<bool>( parser->GetOption( 'h' )->GetValue() ) ) )
     {
-    parser->PrintMenu( std::cout, 5, true );
-    exit( EXIT_FAILURE );
+    parser->PrintMenu( antscout, 5, true );
+    throw std::exception();
     }
 
   // Read in the first intensity image to get the image dimension.
@@ -726,7 +775,7 @@ int main( int argc, char *argv[] )
     }
   else
     {
-    std::cerr << "No reference image was specified." << std::endl;
+    antscout << "No reference image was specified." << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -754,7 +803,13 @@ int main( int argc, char *argv[] )
       antsApplyTransforms<4>( parser );
       break;
     default:
-      std::cerr << "Unsupported dimension" << std::endl;
-      exit( EXIT_FAILURE );
+      antscout << "Unsupported dimension" << std::endl;
+      throw std::exception();
     }
 }
+
+
+
+} // namespace ants
+
+
