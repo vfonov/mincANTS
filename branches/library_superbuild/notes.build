@@ -1,0 +1,6 @@
+
+git svn init https://advants.svn.sourceforge.net/svnroot/advants
+git update-ref refs/remotes/git-svn refs/remotes/origin/master
+git svn rebase
+
+
