@@ -594,20 +594,6 @@ target_link_libraries( WarpVTKPolyDataMultiTransform antsCommandLineParser antsC
 
 
 
-add_library( antsImageRead SHARED
-  antsImageRead.cxx
-  )
-target_link_libraries( antsImageRead ${ITK_LIBRARIES} ${VTK_LIBRARIES} )
-
-
-
-
-add_library( antsImageWrite SHARED
-  antsImageWrite.cxx
-  )
-target_link_libraries( antsImageWrite ${ITK_LIBRARIES} ${VTK_LIBRARIES} )
-
-
 install( TARGETS 
   antsCommandLineOption
   antsCommandLineParser
