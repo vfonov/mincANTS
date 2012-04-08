@@ -1,12 +1,17 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include "antscout.hxx"
+
 #include "itkTransform.h"
 #include "itkCompositeTransform.h"
 #include "itkDisplacementFieldTransform.h"
 #include "antsCommandLineParser.h"
 #include "itkantsReadWriteTransform.h"
 #include "itkTransformFactory.h"
+
+namespace ants
+{
 
 bool MatOffRegistered[2] = { false, false };
 
@@ -30,12 +35,12 @@ void RegisterMatOff()
  */
 void UsageAndExit()
 {
-  std::cerr << "Usage: CompositeTransformUtil --disassemble <CompositeTransform FileName>"
+  antscout << "Usage: CompositeTransformUtil --disassemble <CompositeTransform FileName>"
             << " <transform name prefix>" << std::endl
             << "or" << std::endl
             << "CompositeTransformUtil  --assemble <CompositeTransform> "
             << "<transform 1> <transform 2 > ... <transform N>" << std::endl;
-  exit(1);
+  throw std::exception() ;
 }
 
 
@@ -56,7 +61,7 @@ Disassemble(itk::TransformBase *transform, const std::string &transformName, con
     dynamic_cast<CompositeTransformType *>(transform);
   if(composite == 0)
     {
-    std::cerr << "Transform File " << transformName << " is a "
+    antscout << "Transform File " << transformName << " is a "
               << transform->GetNameOfClass() << " not a Composite Transform."
               << std::endl;
     return EXIT_FAILURE;
@@ -103,7 +108,7 @@ int Disassemble(const std::string &CompositeName,
     outDim(transform->GetOutputSpaceDimension());
   if(inDim != outDim)
     {
-    std::cerr << "Can't handle mixed input & output dimension: input("
+    antscout << "Can't handle mixed input & output dimension: input("
               << inDim << ") output (" << outDim << ")" << std::endl;
     return EXIT_FAILURE;
     }
@@ -114,7 +119,7 @@ int Disassemble(const std::string &CompositeName,
     case 3:
       return Disassemble<3>(transform, CompositeName, Prefix);
     default:
-      std::cerr << "Unknown dimension " << inDim << std::endl;
+      antscout << "Unknown dimension " << inDim << std::endl;
       return EXIT_FAILURE;
     }
   return EXIT_SUCCESS;
@@ -165,9 +170,49 @@ int Assemble(const std::string &CompositeName,
   return EXIT_FAILURE;
 }
 
-int
-main(int argc, char *argv[])
+// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
+int CompositeTransformUtil( std::vector<std::string> args , std::ostream* out_stream = NULL )
 {
+  // put the arguments coming in as 'args' into standard (argc,argv) format;
+  // 'args' doesn't have the command name as first, argument, so add it manually;
+  // 'args' may have adjacent arguments concatenated into one argument,
+  // which the parser should handle
+  args.insert( args.begin() , "CompositeTransformUtil" ) ;
+
+  int argc = args.size() ;
+  char** argv = new char*[args.size()+1] ;
+  for( unsigned int i = 0 ; i < args.size() ; ++i )
+    {
+      // allocate space for the string plus a null character
+      argv[i] = new char[args[i].length()+1] ;
+      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
+      // place the null character in the end
+      argv[i][args[i].length()] = '\0' ;
+    }
+  argv[argc] = 0 ;
+  // class to automatically cleanup argv upon destruction
+  class Cleanup_argv
+  {
+  public:
+    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
+    {}
+    ~Cleanup_argv()
+    {
+      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
+	{
+	  delete[] argv[i] ;
+	}
+      delete[] argv ;
+    }
+  private:
+    char** argv ;
+    unsigned int argc_plus_one ;
+  } ;
+  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
+
+  antscout.set_ostream( out_stream ) ;
+
+
   if(argc < 2)
     {
     UsageAndExit();
@@ -177,7 +222,7 @@ main(int argc, char *argv[])
   ++argv; --argc;
   if(argc == 0)
     {
-    std::cerr << "Missing CompositeTransformName" << std::endl;
+    antscout << "Missing CompositeTransformName" << std::endl;
     UsageAndExit();
     }
 
@@ -190,7 +235,7 @@ main(int argc, char *argv[])
     {
     if(argc == 0)
       {
-      std::cerr << "Missing output transforms prefix" << std::endl;
+      antscout << "Missing output transforms prefix" << std::endl;
       UsageAndExit();
       }
     std::string Prefix(*argv);
@@ -198,7 +243,7 @@ main(int argc, char *argv[])
     }
   else if(action != "--assemble")
     {
-    std::cerr << "Unknown action " << action << std::endl;
+    antscout << "Unknown action " << action << std::endl;
     UsageAndExit();
     }
   std::vector<std::string> transformNames;
@@ -210,10 +255,12 @@ main(int argc, char *argv[])
     }
   if(transformNames.size() < 1)
     {
-    std::cerr << "Missing transform names to "
+    antscout << "Missing transform names to "
               << "assemble into a composite transform"
               << std::endl;
     UsageAndExit();
     }
   return Assemble(CompositeName,transformNames);
 }
+
+} // namespace ants
