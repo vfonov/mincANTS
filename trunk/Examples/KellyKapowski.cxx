@@ -1,3 +1,6 @@
+
+#include "antscout.hxx"
+
 #include "antsCommandLineParser.h"
 
 #include "itkBinaryThresholdImageFilter.h"
@@ -14,6 +17,10 @@
 #include <string>
 #include <algorithm>
 #include <vector>
+
+namespace ants
+{
+
 
 template <class TFilter>
 class CommandIterationUpdate : public itk::Command
@@ -43,19 +50,19 @@ public:
       {
       return;
       }
-    std::cout << "  Iteration " << filter->GetElapsedIterations()
+    antscout << "  Iteration " << filter->GetElapsedIterations()
               << " (of "
               << filter->GetMaximumNumberOfIterations()
               << ").  ";
-    std::cout << "Current energy = " << filter->GetCurrentEnergy() << ".  ";
+    antscout << "Current energy = " << filter->GetCurrentEnergy() << ".  ";
     if( filter->GetElapsedIterations() >= filter->GetConvergenceWindowSize() )
       {
-      std::cout << "(convergence value = "
+      antscout << "(convergence value = "
                 << filter->GetCurrentConvergenceMeasurement()
                 << ", threshold = " << filter->GetConvergenceThreshold()
                 << ")";
       }
-    std::cout << std::endl;
+    antscout << std::endl;
   }
 
 };
@@ -147,7 +154,7 @@ int DiReCT0( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    std::cerr << "Segmentation image not specified." << std::endl;
+    antscout << "Segmentation image not specified." << std::endl;
     return EXIT_FAILURE;
     }
   direct->SetSegmentationImage( segmentationImage );
@@ -171,7 +178,7 @@ int DiReCT0( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    std::cout << "  Grey matter probability image not specified. "
+    antscout << "  Grey matter probability image not specified. "
               << "Creating one from the segmentation image." << std::endl;
 
     typedef itk::BinaryThresholdImageFilter<LabelImageType, LabelImageType>
@@ -215,7 +222,7 @@ int DiReCT0( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    std::cout << "  White matter probability image not specified. "
+    antscout << "  White matter probability image not specified. "
               << "Creating one from the segmentation image." << std::endl << std::endl;
 
     typedef itk::BinaryThresholdImageFilter<LabelImageType, ImageType>
@@ -323,13 +330,13 @@ int DiReCT0( itk::ants::CommandLineParser *parser )
     }
   catch( itk::ExceptionObject & e )
     {
-    std::cerr << "Exception caught: " << e << std::endl;
+    antscout << "Exception caught: " << e << std::endl;
     return EXIT_FAILURE;
     }
 
-  direct->Print( std::cout, 3 );
+  direct->Print( antscout, 3 );
 
-  std::cout << "DiReCT elapsed time: " << timer.GetMeanTime() << std::endl;
+  antscout << "DiReCT elapsed time: " << timer.GetMeanTime() << std::endl;
 
   /**
    * output
@@ -427,7 +434,7 @@ int DiReCT1( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    std::cerr << "Segmentation image not specified." << std::endl;
+    antscout << "Segmentation image not specified." << std::endl;
     return EXIT_FAILURE;
     }
   direct->SetSegmentationImage( segmentationImage );
@@ -451,7 +458,7 @@ int DiReCT1( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    std::cout << "  Grey matter probability image not specified. "
+    antscout << "  Grey matter probability image not specified. "
               << "Creating one from the segmentation image." << std::endl;
 
     typedef itk::BinaryThresholdImageFilter<LabelImageType, LabelImageType>
@@ -495,7 +502,7 @@ int DiReCT1( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    std::cout << "  White matter probability image not specified. "
+    antscout << "  White matter probability image not specified. "
               << "Creating one from the segmentation image." << std::endl << std::endl;
 
     typedef itk::BinaryThresholdImageFilter<LabelImageType, ImageType>
@@ -603,12 +610,12 @@ int DiReCT1( itk::ants::CommandLineParser *parser )
     }
   catch( itk::ExceptionObject & e )
     {
-    std::cerr << "Exception caught: " << e << std::endl;
+    antscout << "Exception caught: " << e << std::endl;
     return EXIT_FAILURE;
     }
-  direct->Print( std::cout, 3 );
+  direct->Print( antscout, 3 );
 
-  std::cout << "DiReCT elapsed time: " << timer.GetMeanTime() << std::endl;
+  antscout << "DiReCT elapsed time: " << timer.GetMeanTime() << std::endl;
 
   /**
    * output
@@ -706,7 +713,7 @@ int DiReCT2( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    std::cerr << "Segmentation image not specified." << std::endl;
+    antscout << "Segmentation image not specified." << std::endl;
     return EXIT_FAILURE;
     }
   direct->SetSegmentationImage( segmentationImage );
@@ -730,7 +737,7 @@ int DiReCT2( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    std::cout << "  Grey matter probability image not specified. "
+    antscout << "  Grey matter probability image not specified. "
               << "Creating one from the segmentation image." << std::endl;
 
     typedef itk::BinaryThresholdImageFilter<LabelImageType, LabelImageType>
@@ -774,7 +781,7 @@ int DiReCT2( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    std::cout << "  White matter probability image not specified. "
+    antscout << "  White matter probability image not specified. "
               << "Creating one from the segmentation image." << std::endl << std::endl;
 
     typedef itk::BinaryThresholdImageFilter<LabelImageType, ImageType>
@@ -881,12 +888,12 @@ int DiReCT2( itk::ants::CommandLineParser *parser )
     }
   catch( itk::ExceptionObject & e )
     {
-    std::cerr << "Exception caught: " << e << std::endl;
+    antscout << "Exception caught: " << e << std::endl;
     return EXIT_FAILURE;
     }
-  direct->Print( std::cout, 3 );
+  direct->Print( antscout, 3 );
 
-  std::cout << "DiReCT elapsed time: " << timer.GetMeanTime() << std::endl;
+  antscout << "DiReCT elapsed time: " << timer.GetMeanTime() << std::endl;
 
   /**
    * output
@@ -984,7 +991,7 @@ int DiReCT3( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    std::cerr << "Segmentation image not specified." << std::endl;
+    antscout << "Segmentation image not specified." << std::endl;
     return EXIT_FAILURE;
     }
   direct->SetSegmentationImage( segmentationImage );
@@ -1008,7 +1015,7 @@ int DiReCT3( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    std::cout << "  Grey matter probability image not specified. "
+    antscout << "  Grey matter probability image not specified. "
               << "Creating one from the segmentation image." << std::endl;
 
     typedef itk::BinaryThresholdImageFilter<LabelImageType, LabelImageType>
@@ -1052,7 +1059,7 @@ int DiReCT3( itk::ants::CommandLineParser *parser )
     }
   else
     {
-    std::cout << "  White matter probability image not specified. "
+    antscout << "  White matter probability image not specified. "
               << "Creating one from the segmentation image." << std::endl << std::endl;
 
     typedef itk::BinaryThresholdImageFilter<LabelImageType, ImageType>
@@ -1160,12 +1167,12 @@ int DiReCT3( itk::ants::CommandLineParser *parser )
     }
   catch( itk::ExceptionObject & e )
     {
-    std::cerr << "Exception caught: " << e << std::endl;
+    antscout << "Exception caught: " << e << std::endl;
     return EXIT_FAILURE;
     }
-  direct->Print( std::cout, 3 );
+  direct->Print( antscout, 3 );
 
-  std::cout << "DiReCT elapsed time: " << timer.GetMeanTime() << std::endl;
+  antscout << "DiReCT elapsed time: " << timer.GetMeanTime() << std::endl;
 
   /**
    * output
@@ -1377,8 +1384,48 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
 
 }
 
-int main( int argc, char *argv[] )
+// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
+int KellyKapowski( std::vector<std::string> args , std::ostream* out_stream = NULL )
 {
+  // put the arguments coming in as 'args' into standard (argc,argv) format;
+  // 'args' doesn't have the command name as first, argument, so add it manually;
+  // 'args' may have adjacent arguments concatenated into one argument,
+  // which the parser should handle
+  args.insert( args.begin() , "KellyKapowski" ) ;
+
+  int argc = args.size() ;
+  char** argv = new char*[args.size()+1] ;
+  for( unsigned int i = 0 ; i < args.size() ; ++i )
+    {
+      // allocate space for the string plus a null character
+      argv[i] = new char[args[i].length()+1] ;
+      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
+      // place the null character in the end
+      argv[i][args[i].length()] = '\0' ;
+    }
+  argv[argc] = 0 ;
+  // class to automatically cleanup argv upon destruction
+  class Cleanup_argv
+  {
+  public:
+    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
+    {}
+    ~Cleanup_argv()
+    {
+      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
+	{
+	  delete[] argv[i] ;
+	}
+      delete[] argv ;
+    }
+  private:
+    char** argv ;
+    unsigned int argc_plus_one ;
+  } ;
+  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
+
+  antscout.set_ostream( out_stream ) ;
+
   itk::ants::CommandLineParser::Pointer parser =
     itk::ants::CommandLineParser::New();
 
@@ -1399,14 +1446,14 @@ int main( int argc, char *argv[] )
   if( argc < 2 || parser->Convert<bool>(
         parser->GetOption( "help" )->GetValue() ) )
     {
-    parser->PrintMenu( std::cout, 5, false );
-    exit( EXIT_FAILURE );
+    parser->PrintMenu( antscout, 5, false );
+    throw std::exception();
     }
   else if( parser->Convert<bool>(
              parser->GetOption( 'h' )->GetValue() ) )
     {
-    parser->PrintMenu( std::cout, 5, true );
-    exit( EXIT_FAILURE );
+    parser->PrintMenu( antscout, 5, true );
+    throw std::exception();
     }
 
   // Get dimensionality
@@ -1438,7 +1485,7 @@ int main( int argc, char *argv[] )
       }
     else
       {
-      std::cerr << "No input images were specified.  Specify an input "
+      antscout << "No input images were specified.  Specify an input "
                 << " segmentation image with the -s option" << std::endl;
       return EXIT_FAILURE;
       }
@@ -1456,13 +1503,13 @@ int main( int argc, char *argv[] )
     if( whichDiReCTVersion != 953 && whichDiReCTVersion != 949 &&
         whichDiReCTVersion != 926 && whichDiReCTVersion != 0 )
       {
-      std::cerr << "Unknown requested DiReCT version. See long help menu "
+      antscout << "Unknown requested DiReCT version. See long help menu "
                 << "for the description of the different versions (i.e. --help )." << std::endl;
-      exit( EXIT_FAILURE );
+      throw std::exception();
       }
     }
 
-  std::cout << std::endl << "Running DiReCT (revision " << whichDiReCTVersion
+  antscout << std::endl << "Running DiReCT (revision " << whichDiReCTVersion
             << ") for " << dimension << "-dimensional images." << std::endl << std::endl;
 
   switch( dimension )
@@ -1521,37 +1568,16 @@ int main( int argc, char *argv[] )
         }
       break;
       }
-    case 4:
-      {
-      switch( whichDiReCTVersion )
-        {
-        case 0:
-          {
-          DiReCT0<4>( parser );
-          break;
-          }
-        case 926: default:
-          {
-          DiReCT1<4>( parser );
-          break;
-          }
-        case 949:
-          {
-          DiReCT2<4>( parser );
-          break;
-          }
-        case 953:
-          {
-          DiReCT3<4>( parser );
-          break;
-          }
-        }
-      break;
-      }
     default:
       {
-      std::cerr << "Unsupported dimension" << std::endl;
-      exit( EXIT_FAILURE );
+      antscout << "Unsupported dimension" << std::endl;
+      throw std::exception();
       }
     }
 }
+
+
+
+} // namespace ants
+
+

@@ -1,3 +1,6 @@
+
+#include "antscout.hxx"
+
 #include "itkWin32Header.h"
 #include <iostream>
 #include <fstream>
@@ -9,14 +12,58 @@
 #include "itkExtractImageFilter.h"
 #include "itkTestingComparisonImageFilter.h"
 
+namespace ants
+{
+
+
 using namespace std;
 
 #define ITK_TEST_DIMENSION_MAX 6
 
 int RegressionTestImage(const char *, const char *, int, bool);
 
-int main(int argc, char * *argv)
+// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
+int ImageCompare( std::vector<std::string> args , std::ostream* out_stream = NULL )
 {
+  // put the arguments coming in as 'args' into standard (argc,argv) format;
+  // 'args' doesn't have the command name as first, argument, so add it manually;
+  // 'args' may have adjacent arguments concatenated into one argument,
+  // which the parser should handle
+  args.insert( args.begin() , "ImageCompare" ) ;
+
+  int argc = args.size() ;
+  char** argv = new char*[args.size()+1] ;
+  for( unsigned int i = 0 ; i < args.size() ; ++i )
+    {
+      // allocate space for the string plus a null character
+      argv[i] = new char[args[i].length()+1] ;
+      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
+      // place the null character in the end
+      argv[i][args[i].length()] = '\0' ;
+    }
+  argv[argc] = 0 ;
+  // class to automatically cleanup argv upon destruction
+  class Cleanup_argv
+  {
+  public:
+    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
+    {}
+    ~Cleanup_argv()
+    {
+      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
+	{
+	  delete[] argv[i] ;
+	}
+      delete[] argv ;
+    }
+  private:
+    char** argv ;
+    unsigned int argc_plus_one ;
+  } ;
+  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
+
+  antscout.set_ostream( out_stream ) ;
+
   if( argc < 3 )
     {
     cerr << "Usage:" << endl;
@@ -63,20 +110,20 @@ int main(int argc, char * *argv)
     }
   catch( const itk::ExceptionObject& e )
     {
-    std::cerr << "ITK test driver caught an ITK exception:\n";
-    std::cerr << e.GetFile() << ":" << e.GetLine() << ":\n"
+    antscout << "ITK test driver caught an ITK exception:\n";
+    antscout << e.GetFile() << ":" << e.GetLine() << ":\n"
               << e.GetDescription() << "\n";
     bestBaselineStatus = -1;
     }
   catch( const std::exception& e )
     {
-    std::cerr << "ITK test driver caught an exception:\n";
-    std::cerr << e.what() << "\n";
+    antscout << "ITK test driver caught an exception:\n";
+    antscout << e.what() << "\n";
     bestBaselineStatus = -1;
     }
   catch( ... )
     {
-    std::cerr << "ITK test driver caught an unknown exception!!!\n";
+    antscout << "ITK test driver caught an unknown exception!!!\n";
     bestBaselineStatus = -1;
     }
   cout << bestBaselineStatus << endl;
@@ -102,7 +149,7 @@ int RegressionTestImage(const char *testImageFilename, const char *baselineImage
     }
   catch( itk::ExceptionObject& e )
     {
-    std::cerr << "Exception detected while reading " << baselineImageFilename << " : "  << e.GetDescription();
+    antscout << "Exception detected while reading " << baselineImageFilename << " : "  << e.GetDescription();
     return 1000;
     }
 
@@ -115,7 +162,7 @@ int RegressionTestImage(const char *testImageFilename, const char *baselineImage
     }
   catch( itk::ExceptionObject& e )
     {
-    std::cerr << "Exception detected while reading " << testImageFilename << " : "  << e.GetDescription() << std::endl;
+    antscout << "Exception detected while reading " << testImageFilename << " : "  << e.GetDescription() << std::endl;
     return 1000;
     }
 
@@ -127,10 +174,10 @@ int RegressionTestImage(const char *testImageFilename, const char *baselineImage
 
   if( baselineSize != testSize )
     {
-    std::cerr << "The size of the Baseline image and Test image do not match!" << std::endl;
-    std::cerr << "Baseline image: " << baselineImageFilename
+    antscout << "The size of the Baseline image and Test image do not match!" << std::endl;
+    antscout << "Baseline image: " << baselineImageFilename
               << " has size " << baselineSize << std::endl;
-    std::cerr << "Test image:     " << testImageFilename
+    antscout << "Test image:     " << testImageFilename
               << " has size " << testSize << std::endl;
     return 1;
     }
@@ -179,9 +226,9 @@ int RegressionTestImage(const char *testImageFilename, const char *baselineImage
     if( differences )
       {
       // if there are discrepencies, create an diff image
-      std::cout << "<DartMeasurement name=\"ImageError\" type=\"numeric/double\">";
-      std::cout << status;
-      std::cout <<  "</DartMeasurement>" << std::endl;
+      antscout << "<DartMeasurement name=\"ImageError\" type=\"numeric/double\">";
+      antscout << status;
+      antscout <<  "</DartMeasurement>" << std::endl;
 
       std::ostringstream diffName;
       diffName << testImageFilename << ".diff.png";
@@ -192,7 +239,7 @@ int RegressionTestImage(const char *testImageFilename, const char *baselineImage
         }
       catch( ... )
         {
-        std::cerr << "Error during rescale of " << diffName.str() << std::endl;
+        antscout << "Error during rescale of " << diffName.str() << std::endl;
         }
       writer->SetFileName(diffName.str().c_str() );
       try
@@ -201,12 +248,12 @@ int RegressionTestImage(const char *testImageFilename, const char *baselineImage
         }
       catch( ... )
         {
-        std::cerr << "Error during write of " << diffName.str() << std::endl;
+        antscout << "Error during write of " << diffName.str() << std::endl;
         }
 
-      std::cout << "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\">";
-      std::cout << diffName.str();
-      std::cout << "</DartMeasurementFile>" << std::endl;
+      antscout << "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\">";
+      antscout << diffName.str();
+      antscout << "</DartMeasurementFile>" << std::endl;
       }
     std::ostringstream baseName;
     baseName << testImageFilename << ".base.png";
@@ -217,7 +264,7 @@ int RegressionTestImage(const char *testImageFilename, const char *baselineImage
       }
     catch( ... )
       {
-      std::cerr << "Error during rescale of " << baseName.str() << std::endl;
+      antscout << "Error during rescale of " << baseName.str() << std::endl;
       }
     try
       {
@@ -226,12 +273,12 @@ int RegressionTestImage(const char *testImageFilename, const char *baselineImage
       }
     catch( ... )
       {
-      std::cerr << "Error during write of " << baseName.str() << std::endl;
+      antscout << "Error during write of " << baseName.str() << std::endl;
       }
 
-    std::cout << "<DartMeasurementFile name=\"BaselineImage\" type=\"image/png\">";
-    std::cout << baseName.str();
-    std::cout << "</DartMeasurementFile>" << std::endl;
+    antscout << "<DartMeasurementFile name=\"BaselineImage\" type=\"image/png\">";
+    antscout << baseName.str();
+    antscout << "</DartMeasurementFile>" << std::endl;
 
     std::ostringstream testName;
     testName << testImageFilename << ".test.png";
@@ -242,7 +289,7 @@ int RegressionTestImage(const char *testImageFilename, const char *baselineImage
       }
     catch( ... )
       {
-      std::cerr << "Error during rescale of " << testName.str()
+      antscout << "Error during rescale of " << testName.str()
                 << std::endl;
       }
     try
@@ -252,13 +299,19 @@ int RegressionTestImage(const char *testImageFilename, const char *baselineImage
       }
     catch( ... )
       {
-      std::cerr << "Error during write of " << testName.str() << std::endl;
+      antscout << "Error during write of " << testName.str() << std::endl;
       }
 
-    std::cout << "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">";
-    std::cout << testName.str();
-    std::cout << "</DartMeasurementFile>" << std::endl;
+    antscout << "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">";
+    antscout << testName.str();
+    antscout << "</DartMeasurementFile>" << std::endl;
 
     }
   return (status != 0) ? 1 : 0;
 }
+
+
+
+} // namespace ants
+
+
