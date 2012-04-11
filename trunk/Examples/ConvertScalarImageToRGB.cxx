@@ -361,6 +361,7 @@ int ConvertScalarImageToRGB( std::vector<std::string> args , std::ostream* out_s
       antscout << "Unsupported dimension" << std::endl;
       return EXIT_FAILURE;
     }
+  return EXIT_SUCCESS;
 }
 
 

@@ -360,6 +360,7 @@ int ResampleImage( std::vector<std::string> args , std::ostream* out_stream = NU
       antscout << "Unsupported dimension" << std::endl;
       return EXIT_FAILURE;
     }
+  return EXIT_SUCCESS;
 }
 
 

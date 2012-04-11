@@ -1200,6 +1200,7 @@ int CreateDTICohort( std::vector<std::string> args , std::ostream* out_stream = 
       antscout << "Unsupported dimension" << std::endl;
       return EXIT_FAILURE;
     }
+  return EXIT_SUCCESS;
 }
 
 

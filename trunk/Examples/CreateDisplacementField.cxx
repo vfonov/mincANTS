@@ -266,6 +266,7 @@ int CreateDisplacementField( std::vector<std::string> args , std::ostream* out_s
       antscout << "Unsupported number of dimensions: " << imageDimension << std::endl;
       return EXIT_FAILURE;
     }
+  return EXIT_SUCCESS;
 }
 
 

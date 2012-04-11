@@ -223,6 +223,7 @@ int ExtractRegionFromImageByMask( std::vector<std::string> args , std::ostream* 
       antscout << "Unsupported dimension" << std::endl;
       return EXIT_FAILURE;
     }
+  return EXIT_SUCCESS;
 }
 
 

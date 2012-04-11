@@ -212,6 +212,7 @@ int PasteImageIntoImage( std::vector<std::string> args , std::ostream* out_strea
       antscout << "Unsupported dimension" << std::endl;
       return EXIT_FAILURE;
     }
+  return EXIT_SUCCESS;
 }
 
 

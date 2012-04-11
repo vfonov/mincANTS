@@ -1799,7 +1799,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     // HACK NOT USED RealType minalph = stepsize;
     // HACK NOT USED RealType maxalph = alpha_k * 2;
     /** FIXME --- need better line search */
-    RealType   best_alph = alpha_k; 
+    RealType   best_alph = alpha_k;
     //    RealType   best_alph = this->LineSearch( A, x_k, p_k, b, minalph, maxalph, keeppos );
     VectorType x_k1  = x_k + best_alph * p_k;
     // this adds the scaled residual to the current solution
@@ -1808,8 +1808,8 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       ::ants::antscout << " xk12n " << x_k1.two_norm() << " alpha_k " << alpha_k << " pk2n " << p_k.two_norm()
                 << " xk1-min " << x_k1.min_value() << std::endl;
       }
-    if ( hiorth > loorth   ) 
-      for (  unsigned int wv = loorth; wv < hiorth; wv++ ) 
+    if ( hiorth > loorth   )
+      for (  unsigned int wv = loorth; wv < hiorth; wv++ )
         x_k1 = this->Orthogonalize( x_k1 , this->m_VariatesP.get_column( wv ) );
 
     /** Probably the most important step if you want an interpretable map */
@@ -1820,7 +1820,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       }
     VectorType proj = A.transpose() * (A * x_k1 );
     VectorType r_k1 = ( b -  proj );
-    if ( makeprojsparse ) this->SparsifyP( r_k1, keeppos ); 
+    if ( makeprojsparse ) this->SparsifyP( r_k1, keeppos );
     approxerr = r_k1.two_norm();
     RealType newminerr = minerr;
     if( approxerr < newminerr )
@@ -1853,7 +1853,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     RealType   beta_k = inner_product( ( yk - p_k * 2 * yk.two_norm() / bknd ), r_k1 / bknd ); // Hager and Zhang
     // RealType beta_k = inner_product( r_k1 , r_k1 ) /  inner_product( r_k , r_k ); // classic cg
     VectorType p_k1  = r_k1 + beta_k * p_k;
-    // if ( makeprojsparse ) this->SparsifyP( p_k1, keeppos ); 
+    // if ( makeprojsparse ) this->SparsifyP( p_k1, keeppos );
     r_k = r_k1;
     p_k = p_k1;
     x_k = x_k1;
@@ -1907,12 +1907,12 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     }
   unsigned int repspervec = this->m_MaximumNumberOfIterations;
   this->m_VariatesP.set_size( this->m_MatrixP.cols() , repspervec * n_vecs );
-  this->m_VariatesP.fill( 0 ); 
+  this->m_VariatesP.fill( 0 );
   RealType     fnp = this->m_FractionNonZeroP;
-  for (  unsigned int colind = 0; colind < n_vecs; colind++ )  
-    { 
+  for (  unsigned int colind = 0; colind < n_vecs; colind++ )
+    {
     /******key part of algorithm******/
-    for (  unsigned int whichevec = 0; whichevec < repspervec ; whichevec++ ) 
+    for (  unsigned int whichevec = 0; whichevec < repspervec ; whichevec++ )
     {
     VectorType b = this->m_Eigenvectors.get_column( colind );
     unsigned int baseind = colind * repspervec;
@@ -1933,7 +1933,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       // ::ants::antscout << " minerr1 " << minerr1 << " wev " << whichevec << std::endl;
       kgct++;
       }
-    for ( unsigned int j = baseind; j < locind; j++ ) 
+    for ( unsigned int j = baseind; j < locind; j++ )
       {
       VectorType temp = this->m_VariatesP.get_column( j );
       this->ZeroProduct( x_k , temp );
@@ -1945,26 +1945,26 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     RealType reconstruction_error_svd = 0;
     MatrixType approxmat( this->m_MatrixP.rows() , this->m_MatrixP.cols(), 0 );
     MatrixType approxmat_svd( this->m_MatrixP.rows() , this->m_MatrixP.cols(), 0 );
-    for(  unsigned int a = 0; a <= colind; a++ ) 
+    for(  unsigned int a = 0; a <= colind; a++ )
       {
       VectorType ev = this->m_Eigenvectors.get_column( a );
       VectorType nvec = this->m_MatrixP * ev;
       unsigned int baseind = a * repspervec;
       VectorType pvecapprox = this->m_VariatesP.get_column( baseind );
-      for (  unsigned int whichevec = 1; whichevec < repspervec ; whichevec++ ) 
+      for (  unsigned int whichevec = 1; whichevec < repspervec ; whichevec++ )
 	{
         VectorType nextvec = this->m_VariatesP.get_column( baseind + whichevec );
 	pvecapprox = pvecapprox + nextvec;
 	}
       MatrixType locmat = ( outer_product( nvec , pvecapprox ) );
-      approxmat = approxmat + locmat * evalInit( a );	
-      pvecapprox = variatesInit.get_column( a ); 
+      approxmat = approxmat + locmat * evalInit( a );
+      pvecapprox = variatesInit.get_column( a );
       locmat = ( outer_product( nvec , pvecapprox ) );
-      approxmat_svd = approxmat_svd + locmat * evalInit( a );	
-      } 
+      approxmat_svd = approxmat_svd + locmat * evalInit( a );
+      }
     reconstruction_error = ( approxmat  / approxmat.frobenius_norm() - this->m_MatrixP / this->m_MatrixP.frobenius_norm() ).frobenius_norm() ;
     reconstruction_error_svd = ( approxmat_svd / approxmat_svd.frobenius_norm() - this->m_MatrixP / this->m_MatrixP.frobenius_norm() ).frobenius_norm() ;
-    bool writeimage = true;			
+    bool writeimage = true;
     if ( writeimage )
     {
     {
@@ -2036,7 +2036,7 @@ template <class TInputImage, class TRealType>
 TRealType antsSCCANObject<TInputImage, TRealType>
 ::NetworkDecomposition(unsigned int n_vecs )
 {
-  //  MatrixType rmat = this->m_OriginalMatrixR.extract( 
+  //  MatrixType rmat = this->m_OriginalMatrixR.extract(
   //  this->m_OriginalMatrixR.rows() , this->m_OriginalMatrixR.cols() - 1 , 0 , 1 );
   // rmat = this->NormalizeMatrix( rmat );
   /** Based on Golub CONJUGATE  G R A D I E N T   A N D  LANCZOS  HISTORY
@@ -2082,7 +2082,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     unsigned int dont_leave_out = 0;
     for( unsigned int f = 0; f < this->m_MatrixP.rows(); f++ )
       {
-      if ( folds( f ) == fold ) 
+      if ( folds( f ) == fold )
 	{
 	p_leave_out.set_row( leave_out , this->m_MatrixP.get_row( f ) );
 	r_leave_out.set_row( leave_out , this->m_MatrixR.get_row( f ) );
@@ -2095,7 +2095,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
 	dont_leave_out++;
 	}
       }
-    if ( foldnum <= 1 ) 
+    if ( foldnum <= 1 )
       {
       matrixP = p_leave_out;
       matrixR = r_leave_out;
@@ -2135,7 +2135,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       if ( addcol ) this->AddColumnsToMatrix( A , matrixR , 1 , this->m_MatrixR.cols() - 1 );
       VectorType lmsolv( A.cols( ) , 1 );
       (void)this->ConjGrad( A, lmsolv, original_b, 0, 10000 );
-      VectorType v = ( A * lmsolv + this->m_Intercept ); 
+      VectorType v = ( A * lmsolv + this->m_Intercept );
       b = this->Orthogonalize( b , v );
       }
     unsigned int adder = 0;
@@ -2166,7 +2166,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     A = matrixP * this->m_VariatesP.extract( matrixP.cols()  , colind  , 0 , 0);
     if ( addcol ) this->AddColumnsToMatrix( A , matrixR , 1 , this->m_MatrixR.cols() - 1 );
     VectorType lmsolv( A.cols()  , 1 );
-    RealType lmerror = this->ConjGrad(  A ,  lmsolv, original_b, 0, 10000 );
+//     RealType lmerror = this->ConjGrad(  A ,  lmsolv, original_b, 0, 10000 );
     //    vnl_svd< double > eig( A );
     // VectorType lmsolv = eig.solve( original_b );
     // std::cout << " lmsolv " << lmsolv << std::endl;
@@ -2177,8 +2177,8 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     CWriterType::Pointer cwriter = CWriterType::New();
     cwriter->SetFileName( "temp.csv" );
     cwriter->SetInput( &A );
-    cwriter->Write(); 
-    std::cout << " lmsovl " << lmsolv.two_norm() << " Int " << this->m_Intercept << " rlo " << r_leave_out.get_column( 0 ).two_norm() << " sz " << soln.size( ) <<   "  rlosz " << r_leave_out.get_column( 0 ).size( ) << " solnnorm " << soln.two_norm( ) << std::endl; 
+    cwriter->Write();
+    std::cout << " lmsovl " << lmsolv.two_norm() << " Int " << this->m_Intercept << " rlo " << r_leave_out.get_column( 0 ).two_norm() << " sz " << soln.size( ) <<   "  rlosz " << r_leave_out.get_column( 0 ).size( ) << " solnnorm " << soln.two_norm( ) << std::endl;
 */
 
     VectorType soln = A * lmsolv + this->m_Intercept;
@@ -2188,7 +2188,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     else
     for( unsigned int f = 0; f < this->m_MatrixP.rows(); f++ )
       {
-      if ( folds( f ) == fold ) 
+      if ( folds( f ) == fold )
 	{
         this->m_CanonicalCorrelations( f ) = soln( fleave_out );
 	RealType temp = fabs( soln( fleave_out ) - r_leave_out.get_column( 0 )( fleave_out ) );
@@ -2205,7 +2205,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
   RealType corr = fabs( this->PearsonCorr( this->m_CanonicalCorrelations , this->m_OriginalMatrixR.get_column( 0 ) ) );
   ::ants::antscout << " correlation " <<  corr << std::endl;
   this->m_VariatesP = this->m_VariatesQ;
-  
+
   for ( unsigned int i = 0; i < this->m_VariatesP.cols(); i++ )
     {
     VectorType col = this->m_VariatesP.get_column( i );
@@ -2796,8 +2796,8 @@ TRealType antsSCCANObject<TInputImage, TRealType>
         this->m_VariatesQ.set_column(k, qveck / hkkm1);
         }
       this->NormalizeWeightsByCovariance(k);
-      VectorType proj1 =  this->m_MatrixP * this->m_VariatesP.get_column( k );      
-      VectorType proj2 =  this->m_MatrixQ * this->m_VariatesQ.get_column( k );      
+      VectorType proj1 =  this->m_MatrixP * this->m_VariatesP.get_column( k );
+      VectorType proj2 =  this->m_MatrixQ * this->m_VariatesQ.get_column( k );
       this->m_CanonicalCorrelations[k] = this->PearsonCorr( proj1 , proj2  );
       //      ::ants::antscout << " proj1 " << proj1 << std::endl;
       //      ::ants::antscout << " proj2 " << proj2 << std::endl;

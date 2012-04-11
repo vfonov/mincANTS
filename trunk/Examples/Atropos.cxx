@@ -837,26 +837,26 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
             likelihoodOption->GetParameter( 1 ) );
         }
       float orientationSigma = 1.0;
-      if (likelihoodOption->GetNumberOfParameters() > 2 ) 
-      { 
+      if (likelihoodOption->GetNumberOfParameters() > 2 )
+      {
           orientationSigma = parser->Convert<float>(
-            likelihoodOption->GetParameter( 2 ) );                 
+            likelihoodOption->GetParameter( 2 ) );
       }
-      unsigned int numberOfOrientationBins = 32; 
-      if( likelihoodOption -> GetNumberOfParameters() > 3) 
+      unsigned int numberOfOrientationBins = 32;
+      if( likelihoodOption -> GetNumberOfParameters() > 3)
       {
           numberOfOrientationBins = parser->Convert<unsigned int>(
-            likelihoodOption->GetParameter(3) );             
+            likelihoodOption->GetParameter(3) );
       }
-      
+
       for( unsigned int n = 0; n < segmenter->GetNumberOfTissueClasses(); n++ )
         {
         typename LikelihoodType::Pointer hpwLikelihood =
           LikelihoodType::New();
         hpwLikelihood->SetShapeSigma( shapeSigma );
-        hpwLikelihood->SetOrientationSigma( orientationSigma); 
+        hpwLikelihood->SetOrientationSigma( orientationSigma);
         hpwLikelihood->SetNumberOfShapeJointHistogramBins( numberOfShapeBins );
-        hpwLikelihood->SetNumberOfOrientationJointHistogramBins( numberOfOrientationBins); 
+        hpwLikelihood->SetNumberOfOrientationJointHistogramBins( numberOfOrientationBins);
         segmenter->SetLikelihoodFunction( n, hpwLikelihood );
         }
       }
@@ -1709,9 +1709,8 @@ int Atropos( std::vector<std::string> args , std::ostream* out_stream = NULL )
       antscout << "Unsupported dimension" << std::endl;
       return EXIT_FAILURE;
     }
+  return EXIT_SUCCESS;
 }
-
-
 
 } // namespace ants
 

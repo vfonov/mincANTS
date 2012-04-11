@@ -809,9 +809,8 @@ int N4BiasFieldCorrection( std::vector<std::string> args , std::ostream* out_str
       antscout << "Unsupported dimension" << std::endl;
       return EXIT_FAILURE;
     }
+  return EXIT_SUCCESS;
 }
-
-
 
 } // namespace ants
 

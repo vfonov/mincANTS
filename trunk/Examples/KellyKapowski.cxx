@@ -1576,9 +1576,8 @@ int KellyKapowski( std::vector<std::string> args , std::ostream* out_stream = NU
       return EXIT_FAILURE;
       }
     }
+  return EXIT_SUCCESS;
 }
-
-
 
 } // namespace ants
 

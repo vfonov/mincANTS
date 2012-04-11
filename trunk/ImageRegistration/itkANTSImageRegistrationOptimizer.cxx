@@ -2527,10 +2527,10 @@ ANTSImageRegistrationOptimizer<TDimension, TReal>
 
 //  ::ants::antscout << " st " << starttimein << " ft " << finishtimein << std::endl;
   typedef TReal                              PixelType;
-  typedef itk::Vector<TReal, TDimension>     VectorType;
-  typedef itk::Image<VectorType, TDimension> DisplacementFieldType;
-  typedef itk::Image<PixelType, TDimension>  ImageType;
-  typedef typename  ImageType::IndexType     IndexType;
+//   typedef itk::Vector<TReal, TDimension>     VectorType;
+//   typedef itk::Image<VectorType, TDimension> DisplacementFieldType;
+//   typedef itk::Image<PixelType, TDimension>  ImageType;
+//   typedef typename  ImageType::IndexType     IndexType;
   typedef typename  ImageType::SizeType      SizeType;
   typedef typename  ImageType::SpacingType   SpacingType;
   typedef TimeVaryingVelocityFieldType       tvt;

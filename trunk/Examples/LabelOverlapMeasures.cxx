@@ -252,6 +252,7 @@ int LabelOverlapMeasures( std::vector<std::string> args , std::ostream* out_stre
       antscout << "Unsupported dimension" << std::endl;
       return EXIT_FAILURE;
     }
+  return EXIT_SUCCESS;
 }
 
 
