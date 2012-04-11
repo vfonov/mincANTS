@@ -1,6 +1,7 @@
 
 #include "antscout.hxx"
-
+#include <algorithm>
+#include <algorithm>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -303,7 +304,8 @@ int ConvertScalarImageToRGB( std::vector<std::string> args , std::ostream* out_s
   // 'args' may have adjacent arguments concatenated into one argument,
   // which the parser should handle
   args.insert( args.begin() , "ConvertScalarImageToRGB" ) ;
-
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -335,7 +337,7 @@ int ConvertScalarImageToRGB( std::vector<std::string> args , std::ostream* out_s
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 6 )
     {
@@ -344,7 +346,7 @@ int ConvertScalarImageToRGB( std::vector<std::string> args , std::ostream* out_s
               << "[minimumRGBOutput] [maximumRGBOutput]" << std::endl;
     antscout << "  Possible colormaps: grey, red, green, blue, copper, jet, hsv, ";
     antscout << "spring, summer, autumn, winter, hot, cool, overunder, custom" << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   switch( atoi( argv[1] ) )
@@ -357,7 +359,7 @@ int ConvertScalarImageToRGB( std::vector<std::string> args , std::ostream* out_s
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 }
 

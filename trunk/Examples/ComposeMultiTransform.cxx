@@ -1,6 +1,7 @@
 
 #include "antscout.hxx"
-
+#include <algorithm>
+#include <algorithm>
 #include <vector>
 #include <string>
 #include "itkImageFileReader.h"
@@ -412,7 +413,8 @@ int ComposeMultiTransform( std::vector<std::string> args , std::ostream* out_str
   // 'args' may have adjacent arguments concatenated into one argument,
   // which the parser should handle
   args.insert( args.begin() , "ComposeMultiTransform" ) ;
-
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -444,7 +446,7 @@ int ComposeMultiTransform( std::vector<std::string> args , std::ostream* out_str
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc <= 3 )
     {
@@ -471,7 +473,7 @@ int ComposeMultiTransform( std::vector<std::string> args , std::ostream* out_str
               << "The default reference is the first given affine text file. "
               << "This ignores all non-txt files among the following parameters."
               << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   TRAN_OPT_QUEUE opt_queue;
@@ -570,7 +572,7 @@ int ComposeMultiTransform( std::vector<std::string> args , std::ostream* out_str
     antscout << "Input error!" << std::endl;
     }
 
-  throw std::exception();
+  return EXIT_FAILURE;
 
 }
 

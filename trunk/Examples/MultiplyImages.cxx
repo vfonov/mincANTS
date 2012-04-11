@@ -18,6 +18,7 @@
 
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "itkDiscreteGaussianImageFilter.h"
 
@@ -145,6 +146,7 @@ int MultiplyImages( std::vector<std::string> args , std::ostream* out_stream = N
   // which the parser should handle
   args.insert( args.begin() , "MultiplyImages" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -176,7 +178,7 @@ int MultiplyImages( std::vector<std::string> args , std::ostream* out_stream = N
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 4 )
     {
@@ -269,7 +271,7 @@ int MultiplyImages( std::vector<std::string> args , std::ostream* out_stream = N
       break;
     default:
       antscout << " not supported " << dim  << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 
   return 0;

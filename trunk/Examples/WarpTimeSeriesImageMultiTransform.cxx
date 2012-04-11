@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include <vector>
 #include <string>
@@ -1087,6 +1088,7 @@ int WarpTimeSeriesImageMultiTransform( std::vector<std::string> args , std::ostr
   // which the parser should handle
   args.insert( args.begin() , "WarpTimeSeriesImageMultiTransform" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -1118,7 +1120,7 @@ int WarpTimeSeriesImageMultiTransform( std::vector<std::string> args , std::ostr
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc <= 3 )
     {
@@ -1168,7 +1170,7 @@ int WarpTimeSeriesImageMultiTransform( std::vector<std::string> args , std::ostr
     antscout << " --use-BSpline            : Use 3rd order B-Spline Interpolation." << std::endl;
 
     antscout << "\n " << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   TRAN_OPT_QUEUE opt_queue;
@@ -1220,7 +1222,7 @@ int WarpTimeSeriesImageMultiTransform( std::vector<std::string> args , std::ostr
     antscout << "Input error!" << std::endl;
     }
 
-  throw std::exception();
+  return EXIT_FAILURE;
 
 }
 

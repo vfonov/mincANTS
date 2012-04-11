@@ -1,6 +1,7 @@
 
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "itkVectorIndexSelectionCastImageFilter.h"
 #include "itkImageRegionIteratorWithIndex.h"
@@ -28,7 +29,7 @@
 #include "ReadWriteImage.h"
 
 #include "itkGradientRecursiveGaussianImageFilter.h"
-
+#include <algorithm>
 
 namespace ants
 {
@@ -142,7 +143,8 @@ int ANTSIntegrateVelocityField( std::vector<std::string> args , std::ostream* ou
   // 'args' may have adjacent arguments concatenated into one argument,
   // which the parser should handle
   args.insert( args.begin() , "ANTSIntegrateVelocityField" ) ;
-
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -174,7 +176,7 @@ int ANTSIntegrateVelocityField( std::vector<std::string> args , std::ostream* ou
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 4 )
     {
@@ -204,7 +206,7 @@ int ANTSIntegrateVelocityField( std::vector<std::string> args , std::ostream* ou
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 
   return EXIT_SUCCESS;

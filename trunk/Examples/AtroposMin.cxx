@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -317,7 +318,8 @@ int AtroposMin( std::vector<std::string> args , std::ostream* out_stream = NULL 
   // 'args' may have adjacent arguments concatenated into one argument,
   // which the parser should handle
   args.insert( args.begin() , "AtroposMin" ) ;
-
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -349,7 +351,7 @@ int AtroposMin( std::vector<std::string> args , std::ostream* out_stream = NULL 
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   itk::ants::CommandLineParser::Pointer parser =
     itk::ants::CommandLineParser::New();
@@ -374,13 +376,13 @@ int AtroposMin( std::vector<std::string> args , std::ostream* out_stream = NULL 
         parser->GetOption( "help" )->GetValue() ) )
     {
     parser->PrintMenu( antscout, 5, false );
-    throw std::exception();
+    return EXIT_FAILURE;
     }
   else if( parser->GetOption( 'h' ) &&
            parser->Convert<bool>( parser->GetOption( 'h' )->GetValue() ) )
     {
     parser->PrintMenu( antscout, 5, true );
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   // Get dimensionality
@@ -437,7 +439,7 @@ int AtroposMin( std::vector<std::string> args , std::ostream* out_stream = NULL 
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 }
 

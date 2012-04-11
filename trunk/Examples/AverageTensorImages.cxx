@@ -1,6 +1,7 @@
 
 #include "antscout.hxx"
-
+#include <algorithm>
+#include <algorithm>
 #include "stdio.h"
 #include "itkImage.h"
 #include "itkImageRegionIteratorWithIndex.h"
@@ -96,7 +97,8 @@ int AverageTensorImages( std::vector<std::string> args , std::ostream* out_strea
   // 'args' may have adjacent arguments concatenated into one argument,
   // which the parser should handle
   args.insert( args.begin() , "AverageTensorImages" ) ;
-
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -128,7 +130,7 @@ int AverageTensorImages( std::vector<std::string> args , std::ostream* out_strea
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   try
     {
@@ -144,7 +146,7 @@ int AverageTensorImages( std::vector<std::string> args , std::ostream* out_strea
       antscout << argv[0] << " ImageDimension  average.nii mathtype list-of-files-via-wildcard " << std::endl;
       antscout << " e.g. \n   AverageTensorImages 3  average.nii  1  *registered.nii " << std::endl;
       antscout << " mathtype=[0=log-euclidean, 1=euclidean] " << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
       }
 
     // Get the image dimension
@@ -158,7 +160,7 @@ int AverageTensorImages( std::vector<std::string> args , std::ostream* out_strea
         break;
       default:
         antscout << "Unsupported dimension" << std::endl;
-        throw std::exception();
+        return EXIT_FAILURE;
       }
 
     return 0;;

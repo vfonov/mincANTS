@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include <stdio.h>
 
@@ -297,6 +298,7 @@ int ResampleImage( std::vector<std::string> args , std::ostream* out_stream = NU
   // which the parser should handle
   args.insert( args.begin() , "ResampleImage" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -328,7 +330,7 @@ int ResampleImage( std::vector<std::string> args , std::ostream* out_stream = NU
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 5 )
     {
@@ -340,7 +342,7 @@ int ResampleImage( std::vector<std::string> args , std::ostream* out_stream = NU
     antscout << "    2. gaussian [sigma=imageSpacing] [alpha=1.0]" << std::endl;
     antscout << "    3. windowedSinc [type = 'c'osine, 'w'elch, 'b'lackman, 'l'anczos, 'h'amming]" << std::endl;
     antscout << "    4. B-Spline [order=3]" << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   switch( atoi( argv[1] ) )
@@ -356,7 +358,7 @@ int ResampleImage( std::vector<std::string> args , std::ostream* out_stream = NU
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 }
 

@@ -17,6 +17,7 @@
 =========================================================================*/
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "ReadWriteImage.h"
 #include "itkDiscreteGaussianImageFilter.h"
@@ -181,6 +182,7 @@ int MemoryTest( std::vector<std::string> args , std::ostream* out_stream = NULL 
   // which the parser should handle
   args.insert( args.begin() , "MemoryTest" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -212,7 +214,7 @@ int MemoryTest( std::vector<std::string> args , std::ostream* out_stream = NULL 
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 3 )
     {
@@ -234,7 +236,7 @@ int MemoryTest( std::vector<std::string> args , std::ostream* out_stream = NULL 
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 
   return 0;

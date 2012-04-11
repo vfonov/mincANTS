@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -144,6 +145,7 @@ int PasteImageIntoImage( std::vector<std::string> args , std::ostream* out_strea
   // which the parser should handle
   args.insert( args.begin() , "PasteImageIntoImage" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -175,7 +177,7 @@ int PasteImageIntoImage( std::vector<std::string> args , std::ostream* out_strea
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 6 )
     {
@@ -192,7 +194,7 @@ int PasteImageIntoImage( std::vector<std::string> args , std::ostream* out_strea
     << std::endl;
     antscout << "     paintOverNonBackgroundVoxels = 2 -> replace canvas voxel walue with conflictLabel"  << std::endl;
 
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   switch( atoi( argv[1] ) )
@@ -208,7 +210,7 @@ int PasteImageIntoImage( std::vector<std::string> args , std::ostream* out_strea
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 }
 

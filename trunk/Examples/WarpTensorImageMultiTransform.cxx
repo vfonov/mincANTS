@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include <vector>
 #include <string>
@@ -839,6 +840,7 @@ int WarpTensorImageMultiTransform( std::vector<std::string> args , std::ostream*
   // which the parser should handle
   args.insert( args.begin() , "WarpTensorImageMultiTransform" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -870,7 +872,7 @@ int WarpTensorImageMultiTransform( std::vector<std::string> args , std::ostream*
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc <= 3 )
     {
@@ -921,7 +923,7 @@ int WarpTensorImageMultiTransform( std::vector<std::string> args , std::ostream*
               << "Note: " << std::endl
               << "prefix name \"abcd\" without any extension will use \".nii.gz\" by default" << std::endl;
 
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   TRAN_OPT_QUEUE opt_queue;
@@ -969,7 +971,7 @@ int WarpTensorImageMultiTransform( std::vector<std::string> args , std::ostream*
     antscout << "Input error!" << std::endl;
     }
 
-  throw std::exception();
+  return EXIT_FAILURE;
 
 }
 

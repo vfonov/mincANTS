@@ -17,7 +17,8 @@
 =========================================================================*/
 
 #include "antscout.hxx"
-
+#include <algorithm>
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
@@ -103,7 +104,8 @@ int ConvertImagePixelType( std::vector<std::string> args , std::ostream* out_str
   // 'args' may have adjacent arguments concatenated into one argument,
   // which the parser should handle
   args.insert( args.begin() , "ConvertImagePixelType" ) ;
-
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -135,7 +137,7 @@ int ConvertImagePixelType( std::vector<std::string> args , std::ostream* out_str
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 3 )
     {
@@ -185,7 +187,7 @@ int ConvertImagePixelType( std::vector<std::string> args , std::ostream* out_str
         break;
       default:
         antscout << "Unsupported dimension" << std::endl;
-        throw std::exception();
+        return EXIT_FAILURE;
       }
     }
   else if( typeoption == 1 )
@@ -200,7 +202,7 @@ int ConvertImagePixelType( std::vector<std::string> args , std::ostream* out_str
         break;
       default:
         antscout << "Unsupported dimension" << std::endl;
-        throw std::exception();
+        return EXIT_FAILURE;
       }
     }
   else if( typeoption == 2 )
@@ -215,7 +217,7 @@ int ConvertImagePixelType( std::vector<std::string> args , std::ostream* out_str
         break;
       default:
         antscout << "Unsupported dimension" << std::endl;
-        throw std::exception();
+        return EXIT_FAILURE;
       }
     }
   else if( typeoption == 3 )
@@ -230,7 +232,7 @@ int ConvertImagePixelType( std::vector<std::string> args , std::ostream* out_str
         break;
       default:
         antscout << "Unsupported dimension" << std::endl;
-        throw std::exception();
+        return EXIT_FAILURE;
       }
     }
   else if( typeoption == 4 )
@@ -245,7 +247,7 @@ int ConvertImagePixelType( std::vector<std::string> args , std::ostream* out_str
         break;
       default:
         antscout << "Unsupported dimension" << std::endl;
-        throw std::exception();
+        return EXIT_FAILURE;
       }
     }
   else if( typeoption == 5 )
@@ -260,7 +262,7 @@ int ConvertImagePixelType( std::vector<std::string> args , std::ostream* out_str
         break;
       default:
         antscout << "Unsupported dimension" << std::endl;
-        throw std::exception();
+        return EXIT_FAILURE;
       }
     }
 

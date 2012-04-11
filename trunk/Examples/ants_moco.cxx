@@ -18,6 +18,7 @@
 
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "antsCommandLineParser.h"
 #include "itkCSVNumericObjectFileWriter.h"
@@ -60,6 +61,7 @@
 #include "itkVector.h"
 
 #include <sstream>
+#include <algorithm>
 
 namespace ants
 {
@@ -1091,7 +1093,8 @@ int ants_moco( std::vector<std::string> args , std::ostream* out_stream = NULL )
   // 'args' may have adjacent arguments concatenated into one argument,
   // which the parser should handle
   args.insert( args.begin() , "ants_moco" ) ;
-
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -1123,7 +1126,7 @@ int ants_moco( std::vector<std::string> args , std::ostream* out_stream = NULL )
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   typedef itk::Euler2DTransform<double> Euler2D;
   typedef itk::Euler3DTransform<double> Euler3D;
@@ -1146,12 +1149,12 @@ int ants_moco( std::vector<std::string> args , std::ostream* out_stream = NULL )
   if( argc < 2 || parser->Convert<bool>( parser->GetOption( "help" )->GetValue() ) )
     {
     parser->PrintMenu( antscout, 5, false );
-    throw std::exception();
+    return EXIT_FAILURE;
     }
   else if( parser->Convert<bool>( parser->GetOption( 'h' )->GetValue() ) )
     {
     parser->PrintMenu( antscout, 5, true );
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   // Get dimensionality
@@ -1165,7 +1168,7 @@ int ants_moco( std::vector<std::string> args , std::ostream* out_stream = NULL )
   else
     {
     antscout << "Image dimensionality not specified.  See command line option --dimensionality" << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   antscout << std::endl << "Running " << argv[0] << "  for " << dimension << "-dimensional images." << std::endl
@@ -1181,7 +1184,7 @@ int ants_moco( std::vector<std::string> args , std::ostream* out_stream = NULL )
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 }
 

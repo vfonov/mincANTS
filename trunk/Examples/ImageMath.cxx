@@ -17,6 +17,7 @@
 =========================================================================*/
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include <map>
 // Here I'm using a map but you could choose even other containers
@@ -9230,6 +9231,7 @@ int ImageMath( std::vector<std::string> args , std::ostream* out_stream = NULL )
   // which the parser should handle
   args.insert( args.begin() , "ImageMath" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -9261,7 +9263,7 @@ int ImageMath( std::vector<std::string> args , std::ostream* out_stream = NULL )
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 5 )
     {
@@ -10422,7 +10424,7 @@ int ImageMath( std::vector<std::string> args , std::ostream* out_stream = NULL )
 
     default:
       antscout << " Dimension Not supported " << atoi(argv[1]) << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
   return 0;
 }

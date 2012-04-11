@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "itkImage.h"
 #include "itkImageFileReader.h"
@@ -122,6 +123,7 @@ int LabelGeometryMeasures( std::vector<std::string> args , std::ostream* out_str
   // which the parser should handle
   args.insert( args.begin() , "LabelGeometryMeasures" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -153,7 +155,7 @@ int LabelGeometryMeasures( std::vector<std::string> args , std::ostream* out_str
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 3 )
     {
@@ -172,7 +174,7 @@ int LabelGeometryMeasures( std::vector<std::string> args , std::ostream* out_str
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 }
 

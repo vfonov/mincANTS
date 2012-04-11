@@ -3,6 +3,7 @@
 
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "itkSurfaceCurvatureBase.h"
 #include "itkSurfaceImageCurvature.h"
@@ -57,6 +58,7 @@ int SurfaceCurvature( std::vector<std::string> args , std::ostream* out_stream =
   // which the parser should handle
   args.insert( args.begin() , "SurfaceCurvature" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -88,7 +90,7 @@ int SurfaceCurvature( std::vector<std::string> args , std::ostream* out_stream =
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 3 )
     {

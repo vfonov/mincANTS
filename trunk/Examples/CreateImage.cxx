@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include <stdio.h>
 
@@ -296,6 +297,7 @@ int CreateImage( std::vector<std::string> args , std::ostream* out_stream = NULL
   // which the parser should handle
   args.insert( args.begin() , "CreateImage" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -327,7 +329,7 @@ int CreateImage( std::vector<std::string> args , std::ostream* out_stream = NULL
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 5 )
     {
@@ -335,7 +337,7 @@ int CreateImage( std::vector<std::string> args , std::ostream* out_stream = NULL
     antscout << "Usage 2: " << argv[0] << " imageDimension outputImage origin spacing size constant [random?]"
               << std::endl;
     antscout << "Usage 3: " << argv[0] << " imageDimension outputImage origin spacing size pixelValues" << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   switch( atoi( argv[1] ) )
@@ -357,7 +359,7 @@ int CreateImage( std::vector<std::string> args , std::ostream* out_stream = NULL
       }
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 }
 

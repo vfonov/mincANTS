@@ -15,9 +15,8 @@
 *  limitations under the License.
 *
 *=========================================================================*/
-
-
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "antsCommandLineParser.h"
 #include "itkCSVNumericObjectFileWriter.h"
@@ -64,6 +63,7 @@
 #include "itkANTSAffine3DTransform.h"
 #include "itkANTSCenteredAffine2DTransform.h"
 #include <sstream>
+#include <algorithm>
 
 namespace ants
 {
@@ -1217,7 +1217,8 @@ int antsMotionCorr( std::vector<std::string> args , std::ostream* out_stream = N
   // 'args' may have adjacent arguments concatenated into one argument,
   // which the parser should handle
   args.insert( args.begin() , "antsMotionCorr" ) ;
-
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -1249,7 +1250,7 @@ int antsMotionCorr( std::vector<std::string> args , std::ostream* out_stream = N
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   itk::ants::CommandLineParser::Pointer parser = itk::ants::CommandLineParser::New();
 
@@ -1269,13 +1270,13 @@ int antsMotionCorr( std::vector<std::string> args , std::ostream* out_stream = N
 
   if( argc < 2 || parser->Convert<bool>( parser->GetOption( "help" )->GetValue() ) )
     {
-    parser->PrintMenu( antscout, 5, false );
-    throw std::exception();
+      parser->PrintMenu( antscout , 5, false );
+    return EXIT_FAILURE ;
     }
   else if( parser->Convert<bool>( parser->GetOption( 'h' )->GetValue() ) )
     {
     parser->PrintMenu( antscout, 5, true );
-    throw std::exception();
+    return EXIT_FAILURE ;
     }
 
   // Get dimensionality
@@ -1289,7 +1290,7 @@ int antsMotionCorr( std::vector<std::string> args , std::ostream* out_stream = N
   else
     {
     antscout << "Image dimensionality not specified.  See command line option --dimensionality" << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE ;
     }
 
   antscout << std::endl << "Running " << argv[0] << "  for " << dimension << "-dimensional images." << std::endl
@@ -1305,7 +1306,7 @@ int antsMotionCorr( std::vector<std::string> args , std::ostream* out_stream = N
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE ;
     }
 
   return 0 ;

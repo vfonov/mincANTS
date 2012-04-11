@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkHausdorffDistanceImageFilter.h"
@@ -198,6 +199,7 @@ int LabelOverlapMeasures( std::vector<std::string> args , std::ostream* out_stre
   // which the parser should handle
   args.insert( args.begin() , "LabelOverlapMeasures" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -229,7 +231,7 @@ int LabelOverlapMeasures( std::vector<std::string> args , std::ostream* out_stre
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 4 )
     {
@@ -248,7 +250,7 @@ int LabelOverlapMeasures( std::vector<std::string> args , std::ostream* out_stre
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 }
 

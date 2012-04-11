@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "antsCommandLineOption.h"
 #include "antsCommandLineParser.h"
@@ -2201,6 +2202,7 @@ int sccan( std::vector<std::string> args , std::ostream* out_stream = NULL )
   // which the parser should handle
   args.insert( args.begin() , "sccan" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -2232,7 +2234,7 @@ int sccan( std::vector<std::string> args , std::ostream* out_stream = NULL )
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   itk::ants::CommandLineParser::Pointer parser =
     itk::ants::CommandLineParser::New();
@@ -2257,7 +2259,7 @@ int sccan( std::vector<std::string> args , std::ostream* out_stream = NULL )
       )
     {
     parser->PrintMenu( antscout, 5, false );
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   itk::ants::CommandLineParser::OptionType::Pointer shortHelpOption =
@@ -2266,7 +2268,7 @@ int sccan( std::vector<std::string> args , std::ostream* out_stream = NULL )
                      parser->Convert<unsigned int>( shortHelpOption->GetValue() ) == 1 ) )
     {
     parser->PrintMenu( antscout, 5, true );
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   // Print the long help menu for specific items
@@ -2288,7 +2290,7 @@ int sccan( std::vector<std::string> args , std::ostream* out_stream = NULL )
           }
         }
       }
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   // Call main routine

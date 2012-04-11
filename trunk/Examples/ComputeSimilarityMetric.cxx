@@ -17,7 +17,8 @@
 =========================================================================*/
 
 #include "antscout.hxx"
-
+#include <algorithm>
+#include <algorithm>
 #include "ReadWriteImage.h"
 #include "itkDiscreteGaussianImageFilter.h"
 #include "itkAvantsMutualInformationRegistrationFunction.h"
@@ -231,7 +232,8 @@ int ComputeSimilarityMetric( std::vector<std::string> args , std::ostream* out_s
   // 'args' may have adjacent arguments concatenated into one argument,
   // which the parser should handle
   args.insert( args.begin() , "ComputeSimilarityMetric" ) ;
-
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -263,7 +265,7 @@ int ComputeSimilarityMetric( std::vector<std::string> args , std::ostream* out_s
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 3 )
     {
@@ -284,7 +286,7 @@ int ComputeSimilarityMetric( std::vector<std::string> args , std::ostream* out_s
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 
   return 0;

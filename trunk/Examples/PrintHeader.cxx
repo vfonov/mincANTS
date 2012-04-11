@@ -17,6 +17,7 @@
 =========================================================================*/
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include <iostream>
 #include <sys/stat.h>
@@ -337,6 +338,7 @@ int PrintHeader( std::vector<std::string> args , std::ostream* out_stream = NULL
   // which the parser should handle
   args.insert( args.begin() , "PrintHeader" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -368,7 +370,7 @@ int PrintHeader( std::vector<std::string> args , std::ostream* out_stream = NULL
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 2  || ( (argc == 2) && strcmp(argv[1], "--help") == 0) )
     {
@@ -412,7 +414,7 @@ int PrintHeader( std::vector<std::string> args , std::ostream* out_stream = NULL
       break;
     default:
       antscout << "Unsupported dimension " <<  imageIO->GetNumberOfDimensions() << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 
   return 0;

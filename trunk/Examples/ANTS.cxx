@@ -18,11 +18,12 @@
 
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "itkPICSLAdvancedNormalizationToolKit.h"
 #include "itkANTSImageTransformation.h"
 #include "itkANTSImageRegistrationOptimizer.h"
-
+#include <algorithm>
 #include <string>
 
 namespace ants
@@ -60,7 +61,8 @@ int ANTS( std::vector<std::string> args , std::ostream* out_stream = NULL )
   // 'args' may have adjacent arguments concatenated into one argument,
   // which the parser should handle
   args.insert( args.begin() , "ANTS" ) ;
-
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -92,7 +94,7 @@ int ANTS( std::vector<std::string> args , std::ostream* out_stream = NULL )
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   int dim = 2;
 
@@ -163,7 +165,7 @@ int ANTS( std::vector<std::string> args , std::ostream* out_stream = NULL )
               << " . Please use only 2 or 3 (for 2 or 3 Dimensional registration)  " << std::endl;
     argv[1] = (char *)("--help");
     ANTSex<2>( argc, argv );
-    throw std::exception();
+    return EXIT_FAILURE;
     }
   /**
    * Try the simple case of the call "ANTS fixedImage movingImage"

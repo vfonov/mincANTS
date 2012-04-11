@@ -17,6 +17,7 @@
 =========================================================================*/
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include <iostream>
 #include <fstream>
@@ -141,6 +142,7 @@ int CopyImageHeaderInformation( std::vector<std::string> args , std::ostream* ou
   // which the parser should handle
   args.insert( args.begin() , "CopyImageHeaderInformation" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -172,7 +174,7 @@ int CopyImageHeaderInformation( std::vector<std::string> args , std::ostream* ou
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 4  )
     {
@@ -202,7 +204,7 @@ int CopyImageHeaderInformation( std::vector<std::string> args , std::ostream* ou
       break;
     default:
       antscout << "Unsupported dimension : " << dim << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 
   return 0;

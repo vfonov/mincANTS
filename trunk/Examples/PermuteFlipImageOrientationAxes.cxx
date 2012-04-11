@@ -18,6 +18,7 @@
 
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "itkImage.h"
 #include "itkConstantPadImageFilter.h"
@@ -143,6 +144,7 @@ int PermuteFlipImageOrientationAxes( std::vector<std::string> args , std::ostrea
   // which the parser should handle
   args.insert( args.begin() , "PermuteFlipImageOrientationAxes" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -174,7 +176,7 @@ int PermuteFlipImageOrientationAxes( std::vector<std::string> args , std::ostrea
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 3 )
     {
@@ -207,7 +209,7 @@ int PermuteFlipImageOrientationAxes( std::vector<std::string> args , std::ostrea
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 
   return 0;

@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "itkBSplineControlPointImageFilter.h"
 #include "itkExpImageFilter.h"
@@ -230,6 +231,7 @@ int N3BiasFieldCorrection( std::vector<std::string> args , std::ostream* out_str
   // which the parser should handle
   args.insert( args.begin() , "N3BiasFieldCorrection" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -261,14 +263,14 @@ int N3BiasFieldCorrection( std::vector<std::string> args , std::ostream* out_str
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 4 )
     {
     antscout << "Usage: " << argv[0] << " imageDimension inputImage "
               << "outputImage [shrinkFactor] [maskImage] [numberOfIterations] "
               << "[numberOfFittingLevels] [outputBiasField] " << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   switch( atoi( argv[1] ) )
@@ -281,7 +283,7 @@ int N3BiasFieldCorrection( std::vector<std::string> args , std::ostream* out_str
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 }
 

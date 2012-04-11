@@ -18,6 +18,7 @@
 
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "ReadWriteImage.h"
 #include "itkPreservationOfPrincipalDirectionTensorReorientationImageFilter.h"
@@ -340,6 +341,7 @@ int ReorientTensorImage( std::vector<std::string> args , std::ostream* out_strea
   // which the parser should handle
   args.insert( args.begin() , "ReorientTensorImage" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -371,7 +373,7 @@ int ReorientTensorImage( std::vector<std::string> args , std::ostream* out_strea
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 4 )
     {
@@ -389,7 +391,7 @@ int ReorientTensorImage( std::vector<std::string> args , std::ostream* out_strea
   if( dim != 3 )
     {
     antscout << "ReorientTensorImage only supports 3D image volumes" << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   is_parsing_ok = ParseInput(argc - 2, argv + 2, moving_image_filename, output_image_filename, opt_queue);
@@ -408,7 +410,7 @@ int ReorientTensorImage( std::vector<std::string> args , std::ostream* out_strea
     antscout << "Input error!" << std::endl;
     }
 
-  throw std::exception();
+  return EXIT_FAILURE;
 
   // ReorientTensorImage<3>(argc,argv);
 //  WarpImageForward(argc,argv);

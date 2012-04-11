@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "itkWin32Header.h"
 #include <iostream>
@@ -31,6 +32,7 @@ int ImageCompare( std::vector<std::string> args , std::ostream* out_stream = NUL
   // which the parser should handle
   args.insert( args.begin() , "ImageCompare" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -62,7 +64,7 @@ int ImageCompare( std::vector<std::string> args , std::ostream* out_stream = NUL
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 3 )
     {

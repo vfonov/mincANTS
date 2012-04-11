@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include <stdio.h>
 
@@ -139,6 +140,7 @@ int ExtractRegionFromImage( std::vector<std::string> args , std::ostream* out_st
   // which the parser should handle
   args.insert( args.begin() , "ExtractRegionFromImage" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -170,7 +172,7 @@ int ExtractRegionFromImage( std::vector<std::string> args , std::ostream* out_st
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 5 || argc > 6 )
     {
@@ -178,7 +180,7 @@ int ExtractRegionFromImage( std::vector<std::string> args , std::ostream* out_st
               << "inputImage outputImage minIndex maxIndex " << std::endl;
     antscout << "Usage 2: " << argv[0] << " ImageDimension "
               << "inputImage outputImage label " << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   switch( atoi( argv[1] ) )
@@ -191,7 +193,7 @@ int ExtractRegionFromImage( std::vector<std::string> args , std::ostream* out_st
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 }
 

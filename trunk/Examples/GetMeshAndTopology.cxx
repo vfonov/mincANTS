@@ -3,6 +3,7 @@
 
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include <string>
 
@@ -360,6 +361,7 @@ int GetMeshAndTopology( std::vector<std::string> args , std::ostream* out_stream
   // which the parser should handle
   args.insert( args.begin() , "GetMeshAndTopology" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -391,7 +393,7 @@ int GetMeshAndTopology( std::vector<std::string> args , std::ostream* out_stream
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 2 )
     {
@@ -401,7 +403,7 @@ int GetMeshAndTopology( std::vector<std::string> args , std::ostream* out_stream
     antscout <<  " the AA-Param could cause topo problems but makes nicer meshes  " << std::endl;
     antscout << " ValueScale controls contrast in image appearance - lower increaseses -- should be <= 1 "
               << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   // Define the dimension of the images

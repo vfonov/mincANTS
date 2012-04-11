@@ -17,7 +17,8 @@
 
 
 #include "antscout.hxx"
-
+#include <algorithm>
+#include <algorithm>
 #include <string>
 
 #include <math.h>
@@ -929,7 +930,8 @@ int ConformalMapping( std::vector<std::string> args , std::ostream* out_stream =
   // 'args' may have adjacent arguments concatenated into one argument,
   // which the parser should handle
   args.insert( args.begin() , "ConformalMapping" ) ;
-
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -961,7 +963,7 @@ int ConformalMapping( std::vector<std::string> args , std::ostream* out_stream =
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   // Define the dimension of the images
   const unsigned int Dimension = 3;

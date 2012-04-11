@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -194,6 +195,7 @@ int CreateWarpedGridImage( std::vector<std::string> args , std::ostream* out_str
   // which the parser should handle
   args.insert( args.begin() , "CreateWarpedGridImage" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -225,14 +227,14 @@ int CreateWarpedGridImage( std::vector<std::string> args , std::ostream* out_str
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 4 )
     {
     antscout << "Usage: " << argv[0] << " ImageDimension deformationField "
               << "outputImage [directions,e.g. 1x0x0] [gridSpacing] [gridSigma]"
               << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   switch( atoi( argv[1] ) )
@@ -245,7 +247,7 @@ int CreateWarpedGridImage( std::vector<std::string> args , std::ostream* out_str
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 }
 

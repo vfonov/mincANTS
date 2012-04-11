@@ -2,6 +2,7 @@
 
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +21,7 @@
 #include <vnl/vnl_matrix.h>
 // #include <vnl/vnl_qr.h>
 #include "vnl/algo/vnl_qr.h"
+#include <algorithm>
 
 namespace ants
 {
@@ -455,7 +457,8 @@ int ANTSUseDeformationFieldToGetAffineTransform( std::vector<std::string> args ,
   // 'args' may have adjacent arguments concatenated into one argument,
   // which the parser should handle
   args.insert( args.begin() , "ANTSUseDeformationFieldToGetAffineTransform" ) ;
-
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -487,7 +490,7 @@ int ANTSUseDeformationFieldToGetAffineTransform( std::vector<std::string> args ,
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 3 )
     {
@@ -520,7 +523,7 @@ int ANTSUseDeformationFieldToGetAffineTransform( std::vector<std::string> args ,
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 
   return 0;

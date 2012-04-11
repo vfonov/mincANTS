@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "itkImage.h"
 #include "itkImageFileReader.h"
@@ -143,6 +144,7 @@ int CreateDisplacementField( std::vector<std::string> args , std::ostream* out_s
   // which the parser should handle
   args.insert( args.begin() , "CreateDisplacementField" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -174,7 +176,7 @@ int CreateDisplacementField( std::vector<std::string> args , std::ostream* out_s
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 4 )
     {
@@ -186,7 +188,7 @@ int CreateDisplacementField( std::vector<std::string> args , std::ostream* out_s
               <<
     " ImageDimension EnforceZeroBoundaryFlag{0/1} ComponentImage1 [ ComponentImage2 [...ComponentImageN] ] OutputImage "
               << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE;
     }
   itk::SizeValueType imageDimension = atoi( argv[1] );
 
@@ -224,7 +226,7 @@ int CreateDisplacementField( std::vector<std::string> args , std::ostream* out_s
           break;
         default:
           antscout << "Unsupported number of components: " << numberOfComponents << std::endl;
-          throw std::exception();
+          return EXIT_FAILURE;
         }
       break;
     case 3:
@@ -257,12 +259,12 @@ int CreateDisplacementField( std::vector<std::string> args , std::ostream* out_s
           break;
         default:
           antscout << "Unsupported number of components: " << numberOfComponents << std::endl;
-          throw std::exception();
+          return EXIT_FAILURE;
         }
       break;
     default:
       antscout << "Unsupported number of dimensions: " << imageDimension << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 }
 

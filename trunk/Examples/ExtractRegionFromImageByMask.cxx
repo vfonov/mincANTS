@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include <stdio.h>
 
@@ -166,6 +167,7 @@ int ExtractRegionFromImageByMask( std::vector<std::string> args , std::ostream* 
   // which the parser should handle
   args.insert( args.begin() , "ExtractRegionFromImageByMask" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -197,7 +199,7 @@ int ExtractRegionFromImageByMask( std::vector<std::string> args , std::ostream* 
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 6 || argc > 7 )
     {
@@ -206,7 +208,7 @@ int ExtractRegionFromImageByMask( std::vector<std::string> args , std::ostream* 
               << std::endl << "Usage : " << argv[0] << " ImageDimension "
               << "inputImage outputImage labelMaskImage [label=1] [padRadius=0]"
               << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   switch( atoi(argv[1]) )
@@ -219,7 +221,7 @@ int ExtractRegionFromImageByMask( std::vector<std::string> args , std::ostream* 
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 }
 

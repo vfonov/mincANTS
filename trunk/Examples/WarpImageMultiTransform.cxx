@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include <vector>
 #include <string>
@@ -1014,6 +1015,7 @@ int WarpImageMultiTransform( std::vector<std::string> args , std::ostream* out_s
   // which the parser should handle
   args.insert( args.begin() , "WarpImageMultiTransform" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -1045,7 +1047,7 @@ int WarpImageMultiTransform( std::vector<std::string> args , std::ostream* out_s
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc <= 3 )
     {
@@ -1162,7 +1164,7 @@ int WarpImageMultiTransform( std::vector<std::string> args , std::ostream* out_s
     <<
     " The abcdWarp and abcdInverseWarp do not exist. They are formed on the basis of abcd(Inverse)Warp.nii.gz when calling "
     << argv[0] << ", yet you have to use them as if they exist." << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   TRAN_OPT_QUEUE opt_queue;
@@ -1243,7 +1245,7 @@ int WarpImageMultiTransform( std::vector<std::string> args , std::ostream* out_s
         break;
       default:
         antscout << " not supported " << kImageDim  << std::endl;
-        throw std::exception();
+        return EXIT_FAILURE;
         }
       }
     catch( itk::ExceptionObject & e )

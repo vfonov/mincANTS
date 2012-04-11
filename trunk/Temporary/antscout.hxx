@@ -1,55 +1,39 @@
 #ifndef ANTSCOUT_HXX
 #define ANTSCOUT_HXX
 
-#include<ostream>
+#include <cassert>
+#include "stream.hpp"
+#include "concepts.hpp"
+#include <iostream>
 
 namespace ants
 {
 
-class antsCout : public std::ostream
+class ants_Sink : public boost::iostreams::sink
 {
 public:
-  explicit antsCout():usercout(NULL)
+  explicit ants_Sink() : os_( NULL )
   {
   }
-  ~antsCout()
+  void set_stream( std::ostream* os )
   {
+    // assert failed means output streams is being being changed within program
+    assert( os_ == NULL ) ;
+    os_ = os ;
   }
-
-  // set the output stream
-  void set_ostream( std::ostream* ostrm )
+  std::streamsize write( const char* buffer , std::streamsize num_chars )
   {
-    // accept the stream if it is not null
-    if( !(bool)usercout )
+    if( os_ != NULL )
       {
-	usercout = ostrm ;
+	os_->write( buffer , num_chars ) ;
       }
-  }
-
-  // insertion operator
-  template< typename T >
-  antsCout& operator<< ( T t )
-  {
-    if( usercout != NULL )
-      {
-	(*usercout) << t ;
-      }
-    return (*this) ;
-  }
-  // insertion operator for 'std::endl' like types
-  antsCout& operator<< ( std::ostream& (*fptr)( std::ostream& ) )
-  {
-    if( usercout != NULL )
-      {
-	(*usercout) << fptr ;
-      }
-    return (*this) ;
+    return num_chars ;
   }
 private:
-  std::ostream* usercout ;
+  // user provided output stream; defaults to NULL
+  std::ostream* os_ ;
 };
-
-antsCout antscout ;
+boost::iostreams::stream< ants_Sink > antscout( ( ants_Sink() ) ) ;
 
 } // namespace ants
 

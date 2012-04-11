@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "itkConstNeighborhoodIterator.h"
 #include "itkDecomposeTensorFunction.h"
@@ -179,6 +180,7 @@ int CreateJacobianDeterminantImage( std::vector<std::string> args , std::ostream
   // which the parser should handle
   args.insert( args.begin() , "CreateJacobianDeterminantImage" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -210,13 +212,13 @@ int CreateJacobianDeterminantImage( std::vector<std::string> args , std::ostream
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   if( argc < 3 )
     {
     antscout << "Usage: " << argv[0] << " ImageDimension deformationField outputImage log-jac?(default-false)"
               << std::endl;
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   switch( atoi( argv[1] ) )
@@ -229,7 +231,7 @@ int CreateJacobianDeterminantImage( std::vector<std::string> args , std::ostream
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 }
 

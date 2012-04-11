@@ -1,5 +1,6 @@
 
 #include "antscout.hxx"
+#include <algorithm>
 
 #include "antsCommandLineParser.h"
 
@@ -1079,6 +1080,7 @@ int CreateDTICohort( std::vector<std::string> args , std::ostream* out_stream = 
   // which the parser should handle
   args.insert( args.begin() , "CreateDTICohort" ) ;
 
+  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
   int argc = args.size() ;
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
@@ -1110,7 +1112,7 @@ int CreateDTICohort( std::vector<std::string> args , std::ostream* out_stream = 
   } ;
   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout.set_ostream( out_stream ) ;
+  antscout->set_stream( out_stream ) ;
 
   itk::ants::CommandLineParser::Pointer parser =
     itk::ants::CommandLineParser::New();
@@ -1136,13 +1138,13 @@ int CreateDTICohort( std::vector<std::string> args , std::ostream* out_stream = 
         parser->GetOption( "help" )->GetValue() ) )
     {
     parser->PrintMenu( antscout, 5, false );
-    throw std::exception();
+    return EXIT_FAILURE;
     }
   else if( parser->Convert<bool>(
              parser->GetOption( 'h' )->GetValue() ) )
     {
     parser->PrintMenu( antscout, 5, true );
-    throw std::exception();
+    return EXIT_FAILURE;
     }
 
   // Get dimensionality
@@ -1196,7 +1198,7 @@ int CreateDTICohort( std::vector<std::string> args , std::ostream* out_stream = 
       break;
     default:
       antscout << "Unsupported dimension" << std::endl;
-      throw std::exception();
+      return EXIT_FAILURE;
     }
 }
 
