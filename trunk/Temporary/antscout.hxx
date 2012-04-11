@@ -2,8 +2,8 @@
 #define ANTSCOUT_HXX
 
 #include <cassert>
-#include "stream.hpp"
-#include "concepts.hpp"
+#include "boost/iostreams/stream.hpp"
+#include "boost/iostreams/concepts.hpp"
 #include <iostream>
 
 namespace ants

@@ -1,5 +1,7 @@
 project(ANTS)
 cmake_minimum_required(VERSION 2.8.2)
+
+set( BUILD_SHARED_LIBS ON )
 # set(CMAKE_BUILD_TYPE "Release")
 #Change PROJECT_NAME to the name of your project
 option(USE_ITK "Use ITK Libraries" ON)
