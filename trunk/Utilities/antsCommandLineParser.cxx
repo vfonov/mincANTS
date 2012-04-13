@@ -89,7 +89,7 @@ CommandLineParser
       name = argument.substr( 1, 2 );
       }
 
-    if( !( name.empty() ) )
+    if( !( name.empty() ) && !atof( name.c_str() ) )
       {
       OptionType::Pointer option = this->GetOption( name );
       if( !option )
@@ -144,7 +144,7 @@ CommandLineParser
           for( unsigned int m = n; m < arguments.size(); m++ )
             {
             std::string value = arguments[m];
-            if( value.find( "-" ) != 0 )
+            if( value.find( "-" ) != 0 || atof( value.c_str() ) )
               {
               option->AddValue( value,
                                 this->m_LeftDelimiter, this->m_RightDelimiter );
