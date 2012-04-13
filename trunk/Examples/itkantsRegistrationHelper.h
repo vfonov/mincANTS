@@ -62,8 +62,9 @@ public:
     MI = 1,
     Mattes = 2,
     MeanSquares = 3,
-    GC = 4,
-    IllegalMetric = 5
+    Demons = 4,
+    GC = 5,
+    IllegalMetric = 6
     };
   enum SamplingStrategy
     {
@@ -98,6 +99,7 @@ public:
           case MI: return "MI";
           case Mattes: return "Mattes";;
           case MeanSquares: return "MeanSquares";
+          case Demons: return "Demons";
           case GC: return "GC";
           default:
             break;
@@ -341,7 +343,7 @@ public:
 
 
   /**
-   * turn on the option that lets you estimate the learning rate step size only at the beginning of each level.  
+   * turn on the option that lets you estimate the learning rate step size only at the beginning of each level.
    * useful as a second stage of fine-scale registration.
    */
   itkSetMacro(DoEstimateLearningRateOnce, bool);
