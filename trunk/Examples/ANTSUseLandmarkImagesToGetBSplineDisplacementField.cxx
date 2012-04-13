@@ -75,7 +75,7 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int itkNotUsed( argc ), 
 
   typedef itk::ImageFileReader<RealImageType> ImageReaderType;
   typename ImageReaderType::Pointer reader = ImageReaderType::New();
-  reader->SetFileName( argv[5] );
+  reader->SetFileName( argv[1] );
   reader->Update();
 
   typedef itk::Vector<RealType, ImageDimension> VectorType;
@@ -92,12 +92,6 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int itkNotUsed( argc ), 
   movingPoints->SetFileName( argv[2] );
   movingPoints->Update();
 
-  if( fixedPoints->GetOutput()->GetNumberOfPoints() !=
-    movingPoints->GetOutput()->GetNumberOfPoints() )
-    {
-    std::cerr << "The number of fixed points and moving points must be the same." << std::endl;
-    return EXIT_FAILURE;
-    }
   if( fixedPoints->GetNumberOfLabels() != movingPoints->GetNumberOfLabels() )
     {
     std::cerr << "The number of fixed and moving labels must be the same." << std::endl;
@@ -182,7 +176,6 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int itkNotUsed( argc ), 
     return EXIT_FAILURE;
     }
 
-
   // Now match up the center points
 
   typedef itk::PointSet<VectorType, ImageDimension> DisplacementFieldPointSetType;
@@ -190,28 +183,24 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int itkNotUsed( argc ), 
   fieldPoints->Initialize();
   unsigned long count = 0;
 
-  for( unsigned int n = 0; n < movingPoints->GetNumberOfLabels(); n++ )
+  typename PointSetType::PointsContainerConstIterator mIt =
+    movingCenters->GetPoints()->Begin();
+  typename PointSetType::PointDataContainerIterator mItD =
+    movingCenters->GetPointData()->Begin();
+
+  while( mItD != movingCenters->GetPointData()->End() )
     {
-    int currentLabel = movingPoints->GetLabelSet()->operator[](n);
+    std::cout << mItD.Value() << std::endl;
 
     typename PointSetType::PointsContainerConstIterator fIt =
       fixedCenters->GetPoints()->Begin();
-    typename PointSetType::PointsContainerConstIterator mIt =
-      movingCenters->GetPoints()->Begin();
-
     typename PointSetType::PointDataContainerIterator fItD =
       fixedCenters->GetPointData()->Begin();
-    typename PointSetType::PointDataContainerIterator mItD =
-      movingCenters->GetPointData()->Begin();
 
-    bool labelIsFound = false;
-
-    while( fItD != movingCenters->GetPointData()->End() )
+    while( fItD != fixedCenters->GetPointData()->End() )
       {
-      if( fItD.Value() == currentLabel )
+      if( fItD.Value() == mItD.Value() )
         {
-        labelIsFound = true;
-
         typename PointSetType::PointType fpoint = fIt.Value();
         typename PointSetType::PointType mpoint = mIt.Value();
 
@@ -227,18 +216,13 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int itkNotUsed( argc ), 
         fieldPoints->SetPointData( count, vector );
         count++;
 
-        ++fItD;
-        ++mItD;
-        ++fIt;
-        ++mIt;
-
         break;
         }
-      if( !labelIsFound )
-        {
-        std::cout << "Warning: Label " << currentLabel << " not matched in fixed image." << std::endl;
-        }
+      ++fItD;
+      ++fIt;
       }
+    ++mItD;
+    ++mIt;
     }
 
   typedef itk::BSplineScatteredDataPointSetToImageFilter
@@ -267,6 +251,7 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int itkNotUsed( argc ), 
     std::cerr << "Invalid meshSize format." << std::endl;
     }
 
+  std::cout << ncps << std::endl;
 
   //bspliner->DebugOn();
   bspliner->SetOrigin( reader->GetOutput()->GetOrigin() );
@@ -277,6 +262,7 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int itkNotUsed( argc ), 
   bspliner->SetSplineOrder( splineOrder );
   bspliner->SetNumberOfControlPoints( ncps );
   bspliner->SetInput( fieldPoints );
+  bspliner->Update();
 
   typedef itk::ImageFileWriter<DisplacementFieldType> WriterType;
   typename WriterType::Pointer writer = WriterType::New();
