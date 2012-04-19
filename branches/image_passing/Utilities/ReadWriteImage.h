@@ -172,29 +172,40 @@ void ReadTensorImage(itk::SmartPointer<TImageType> & target, const char *file, b
     ::ants::antscout << " file " << std::string(file) << " does not exist . " << std::endl;  return;
     }
 
-  // Read the image files begin
   typedef TImageType                      ImageType;
   typedef itk::ImageFileReader<ImageType> FileSourceType;
   typedef typename ImageType::PixelType   PixType;
 
   typedef itk::LogTensorImageFilter<ImageType, ImageType> LogFilterType;
-
-  typename FileSourceType::Pointer reffilter = FileSourceType::New();
-  reffilter->SetFileName( file );
-  try
+  typename FileSourceType::Pointer reffilter = NULL ;
+  if( file[0] == '0' && file[1] == 'x' )
     {
-    reffilter->Update();
+      std::stringstream strstream ;
+      strstream << file ;
+      void* ptr ;
+      strstream >> ptr ;
+      target = *( static_cast< typename TImageType::Pointer* >( ptr ) ) ;
     }
-  catch( itk::ExceptionObject & e )
+  else
     {
-    ::ants::antscout << "Exception caught during reference file reading " << std::endl;
-    ::ants::antscout << e << " file " << file << std::endl;
-    target = NULL;
-    return;
+      // Read the image files begin
+
+      reffilter = FileSourceType::New();
+      reffilter->SetFileName( file );
+      try
+	{
+	  reffilter->Update();
+	}
+      catch( itk::ExceptionObject & e )
+	{
+	  ::ants::antscout << "Exception caught during reference file reading " << std::endl;
+	  ::ants::antscout << e << " file " << file << std::endl;
+	  target = NULL;
+	  return;
+	}
+
+      target = reffilter->GetOutput();
     }
-
-  target = reffilter->GetOutput();
-
   NiftiDTICheck<ImageType>(target, file, false);
 
   if( takelog )
@@ -216,10 +227,6 @@ void ReadImage(itk::SmartPointer<TImageType> & target, const char *file)
     {
     ::ants::antscout << " bad file name " << std::string(file) << std::endl;    target = NULL;  return;
     }
-  if( !ANTSFileExists(std::string(file) ) )
-    {
-    ::ants::antscout << " file " << std::string(file) << " does not exist . " << std::endl; target = NULL; return;
-    }
 
   /*//  ::ants::antscout << " reading b " << std::string(file) << std::endl;
   typedef itk::ImageFileReader<TImageType> readertype;
@@ -231,31 +238,46 @@ void ReadImage(itk::SmartPointer<TImageType> & target, const char *file)
   //  ::ants::antscout << " Entering Read " << file << std::endl;
 
   // Read the image files begin
-  typedef TImageType                      ImageType;
-  typedef itk::ImageFileReader<ImageType> FileSourceType;
-  typedef typename ImageType::PixelType   PixType;
-//    const unsigned int ImageDimension=ImageType::ImageDimension;
-  typename FileSourceType::Pointer reffilter = FileSourceType::New();
-  reffilter->SetFileName( file );
-  try
+  if( file[0] == '0' && file[1] == 'x' )
     {
-    reffilter->Update();
+      std::stringstream strstream ;
+      strstream << file ;
+      void* ptr ;
+      strstream >> ptr ;
+      target = *( static_cast< typename TImageType::Pointer* >( ptr ) ) ;
     }
-  catch( itk::ExceptionObject & e )
+  else
     {
-    ::ants::antscout << "Exception caught during reference file reading " << std::endl;
-    ::ants::antscout << e << " file " << file << std::endl;
-    target = NULL;
-    std::exception();
-    return;
+      if( !ANTSFileExists(std::string(file) ) )
+	{
+	  ::ants::antscout << " file " << std::string(file) << " does not exist . " << std::endl; target = NULL; return;
+	}
+      typedef TImageType                      ImageType;
+      typedef itk::ImageFileReader<ImageType> FileSourceType;
+      typedef typename ImageType::PixelType   PixType;
+      //    const unsigned int ImageDimension=ImageType::ImageDimension;
+      typename FileSourceType::Pointer reffilter = FileSourceType::New();
+      reffilter->SetFileName( file );
+      try
+	{
+	  reffilter->Update();
+	}
+      catch( itk::ExceptionObject & e )
+	{
+	  ::ants::antscout << "Exception caught during reference file reading " << std::endl;
+	  ::ants::antscout << e << " file " << file << std::endl;
+	  target = NULL;
+	  std::exception();
+	  return;
+	}
+
+      // typename ImageType::DirectionType dir;
+      // dir.SetIdentity();
+      //  reffilter->GetOutput()->SetDirection(dir);
+
+      // ::ants::antscout << " setting pointer " << std::endl;
+      target = reffilter->GetOutput();
     }
-
-  // typename ImageType::DirectionType dir;
-  // dir.SetIdentity();
-  //  reffilter->GetOutput()->SetDirection(dir);
-
-  // ::ants::antscout << " setting pointer " << std::endl;
-  target = reffilter->GetOutput();
   //   reffilter->GetOutput()->Print( ::ants::antscout );
   //   ::ants::antscout << " read direction " <<  << std::endl;
 
@@ -357,9 +379,19 @@ void WriteImage(itk::SmartPointer<TImageType> image, const char *file)
   // if (writer->GetImageIO->GetNumberOfComponents() == 6)
   // NiftiDTICheck<TImageType>(image,file);
 
-  writer->SetInput(image);
-  writer->Update();
-
+  if( file[0] == '0' && file[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << file ;
+      void* ptr ;
+      strstream >> ptr ;
+      *( static_cast< typename TImageType::Pointer* >( ptr ) ) = image ;
+    }
+  else
+    {
+      writer->SetInput(image);
+      writer->Update();
+    }
 }
 
 template <class TImageType>
@@ -386,9 +418,19 @@ void WriteTensorImage(itk::SmartPointer<TImageType> image, const char *file, boo
   // convert from upper tri to lower tri
   NiftiDTICheck<TImageType>(writeImage, file, true); // BA May 30 2009 -- remove b/c ITK fixed NIFTI reader
 
-  writer->SetInput(writeImage);
-  writer->Update();
-
+  if( file[0] == '0' && file[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << file ;
+      void* ptr ;
+      strstream >> ptr ;
+      *( static_cast< typename TImageType::Pointer* >( ptr ) ) = writeImage ;
+    }
+  else
+    {
+      writer->SetInput(writeImage);
+      writer->Update();
+    }
 }
 
 template <class TImage, class TField>

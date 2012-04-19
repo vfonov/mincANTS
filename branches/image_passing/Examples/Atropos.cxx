@@ -210,23 +210,47 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
           = fileNamesCreator->GetFileNames();
         for( unsigned int k = 0; k < imageNames.size(); k++ )
           {
-          typedef itk::ImageFileReader<InputImageType> ReaderType;
-          typename ReaderType::Pointer reader = ReaderType::New();
-          reader->SetFileName( imageNames[k].c_str() );
-          reader->Update();
+	    if( imageNames[k][0] == '0' && imageNames[k][1] == 'x' )
+	      {
+		std::stringstream strstream ;
+		strstream << imageNames[k] ;
+		void* ptr ;
+		strstream >> ptr ;
+		typename InputImageType::Pointer img = *( static_cast< typename InputImageType::Pointer* >( ptr ) ) ;
+		segmenter->SetPriorProbabilityImage( k + 1, img );
+	      }
+	    else
+	      {
+		typedef itk::ImageFileReader<InputImageType> ReaderType;
+		typename ReaderType::Pointer reader = ReaderType::New();
+		reader->SetFileName( imageNames[k].c_str() );
+		reader->Update();
 
-          segmenter->SetPriorProbabilityImage( k + 1, reader->GetOutput() );
+		segmenter->SetPriorProbabilityImage( k + 1, reader->GetOutput() );
+	      }
           }
         }
       else
         {
         typedef itk::VectorImage<PixelType, ImageDimension> VectorImageType;
         typedef itk::ImageFileReader<VectorImageType>       ReaderType;
-        typename ReaderType::Pointer reader = ReaderType::New();
-        reader->SetFileName( filename.c_str() );
-        reader->Update();
-
-        if(  reader->GetOutput()->GetNumberOfComponentsPerPixel()
+	typename VectorImageType::Pointer vimg = NULL ;
+	if( filename[0] == '0' && filename[1] == 'x' )
+	  {
+	    std::stringstream strstream ;
+	    strstream << filename ;
+	    void* ptr ;
+	    strstream >> ptr ;
+	    vimg = *( static_cast< typename VectorImageType::Pointer* >( ptr ) ) ;
+	  }
+	else
+	  {
+	    typename ReaderType::Pointer reader = ReaderType::New();
+	    reader->SetFileName( filename.c_str() );
+	    reader->Update();
+	    vimg = reader->GetOutput() ;
+	  }
+        if(  vimg->GetNumberOfComponentsPerPixel()
              != segmenter->GetNumberOfTissueClasses() )
           {
           antscout << "The number of components does not match the number of "
@@ -237,7 +261,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
         typedef itk::VectorIndexSelectionCastImageFilter
         <VectorImageType, InputImageType> CasterType;
         typename CasterType::Pointer caster = CasterType::New();
-        caster->SetInput( reader->GetOutput() );
+        caster->SetInput( vimg );
         for( unsigned int k = 0; k < segmenter->GetNumberOfTissueClasses(); k++ )
           {
           caster->SetIndex( k );
@@ -266,12 +290,23 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
                                               initializationOption->GetParameter( 2 ) ) );
 
       std::string filename = initializationOption->GetParameter( 1 );
-      typedef itk::ImageFileReader<LabelImageType> ReaderType;
-      typename ReaderType::Pointer reader = ReaderType::New();
-      reader->SetFileName( filename.c_str() );
-      reader->Update();
-
-      segmenter->SetPriorLabelImage( reader->GetOutput() );
+      if( filename[0] == '0' && filename[1] == 'x' )
+	{
+	  std::stringstream strstream ;
+	  strstream << filename ;
+	  void* ptr ;
+	  strstream >> ptr ;
+	  typename LabelImageType::Pointer img = *( static_cast< typename LabelImageType::Pointer* >( ptr ) ) ;
+	  segmenter->SetPriorLabelImage( img );
+	}
+      else
+	{
+	  typedef itk::ImageFileReader<LabelImageType> ReaderType;
+	  typename ReaderType::Pointer reader = ReaderType::New();
+	  reader->SetFileName( filename.c_str() );
+	  reader->Update();
+	  segmenter->SetPriorLabelImage( reader->GetOutput() );
+	}
       }
     else
       {
@@ -373,12 +408,23 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
     {
     try
       {
-      typedef  itk::ImageFileReader<LabelImageType> ReaderType;
-      typename ReaderType::Pointer reader = ReaderType::New();
-      reader->SetFileName( ( maskOption->GetValue() ).c_str() );
-      reader->Update();
-
-      segmenter->SetMaskImage( reader->GetOutput() );
+	if( maskOption->GetValue()[0] == '0' && maskOption->GetValue()[1] == 'x' )
+	  {
+	    std::stringstream strstream ;
+	    strstream << maskOption->GetValue() ;
+	    void* ptr ;
+	    strstream >> ptr ;
+	    typename LabelImageType::Pointer img = *( static_cast< typename LabelImageType::Pointer* >( ptr ) ) ;
+	    segmenter->SetMaskImage( img );
+	  }
+	else
+	  {
+	    typedef  itk::ImageFileReader<LabelImageType> ReaderType;
+	    typename ReaderType::Pointer reader = ReaderType::New();
+	    reader->SetFileName( ( maskOption->GetValue() ).c_str() );
+	    reader->Update();
+	    segmenter->SetMaskImage( reader->GetOutput() );
+	  }
 
       // Check to see that the labels in the prior label image or the non-zero
       // probability voxels in the prior probability images encompass the entire
@@ -595,19 +641,32 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
     unsigned int count = 0;
     for( int n = imageOption->GetNumberOfValues() - 1; n >= 0; n-- )
       {
-      typedef itk::ImageFileReader<InputImageType> ReaderType;
-      typename ReaderType::Pointer reader = ReaderType::New();
-      if( imageOption->GetNumberOfParameters( n ) > 0 )
-        {
-        reader->SetFileName( imageOption->GetParameter( n, 0 ) );
-        }
-      else
-        {
-        reader->SetFileName( imageOption->GetValue( n ) );
-        }
-      reader->Update();
-
-      segmenter->SetIntensityImage( count, reader->GetOutput() );
+	std::string filename ;
+	if( imageOption->GetNumberOfParameters( n ) > 0 )
+	  {
+	    filename = imageOption->GetParameter( n, 0 ) ;
+	  }
+	else
+	  {
+	    filename = imageOption->GetValue( n ) ;
+	  }
+	if( filename[0] == '0' && filename[1] == 'x' )
+	  {
+	    std::stringstream strstream ;
+	    strstream << filename ;
+	    void* ptr ;
+	    strstream >> ptr ;
+	    typename InputImageType::Pointer img = *( static_cast< typename InputImageType::Pointer* >( ptr ) ) ;
+	    segmenter->SetIntensityImage( count, img );
+	  }
+	else
+	  {
+	    typedef itk::ImageFileReader<InputImageType> ReaderType;
+	    typename ReaderType::Pointer reader = ReaderType::New();
+	    reader->SetFileName( filename.c_str() ) ;
+	    reader->Update();
+	    segmenter->SetIntensityImage( count, reader->GetOutput() );
+	  }
       if( imageOption->GetNumberOfParameters( count ) > 1 )
         {
         segmenter->SetAdaptiveSmoothingWeight( count, parser->Convert<float>(
@@ -638,20 +697,32 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
       {
       try
         {
-        typedef typename SegmentationFilterType::RealImageType
-        MRFCoefficientImageType;
-        typedef itk::ImageFileReader<MRFCoefficientImageType>
-        MRFNeighborhoodImageReaderType;
-        typename MRFNeighborhoodImageReaderType::Pointer mrfNeighborhoodReader =
-          MRFNeighborhoodImageReaderType::New();
-        mrfNeighborhoodReader->SetFileName( mrfOption->GetParameter( 0 ) );
+	  typedef typename SegmentationFilterType::RealImageType MRFCoefficientImageType;
+	  typedef itk::ImageFileReader<MRFCoefficientImageType> MRFNeighborhoodImageReaderType;
+	if( mrfOption->GetParameter( 0 )[0] == '0' && mrfOption->GetParameter( 0 )[1] == 'x' )
+	  {
+	    std::stringstream strstream ;
+	    strstream << mrfOption->GetParameter( 0 ) ;
+	    void* ptr ;
+	    strstream >> ptr ;
+	    typename MRFCoefficientImageType::Pointer mrfCoefficientImage = *( static_cast< typename MRFCoefficientImageType::Pointer* >( ptr ) ) ;
+	    mrfCoefficientImage->Update();
+	    mrfCoefficientImage->DisconnectPipeline();
+	    segmenter->SetMRFCoefficientImage( mrfCoefficientImage );
+	  }
+	else
+	  {
+	    typename MRFNeighborhoodImageReaderType::Pointer mrfNeighborhoodReader =
+	      MRFNeighborhoodImageReaderType::New();
+	    mrfNeighborhoodReader->SetFileName( mrfOption->GetParameter( 0 ) );
 
-        typename MRFCoefficientImageType::Pointer mrfCoefficientImage =
-          mrfNeighborhoodReader->GetOutput();
-        mrfCoefficientImage->Update();
-        mrfCoefficientImage->DisconnectPipeline();
+	    typename MRFCoefficientImageType::Pointer mrfCoefficientImage =
+	      mrfNeighborhoodReader->GetOutput();
+	    mrfCoefficientImage->Update();
+	    mrfCoefficientImage->DisconnectPipeline();
 
-        segmenter->SetMRFCoefficientImage( mrfCoefficientImage );
+	    segmenter->SetMRFCoefficientImage( mrfCoefficientImage );
+	  }
         }
       catch( ... )
         {
@@ -1026,11 +1097,23 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
     {
     if( segmenter->GetUseAsynchronousUpdating() && segmenter->GetICMCodeImage() )
       {
-      typedef  itk::ImageFileWriter<LabelImageType> WriterType;
-      typename WriterType::Pointer writer = WriterType::New();
-      writer->SetInput( segmenter->GetICMCodeImage() );
-      writer->SetFileName( ( icmOption->GetParameter( 2 ) ).c_str() );
-      writer->Update();
+	std::string filename = icmOption->GetParameter( 2 ) ;
+	if( filename[0] == '0' && filename[1] == 'x' )
+	  {
+	    std::stringstream strstream ;
+	    strstream << filename ;
+	    void* ptr ;
+	    strstream >> ptr ;
+	    *( static_cast< typename LabelImageType::Pointer* >( ptr ) ) = segmenter->GetICMCodeImage() ;
+	  }
+	else
+	  {
+	    typedef  itk::ImageFileWriter<LabelImageType> WriterType;
+	    typename WriterType::Pointer writer = WriterType::New();
+	    writer->SetInput( segmenter->GetICMCodeImage() );
+	    writer->SetFileName( ( icmOption->GetParameter( 2 ) ).c_str() );
+	    writer->Update();
+	  }
       }
     }
 
@@ -1041,19 +1124,43 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
     {
     if( outputOption->GetNumberOfParameters() == 0 )
       {
-      typedef  itk::ImageFileWriter<LabelImageType> WriterType;
-      typename WriterType::Pointer writer = WriterType::New();
-      writer->SetInput( segmenter->GetOutput() );
-      writer->SetFileName( ( outputOption->GetValue() ).c_str() );
-      writer->Update();
+	std::string filename = outputOption->GetValue() ;
+	if( filename[0] == '0' && filename[1] == 'x' )
+	  {
+	    std::stringstream strstream ;
+	    strstream << filename ;
+	    void* ptr ;
+	    strstream >> ptr ;
+	    *( static_cast< typename LabelImageType::Pointer* >( ptr ) ) = segmenter->GetOutput() ;
+	  }
+	else
+	  {
+	    typedef  itk::ImageFileWriter<LabelImageType> WriterType;
+	    typename WriterType::Pointer writer = WriterType::New();
+	    writer->SetInput( segmenter->GetOutput() );
+	    writer->SetFileName( ( outputOption->GetValue() ).c_str() );
+	    writer->Update();
+	  }
       }
     if( outputOption->GetNumberOfParameters() > 0 )
       {
-      typedef  itk::ImageFileWriter<LabelImageType> WriterType;
-      typename WriterType::Pointer writer = WriterType::New();
-      writer->SetInput( segmenter->GetOutput() );
-      writer->SetFileName( ( outputOption->GetParameter( 0 ) ).c_str() );
-      writer->Update();
+	std::string filename = outputOption->GetParameter( 0 ) ;
+	if( filename[0] == '0' && filename[1] == 'x' )
+	  {
+	    std::stringstream strstream ;
+	    strstream << filename ;
+	    void* ptr ;
+	    strstream >> ptr ;
+	    *( static_cast< typename LabelImageType::Pointer* >( ptr ) ) = segmenter->GetOutput() ;
+	  }
+	else
+	  {
+	    typedef  itk::ImageFileWriter<LabelImageType> WriterType;
+	    typename WriterType::Pointer writer = WriterType::New();
+	    writer->SetInput( segmenter->GetOutput() );
+	    writer->SetFileName( ( outputOption->GetParameter( 0 ) ).c_str() );
+	    writer->Update();
+	  }
       }
     if( outputOption->GetNumberOfParameters() > 1 )
       {
@@ -1086,11 +1193,22 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
           probabilityImage = masker->GetOutput();
           }
 
-        typedef  itk::ImageFileWriter<InputImageType> WriterType;
-        typename WriterType::Pointer writer = WriterType::New();
-        writer->SetInput( probabilityImage );
-        writer->SetFileName( imageNames[i].c_str() );
-        writer->Update();
+	if( imageNames[i][0] == '0' && imageNames[i][1] == 'x' )
+	  {
+	    std::stringstream strstream ;
+	    strstream << imageNames[i] ;
+	    void* ptr ;
+	    strstream >> ptr ;
+	    *( static_cast< typename InputImageType::Pointer* >( ptr ) ) = probabilityImage ;
+	  }
+	else
+	  {
+	    typedef  itk::ImageFileWriter<InputImageType> WriterType;
+	    typename WriterType::Pointer writer = WriterType::New();
+	    writer->SetInput( probabilityImage );
+	    writer->SetFileName( imageNames[i].c_str() );
+	    writer->Update();
+	  }
         }
       }
     if( outputOption->GetNumberOfParameters() > 2 )
@@ -1110,11 +1228,22 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
                   << std::endl;
         typename InputImageType::Pointer likelihoodImage = segmenter->
           GetLikelihoodImage( i + 1 );
-        typedef  itk::ImageFileWriter<InputImageType> WriterType;
-        typename WriterType::Pointer writer = WriterType::New();
-        writer->SetInput( likelihoodImage );
-        writer->SetFileName( imageNames[i].c_str() );
-        writer->Update();
+	if( imageNames[i][0] == '0' && imageNames[i][1] == 'x' )
+	  {
+	    std::stringstream strstream ;
+	    strstream << imageNames[i] ;
+	    void* ptr ;
+	    strstream >> ptr ;
+	    *( static_cast< typename InputImageType::Pointer* >( ptr ) ) = likelihoodImage ;
+	  }
+	else
+	  {
+	    typedef  itk::ImageFileWriter<InputImageType> WriterType;
+	    typename WriterType::Pointer writer = WriterType::New();
+	    writer->SetInput( likelihoodImage );
+	    writer->SetFileName( imageNames[i].c_str() );
+	    writer->Update();
+	  }
         }
       }
     if( outputOption->GetNumberOfParameters() > 3 )
@@ -1139,11 +1268,22 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
           typename InputImageType::Pointer distanceImage = segmenter->
             GetDistancePriorProbabilityImage( i + 1 );
 
-          typedef  itk::ImageFileWriter<InputImageType> WriterType;
-          typename WriterType::Pointer writer = WriterType::New();
-          writer->SetInput( distanceImage );
-          writer->SetFileName( imageNames[i].c_str() );
-          writer->Update();
+	  if( imageNames[i][0] == '0' && imageNames[i][1] == 'x' )
+	    {
+	      std::stringstream strstream ;
+	      strstream << imageNames[i] ;
+	      void* ptr ;
+	      strstream >> ptr ;
+	      *( static_cast< typename InputImageType::Pointer* >( ptr ) ) = distanceImage ;
+	    }
+	  else
+	    {
+	      typedef  itk::ImageFileWriter<InputImageType> WriterType;
+	      typename WriterType::Pointer writer = WriterType::New();
+	      writer->SetInput( distanceImage );
+	      writer->SetFileName( imageNames[i].c_str() );
+	      writer->Update();
+	    }
           }
         }
       }
@@ -1172,11 +1312,22 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
             typename InputImageType::Pointer bsplineImage = segmenter->
               GetSmoothIntensityImageFromPriorImage( 0, i + 1 );
 
-            typedef  itk::ImageFileWriter<InputImageType> WriterType;
-            typename WriterType::Pointer writer = WriterType::New();
-            writer->SetInput( bsplineImage );
-            writer->SetFileName( imageNames[i].c_str() );
-            writer->Update();
+	    if( imageNames[i][0] == '0' && imageNames[i][1] == 'x' )
+	      {
+		std::stringstream strstream ;
+		strstream << imageNames[i] ;
+		void* ptr ;
+		strstream >> ptr ;
+		*( static_cast< typename InputImageType::Pointer* >( ptr ) ) = bsplineImage ;
+	      }
+	    else
+	      {
+		typedef  itk::ImageFileWriter<InputImageType> WriterType;
+		typename WriterType::Pointer writer = WriterType::New();
+		writer->SetInput( bsplineImage );
+		writer->SetFileName( imageNames[i].c_str() );
+		writer->Update();
+	      }
             }
           }
         }
@@ -1184,7 +1335,7 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
     }
 
   antscout << std::endl;
-  segmenter->Print( std::cout , 2 );
+  segmenter->Print( antscout , 2 );
   antscout << "Elapsed time: " << timer.GetMeanTime() << std::endl;
 
   return EXIT_SUCCESS;

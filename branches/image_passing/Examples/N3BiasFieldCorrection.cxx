@@ -62,46 +62,70 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
   typedef itk::Image<RealType, ImageDimension>      ImageType;
   typedef itk::Image<unsigned char, ImageDimension> MaskImageType;
 
-  typedef itk::ImageFileReader<ImageType> ReaderType;
-  typename ReaderType::Pointer reader = ReaderType::New();
   if( argc < 3 )
     {
     antscout << "missing 1st filename" << std::endl;
     throw;
     }
-  reader->SetFileName( argv[2] );
-  reader->Update();
+
+  typename ImageType::Pointer inputImage ;
+  if( argv[2][0] == '0' && argv[2][1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << argv[2] ;
+      void* ptr ;
+      strstream >> ptr ;
+      inputImage = *( static_cast< typename ImageType::Pointer* >( ptr ) ) ;
+    }
+  else
+    {
+      typedef itk::ImageFileReader<ImageType> ReaderType;
+      typename ReaderType::Pointer reader = ReaderType::New();
+      reader->SetFileName( argv[2] );
+      reader->Update();
+      inputImage = reader->GetOutput() ;
+    }
 
   typedef itk::ShrinkImageFilter<ImageType, ImageType> ShrinkerType;
   typename ShrinkerType::Pointer shrinker = ShrinkerType::New();
-  shrinker->SetInput( reader->GetOutput() );
+  shrinker->SetInput( inputImage );
   shrinker->SetShrinkFactors( 1 );
 
   typename MaskImageType::Pointer maskImage = NULL;
 
   if( argc > 5 )
     {
-    typedef itk::ImageFileReader<MaskImageType> MaskReaderType;
-    typename MaskReaderType::Pointer maskreader = MaskReaderType::New();
-    maskreader->SetFileName( argv[5] );
-
-    try
-      {
-      maskreader->Update();
-      maskImage = maskreader->GetOutput();
-      }
-    catch( ... )
-      {
-      antscout << "Mask file not read.  Generating mask file using otsu"
-                << " thresholding." << std::endl;
-      }
+      if( argv[5][0] == '0' && argv[5][1] == 'x' )
+	{
+	  std::stringstream strstream ;
+	  strstream << argv[5] ;
+	  void* ptr ;
+	  strstream >> ptr ;
+	  maskImage = *( static_cast< typename MaskImageType::Pointer* >( ptr ) ) ;
+	}
+      else
+	{
+      typedef itk::ImageFileReader<MaskImageType> MaskReaderType;
+      typename MaskReaderType::Pointer maskreader = MaskReaderType::New();
+      maskreader->SetFileName( argv[5] );
+      try
+	{
+	  maskreader->Update();
+	  maskImage = maskreader->GetOutput();
+	}
+      catch( ... )
+	{
+	  antscout << "Mask file not read.  Generating mask file using otsu"
+		   << " thresholding." << std::endl;
+	}
+	}
     }
-  if( !maskImage )
+  if( maskImage.IsNotNull() )
     {
     typedef itk::OtsuThresholdImageFilter<ImageType, MaskImageType>
     ThresholderType;
     typename ThresholderType::Pointer otsu = ThresholderType::New();
-    otsu->SetInput( reader->GetOutput() );
+    otsu->SetInput( inputImage );
     otsu->SetNumberOfHistogramBins( 200 );
     otsu->SetInsideValue( 0 );
     otsu->SetOutsideValue( 1 );
@@ -164,11 +188,10 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
   typename BSplinerType::Pointer bspliner = BSplinerType::New();
   bspliner->SetInput( correcter->GetLogBiasFieldControlPointLattice() );
   bspliner->SetSplineOrder( correcter->GetSplineOrder() );
-  bspliner->SetSize(
-    reader->GetOutput()->GetLargestPossibleRegion().GetSize() );
-  bspliner->SetOrigin( reader->GetOutput()->GetOrigin() );
-  bspliner->SetDirection( reader->GetOutput()->GetDirection() );
-  bspliner->SetSpacing( reader->GetOutput()->GetSpacing() );
+  bspliner->SetSize( inputImage->GetLargestPossibleRegion().GetSize() );
+  bspliner->SetOrigin( inputImage->GetOrigin() );
+  bspliner->SetDirection( inputImage->GetDirection() );
+  bspliner->SetSpacing( inputImage->GetSpacing() );
   bspliner->Update();
 
   typename ImageType::Pointer logField = ImageType::New();
@@ -196,27 +219,50 @@ int N3BiasFieldCorrection( int argc, char *argv[] )
 
   typedef itk::DivideImageFilter<ImageType, ImageType, ImageType> DividerType;
   typename DividerType::Pointer divider = DividerType::New();
-  divider->SetInput1( reader->GetOutput() );
+  divider->SetInput1( inputImage );
   divider->SetInput2( expFilter->GetOutput() );
   divider->Update();
 
-  typedef itk::ImageFileWriter<ImageType> WriterType;
-  typename WriterType::Pointer writer = WriterType::New();
-  if( argc < 4 )
+  if( argv[3][0] == '0' && argv[3][1] == 'x' )
     {
-    antscout << "missing divider image filename" << std::endl;
-    throw;
+      std::stringstream strstream ;
+      strstream << argv[3] ;
+      void* ptr ;
+      strstream >> ptr ;
+      *( static_cast< typename ImageType::Pointer* >( ptr ) ) = divider->GetOutput() ;
     }
-  writer->SetFileName( argv[3] );
-  writer->SetInput( divider->GetOutput() );
-  writer->Update();
+  else
+    {
+      typedef itk::ImageFileWriter<ImageType> WriterType;
+      typename WriterType::Pointer writer = WriterType::New();
+      if( argc < 4 )
+	{
+	  antscout << "missing divider image filename" << std::endl;
+	  throw;
+	}
+      writer->SetFileName( argv[3] );
+      writer->SetInput( divider->GetOutput() );
+      writer->Update();
+    }
 
   if( argc > 8 )
     {
-    writer = WriterType::New();
-    writer->SetFileName( argv[8] );
-    writer->SetInput( expFilter->GetOutput() );
-    writer->Update();
+      if( argv[8][0] == '0' && argv[8][1] == 'x' )
+	{
+	  std::stringstream strstream ;
+	  strstream << argv[8] ;
+	  void* ptr ;
+	  strstream >> ptr ;
+	  *( static_cast< typename ImageType::Pointer* >( ptr ) ) = expFilter->GetOutput() ;
+	}
+      else
+	{
+	  typedef itk::ImageFileWriter<ImageType> WriterType;
+	  typename WriterType::Pointer writer = WriterType::New();
+	  writer->SetFileName( argv[8] );
+	  writer->SetInput( expFilter->GetOutput() );
+	  writer->Update();
+	}
     }
 
   return EXIT_SUCCESS;

@@ -253,3 +253,12 @@ ExternalProject_Add_Step(${proj} forcebuild
     DEPENDERS build
     ALWAYS 1
   )
+
+# copy the 'include' directory to the build tree; there are install rules for this directory in the project but
+# they are not executed as there is no install step in the project
+ExternalProject_Add_Step( ${proj} Install_include_To_Build-Tree
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/Examples/include ${CMAKE_CURRENT_BINARY_DIR}/include
+  COMMENT "Installilng 'include' to the Build-tree[${CMAKE_CURRENT_BINARY_DIR}]"
+  DEPENDEES configure
+  ALWAYS 1
+  )

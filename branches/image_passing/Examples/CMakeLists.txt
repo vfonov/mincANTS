@@ -543,12 +543,12 @@ configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
 add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
 target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} )
 
-add_library(l_antsRegistration antsRegistration.cxx ${UI_SOURCES})
- target_link_libraries(l_antsRegistration ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME antsRegistration )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} )
+#add_library(l_antsRegistration antsRegistration.cxx ${UI_SOURCES})
+# target_link_libraries(l_antsRegistration ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME antsRegistration )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} )
 
 add_library(l_antsApplyTransforms antsApplyTransforms.cxx ${UI_SOURCES})
 target_link_libraries(l_antsApplyTransforms ${ITK_LIBRARIES})
@@ -678,7 +678,13 @@ configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
 add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
 target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} )
 
-install(TARGETS ANTS
+install( DIRECTORY
+  include
+  DESTINATION .
+  )
+install(TARGETS 
+  ANTS
+  l_ANTS
   AverageAffineTransform
   l_AverageAffineTransform
   ANTSJacobian
@@ -787,8 +793,8 @@ install(TARGETS ANTS
   l_KellyKapowski
   antsMotionCorr
   l_antsMotionCorr
-  antsRegistration
-  l_antsRegistration
+#  antsRegistration
+#  l_antsRegistration
   antsApplyTransforms
   l_antsApplyTransforms
   sccan

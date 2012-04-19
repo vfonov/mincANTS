@@ -250,17 +250,18 @@ int GetLargestComponent(int argc, char *argv[])
     }
 
   typename ImageType::Pointer image1 = NULL;
-  typename readertype::Pointer reader1 = readertype::New();
-  reader1->SetFileName(fn1.c_str() );
-  reader1->UpdateLargestPossibleRegion();
-  try
-    {
-    image1 = reader1->GetOutput();
-    }
-  catch( ... )
-    {
-    antscout << " read 1 error ";
-    }
+  ReadImage<ImageType>( image1 , fn1.c_str() ) ;
+  // typename readertype::Pointer reader1 = readertype::New();
+  // reader1->SetFileName(fn1.c_str() );
+  // reader1->UpdateLargestPossibleRegion();
+  // try
+  //   {
+  //   image1 = reader1->GetOutput();
+  //   }
+  // catch( ... )
+  //   {
+  //   antscout << " read 1 error ";
+  //   }
   // compute the voxel volume
   typename ImageType::SpacingType spacing = image1->GetSpacing();
   float volumeelement = 1.0;
@@ -507,17 +508,18 @@ int ThresholdAtMean(int argc, char *argv[])
     }
 
   typename ImageType::Pointer image1 = NULL;
-  typename readertype::Pointer reader1 = readertype::New();
-  reader1->SetFileName(fn1.c_str() );
-  reader1->UpdateLargestPossibleRegion();
-  try
-    {
-    image1 = reader1->GetOutput();
-    }
-  catch( ... )
-    {
-    antscout << " read 1 error ";
-    }
+  ReadImage<ImageType>( image1 , fn1.c_str() ) ;
+  // typename readertype::Pointer reader1 = readertype::New();
+  // reader1->SetFileName(fn1.c_str() );
+  // reader1->UpdateLargestPossibleRegion();
+  // try
+  //   {
+  //   image1 = reader1->GetOutput();
+  //   }
+  // catch( ... )
+  //   {
+  //   antscout << " read 1 error ";
+  //   }
 
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
   double        mean = 0, max = -1.e9, min = 1.e9;
@@ -585,17 +587,18 @@ int FlattenImage(int argc, char *argv[])
     }
 
   typename ImageType::Pointer image1 = NULL;
-  typename readertype::Pointer reader1 = readertype::New();
-  reader1->SetFileName(fn1.c_str() );
-  reader1->UpdateLargestPossibleRegion();
-  try
-    {
-    image1 = reader1->GetOutput();
-    }
-  catch( ... )
-    {
-    antscout << " read 1 error ";
-    }
+  ReadImage<ImageType>( image1 , fn1.c_str() ) ;
+  // typename readertype::Pointer reader1 = readertype::New();
+  // reader1->SetFileName(fn1.c_str() );
+  // reader1->UpdateLargestPossibleRegion();
+  // try
+  //   {
+  //   image1 = reader1->GetOutput();
+  //   }
+  // catch( ... )
+  //   {
+  //   antscout << " read 1 error ";
+  //   }
 
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
   double        mean = 0, max = -1.e9, min = 1.e9;
@@ -685,10 +688,12 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
   typedef itk::Image<PixelType, ImageDimension> ImageType;
   typedef itk::Image<RealType, ImageDimension>  RealImageType;
 
-  typedef itk::ImageFileReader<RealImageType> ReaderType;
-  typename ReaderType::Pointer imageReader = ReaderType::New();
-  imageReader->SetFileName( fn1.c_str() );
-  imageReader->Update();
+  // typedef itk::ImageFileReader<RealImageType> ReaderType;
+  // typename ReaderType::Pointer imageReader = ReaderType::New();
+  // imageReader->SetFileName( fn1.c_str() );
+  // imageReader->Update();
+  typename RealImageType::Pointer image = NULL ;
+  ReadImage<RealImageType>( image , fn1.c_str() ) ;
 
   typename ImageType::Pointer mask = NULL;
   if( argc > argct )
@@ -713,18 +718,18 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
   if( !mask )
     {
     mask = ImageType::New();
-    mask->SetOrigin( imageReader->GetOutput()->GetOrigin() );
-    mask->SetSpacing( imageReader->GetOutput()->GetSpacing() );
-    mask->SetRegions( imageReader->GetOutput()->GetLargestPossibleRegion() );
-    mask->SetDirection( imageReader->GetOutput()->GetDirection() );
+    mask->SetOrigin( image->GetOrigin() );
+    mask->SetSpacing( image->GetSpacing() );
+    mask->SetRegions( image->GetLargestPossibleRegion() );
+    mask->SetDirection( image->GetDirection() );
     mask->Allocate();
     mask->FillBuffer( itk::NumericTraits<PixelType>::One );
     }
 
   //  antscout << " iterate " << std::endl;
 
-  itk::ImageRegionIterator<RealImageType> ItI( imageReader->GetOutput(),
-                                               imageReader->GetOutput()->GetLargestPossibleRegion() );
+  itk::ImageRegionIterator<RealImageType> ItI( image ,
+                                               image->GetLargestPossibleRegion() );
   itk::ImageRegionIterator<ImageType> ItM( mask,
                                            mask->GetLargestPossibleRegion() );
 
@@ -759,7 +764,7 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
   //  antscout << " label " << std::endl;
   typedef itk::LabelStatisticsImageFilter<RealImageType, ImageType> HistogramGeneratorType;
   typename HistogramGeneratorType::Pointer stats = HistogramGeneratorType::New();
-  stats->SetInput( imageReader->GetOutput() );
+  stats->SetInput( image );
   stats->SetLabelInput( mask );
   stats->SetUseHistograms( true );
   stats->SetHistogramParameters( numberOfBins, minValue, maxValue );
@@ -786,11 +791,12 @@ int TruncateImageIntensity( unsigned int argc, char *argv[] )
 
     }
 
-  typedef itk::ImageFileWriter<RealImageType> WriterType;
-  typename WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( argv[2] );
-  writer->SetInput( imageReader->GetOutput() );
-  writer->Update();
+  WriteImage<RealImageType>( image , argv[2] ) ;
+  // typedef itk::ImageFileWriter<RealImageType> WriterType;
+  // typename WriterType::Pointer writer = WriterType::New();
+  // writer->SetFileName( argv[2] );
+  // writer->SetInput( imageReader->GetOutput() );
+  // writer->Update();
 
   return EXIT_SUCCESS;
 }
@@ -826,22 +832,43 @@ int TileImages(unsigned int argc, char *argv[])
   unsigned int bigimage = 0;
   for( unsigned int j = argct; j < argc; j++ )
     {
-    numberofimages++;
-    // Get the image dimension
-    std::string fn = std::string(argv[j]);
-    typename itk::ImageIOBase::Pointer imageIO =
-      itk::ImageIOFactory::CreateImageIO(fn.c_str(), itk::ImageIOFactory::ReadMode);
-    imageIO->SetFileName(fn.c_str() );
-    imageIO->ReadImageInformation();
-    for( unsigned int i = 0; i < imageIO->GetNumberOfDimensions(); i++ )
-      {
-      if( imageIO->GetDimensions(i) > size[i] )
-        {
-        size[i] = imageIO->GetDimensions(i);
-        bigimage = j;
-        antscout << " bigimage " << j << " size " << size << std::endl;
-        }
-      }
+      numberofimages++;
+      // Get the image dimension
+      std::string fn = std::string(argv[j]);
+      typename ImageType::Pointer img = NULL ;
+      if( fn[0] == '0' && fn[1] == 'x' )
+	{
+	  std::stringstream strstream ;
+	  strstream << fn ;
+	  void* ptr ;
+	  strstream >> ptr ;
+	  img = *( static_cast< typename ImageType::Pointer* >( ptr ) ) ;
+	  for( unsigned int i = 0 ; i < img->ImageDimension ; ++i )
+	    {
+	      if( img->GetLargestPossibleRegion().GetSize()[i] > size[i] )
+		{
+		  size[i] = img->GetLargestPossibleRegion().GetSize()[i] ;
+		  bigimage = j ;
+		  antscout << " bigimage " << j << " size " << size << std::endl;
+		}
+	    }
+	}
+      else
+	{
+	  typename itk::ImageIOBase::Pointer imageIO =
+	    itk::ImageIOFactory::CreateImageIO(fn.c_str(), itk::ImageIOFactory::ReadMode);
+	  imageIO->SetFileName(fn.c_str() );
+	  imageIO->ReadImageInformation();
+	  for( unsigned int i = 0; i < imageIO->GetNumberOfDimensions(); i++ )
+	    {
+	      if( imageIO->GetDimensions(i) > size[i] )
+		{
+		  size[i] = imageIO->GetDimensions(i);
+		  bigimage = j;
+		  antscout << " bigimage " << j << " size " << size << std::endl;
+		}
+	    }
+	}
     }
 
   ReadImage<ImageType>(image2, argv[bigimage]);
@@ -1006,18 +1033,18 @@ int TriPlanarView(unsigned int argc, char *argv[])
   std::string maskfn = std::string(argv[argct]); argct++;
   antscout << " file name " << maskfn << std::endl;
   typename ImageType::Pointer mask = NULL;
-  typename readertype::Pointer reader2 = readertype::New();
-  reader2->SetFileName(maskfn.c_str() );
-  try
-    {
-    reader2->UpdateLargestPossibleRegion();
-    }
-  catch( ... )
-    {
-    antscout << " Error reading " << maskfn << std::endl;
-    }
-  mask = reader2->GetOutput();
-  // ReadImage<ImageType>(mask,maskfn.c_str());
+  // typename readertype::Pointer reader2 = readertype::New();
+  // reader2->SetFileName(maskfn.c_str() );
+  // try
+  //   {
+  //   reader2->UpdateLargestPossibleRegion();
+  //   }
+  // catch( ... )
+  //   {
+  //   antscout << " Error reading " << maskfn << std::endl;
+  //   }
+  // mask = reader2->GetOutput();
+  ReadImage<ImageType>(mask,maskfn.c_str());
   //  WriteImage<ImageType>(mask,"temp.nii");
   float clamppercent1 = 0.1;
   if( argc > argct )
@@ -1167,11 +1194,12 @@ int TriPlanarView(unsigned int argc, char *argv[])
   rescaler2->SetInput( matimage );
   rescaler2->Update();
   antscout << " writing output ";
-  typedef itk::ImageFileWriter<ByteImageType> writertype;
-  typename writertype::Pointer writer = writertype::New();
-  writer->SetFileName(outname.c_str() );
-  writer->SetInput( rescaler2->GetOutput() );
-  writer->Update();
+  WriteImage<ByteImageType>( rescaler2->GetOutput() , outname.c_str() ) ;
+  // typedef itk::ImageFileWriter<ByteImageType> writertype;
+  // typename writertype::Pointer writer = writertype::New();
+  // writer->SetFileName(outname.c_str() );
+  // writer->SetInput( rescaler2->GetOutput() );
+  // writer->Update();
 
   return 0;
 
@@ -1279,17 +1307,18 @@ int CorruptImage(int argc, char *argv[])
     }
 
   typename ImageType::Pointer image1 = NULL;
-  typename readertype::Pointer reader1 = readertype::New();
-  reader1->SetFileName(fn1.c_str() );
-  reader1->UpdateLargestPossibleRegion();
-  try
-    {
-    image1 = reader1->GetOutput();
-    }
-  catch( ... )
-    {
-    antscout << " read 1 error ";
-    }
+  ReadImage<ImageType>( image1 , fn1.c_str() ) ;
+  // typename readertype::Pointer reader1 = readertype::New();
+  // reader1->SetFileName(fn1.c_str() );
+  // reader1->UpdateLargestPossibleRegion();
+  // try
+  //   {
+  //   image1 = reader1->GetOutput();
+  //   }
+  // catch( ... )
+  //   {
+  //   antscout << " read 1 error ";
+  //   }
 
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
   Iterator iter( image1,  image1->GetLargestPossibleRegion() );
@@ -2150,21 +2179,21 @@ int CompCorrAuto(int argc, char *argv[])
   argct++;
   std::string::size_type idx;
   idx = outname.find_first_of('.');
-  std::string tempname = outname.substr(0, idx);
-  std::string extension = outname.substr(idx, outname.length() );
+  std::string tempname = ( idx == std::string::npos )? "CompCorrAuto" : outname.substr(0, idx) ;
+  std::string extension = ( idx == std::string::npos )? ".nii" : outname.substr(idx, outname.length() ) ;
 
   typename ImageType::Pointer image1 = NULL;
-  typename OutImageType::Pointer outimage = NULL;
-  typename OutImageType::Pointer outimage2 = NULL;
+  // typename OutImageType::Pointer outimage = NULL;
+  // typename OutImageType::Pointer outimage2 = NULL;
   typename OutImageType::Pointer label_image = NULL;
-  typename OutImageType::Pointer var_image = NULL;
+  typename OutImageType::Pointer var_image = OutImageType::New() ;
 
   typedef itk::ImageRegionIteratorWithIndex<ImageType>    ImageIt;
   typedef itk::ImageRegionIteratorWithIndex<OutImageType> SliceIt;
 
   if( fn1.length() > 3 )
     {
-    ReadImage<ImageType>(image1, fn1.c_str() );
+      ReadImage<ImageType>(image1, fn1.c_str() );
     }
   else
     {
@@ -2172,27 +2201,35 @@ int CompCorrAuto(int argc, char *argv[])
     }
   if( fn_label.length() > 3 )
     {
-    ReadImage<OutImageType>(label_image, fn_label.c_str() );
+      ReadImage<OutImageType>(label_image, fn_label.c_str() );
     }
   else
     {
     return 1;
     }
+  // if( fn_label.length() > 3 )
+  //   {
+  //     ReadImage<OutImageType>(outimage, fn_label.c_str() );
+  //   }
+  // if( fn_label.length() > 3 )
+  //   {
+  //     ReadImage<OutImageType>(outimage2, fn_label.c_str() );
+  //   }
   if( fn_label.length() > 3 )
     {
-    ReadImage<OutImageType>(outimage, fn_label.c_str() );
-    }
-  if( fn_label.length() > 3 )
-    {
-    ReadImage<OutImageType>(outimage2, fn_label.c_str() );
-    }
-  if( fn_label.length() > 3 )
-    {
-    ReadImage<OutImageType>(var_image, fn_label.c_str() );
+      if( fn_label[0] == '0' && fn_label[1] == 'x' )
+	{
+	  var_image->SetRegions( label_image->GetLargestPossibleRegion() ) ;
+	  var_image->Allocate();
+	}
+      else
+	{
+	  ReadImage<OutImageType>(var_image, fn_label.c_str() );
+	}
     }
   var_image->FillBuffer(0);
-  outimage->FillBuffer(0);
-  outimage2->FillBuffer(0);
+  // outimage->FillBuffer(0);
+  // outimage2->FillBuffer(0);
   antscout << " read images " << std::endl;
   unsigned int timedims = image1->GetLargestPossibleRegion().GetSize()[ImageDimension - 1];
   antscout << "timedims " << timedims << " size " << image1->GetLargestPossibleRegion().GetSize() << std::endl;
@@ -2406,9 +2443,23 @@ int CompCorrAuto(int argc, char *argv[])
       brain_vox++;
       }
     }
-  kname = tempname + std::string("_corrected") + extension;
+  if( outname[0] == '0' && outname[1] == 'x' )
+    {
+      kname = outname.substr( 0 , outname.find( '_' ) ) ;
+    }
+  else
+    {
+      kname = tempname + std::string("_corrected") + extension;
+    }
   WriteImage<ImageType>(image1, kname.c_str() );
-  kname = tempname + std::string("_variance") + extension;
+  if( outname[0] == '0' && outname[1] == 'x' )
+    {
+      kname = outname.substr( outname.find( '_' ) + 1 , outname.length() ) ;
+    }
+  else
+    {
+      kname = tempname + std::string("_variance") + extension;
+    }
   WriteImage<OutImageType>(var_image, kname.c_str() );
   return 0;
 
@@ -3368,15 +3419,37 @@ int ImageMath(int argc, char *argv[])
     }
   else
     {
-    reader2->Update();
-    image2 = reader2->GetOutput();
+      if( fn2[0] == '0' && fn2[1] == 'x' )
+	{
+	  std::stringstream strstream ;
+	  strstream << fn2 ;
+	  void* ptr ;
+	  strstream >> ptr ;
+	  image2 = *( static_cast< typename ImageType::Pointer* >( ptr ) ) ;
+	}
+      else
+	{
+	  reader2->Update();
+	  image2 = reader2->GetOutput();
+	}
     }
 
   reader1->SetFileName(fn1.c_str() );
   try
     {
-    reader1->UpdateLargestPossibleRegion();
-    image1 = reader1->GetOutput();
+      if( fn1[0] == '0' && fn1[1] == 'x' )
+	{
+	  std::stringstream strstream ;
+	  strstream << fn1 ;
+	  void* ptr ;
+	  strstream >> ptr ;
+	  image1 = *( static_cast< typename ImageType::Pointer* >( ptr ) ) ;
+	}
+      else
+	{
+	  reader1->UpdateLargestPossibleRegion();
+	  image1 = reader1->GetOutput();
+	}
     }
   catch( ... )
     {
@@ -3562,11 +3635,25 @@ int TensorFunctions(int argc, char *argv[])
     <<
     " Convert a 4D tensor to a 3D tensor --- if there are 7 components to the tensor, we throw away the first component b/c its probably b0 "
     << std::endl;
-    itk::ImageIOBase::Pointer imageIO =
-      itk::ImageIOFactory::CreateImageIO(fn1.c_str(), itk::ImageIOFactory::ReadMode);
-    imageIO->SetFileName(fn1.c_str() );
-    imageIO->ReadImageInformation();
-    unsigned int dim = imageIO->GetNumberOfDimensions();
+      typename D4TensorImageType::Pointer img = NULL ;
+      unsigned int dim = 0 ;
+      if( fn1[0] == '0' && fn1[1] == 'x' )
+	{
+	  std::stringstream strstream ;
+	  strstream << fn1 ;
+	  void* ptr ;
+	  strstream >> ptr ;
+	  img = *( static_cast< typename D4TensorImageType::Pointer* >( ptr ) ) ;
+	  dim = img->ImageDimension ;
+	}
+      else
+	{
+	  itk::ImageIOBase::Pointer imageIO =
+	    itk::ImageIOFactory::CreateImageIO(fn1.c_str(), itk::ImageIOFactory::ReadMode);
+	  imageIO->SetFileName(fn1.c_str() );
+	  imageIO->ReadImageInformation();
+	  dim = imageIO->GetNumberOfDimensions();
+	}
     if( dim == 4 )
       {
       typename D4TensorImageType::Pointer d4img = NULL;
@@ -4044,44 +4131,54 @@ int CompareHeadersAndImages(int argc, char *argv[])
     fn2 = std::string(argv[argct]);
     }
 
+  bool isfloat = false;
+  float floatval = 1.0;
   typename ImageType::Pointer image1 = NULL;
   typename ImageType::Pointer image2 = NULL;
-
-  typename readertype::Pointer reader2 = readertype::New();
-  typename readertype::Pointer reader1 = readertype::New();
-  reader2->SetFileName(fn2.c_str() );
-
-  bool isfloat = false;
-  try
+  // typename readertype::Pointer reader1 = readertype::New();
+  if( fn2[0] == '0' && fn2[1] == 'x' )
     {
-    reader2->UpdateLargestPossibleRegion();
-    }
-  catch( ... )
-    {
-    antscout << " Error reading " << fn2 << std::endl;
-    isfloat = true;
-    }
-
-  float floatval = 1.0;
-  if( isfloat )
-    {
-    floatval = atof(argv[argct]);
+      std::stringstream strstream ;
+      strstream << fn2 ;
+      void* ptr ;
+      strstream >> ptr ;
+      image2 = *( static_cast< typename ImageType::Pointer* >( ptr ) ) ;
     }
   else
     {
-    image2 = reader2->GetOutput();
-    }
+      typename readertype::Pointer reader2 = readertype::New();
+      reader2->SetFileName(fn2.c_str() );
 
-  reader1->SetFileName(fn1.c_str() );
-  try
-    {
-    reader1->UpdateLargestPossibleRegion();
-    image1 = reader1->GetOutput();
+      try
+	{
+	  reader2->UpdateLargestPossibleRegion();
+	}
+      catch( ... )
+	{
+	  antscout << " Error reading " << fn2 << std::endl;
+	  isfloat = true;
+	}
+
+      if( isfloat )
+	{
+	  floatval = atof(argv[argct]);
+	}
+      else
+	{
+	  image2 = reader2->GetOutput();
+	}
     }
-  catch( ... )
-    {
-    antscout << " read 1 error ";
-    }
+  ReadImage<ImageType>( image1 , fn1.c_str() ) ;
+  // reader1->SetFileName(fn1.c_str() );
+  // try
+  //   {
+  //   reader1->UpdateLargestPossibleRegion();
+  //   image1 = reader1->GetOutput();
+  //   }
+  // catch( ... )
+  //   {
+  //   antscout << " read 1 error ";
+  //   }
 
   // compute error in spacing, in orientation and in offset
   unsigned int failure = 0;
@@ -4295,10 +4392,11 @@ int CompareHeadersAndImages(int argc, char *argv[])
     image2->SetDirection(image1->GetDirection() );
     }
   // write repaired images
-  typename writertype::Pointer writer = writertype::New();
-  writer->SetFileName(outname.c_str() );
-  writer->SetInput( image2 );
-  writer->Write();
+  WriteImage<ImageType>( image2 , outname.c_str() ) ;
+  // typename writertype::Pointer writer = writertype::New();
+  // writer->SetFileName(outname.c_str() );
+  // writer->SetInput( image2 );
+  // writer->Write();
   antscout << "  FailureState: " << failure << " for " << fn2  << std::endl;
   return failure;
 
@@ -4952,16 +5050,27 @@ int NegativeImage(int argc, char *argv[])
     }
 
   typename ImageType::Pointer image1 = NULL;
-  typename readertype::Pointer reader1 = readertype::New();
-  reader1->SetFileName(fn1.c_str() );
-  reader1->UpdateLargestPossibleRegion();
-  try
+  if( fn1[0] == '0' && fn1[1] == 'x' )
     {
-    image1 = reader1->GetOutput();
+      std::stringstream strstream ;
+      strstream << fn1 ;
+      void* ptr ;
+      strstream >> ptr ;
+      image1 = *( static_cast< typename ImageType::Pointer* >( ptr ) ) ;
     }
-  catch( ... )
+  else
     {
-    antscout << " read 1 error ";
+      typename readertype::Pointer reader1 = readertype::New();
+      reader1->SetFileName(fn1.c_str() );
+      reader1->UpdateLargestPossibleRegion();
+      try
+	{
+	  image1 = reader1->GetOutput();
+	}
+      catch( ... )
+	{
+	  antscout << " read 1 error ";
+	}
     }
 
   Iterator vfIter2( image1,  image1->GetLargestPossibleRegion() );
@@ -4992,11 +5101,21 @@ int NegativeImage(int argc, char *argv[])
     vfIter2.Set(pix);
     }
 
-  typename writertype::Pointer writer = writertype::New();
-  writer->SetFileName(outname.c_str() );
-  writer->SetInput( image1 );
-  writer->Write();
-
+  if( outname[0] == '0' && outname[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << outname ;
+      void* ptr ;
+      strstream >> ptr ;
+      *( static_cast< typename ImageType::Pointer* >( ptr ) ) = image1 ;
+    }
+  else
+    {
+      typename writertype::Pointer writer = writertype::New();
+      writer->SetFileName(outname.c_str() );
+      writer->SetInput( image1 );
+      writer->Write();
+    }
   return 0;
 
 }
@@ -5666,11 +5785,21 @@ int SmoothImage(int argc, char *argv[])
   filter->SetInput(image1);
   filter->Update();
   varimage = filter->GetOutput();
-  typename writertype::Pointer writer = writertype::New();
-  writer->SetFileName(outname.c_str() );
-  writer->SetInput( varimage );
-  writer->Write();
-
+  if( outname[0] == '0' && outname[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << outname ;
+      void* ptr ;
+      strstream >> ptr ;
+      *( static_cast< typename ImageType::Pointer* >( ptr ) ) = varimage ;
+    }
+  else
+    {
+      typename writertype::Pointer writer = writertype::New();
+      writer->SetFileName(outname.c_str() );
+      writer->SetInput( varimage );
+      writer->Write();
+    }
   return 0;
 
 }
@@ -5744,11 +5873,21 @@ int MorphImage(int argc, char *argv[])
 
   image1 = Morphological<ImageType>(image1, sigma, morphopt, dilateval);
 
-  typename writertype::Pointer writer = writertype::New();
-  writer->SetFileName(outname.c_str() );
-  writer->SetInput( image1 );
-  writer->Write();
-
+  if( outname[0] == '0' && outname[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << outname ;
+      void* ptr ;
+      strstream >> ptr ;
+      *( static_cast< typename ImageType::Pointer* >( ptr ) ) = image1 ;
+    }
+  else
+    {
+      typename writertype::Pointer writer = writertype::New();
+      writer->SetFileName(outname.c_str() );
+      writer->SetInput( image1 );
+      writer->Write();
+    }
   return 0;
 
 }
@@ -5788,13 +5927,14 @@ int FastMarchingSegmentation( unsigned int argc, char *argv[] )
     topocheck = atoi(argv[argct]);   argct++;
     }
 
-  typedef itk::ImageFileReader<ImageType> ReaderType;
-  typename ReaderType::Pointer reader1 = ReaderType::New();
-  reader1->SetFileName( fn1.c_str() );
-
+  // typedef itk::ImageFileReader<ImageType> ReaderType;
+  // typename ReaderType::Pointer reader1 = ReaderType::New();
+  // reader1->SetFileName( fn1.c_str() );
+  typename ImageType::Pointer image = NULL ;
+  ReadImage<ImageType>( image , fn1.c_str() ) ;
   typedef itk::FastMarchingImageFilter<ImageType> FilterType;
   typename FilterType::Pointer filter = FilterType::New();
-  filter->SetInput( reader1->GetOutput() );
+  filter->SetInput( image );
 
   typedef typename FilterType::NodeContainer  NodeContainer;
   typedef typename FilterType::NodeType       NodeType;
@@ -5892,13 +6032,14 @@ int FastMarchingSegmentation( unsigned int argc, char *argv[] )
       }
     }
 
-    {
-    typedef itk::ImageFileWriter<ImageType> WriterType;
-    typename WriterType::Pointer writer = WriterType::New();
-    writer->SetFileName( outname.c_str() );
-    writer->SetInput( filter->GetOutput() );
-    writer->Update();
-    }
+  WriteImage<ImageType>( filter->GetOutput() , outname.c_str() ) ;
+    // {
+    // typedef itk::ImageFileWriter<ImageType> WriterType;
+    // typename WriterType::Pointer writer = WriterType::New();
+    // writer->SetFileName( outname.c_str() );
+    // writer->SetInput( filter->GetOutput() );
+    // writer->Update();
+    // }
 
   return 0;
 }
@@ -6078,11 +6219,21 @@ int DistanceMap(int argc, char *argv[])
   filter->SetInput(image1);
   filter->Update();
 
-  typename writertype::Pointer writer = writertype::New();
-  writer->SetFileName(outname.c_str() );
-  writer->SetInput( filter->GetOutput() );
-  writer->Write();
-
+  if( outname[0] == '0' && outname[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << outname ;
+      void* ptr ;
+      strstream >> ptr ;
+      *( static_cast< typename ImageType::Pointer* >( ptr ) ) = filter->GetOutput() ;
+    }
+  else
+    {
+      typename writertype::Pointer writer = writertype::New();
+      writer->SetFileName(outname.c_str() );
+      writer->SetInput( filter->GetOutput() );
+      writer->Write();
+    }
   return 0;
 
 }
@@ -6329,11 +6480,21 @@ int NormalizeImage(int argc, char *argv[])
       }
     }
 
-  typename writertype::Pointer writer = writertype::New();
-  writer->SetFileName(outname.c_str() );
-  writer->SetInput( image );
-  writer->Write();
-
+  if( outname[0] == '0' && outname[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << outname ;
+      void* ptr ;
+      strstream >> ptr ;
+      *( static_cast< typename ImageType::Pointer* >( ptr ) ) = image ;
+    }
+  else
+    {
+      typename writertype::Pointer writer = writertype::New();
+      writer->SetFileName(outname.c_str() );
+      writer->SetInput( image );
+      writer->Write();
+    }
   return 0;
 
 }
@@ -6360,14 +6521,26 @@ int PrintHeader(int argc, char *argv[])
     antscout << " k " << std::endl;
     }
   //  std::string opt = std::string(argv[argct]);   argct++;
-
-  typename readertype::Pointer reader = readertype::New();
-  reader->SetFileName(fn1.c_str() );
-  reader->Update();
-  antscout << " Spacing " << reader->GetOutput()->GetSpacing() << std::endl;
-  antscout << " Origin " << reader->GetOutput()->GetOrigin() << std::endl;
-  antscout << " Direction " << std::endl << reader->GetOutput()->GetDirection() << std::endl;
-  antscout << " Size " << std::endl << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
+  typename ImageType::Pointer inputImage = NULL ;
+  if( fn1[0] == '0' && fn1[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << fn1 ;
+      void* ptr ;
+      strstream >> ptr ;
+      inputImage = *( static_cast< typename ImageType::Pointer* >( ptr ) ) ;
+    }
+  else
+    {
+      typename readertype::Pointer reader = readertype::New();
+      reader->SetFileName(fn1.c_str() );
+      reader->Update();
+      inputImage = reader->GetOutput() ;
+    }
+  antscout << " Spacing " << inputImage->GetSpacing() << std::endl;
+  antscout << " Origin " << inputImage->GetOrigin() << std::endl;
+  antscout << " Direction " << std::endl << inputImage->GetDirection() << std::endl;
+  antscout << " Size " << std::endl << inputImage->GetLargestPossibleRegion().GetSize() << std::endl;
 
   //  if (strcmp(operation.c_str(),"n_last_dim") == 0){
   // unsigned int lastdim=reader->GetOutput()->GetLargestPossibleRegion().GetSize()[ImageDimension-1];
@@ -6524,14 +6697,16 @@ int PoissonDiffusion( int argc, char *argv[])
   typedef itk::Image<PixelType, ImageDimension> ImageType;
   typedef itk::Image<int, ImageDimension>       LabelImageType;
 
-  typedef itk::ImageFileReader<ImageType> ReaderType;
-  typename ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[4] );
-  reader->Update();
+  // typedef itk::ImageFileReader<ImageType> ReaderType;
+  // typename ReaderType::Pointer reader = ReaderType::New();
+  // reader->SetFileName( argv[4] );
+  // reader->Update();
+  typename ImageType::Pointer image = NULL ;
+  ReadImage<ImageType>( image , argv[4] ) ;
 
   typedef itk::ImageDuplicator<ImageType> DuplicatorType;
   typename DuplicatorType::Pointer duplicator = DuplicatorType::New();
-  duplicator->SetInputImage( reader->GetOutput() );
+  duplicator->SetInputImage( image );
   duplicator->Update();
 
   typename ImageType::Pointer output = duplicator->GetOutput();
@@ -6558,7 +6733,7 @@ int PoissonDiffusion( int argc, char *argv[])
 
   typedef itk::BinaryThresholdImageFilter<ImageType, ImageType> ThresholderType2;
   typename ThresholderType2::Pointer thresholder2 = ThresholderType2::New();
-  thresholder2->SetInput( reader->GetOutput() );
+  thresholder2->SetInput( image );
   thresholder2->SetOutsideValue( 0 );
   thresholder2->SetInsideValue( 1 );
   thresholder2->SetLowerThreshold( 0.2 );
@@ -6636,7 +6811,7 @@ int PoissonDiffusion( int argc, char *argv[])
       {
       if(  thresholder2->GetOutput()->GetPixel(vfIter.GetIndex() ) == 1 )
         {
-        vfIter.Set(reader->GetOutput()->GetPixel(vfIter.GetIndex() ) );
+        vfIter.Set(image->GetPixel(vfIter.GetIndex() ) );
         }
       }
 
@@ -6647,7 +6822,7 @@ int PoissonDiffusion( int argc, char *argv[])
     {
     if(  thresholder2->GetOutput()->GetPixel(vfIter.GetIndex() ) == 1 )
       {
-      vfIter.Set(reader->GetOutput()->GetPixel(vfIter.GetIndex() ) );
+      vfIter.Set(image->GetPixel(vfIter.GetIndex() ) );
       }
     if(  thresholder->GetOutput()->GetPixel(vfIter.GetIndex() ) == 0 )
       {
@@ -6655,11 +6830,12 @@ int PoissonDiffusion( int argc, char *argv[])
       }
     }
 
-  typedef itk::ImageFileWriter<ImageType> WriterType;
-  typename WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( argv[2] );
-  writer->SetInput( output );
-  writer->Update();
+  WriteImage<ImageType>( output , argv[2] ) ;
+  // typedef itk::ImageFileWriter<ImageType> WriterType;
+  // typename WriterType::Pointer writer = WriterType::New();
+  // writer->SetFileName( argv[2] );
+  // writer->SetInput( output );
+  // writer->Update();
 
   return 0;
 }
@@ -7469,12 +7645,24 @@ int Lipschitz( int argc, char *argv[] )
   /**
    * Read in vector field
    */
-  typedef itk::ImageFileReader<VectorImageType> ReaderType;
-  typename ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( vecname.c_str() );
-  // reader->SetUseAvantsNamingConvention( true );
-  reader->Update();
-  typename VectorImageType::Pointer vecimage = reader->GetOutput();
+  typename VectorImageType::Pointer vecimage = NULL ;
+  if( vecname[0] == '0' && vecname[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << vecname ;
+      void* ptr ;
+      strstream >> ptr ;
+      vecimage = *( static_cast< typename VectorImageType::Pointer* >( ptr ) ) ;
+    }
+  else
+    {
+      typedef itk::ImageFileReader<VectorImageType> ReaderType;
+      typename ReaderType::Pointer reader = ReaderType::New();
+      reader->SetFileName( vecname.c_str() );
+      // reader->SetUseAvantsNamingConvention( true );
+      reader->Update();
+      vecimage = reader->GetOutput();
+    }
 
   typename RealImageType::Pointer lipcon = RealImageType::New();
   lipcon->SetOrigin( vecimage->GetOrigin() );
@@ -7564,12 +7752,22 @@ int Lipschitz( int argc, char *argv[] )
   timer.Stop();
 //    antscout << "Elapsed time: " << timer.GetMeanTime()  << std::endl;
 
-  typedef itk::ImageFileWriter<RealImageType> RealImageWriterType;
-  typename RealImageWriterType::Pointer realwriter = RealImageWriterType::New();
-  realwriter->SetFileName( outname.c_str() );
-  realwriter->SetInput( lipcon );
-  realwriter->Update();
-
+  if( outname[0] == '0' && outname[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << outname ;
+      void* ptr ;
+      strstream >> ptr ;
+      *( static_cast< typename RealImageType::Pointer* >( ptr ) ) = lipcon ;
+    }
+  else
+    {
+      typedef itk::ImageFileWriter<RealImageType> RealImageWriterType;
+      typename RealImageWriterType::Pointer realwriter = RealImageWriterType::New();
+      realwriter->SetFileName( outname.c_str() );
+      realwriter->SetInput( lipcon );
+      realwriter->Update();
+    }
   return 0;
 
 }
@@ -7590,11 +7788,13 @@ int ExtractVectorComponent( int argc, char *argv[] )
   std::string  operation = std::string(argv[argct]);  argct++;
   std::string  inname = std::string(argv[argct]);   argct++;
   unsigned int whichvec = atoi(argv[argct]);   argct++;
-  typedef itk::ImageFileReader<ImageType> ReaderType;
-  typename ReaderType::Pointer reader1 = ReaderType::New();
-  reader1->SetFileName( inname.c_str() );
-  reader1->Update();
-  typename ImageType::Pointer vecimage = reader1->GetOutput();
+  // typedef itk::ImageFileReader<ImageType> ReaderType;
+  // typename ReaderType::Pointer reader1 = ReaderType::New();
+  // reader1->SetFileName( inname.c_str() );
+  // reader1->Update();
+  // typename ImageType::Pointer vecimage = reader1->GetOutput();
+  typename ImageType::Pointer vecimage = NULL ;
+  ReadImage<ImageType>( vecimage , inname.c_str() ) ;
   if( whichvec >= vecimage->GetVectorLength() )
     {
     antscout << " input image " << inname << " only has " << vecimage->GetVectorLength() << " components "
@@ -7616,11 +7816,12 @@ int ExtractVectorComponent( int argc, char *argv[] )
       {
       component->SetPixel(It1.GetIndex(), It1.Get()[whichvec]);
       }
-    typedef itk::ImageFileWriter<RealImageType> RealImageWriterType;
-    typename RealImageWriterType::Pointer realwriter = RealImageWriterType::New();
-    realwriter->SetFileName( outname.c_str() );
-    realwriter->SetInput( component );
-    realwriter->Update();
+    // typedef itk::ImageFileWriter<RealImageType> RealImageWriterType;
+    // typename RealImageWriterType::Pointer realwriter = RealImageWriterType::New();
+    // realwriter->SetFileName( outname.c_str() );
+    // realwriter->SetInput( component );
+    // realwriter->Update();
+    WriteImage<RealImageType>( component , outname.c_str() ) ;
     }
   return EXIT_SUCCESS;
 }
@@ -7651,18 +7852,42 @@ int InvId( int argc, char *argv[] )
   /**
    * Read in vector field
    */
-  typedef itk::ImageFileReader<VectorImageType> ReaderType;
-  typename ReaderType::Pointer reader1 = ReaderType::New();
-  reader1->SetFileName( vecname1.c_str() );
-  //  reader1->SetUseAvantsNamingConvention( true );
-  reader1->Update();
-  typename VectorImageType::Pointer vecimage1 = reader1->GetOutput();
-  typename ReaderType::Pointer reader2 = ReaderType::New();
-  reader2->SetFileName( vecname2.c_str() );
-  //  reader2->SetUseAvantsNamingConvention( true );
-  reader2->Update();
-  typename VectorImageType::Pointer vecimage2 = reader2->GetOutput();
-
+  typename VectorImageType::Pointer vecimage1 = NULL ;
+  if( vecname1[0] == '0' && vecname1[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << vecname1 ;
+      void* ptr ;
+      strstream >> ptr ;
+      vecimage1 = *( static_cast< typename VectorImageType::Pointer* >( ptr ) ) ;
+    }
+  else
+    {
+      typedef itk::ImageFileReader<VectorImageType> ReaderType;
+      typename ReaderType::Pointer reader1 = ReaderType::New();
+      reader1->SetFileName( vecname1.c_str() );
+      //  reader1->SetUseAvantsNamingConvention( true );
+      reader1->Update();
+      vecimage1 = reader1->GetOutput();
+    }
+  typename VectorImageType::Pointer vecimage2 = NULL ;
+  if( vecname2[0] == '0' && vecname2[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << vecname2 ;
+      void* ptr ;
+      strstream >> ptr ;
+      vecimage2 = *( static_cast< typename VectorImageType::Pointer* >( ptr ) ) ;
+    }
+  else
+    {
+      typedef itk::ImageFileReader<VectorImageType> ReaderType;
+      typename ReaderType::Pointer reader2 = ReaderType::New();
+      reader2->SetFileName( vecname2.c_str() );
+      //  reader2->SetUseAvantsNamingConvention( true );
+      reader2->Update();
+      vecimage2 = reader2->GetOutput();
+    }
   typename RealImageType::Pointer invid = RealImageType::New();
   invid->SetOrigin( vecimage1->GetOrigin() );
   invid->SetSpacing( vecimage1->GetSpacing() );
@@ -7725,12 +7950,22 @@ int InvId( int argc, char *argv[] )
   timer.Stop();
 //    antscout << "Elapsed time: " << timer.GetMeanTime()  << std::endl;
 
-  typedef itk::ImageFileWriter<RealImageType> RealImageWriterType;
-  typename RealImageWriterType::Pointer realwriter = RealImageWriterType::New();
-  realwriter->SetFileName( outname.c_str() );
-  realwriter->SetInput( invid );
-  realwriter->Update();
-
+  if( outname[0] == '0' && outname[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << outname ;
+      void* ptr ;
+      strstream >> ptr ;
+      *( static_cast< typename RealImageType::Pointer* >( ptr ) ) = invid ;
+    }
+  else
+    {
+      typedef itk::ImageFileWriter<RealImageType> RealImageWriterType;
+      typename RealImageWriterType::Pointer realwriter = RealImageWriterType::New();
+      realwriter->SetFileName( outname.c_str() );
+      realwriter->SetInput( invid );
+      realwriter->Update();
+    }
   return 0;
 
 }
@@ -8469,10 +8704,11 @@ int ByteImage(      int argc, char *argv[])
   rescaler->SetOutputMaximum( 255 );
   rescaler->SetInput( image );
 
-  typename writertype::Pointer writer = writertype::New();
-  writer->SetFileName(outname.c_str() );
-  writer->SetInput( rescaler->GetOutput() );
-  writer->Update();
+  WriteImage<ByteImageType>( rescaler->GetOutput() , outname.c_str() ) ;
+  // typename writertype::Pointer writer = writertype::New();
+  // writer->SetFileName(outname.c_str() );
+  // writer->SetInput( rescaler->GetOutput() );
+  // writer->Update();
 
   return 0;
 
@@ -8597,17 +8833,36 @@ int ConvertImageSetToMatrix(unsigned int argc, char *argv[])
     numberofimages++;
     // Get the image dimension
     std::string fn = std::string(argv[j]);
-    typename itk::ImageIOBase::Pointer imageIO =
-      itk::ImageIOFactory::CreateImageIO(fn.c_str(), itk::ImageIOFactory::ReadMode);
-    imageIO->SetFileName(fn.c_str() );
-    imageIO->ReadImageInformation();
-    for( unsigned int i = 0; i < imageIO->GetNumberOfDimensions(); i++ )
+    if( fn[0] == '0' && fn[1] == 'x' )
       {
-      if( imageIO->GetDimensions(i) > size[i] )
-        {
-        size[i] = imageIO->GetDimensions(i);
-        antscout << " bigimage " << j << " size " << size << std::endl;
-        }
+	std::stringstream strstream ;
+	strstream << fn ;
+	void* ptr ;
+	strstream >> ptr ;
+	typename ImageType::Pointer img = *( static_cast< typename ImageType::Pointer* >( ptr ) ) ;
+	for( unsigned int i = 0 ; i < img->ImageDimension ; ++i )
+	  {
+	    if( img->GetLargestPossibleRegion().GetSize()[i] > size[i] )
+	      {
+		size[i] = img->GetLargestPossibleRegion().GetSize()[i] ;
+		antscout << " bigimage " << j << " size " << size << std::endl;
+	      }
+	  }
+      }
+    else
+      {
+	typename itk::ImageIOBase::Pointer imageIO =
+	  itk::ImageIOFactory::CreateImageIO(fn.c_str(), itk::ImageIOFactory::ReadMode);
+	imageIO->SetFileName(fn.c_str() );
+	imageIO->ReadImageInformation();
+	for( unsigned int i = 0; i < imageIO->GetNumberOfDimensions(); i++ )
+	  {
+	    if( imageIO->GetDimensions(i) > size[i] )
+	      {
+		size[i] = imageIO->GetDimensions(i);
+		antscout << " bigimage " << j << " size " << size << std::endl;
+	      }
+	  }
       }
     }
 
@@ -8915,18 +9170,37 @@ int ConvertImageSetToEigenvectors(unsigned int argc, char *argv[])
     numberofimages++;
     // Get the image dimension
     std::string fn = std::string(argv[j]);
-    typename itk::ImageIOBase::Pointer imageIO =
-      itk::ImageIOFactory::CreateImageIO(fn.c_str(), itk::ImageIOFactory::ReadMode);
-    imageIO->SetFileName(fn.c_str() );
-    imageIO->ReadImageInformation();
-    for( unsigned int i = 0; i < imageIO->GetNumberOfDimensions(); i++ )
+    if( fn[0] == '0' && fn[1] == 'x' )
       {
-      if( imageIO->GetDimensions(i) > size[i] )
-        {
-        size[i] = imageIO->GetDimensions(i);
+	std::stringstream strstream ;
+	strstream << fn ;
+	void* ptr ;
+	strstream >> ptr ;
+	typename ImageType::Pointer img = *( static_cast< typename ImageType::Pointer* >( ptr ) ) ;
+	for( unsigned int i = 0 ; i < img->ImageDimension ; ++i )
+	  {
+	    if( img->GetLargestPossibleRegion().GetSize()[i] > size[i] )
+	      {
+		size[i] = img->GetLargestPossibleRegion().GetSize()[i] ;
+		antscout << " bigimage " << j << " size " << size << std::endl;
+	      }
+	  }
+      }
+    else
+      {
+	typename itk::ImageIOBase::Pointer imageIO =
+	  itk::ImageIOFactory::CreateImageIO(fn.c_str(), itk::ImageIOFactory::ReadMode);
+	imageIO->SetFileName(fn.c_str() );
+	imageIO->ReadImageInformation();
+	for( unsigned int i = 0; i < imageIO->GetNumberOfDimensions(); i++ )
+	  {
+	    if( imageIO->GetDimensions(i) > size[i] )
+	      {
+		size[i] = imageIO->GetDimensions(i);
 
-        antscout << " bigimage " << j << " size " << size << std::endl;
-        }
+		antscout << " bigimage " << j << " size " << size << std::endl;
+	      }
+	  }
       }
     }
 

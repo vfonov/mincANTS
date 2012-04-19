@@ -17,9 +17,10 @@ public:
   }
   void set_stream( std::ostream* os )
   {
-    // assert failed means output streams is being being changed within program
-    assert( os_ == NULL ) ;
-    os_ = os ;
+    if( os_ == NULL )
+      {
+	os_ = os ;
+      }
   }
   std::streamsize write( const char* buffer , std::streamsize num_chars )
   {

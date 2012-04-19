@@ -41,6 +41,7 @@
 #include "itkOtsuMultipleThresholdsImageFilter.h"
 
 #include <fstream>
+#include <sstream>
 
 namespace ants
 {
@@ -219,35 +220,33 @@ typename TImage::Pointer OtsuThreshold(
 template <unsigned int InImageDimension>
 int ThresholdImage( int argc, char * argv[] )
 {
-
   //  const     unsigned int   InImageDimension = AvantsImageDimension;
   typedef   float                                   PixelType;
   typedef   itk::Image<PixelType, InImageDimension> FixedImageType;
   typedef   itk::ImageFileReader<FixedImageType>    FixedReaderType;
-  typename FixedReaderType::Pointer fixedReader = FixedReaderType::New();
-  fixedReader->SetFileName( argv[2] );
-
-  typedef   itk::ImageFileWriter<FixedImageType> MovingWriterType;
-  typename MovingWriterType::Pointer movingWriter = MovingWriterType::New();
-  typename MovingWriterType::Pointer movingWriter2 = MovingWriterType::New();
-  movingWriter->SetFileName( argv[3] );
-
-  try
+  typename FixedImageType::Pointer fixedimage ;
+  if( argv[2][0] == '0' && argv[2][1] == 'x' )
     {
-    fixedReader->Update();
+      std::stringstream strstream ;
+      strstream << argv[2] ;
+      void* ptr ;
+      strstream >> ptr ;
+      fixedimage = *( static_cast< typename FixedImageType::Pointer* >( ptr ) ) ;
     }
-  catch( itk::ExceptionObject & excp )
+  else
     {
-    antscout << "Exception thrown " << std::endl;
-    antscout << excp << std::endl;
-    return EXIT_FAILURE;
+      typename FixedReaderType::Pointer fixedReader = FixedReaderType::New();
+      fixedReader->SetFileName( argv[2] );
+      fixedReader->Update() ;
+      fixedimage = fixedReader->GetOutput() ;
     }
+
   // Label the surface of the image
   typename FixedImageType::Pointer thresh;
   std::string threshtype = std::string(argv[4]);
   if( strcmp(threshtype.c_str(), "Otsu") == 0 )
     {
-    thresh = OtsuThreshold<FixedImageType>(atoi(argv[5]), fixedReader->GetOutput() );
+    thresh = OtsuThreshold<FixedImageType>(atoi(argv[5]), fixedimage );
     }
   else
     {
@@ -262,11 +261,26 @@ int ThresholdImage( int argc, char * argv[] )
       outsideValue = static_cast<PixelType>( atof( argv[7] ) );
       }
     thresh = BinaryThreshold<FixedImageType>(atof(argv[4]), atof(argv[5]),
-                                             insideValue, outsideValue, fixedReader->GetOutput() );
+                                             insideValue, outsideValue, fixedimage );
     }
 
-  movingWriter->SetInput(thresh);
-  movingWriter->Write();
+  if( argv[3][0] == '0' && argv[3][1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << argv[3] ;
+      void* ptr ;
+      strstream >> ptr ;
+      *( static_cast< typename FixedImageType::Pointer* >( ptr ) ) = thresh ;
+    }
+  else
+    {
+      typedef   itk::ImageFileWriter<FixedImageType> MovingWriterType;
+      typename MovingWriterType::Pointer movingWriter = MovingWriterType::New();
+      typename MovingWriterType::Pointer movingWriter2 = MovingWriterType::New();
+      movingWriter->SetFileName( argv[3] );
+      movingWriter->SetInput(thresh);
+      movingWriter->Write();
+    }
   return EXIT_SUCCESS;
 }
 

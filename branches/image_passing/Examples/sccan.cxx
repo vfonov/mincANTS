@@ -45,20 +45,31 @@ bool SCCANReadImage(itk::SmartPointer<TImageType> & target, const char *file)
   typedef TImageType                      ImageType;
   typedef itk::ImageFileReader<ImageType> FileSourceType;
   typedef typename ImageType::PixelType   PixType;
-  typename FileSourceType::Pointer reffilter = FileSourceType::New();
-  reffilter->SetFileName( file );
-  try
+  if( file[0] == '0' && file[1] == 'x' )
     {
-    reffilter->Update();
+      std::stringstream strstream ;
+      strstream << file ;
+      void* ptr ;
+      strstream >> ptr ;
+      target = *( static_cast< typename ImageType::Pointer* >( ptr ) ) ;
     }
-  catch( itk::ExceptionObject & e )
+  else
     {
-    antscout << "Exception caught during reference file reading " << std::endl;
-    antscout << e << " file " << file << std::endl;
-    target = NULL;
-    return false;
+      typename FileSourceType::Pointer reffilter = FileSourceType::New();
+      reffilter->SetFileName( file );
+      try
+	{
+	  reffilter->Update();
+	}
+      catch( itk::ExceptionObject & e )
+	{
+	  antscout << "Exception caught during reference file reading " << std::endl;
+	  antscout << e << " file " << file << std::endl;
+	  target = NULL;
+	  return false;
+	}
+      target = reffilter->GetOutput();
     }
-  target = reffilter->GetOutput();
   return true;
 }
 
@@ -140,14 +151,24 @@ void WriteVectorToSpatialImage( std::string filename, std::string post, vnl_vect
       }
     }
 
-  typedef itk::ImageFileWriter<TImage> WriterType;
-  std::string fn1 = filepre + post + extension;
-  antscout << fn1 << std::endl;
-  typename WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( fn1 );
-  writer->SetInput( weights );
-  writer->Update();
-
+  if( filename[0] == '0' && filename[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << filename ;
+      void* ptr ;
+      strstream >> ptr ;
+      *( static_cast< typename TImage::Pointer* >( ptr ) ) = weights ;
+    }
+  else
+    {
+      typedef itk::ImageFileWriter<TImage> WriterType;
+      std::string fn1 = filepre + post + extension;
+      antscout << fn1 << std::endl;
+      typename WriterType::Pointer writer = WriterType::New();
+      writer->SetFileName( fn1 );
+      writer->SetInput( weights );
+      writer->Update();
+    }
 }
 
 template <class T>
@@ -374,9 +395,7 @@ CompareMatrixSizes(  vnl_matrix<RealType> & p,  vnl_matrix<RealType> & q )
     antscout << " The number of rows must match !!" << std::endl;
     antscout << " matrix-1 has " << p.rows() << " rows " << std::endl;
     antscout << " matrix-2 has " << q.rows() << " rows " << std::endl;
-    antscout << " returning " << EXIT_FAILURE << std::endl;
-    //    throw std::exception();
-    return EXIT_FAILURE;
+    throw std::exception();
     }
   return 0;
 }
@@ -432,12 +451,25 @@ ConvertImageListToMatrix( std::string imagelist, std::string maskfn, std::string
   typedef itk::Image<PixelType, ImageDimension> ImageType;
   typedef itk::Image<PixelType, 2>              MatrixImageType;
   typedef itk::ImageFileReader<ImageType>       ReaderType;
-  typename ReaderType::Pointer reader1 = ReaderType::New();
-  reader1->SetFileName( maskfn );
-  reader1->Update();
+  typename ImageType::Pointer maskimage ;
+  if( maskfn[0] == '0' && maskfn[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << maskfn ;
+      void* ptr ;
+      strstream >> ptr ;
+      maskimage = *( static_cast< typename ImageType::Pointer* >( ptr ) ) ;
+    }
+  else
+    {
+      typename ReaderType::Pointer reader1 = ReaderType::New();
+      reader1->SetFileName( maskfn );
+      reader1->Update();
+      maskimage = reader1->GetOutput() ;
+    }
   unsigned long voxct = 0;
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
-  Iterator mIter( reader1->GetOutput(), reader1->GetOutput()->GetLargestPossibleRegion() );
+  Iterator mIter( maskimage , maskimage->GetLargestPossibleRegion() );
   for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
     {
     if( mIter.Get() >= 0.5 )
@@ -494,9 +526,22 @@ ConvertImageListToMatrix( std::string imagelist, std::string maskfn, std::string
     matrix.Fill(0);
     for( unsigned int j = 0; j < image_fn_list.size(); j++ )
       {
-      typename ReaderType::Pointer reader2 = ReaderType::New();
-      reader2->SetFileName( image_fn_list[j] );
-      reader2->Update();
+	typename ImageType::Pointer image = NULL ;
+	if( image_fn_list[j][0] == '0' && image_fn_list[j][1] == 'x' )
+	  {
+	    std::stringstream strstream ;
+	    strstream << image_fn_list[j] ;
+	    void* ptr ;
+	    strstream >> ptr ;
+	    image = *( static_cast< typename ImageType::Pointer* >( ptr ) ) ;
+	  }
+	else
+	  {
+	    typename ReaderType::Pointer reader2 = ReaderType::New();
+	    reader2->SetFileName( image_fn_list[j] );
+	    reader2->Update();
+	    image = reader2->GetOutput() ;
+	  }
       unsigned long xx = 0, yy = 0, tvoxct = 0;
       xx = j;
       for(  mIter.GoToBegin(); !mIter.IsAtEnd(); ++mIter )
@@ -504,7 +549,7 @@ ConvertImageListToMatrix( std::string imagelist, std::string maskfn, std::string
         if( mIter.Get() >= 0.5 )
           {
           yy = tvoxct;
-          matrix[xx][yy] = reader2->GetOutput()->GetPixel(mIter.GetIndex() );
+          matrix[xx][yy] = image->GetPixel(mIter.GetIndex() );
           if( j == 0 )
             {
             std::string colname = std::string("V") + sccan_to_string<unsigned long>(tvoxct);
@@ -548,9 +593,22 @@ ConvertImageListToMatrix( std::string imagelist, std::string maskfn, std::string
     matimage->Allocate();
     for( unsigned int j = 0; j < image_fn_list.size(); j++ )
       {
-      typename ReaderType::Pointer reader2 = ReaderType::New();
-      reader2->SetFileName( image_fn_list[j] );
-      reader2->Update();
+	typename ImageType::Pointer image = NULL ;
+	if( image_fn_list[j][0] == '0' && image_fn_list[j][1] == 'x' )
+	  {
+	    std::stringstream strstream ;
+	    strstream << image_fn_list[j] ;
+	    void* ptr ;
+	    strstream >> ptr ;
+	    image = *( static_cast< typename ImageType::Pointer* >( ptr ) ) ;
+	  }
+	else
+	  {
+	    typename ReaderType::Pointer reader2 = ReaderType::New();
+	    reader2->SetFileName( image_fn_list[j] );
+	    reader2->Update();
+	    image = reader2->GetOutput() ;
+	  }
       unsigned long xx = 0, yy = 0, tvoxct = 0;
       xx = j;
       typename MatrixImageType::IndexType mind;
@@ -561,17 +619,28 @@ ConvertImageListToMatrix( std::string imagelist, std::string maskfn, std::string
           yy = tvoxct;
           mind[0] = xx;
           mind[1] = yy;
-          matimage->SetPixel(mind, reader2->GetOutput()->GetPixel(mIter.GetIndex() ) );
+          matimage->SetPixel(mind, image->GetPixel(mIter.GetIndex() ) );
           tvoxct++;
           }
         }
       }
 
-    typedef itk::ImageFileWriter<MatrixImageType> WriterType;
-    typename WriterType::Pointer writer = WriterType::New();
-    writer->SetFileName( outname );
-    writer->SetInput( matimage );
-    writer->Update();
+  if( outname[0] == '0' && outname[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << outname ;
+      void* ptr ;
+      strstream >> ptr ;
+      *( static_cast< typename MatrixImageType::Pointer* >( ptr ) ) = matimage ;
+    }
+  else
+    {
+      typedef itk::ImageFileWriter<MatrixImageType> WriterType;
+      typename WriterType::Pointer writer = WriterType::New();
+      writer->SetFileName( outname );
+      writer->SetInput( matimage );
+      writer->Update();
+    }
 
     }
   return;
@@ -757,7 +826,16 @@ ConvertCSVVectorToImage( std::string csvfn, std::string maskfn, std::string outn
   typename ImageType::Pointer mask = NULL;
   SCCANReadImage<ImageType>(mask, maskfn.c_str() );
   typename ImageType::Pointer outimage = NULL;
-  SCCANReadImage<ImageType>(outimage, maskfn.c_str() );
+  if( maskfn[0] == '0' && maskfn[1] == 'x' )
+    {
+      outimage = ImageType::New() ;
+      outimage->SetRegions( mask->GetLargestPossibleRegion() ) ;
+      outimage->Allocate() ;
+    }
+  else
+    {
+      SCCANReadImage<ImageType>(outimage, maskfn.c_str() );
+    }
   outimage->FillBuffer(0);
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
   unsigned long mct = 0;
@@ -818,11 +896,22 @@ ConvertCSVVectorToImage( std::string csvfn, std::string maskfn, std::string outn
         }
       }
     }
-  typedef itk::ImageFileWriter<ImageType> WriterType;
-  typename WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( outname );
-  writer->SetInput( outimage );
-  writer->Update();
+  if( outname[0] == '0' && outname[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << outname ;
+      void* ptr ;
+      strstream >> ptr ;
+      *( static_cast< typename ImageType::Pointer* >( ptr ) ) = outimage ;
+    }
+  else
+    {
+      typedef itk::ImageFileWriter<ImageType> WriterType;
+      typename WriterType::Pointer writer = WriterType::New();
+      writer->SetFileName( outname );
+      writer->SetInput( outimage );
+      writer->Update();
+    }
   return EXIT_SUCCESS;
 }
 
