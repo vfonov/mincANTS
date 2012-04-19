@@ -40,9 +40,9 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
 ::JointHistogramParzenShapeAndOrientationListSampleFunction()
 {
   this->m_NumberOfShapeJointHistogramBins = 32;
-  this->m_NumberOfOrientationJointHistogramBins = 64; 
+  this->m_NumberOfOrientationJointHistogramBins = 64;
   this->m_ShapeSigma = 1.0;
-  this->m_OrientationSigma = 2.0; 
+  this->m_OrientationSigma = 2.0;
   this->m_UseNearestNeighborIncrements = true;
   this->m_MaximumEigenvalue1 = 0;
   this->m_MaximumEigenvalue2 = 0;
@@ -394,7 +394,9 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
       tIter.Set(
         this->m_JointHistogramImages[whichHistogram]->GetPixel( index2 ) );
       }
-    if( index[0] == this->m_NumberOfOrientationJointHistogramBins + 1 )
+    if( index[0] ==
+        static_cast<typename IndexType::IndexValueType>
+        (this->m_NumberOfOrientationJointHistogramBins + 1) )
       {
       index2[0] = 1;
       index2[1] = index[1];
@@ -574,7 +576,7 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
         gaussian->SetVariance( this->m_ShapeSigma * this->m_ShapeSigma );
     }
     else if (d == 1) { //Orientation of 1st eigenvector
-        gaussian->SetVariance(this->m_OrientationSigma * this->m_OrientationSigma ); 
+        gaussian->SetVariance(this->m_OrientationSigma * this->m_OrientationSigma );
     }
     else if (d == 2) { //Orientation of 2nd eigenvector
         gaussian->SetVariance( this->m_ShapeSigma * this->m_OrientationSigma );
@@ -616,7 +618,7 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
     writer2->SetFileName( output2.c_str() );
     writer2->SetInput(this->m_JointHistogramImages[1] );
     writer2->Update();
-    std::cout << "Writing output of histograms." << std::endl; 
+    std::cout << "Writing output of histograms." << std::endl;
 */
 }
 
@@ -666,7 +668,7 @@ JointHistogramParzenShapeAndOrientationListSampleFunction<TListSample, TOutput, 
      << this->m_NumberOfShapeJointHistogramBins << std::endl;
   os << indent << "Orientation Sigma: " << this->m_OrientationSigma << std::endl;
   os << indent << "Number of orientation histogram bins: "
-     << this->m_NumberOfOrientationJointHistogramBins << std::endl;       
+     << this->m_NumberOfOrientationJointHistogramBins << std::endl;
   os << indent << "Minimum eigenvalue 1: "
      << this->m_MinimumEigenvalue1;
   os << indent << "Minimum eigenvalue 2: "
