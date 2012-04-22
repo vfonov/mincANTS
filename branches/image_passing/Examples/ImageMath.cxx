@@ -2220,6 +2220,8 @@ int CompCorrAuto(int argc, char *argv[])
       if( fn_label[0] == '0' && fn_label[1] == 'x' )
 	{
 	  var_image->SetRegions( label_image->GetLargestPossibleRegion() ) ;
+	  var_image->SetSpacing( label_image->GetSpacing() ) ;
+	  var_image->SetOrigin( label_image->GetOrigin() ) ;
 	  var_image->Allocate();
 	}
       else

@@ -363,14 +363,6 @@ void WriteImage(itk::SmartPointer<TImageType> image, const char *file)
     return;
     }
 
-  typename itk::ImageFileWriter<TImageType>::Pointer writer =
-    itk::ImageFileWriter<TImageType>::New();
-  writer->SetFileName(file);
-  if( !image )
-    {
-    ::ants::antscout << " file " << file << " does not exist " << std::endl;
-    std::exception();
-    }
   //  typename TImageType::DirectionType dir;
   // dir.SetIdentity();
   // image->SetDirection(dir);
@@ -389,6 +381,14 @@ void WriteImage(itk::SmartPointer<TImageType> image, const char *file)
     }
   else
     {
+      typename itk::ImageFileWriter<TImageType>::Pointer writer =
+	itk::ImageFileWriter<TImageType>::New();
+      writer->SetFileName(file);
+      if( !image )
+	{
+	  ::ants::antscout << " file " << file << " does not exist " << std::endl;
+	  std::exception();
+	}
       writer->SetInput(image);
       writer->Update();
     }
