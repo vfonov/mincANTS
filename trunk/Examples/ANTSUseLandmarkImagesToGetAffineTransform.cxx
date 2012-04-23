@@ -1,9 +1,5 @@
 /** ANTS Landmarks used to initialize an affine transform ... */
-
-
 #include "antscout.hxx"
-#include <algorithm>
-
 #include "itkLandmarkBasedTransformInitializer.h"
 #include "itkImage.h"
 #include "itkImageIOBase.h"
@@ -16,11 +12,8 @@
 #include <vnl/vnl_matrix.h>
 // #include <vnl/vnl_qr.h>
 #include "vnl/algo/vnl_qr.h"
-#include <algorithm>
-
 namespace ants
 {
-
 
 template <class TransformAPointer, class StringType>
 void DumpTransformForANTS3D(const TransformAPointer & transform, StringType & ANTS_prefix);
@@ -97,7 +90,7 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
     if( movlabel != fixlabel )
       {
       antscout << " labels do not match -- exiting " << std::endl;
-      throw std::exception();
+      exit(1);
       }
     ++mit;
     }
@@ -112,8 +105,6 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
   // Set fixed and moving landmarks
   TransformInitializerType::LandmarkPointContainer fixedLandmarks;
   TransformInitializerType::LandmarkPointContainer movingLandmarks;
-  TransformInitializerType::LandmarkPointType      point;
-  TransformInitializerType::LandmarkPointType      tmp;
 
   // compute the CoM's of all the landmarks
   ImageType::SpacingType spacing = fixedimage->GetSpacing();
@@ -126,17 +117,17 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
     for( It.GoToBegin(); !It.IsAtEnd(); ++It )
       {
       PixelType label = It.Get();
-      if(  label == currentlabel  )
+      if( fabs( label - currentlabel ) < 0.001  )
         {
         totalct++;
         // compute center of mass
-        ImageType::PointType _point;
+        ImageType::PointType point;
         fixedimage->TransformIndexToPhysicalPoint(It.GetIndex(), point);
         for( unsigned int i = 0; i < spacing.Size(); i++ )
           {
-          myCenterOfMass[i] += _point[i];
+          myCenterOfMass[i] += point[i];
           }
-        // antscout << " point " << point << std::endl;
+	antscout << " point " << point << std::endl;
         }
       }
     for( unsigned int i = 0; i < spacing.Size(); i++ )
@@ -163,11 +154,11 @@ int LandmarkBasedTransformInitializer3D(int, char * argv[])
         {
         totalct++;
         // compute center of mass
-        ImageType::PointType _point;
+        ImageType::PointType point;
         movingimage->TransformIndexToPhysicalPoint(ItM.GetIndex(), point);
         for( unsigned int i = 0; i < spacing.Size(); i++ )
           {
-          myCenterOfMass[i] += _point[i];
+          myCenterOfMass[i] += point[i];
           }
         }
       }
@@ -421,7 +412,6 @@ typedef itk::Rigid2DTransform< double > TransformType;
    */
 }
 
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
 int ANTSUseLandmarkImagesToGetAffineTransform( std::vector<std::string> args , std::ostream* out_stream = NULL )
 {
   // put the arguments coming in as 'args' into standard (argc,argv) format;
@@ -435,35 +425,34 @@ int ANTSUseLandmarkImagesToGetAffineTransform( std::vector<std::string> args , s
   char** argv = new char*[args.size()+1] ;
   for( unsigned int i = 0 ; i < args.size() ; ++i )
     {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
-    }
+    // allocate space for the string plus a null character
+    argv[i] = new char[args[i].length()+1] ;
+    std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
+    // place the null character in the end
+    argv[i][args[i].length()] = '\0' ;
+    }   
   argv[argc] = 0 ;
   // class to automatically cleanup argv upon destruction
   class Cleanup_argv
-  {
-  public:
+    {
+    public:
     Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
     {}
-    ~Cleanup_argv()
-    {
+    ~Cleanup_argv() 
+      { 
       for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
+ 	{
+ 	delete[] argv[i] ;
+ 	}
       delete[] argv ;
-    }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
-
+      }
+   private:
+   char** argv ;
+   unsigned int argc_plus_one ;
+   } ;
+   Cleanup_argv cleanup_argv( argv , argc+1 ) ;
+ 
   antscout->set_stream( out_stream ) ;
-
   if( argc < 3 )
     {
     antscout << "Usage:   " << argv[0]
@@ -495,15 +484,10 @@ int ANTSUseLandmarkImagesToGetAffineTransform( std::vector<std::string> args , s
       LandmarkBasedTransformInitializer3D(argc, argv);
       break;
     default:
-      antscout << "Unsupported dimension" << std::endl;
-      return EXIT_FAILURE;
+      std::cerr << "Unsupported dimension" << std::endl;
+      exit( EXIT_FAILURE );
     }
 
   return 0;
 }
-
-
-
 } // namespace ants
-
-
