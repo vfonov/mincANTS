@@ -17,62 +17,63 @@
 namespace ants
 {
 
-template<class TValue>
+template <class TValue>
 TValue Convert( std::string optionString );
 
-template<class TValue>
+template <class TValue>
 std::vector<TValue> ConvertVector( std::string optionString );
 
-template<class TValue>
+template <class TValue>
 TValue Convert( std::string optionString )
-			{
-			TValue value;
-			std::istringstream iss( optionString );
-			iss >> value;
-			return value;
-			}
+{
+  TValue             value;
+  std::istringstream iss( optionString );
 
-template<class TValue>
+  iss >> value;
+  return value;
+}
+
+template <class TValue>
 std::vector<TValue> ConvertVector( std::string optionString )
-			{
-			std::vector<TValue> values;
-			std::string::size_type crosspos = optionString.find( 'x', 0 );
+{
+  std::vector<TValue>    values;
+  std::string::size_type crosspos = optionString.find( 'x', 0 );
 
-			if ( crosspos == std::string::npos )
-					{
-					values.push_back( Convert<TValue>( optionString ) );
-					}
-			else
-					{
-					std::string element = optionString.substr( 0, crosspos ) ;
-					TValue value;
-					std::istringstream iss( element );
-					iss >> value;
-					values.push_back( value );
-					while ( crosspos != std::string::npos )
-							{
-							std::string::size_type crossposfrom = crosspos;
-							crosspos = optionString.find( 'x', crossposfrom + 1 );
-							if ( crosspos == std::string::npos )
-									{
-									element = optionString.substr( crossposfrom + 1, optionString.length() );
-									}
-							else
-									{
-									element = optionString.substr( crossposfrom + 1, crosspos ) ;
-									}
-							std::istringstream iss2( element );
-							iss2 >> value;
-							values.push_back( value );
-							}
-					}
-			return values;
-			}
+  if( crosspos == std::string::npos )
+    {
+    values.push_back( Convert<TValue>( optionString ) );
+    }
+  else
+    {
+    std::string        element = optionString.substr( 0, crosspos );
+    TValue             value;
+    std::istringstream iss( element );
+    iss >> value;
+    values.push_back( value );
+    while( crosspos != std::string::npos )
+      {
+      std::string::size_type crossposfrom = crosspos;
+      crosspos = optionString.find( 'x', crossposfrom + 1 );
+      if( crosspos == std::string::npos )
+        {
+        element = optionString.substr( crossposfrom + 1, optionString.length() );
+        }
+      else
+        {
+        element = optionString.substr( crossposfrom + 1, crosspos );
+        }
+      std::istringstream iss2( element );
+      iss2 >> value;
+      values.push_back( value );
+      }
+    }
+  return values;
+}
 
 template <unsigned int ImageDimension>
 int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
 {
-  typedef float RealType;
+  typedef float                                RealType;
   typedef itk::Image<RealType, ImageDimension> RealImageType;
 
   typedef itk::ImageFileReader<RealImageType> ImageReaderType;
@@ -99,7 +100,7 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
   movingReader->Update();
   typename RealImageType::Pointer movingImage = movingReader->GetOutput();
 
-  typedef itk::Vector<RealType, ImageDimension> VectorType;
+  typedef itk::Vector<RealType, ImageDimension>  VectorType;
   typedef itk::Image<VectorType, ImageDimension> DisplacementFieldType;
 
   typedef itk::PointSet<long, ImageDimension> PointSetType;
@@ -133,7 +134,7 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
   std::vector<RealType> movingLabels;
 
   itk::ImageRegionIteratorWithIndex<RealImageType> ItM( movingImage, movingImage->GetLargestPossibleRegion() );
-  unsigned int movingCount = 0;
+  unsigned int                                     movingCount = 0;
   for( ItM.GoToBegin(); !ItM.IsAtEnd(); ++ItM )
     {
     if( ItM.Get() != 0 )
@@ -154,7 +155,6 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
   // Get moving center points
   typename PointSetType::Pointer movingCenters = PointSetType::New();
   movingCenters->Initialize();
-
   for( unsigned int n = 0; n < movingLabels.size(); n++ )
     {
     int currentLabel = movingLabels[n];
@@ -174,7 +174,7 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
           {
           center[d] += point[d];
           }
-        N+=1.0;
+        N += 1.0;
         }
       ++ItP;
       ++ItD;
@@ -190,7 +190,6 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
   // Get fixed center points
   typename PointSetType::Pointer fixedCenters = PointSetType::New();
   fixedCenters->Initialize();
-
   for( unsigned int n = 0; n < fixedLabels.size(); n++ )
     {
     int currentLabel = fixedLabels[n];
@@ -210,7 +209,7 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
           {
           center[d] += point[d];
           }
-        N+=1.0;
+        N += 1.0;
         }
       ++ItP;
       ++ItD;
@@ -233,7 +232,7 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
 
   typedef itk::PointSet<VectorType, ImageDimension> DisplacementFieldPointSetType;
   typedef itk::BSplineScatteredDataPointSetToImageFilter
-    <DisplacementFieldPointSetType, DisplacementFieldType> BSplineFilterType;
+  <DisplacementFieldPointSetType, DisplacementFieldType> BSplineFilterType;
   typedef typename BSplineFilterType::WeightsContainerType WeightsContainerType;
 
   typename WeightsContainerType::Pointer weights = WeightsContainerType::New();
@@ -267,7 +266,7 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
         typename DisplacementFieldType::PointType point;
         VectorType vector;
         typename DisplacementFieldPointSetType::PointType fieldPoint;
-        for ( unsigned int i = 0; i < ImageDimension; i++ )
+        for( unsigned int i = 0; i < ImageDimension; i++ )
           {
           fieldPoint[i] = mpoint[i];
           vector[i] = fpoint[i] - mpoint[i];
@@ -284,6 +283,7 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
       ++fItD;
       ++fIt;
       }
+
     ++mItD;
     ++mIt;
     }
@@ -298,7 +298,6 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
     typename RealImageType::IndexType startIndex = fixedImage->GetLargestPossibleRegion().GetIndex();
 
     typename RealImageType::SizeType inputSize = fixedImage->GetLargestPossibleRegion().GetSize();
-
     for( ItF.GoToBegin(); !ItF.IsAtEnd(); ++ItF )
       {
       typename RealImageType::IndexType index = ItF.GetIndex();
@@ -343,13 +342,13 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
   std::vector<unsigned int> meshSize = ConvertVector<unsigned int>( std::string( argv[4] ) );
   typename BSplineFilterType::ArrayType ncps;
 
-  if ( meshSize.size() == 1 )
+  if( meshSize.size() == 1 )
     {
     ncps.Fill( meshSize[0] + splineOrder );
     }
-  else if ( meshSize.size() == ImageDimension )
+  else if( meshSize.size() == ImageDimension )
     {
-    for ( unsigned int d = 0; d < ImageDimension; d++ )
+    for( unsigned int d = 0; d < ImageDimension; d++ )
       {
       ncps[d] = meshSize[d] + splineOrder;
       }
@@ -399,7 +398,7 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
         VectorType displacement = ( fpoint - mpoint );
 
         typename InterpolatorType::PointType point;
-        for ( unsigned int i = 0; i < ImageDimension; i++ )
+        for( unsigned int i = 0; i < ImageDimension; i++ )
           {
           point[i] = mpoint[i];
           }
@@ -413,10 +412,10 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
       ++fItD;
       ++fIt;
       }
+
     ++mItD;
     ++mIt;
     }
-
 
   bspliner->GetOutput()->SetOrigin( fixedOrigin );
   bspliner->GetOutput()->SetDirection( fixedDirection );
@@ -429,57 +428,58 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
   return EXIT_SUCCESS;
 }
 
-
-
-// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
-int ANTSUseLandmarkImagesToGetBSplineDisplacementField( std::vector<std::string> args , std::ostream* out_stream = NULL )
+// entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to
+// 'main()'
+int ANTSUseLandmarkImagesToGetBSplineDisplacementField( std::vector<std::string> args, std::ostream* out_stream = NULL )
 {
   // put the arguments coming in as 'args' into standard (argc,argv) format;
   // 'args' doesn't have the command name as first, argument, so add it manually;
   // 'args' may have adjacent arguments concatenated into one argument,
   // which the parser should handle
-  args.insert( args.begin() , "ANTSUseLandmarkImagesToGetBSplineDisplacementField" ) ;
-  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
-  std::remove( args.begin() , args.end() , std::string( "" ) ) ;
-  int argc = args.size() ;
-  char** argv = new char*[args.size()+1] ;
-  for( unsigned int i = 0 ; i < args.size() ; ++i )
+  args.insert( args.begin(), "ANTSUseLandmarkImagesToGetBSplineDisplacementField" );
+  std::remove( args.begin(), args.end(), std::string( "" ) );
+  std::remove( args.begin(), args.end(), std::string( "" ) );
+  int     argc = args.size();
+  char* * argv = new char *[args.size() + 1];
+  for( unsigned int i = 0; i < args.size(); ++i )
     {
-      // allocate space for the string plus a null character
-      argv[i] = new char[args[i].length()+1] ;
-      std::strncpy( argv[i] , args[i].c_str() , args[i].length() ) ;
-      // place the null character in the end
-      argv[i][args[i].length()] = '\0' ;
+    // allocate space for the string plus a null character
+    argv[i] = new char[args[i].length() + 1];
+    std::strncpy( argv[i], args[i].c_str(), args[i].length() );
+    // place the null character in the end
+    argv[i][args[i].length()] = '\0';
     }
-  argv[argc] = 0 ;
+  argv[argc] = 0;
   // class to automatically cleanup argv upon destruction
   class Cleanup_argv
   {
-  public:
-    Cleanup_argv( char** argv_ , int argc_plus_one_ ) : argv( argv_ ) , argc_plus_one( argc_plus_one_ )
-    {}
+public:
+    Cleanup_argv( char* * argv_, int argc_plus_one_ ) : argv( argv_ ), argc_plus_one( argc_plus_one_ )
+    {
+    }
     ~Cleanup_argv()
     {
-      for( unsigned int i = 0 ; i < argc_plus_one ; ++i )
-	{
-	  delete[] argv[i] ;
-	}
-      delete[] argv ;
+      for( unsigned int i = 0; i < argc_plus_one; ++i )
+        {
+        delete[] argv[i];
+        }
+      delete[] argv;
     }
-  private:
-    char** argv ;
-    unsigned int argc_plus_one ;
-  } ;
-  Cleanup_argv cleanup_argv( argv , argc+1 ) ;
 
-  antscout->set_stream( out_stream ) ;
+private:
+    char* *      argv;
+    unsigned int argc_plus_one;
+  };
+  Cleanup_argv cleanup_argv( argv, argc + 1 );
+
+  antscout->set_stream( out_stream );
 
   if( argc < 4 )
     {
     antscout << "Usage:   " << argv[0]
-              << " fixedImageWithLabeledLandmarks  movingImageWithLabeledLandmarks outputDisplacementField "
-              << "meshSize[0]xmeshSize[1]x... numberOfLevels [order=3] [enforceStationaryBoundaries=1]"
-              << std::endl;
+             << " fixedImageWithLabeledLandmarks  movingImageWithLabeledLandmarks outputDisplacementField "
+             << "meshSize[0]xmeshSize[1]x... numberOfLevels [order=3] [enforceStationaryBoundaries=1]"
+             << std::endl;
     antscout
     << " we expect the input images to be (1) N-ary  (2) in the same physical space as the images you want to "
     << std::endl;
@@ -512,8 +512,4 @@ int ANTSUseLandmarkImagesToGetBSplineDisplacementField( std::vector<std::string>
   return 0;
 }
 
-
-
 } // namespace ants
-
-

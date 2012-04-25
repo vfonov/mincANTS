@@ -19,17 +19,18 @@
 
 #include "itkVector.h"
 
-//We need to ensure that only one of these exists!
-namespace ants {
-  extern boost::iostreams::stream< ants_Sink > antscout;
+// We need to ensure that only one of these exists!
+namespace ants
+{
+extern boost::iostreams::stream<ants_Sink> antscout;
 
-//##########################################################################
-//##########################################################################
-//##########################################################################
-//##########################################################################
-//##########################################################################
-//##########################################################################
-//##########################################################################
+// ##########################################################################
+// ##########################################################################
+// ##########################################################################
+// ##########################################################################
+// ##########################################################################
+// ##########################################################################
+// ##########################################################################
 // Templates
 
 template <class TPixel, unsigned int VDim>
@@ -67,7 +68,7 @@ void GetAffineTransformFromImage(const ImageTypePointer& img, AffineTransformPoi
 
   DirectionType direction = img->GetDirection();
 
-  VectorType  translation;
+  VectorType translation;
   // translation.Fill(0);
   for( unsigned int i = 0; i < ImageType::GetImageDimension(); i++ )
     {
@@ -186,19 +187,22 @@ void GetLaregstSizeAfterWarp(WarperPointerType & warper, ImagePointerType & img,
   antscout << "pt_min: " << pt_min << " pt_max:" << pt_max << " largest_size:" << largest_size << std::endl;
 
 }
+
 }
 
-//##########################################################################
-//TODO: KENT:  This block feels like it could be better encapsulated as a c++ class
+// ##########################################################################
+// TODO: KENT:  This block feels like it could be better encapsulated as a c++ class
 //
-typedef enum {
+typedef enum
+  {
   INVALID_FILE = 1,
   AFFINE_FILE,
   DEFORMATION_FILE,
   IMAGE_AFFINE_HEADER,
-  IDENTITY_TRANSFORM } TRAN_FILE_TYPE;
+  IDENTITY_TRANSFORM
+  } TRAN_FILE_TYPE;
 
-//TODO: This should be a class.
+// TODO: This should be a class.
 typedef struct
   {
   //    char *filename;
@@ -234,18 +238,22 @@ typedef struct
   } MISC_OPT;
 
 extern TRAN_FILE_TYPE CheckFileType(const char * const str);
+
 extern TRAN_FILE_TYPE CheckFileType(const std::string str);
+
 extern void SetAffineInvFlag(TRAN_OPT & opt, bool & set_current_affine_inv);
 
 extern void DisplayOptQueue(const TRAN_OPT_QUEUE & opt_queue);
+
 extern void DisplayOpt(const TRAN_OPT & opt);
 
-//##########################################################################
+// ##########################################################################
 
 extern bool get_a_double_number(const char * const str, double & v);
 
-//TODO: KENT:  These two functions have cross-platform-equivalent versions from kwSys and could be replaced.
+// TODO: KENT:  These two functions have cross-platform-equivalent versions from kwSys and could be replaced.
 extern void FilePartsWithgz(const std::string & filename, std::string & path, std::string & name, std::string & ext);
+
 extern bool CheckFileExistence(const char * const str);
 
 extern std::string GetPreferredTransformFileType(void);
