@@ -11,7 +11,7 @@
 #include "itkTransformFileReader.h"
 #include "itkTransformFileWriter.h"
 
-static bool ParseInput(int argc, char **argv, char *&output_transform_filename,
+static bool AverageAffineTransformNoRigid_ParseInput(int argc, char **argv, char *&output_transform_filename,
         char *&reference_transform_filename, TRAN_OPT_QUEUE &opt_queue) {
 
     opt_queue.clear();
@@ -236,7 +236,7 @@ int main(int argc, char **argv) {
     bool is_parsing_ok = false;
     int kImageDim = atoi(argv[1]);
 
-    is_parsing_ok = ParseInput(argc - 2, argv + 2, output_transform_filename,
+    is_parsing_ok = AverageAffineTransformNoRigid_ParseInput(argc - 2, argv + 2, output_transform_filename,
             reference_transform_filename, opt_queue);
 
     if (is_parsing_ok) {

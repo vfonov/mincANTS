@@ -18,7 +18,7 @@
 namespace ants
 {
 
-static bool ParseInput(int argc, char * *argv, char *& moving_image_filename,
+static bool WarpTensorImageMultiTransform_ParseInput(int argc, char * *argv, char *& moving_image_filename,
                 char *& output_image_filename,
                 TRAN_OPT_QUEUE & opt_queue, MISC_OPT & misc_opt)
 {
@@ -612,7 +612,7 @@ int WarpTensorImageMultiTransform( std::vector<std::string> args , std::ostream*
   bool is_parsing_ok = false;
   int  kImageDim = atoi(argv[1]);
 
-  is_parsing_ok = ParseInput(argc - 2, argv + 2, moving_image_filename, output_image_filename, opt_queue, misc_opt);
+  is_parsing_ok = WarpTensorImageMultiTransform_ParseInput(argc - 2, argv + 2, moving_image_filename, output_image_filename, opt_queue, misc_opt);
 
   if( is_parsing_ok )
     {

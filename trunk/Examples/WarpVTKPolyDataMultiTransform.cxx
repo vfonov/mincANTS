@@ -73,7 +73,7 @@ vnl_matrix_fixed<double, 4, 4> ConstructVTKtoNiftiTransform(
   return vox2nii * vtk2vox;
 }
 
-bool ParseInput(int argc, char * *argv, char *& input_vtk_filename,
+static bool WarpVTKPolyDataMultiTransform_ParseInput(int argc, char * *argv, char *& input_vtk_filename,
                 char *& output_vtk_filename,
                 char *& reference_image_filename, TRAN_OPT_QUEUE & opt_queue)
 {
@@ -555,7 +555,7 @@ int WarpVTKPolyDataMultiTransform( std::vector<std::string> args , std::ostream*
   bool is_parsing_ok = false;
   int  kImageDim = atoi(argv[1]);
 
-  is_parsing_ok = ParseInput(argc - 2, argv + 2, input_vtk_filename, output_vtk_filename,
+  is_parsing_ok = WarpVTKPolyDataMultiTransform_ParseInput(argc - 2, argv + 2, input_vtk_filename, output_vtk_filename,
                              reference_image_filename, opt_queue);
 
   if( is_parsing_ok )

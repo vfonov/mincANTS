@@ -30,7 +30,7 @@
 namespace ants
 {
 
-static bool ParseInput(int argc, char * *argv, char *& moving_image_filename,
+static bool ReorientTensorImage_ParseInput(int argc, char * *argv, char *& moving_image_filename,
                 char *& output_image_filename,
                 TRAN_OPT_QUEUE & opt_queue)
 {
@@ -226,7 +226,7 @@ int ReorientTensorImage( std::vector<std::string> args , std::ostream* out_strea
     return EXIT_FAILURE;
     }
 
-  is_parsing_ok = ParseInput(argc - 2, argv + 2, moving_image_filename, output_image_filename, opt_queue);
+  is_parsing_ok = ReorientTensorImage_ParseInput(argc - 2, argv + 2, moving_image_filename, output_image_filename, opt_queue);
 
   if( is_parsing_ok )
     {

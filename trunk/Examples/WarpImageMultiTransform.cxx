@@ -21,7 +21,7 @@ namespace ants
 // vector images
 
 
-bool IsInverseDeformation(const char *str)
+static bool IsInverseDeformation(const char *str)
 {
   std::string            filename = str;
   std::string::size_type pos = filename.rfind( "Inverse" );
@@ -36,7 +36,7 @@ bool IsInverseDeformation(const char *str)
     }
 }
 
-bool ParseInput(int argc, char * *argv, char *& moving_image_filename,
+static bool WarpImageMultiTransform_ParseInput(int argc, char * *argv, char *& moving_image_filename,
                 char *& output_image_filename,
                 TRAN_OPT_QUEUE & opt_queue, MISC_OPT & misc_opt,
                 int NDimensions)
@@ -816,8 +816,9 @@ int WarpImageMultiTransform( std::vector<std::string> args , std::ostream* out_s
   bool is_parsing_ok = false;
   int  kImageDim = atoi(argv[1]);
 
-  is_parsing_ok = ParseInput(argc - 2, argv + 2, moving_image_filename, output_image_filename, opt_queue, misc_opt,
-                             kImageDim);
+  is_parsing_ok = WarpImageMultiTransform_ParseInput(argc - 2, argv + 2,
+    moving_image_filename, output_image_filename,
+    opt_queue, misc_opt, kImageDim);
 
   if( is_parsing_ok )
     {

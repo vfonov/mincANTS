@@ -19,8 +19,7 @@
 namespace ants
 {
 
-
-static bool ParseInput(int argc, char * *argv, char *& output_transform_filename,
+static bool AverageAffineTransform_ParseInput(int argc, char * *argv, char *& output_transform_filename,
                 char *& reference_transform_filename, TRAN_OPT_QUEUE & opt_queue)
 {
 
@@ -314,7 +313,7 @@ int AverageAffineTransform( std::vector<std::string> args , std::ostream* out_st
   bool is_parsing_ok = false;
   int  kImageDim = atoi(argv[1]);
 
-  is_parsing_ok = ParseInput(argc - 2, argv + 2, output_transform_filename,
+  is_parsing_ok = AverageAffineTransform_ParseInput(argc - 2, argv + 2, output_transform_filename,
                              reference_transform_filename, opt_queue);
 
   if( is_parsing_ok )
