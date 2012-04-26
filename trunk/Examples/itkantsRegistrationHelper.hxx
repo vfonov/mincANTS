@@ -76,10 +76,19 @@ public:
 
   void Execute(const itk::Object * object, const itk::EventObject & event)
   {
-    TFilter * filter = const_cast<TFilter *>( dynamic_cast<const TFilter *>( object ) );
+  TFilter * filter = const_cast<TFilter *>( dynamic_cast<const TFilter *>( object ) );
 
+  if( filter->GetCurrentIteration() > 0 )
+    {
+    this->Logger() << "      Iteration " << filter->GetCurrentIteration() << ": "
+                   << "metric value = " << filter->GetCurrentMetricValue() << ", "
+                   << "convergence value = " << filter->GetCurrentConvergenceValue() << std::endl;
+    }
+
+  if( filter->GetCurrentIteration() == 0 ||
+      filter->GetCurrentIteration() == this->m_NumberOfIterations[filter->GetCurrentLevel()] )
+    {
     unsigned int currentLevel = 0;
-
     if( typeid( event ) == typeid( itk::IterationEvent ) )
       {
       currentLevel = filter->GetCurrentLevel() + 1;
@@ -99,24 +108,87 @@ public:
                      << std::endl;
 
       typedef itk::GradientDescentOptimizerv4 GradientDescentOptimizerType;
-      GradientDescentOptimizerType * optimizer = reinterpret_cast<GradientDescentOptimizerType *>(
+      GradientDescentOptimizerType * optimizer2 = reinterpret_cast<GradientDescentOptimizerType *>(
           const_cast<typename TFilter::OptimizerType *>( filter->GetOptimizer() ) );
-      optimizer->SetNumberOfIterations( this->m_NumberOfIterations[currentLevel] );
+      optimizer2->SetNumberOfIterations( this->m_NumberOfIterations[currentLevel] );
       }
+    }
   }
 
   void SetNumberOfIterations( const std::vector<unsigned int> & iterations )
-  {
+    {
     this->m_NumberOfIterations = iterations;
+    }
+
+  void SetLogStream(std::ostream &logStream)
+    {
+      this->m_LogStream = &logStream;
+    }
+
+private:
+  std::ostream &Logger() const { return *m_LogStream; }
+  std::vector<unsigned int> m_NumberOfIterations;
+  std::ostream             *m_LogStream;
+};
+
+/** \class antsRegistrationOptimizerCommandIterationUpdate
+ *  \brief observe the optimizer for traditional registration methods
+ */
+template <class TOptimizer>
+class antsRegistrationOptimizerCommandIterationUpdate : public itk::Command
+{
+public:
+  typedef antsRegistrationOptimizerCommandIterationUpdate  Self;
+  typedef itk::Command            Superclass;
+  typedef itk::SmartPointer<Self> Pointer;
+  itkNewMacro( Self );
+protected:
+  antsRegistrationOptimizerCommandIterationUpdate()
+  {
+    this->m_LogStream = &::ants::antscout;
+  }
+public:
+
+  void Execute(itk::Object *caller, const itk::EventObject & event)
+  {
+    Execute( (const itk::Object *) caller, event);
+  }
+
+  void Execute(const itk::Object * , const itk::EventObject & event)
+  {
+  if( typeid( event ) == typeid( itk::IterationEvent ) )
+    {
+    this->Logger() << "      Iteration " << this->m_Optimizer->GetCurrentIteration() + 1 << ": "
+                   << "metric value = " << this->m_Optimizer->GetValue() << ", "
+                   << "convergence value = " << this->m_Optimizer->GetConvergenceValue() << std::endl;
+    }
   }
 
   void SetLogStream(std::ostream &logStream)
     {
       this->m_LogStream = &logStream;
     }
+  /**
+   * Type defining the optimizer
+   */
+  typedef    TOptimizer     OptimizerType;
+
+  /**
+   * Set Optimizer
+   */
+  void SetOptimizer( OptimizerType * optimizer )
+    {
+    this->m_Optimizer = optimizer;
+    this->m_Optimizer->AddObserver( itk::IterationEvent(), this );
+    }
+
 private:
+  /**
+   *  WeakPointer to the Optimizer
+   */
+  WeakPointer<OptimizerType>   m_Optimizer;
+
   std::ostream &Logger() const { return *m_LogStream; }
-  std::vector<unsigned int> m_NumberOfIterations;
   std::ostream             *m_LogStream;
 };
 
@@ -1030,6 +1102,12 @@ RegistrationHelper<VImageDimension>
     optimizer->SetMinimumConvergenceValue( convergenceThreshold );
     optimizer->SetConvergenceWindowSize( convergenceWindowSize );
     optimizer->SetDoEstimateLearningRateOnce(true);
+
+    typedef antsRegistrationOptimizerCommandIterationUpdate<GradientDescentOptimizerType> OptimizerCommandType;
+    typename OptimizerCommandType::Pointer optimizerObserver = OptimizerCommandType::New();
+    optimizerObserver->SetLogStream( *this->m_LogStream );
+    optimizerObserver->SetOptimizer( optimizer );
+
     // Set up the image registration methods along with the transforms
     XfrmMethod whichTransform = this->m_TransformMethods[currentStage].m_XfrmMethod;
 
