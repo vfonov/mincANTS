@@ -359,8 +359,8 @@ public:
   /**
    *  Get the Warped Image & Inverse Warped Images
    */
-  ImageType *GetWarpedImage();
-  ImageType *GetInverseWarpedImage();
+  typename ImageType::Pointer GetWarpedImage() const;
+  typename ImageType::Pointer GetInverseWarpedImage() const;
 
   /**
    * Set the fixed/moving image masks with a spatial object
@@ -408,8 +408,6 @@ private:
     }
   typename CompositeTransformType::Pointer m_CompositeTransform;
   typename CompositeTransformType::Pointer m_FixedInitialTransform;
-  typename ImageType::Pointer              m_WarpedImage;
-  typename ImageType::Pointer              m_InverseWarpedImage;
   typename ImageMaskSpatialObjectType::Pointer     m_FixedImageMask;
   typename ImageMaskSpatialObjectType::Pointer     m_MovingImageMask;
   unsigned int                             m_NumberOfStages;

@@ -1,5 +1,4 @@
 /** ANTS Landmarks used to initialize an affine transform ... */
-"
 
 #include "antsUtilities.h"
 #include <algorithm>
