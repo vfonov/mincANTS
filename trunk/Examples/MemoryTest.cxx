@@ -28,7 +28,7 @@
 namespace ants
 {
 
-// #include "itkLandmarkCrossCorrelationRegistrationFunction.h"
+
 
 template <unsigned int ImageDimension>
 int MemoryTest(unsigned int argc, char *argv[])

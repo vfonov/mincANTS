@@ -4,7 +4,6 @@
 #include <algorithm>
 
 
-#include "itkBinaryDilateImageFilter.h"
 #include "ReadWriteImage.h"
 #include "itkSurfaceImageCurvature.h"
 

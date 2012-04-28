@@ -1,4 +1,4 @@
-// #include "DoSomethingToImage.cxx"
+
 
 #include "antsUtilities.h"
 #include <algorithm>
@@ -20,7 +20,7 @@
 #include "itkGradientRecursiveGaussianImageFilter.h"
 #include "itkVectorCurvatureAnisotropicDiffusionImageFilter.h"
 
-// #include "itkVectorImageFileReader.h"
+
 #include "itkMatrixOffsetTransformBase.h"
 #include "itkWarpImageMultiTransformFilter.h"
 

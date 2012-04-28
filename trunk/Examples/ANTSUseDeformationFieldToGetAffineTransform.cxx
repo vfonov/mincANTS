@@ -1,5 +1,5 @@
 /** ANTS Landmarks used to initialize an affine transform ... */
-
+"
 
 #include "antsUtilities.h"
 #include <algorithm>
@@ -15,10 +15,10 @@
 #include <iostream>
 #include "ReadWriteImage.h"
 #include "itkTransformFileWriter.h"
-// #include "itkVectorImageFileReader.h"
-// #include "ANTS_affine_registration2.h"
+
+
 #include <vnl/vnl_matrix.h>
-// #include <vnl/vnl_qr.h>
+
 #include "vnl/algo/vnl_qr.h"
 #include <algorithm>
 

@@ -21,7 +21,7 @@
 #include <algorithm>
 
 #include "itkImageFileReader.h"
-// #include "itkVectorImageFileReader.h"
+
 #include "itkImageRegionIteratorWithIndex.h"
 
 #include "vtkUnstructuredGrid.h"

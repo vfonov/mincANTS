@@ -25,7 +25,7 @@
 #include <ctime>
 #include <iostream>
 #include "ReadWriteImage.h"
-// #include "DoSomethingToImage.cxx"
+
 
 #include "itkMersenneTwisterRandomVariateGenerator.h"
 #include "itkHistogramMatchingImageFilter.h"

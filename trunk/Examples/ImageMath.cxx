@@ -25,7 +25,6 @@
 #include "itkBayesianClassifierImageFilter.h"
 #include "itkBayesianClassifierInitializationImageFilter.h"
 #include "itkBilateralImageFilter.h"
-#include "itkBinaryDilateImageFilter.h"
 #include "itkCSVNumericObjectFileWriter.h"
 #include "itkCastImageFilter.h"
 #include "itkCompositeValleyFunction.h"

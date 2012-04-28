@@ -39,7 +39,7 @@ namespace ants
 {
 
 
-// #include "../itkAvants.DefineDimension"
+
 
 template <unsigned int ImageDimension>
 int ResetDirection(int argc, char *argv[])

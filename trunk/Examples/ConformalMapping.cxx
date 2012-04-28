@@ -47,7 +47,7 @@
 #include "itkRescaleIntensityImageFilter.h"
 
 #include "itkSurfaceImageCurvature.h"
-// #include "../BSpline/itkBSplineScatteredDataPointSetToImageFilter.h"
+
 #include "itkImageRegionConstIterator.h"
 #include "itkImageRegionConstIteratorWithIndex.h"
 #include "itkImageRegionIterator.h"
