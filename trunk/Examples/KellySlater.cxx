@@ -350,10 +350,7 @@ ExpDiffMap(typename TField::Pointer velofield,  typename TImage::Pointer wm,  do
   typedef itk::MatrixOffsetTransformBase<PixelType, ImageDimension, ImageDimension>           AffineTransformType;
   typedef itk::DisplacementFieldFromMultiTransformFilter<TField, TField, AffineTransformType> WarperType;
   typename WarperType::Pointer warper = WarperType::New();
-  warper->SetOutputSize(velofield->GetLargestPossibleRegion().GetSize() );
-  warper->SetOutputSpacing(velofield->GetSpacing() );
-  warper->SetOutputOrigin(velofield->GetOrigin() );
-  warper->SetOutputDirection(velofield->GetDirection() );
+  warper->SetOutputParametersFromImage(velofield );
   warper->DetermineFirstDeformNoInterp();
 
   unsigned int ttiter = 0;
@@ -382,10 +379,7 @@ DiReCTCompose(typename TField::Pointer velofield, typename TField::Pointer diffm
   typedef itk::MatrixOffsetTransformBase<PixelType, ImageDimension, ImageDimension>           AffineTransformType;
   typedef itk::DisplacementFieldFromMultiTransformFilter<TField, TField, AffineTransformType> WarperType;
   typename WarperType::Pointer warper = WarperType::New();
-  warper->SetOutputSize(velofield->GetLargestPossibleRegion().GetSize() );
-  warper->SetOutputSpacing(velofield->GetSpacing() );
-  warper->SetOutputOrigin(velofield->GetOrigin() );
-  warper->SetOutputDirection(velofield->GetDirection() );
+  warper->SetOutputParametersFromImage( velofield );
   warper->DetermineFirstDeformNoInterp();
   warper->PushBackDisplacementFieldTransform(diffmap);
   warper->PushBackDisplacementFieldTransform(velofield);

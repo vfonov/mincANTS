@@ -36,12 +36,16 @@ template <class TInputImage, class TOutputImage, class TDisplacementField, class
 WarpImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
 ::WarpImageMultiTransformFilter()
 {
+  // Setup default values
+  m_OutputOrigin.Fill(0.0);
+  m_OutputSpacing.Fill(1.0);
+  m_OutputDirection.SetIdentity();
+
+  m_OutputSize.Fill(0);
+  m_OutputStartIndex.Fill(0);
+
   // Setup the number of required inputs
   this->SetNumberOfRequiredInputs( 1 );
-
-  // Setup default values
-  m_OutputSpacing.Fill( 1.0 );
-  m_OutputOrigin.Fill( 0.0 );
 
   m_EdgePaddingValue = NumericTraits<PixelType>::Zero;
 
@@ -118,11 +122,26 @@ WarpImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTr
 template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
 void
 WarpImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
-::SetOutputSpacing(
-  const double* spacing)
+::SetOutputParametersFromImage(const ImageBaseType *image)
+{
+  this->SetOutputOrigin ( image->GetOrigin() );
+  this->SetOutputSpacing ( image->GetSpacing() );
+  this->SetOutputDirection ( image->GetDirection() );
+  this->SetOutputStartIndex ( image->GetLargestPossibleRegion().GetIndex() );
+  this->SetOutputSize ( image->GetLargestPossibleRegion().GetSize() );
+}
+
+
+/**
+ * Set the output image spacing.
+ *
+ */
+template <class TInputImage, class TOutputImage, class TDisplacementField, class TTransform>
+void
+WarpImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTransform>
+::SetOutputSpacing( const double* spacing)
 {
   SpacingType s(spacing);
-
   this->SetOutputSpacing( s );
 }
 
@@ -137,7 +156,6 @@ WarpImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTr
   const double* origin)
 {
   PointType p(origin);
-
   this->SetOutputOrigin(p);
 }
 
@@ -219,7 +237,7 @@ WarpImageMultiTransformFilter<TInputImage, TOutputImage, TDisplacementField, TTr
 
   typename TOutputImage::RegionType outputLargestPossibleRegion;
   outputLargestPossibleRegion.SetSize( this->m_OutputSize );
-  // outputLargestPossibleRegion.SetIndex( 0 );
+  outputLargestPossibleRegion.SetIndex(this->m_OutputStartIndex);
   outputPtr->SetLargestPossibleRegion( outputLargestPossibleRegion );
   outputPtr->SetSpacing( this->m_OutputSpacing );
   outputPtr->SetOrigin( this->m_OutputOrigin );
