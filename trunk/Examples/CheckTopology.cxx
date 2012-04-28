@@ -299,7 +299,6 @@ typename TImage::Pointer  Morphological( typename TImage::Pointer input, float r
     PixelType,
     ImageDimension>             StructuringElementType;
 
-  // Software Guide : BeginCodeSnippet
   typedef itk::BinaryErodeImageFilter<
     TImage,
     TImage,
