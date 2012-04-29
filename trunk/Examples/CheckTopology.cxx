@@ -277,7 +277,6 @@ GetLargestComponent(typename TImage::Pointer image)
 
 }
 
-
 // entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
 int CheckTopology( std::vector<std::string> args , std::ostream* out_stream = NULL )
 {
@@ -376,7 +375,7 @@ int CheckTopology( std::vector<std::string> args , std::ostream* out_stream = NU
       {
       lasterr = err;
       err = 0;
-      ImageType::Pointer out = Morphological<ImageType>(simage, 3, 0);
+      ImageType::Pointer out = ants::Morphological<ImageType>(simage, 3, 0, 1);
       ImageType::Pointer bigimage = GetLargestComponent<ImageType>(out);
       G2 = GetImageTopology<ImageType>(bigimage);
       typedef itk::ImageRegionIteratorWithIndex<ImageType> ImageIteratorType;
