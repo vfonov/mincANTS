@@ -17,7 +17,7 @@
 =========================================================================*/
 
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
 #include "itkDiscreteGaussianImageFilter.h"
@@ -37,7 +37,6 @@
 #include "itkMinimumMaximumImageFilter.h"
 #include "itkConnectedComponentImageFilter.h"
 #include "itkRelabelComponentImageFilter.h"
-#include "itkBinaryThresholdImageFilter.h"
 #include "itkLabelStatisticsImageFilter.h"
 
 #include  "ReadWriteImage.h"

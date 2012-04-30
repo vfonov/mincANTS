@@ -1,11 +1,10 @@
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
-// #include "itkVectorImageFileReader.h"
-#include "itkVector.h"
+
 #include "itkMatrixOffsetTransformBase.h"
 #include "itkWarpImageMultiTransformFilter.h"
 #include "itkGridImageSource.h"
@@ -170,10 +169,7 @@ int CreateWarpedGridImage( int argc, char *argv[] )
   warper->SetEdgePaddingValue( 0);
   warper->SetSmoothScale(1);
   warper->PushBackDisplacementFieldTransform(reader->GetOutput() );
-  warper->SetOutputOrigin(reader->GetOutput()->GetOrigin() );
-  warper->SetOutputSize(reader->GetOutput()->GetLargestPossibleRegion().GetSize() );
-  warper->SetOutputSpacing(reader->GetOutput()->GetSpacing() );
-  warper->SetOutputDirection(reader->GetOutput()->GetDirection() );
+  warper->SetOutputParametersFromImage(  reader->GetOutput() );
   warper->Update();
 
   std::string file = std::string( argv[3] );

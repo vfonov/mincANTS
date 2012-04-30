@@ -17,7 +17,7 @@
 =========================================================================*/
 
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
 #include <vector>
@@ -25,14 +25,13 @@
 #include <ctime>
 #include <iostream>
 #include "ReadWriteImage.h"
-// #include "DoSomethingToImage.cxx"
+
 
 #include "itkMersenneTwisterRandomVariateGenerator.h"
 #include "itkHistogramMatchingImageFilter.h"
 #include "itkMinimumMaximumImageFilter.h"
 #include "itkConnectedComponentImageFilter.h"
 #include "itkRelabelComponentImageFilter.h"
-#include "itkBinaryThresholdImageFilter.h"
 #include "itkLabelStatisticsImageFilter.h"
 #include "itkNeighborhoodIterator.h"
 

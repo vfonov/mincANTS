@@ -1,18 +1,17 @@
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
 #include "itkConstNeighborhoodIterator.h"
 #include "itkDecomposeTensorFunction.h"
 #include "itkImageRegionIteratorWithIndex.h"
-// #include "itkVectorFieldGradientImageFunction.h"
+
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkNeighborhoodAlgorithm.h"
 #include "itkTimeProbe.h"
 #include "itkVariableSizeMatrix.h"
 #include "itkVectorImageFileReader.h"
-#include "itkVector.h"
 #include "itkZeroFluxNeumannBoundaryCondition.h"
 #include "itkANTSImageRegistrationOptimizer.h"
 

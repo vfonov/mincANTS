@@ -1,11 +1,10 @@
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
 #include "antsCommandLineParser.h"
 
 #include "itkArray2D.h"
-#include "itkBinaryThresholdImageFilter.h"
 #include "itkDecomposeTensorFunction.h"
 #include "itkDiffusionTensor3D.h"
 #include "itkImageDuplicator.h"

@@ -1,69 +1,27 @@
-// #include "DoSomethingToImage.cxx"
 
-#include "antscout.hxx"
+
+#include "antsUtilities.h"
 #include <algorithm>
 
-#include "itkVectorIndexSelectionCastImageFilter.h"
-#include "itkImageRegionIteratorWithIndex.h"
-#include "vnl/algo/vnl_determinant.h"
 
-#include "itkWarpImageFilter.h"
-
-#include "itkImageFileWriter.h"
-#include "itkFastMarchingUpwindGradientImageFilter.h"
-
-#include "itkRescaleIntensityImageFilter.h"
-#include "vnl/algo/vnl_determinant.h"
-#include "itkDiscreteGaussianImageFilter.h"
-#include "itkVectorLinearInterpolateImageFunction.h"
-#include "itkBinaryThresholdImageFilter.h"
 #include "itkDanielssonDistanceMapImageFilter.h"
+#include "itkDiscreteGaussianImageFilter.h"
+#include "itkFastMarchingUpwindGradientImageFilter.h"
 #include "itkGradientRecursiveGaussianImageFilter.h"
-#include "itkVectorCurvatureAnisotropicDiffusionImageFilter.h"
-#include "itkBinaryErodeImageFilter.h"
-#include "itkBinaryDilateImageFilter.h"
-#include "itkBinaryBallStructuringElement.h"
+#include "itkImageFileWriter.h"
+#include "itkImageRegionIteratorWithIndex.h"
 #include "itkLaplacianRecursiveGaussianImageFilter.h"
-#include "ReadWriteImage.h"
+#include "itkRescaleIntensityImageFilter.h"
+#include "itkVectorCurvatureAnisotropicDiffusionImageFilter.h"
+#include "itkVectorIndexSelectionCastImageFilter.h"
+#include "itkVectorLinearInterpolateImageFunction.h"
+#include "itkWarpImageFilter.h"
+#include "vnl/algo/vnl_determinant.h"
 
-#include "itkGradientRecursiveGaussianImageFilter.h"
+#include "ReadWriteImage.h"
 
 namespace ants
 {
-
-template <class TImage>
-typename TImage::Pointer BinaryThreshold(
-  typename TImage::PixelType low,
-  typename TImage::PixelType high,
-  typename TImage::PixelType replaceval, typename TImage::Pointer input)
-{
-  // antscout << " Binary Thresh " << std::endl;
-
-  typedef typename TImage::PixelType PixelType;
-  // Begin Threshold Image
-  typedef itk::BinaryThresholdImageFilter<TImage, TImage> InputThresholderType;
-  typename InputThresholderType::Pointer inputThresholder =
-    InputThresholderType::New();
-
-  inputThresholder->SetInput( input );
-  inputThresholder->SetInsideValue(  replaceval );
-  int outval = 0;
-  if( (float) replaceval == (float) -1 )
-    {
-    outval = 1;
-    }
-  inputThresholder->SetOutsideValue( outval );
-
-  if( high < low )
-    {
-    high = 255;
-    }
-  inputThresholder->SetLowerThreshold( (PixelType) low );
-  inputThresholder->SetUpperThreshold( (PixelType) high);
-  inputThresholder->Update();
-
-  return inputThresholder->GetOutput();
-}
 
 template <class TField, class TImage>
 typename TImage::Pointer

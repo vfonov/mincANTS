@@ -15,7 +15,7 @@
 
 =========================================================================*/
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
 #include <stdio.h>
@@ -23,9 +23,8 @@
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
-// #include "itkDiffusionTensor3D.h"
-#include "itkVector.h"
-// #include "itkTensorFractionalAnisotropyImageFilter.h"
+
+
 #include "itkImageRegionIteratorWithIndex.h"
 #include <string>
 #include "TensorFunctions.h"

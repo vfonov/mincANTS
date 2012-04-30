@@ -16,7 +16,7 @@
 
 =========================================================================*/
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
 #include "ReadWriteImage.h"
@@ -29,7 +29,7 @@
 namespace ants
 {
 
-// #include "itkLandmarkCrossCorrelationRegistrationFunction.h"
+
 
 template <unsigned int ImageDimension>
 int MeasureImageSimilarity(unsigned int argc, char *argv[])

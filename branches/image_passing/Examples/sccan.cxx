@@ -1,5 +1,5 @@
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
 #include "antsCommandLineOption.h"
@@ -667,7 +667,7 @@ ConvertTimeSeriesImageToMatrix( std::string imagefn, std::string maskfn, std::st
 
   typedef double Scalar;
   std::string ext = itksys::SystemTools::GetFilenameExtension( outname );
-  if( strcmp(ext.c_str(), ".csv") != 0 )
+  if( strcmp(ext.c_str(), ".csv") != 0 && ( outname[0] != '0' || outname[1] != 'x' ) )
     {
     antscout << " must use .csv as output file extension " << std::endl;
     return EXIT_FAILURE;
@@ -795,21 +795,34 @@ ConvertTimeSeriesImageToMatrix( std::string imagefn, std::string maskfn, std::st
       } // check mask
     }
 
-  typedef itk::CSVNumericObjectFileWriter<double,1,1> WriterType;
-  WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( outname );
-  writer->SetInput( &matrix );
-  writer->SetColumnHeaders( ColumnHeaders );
-  try
-    {
-    writer->Write();
-    }
-  catch( itk::ExceptionObject& exp )
-    {
-    antscout << "Exception caught!" << std::endl;
-    antscout << exp << std::endl;
-    return EXIT_FAILURE;
-    }
+    if( outname[0] == '0' && outname[1] == 'x' )
+      {
+	std::stringstream strstream ;
+	strstream << outname ;
+	void* ptr ;
+	strstream >> ptr ;
+	( static_cast< std::pair< std::vector<std::string> , vnl_matrix<double> >* >( ptr ) )->first = ColumnHeaders ;
+        ( static_cast< std::pair< std::vector<std::string> , vnl_matrix<double> >* >( ptr ) )->second = matrix ;
+        antscout << "motion-correction params written" << std::endl ;
+      }
+    else
+      {
+	typedef itk::CSVNumericObjectFileWriter<double,1,1> WriterType;
+	WriterType::Pointer writer = WriterType::New();
+	writer->SetFileName( outname );
+	writer->SetInput( &matrix );
+	writer->SetColumnHeaders( ColumnHeaders );
+	try
+	  {
+	    writer->Write();
+	  }
+	catch( itk::ExceptionObject& exp )
+	  {
+	    antscout << "Exception caught!" << std::endl;
+	    antscout << exp << std::endl;
+	    return EXIT_FAILURE;
+	  }
+      }
   antscout << " done writing " << std::endl;
   return EXIT_SUCCESS;
 }

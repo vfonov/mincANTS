@@ -1,13 +1,8 @@
 
-#include "antscout.hxx"
-#include <algorithm>
-
-#include <vector>
-#include <string>
+#include "antsUtilities.h"
+#include "antsUtilities.h"
 #include "itkImageFileReader.h"
-#include "itkVector.h"
 #include "itkVariableLengthVector.h"
-// #include "itkVectorImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkMatrixOffsetTransformBase.h"
 #include "itkTransformFactory.h"
@@ -20,135 +15,7 @@
 namespace ants
 {
 
-
-typedef enum { INVALID_FILE = 1, AFFINE_FILE, DEFORMATION_FILE, IMAGE_AFFINE_HEADER,
-               IDENTITY_TRANSFORM } TRAN_FILE_TYPE;
-typedef struct
-  {
-  //    char *filename;
-  std::string filename;
-  TRAN_FILE_TYPE file_type;
-  bool do_affine_inv;
-
-  //    void SetValue(char *filename, TRAN_FILE_TYPE file_type, bool do_affine_inv){
-  //        this.filename = filename;
-  //        this.file_type = file_type;
-  //        this.do_affine_inv = do_affine_inv;
-  //    };
-
-  } TRAN_OPT;
-
-typedef std::vector<TRAN_OPT> TRAN_OPT_QUEUE;
-
-typedef struct
-  {
-  bool use_NN_interpolator;
-  bool use_TightestBoundingBox;
-  char * reference_image_filename;
-  bool use_RotationHeader;
-  } MISC_OPT;
-
-void DisplayOptQueue(const TRAN_OPT_QUEUE & opt_queue);
-
-void DisplayOpt(const TRAN_OPT & opt);
-
-TRAN_FILE_TYPE CheckFileType(const char *str)
-{
-
-  std::string            filename = str;
-  std::string::size_type pos = filename.rfind( "." );
-  std::string            filepre = std::string( filename, 0, pos );
-
-  if( pos != std::string::npos )
-    {
-    std::string extension = std::string( filename, pos, filename.length() - 1);
-    if( extension == std::string(".gz") )
-      {
-      pos = filepre.rfind( "." );
-      extension = std::string( filepre, pos, filepre.length() - 1 );
-      }
-    if( extension == ".txt" )
-      {
-      return AFFINE_FILE;
-      }
-    else
-      {
-      return DEFORMATION_FILE;
-      }
-    }
-  else
-    {
-    return INVALID_FILE;
-    }
-  return AFFINE_FILE;
-}
-
-void FilePartsWithgz(const std::string & filename, std::string & path, std::string & name, std::string & ext)
-{
-  std::string            extension;
-  std::string::size_type pos = filename.rfind( "." );
-  std::string            filepre = std::string( filename, 0, pos );
-
-  if( pos != std::string::npos )
-    {
-    extension = std::string( filename, pos, filename.length() - 1);
-    if( extension == std::string(".gz") )
-      {
-      pos = filepre.rfind( "." );
-      if( pos != std::string::npos )
-        {
-        extension = std::string( filepre, pos, filepre.length() - 1 ) + ".gz";
-        filepre = std::string(filepre, 0, pos);
-        }
-      }
-    }
-  else
-    {
-    extension = std::string("");
-    }
-
-  ext = extension;
-
-  pos = filepre.rfind('/');
-
-  if( pos != std::string::npos )
-    {
-    path = std::string(filepre, 0, pos + 1);
-    name = std::string(filepre, pos + 1, filepre.length() - 1);
-    }
-  else
-    {
-    path = std::string("");
-    name = filepre;
-
-    }
-
-//    antscout << "filename: " << filename << std::endl
-//    << "path: " << path << std::endl
-//    << "name: " << name << std::endl
-//    << "ext: " << ext << std::endl;
-
-}
-
-bool CheckFileExistence(const char *str)
-{
-  std::ifstream myfile(str);
-  bool          b = myfile.is_open();
-
-  myfile.close();
-  return b;
-}
-
-void SetAffineInvFlag(TRAN_OPT & opt, bool & set_current_affine_inv)
-{
-  opt.do_affine_inv = set_current_affine_inv;
-  if( set_current_affine_inv )
-    {
-    set_current_affine_inv = false;
-    }
-}
-
-bool ParseInput(int argc, char * *argv, char *& moving_image_filename,
+static bool WarpTimeSeriesImageMultiTransform_ParseInput(int argc, char * *argv, char *& moving_image_filename,
                 char *& output_image_filename,
                 TRAN_OPT_QUEUE & opt_queue, MISC_OPT & misc_opt)
 {
@@ -355,204 +222,12 @@ bool ParseInput(int argc, char * *argv, char *& moving_image_filename,
   return true;
 }
 
-void DisplayOptQueue(const TRAN_OPT_QUEUE & opt_queue)
-{
-  const int kQueueSize = opt_queue.size();
-  for( int i = 0; i < kQueueSize; i++ )
-    {
-    antscout << "[" << i << "/" << kQueueSize << "]: ";
-
-    switch( opt_queue[i].file_type )
-      {
-      case AFFINE_FILE:
-        antscout << "AFFINE";
-        break;
-      case DEFORMATION_FILE:
-        antscout << "FIELD";
-        break;
-      case IDENTITY_TRANSFORM:
-        antscout << "IDENTITY";
-        break;
-      case IMAGE_AFFINE_HEADER:
-        antscout << "HEADER";
-        break;
-      default:
-        antscout << "Invalid Format!!!";
-        break;
-      }
-    if( opt_queue[i].do_affine_inv )
-      {
-      antscout << "-INV";
-      }
-    antscout << ": " << opt_queue[i].filename << std::endl;
-    }
-
-}
-
-void DisplayOpt(const TRAN_OPT & opt)
-{
-  switch( opt.file_type )
-    {
-    case AFFINE_FILE:
-      antscout << "AFFINE";
-      break;
-    case DEFORMATION_FILE:
-      antscout << "FIELD";
-      break;
-    case IDENTITY_TRANSFORM:
-      antscout << "IDENTITY";
-      break;
-    case IMAGE_AFFINE_HEADER:
-      antscout << "HEADER";
-      break;
-    default:
-      antscout << "Invalid Format!!!";
-      break;
-    }
-  if( opt.do_affine_inv )
-    {
-    antscout << "-INV";
-    }
-  antscout << ": " << opt.filename << std::endl;
-}
-
 template <class AffineTransformPointer>
 void GetIdentityTransform(AffineTransformPointer & aff)
 {
   typedef typename AffineTransformPointer::ObjectType AffineTransform;
   aff = AffineTransform::New();
   aff->SetIdentity();
-}
-
-template <class ImageTypePointer, class AffineTransformPointer>
-void GetAffineTransformFromImage(const ImageTypePointer& img, AffineTransformPointer & aff)
-{
-  typedef typename ImageTypePointer::ObjectType                        ImageType;
-  typedef typename ImageType::DirectionType                            DirectionType;
-  typedef typename ImageType::PointType                                PointType;
-  typedef typename ImageType::SpacingType                              SpacingType;
-  typedef typename AffineTransformPointer::ObjectType::TranslationType VectorType;
-
-  DirectionType direction = img->GetDirection();
-
-  VectorType  translation;
-  // translation.Fill(0);
-  for( unsigned int i = 0; i < ImageType::GetImageDimension(); i++ )
-    {
-    translation[i] = img->GetOrigin()[i];
-    }
-
-  aff->SetMatrix(direction);
-  // aff->SetCenter(pt);
-  PointType pt; pt.Fill(0);
-  aff->SetOffset(translation);
-  aff->SetCenter(pt);
-
-  antscout << "aff from image:" << aff << std::endl;
-
-}
-
-template <class WarperPointerType, class ImagePointerType, class SizeType, class PointType>
-void GetLaregstSizeAfterWarp(WarperPointerType & warper, ImagePointerType & img, SizeType & largest_size,
-                             PointType & origin_warped)
-{
-  typedef typename ImagePointerType::ObjectType ImageType;
-  const int ImageDimension = ImageType::GetImageDimension();
-
-  // typedef typename ImageType::PointType PointType;
-  typedef typename std::vector<PointType> PointList;
-
-  typedef typename ImageType::IndexType IndexType;
-
-  // PointList pts_orig;
-  PointList pts_warped;
-
-  typename ImageType::SizeType imgsz;
-  imgsz = img->GetLargestPossibleRegion().GetSize();
-
-  typename ImageType::SpacingType spacing;
-  spacing = img->GetSpacing();
-
-  pts_warped.clear();
-  if( ImageDimension == 3 )
-    {
-    for( int i = 0; i < 8; i++ )
-      {
-      IndexType ind;
-
-      switch( i )
-        {
-        case 0: ind[0] = 0; ind[1] = 0; ind[2] = 0; break;
-        case 1: ind[0] = imgsz[0] - 1; ind[1] = 0; ind[2] = 0; break;
-        case 2: ind[0] = 0; ind[1] = imgsz[1] - 1; ind[2] = 0; break;
-        case 3: ind[0] = imgsz[0] - 1; ind[1] = imgsz[1] - 1; ind[2] = 0; break;
-        case 4: ind[0] = 0; ind[1] = 0; ind[2] = imgsz[2] - 1; break;
-        case 5: ind[0] = imgsz[0] - 1; ind[1] = 0; ind[2] = imgsz[2] - 1; break;
-        case 6: ind[0] = 0; ind[1] = imgsz[1] - 1; ind[2] = imgsz[2] - 1; break;
-        case 7: ind[0] = imgsz[0] - 1; ind[1] = imgsz[1] - 1; ind[2] = imgsz[2] - 1; break;
-        }
-      PointType pt_orig, pt_warped;
-      img->TransformIndexToPhysicalPoint(ind, pt_orig);
-      if( warper->MultiInverseAffineOnlySinglePoint(pt_orig, pt_warped) == false )
-        {
-        antscout << "ERROR: outside of numeric boundary with affine transform." << std::endl;
-        throw std::exception();
-        }
-      pts_warped.push_back(pt_warped);
-      antscout << '[' << i << ']' << ind << ',' << pt_orig << "->" << pt_warped << std::endl;
-      }
-    }
-  else if( ImageDimension == 2 )
-    {
-    for( int i = 0; i < 4; i++ )
-      {
-      IndexType ind;
-
-      switch( i )
-        {
-        case 0: ind[0] = 0; ind[1] = 0;  break;
-        case 1: ind[0] = imgsz[0] - 1; ind[1] = 0;  break;
-        case 2: ind[0] = 0; ind[1] = imgsz[1] - 1;  break;
-        case 3: ind[0] = imgsz[0] - 1; ind[1] = imgsz[1] - 1;  break;
-        }
-      PointType pt_orig, pt_warped;
-      img->TransformIndexToPhysicalPoint(ind, pt_orig);
-      if( warper->MultiInverseAffineOnlySinglePoint(pt_orig, pt_warped) == false )
-        {
-        antscout << "ERROR: outside of numeric boundary with affine transform." << std::endl;
-        throw std::exception();
-        }
-      pts_warped.push_back(pt_warped);
-      antscout << '[' << i << ']' << ind << ',' << pt_orig << "->" << pt_warped << std::endl;
-      }
-
-    }
-  else
-    {
-    antscout << "could not determine the dimension after warping for non 2D/3D volumes" << std::endl;
-    throw std::exception();
-    }
-
-  PointType pt_min, pt_max;
-  pt_min = pts_warped[0];
-  pt_max = pts_warped[0];
-  for( unsigned int k = 0; k < pts_warped.size(); k++ )
-    {
-    for( int i = 0; i < ImageDimension; i++ )
-      {
-      pt_min[i] = (pt_min[i] < pts_warped[k][i]) ? (pt_min[i]) : (pts_warped[k][i]);
-      pt_max[i] = (pt_max[i] > pts_warped[k][i]) ? (pt_max[i]) : (pts_warped[k][i]);
-      }
-    }
-  for( int i = 0; i < ImageDimension; i++ )
-    {
-    largest_size[i] = (int) (ceil( (pt_max[i] - pt_min[i]) / spacing[i]) + 1);
-    }
-
-  origin_warped = pt_min;
-  antscout << "origin_warped: " << origin_warped << std::endl;
-  antscout << "pt_min: " << pt_min << " pt_max:" << pt_max << " largest_size:" << largest_size << std::endl;
-
 }
 
 template <int ImageDimension>
@@ -682,10 +357,7 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
           warper->PushBackAffineTransform(aff);
           if( transcount == 0 )
             {
-            warper->SetOutputSize(img_ref->GetLargestPossibleRegion().GetSize() );
-            warper->SetOutputSpacing(img_ref->GetSpacing() );
-            warper->SetOutputOrigin(img_ref->GetOrigin() );
-            warper->SetOutputDirection(img_ref->GetDirection() );
+            warper->SetOutputParametersFromImage( img_ref );
             }
           transcount++;
           break;
@@ -722,10 +394,7 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
           warper->PushBackAffineTransform(aff);
 
           //            if (transcount==0){
-          //                warper->SetOutputSize(img_mov->GetLargestPossibleRegion().GetSize());
-          //                warper->SetOutputSpacing(img_mov->GetSpacing());
-          //                warper->SetOutputOrigin(img_mov->GetOrigin());
-          //                warper->SetOutputDirection(img_mov->GetDirection());
+          //                warper->SetOutputParametersFromImage( img_mov );
           //            }
 
           transcount++;
@@ -739,10 +408,7 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
           typename DisplacementFieldType::Pointer field = field_reader->GetOutput();
 
           warper->PushBackDisplacementFieldTransform(field);
-          warper->SetOutputSize(field->GetLargestPossibleRegion().GetSize() );
-          warper->SetOutputOrigin(field->GetOrigin() );
-          warper->SetOutputSpacing(field->GetSpacing() );
-          warper->SetOutputDirection(field->GetDirection() );
+          warper->SetOutputParametersFromImage( field );
 
           transcount++;
           break;
@@ -756,10 +422,7 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
 
     if( img_ref.IsNotNull() )
       {
-      warper->SetOutputSize(img_ref->GetLargestPossibleRegion().GetSize() );
-      warper->SetOutputSpacing(img_ref->GetSpacing() );
-      warper->SetOutputOrigin(img_ref->GetOrigin() );
-      warper->SetOutputDirection(img_ref->GetDirection() );
+      warper->SetOutputParametersFromImage( img_ref );
       }
     else
       {
@@ -771,13 +434,15 @@ void WarpImageMultiTransformFourD(char *moving_image_filename, char *output_imag
           typename ImageType::SizeType largest_size;
           typename ImageType::PointType origin_warped;
           GetLaregstSizeAfterWarp(warper, warpthisimage , largest_size, origin_warped);
+          warper->SetOutputParametersFromImage( warpthisimage );
           warper->SetOutputSize(largest_size);
-          warper->SetOutputSpacing(warpthisimage->GetSpacing());
           warper->SetOutputOrigin(origin_warped);
-
+          {
           typename ImageType::DirectionType d;
           d.SetIdentity();
-          warper->SetOutputDirection(d);*/
+          warper->SetOutputDirection(d);
+          }
+          */
         }
 
       }
@@ -962,10 +627,7 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
           warper->PushBackAffineTransform(aff);
           if( transcount == 0 )
             {
-            warper->SetOutputSize(img_mov->GetLargestPossibleRegion().GetSize() );
-            warper->SetOutputSpacing(img_mov->GetSpacing() );
-            warper->SetOutputOrigin(img_mov->GetOrigin() );
-            warper->SetOutputDirection(img_mov->GetDirection() );
+            warper->SetOutputParametersFromImage( img_mov );
             }
           transcount++;
           break;
@@ -1002,10 +664,7 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
           warper->PushBackAffineTransform(aff);
 
           //            if (transcount==0){
-          //                warper->SetOutputSize(img_mov->GetLargestPossibleRegion().GetSize());
-          //                warper->SetOutputSpacing(img_mov->GetSpacing());
-          //                warper->SetOutputOrigin(img_mov->GetOrigin());
-          //                warper->SetOutputDirection(img_mov->GetDirection());
+          //                warper->SetOutputParametersFromImage( img_mov );
           //            }
 
           transcount++;
@@ -1019,10 +678,7 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
           typename DisplacementFieldType::Pointer field = field_reader->GetOutput();
 
           warper->PushBackDisplacementFieldTransform(field);
-          warper->SetOutputSize(field->GetLargestPossibleRegion().GetSize() );
-          warper->SetOutputOrigin(field->GetOrigin() );
-          warper->SetOutputSpacing(field->GetSpacing() );
-          warper->SetOutputDirection(field->GetDirection() );
+          warper->SetOutputParametersFromImage( field );
 
           transcount++;
           break;
@@ -1036,10 +692,7 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
 
     if( img_ref.IsNotNull() )
       {
-      warper->SetOutputSize(img_ref->GetLargestPossibleRegion().GetSize() );
-      warper->SetOutputSpacing(img_ref->GetSpacing() );
-      warper->SetOutputOrigin(img_ref->GetOrigin() );
-      warper->SetOutputDirection(img_ref->GetDirection() );
+      warper->SetOutputParametersFromImage( img_ref );
       }
     else
       {
@@ -1050,13 +703,14 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
         typename ImageType::SizeType largest_size;
         typename ImageType::PointType origin_warped;
         GetLaregstSizeAfterWarp(warper, img_mov, largest_size, origin_warped);
+        warper->SetOutputParametersFromImage( img_mov );
         warper->SetOutputSize(largest_size);
-        warper->SetOutputSpacing(img_mov->GetSpacing() );
         warper->SetOutputOrigin(origin_warped);
-
-        typename ImageType::DirectionType d;
-        d.SetIdentity();
-        warper->SetOutputDirection(d);
+          {
+          typename ImageType::DirectionType d;
+          d.SetIdentity();
+          warper->SetOutputDirection(d);
+          }
         }
 
       }
@@ -1182,7 +836,7 @@ int WarpTimeSeriesImageMultiTransform( std::vector<std::string> args , std::ostr
   bool is_parsing_ok = false;
   int  kImageDim = atoi(argv[1]);
 
-  is_parsing_ok = ParseInput(argc - 2, argv + 2, moving_image_filename, output_image_filename, opt_queue, misc_opt);
+  is_parsing_ok = WarpTimeSeriesImageMultiTransform_ParseInput(argc - 2, argv + 2, moving_image_filename, output_image_filename, opt_queue, misc_opt);
 
   if( is_parsing_ok )
     {

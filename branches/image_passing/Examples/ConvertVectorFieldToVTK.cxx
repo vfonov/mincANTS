@@ -17,12 +17,11 @@
 =========================================================================*/
 
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
 #include "itkImageFileReader.h"
-// #include "itkVectorImageFileReader.h"
-#include "itkVector.h"
+
 #include "itkImageRegionIteratorWithIndex.h"
 
 #include "vtkUnstructuredGrid.h"

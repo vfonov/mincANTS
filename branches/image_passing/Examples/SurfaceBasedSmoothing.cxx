@@ -1,14 +1,9 @@
 
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
-#include "itkBinaryThresholdImageFilter.h"
 
-#include "itkBinaryThresholdImageFilter.h"
-#include "itkBinaryErodeImageFilter.h"
-#include "itkBinaryDilateImageFilter.h"
-#include "itkBinaryBallStructuringElement.h"
 #include "ReadWriteImage.h"
 #include "itkSurfaceImageCurvature.h"
 

@@ -1,5 +1,5 @@
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
 #include "itkImage.h"
@@ -84,14 +84,6 @@ public:
   }
 
 };
-
-void ConvertToLowerCase( std::string& str )
-{
-  std::transform( str.begin(), str.end(), str.begin(), tolower );
-// You may need to cast the above line to (int(*)(int))
-// tolower - this works as is on VC 7.1 but may not work on
-// other compilers
-}
 
 template <unsigned int ImageDimension>
 int AtroposSegmentation( itk::ants::CommandLineParser *parser )
@@ -201,23 +193,27 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
 
       if( filename.find( std::string( "%" ) ) != std::string::npos )
         {
-        itk::NumericSeriesFileNames::Pointer fileNamesCreator =
-          itk::NumericSeriesFileNames::New();
-        fileNamesCreator->SetStartIndex( 1 );
-        fileNamesCreator->SetEndIndex( segmenter->GetNumberOfTissueClasses() );
-        fileNamesCreator->SetSeriesFormat( filename.c_str() );
-        const std::vector<std::string> & imageNames
-          = fileNamesCreator->GetFileNames();
-        for( unsigned int k = 0; k < imageNames.size(); k++ )
+	  std::vector<std::string> imageNames ;
+	  if( filename[0] != '0' || filename[1] != 'x' )
+	    {
+	      itk::NumericSeriesFileNames::Pointer fileNamesCreator =
+		itk::NumericSeriesFileNames::New();
+	      fileNamesCreator->SetStartIndex( 1 );
+	      fileNamesCreator->SetEndIndex( segmenter->GetNumberOfTissueClasses() );
+	      fileNamesCreator->SetSeriesFormat( filename.c_str() );
+	      imageNames = fileNamesCreator->GetFileNames();
+	    }
+        for( unsigned int k = 0; k < segmenter->GetNumberOfTissueClasses() ; k++ )
           {
-	    if( imageNames[k][0] == '0' && imageNames[k][1] == 'x' )
+	    if( filename[0] == '0' && filename[1] == 'x' )
 	      {
+		if( filename.find( '%' ) != std::string::npos )
+		  filename.erase( filename.find( '%' ) ) ;
 		std::stringstream strstream ;
-		strstream << imageNames[k] ;
+		strstream << filename ;
 		void* ptr ;
 		strstream >> ptr ;
-		typename InputImageType::Pointer img = *( static_cast< typename InputImageType::Pointer* >( ptr ) ) ;
-		segmenter->SetPriorProbabilityImage( k + 1, img );
+		segmenter->SetPriorProbabilityImage( k + 1, ( *static_cast< std::vector< typename InputImageType::Pointer >* >( ptr ) )[k] );
 	      }
 	    else
 	      {
@@ -1166,14 +1162,17 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
       {
       std::string filename = outputOption->GetParameter( 1 );
 
-      itk::NumericSeriesFileNames::Pointer fileNamesCreator =
-        itk::NumericSeriesFileNames::New();
-      fileNamesCreator->SetStartIndex( 1 );
-      fileNamesCreator->SetEndIndex( segmenter->GetNumberOfTissueClasses() );
-      fileNamesCreator->SetSeriesFormat( filename.c_str() );
-      const std::vector<std::string> & imageNames
-        = fileNamesCreator->GetFileNames();
-      for( unsigned int i = 0; i < imageNames.size(); i++ )
+      std::vector<std::string> imageNames ;
+      if( filename[0] != '0' || filename[1] != 'x' )
+	{
+	  itk::NumericSeriesFileNames::Pointer fileNamesCreator =
+	    itk::NumericSeriesFileNames::New();
+	  fileNamesCreator->SetStartIndex( 1 );
+	  fileNamesCreator->SetEndIndex( segmenter->GetNumberOfTissueClasses() );
+	  fileNamesCreator->SetSeriesFormat( filename.c_str() );
+	  imageNames = fileNamesCreator->GetFileNames();
+	}
+      for( unsigned int i = 0; i < segmenter->GetNumberOfTissueClasses() ; ++i )
         {
         antscout << "  Writing posterior image (class " << i + 1 << ")"
                   << std::endl;
@@ -1193,13 +1192,15 @@ int AtroposSegmentation( itk::ants::CommandLineParser *parser )
           probabilityImage = masker->GetOutput();
           }
 
-	if( imageNames[i][0] == '0' && imageNames[i][1] == 'x' )
+	if( filename[0] == '0' && filename[1] == 'x' )
 	  {
+	    if( filename.find( '%' ) != std::string::npos )
+	      filename.erase( filename.find( '%' ) ) ;
 	    std::stringstream strstream ;
-	    strstream << imageNames[i] ;
+	    strstream << filename ;
 	    void* ptr ;
 	    strstream >> ptr ;
-	    *( static_cast< typename InputImageType::Pointer* >( ptr ) ) = probabilityImage ;
+	    ( static_cast< std::vector< typename InputImageType::Pointer >* >( ptr ) )->push_back( probabilityImage ) ;
 	  }
 	else
 	  {

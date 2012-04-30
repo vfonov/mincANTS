@@ -14,7 +14,7 @@ $Revision: 1.8 $
 
 =========================================================================*/
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 #include <algorithm>
 #include <iostream>
@@ -26,17 +26,12 @@ $Revision: 1.8 $
 #include "itkImage.h"
 #include "itkExceptionObject.h"
 #include "ReadWriteImage.h"
-#include "itkVector.h"
-#include "itkBinaryThresholdImageFilter.h"
 #include "itkRandomImageSource.h"
 #include "itkImageRandomConstIteratorWithIndex.h"
 #include "itkImageLinearIteratorWithIndex.h"
 #include "itkShapedNeighborhoodIterator.h"
 #include "BinaryImageToMeshFilter.h"
 
-#include "itkBinaryErodeImageFilter.h"
-#include "itkBinaryDilateImageFilter.h"
-#include "itkBinaryBallStructuringElement.h"
 
 #include "vtkCallbackCommand.h"
 #include "vtkPointPicker.h"
@@ -48,7 +43,6 @@ $Revision: 1.8 $
 #include "itkMinimumMaximumImageFilter.h"
 #include "itkConnectedComponentImageFilter.h"
 #include "itkRelabelComponentImageFilter.h"
-#include "itkBinaryThresholdImageFilter.h"
 #include "itkLabelStatisticsImageFilter.h"
 
 namespace ants
@@ -157,38 +151,6 @@ typename TImage::Pointer SmoothImage( typename TImage::Pointer image, float sig 
 
 }
 
-template <class TImage>
-typename TImage::Pointer BinaryThreshold(
-  typename TImage::PixelType low,
-  typename TImage::PixelType high,
-  typename TImage::PixelType replaceval, typename TImage::Pointer input)
-{
-
-  typedef typename TImage::PixelType PixelType;
-  // Begin Threshold Image
-  typedef itk::BinaryThresholdImageFilter<TImage, TImage> InputThresholderType;
-  typename InputThresholderType::Pointer inputThresholder =
-    InputThresholderType::New();
-
-  inputThresholder->SetInput( input );
-  inputThresholder->SetInsideValue(  replaceval );
-  int outval = 0;
-  if( (float) replaceval == (float) -1 )
-    {
-    outval = 1;
-    }
-  inputThresholder->SetOutsideValue( outval );
-
-  if( high < low )
-    {
-    high = 255;
-    }
-  inputThresholder->SetLowerThreshold( (PixelType) low );
-  inputThresholder->SetUpperThreshold( (PixelType) high);
-  inputThresholder->Update();
-
-  return inputThresholder->GetOutput();
-}
 
 template <class TImage>
 // std::vector<unsigned int>
@@ -315,90 +277,6 @@ GetLargestComponent(typename TImage::Pointer image)
 
 }
 
-template <class TImage>
-typename TImage::Pointer  Morphological( typename TImage::Pointer input, float rad, bool option)
-{
-  typedef TImage ImageType;
-  enum { ImageDimension = TImage::ImageDimension };
-  typedef typename TImage::PixelType PixelType;
-
-  if( !option )
-    {
-    antscout << " eroding the image " << std::endl;
-    }
-  else
-    {
-    antscout << " dilating the image " << std::endl;
-    }
-  typedef itk::BinaryBallStructuringElement<
-    PixelType,
-    ImageDimension>             StructuringElementType;
-
-  // Software Guide : BeginCodeSnippet
-  typedef itk::BinaryErodeImageFilter<
-    TImage,
-    TImage,
-    StructuringElementType>  ErodeFilterType;
-
-  typedef itk::BinaryDilateImageFilter<
-    TImage,
-    TImage,
-    StructuringElementType>  DilateFilterType;
-
-  typename ErodeFilterType::Pointer  binaryErode  = ErodeFilterType::New();
-  typename DilateFilterType::Pointer binaryDilate = DilateFilterType::New();
-
-  StructuringElementType structuringElement;
-
-  structuringElement.SetRadius( (unsigned long) rad );  // 3x3x3 structuring element
-
-  structuringElement.CreateStructuringElement();
-
-  binaryErode->SetKernel(  structuringElement );
-  binaryDilate->SetKernel( structuringElement );
-
-  //  It is necessary to define what could be considered objects on the binary
-  //  images. This is specified with the methods \code{SetErodeValue()} and
-  //  \code{SetDilateValue()}. The value passed to these methods will be
-  //  considered the value over which the dilation and erosion rules will apply
-  binaryErode->SetErodeValue( 1 );
-  binaryDilate->SetDilateValue( 1 );
-
-  typename TImage::Pointer temp;
-  if( option )
-    {
-    binaryDilate->SetInput( input );
-    binaryDilate->Update();
-    temp = binaryDilate->GetOutput();
-    }
-  else
-    {
-    binaryErode->SetInput( input );  // binaryDilate->GetOutput() );
-    binaryErode->Update();
-    temp = binaryErode->GetOutput();
-
-    typedef itk::ImageRegionIteratorWithIndex<ImageType> ImageIteratorType;
-    ImageIteratorType o_iter( temp, temp->GetLargestPossibleRegion() );
-    o_iter.GoToBegin();
-    while( !o_iter.IsAtEnd() )
-      {
-      if( o_iter.Get() > 0.5 && input->GetPixel(o_iter.GetIndex() ) > 0.5 )
-        {
-        o_iter.Set(1);
-        }
-      else
-        {
-        o_iter.Set(0);
-        }
-      ++o_iter;
-      }
-
-    }
-
-  return temp;
-
-}
-
 // entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
 int CheckTopology( std::vector<std::string> args , std::ostream* out_stream = NULL )
 {
@@ -497,7 +375,7 @@ int CheckTopology( std::vector<std::string> args , std::ostream* out_stream = NU
       {
       lasterr = err;
       err = 0;
-      ImageType::Pointer out = Morphological<ImageType>(simage, 3, 0);
+      ImageType::Pointer out = ants::Morphological<ImageType>(simage, 3, 0, 1);
       ImageType::Pointer bigimage = GetLargestComponent<ImageType>(out);
       G2 = GetImageTopology<ImageType>(bigimage);
       typedef itk::ImageRegionIteratorWithIndex<ImageType> ImageIteratorType;

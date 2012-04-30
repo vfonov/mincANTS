@@ -16,7 +16,7 @@
 *
 *=========================================================================*/
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
 #include <iostream>
@@ -32,14 +32,6 @@ namespace ants
 
 typedef itk::ants::CommandLineParser ParserType;
 typedef ParserType::OptionType       OptionType;
-
-void ConvertToLowerCase( std::string& str )
-{
-  std::transform( str.begin(), str.end(), str.begin(), tolower );
-// You may need to cast the above line to (int(*)(int))
-// tolower - this works as is on VC 7.1 but may not work on
-// other compilers
-}
 
 void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
 {
@@ -85,6 +77,17 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
     option->SetShortName( 'q' );
     option->SetUsageOption( 0, "initialTransform" );
     option->SetUsageOption( 1, "[initialTransform,<useInverse>]" );
+    option->SetDescription( description );
+    parser->AddOption( option );
+    }
+
+    {
+    std::string description = std::string( "Specify name of a composite transform " )
+      + std::string( "file to write out after registration " );
+    OptionType::Pointer option = OptionType::New();
+    option->SetLongName( "composite-transform-file" );
+    option->SetShortName( 'a' );
+    option->SetUsageOption( 0, "compositeFile" );
     option->SetDescription( description );
     parser->AddOption( option );
     }
@@ -418,6 +421,8 @@ DoRegistration(typename ParserType::Pointer & parser)
   OptionType::Pointer outputOption = parser->GetOption( "output" );
 
   OptionType::Pointer maskOption = parser->GetOption( "masks" );
+
+  OptionType::Pointer compositeOutputOption = parser->GetOption("composite-transform-file");
 
   if( !outputOption )
     {
@@ -929,6 +934,13 @@ DoRegistration(typename ParserType::Pointer & parser)
   // write out transforms stored in the composite
   typename CompositeTransformType::Pointer resultTransform =
     regHelper->GetCompositeTransform();
+  if(compositeOutputOption->GetNumberOfValues() > 0)
+    {
+    std::string compositeTransform = compositeOutputOption->GetParameter(0,0);
+    typename RegistrationHelperType::CompositeTransformType::TransformTypePointer curTransform =
+      resultTransform.GetPointer();
+    itk::ants::WriteTransform<VImageDimension>(curTransform,compositeTransform.c_str());
+    }
   unsigned int numTransforms = resultTransform->GetNumberOfTransforms();
   // write out transforms actually computed, so skip any initial transforms.
   for(unsigned int i = initialMovingTransformOption->GetNumberOfValues(); i < numTransforms; ++i)

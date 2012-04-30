@@ -2,7 +2,7 @@
 
 
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
 #include <string>
@@ -11,7 +11,6 @@
 #include <time.h>
 
 #include "itkImage.h"
-#include "itkBinaryThresholdImageFilter.h"
 
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -25,8 +24,8 @@
 #include "vtkExtractEdges.h"
 #include "vtkPolyDataReader.h"
 
-// #include "itkFEMConformalMap.h"
-// #include "itkFEMDiscConformalMap.h"
+
+
 
 #include "BinaryImageToMeshFilter.h"
 #include "vtkCallbackCommand.h"
@@ -59,7 +58,7 @@
 #include "vtkDecimatePro.h"
 #include "vtkContourFilter.h"
 #include "vtkPolyDataConnectivityFilter.h"
-// #include "vtkKitwareContourFilter.h"
+
 #include "vtkSmoothPolyDataFilter.h"
 #include "vtkSTLWriter.h"
 #include "vtkUnstructuredGridToPolyDataFilter.h"
@@ -71,43 +70,6 @@
 
 namespace ants
 {
-
-
-template <class TImage>
-typename TImage::Pointer BinaryThreshold(
-  typename TImage::PixelType bkg,
-  typename TImage::PixelType foreground,
-  typename TImage::PixelType replaceval, typename TImage::Pointer input)
-{
-
-  typedef typename TImage::PixelType PixelType;
-  // Begin Threshold Image
-  typedef itk::BinaryThresholdImageFilter<TImage, TImage>
-  InputThresholderType;
-  typename InputThresholderType::Pointer inputThresholder =
-    InputThresholderType::New();
-
-  inputThresholder->SetInput( input );
-  inputThresholder->SetInsideValue(  replaceval );
-  int outval = 0;
-  if( (float) replaceval == (float) -1 )
-    {
-    outval = 1;
-    }
-  inputThresholder->SetOutsideValue( outval );
-
-  float low = bkg;
-  float high = foreground;
-  if( high < low )
-    {
-    high = 255;
-    }
-  inputThresholder->SetLowerThreshold( (PixelType) low );
-  inputThresholder->SetUpperThreshold( (PixelType) high);
-  inputThresholder->Update();
-
-  return inputThresholder->GetOutput();
-}
 
 float ComputeGenus(vtkPolyData* pd1)
 {
@@ -237,8 +199,6 @@ void GetValueMesh(typename TImage::Pointer image, typename TImage::Pointer image
   vtkmesh = smoother->GetOutput();
 
   antscout << " Genus " << vtkComputeTopology(vtkmesh) << std::endl;
-
-  typename itype::SpacingType spacing = image->GetSpacing();
 
   vtkPoints* vtkpoints = vtkmesh->GetPoints();
   int        numPoints = vtkpoints->GetNumberOfPoints();

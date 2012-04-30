@@ -16,121 +16,89 @@
 
 =========================================================================*/
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
-#include <map>
-// Here I'm using a map but you could choose even other containers
-#include <fstream>
-#include <sstream>
-#include <string>
-#include "itkCSVNumericObjectFileWriter.h"
-#include <iostream>
-#include "itkTDistribution.h"
-#include "itkTimeProbe.h"
-#include "itkMedianImageFilter.h"
-#include "itkVariableSizeMatrix.h"
-// #include "itkVectorImageFileReader.h"
-#include "itkVector.h"
-#include "itkVectorLinearInterpolateImageFunction.h"
-#include "itkHessianRecursiveGaussianImageFilter.h"
-#include "itkLaplacianRecursiveGaussianImageFilter.h"
-#include "itkBilateralImageFilter.h"
-#include "itkDiscreteGaussianImageFilter.h"
-#include "itkDanielssonDistanceMapImageFilter.h"
-#include "itkBinaryErodeImageFilter.h"
-#include "itkBinaryDilateImageFilter.h"
-#include "itkLabeledPointSetFileReader.h"
-#include "itkLabeledPointSetFileWriter.h"
-#include "itkImageRandomConstIteratorWithIndex.h"
-#include "itkListSample.h"
-#include "itkHistogram.h"
-#include "itkSampleToHistogramFilter.h"
 
-// #include "itkBinaryMorphologicalClosingImageFilter.h"
-// #include "itkBinaryMorphologicalOpeningImageFilter.h"
-#include "itkGrayscaleErodeImageFilter.h"
-#include "itkGrayscaleDilateImageFilter.h"
-#include "itkBinaryBallStructuringElement.h"
-#include "itkGradientMagnitudeRecursiveGaussianImageFilter.h"
-#include "itkRescaleIntensityImageFilter.h"
-#include "itkGradientAnisotropicDiffusionImageFilter.h"
-#include "itkBayesianClassifierImageFilter.h"
-#include "itkGradientAnisotropicDiffusionImageFilter.h"
-#include "itkRescaleIntensityImageFilter.h"
-#include "itkBayesianClassifierInitializationImageFilter.h"
-#include "itkScalarImageKmeansImageFilter.h"
-#include "itkRelabelComponentImageFilter.h"
-#include "itkTranslationTransform.h"
-#include "itkImageMomentsCalculator.h"
-#include "itkImageDuplicator.h"
-#include "itkBinaryThresholdImageFilter.h"
-#include "ReadWriteImage.h"
+#include "itkArray.h"
 #include "itkBSplineControlPointImageFilter.h"
-#include "itkLabelStatisticsImageFilter.h"
-#include "itkMaximumImageFilter.h"
-#include "itkMultiplyImageFilter.h"
-#include "itkSubtractImageFilter.h"
+#include "itkBayesianClassifierImageFilter.h"
+#include "itkBayesianClassifierInitializationImageFilter.h"
+#include "itkBilateralImageFilter.h"
+#include "itkCSVNumericObjectFileWriter.h"
+#include "itkCastImageFilter.h"
+#include "itkCompositeValleyFunction.h"
+#include "itkConnectedComponentImageFilter.h"
+#include "itkConstNeighborhoodIterator.h"
+#include "itkDiscreteGaussianImageFilter.h"
+#include "itkDistanceToCentroidMembershipFunction.h"
+#include "itkDanielssonDistanceMapImageFilter.h"
 #include "itkExpImageFilter.h"
-#include "itkOtsuThresholdImageFilter.h"
-#include "itkShrinkImageFilter.h"
+#include "itkExtractImageFilter.h"
+#include "itkGaussianImageSource.h"
+#include "itkGradientAnisotropicDiffusionImageFilter.h"
+#include "itkGradientMagnitudeRecursiveGaussianImageFilter.h"
+#include "itkHessianRecursiveGaussianImageFilter.h"
+#include "itkHistogram.h"
+#include "itkHistogramMatchingImageFilter.h"
+#include "itkImage.h"
+#include "itkImageClassifierBase.h"
+#include "itkImageDuplicator.h"
+#include "itkImageFileWriter.h"
+#include "itkImageGaussianModelEstimator.h"
+#include "itkImageKmeansModelEstimator.h"
+#include "itkImageMomentsCalculator.h"
+#include "itkImageRandomConstIteratorWithIndex.h"
+#include "itkImageRegionIterator.h"
+#include "itkImageRegionIteratorWithIndex.h"
 #include "itkKdTree.h"
 #include "itkKdTreeBasedKmeansEstimator.h"
-#include "itkWeightedCentroidKdTreeGenerator.h"
-#include "../Temporary/itkFastMarchingImageFilter.h"
-// #include "itkMinimumDecisionRule.h"
-// #include "itkEuclideanDistance.h"
-// #include "itkSampleClassifier.h"
-#include "itkCastImageFilter.h"
-// #include "itkScalarImageToListAdaptor.h"
-#include "itkConnectedComponentImageFilter.h"
-#include "itkRescaleIntensityImageFilter.h"
-#include "itkHistogramMatchingImageFilter.h"
-#include "itkLabelStatisticsImageFilter.h"
-#include "itkExtractImageFilter.h"
-#include "itkMRIBiasFieldCorrectionFilter.h"
-#include "itkImage.h"
-#include "itkImageRegionIteratorWithIndex.h"
-#include "itkGaussianImageSource.h"
-#include "itkMultivariateLegendrePolynomial.h"
-#include "itkCompositeValleyFunction.h"
-#include "itkNormalVariateGenerator.h"
-#include "itkArray.h"
-#include "itkImageFileWriter.h"
-#include "itkSphereSpatialFunction.h"
 #include "itkLabelContourImageFilter.h"
-#include "itkMaskImageFilter.h"
-// #include "itkDecisionRuleBase.h"
-// #include "itkMinimumDecisionRule.h"
-// #include "itkImageClassifierBase.h"
-// #include "itkWellComposedImageFilter.h"
-#include "itkBinaryErodeImageFilter.h"
-#include "itkBinaryDilateImageFilter.h"
-#include "itkBinaryBallStructuringElement.h"
-
-#include "itkImageKmeansModelEstimator.h"
-
-#include "itkDistanceToCentroidMembershipFunction.h"
-
+#include "itkLabelStatisticsImageFilter.h"
+#include "itkLabeledPointSetFileReader.h"
+#include "itkLabeledPointSetFileWriter.h"
+#include "itkLaplacianRecursiveGaussianImageFilter.h"
+#include "itkListSample.h"
 #include "itkMRFImageFilter.h"
-#include "itkImageClassifierBase.h"
-#include "itkImageGaussianModelEstimator.h"
-// #include "itkMahalanobisDistanceMembershipFunction.h"
-// #include "itkMinimumDecisionRule.h"
-#include "itkSize.h"
-#include "itkImage.h"
-#include "itkVector.h"
-#include "vnl/vnl_matrix_fixed.h"
-#include "itkImageRegionIterator.h"
-#include "itkConstNeighborhoodIterator.h"
-#include "itkNeighborhoodIterator.h"
-#include "itkNeighborhoodAlgorithm.h"
+#include "itkMRIBiasFieldCorrectionFilter.h"
+#include "itkMaskImageFilter.h"
+#include "itkMaximumImageFilter.h"
+#include "itkMedianImageFilter.h"
+#include "itkMultiplyImageFilter.h"
+#include "itkMultivariateLegendrePolynomial.h"
 #include "itkNeighborhood.h"
-
+#include "itkNeighborhoodAlgorithm.h"
+#include "itkNeighborhoodIterator.h"
+#include "itkNormalVariateGenerator.h"
+#include "itkOtsuThresholdImageFilter.h"
 #include "itkRGBPixel.h"
+#include "itkRelabelComponentImageFilter.h"
+#include "itkRescaleIntensityImageFilter.h"
+#include "itkSampleToHistogramFilter.h"
+#include "itkScalarImageKmeansImageFilter.h"
+#include "itkShrinkImageFilter.h"
+#include "itkSize.h"
+#include "itkSphereSpatialFunction.h"
+#include "itkSubtractImageFilter.h"
+#include "itkTDistribution.h"
+#include "itkTimeProbe.h"
+#include "itkTranslationTransform.h"
+#include "itkVariableSizeMatrix.h"
+#include "itkVectorLinearInterpolateImageFunction.h"
+#include "itkWeightedCentroidKdTreeGenerator.h"
+#include "vnl/vnl_matrix_fixed.h"
+
+
+#include <fstream>
+#include <iostream>
+#include <map> // Here I'm using a map but you could choose even other containers
+#include <sstream>
+#include <string>
+
 #include "ReadWriteImage.h"
 #include "TensorFunctions.h"
 #include "antsMatrixUtilities.h"
+#include "../Temporary/itkFastMarchingImageFilter.h"
 
 namespace ants
 {
@@ -185,39 +153,6 @@ std::string ANTSGetFilePrefix(const char *str)
   //      return INVALID_FILE;
   // }
   return filepre;
-}
-
-template <class TImage>
-typename TImage::Pointer BinaryThreshold(typename TImage::PixelType low, typename TImage::PixelType high,
-                                         typename TImage::PixelType replaceval,
-                                         typename TImage::Pointer input)
-{
-  // antscout << " Binary Thresh " << std::endl;
-
-  typedef typename TImage::PixelType PixelType;
-  // Begin Threshold Image
-  typedef itk::BinaryThresholdImageFilter<TImage, TImage> InputThresholderType;
-  typename InputThresholderType::Pointer inputThresholder =
-    InputThresholderType::New();
-
-  inputThresholder->SetInput( input );
-  inputThresholder->SetInsideValue(  replaceval );
-  int outval = 0;
-  if( (float) replaceval == (float) -1 )
-    {
-    outval = 1;
-    }
-  inputThresholder->SetOutsideValue( outval );
-
-  if( high < low )
-    {
-    high = 255;
-    }
-  inputThresholder->SetLowerThreshold( (PixelType) low );
-  inputThresholder->SetUpperThreshold( (PixelType) high);
-  inputThresholder->Update();
-
-  return inputThresholder->GetOutput();
 }
 
 template <unsigned int ImageDimension>
@@ -2141,6 +2076,351 @@ int TimeSeriesToMatrix(int argc, char *argv[])
   return 0;
 }
 
+
+
+template <unsigned int ImageDimension>
+int PASL(int argc, char *argv[])
+{
+  if( argc <= 3 )
+    {
+    antscout << " too few options " << argv[0] << std::endl;
+    antscout << argv[0] <<" NDImage  Bool_FirstImageIsControl optional-M0mask.nii.gz " << std::endl;
+    return 1;
+    }
+
+  typedef float                                        PixelType;
+  typedef itk::Vector<float, ImageDimension>           VectorType;
+  typedef itk::Image<VectorType, ImageDimension>       FieldType;
+  typedef itk::Image<PixelType, ImageDimension>        ImageType;
+  typedef itk::Image<PixelType, ImageDimension - 1>    OutImageType;
+  typedef itk::ImageFileReader<ImageType>              readertype;
+  typedef itk::ImageFileWriter<ImageType>              writertype;
+  typedef typename ImageType::IndexType                IndexType;
+  typedef typename OutImageType::IndexType                OutIndexType;
+  typedef typename ImageType::SizeType                 SizeType;
+  typedef typename ImageType::SpacingType              SpacingType;
+  typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
+  typedef double RealType; 
+  typedef vnl_vector< RealType > timeVectorType;
+  int          argct = 2;
+  std::string  outname = std::string(argv[argct]); argct++;
+  std::string  operation = std::string(argv[argct]);  argct++;
+  std::string  fn1 = std::string(argv[argct]);   argct++;
+  bool  firstiscontrol = atoi(argv[argct]);   argct++;
+  std::string m0fn = "";
+  if (argc > argct ) m0fn = std::string(argv[argct]);   argct++;
+  typename ImageType::Pointer image1 = NULL;
+  typename OutImageType::Pointer outimage = NULL;
+  typename OutImageType::Pointer M0image = NULL;
+
+  typedef itk::ExtractImageFilter<ImageType, OutImageType> ExtractFilterType;
+  typedef itk::ImageRegionIteratorWithIndex<ImageType>     ImageIt;
+  typedef itk::ImageRegionIteratorWithIndex<OutImageType>  SliceIt;
+
+  RealType M0W = 1300; // FIXME 
+  RealType TE = 4000; 
+  RealType calculatedM0 = 1.06 * M0W *  exp( 1 / 40.0 - 1 / 80.0) * TE; 
+  calculatedM0 = 2800; // from "Impact of equilibrium magnetization of blood on ASL quantification" by YChen et al
+
+  if( fn1.length() > 3 )
+    {
+    ReadImage<ImageType>(image1, fn1.c_str() );
+    }
+  else
+    {
+    return 1;
+    }
+
+  unsigned int timedims = image1->GetLargestPossibleRegion().GetSize()[ImageDimension - 1];
+  typename ImageType::RegionType extractRegion = image1->GetLargestPossibleRegion();
+  extractRegion.SetSize(ImageDimension - 1, 0);
+  if ( firstiscontrol )  extractRegion.SetIndex(ImageDimension - 1, 0 );
+  else   extractRegion.SetIndex(ImageDimension - 1, 1 );
+
+  typename ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
+  extractFilter->SetInput( image1 );
+  //  extractFilter->SetDirectionCollapseToIdentity();
+  extractFilter->SetDirectionCollapseToSubmatrix();
+  extractFilter->SetExtractionRegion( extractRegion );
+  extractFilter->Update();
+  M0image = extractFilter->GetOutput();
+
+  outimage  = OutImageType::New();
+  outimage->CopyInformation( M0image );
+  outimage->SetRegions( M0image->GetLargestPossibleRegion() );
+  outimage->Allocate();
+  outimage->FillBuffer( 0 ); 
+
+  bool haveM0 = true;
+  if( m0fn.length() > 3 )
+    {
+    ReadImage<OutImageType>( M0image, m0fn.c_str() );
+    }
+  else
+    {
+    haveM0 = false;
+    antscout << "Warning: using calculatedM0 as reference M0 value --- see see 'Impact of equilibrium magnetization of blood on ASL quantification' " << std::endl;
+    M0image->FillBuffer( calculatedM0 );
+    }
+
+  typedef itk::ImageRegionIteratorWithIndex<OutImageType> labIterator;
+  labIterator   vfIter2( outimage,  outimage->GetLargestPossibleRegion() );
+
+  timeVectorType sample( timedims, 0 );
+  timeVectorType cbf( timedims, 0 );
+  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+    {
+    OutIndexType ind = vfIter2.GetIndex();
+    IndexType tind;
+    for( unsigned int i = 0; i < ImageDimension - 1; i++ )
+      {
+      tind[i] = ind[i];
+      }
+    RealType total = 0;
+    unsigned long cbfct = 0;
+    RealType M_0   = M0image->GetPixel( ind ); // FIXME can be taken from an input reference image or defined for each tissue 
+    bool getCBF = true;
+    if ( haveM0 && M_0 == 0 ) getCBF = false; else if ( haveM0 ) M_0 = calculatedM0;
+    if ( getCBF ) 
+    for( unsigned int t = 0; t < timedims; t++ )
+      {
+      tind[ImageDimension - 1] = t;
+      RealType pix = image1->GetPixel(tind);
+      sample( t ) = pix;
+      if ( ( t % 2 ) == 1 ) 
+	{/**  the best resource i've found so far equation 1 http://cfn.upenn.edu/perfusion/articles/perfmri_9.pdf
+            "Pediatric Perfusion Imaging Using Pulsed Arterial Spin Labeling"
+	    CBF images calculated as:
+	        f =  \frac{      \lambda DeltaM        }  {     2 \alpha M_0 TI_1 exp( - TI_2 / T_{1a} )  }
+                TI_2 = TI_1 + t * slice_delay  
+             where t is the image index , DeltaM is the difference signal between tag and control acquisitions,
+             lambda = 0.9 ml/g is the blood/tissue water partition, T_{1a} = 1200 ms is the longitudinal relaxation time of blood, 
+             alpha = 0.95 is the inversion (or labeling or tagging?) efﬁciency, TI_1 = 800 millisec is the duration 
+             between the inversion and saturation pulses, TI_2 = TI_1 + w is the image acquisition time.  M_0 is 
+             the acquired image.  These parameters were primarily based on experience in healthy adults; potential effects 
+             of ignoring the difference between adults and children on CBF quantiﬁcation will be discussed below.
+             ...
+             also see https://gate.nmr.mgh.harvard.edu/wiki/whynhow/images/e/e2/ASL_whyNhow.pdf
+	 */
+	RealType lambda = 0.9; //  grams / mL
+	RealType alpha = 0.95; // labeling efficiency 
+	RealType deltaM = sample( t - 1 ) - sample( t ); // if 1st image is control
+	if ( ! firstiscontrol ) deltaM = sample( t ) - sample( t - 1 );  //  2nd image is control
+	bool is1pt5T = false;
+        RealType T_1a = 1650; // 3T
+        if ( is1pt5T ) T_1a = 1390; // 1.5T
+	// see "Impact of equilibrium magnetization of blood on ASL quantification" 
+	RealType TI_1  = 600; // FIXME milliseconds 
+	RealType slice_delay = 42.0;// FIXME milliseconds 
+        // TI2(slice) = TI2 + slice_number * slice_delay (slice_delay = the time taken to acquire each slice)
+        RealType TI_2  = TI_1 + t * slice_delay;
+	RealType scaling = 2 * alpha * M_0 * TI_1 * exp( - TI_2 / T_1a );
+	cbf( t ) = lambda * deltaM / scaling;
+	total += cbf( t );
+	cbfct++;
+	}
+      }
+    RealType mean = total / (RealType) cbfct;
+    vfIter2.Set( mean );
+    }
+
+  /** From Quantitative Imaging of Perhsion Using a Single Subtraction (QUIPSS and QUIPSS 11)     
+  In  a proton density weighted, high-resolution, gradient-echo conventional image 
+  (TE = 5 ms ,  TR  = 1000 ms ,  a  = l o o ) ,  the measured ratio R  of proton density of  
+  blood in  the saggital sinus to  that  of white matter was 1.06. 
+  In a single-shot EPI image (TR = \infty ),  the signal M_{0WM} from  white matter was  measured. 
+  The fully T_1 relaxed signal from blood was then taken to be 
+
+  M_OB  = R M_{0WM} exp [ ( 1 / T_{2WM} - 1 / T_{2B} ) TE ] ,   
+  where T_{2WM} = 80ms  T_{2B} = 200 ms and TE = 5ms.
+  */
+  //  RealType M_0B = 1.06 * M0wm * exp( 5 / 80 - 5 / 200 );
+
+	  /*
+	RealType M0W = 1; // FIXME 
+	M_0 = 1.06 * M0W *  exp( 1 / 40.0 - 1 / 80.0) * TE;
+The term, M_{0B} is calculated as follows (Wong1998),
+      M0b = A * M_{0WM} * exp(1/T2_{WM}^* - 1/T2_B^*) * TE
+      where:
+      A is the proton density ratio between blood and white matter (assumed to be 1.06)
+      T2^* (GRE echo-planar imaging)
+        T2_{WM} is 55 msec  (1.5T), 40 (3.0T), and 30 (4.0T)
+        T2_B    is 100 msec (1.5T), 80 (3.0T), and 60 (4.0T)
+      M_{0WM} is the mean value in an homogenous white matter region from a image acquired with short TE long TR.
+	  */
+
+
+  WriteImage<OutImageType>(outimage, outname.c_str() );
+
+  return 0;
+}
+
+
+template <unsigned int ImageDimension>
+int pCASL(int argc, char *argv[])
+{
+  if( argc <= 3 )
+    {
+    antscout << " too few options " << argv[0] << std::endl;
+    antscout << argv[0] <<" NDImage  Bool_FirstImageIsControl optional-M0mask.nii.gz " << std::endl;
+    return 1;
+    }
+
+  typedef float                                        PixelType;
+  typedef itk::Vector<float, ImageDimension>           VectorType;
+  typedef itk::Image<VectorType, ImageDimension>       FieldType;
+  typedef itk::Image<PixelType, ImageDimension>        ImageType;
+  typedef itk::Image<PixelType, ImageDimension - 1>    OutImageType;
+  typedef itk::ImageFileReader<ImageType>              readertype;
+  typedef itk::ImageFileWriter<ImageType>              writertype;
+  typedef typename ImageType::IndexType                IndexType;
+  typedef typename OutImageType::IndexType                OutIndexType;
+  typedef typename ImageType::SizeType                 SizeType;
+  typedef typename ImageType::SpacingType              SpacingType;
+  typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator;
+  typedef double RealType; 
+  typedef vnl_vector< RealType > timeVectorType;
+  int          argct = 2;
+  std::string  outname = std::string(argv[argct]); argct++;
+  std::string  operation = std::string(argv[argct]);  argct++;
+  std::string  fn1 = std::string(argv[argct]);   argct++;
+  bool  firstiscontrol = atoi(argv[argct]);   argct++;
+  std::string m0fn = "";
+  if (argc > argct ) m0fn = std::string(argv[argct]);   argct++;
+  typename ImageType::Pointer image1 = NULL;
+  typename OutImageType::Pointer outimage = NULL;
+  typename OutImageType::Pointer M0image = NULL;
+
+  typedef itk::ExtractImageFilter<ImageType, OutImageType> ExtractFilterType;
+  typedef itk::ImageRegionIteratorWithIndex<ImageType>     ImageIt;
+  typedef itk::ImageRegionIteratorWithIndex<OutImageType>  SliceIt;
+
+  if( fn1.length() > 3 )
+    {
+    ReadImage<ImageType>(image1, fn1.c_str() );
+    }
+  else
+    {
+    return 1;
+    }
+
+  unsigned int timedims = image1->GetLargestPossibleRegion().GetSize()[ImageDimension - 1];
+  typename ImageType::RegionType extractRegion = image1->GetLargestPossibleRegion();
+  extractRegion.SetSize(ImageDimension - 1, 0);
+  if ( firstiscontrol )  extractRegion.SetIndex(ImageDimension - 1, 0 );
+  else   extractRegion.SetIndex(ImageDimension - 1, 1 );
+
+  typename ExtractFilterType::Pointer extractFilter = ExtractFilterType::New();
+  extractFilter->SetInput( image1 );
+  //  extractFilter->SetDirectionCollapseToIdentity();
+  extractFilter->SetDirectionCollapseToSubmatrix();
+  extractFilter->SetExtractionRegion( extractRegion );
+  extractFilter->Update();
+  M0image = extractFilter->GetOutput();
+
+  outimage  = OutImageType::New();
+  outimage->CopyInformation( M0image );
+  outimage->SetRegions( M0image->GetLargestPossibleRegion() );
+  outimage->Allocate();
+  outimage->FillBuffer( 0 ); 
+  RealType M0W = 1300; // FIXME 
+  RealType TE = 4000; 
+  RealType calculatedM0 = 1.06 * M0W *  exp( 1 / 40.0 - 1 / 80.0) * TE; 
+  calculatedM0 = 2800; // from "Impact of equilibrium magnetization of blood on ASL quantification" by YChen et al
+
+  bool haveM0 = true;
+  if( m0fn.length() > 3 )
+    {
+    ReadImage<OutImageType>( M0image, m0fn.c_str() );
+    }
+  else
+    {
+    haveM0 = false;
+    antscout << "Warning: using calculated value as reference M0 value --- see see 'Impact of equilibrium magnetization of blood on ASL quantification' " << std::endl;
+    M0image->FillBuffer( calculatedM0 );
+    }
+
+  typedef itk::ImageRegionIteratorWithIndex<OutImageType> labIterator;
+  labIterator   vfIter2( outimage,  outimage->GetLargestPossibleRegion() );
+
+  timeVectorType sample( timedims, 0 );
+  timeVectorType cbf( timedims, 0 );
+  for(  vfIter2.GoToBegin(); !vfIter2.IsAtEnd(); ++vfIter2 )
+    {
+    OutIndexType ind = vfIter2.GetIndex();
+    IndexType tind;
+    for( unsigned int i = 0; i < ImageDimension - 1; i++ )
+      {
+      tind[i] = ind[i];
+      }
+    RealType total = 0;
+    unsigned long cbfct = 0;
+    RealType M_0   = M0image->GetPixel( ind ); // FIXME can be taken from an input reference image or defined for each tissue 
+    bool getCBF = true;
+    if ( haveM0 && M_0 == 0 ) getCBF = false; else if ( haveM0 ) M_0 = calculatedM0;
+    if ( getCBF ) 
+    for( unsigned int t = 0; t < timedims; t++ )
+      {
+      tind[ImageDimension - 1] = t;
+      RealType pix = image1->GetPixel(tind);
+      sample( t ) = pix;
+      if ( ( t % 2 ) == 1 ) 
+	{
+	// see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3049525/?tool=pubmed  Quantitative CBF section
+	/** 
+Quantitative CBF
+
+Cerebral blood flow in mL per 100g per minute was calculated pixel-by-pixel using equation (1), where the PLD was taken to be longer than ATT, reducing to (Wang et al, 2002),
+CBF =  \frac{      \lambda DeltaM     }  {     2 \alpha M_0 T_1a [ exp( - w / T_1a ) - exp( - ( tau + w ) / T_1a )  ] }
+w of 0.7seconds was determined based on the results of experiment (1) for optimal contrast of the GM. Cerebral blood flow was calculated for a single PLD. Quantitative CBF for the whole brain, GM, and WM were tabulated. The bottom slice was excluded from this analysis because it covered only a small part of the cerebrum.
+	 */
+	// f =  \frac{      \lambda DeltaM     }  {     2 \alpha M_0 T_1a [ exp( - w / T_1a ) - exp( - ( tau + w ) / T_1a )  ] }
+	RealType lambda = 0.9; //  grams / mL
+	RealType deltaM = sample( t ) - sample( t - 1 );  //  control - tagged if  control is odd 
+	RealType alpha = 0.85; // labeling efficiency 
+	// or Tagging efficiency: Magic parameter. Reference values: pCASL 0.85, CASL at 3T 0.68, PASL 0.95.
+	bool is1pt5T = false;
+        RealType T_1a = 1650; // 3T  from ASL_whyNhow.pdf
+        if ( is1pt5T ) T_1a = 1390; // 1.5T
+        RealType T_1t = 1300; // 3T
+        if ( is1pt5T ) T_1t = 900; // 1.5T
+	// from "Impact of equilibrium magnetization of blood on ASL quantification" 
+	RealType tau  = 2100; // FIXME milliseconds from PMC3049525
+	RealType w    = 700; // FIXME milliseconds from PMC3049525 
+	// Label width: Not in dicom, but sequence-specific -- magic parameter. Reference values: pCASL 1.5, CASL 1.6, PASL 0.7.
+	RealType scaling = 4 * alpha * M_0 * T_1t * ( exp ( -1.0 * ( tau + w ) / T_1a ) - exp( -1.0 * w / T_1t )  ); // from PMC3049525
+	cbf( t ) = lambda * deltaM * ( -1.0 )  / scaling;
+	total += cbf( t );
+	cbfct++;
+	}
+      }
+    RealType mean = total / (RealType) cbfct;
+    vfIter2.Set( mean );
+    }
+    
+	// see "Impact of equilibrium magnetization of blood on ASL quantification" 
+	  /*
+	RealType M0W = 1300; // FIXME 
+	RealType TE = 4000; 
+	M_0 = 1.06 * M0W *  exp( 1 / 40.0 - 1 / 80.0) * TE; 
+The term, M_{0B} is calculated as follows (Wong1998),
+      M0b = A * M_{0WM} * exp(1/T2_{WM}^* - 1/T2_B^*) * TE
+      where:
+      A is the proton density ratio between blood and white matter (assumed to be 1.06)
+      T2^* (GRE echo-planar imaging)
+        T2_{WM} is 55 msec  (1.5T), 40 (3.0T), and 30 (4.0T)
+        T2_B    is 100 msec (1.5T), 80 (3.0T), and 60 (4.0T)
+      M_{0WM} is the mean value in an homogenous white matter region from a image acquired with short TE long TR.
+	  */
+
+
+  WriteImage<OutImageType>(outimage, outname.c_str() );
+
+  return 0;
+}
+
+
+
 template <unsigned int ImageDimension>
 int CompCorrAuto(int argc, char *argv[])
 {
@@ -3488,9 +3768,7 @@ int ImageMath(int argc, char *argv[])
     typename ResampleFilterType::Pointer resample = ResampleFilterType::New();
     resample->SetTransform( m_Transform0 );
     resample->SetInput( image2 );
-    resample->SetSize( image1->GetLargestPossibleRegion().GetSize() );
-    resample->SetOutputOrigin(  image1->GetOrigin() );
-    resample->SetOutputSpacing( image1->GetSpacing() );
+    resample->SetOutputParametersFromImage(  image1 );
     typename ImageType::IndexType zeroind;  zeroind.Fill(0);
     resample->SetDefaultPixelValue( image1->GetPixel(zeroind) );
     resample->UpdateLargestPossibleRegion();
@@ -4281,9 +4559,7 @@ int CompareHeadersAndImages(int argc, char *argv[])
       typename ResampleFilterType::Pointer resample = ResampleFilterType::New();
       resample->SetTransform( m_Transform0 );
       resample->SetInput( image2 );
-      resample->SetSize( image1->GetLargestPossibleRegion().GetSize() );
-      resample->SetOutputOrigin(  image1->GetOrigin() );
-      resample->SetOutputSpacing( image1->GetSpacing() );
+      resample->SetOutputParametersFromImage(  image1 );
       typename ImageType::IndexType zeroind;  zeroind.Fill(0);
       resample->SetDefaultPixelValue( image1->GetPixel(zeroind) );
       resample->UpdateLargestPossibleRegion();
@@ -4498,202 +4774,6 @@ int CompareHeadersAndImages(int argc, char *argv[])
 //
 // }
 
-template <class TImage>
-typename TImage::Pointer  Morphological( typename TImage::Pointer input, float rad, unsigned int option,
-                                         float dilateval)
-{
-
-  typedef TImage ImageType;
-  enum { ImageDimension = TImage::ImageDimension };
-  typedef typename TImage::PixelType PixelType;
-
-  if( option == 0 )
-    {
-    antscout << " binary eroding the image " << std::endl;
-    }
-  else if( option == 1 )
-    {
-    antscout << " binary dilating the image " << std::endl;
-    }
-  else if( option == 2 )
-    {
-    antscout << " binary opening the image " << std::endl;
-    }
-  else if( option == 3 )
-    {
-    antscout << " binary closing the image " << std::endl;
-    }
-  else if( option == 4 )
-    {
-    antscout << " grayscale eroding the image " << std::endl;
-    }
-  else if( option == 5 )
-    {
-    antscout << " grayscale dilating the image " << std::endl;
-    }
-  else if( option == 6 )
-    {
-    antscout << " grayscale opening the image " << std::endl;
-    }
-  else if( option == 7 )
-    {
-    antscout << " grayscale closing the image " << std::endl;
-    }
-
-  typedef itk::BinaryBallStructuringElement<
-    PixelType,
-    ImageDimension>             StructuringElementType;
-
-  // Software Guide : BeginCodeSnippet
-  typedef itk::BinaryErodeImageFilter<
-    TImage,
-    TImage,
-    StructuringElementType>  ErodeFilterType;
-
-  typedef itk::BinaryDilateImageFilter<
-    TImage,
-    TImage,
-    StructuringElementType>  DilateFilterType;
-
-  // typedef itk::BinaryMorphologicalOpeningImageFilter<
-  //                          TImage,
-  //                          TImage,
-  //                          StructuringElementType >  OpeningFilterType;
-
-  // typedef itk::BinaryMorphologicalClosingImageFilter<
-  //                          TImage,
-  //                          TImage,
-  //                          StructuringElementType >  ClosingFilterType;
-
-  typedef itk::GrayscaleErodeImageFilter<
-    TImage,
-    TImage,
-    StructuringElementType> GrayscaleErodeFilterType;
-
-  typedef itk::GrayscaleDilateImageFilter<
-    TImage,
-    TImage,
-    StructuringElementType> GrayscaleDilateFilterType;
-
-  typename ErodeFilterType::Pointer  binaryErode  = ErodeFilterType::New();
-  typename DilateFilterType::Pointer binaryDilate = DilateFilterType::New();
-  // typename OpeningFilterType::Pointer  binaryOpen  = OpeningFilterType::New();
-  // typename ClosingFilterType::Pointer binaryClose = ClosingFilterType::New();
-  typename GrayscaleErodeFilterType::Pointer grayscaleErode = GrayscaleErodeFilterType::New();
-  typename GrayscaleDilateFilterType::Pointer grayscaleDilate = GrayscaleDilateFilterType::New();
-
-  StructuringElementType structuringElement;
-
-  structuringElement.SetRadius( (unsigned long) rad );  // 3x3x3 structuring element
-
-  structuringElement.CreateStructuringElement();
-
-  binaryErode->SetKernel(  structuringElement );
-  binaryDilate->SetKernel( structuringElement );
-  // binaryOpen->SetKernal( structuringElement );
-  // binaryClose->SetKernel( structuringElement );
-  grayscaleErode->SetKernel( structuringElement );
-  grayscaleDilate->SetKernel( structuringElement );
-
-  //  It is necessary to define what could be considered objects on the binary
-  //  images. This is specified with the methods \code{SetErodeValue()} and
-  //  \code{SetDilateValue()}. The value passed to these methods will be
-  //  considered the value over which the dilation and erosion rules will apply
-  binaryErode->SetErodeValue( (unsigned int ) dilateval );
-  binaryDilate->SetDilateValue(  (unsigned int ) dilateval );
-
-  typename TImage::Pointer temp;
-  if( option == 1 )
-    {
-    antscout << " Dilate " << rad << std::endl;
-    binaryDilate->SetInput( input );
-    binaryDilate->Update();
-    temp = binaryDilate->GetOutput();
-    }
-  else if( option == 0 )
-    {
-    antscout << " Erode " << rad << std::endl;
-    binaryErode->SetInput( input );  // binaryDilate->GetOutput() );
-    binaryErode->Update();
-    temp = binaryErode->GetOutput();
-    }
-  else if( option == 2 )
-    {
-    // dilate(erode(img))
-    antscout << " Binary Open " << rad << std::endl;
-    // binaryOpen->SetInput( input );//binaryDilate->GetOutput() );
-    // binaryOpen->Update();
-    binaryErode->SetInput( input );
-    binaryDilate->SetInput( binaryErode->GetOutput() );
-    binaryDilate->Update();
-    temp = binaryDilate->GetOutput();
-    }
-  else if( option == 3 )
-    {
-    antscout << " Binary Close " << rad << std::endl;
-    // binaryClose->SetInput( input );//binaryDilate->GetOutput() );
-    // binaryClose->Update();
-    binaryDilate->SetInput( input );
-    binaryErode->SetInput( binaryDilate->GetOutput() );
-    binaryErode->Update();
-    temp = binaryErode->GetOutput();
-    }
-  else if( option == 4 )
-    {
-    antscout << " Grayscale Erode " << rad << std::endl;
-    grayscaleErode->SetInput( input ); // binaryDilate->GetOutput() );
-    grayscaleErode->Update();
-    temp = binaryErode->GetOutput();
-    }
-  else if( option == 5 )
-    {
-    antscout << " Grayscale Dilate " << rad << std::endl;
-    grayscaleDilate->SetInput( input ); // binaryDilate->GetOutput() );
-    grayscaleDilate->Update();
-    temp = binaryDilate->GetOutput();
-    }
-  else if( option == 6 )
-    {
-    antscout << " Grayscale Open " << rad << std::endl;
-    grayscaleErode->SetInput( input ); // binaryDilate->GetOutput() );
-    grayscaleErode->Update();
-    grayscaleDilate->SetInput( grayscaleErode->GetOutput() );
-    grayscaleDilate->Update();
-    temp = grayscaleDilate->GetOutput();
-    }
-  else if( option == 7 )
-    {
-    antscout << " Grayscale Close " << rad << std::endl;
-    grayscaleDilate->SetInput( input ); // binaryDilate->GetOutput() );
-    grayscaleDilate->Update();
-    grayscaleErode->SetInput( grayscaleDilate->GetOutput() );
-    grayscaleErode->Update();
-    temp = grayscaleErode->GetOutput();
-    }
-
-  if( option == 0 )
-    {
-    // FIXME - replace with threshold filter?
-    typedef itk::ImageRegionIteratorWithIndex<ImageType> ImageIteratorType;
-    ImageIteratorType o_iter( temp, temp->GetLargestPossibleRegion() );
-    o_iter.GoToBegin();
-    while( !o_iter.IsAtEnd() )
-      {
-      if( o_iter.Get() > 0.5 && input->GetPixel(o_iter.GetIndex() ) > 0.5 )
-        {
-        o_iter.Set(1);
-        }
-      else
-        {
-        o_iter.Set(0);
-        }
-      ++o_iter;
-      }
-    }
-
-  return temp;
-
-}
 
 // template<class TImage>
 // typename TImage::Pointer
@@ -5873,7 +5953,7 @@ int MorphImage(int argc, char *argv[])
     dilateval = atof(argv[argct + 1]);
     }
 
-  image1 = Morphological<ImageType>(image1, sigma, morphopt, dilateval);
+  image1 = ants::Morphological<ImageType>(image1, sigma, morphopt, dilateval);
 
   if( outname[0] == '0' && outname[1] == 'x' )
     {
@@ -9611,6 +9691,18 @@ int ImageMath( std::vector<std::string> args , std::ostream* out_stream = NULL )
     << std::endl;
     antscout << "    Usage        : ComputeTimeSeriesLeverage 4D_TimeSeries.nii.gz k_neighbors " << std::endl;
 
+    antscout
+    <<
+      " PASL : computes the PASL model of CBF  "     << std::endl <<  "f =  \frac{      lambda DeltaM        } " << std::endl <<
+      " {     2 \alpha M_0 TI_1 exp( - TI_2 / T_{1a} )  } " << std::endl;
+    antscout << "    Usage        : PASL 3D/4D_TimeSeries.nii.gz BoolFirstImageIsControl M0Image parameter_list.txt " << std::endl;
+
+    antscout
+    <<
+      " pCASL : computes the pCASL model of CBF  "     << std::endl << " f =  \frac{      lambda DeltaM R_{1a}        }  " << std::endl << 
+            "  {     2 \alpha M_0 [ exp( - w R_{1a} ) - exp( -w ( \tau + w ) R_{1a}) ]     } " << std::endl;
+    antscout << "    Usage        : pCASL 3D/4D_TimeSeries.nii.gz parameter_list.txt " << std::endl;
+
     antscout << "\nTensor Operations:" << std::endl;
     antscout << "  4DTensorTo3DTensor    : Outputs a 3D_DT_Image with the same information. " << std::endl;
     antscout << "    Usage        : 4DTensorTo3DTensor 4D_DTImage.ext" << std::endl;
@@ -10415,6 +10507,14 @@ int ImageMath( std::vector<std::string> args , std::ostream* out_stream = NULL )
         {
         ConvertLandmarkFile<3>(argc, argv);
         }
+      else if( strcmp(operation.c_str(), "PASL") == 0 )
+        {
+        PASL<3>(argc, argv);
+        }
+      else if( strcmp(operation.c_str(), "pCASL") == 0 )
+        {
+        pCASL<3>(argc, argv);
+        }
       else
         {
         antscout << " cannot find operation : " << operation << std::endl;
@@ -10691,6 +10791,14 @@ int ImageMath( std::vector<std::string> args , std::ostream* out_stream = NULL )
       else if( strcmp(operation.c_str(), "ComputeTimeSeriesLeverage") == 0 )
         {
         ComputeTimeSeriesLeverage<4>(argc, argv);
+        }
+      else if( strcmp(operation.c_str(), "PASL") == 0 )
+        {
+        PASL<4>(argc, argv);
+        }
+      else if( strcmp(operation.c_str(), "pCASL") == 0 )
+        {
+        pCASL<4>(argc, argv);
         }
       else
         {

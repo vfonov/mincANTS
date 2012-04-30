@@ -11,7 +11,6 @@
 #include "itkAffineTransform.h"
 #include "itkANTSAffine3DTransform.h"
 #include "itkANTSCenteredAffine2DTransform.h"
-#include "itkCompositeTransform.h"
 #include "itkIdentityTransform.h"
 #include "itkEuler2DTransform.h"
 #include "itkEuler3DTransform.h"
@@ -23,7 +22,6 @@
 #include "itkTranslationTransform.h"
 #include "itkMatrixOffsetTransformBase.h"
 #include "itkTransform.h"
-#include "itkDisplacementFieldTransform.h"
 #include "itkTransformFactory.h"
 #include "itkImageRegistrationMethodv4.h"
 #include "itkImageToHistogramFilter.h"
@@ -32,7 +30,6 @@
 #include "itkMattesMutualInformationImageToImageMetricv4.h"
 #include "itkBSplineTransform.h"
 #include "itkBSplineSmoothingOnUpdateDisplacementFieldTransform.h"
-#include "itkDisplacementFieldTransform.h"
 #include "itkGaussianSmoothingOnUpdateDisplacementFieldTransform.h"
 #include "itkTimeVaryingVelocityFieldImageRegistrationMethodv4.h"
 #include "itkTimeVaryingBSplineVelocityFieldImageRegistrationMethod.h"
@@ -76,15 +73,25 @@ public:
 
   void Execute(const itk::Object * object, const itk::EventObject & event)
   {
-    TFilter * filter = const_cast<TFilter *>( dynamic_cast<const TFilter *>( object ) );
+  TFilter * filter = const_cast<TFilter *>( dynamic_cast<const TFilter *>( object ) );
 
+  if( filter->GetCurrentIteration() > 0 )
+    {
+    this->Logger() << "      Iteration " << filter->GetCurrentIteration() << ": "
+                   << "metric value = " << filter->GetCurrentMetricValue() << ", "
+                   << "convergence value = " << filter->GetCurrentConvergenceValue() << std::endl;
+    }
+
+  if( filter->GetCurrentIteration() == 0 ||
+      filter->GetCurrentIteration() == this->m_NumberOfIterations[filter->GetCurrentLevel()] ||
+      filter->GetIsConverged() )
+    {
     unsigned int currentLevel = 0;
-
     if( typeid( event ) == typeid( itk::IterationEvent ) )
       {
       currentLevel = filter->GetCurrentLevel() + 1;
       }
-    if( currentLevel < this->m_NumberOfIterations.size() )
+    if( currentLevel < this->m_NumberOfIterations.size() || filter->GetIsConverged() )
       {
       typename TFilter::ShrinkFactorsArrayType shrinkFactors = filter->GetShrinkFactorsPerLevel();
       typename TFilter::SmoothingSigmasArrayType smoothingSigmas = filter->GetSmoothingSigmasPerLevel();
@@ -99,24 +106,87 @@ public:
                      << std::endl;
 
       typedef itk::GradientDescentOptimizerv4 GradientDescentOptimizerType;
-      GradientDescentOptimizerType * optimizer = reinterpret_cast<GradientDescentOptimizerType *>(
+      GradientDescentOptimizerType * optimizer2 = reinterpret_cast<GradientDescentOptimizerType *>(
           const_cast<typename TFilter::OptimizerType *>( filter->GetOptimizer() ) );
-      optimizer->SetNumberOfIterations( this->m_NumberOfIterations[currentLevel] );
+      optimizer2->SetNumberOfIterations( this->m_NumberOfIterations[currentLevel] );
       }
+    }
   }
 
   void SetNumberOfIterations( const std::vector<unsigned int> & iterations )
-  {
+    {
     this->m_NumberOfIterations = iterations;
+    }
+
+  void SetLogStream(std::ostream &logStream)
+    {
+      this->m_LogStream = &logStream;
+    }
+
+private:
+  std::ostream &Logger() const { return *m_LogStream; }
+  std::vector<unsigned int> m_NumberOfIterations;
+  std::ostream             *m_LogStream;
+};
+
+/** \class antsRegistrationOptimizerCommandIterationUpdate
+ *  \brief observe the optimizer for traditional registration methods
+ */
+template <class TOptimizer>
+class antsRegistrationOptimizerCommandIterationUpdate : public itk::Command
+{
+public:
+  typedef antsRegistrationOptimizerCommandIterationUpdate  Self;
+  typedef itk::Command            Superclass;
+  typedef itk::SmartPointer<Self> Pointer;
+  itkNewMacro( Self );
+protected:
+  antsRegistrationOptimizerCommandIterationUpdate()
+  {
+    this->m_LogStream = &::ants::antscout;
+  }
+public:
+
+  void Execute(itk::Object *caller, const itk::EventObject & event)
+  {
+    Execute( (const itk::Object *) caller, event);
+  }
+
+  void Execute(const itk::Object * , const itk::EventObject & event)
+  {
+  if( typeid( event ) == typeid( itk::IterationEvent ) )
+    {
+    this->Logger() << "      Iteration " << this->m_Optimizer->GetCurrentIteration() + 1 << ": "
+                   << "metric value = " << this->m_Optimizer->GetValue() << ", "
+                   << "convergence value = " << this->m_Optimizer->GetConvergenceValue() << std::endl;
+    }
   }
 
   void SetLogStream(std::ostream &logStream)
     {
       this->m_LogStream = &logStream;
     }
+  /**
+   * Type defining the optimizer
+   */
+  typedef    TOptimizer     OptimizerType;
+
+  /**
+   * Set Optimizer
+   */
+  void SetOptimizer( OptimizerType * optimizer )
+    {
+    this->m_Optimizer = optimizer;
+    this->m_Optimizer->AddObserver( itk::IterationEvent(), this );
+    }
+
 private:
+  /**
+   *  WeakPointer to the Optimizer
+   */
+  WeakPointer<OptimizerType>   m_Optimizer;
+
   std::ostream &Logger() const { return *m_LogStream; }
-  std::vector<unsigned int> m_NumberOfIterations;
   std::ostream             *m_LogStream;
 };
 
@@ -198,8 +268,6 @@ RegistrationHelper<VImageDimension>
 ::RegistrationHelper() :
   m_CompositeTransform(NULL),
   m_FixedInitialTransform(NULL),
-  m_WarpedImage(NULL),
-  m_InverseWarpedImage(NULL),
   m_NumberOfStages(0),
   m_Metrics(),
   m_TransformMethods(),
@@ -662,9 +730,9 @@ RegistrationHelper<VImageDimension>
 }
 
 template <unsigned VImageDimension>
-typename RegistrationHelper<VImageDimension>::ImageType *
+typename RegistrationHelper<VImageDimension>::ImageType::Pointer
 RegistrationHelper<VImageDimension>
-::GetWarpedImage()
+::GetWarpedImage() const
 {
   typename ImageType::Pointer fixedImage = this->m_Metrics[0].m_FixedImage;
   typename ImageType::Pointer movingImage = this->m_Metrics[0].m_MovingImage;
@@ -673,21 +741,19 @@ RegistrationHelper<VImageDimension>
   typename ResampleFilterType::Pointer resampler = ResampleFilterType::New();
   resampler->SetTransform( this->m_CompositeTransform );
   resampler->SetInput( movingImage );
-  resampler->SetSize( fixedImage->GetLargestPossibleRegion().GetSize() );
-  resampler->SetOutputOrigin(  fixedImage->GetOrigin() );
-  resampler->SetOutputSpacing( fixedImage->GetSpacing() );
-  resampler->SetOutputDirection( fixedImage->GetDirection() );
+  resampler->SetOutputParametersFromImage( fixedImage );
   resampler->SetDefaultPixelValue( 0 );
   resampler->Update();
 
-  this->m_WarpedImage = resampler->GetOutput();
-  return this->m_WarpedImage.GetPointer();
+  typename ImageType::Pointer  WarpedImage;
+  WarpedImage = resampler->GetOutput();
+  return WarpedImage.GetPointer();
 }
 
 template <unsigned VImageDimension>
-typename RegistrationHelper<VImageDimension>::ImageType *
+typename RegistrationHelper<VImageDimension>::ImageType::Pointer
 RegistrationHelper<VImageDimension>
-::GetInverseWarpedImage()
+::GetInverseWarpedImage() const
 {
   typename ImageType::Pointer fixedImage = this->m_Metrics[0].m_FixedImage;
   typename ImageType::Pointer movingImage = this->m_Metrics[0].m_MovingImage;
@@ -700,15 +766,13 @@ RegistrationHelper<VImageDimension>
   typename ResampleFilterType::Pointer inverseResampler = ResampleFilterType::New();
   inverseResampler->SetTransform( this->m_CompositeTransform->GetInverseTransform() );
   inverseResampler->SetInput( fixedImage );
-  inverseResampler->SetSize( movingImage->GetBufferedRegion().GetSize() );
-  inverseResampler->SetOutputOrigin( movingImage->GetOrigin() );
-  inverseResampler->SetOutputSpacing( movingImage->GetSpacing() );
-  inverseResampler->SetOutputDirection( movingImage->GetDirection() );
+  inverseResampler->SetOutputParametersFromImage( movingImage );
   inverseResampler->SetDefaultPixelValue( 0 );
   inverseResampler->Update();
 
-  this->m_InverseWarpedImage = inverseResampler->GetOutput();
-  return this->m_InverseWarpedImage.GetPointer();
+  typename ImageType::Pointer InverseWarpedImage;
+  InverseWarpedImage = inverseResampler->GetOutput();
+  return InverseWarpedImage.GetPointer();
 }
 
 template <unsigned VImageDimension>
@@ -1000,7 +1064,7 @@ RegistrationHelper<VImageDimension>
         ::ants::antscout << "ERROR: Unrecognized image metric: " << std::endl;
       }
     /** Can really impact performance */
-    bool gaussian = false;
+    bool gaussian = true;
     metric->SetUseMovingImageGradientFilter( gaussian );
     metric->SetUseFixedImageGradientFilter( gaussian );
     if( this->m_FixedImageMask.IsNotNull() )
@@ -1029,7 +1093,13 @@ RegistrationHelper<VImageDimension>
     optimizer->SetScalesEstimator( scalesEstimator );
     optimizer->SetMinimumConvergenceValue( convergenceThreshold );
     optimizer->SetConvergenceWindowSize( convergenceWindowSize );
-    optimizer->SetDoEstimateLearningRateOnce(true);
+    optimizer->SetDoEstimateLearningRateOnce( this->m_DoEstimateLearningRateOnce );
+
+    typedef antsRegistrationOptimizerCommandIterationUpdate<GradientDescentOptimizerType> OptimizerCommandType;
+    typename OptimizerCommandType::Pointer optimizerObserver = OptimizerCommandType::New();
+    optimizerObserver->SetLogStream( *this->m_LogStream );
+    optimizerObserver->SetOptimizer( optimizer );
+
     // Set up the image registration methods along with the transforms
     XfrmMethod whichTransform = this->m_TransformMethods[currentStage].m_XfrmMethod;
 

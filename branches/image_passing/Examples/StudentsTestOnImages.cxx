@@ -1,5 +1,5 @@
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
 #include <algorithm>
@@ -9,12 +9,11 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
-#include <cmath>
 #include <math.h>
 #include <float.h>
 #include <assert.h>
 #include "ReadWriteImage.h"
-// #include "itkSampleFalseDiscoveryRateCorrectionFilter.h"
+
 
 #include <vnl/algo/vnl_symmetric_eigensystem.h>
 

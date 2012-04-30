@@ -1,10 +1,9 @@
 
-#include "antscout.hxx"
+#include "antsUtilities.h"
 #include <algorithm>
 
 #include "antsCommandLineParser.h"
 
-#include "itkBinaryThresholdImageFilter.h"
 #include "itkDiReCTImageFilter.h"
 #include "itkDiReCTImageFilter926.h"
 #include "itkDiReCTImageFilter949.h"
@@ -67,14 +66,6 @@ public:
   }
 
 };
-
-void ConvertToLowerCase( std::string& str )
-{
-  std::transform( str.begin(), str.end(), str.begin(), tolower );
-// You may need to cast the above line to (int(*)(int))
-// tolower - this works as is on VC 7.1 but may not work on
-// other compilers
-}
 
 template <unsigned int ImageDimension>
 int DiReCT( itk::ants::CommandLineParser *parser )

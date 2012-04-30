@@ -1,104 +1,24 @@
 // compute the average of a list of affine transform
 
-
-#include "antscout.hxx"
-#include <algorithm>
-#include <algorithm>
-#include <vector>
-#include <string>
+#include "antsUtilities.h"
 #include "itkImageFileReader.h"
-#include "itkVector.h"
-// #include "itkVectorImageFileReader.h"
-// #include "itkVectorImageFileWriter.h"
+
+
 #include "itkImageFileWriter.h"
 #include "itkMatrixOffsetTransformBase.h"
 #include "itkTransformFactory.h"
-// #include "itkWarpImageMultiTransformFilter.h"
-// #include "itkDisplacementFieldFromMultiTransformFilter.h"
+
+
 
 #include "itkAverageAffineTransformFunction.h"
 
 #include "itkTransformFileReader.h"
 #include "itkTransformFileWriter.h"
-#include <stdlib.h>
-#include <string>
-#include <errno.h>
 
 namespace ants
 {
 
-
-typedef enum
-  {
-  INVALID_FILE = 1, AFFINE_FILE, DEFORMATION_FILE
-  } TRAN_FILE_TYPE;
-typedef struct
-  {
-  char * filename;
-  TRAN_FILE_TYPE file_type;
-  bool do_affine_inv;
-
-  double weight;   // for average
-
-  } TRAN_OPT;
-
-typedef std::vector<TRAN_OPT> TRAN_OPT_QUEUE;
-
-TRAN_FILE_TYPE CheckFileType(char *str)
-{
-
-  std::string            filename = str;
-  std::string::size_type pos = filename.rfind(".");
-  std::string            filepre = std::string(filename, 0, pos);
-
-  if( pos != std::string::npos )
-    {
-    std::string extension = std::string(filename, pos,
-                                        filename.length() - 1);
-    if( extension == std::string(".gz") )
-      {
-      pos = filepre.rfind(".");
-      extension = std::string(filepre, pos, filepre.length() - 1);
-      }
-    if( extension == ".txt" || extension == ".mat" || extension == ".hdf5" || extension == ".hdf" )
-      {
-      return AFFINE_FILE;
-      }
-    else
-      {
-      return DEFORMATION_FILE;
-      }
-    }
-  else
-    {
-    return INVALID_FILE;
-    }
-  return AFFINE_FILE;
-}
-
-// adapted from http://stackoverflow.com/questions/194465/how-to-parse-a-string-to-an-int-in-c
-bool get_a_double_number(const char *str, double & v)
-{
-  char *end;
-
-  errno = 0;
-  v = strtod(str, &end);
-  if( (errno == ERANGE && v == HUGE_VAL) )
-    {
-    return false;     // OVERFLOW
-    }
-  if( (errno == ERANGE && v == 0.0) )
-    {
-    return false;     // UNDERFLOW
-    }
-  if( *str == '\0' || *end != '\0' )
-    {
-    return false;     // INCONVERTIBLE;
-    }
-  return true;
-}
-
-bool ParseInput(int argc, char * *argv, char *& output_transform_filename,
+static bool AverageAffineTransform_ParseInput(int argc, char * *argv, char *& output_transform_filename,
                 char *& reference_transform_filename, TRAN_OPT_QUEUE & opt_queue)
 {
 
@@ -188,35 +108,6 @@ bool ParseInput(int argc, char * *argv, char *& output_transform_filename,
 //    }
 
   return true;
-}
-
-void DisplayOptQueue(const TRAN_OPT_QUEUE & opt_queue)
-{
-  const int kQueueSize = opt_queue.size();
-  for( int i = 0; i < kQueueSize; i++ )
-    {
-    antscout << "[" << i << "/" << kQueueSize << "]: ";
-
-    switch( opt_queue[i].file_type )
-      {
-      case AFFINE_FILE:
-        antscout << "AFFINE";
-        if( opt_queue[i].do_affine_inv )
-          {
-          antscout << "-INV";
-          }
-        antscout << " (" << opt_queue[i].weight << ") ";
-        break;
-//        case DEFORMATION_FILE:
-//            antscout << "FIELD";
-//            break;
-      default:
-        antscout << "Invalid Format!!!";
-        break;
-      }
-    antscout << ": " << opt_queue[i].filename << std::endl;
-    }
-
 }
 
 template <int ImageDimension>
@@ -421,7 +312,7 @@ int AverageAffineTransform( std::vector<std::string> args , std::ostream* out_st
   bool is_parsing_ok = false;
   int  kImageDim = atoi(argv[1]);
 
-  is_parsing_ok = ParseInput(argc - 2, argv + 2, output_transform_filename,
+  is_parsing_ok = AverageAffineTransform_ParseInput(argc - 2, argv + 2, output_transform_filename,
                              reference_transform_filename, opt_queue);
 
   if( is_parsing_ok )
