@@ -146,7 +146,7 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
       typename PointSetType::PointType movingPoint;
       movingImage->TransformIndexToPhysicalPoint( ItM.GetIndex(), movingPoint );
       //added below due to a compilation error on windows
-      const LabelImageType::PointType::VectorType tmpFixVector = fixedOrigin.GetVectorFromOrigin();
+      const typename LabelImageType::PointType::VectorType tmpFixVector = fixedOrigin.GetVectorFromOrigin();
       movingPoint -= tmpFixVector;
       movingPoint = fixedDirectionInverse * movingPoint;
       movingPoints->SetPointData( movingCount, ItM.Get() );
@@ -289,7 +289,6 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
     ++mItD;
     ++mIt;
     }
-
   bool enforceStationaryBoundary = true;
   if( argc > 7 )
     {
@@ -373,7 +372,7 @@ int LandmarkBasedDisplacementFieldTransformInitializer( int argc, char *argv[] )
   bspliner->SetInput( fieldPoints );
   bspliner->SetPointWeights( weights );
   bspliner->Update();
-
+    
   typedef itk::VectorLinearInterpolateImageFunction<DisplacementFieldType, RealType> InterpolatorType;
   typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
   interpolator->SetInputImage( bspliner->GetOutput() );
