@@ -17,21 +17,12 @@
 *=========================================================================*/
 
 #include "antsUtilities.h"
-#include <algorithm>
-
-#include <iostream>
-#include "antsCommandLineParser.h"
 #include "itkantsRegistrationHelper.h"
-#include "itkantsReadWriteTransform.h"
-#include "itkImageFileWriter.h"
-#include <algorithm>
 
 namespace ants
 {
 
 
-typedef itk::ants::CommandLineParser ParserType;
-typedef ParserType::OptionType       OptionType;
 
 void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
 {
@@ -352,56 +343,12 @@ RegTypeToFileName(const std::string &type,bool &writeInverse, bool &writeVelocit
   return "BOGUS.XXXX";
 }
 
-namespace
-{
-bool MatOffRegistered(false);
-}
-
-template <unsigned VImageDimension>
-int
-AddInitialTransform(typename itk::ants::RegistrationHelper<VImageDimension>::CompositeTransformType::Pointer & compositeTransform,
-                    const std::string &filename,
-                    bool useInverse)
-{
-  typedef itk::ants::RegistrationHelper<VImageDimension>                  RegistrationHelperType;
-  typedef typename RegistrationHelperType::DisplacementFieldTransformType DisplacementFieldTransformType;
-
-  if(!MatOffRegistered)
-    {
-    MatOffRegistered = true;
-    // Register the matrix offset transform base class to the
-    // transform factory for compatibility with the current ANTs.
-    typedef itk::MatrixOffsetTransformBase<double, VImageDimension,
-                                           VImageDimension> MatrixOffsetTransformType;
-    itk::TransformFactory<MatrixOffsetTransformType>::RegisterTransform();
-    }
-
-  typedef typename RegistrationHelperType::TransformType TransformType;
-  typename TransformType::Pointer initialTransform = itk::ants::ReadTransform<VImageDimension>(filename);
-  if(initialTransform.IsNull())
-    {
-    return EXIT_FAILURE;
-    }
-  if( useInverse )
-    {
-    initialTransform =
-      dynamic_cast<TransformType *>(initialTransform->GetInverseTransform().GetPointer() );
-    if( initialTransform.IsNull() )
-      {
-      antscout << "Inverse does not exist for " << filename
-                << std::endl;
-      return EXIT_FAILURE;
-      }
-    }
-  compositeTransform->AddTransform( initialTransform );
-  return EXIT_SUCCESS;
-}
 
 template <unsigned VImageDimension>
 int
 DoRegistration(typename ParserType::Pointer & parser)
 {
-  typedef typename itk::ants::RegistrationHelper<VImageDimension> RegistrationHelperType;
+  typedef typename ants::RegistrationHelper<VImageDimension> RegistrationHelperType;
   typedef typename RegistrationHelperType::ImageType         ImageType;
   typedef typename RegistrationHelperType::CompositeTransformType CompositeTransformType;
 
@@ -451,32 +398,10 @@ DoRegistration(typename ParserType::Pointer & parser)
 
   if( initialMovingTransformOption && initialMovingTransformOption->GetNumberOfValues() > 0 )
     {
-    typename CompositeTransformType::Pointer compositeTransform = CompositeTransformType::New();
-
-    for( unsigned int n = 0; n < initialMovingTransformOption->GetNumberOfValues(); n++ )
+    typename CompositeTransformType::Pointer compositeTransform =  GetCompositeTransformFromParserOption<VImageDimension>( parser, initialMovingTransformOption );
+    if ( compositeTransform.IsNull() )
       {
-      std::string initialMovingTransformName;
-
-      bool useInverse(false);
-
-      if( initialMovingTransformOption->GetNumberOfParameters(n) == 0 )
-        {
-        initialMovingTransformName = initialMovingTransformOption->GetValue( n );
-        }
-      else
-        {
-        initialMovingTransformName = initialMovingTransformOption->GetParameter( n, 0 );
-        if( initialMovingTransformOption->GetNumberOfParameters( n ) > 1 )
-          {
-          useInverse = parser->Convert<bool>( initialMovingTransformOption->GetParameter( n, 1  ) );
-          }
-        }
-
-      if( AddInitialTransform<VImageDimension>(compositeTransform,initialMovingTransformName, useInverse) != EXIT_SUCCESS)
-        {
-        antscout << "Can't read initial moving transform " << initialMovingTransformName << std::endl;
-        return EXIT_FAILURE;
-        }
+      return EXIT_FAILURE;
       }
     regHelper->SetMovingInitialTransform(compositeTransform);
     }
@@ -485,32 +410,10 @@ DoRegistration(typename ParserType::Pointer & parser)
 
   if( initialFixedTransformOption && initialFixedTransformOption->GetNumberOfValues() > 0 )
     {
-    typename CompositeTransformType::Pointer compositeTransform = CompositeTransformType::New();
-
-    for( unsigned int n = 0; n < initialFixedTransformOption->GetNumberOfValues(); n++ )
+    typename CompositeTransformType::Pointer compositeTransform = GetCompositeTransformFromParserOption<VImageDimension>( parser, initialFixedTransformOption );
+    if ( compositeTransform.IsNull() )
       {
-      std::string initialFixedTransformName;
-
-      bool useInverse(false);
-
-      if( initialFixedTransformOption->GetNumberOfParameters(n) == 0 )
-        {
-        initialFixedTransformName = initialFixedTransformOption->GetValue( n );
-        }
-      else
-        {
-        initialFixedTransformName = initialFixedTransformOption->GetParameter( n, 0 );
-        if( initialFixedTransformOption->GetNumberOfParameters( n ) > 1 )
-          {
-          useInverse = parser->Convert<bool>( initialFixedTransformOption->GetParameter( n, 1  ) );
-          }
-        }
-
-      if( AddInitialTransform<VImageDimension>(compositeTransform,initialFixedTransformName, useInverse) != EXIT_SUCCESS)
-        {
-        antscout << "Can't read initial fixed transform " << initialFixedTransformName << std::endl;
-        return EXIT_FAILURE;
-        }
+      return EXIT_FAILURE;
       }
     regHelper->SetFixedInitialTransform(compositeTransform);
     }
@@ -1152,8 +1055,10 @@ int antsRegistration( std::vector<std::string> args , std::ostream* out_stream =
     return EXIT_FAILURE;
     }
 
-  switch( dimension )
+  try
     {
+    switch( dimension )
+      {
     case 2:
       return DoRegistration<2>(parser);
     case 3:
@@ -1161,9 +1066,15 @@ int antsRegistration( std::vector<std::string> args , std::ostream* out_stream =
     default:
       antscout << "bad image dimension " << dimension << std::endl;
       return EXIT_FAILURE;
+      }
+    }
+  catch( itk::ExceptionObject & err )
+    {
+    antscout << "Exception Object caught: " << std::endl;
+    antscout << err << std::endl;
+    return EXIT_FAILURE;
     }
   return EXIT_SUCCESS;
 }
-
 
 } // namespace ants

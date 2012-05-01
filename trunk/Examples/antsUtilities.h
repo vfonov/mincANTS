@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <cmath>
+#include <iostream>
 
 #include "itkVector.h"
 #include "itkBinaryThresholdImageFilter.h"
@@ -24,6 +25,7 @@
 #include "itkBinaryErodeImageFilter.h"
 #include "itkGrayscaleDilateImageFilter.h"
 #include "itkGrayscaleErodeImageFilter.h"
+
 
 // We need to ensure that only one of these exists!
 namespace ants

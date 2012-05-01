@@ -1,50 +1,5 @@
 #ifndef __itkantsRegistrationHelper_hxx
 #define __itkantsRegistrationHelper_hxx
-#include <string>
-
-#include "itkantsRegistrationHelper.h"
-#include "itkANTSNeighborhoodCorrelationImageToImageMetricv4.h"
-#include "itkMeanSquaresImageToImageMetricv4.h"
-#include "itkDemonsImageToImageMetricv4.h"
-#include "itkCorrelationImageToImageMetricv4.h"
-
-#include "itkAffineTransform.h"
-#include "itkANTSAffine3DTransform.h"
-#include "itkANTSCenteredAffine2DTransform.h"
-#include "itkIdentityTransform.h"
-#include "itkEuler2DTransform.h"
-#include "itkEuler3DTransform.h"
-#include "itkVersorRigid3DTransform.h"
-#include "itkQuaternionRigidTransform.h"
-#include "itkSimilarity2DTransform.h"
-#include "itkSimilarity3DTransform.h"
-#include "itkMatrixOffsetTransformBase.h"
-#include "itkTranslationTransform.h"
-#include "itkMatrixOffsetTransformBase.h"
-#include "itkTransform.h"
-#include "itkTransformFactory.h"
-#include "itkImageRegistrationMethodv4.h"
-#include "itkImageToHistogramFilter.h"
-#include "itkHistogramMatchingImageFilter.h"
-#include "itkIntensityWindowingImageFilter.h"
-#include "itkMattesMutualInformationImageToImageMetricv4.h"
-#include "itkBSplineTransform.h"
-#include "itkBSplineSmoothingOnUpdateDisplacementFieldTransform.h"
-#include "itkGaussianSmoothingOnUpdateDisplacementFieldTransform.h"
-#include "itkTimeVaryingVelocityFieldImageRegistrationMethodv4.h"
-#include "itkTimeVaryingBSplineVelocityFieldImageRegistrationMethod.h"
-#include "itkSyNImageRegistrationMethod.h"
-#include "itkBSplineSyNImageRegistrationMethod.h"
-#include "itkBSplineTransformParametersAdaptor.h"
-#include "itkBSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor.h"
-#include "itkGaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor.h"
-#include "itkTimeVaryingVelocityFieldTransformParametersAdaptor.h"
-#include "itkTimeVaryingBSplineVelocityFieldTransformParametersAdaptor.h"
-#include "itkTimeProbe.h"
-#include "itkCommand.h"
-
-namespace itk
-{
 namespace ants
 {
 
@@ -184,7 +139,7 @@ private:
   /**
    *  WeakPointer to the Optimizer
    */
-  WeakPointer<OptimizerType>   m_Optimizer;
+  itk::WeakPointer<OptimizerType>   m_Optimizer;
 
   std::ostream &Logger() const { return *m_LogStream; }
   std::ostream             *m_LogStream;
@@ -296,7 +251,7 @@ typename ImageType::Pointer PreprocessImage( ImageType * inputImage,
                                              float winsorizeLowerQuantile, float winsorizeUpperQuantile,
                                              ImageType *histogramMatchSourceImage = NULL )
 {
-  typedef Statistics::ImageToHistogramFilter<ImageType>        HistogramFilterType;
+  typedef itk::Statistics::ImageToHistogramFilter<ImageType>        HistogramFilterType;
   typedef typename HistogramFilterType::InputBooleanObjectType InputBooleanObjectType;
   typedef typename HistogramFilterType::HistogramSizeType      HistogramSizeType;
   typedef typename HistogramFilterType::HistogramType          HistogramType;
@@ -330,7 +285,7 @@ typename ImageType::Pointer PreprocessImage( ImageType * inputImage,
   typename ImageType::Pointer outputImage = NULL;
   if( histogramMatchSourceImage )
     {
-    typedef HistogramMatchingImageFilter<ImageType, ImageType> HistogramMatchingFilterType;
+    typedef itk::HistogramMatchingImageFilter<ImageType, ImageType> HistogramMatchingFilterType;
     typename HistogramMatchingFilterType::Pointer matchingFilter = HistogramMatchingFilterType::New();
     matchingFilter->SetSourceImage( windowingFilter->GetOutput() );
     matchingFilter->SetReferenceImage( histogramMatchSourceImage );
@@ -1363,10 +1318,10 @@ RegistrationHelper<VImageDimension>
         displacementField->Allocate();
         displacementField->FillBuffer( zeroVector );
 
-        typedef GaussianSmoothingOnUpdateDisplacementFieldTransform<RealType,
+        typedef itk::GaussianSmoothingOnUpdateDisplacementFieldTransform<RealType,
                                                                     VImageDimension> GaussianDisplacementFieldTransformType;
 
-        typedef ImageRegistrationMethodv4<ImageType, ImageType,
+        typedef itk::ImageRegistrationMethodv4<ImageType, ImageType,
                                           GaussianDisplacementFieldTransformType> DisplacementFieldRegistrationType;
         typename DisplacementFieldRegistrationType::Pointer displacementFieldRegistration =
           DisplacementFieldRegistrationType::New();
@@ -2432,6 +2387,5 @@ RegistrationHelper<VImageDimension>
 }
 
 } // namespace ants
-} // namespace itk
 
 #endif // __itkantsRegistrationHelper_hxx
