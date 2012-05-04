@@ -925,22 +925,21 @@ void antsSCCANObject<TInputImage, TRealType>
     }
   // ::ants::antscout<<"sort-b"<<std::endl;
   sort(evals.begin(), evals.end(), my_sccan_sort_object);
-  std::vector<int> sorted_indices(n_vecs, -1);
+  std::vector<int> sorted_indices( n_vecs, n_vecs-1 );
   for( unsigned int i = 0; i < evals.size(); i++ )
     {
     for( unsigned int j = 0; j < evals.size(); j++ )
       {
-      if( evals[i] == oevals[j] &&  sorted_indices[i] == -1 )
-        {
-        sorted_indices[i] = j;
-        oevals[j] = 0;
-        }
+	if( fabs( evals[i] - oevals[j] ) < 1.e-9 &&  
+            sorted_indices[i] == static_cast< int > ( n_vecs - 1 ) )
+          {
+          sorted_indices[i] = j;
+          oevals[j] = 0;
+          }
       }
     }
   //  for (unsigned int i=0; i<evals.size(); i++) {
-  //    ::ants::antscout << " sorted " << i << " is " << sorted_indices[i] << " ev " << evals[i] <<" oev "<<oevals[i]<<
-  // std::endl;
-  //  }
+  //    ::ants::antscout << " sorted " << i << " is " << sorted_indices[i] << " ev " << evals[i] <<" oev "<<oevals[i]<< std::endl; }
   // ::ants::antscout<<"sort-c"<<std::endl;
   VectorType newcorrs(n_vecs, 0);
   MatrixType varp(this->m_MatrixP.cols(), n_vecs, 0);
@@ -1164,7 +1163,7 @@ template <class TInputImage, class TRealType>
 TRealType antsSCCANObject<TInputImage, TRealType>
 ::SparseArnoldiSVDGreedy(unsigned int n_vecs)
 {
-  ::ants::antscout << " arnoldi sparse svd : greedy " << std::endl;
+  ::ants::antscout << " arnoldi sparse svd : greedy " << this->m_MinClusterSizeP << std::endl;
   std::vector<RealType> vexlist;
   vexlist.push_back( 0 );
   this->m_MatrixP = this->NormalizeMatrix( this->m_OriginalMatrixP );
@@ -1206,7 +1205,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       {
       VectorType pveck = this->m_VariatesP.get_column(k);
       MatrixType pmod = this->NormalizeMatrix( this->m_OriginalMatrixP );
-      if( k > 1  && loop > 1 && k < this->m_MatrixP.rows() - 1  )
+      if( k > 1  && loop > 1 && k < this->m_MatrixP.rows() - 1 && false  )
         {
         MatrixType m( this->m_MatrixP.rows(), k, 0 );
         for( unsigned int mm = 0; mm < k; mm++ )
@@ -1328,7 +1327,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
     this->m_VariatesQ = this->m_VariatesP;
     /** Estimate eigenvalues , then sort */
 
-    RealType bestvex = this->ComputeSPCAEigenvalues(n_vecs, trace, true);
+    RealType bestvex = this->ComputeSPCAEigenvalues( n_vecs, trace, false );
     if( bestvex < vexlist[loop]  )
       {
       RealType f = -0.5, enew = 0, eold = -1, delt = 0.05;
@@ -1341,16 +1340,16 @@ TRealType antsSCCANObject<TInputImage, TRealType>
           {
           VectorType mm = this->m_VariatesP.get_column(m);
           this->SparsifyP( mm, true );
-          mm = mm / mm.two_norm();
+	  if ( mm.two_norm() > 0  ) mm = mm / mm.two_norm();
           this->m_VariatesP.set_column( m, mm  );
           }
         eold = enew;
-        enew = this->ComputeSPCAEigenvalues(n_vecs, trace, true);
+        enew = this->ComputeSPCAEigenvalues(n_vecs, trace, false);
         if( enew > bestvex )
           {
           bestvex = enew;  bestV = this->m_VariatesP;
           }
-        //      ::ants::antscout <<" vex " << enew << " f " << f << std::endl;
+	::ants::antscout <<" vex " << enew << " f " << f << std::endl;
         f = f + delt;
         }
 
@@ -1370,8 +1369,7 @@ TRealType antsSCCANObject<TInputImage, TRealType>
       convcrit = 0;
       }
     ::ants::antscout << "Iteration: " << loop << " Eval_0: " << this->m_CanonicalCorrelations[0] << " Eval_N: "
-              << this->m_CanonicalCorrelations[n_vecs
-                                     - 1] << " Sp: " << fnp  << " conv-crit: " << convcrit <<  " vex " << vex
+              << this->m_CanonicalCorrelations[n_vecs - 1] << " Sp: " << fnp  << " conv-crit: " << convcrit <<  " vex " << vex
               << std::endl;
     loop++;
     if( debug )
