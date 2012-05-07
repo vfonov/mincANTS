@@ -1136,8 +1136,6 @@ DoRegistration(typename ParserType::Pointer & parser)
       return EXIT_FAILURE;
       }
     }
-  antscout << "Interpolation type: "
-            << regHelper->GetInterpolator()->GetNameOfClass() << std::endl;
 
   typename ImageType::Pointer warpedImage = regHelper->GetWarpedImage();
 
