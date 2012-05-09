@@ -1,50 +1,5 @@
 #ifndef __itkantsRegistrationHelper_hxx
 #define __itkantsRegistrationHelper_hxx
-#include <string>
-
-#include "itkantsRegistrationHelper.h"
-#include "itkANTSNeighborhoodCorrelationImageToImageMetricv4.h"
-#include "itkMeanSquaresImageToImageMetricv4.h"
-#include "itkDemonsImageToImageMetricv4.h"
-#include "itkCorrelationImageToImageMetricv4.h"
-
-#include "itkAffineTransform.h"
-#include "itkANTSAffine3DTransform.h"
-#include "itkANTSCenteredAffine2DTransform.h"
-#include "itkIdentityTransform.h"
-#include "itkEuler2DTransform.h"
-#include "itkEuler3DTransform.h"
-#include "itkVersorRigid3DTransform.h"
-#include "itkQuaternionRigidTransform.h"
-#include "itkSimilarity2DTransform.h"
-#include "itkSimilarity3DTransform.h"
-#include "itkMatrixOffsetTransformBase.h"
-#include "itkTranslationTransform.h"
-#include "itkMatrixOffsetTransformBase.h"
-#include "itkTransform.h"
-#include "itkTransformFactory.h"
-#include "itkImageRegistrationMethodv4.h"
-#include "itkImageToHistogramFilter.h"
-#include "itkHistogramMatchingImageFilter.h"
-#include "itkIntensityWindowingImageFilter.h"
-#include "itkMattesMutualInformationImageToImageMetricv4.h"
-#include "itkBSplineTransform.h"
-#include "itkBSplineSmoothingOnUpdateDisplacementFieldTransform.h"
-#include "itkGaussianSmoothingOnUpdateDisplacementFieldTransform.h"
-#include "itkTimeVaryingVelocityFieldImageRegistrationMethodv4.h"
-#include "itkTimeVaryingBSplineVelocityFieldImageRegistrationMethod.h"
-#include "itkSyNImageRegistrationMethod.h"
-#include "itkBSplineSyNImageRegistrationMethod.h"
-#include "itkBSplineTransformParametersAdaptor.h"
-#include "itkBSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor.h"
-#include "itkGaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor.h"
-#include "itkTimeVaryingVelocityFieldTransformParametersAdaptor.h"
-#include "itkTimeVaryingBSplineVelocityFieldTransformParametersAdaptor.h"
-#include "itkTimeProbe.h"
-#include "itkCommand.h"
-
-namespace itk
-{
 namespace ants
 {
 
@@ -71,47 +26,37 @@ public:
     Execute( (const itk::Object *) caller, event);
   }
 
-  void Execute(const itk::Object * object, const itk::EventObject & event)
-  {
-  TFilter * filter = const_cast<TFilter *>( dynamic_cast<const TFilter *>( object ) );
-
-  if( filter->GetCurrentIteration() > 0 )
+  void Execute(const itk::Object * object, const itk::EventObject & event )
     {
-    this->Logger() << "      Iteration " << filter->GetCurrentIteration() << ": "
-                   << "metric value = " << filter->GetCurrentMetricValue() << ", "
-                   << "convergence value = " << filter->GetCurrentConvergenceValue() << std::endl;
-    }
+    TFilter const * const filter = dynamic_cast<const TFilter *>( object );
 
-  if( filter->GetCurrentIteration() == 0 ||
-      filter->GetCurrentIteration() == this->m_NumberOfIterations[filter->GetCurrentLevel()] ||
-      filter->GetIsConverged() )
-    {
-    unsigned int currentLevel = 0;
-    if( typeid( event ) == typeid( itk::IterationEvent ) )
+    if( typeid( event ) == typeid( itk::InitializeEvent ) )
       {
-      currentLevel = filter->GetCurrentLevel() + 1;
-      }
-    if( currentLevel < this->m_NumberOfIterations.size() || filter->GetIsConverged() )
-      {
+      unsigned int currentLevel = filter->GetCurrentLevel();
+
       typename TFilter::ShrinkFactorsArrayType shrinkFactors = filter->GetShrinkFactorsPerLevel();
       typename TFilter::SmoothingSigmasArrayType smoothingSigmas = filter->GetSmoothingSigmasPerLevel();
-      typename TFilter::TransformParametersAdaptorsContainerType adaptors =
-        filter->GetTransformParametersAdaptorsPerLevel();
+      typename TFilter::TransformParametersAdaptorsContainerType adaptors = filter->GetTransformParametersAdaptorsPerLevel();
 
-      this->Logger() << "  Current level = " << currentLevel << std::endl;
+      this->Logger() << "  Current level = " << currentLevel+1 << " of " << this->m_NumberOfIterations.size() << std::endl;
       this->Logger() << "    number of iterations = " << this->m_NumberOfIterations[currentLevel] << std::endl;
       this->Logger() << "    shrink factors = " << shrinkFactors[currentLevel] << std::endl;
       this->Logger() << "    smoothing sigmas = " << smoothingSigmas[currentLevel] << std::endl;
-      this->Logger() << "    required fixed parameters = " << adaptors[currentLevel]->GetRequiredFixedParameters()
-                     << std::endl;
+      this->Logger() << "    required fixed parameters = " << adaptors[currentLevel]->GetRequiredFixedParameters() << std::endl;
 
       typedef itk::GradientDescentOptimizerv4 GradientDescentOptimizerType;
-      GradientDescentOptimizerType * optimizer2 = reinterpret_cast<GradientDescentOptimizerType *>(
-          const_cast<typename TFilter::OptimizerType *>( filter->GetOptimizer() ) );
-      optimizer2->SetNumberOfIterations( this->m_NumberOfIterations[currentLevel] );
+      GradientDescentOptimizerType * optimizer = reinterpret_cast<GradientDescentOptimizerType *>(
+          const_cast<typename TFilter::OptimizerType *>( const_cast< TFilter *>( filter )->GetOptimizer() ) );
+
+      optimizer->SetNumberOfIterations( this->m_NumberOfIterations[currentLevel] );
+      }
+    else if( typeid( event ) == typeid( itk::IterationEvent ) )
+      {
+      this->Logger() << "      Iteration " << filter->GetCurrentIteration() << ": "
+                     << "metric value = " << filter->GetCurrentMetricValue() << ", "
+                     << "convergence value = " << filter->GetCurrentConvergenceValue() << std::endl;
       }
     }
-  }
 
   void SetNumberOfIterations( const std::vector<unsigned int> & iterations )
     {
@@ -156,7 +101,7 @@ public:
   {
   if( typeid( event ) == typeid( itk::IterationEvent ) )
     {
-    this->Logger() << "      Iteration " << this->m_Optimizer->GetCurrentIteration() + 1 << ": "
+    this->Logger() << "      Iteration " << this->m_Optimizer->GetCurrentIteration()+1 << ": "
                    << "metric value = " << this->m_Optimizer->GetValue() << ", "
                    << "convergence value = " << this->m_Optimizer->GetConvergenceValue() << std::endl;
     }
@@ -184,7 +129,7 @@ private:
   /**
    *  WeakPointer to the Optimizer
    */
-  WeakPointer<OptimizerType>   m_Optimizer;
+  itk::WeakPointer<OptimizerType>   m_Optimizer;
 
   std::ostream &Logger() const { return *m_LogStream; }
   std::ostream             *m_LogStream;
@@ -281,6 +226,9 @@ RegistrationHelper<VImageDimension>
   m_UpperQuantile(1.0),
   m_LogStream(&::ants::antscout)
 {
+  typedef itk::LinearInterpolateImageFunction<ImageType, RealType> LinearInterpolatorType;
+  typename LinearInterpolatorType::Pointer linearInterpolator = LinearInterpolatorType::New();
+  this->m_Interpolator = linearInterpolator;
 }
 
 template <unsigned VImageDimension>
@@ -296,7 +244,7 @@ typename ImageType::Pointer PreprocessImage( ImageType * inputImage,
                                              float winsorizeLowerQuantile, float winsorizeUpperQuantile,
                                              ImageType *histogramMatchSourceImage = NULL )
 {
-  typedef Statistics::ImageToHistogramFilter<ImageType>        HistogramFilterType;
+  typedef itk::Statistics::ImageToHistogramFilter<ImageType>        HistogramFilterType;
   typedef typename HistogramFilterType::InputBooleanObjectType InputBooleanObjectType;
   typedef typename HistogramFilterType::HistogramSizeType      HistogramSizeType;
   typedef typename HistogramFilterType::HistogramType          HistogramType;
@@ -330,7 +278,7 @@ typename ImageType::Pointer PreprocessImage( ImageType * inputImage,
   typename ImageType::Pointer outputImage = NULL;
   if( histogramMatchSourceImage )
     {
-    typedef HistogramMatchingImageFilter<ImageType, ImageType> HistogramMatchingFilterType;
+    typedef itk::HistogramMatchingImageFilter<ImageType, ImageType> HistogramMatchingFilterType;
     typename HistogramMatchingFilterType::Pointer matchingFilter = HistogramMatchingFilterType::New();
     matchingFilter->SetSourceImage( windowingFilter->GetOutput() );
     matchingFilter->SetReferenceImage( histogramMatchSourceImage );
@@ -742,6 +690,7 @@ RegistrationHelper<VImageDimension>
   resampler->SetTransform( this->m_CompositeTransform );
   resampler->SetInput( movingImage );
   resampler->SetOutputParametersFromImage( fixedImage );
+  resampler->SetInterpolator( this->m_Interpolator );
   resampler->SetDefaultPixelValue( 0 );
   resampler->Update();
 
@@ -767,6 +716,7 @@ RegistrationHelper<VImageDimension>
   inverseResampler->SetTransform( this->m_CompositeTransform->GetInverseTransform() );
   inverseResampler->SetInput( fixedImage );
   inverseResampler->SetOutputParametersFromImage( movingImage );
+  inverseResampler->SetInterpolator( this->m_Interpolator );
   inverseResampler->SetDefaultPixelValue( 0 );
   inverseResampler->Update();
 
@@ -1135,6 +1085,7 @@ RegistrationHelper<VImageDimension>
         affineObserver->SetNumberOfIterations( currentStageIterations );
 
         affineRegistration->AddObserver( itk::IterationEvent(), affineObserver );
+        affineRegistration->AddObserver( itk::InitializeEvent(), affineObserver );
 
         try
           {
@@ -1184,6 +1135,7 @@ RegistrationHelper<VImageDimension>
         rigidObserver->SetNumberOfIterations( currentStageIterations );
 
         rigidRegistration->AddObserver( itk::IterationEvent(), rigidObserver );
+        rigidRegistration->AddObserver( itk::InitializeEvent(), rigidObserver );
 
         try
           {
@@ -1204,8 +1156,7 @@ RegistrationHelper<VImageDimension>
         {
         typedef typename CompositeAffineTransformTraits<VImageDimension>::TransformType CompositeAffineTransformType;
 
-        typedef itk::ImageRegistrationMethodv4<ImageType, ImageType,
-                                               CompositeAffineTransformType> AffineRegistrationType;
+        typedef itk::ImageRegistrationMethodv4<ImageType, ImageType, CompositeAffineTransformType> AffineRegistrationType;
         typename AffineRegistrationType::Pointer affineRegistration = AffineRegistrationType::New();
 
         affineRegistration->SetFixedImage( preprocessFixedImage );
@@ -1233,6 +1184,7 @@ RegistrationHelper<VImageDimension>
         affineObserver->SetNumberOfIterations( currentStageIterations );
 
         affineRegistration->AddObserver( itk::IterationEvent(), affineObserver );
+        affineRegistration->AddObserver( itk::InitializeEvent(), affineObserver );
 
         try
           {
@@ -1284,6 +1236,7 @@ RegistrationHelper<VImageDimension>
         similarityObserver->SetNumberOfIterations( currentStageIterations );
 
         similarityRegistration->AddObserver( itk::IterationEvent(), similarityObserver );
+        similarityRegistration->AddObserver( itk::InitializeEvent(), similarityObserver );
 
         try
           {
@@ -1334,6 +1287,7 @@ RegistrationHelper<VImageDimension>
         translationObserver->SetNumberOfIterations( currentStageIterations );
 
         translationRegistration->AddObserver( itk::IterationEvent(), translationObserver );
+        translationRegistration->AddObserver( itk::InitializeEvent(), translationObserver );
 
         try
           {
@@ -1363,10 +1317,10 @@ RegistrationHelper<VImageDimension>
         displacementField->Allocate();
         displacementField->FillBuffer( zeroVector );
 
-        typedef GaussianSmoothingOnUpdateDisplacementFieldTransform<RealType,
+        typedef itk::GaussianSmoothingOnUpdateDisplacementFieldTransform<RealType,
                                                                     VImageDimension> GaussianDisplacementFieldTransformType;
 
-        typedef ImageRegistrationMethodv4<ImageType, ImageType,
+        typedef itk::ImageRegistrationMethodv4<ImageType, ImageType,
                                           GaussianDisplacementFieldTransformType> DisplacementFieldRegistrationType;
         typename DisplacementFieldRegistrationType::Pointer displacementFieldRegistration =
           DisplacementFieldRegistrationType::New();
@@ -1443,6 +1397,7 @@ RegistrationHelper<VImageDimension>
         displacementFieldRegistrationObserver->SetNumberOfIterations( currentStageIterations );
 
         displacementFieldRegistration->AddObserver( itk::IterationEvent(), displacementFieldRegistrationObserver );
+        displacementFieldRegistration->AddObserver( itk::InitializeEvent(), displacementFieldRegistrationObserver );
 
         try
           {
@@ -1579,6 +1534,7 @@ RegistrationHelper<VImageDimension>
         displacementFieldRegistrationObserver->SetNumberOfIterations( currentStageIterations );
 
         displacementFieldRegistration->AddObserver( itk::IterationEvent(), displacementFieldRegistrationObserver );
+        displacementFieldRegistration->AddObserver( itk::InitializeEvent(), displacementFieldRegistrationObserver );
 
         try
           {
@@ -1679,6 +1635,7 @@ RegistrationHelper<VImageDimension>
         bsplineObserver->SetNumberOfIterations( currentStageIterations );
 
         bsplineRegistration->AddObserver( itk::IterationEvent(), bsplineObserver );
+        bsplineRegistration->AddObserver( itk::InitializeEvent(), bsplineObserver );
 
         try
           {
@@ -1854,6 +1811,7 @@ RegistrationHelper<VImageDimension>
         velocityFieldRegistrationObserver->SetNumberOfIterations( currentStageIterations );
 
         velocityFieldRegistration->AddObserver( itk::IterationEvent(), velocityFieldRegistrationObserver );
+        velocityFieldRegistration->AddObserver( itk::InitializeEvent(), velocityFieldRegistrationObserver );
 
         try
           {
@@ -2038,6 +1996,7 @@ RegistrationHelper<VImageDimension>
         velocityFieldRegistrationObserver->SetNumberOfIterations( currentStageIterations );
 
         velocityFieldRegistration->AddObserver( itk::IterationEvent(), velocityFieldRegistrationObserver );
+        velocityFieldRegistration->AddObserver( itk::InitializeEvent(), velocityFieldRegistrationObserver );
 
         try
           {
@@ -2125,7 +2084,7 @@ RegistrationHelper<VImageDimension>
         RealType varianceForUpdateField = this->m_TransformMethods[currentStage].m_UpdateFieldVarianceInVarianceSpace;
         RealType varianceForTotalField = this->m_TransformMethods[currentStage].m_TotalFieldVarianceInVarianceSpace;
 
-        displacementFieldRegistration->SetDownsampleImagesForMetricDerivatives( false );
+        displacementFieldRegistration->SetDownsampleImagesForMetricDerivatives( true );
         displacementFieldRegistration->SetAverageMidPointGradients( false );
         displacementFieldRegistration->SetFixedImage( preprocessFixedImage );
         displacementFieldRegistration->SetMovingImage( preprocessMovingImage );
@@ -2158,6 +2117,7 @@ RegistrationHelper<VImageDimension>
         displacementFieldRegistrationObserver->SetNumberOfIterations( currentStageIterations );
 
         displacementFieldRegistration->AddObserver( itk::IterationEvent(), displacementFieldRegistrationObserver );
+        displacementFieldRegistration->AddObserver( itk::InitializeEvent(), displacementFieldRegistrationObserver );
 
         try
           {
@@ -2313,6 +2273,7 @@ RegistrationHelper<VImageDimension>
         displacementFieldRegistrationObserver->SetNumberOfIterations( currentStageIterations );
 
         displacementFieldRegistration->AddObserver( itk::IterationEvent(), displacementFieldRegistrationObserver );
+        displacementFieldRegistration->AddObserver( itk::InitializeEvent(), displacementFieldRegistrationObserver );
 
         try
           {
@@ -2432,6 +2393,5 @@ RegistrationHelper<VImageDimension>
 }
 
 } // namespace ants
-} // namespace itk
 
 #endif // __itkantsRegistrationHelper_hxx

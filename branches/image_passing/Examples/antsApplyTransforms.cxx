@@ -1,6 +1,6 @@
 
 #include "antsUtilities.h"
-#include "antsCommandLineParser.h"
+#include "itkantsRegistrationHelper.h"
 
 #include "itkAffineTransform.h"
 #include "itkCompositeTransform.h"
@@ -21,12 +21,11 @@
 #include "itkWindowedSincInterpolateImageFunction.h"
 #include "itkLabelImageGaussianInterpolateImageFunction.h"
 
-
 namespace ants
 {
 
 template <unsigned int Dimension>
-int antsApplyTransforms( itk::ants::CommandLineParser *parser )
+int antsApplyTransforms( itk::ants::CommandLineParser::Pointer &parser )
 {
   typedef double                           RealType;
   typedef double                           PixelType;
@@ -41,10 +40,8 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
   /**
    * Input object option - for now, we're limiting this to images.
    */
-  typename itk::ants::CommandLineParser::OptionType::Pointer inputOption =
-    parser->GetOption( "input" );
-  typename itk::ants::CommandLineParser::OptionType::Pointer outputOption =
-    parser->GetOption( "output" );
+  typename itk::ants::CommandLineParser::OptionType::Pointer inputOption = parser->GetOption( "input" );
+  typename itk::ants::CommandLineParser::OptionType::Pointer outputOption = parser->GetOption( "output" );
   if( inputOption && inputOption->GetNumberOfValues() > 0 )
     {
     antscout << "Input object: " << inputOption->GetValue() << std::endl;
@@ -117,29 +114,41 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
   identityTransform->SetIdentity();
 
   typedef itk::CompositeTransform<double, Dimension> CompositeTransformType;
-  typename CompositeTransformType::Pointer compositeTransform =
-    CompositeTransformType::New();
+  typename itk::ants::CommandLineParser::OptionType::Pointer transformOption = parser->GetOption( "transform" );
+
+#if 0
+  typename CompositeTransformType::Pointer compositeTransform = CompositeTransformType::New();
   compositeTransform->AddTransform( identityTransform );
 
-  typename itk::ants::CommandLineParser::OptionType::Pointer transformOption =
-    parser->GetOption( "transform" );
   if( transformOption && transformOption->GetNumberOfValues() > 0 )
     {
     std::deque<std::string> transformNames;
     std::deque<std::string> transformTypes;
     for( unsigned int n = 0; n < transformOption->GetNumberOfValues(); n++ )
       {
-      std::string transformName;
-      std::string transformType;
 
       typedef itk::Transform<double, Dimension, Dimension> TransformType;
       typename TransformType::Pointer transform;
 
+      std::string transformName;
+      bool findInverse=false;
+      if( transformOption->GetNumberOfParameters( n ) == 0 )
+        {
+        transformName = transformOption->GetValue( n );
+        }
+      else
+        {
+        transformName = transformOption->GetParameter( n, 0 );
+        if( transformOption->GetNumberOfParameters( n ) > 1 )
+          {
+          findInverse = parser->Convert<bool>( transformOption->GetParameter( n, 1 ) );
+          }
+        }
+
+
       bool hasTransformBeenRead = false;
       try
         {
-        transformName = transformOption->GetValue( n );
-
         typedef itk::DisplacementFieldTransform<PixelType, Dimension>
         DisplacementFieldTransformType;
 
@@ -164,7 +173,15 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
         hasTransformBeenRead = false;
         }
 
-      if( !hasTransformBeenRead )
+      if( hasTransformBeenRead )
+        {
+        if( findInverse )
+          {
+          std::cerr << "Wrong specification of the inverse.  Set the inverse displacement field explicitly." << std::endl;
+          return EXIT_FAILURE;
+          }
+        }
+      else
         {
         try
           {
@@ -246,70 +263,55 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
       transformNames.push_back( transformName );
       transformTypes.push_back( transform->GetNameOfClass() );
       }
-    antscout << "The composite transform is comprised of the following transforms "
-              << "(in order): " << std::endl;
+    antscout << "The composite transform is comprised of the following transforms " << "(in order): " << std::endl;
     for( unsigned int n = 0; n < transformNames.size(); n++ )
       {
       antscout << "  " << n + 1 << ". " << transformNames[n] << " (type = "
                 << transformTypes[n] << ")" << std::endl;
       }
     }
+#endif
+    typename CompositeTransformType::Pointer compositeTransform =  GetCompositeTransformFromParserOption<Dimension>( parser, transformOption );
+    if ( compositeTransform.IsNull() )
+      {
+      return EXIT_FAILURE;
+      }
   resampleFilter->SetTransform( compositeTransform );
 
   /**
    * Interpolation option
    */
-  typedef itk::LinearInterpolateImageFunction<ImageType, RealType>
-  LinearInterpolatorType;
-  typename LinearInterpolatorType::Pointer linearInterpolator
-    = LinearInterpolatorType::New();
+  typedef itk::LinearInterpolateImageFunction<ImageType, RealType> LinearInterpolatorType;
+  typename LinearInterpolatorType::Pointer linearInterpolator = LinearInterpolatorType::New();
 
-  typedef itk::NearestNeighborInterpolateImageFunction<ImageType, RealType>
-  NearestNeighborInterpolatorType;
-  typename NearestNeighborInterpolatorType::Pointer nearestNeighborInterpolator
-    = NearestNeighborInterpolatorType::New();
+  typedef itk::NearestNeighborInterpolateImageFunction<ImageType, RealType> NearestNeighborInterpolatorType;
+  typename NearestNeighborInterpolatorType::Pointer nearestNeighborInterpolator = NearestNeighborInterpolatorType::New();
 
-  typedef itk::BSplineInterpolateImageFunction<ImageType, RealType>
-  BSplineInterpolatorType;
-  typename BSplineInterpolatorType::Pointer bSplineInterpolator
-    = BSplineInterpolatorType::New();
+  typedef itk::BSplineInterpolateImageFunction<ImageType, RealType> BSplineInterpolatorType;
+  typename BSplineInterpolatorType::Pointer bSplineInterpolator = BSplineInterpolatorType::New();
 
-  typedef itk::GaussianInterpolateImageFunction<ImageType, RealType>
-  GaussianInterpolatorType;
-  typename GaussianInterpolatorType::Pointer gaussianInterpolator
-    = GaussianInterpolatorType::New();
+  typedef itk::GaussianInterpolateImageFunction<ImageType, RealType> GaussianInterpolatorType;
+  typename GaussianInterpolatorType::Pointer gaussianInterpolator = GaussianInterpolatorType::New();
 
-  typedef itk::WindowedSincInterpolateImageFunction<ImageType, 3>
-  HammingInterpolatorType;
-  typename HammingInterpolatorType::Pointer hammingInterpolator =
-    HammingInterpolatorType::New();
+  typedef itk::WindowedSincInterpolateImageFunction<ImageType, 3> HammingInterpolatorType;
+  typename HammingInterpolatorType::Pointer hammingInterpolator = HammingInterpolatorType::New();
 
-  typedef itk::WindowedSincInterpolateImageFunction<ImageType, 3,
-                                                    itk::Function::CosineWindowFunction<3> > CosineInterpolatorType;
-  typename CosineInterpolatorType::Pointer cosineInterpolator =
-    CosineInterpolatorType::New();
+  typedef itk::WindowedSincInterpolateImageFunction<ImageType, 3, itk::Function::CosineWindowFunction<3> > CosineInterpolatorType;
+  typename CosineInterpolatorType::Pointer cosineInterpolator = CosineInterpolatorType::New();
 
-  typedef itk::WindowedSincInterpolateImageFunction<ImageType, 3,
-                                                    itk::Function::WelchWindowFunction<3> > WelchInterpolatorType;
-  typename WelchInterpolatorType::Pointer welchInterpolator =
-    WelchInterpolatorType::New();
+  typedef itk::WindowedSincInterpolateImageFunction<ImageType, 3, itk::Function::WelchWindowFunction<3> > WelchInterpolatorType;
+  typename WelchInterpolatorType::Pointer welchInterpolator = WelchInterpolatorType::New();
 
-  typedef itk::WindowedSincInterpolateImageFunction<ImageType, 3,
-                                                    itk::Function::LanczosWindowFunction<3> > LanczosInterpolatorType;
-  typename LanczosInterpolatorType::Pointer lanczosInterpolator =
-    LanczosInterpolatorType::New();
+  typedef itk::WindowedSincInterpolateImageFunction<ImageType, 3, itk::Function::LanczosWindowFunction<3> > LanczosInterpolatorType;
+  typename LanczosInterpolatorType::Pointer lanczosInterpolator = LanczosInterpolatorType::New();
 
-  typedef itk::WindowedSincInterpolateImageFunction<ImageType, 3,
-                                                    itk::Function::BlackmanWindowFunction<3> > BlackmanInterpolatorType;
-  typename BlackmanInterpolatorType::Pointer blackmanInterpolator =
-    BlackmanInterpolatorType::New();
+  typedef itk::WindowedSincInterpolateImageFunction<ImageType, 3, itk::Function::BlackmanWindowFunction<3> > BlackmanInterpolatorType;
+  typename BlackmanInterpolatorType::Pointer blackmanInterpolator = BlackmanInterpolatorType::New();
 
   const unsigned int NVectorComponents = 1;
   typedef VectorPixelCompare<RealType, NVectorComponents> CompareType;
-  typedef typename itk::LabelImageGaussianInterpolateImageFunction<ImageType,
-                                                                   RealType, CompareType> MultiLabelInterpolatorType;
-  typename MultiLabelInterpolatorType::Pointer multiLabelInterpolator =
-    MultiLabelInterpolatorType::New();
+  typedef typename itk::LabelImageGaussianInterpolateImageFunction<ImageType, RealType, CompareType> MultiLabelInterpolatorType;
+  typename MultiLabelInterpolatorType::Pointer multiLabelInterpolator = MultiLabelInterpolatorType::New();
 
   std::string whichInterpolator( "linear" );
 
@@ -335,8 +337,7 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
       bSplineInterpolator->SetInputImage( resampleFilter->GetInput() );
       if( interpolationOption->GetNumberOfParameters() > 0 )
         {
-        unsigned int bsplineOrder = parser->Convert<unsigned int>(
-            interpolationOption->GetParameter( 0, 0 ) );
+        unsigned int bsplineOrder = parser->Convert<unsigned int>( interpolationOption->GetParameter( 0, 0 ) );
         bSplineInterpolator->SetSplineOrder( bsplineOrder );
         }
       resampleFilter->SetInterpolator( bSplineInterpolator );
@@ -353,8 +354,7 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
 
       if( interpolationOption->GetNumberOfParameters() > 0 )
         {
-        std::vector<double> s = parser->ConvertVector<double>(
-            interpolationOption->GetParameter( 0 ) );
+        std::vector<double> s = parser->ConvertVector<double>( interpolationOption->GetParameter( 0 ) );
         if( s.size() == Dimension )
           {
           for( unsigned int d = 0; d < Dimension; d++ )
@@ -372,8 +372,7 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
         }
       if( interpolationOption->GetNumberOfParameters() > 1 )
         {
-        alpha = parser->Convert<double>(
-            interpolationOption->GetParameter( 1 ) );
+        alpha = parser->Convert<double>( interpolationOption->GetParameter( 1 ) );
         }
       gaussianInterpolator->SetParameters( sigma, alpha );
       resampleFilter->SetInterpolator( gaussianInterpolator );
@@ -411,8 +410,7 @@ int antsApplyTransforms( itk::ants::CommandLineParser *parser )
 
       if( interpolationOption->GetNumberOfParameters() > 0 )
         {
-        std::vector<double> s = parser->ConvertVector<double>(
-            interpolationOption->GetParameter( 0 ) );
+        std::vector<double> s = parser->ConvertVector<double>( interpolationOption->GetParameter( 0 ) );
         if( s.size() == Dimension )
           {
           for( unsigned int d = 0; d < Dimension; d++ )
