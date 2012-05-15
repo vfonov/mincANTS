@@ -541,12 +541,13 @@ GetCompositeTransformFromParserOption(typename ParserType::Pointer & parser, typ
         }
       if( useInverse )
         {
-        initialTransform = dynamic_cast<TransformType *>(initialTransform->GetInverseTransform().GetPointer() );
+        initialTransform = dynamic_cast<TransformType *>( initialTransform->GetInverseTransform().GetPointer() );
         if( initialTransform.IsNull() )
           {
           ::ants::antscout << "Inverse does not exist for " << initialTransformName << std::endl;
           return NULL;
           }
+        initialTransformName = std::string( "inverse of " ) + initialTransformName;
         }
       compositeTransform->AddTransform( initialTransform );
       transformNames.push_back( initialTransformName );
