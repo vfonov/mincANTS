@@ -1137,7 +1137,7 @@ int SVD_One_View( itk::ants::CommandLineParser *parser, unsigned int permct, uns
     }
   else if( svd_option == 5  )
     {
-    truecorr = sccanobj->LASSO( n_evec );                        
+    truecorr = sccanobj->LASSO_Cross(  );                        
     }
   else if( svd_option == 2 )
     {
@@ -1202,7 +1202,7 @@ int SVD_One_View( itk::ants::CommandLineParser *parser, unsigned int permct, uns
       double permcorr = 1.e9;
       // if ( pct > 76 && pct < 79 ) 
       if ( svd_option == 4 ) permcorr = sccanobj->NetworkDecomposition(n_evec); // cgsparse
-      if ( svd_option == 5 ) permcorr = sccanobj->LASSO(n_evec); // cgsparse
+      if ( svd_option == 5 ) permcorr = sccanobj->LASSO_Cross(); // cgsparse
       if( permcorr < truecorr )
         {
         perm_exceed_ct++;
