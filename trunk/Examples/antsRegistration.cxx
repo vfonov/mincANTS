@@ -618,6 +618,11 @@ DoRegistration(typename ParserType::Pointer & parser)
     if( convergenceOption->GetNumberOfParameters( currentStage ) > 2 )
       {
       convergenceWindowSize = parser->Convert<unsigned int>( convergenceOption->GetParameter( currentStage, 2 ) );
+      const unsigned int minAllowedconvergenceWindowSize=2; // The BSplineScatteredDataPoints requires at least 2 points for interpolation.
+      if( convergenceWindowSize < minAllowedconvergenceWindowSize )
+        {
+        antscout << "Convergence Window Size must be greater than or equal to " << minAllowedconvergenceWindowSize << std::endl;
+        }
       }
 
     iterationList.push_back(iterations);
@@ -1185,6 +1190,8 @@ DoRegistration(typename ParserType::Pointer & parser)
 // entry point for the library; parameter 'args' is equivalent to 'argv' in (argc,argv) of commandline parameters to 'main()'
 int antsRegistration( std::vector<std::string> args , std::ostream* out_stream = NULL )
 {
+  try
+    {
   // put the arguments coming in as 'args' into standard (argc,argv) format;
   // 'args' doesn't have the command name as first, argument, so add it manually;
   // 'args' may have adjacent arguments concatenated into one argument,
@@ -1262,8 +1269,6 @@ int antsRegistration( std::vector<std::string> args , std::ostream* out_stream =
     return EXIT_FAILURE;
     }
 
-  try
-    {
     switch( dimension )
       {
     case 2:
