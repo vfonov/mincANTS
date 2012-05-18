@@ -100,19 +100,6 @@ void WriteVectorToSpatialImage( std::string filename, std::string post, vnl_vect
 {
   typedef itk::Image<TComp, 2>       MatrixImageType;
   typedef typename TImage::PixelType PixelType;
-  std::string::size_type pos = filename.rfind( "." );
-  std::string            filepre = std::string( filename, 0, pos );
-  std::string            extension;
-  if( pos != std::string::npos )
-    {
-    extension = std::string( filename, pos, filename.length() - 1);
-    if( extension == std::string(".gz") )
-      {
-      pos = filepre.rfind( "." );
-      extension = std::string( filepre, pos, filepre.length() - 1 ) + extension;
-      filepre = std::string( filepre, 0, pos );
-      }
-    }
 
   typename TImage::Pointer weights = TImage::New();
   weights->SetOrigin( mask->GetOrigin() );
@@ -153,14 +140,29 @@ void WriteVectorToSpatialImage( std::string filename, std::string post, vnl_vect
 
   if( filename[0] == '0' && filename[1] == 'x' )
     {
+      if( filename.find( '%' ) != std::string::npos )
+	filename.erase( filename.find( '%' ) ) ;
       std::stringstream strstream ;
       strstream << filename ;
       void* ptr ;
       strstream >> ptr ;
-      *( static_cast< typename TImage::Pointer* >( ptr ) ) = weights ;
+      ( static_cast< std::vector< typename TImage::Pointer >* >( ptr ) )->push_back( weights ) ;
     }
   else
     {
+      std::string::size_type pos = filename.rfind( "." );
+      std::string            filepre = std::string( filename, 0, pos );
+      std::string            extension;
+      if( pos != std::string::npos )
+	{
+	  extension = std::string( filename, pos, filename.length() - 1);
+	  if( extension == std::string(".gz") )
+	    {
+	      pos = filepre.rfind( "." );
+	      extension = std::string( filepre, pos, filepre.length() - 1 ) + extension;
+	      filepre = std::string( filepre, 0, pos );
+	    }
+	}
       typedef itk::ImageFileWriter<TImage> WriterType;
       std::string fn1 = filepre + post + extension;
       antscout << fn1 << std::endl;
@@ -196,27 +198,12 @@ inline std::string sccan_to_string(const T& t)
 }
 
 template <class TImage, class TComp>
-void WriteVariatesToSpatialImage( std::string filename, std::string post, vnl_matrix<TComp> varmat,
+void WriteVariatesToSpatialImage( std::string filename , std::string post, vnl_matrix<TComp> varmat,
                                   typename TImage::Pointer  mask,  vnl_matrix<TComp> data_mat,
-                                  bool have_mask )
+                                  bool have_mask , std::string listname = std::string() )
 {
+  std::string filepre ;
   vnl_matrix<TComp>      projections = data_mat * varmat;
-  std::string::size_type pos = filename.rfind( "." );
-  std::string            filepre = std::string( filename, 0, pos );
-  std::string            extension;
-  if( pos != std::string::npos )
-    {
-    extension = std::string( filename, pos, filename.length() - 1);
-    if( extension == std::string(".gz") )
-      {
-      pos = filepre.rfind( "." );
-      extension = std::string( filepre, pos, filepre.length() - 1 ) + extension;
-      filepre = std::string( filepre, 0, pos );
-      }
-    }
-  std::string              post2;
-  std::ofstream            myfile;
-  std::string              fnmp = filepre + std::string("projections") + post + std::string(".csv");
   std::vector<std::string> ColumnHeaders;
   for( unsigned int nv = 0; nv < projections.cols(); nv++ )
     {
@@ -225,34 +212,66 @@ void WriteVariatesToSpatialImage( std::string filename, std::string post, vnl_ma
     }
   typedef itk::CSVNumericObjectFileWriter<double,1,1> WriterType;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( fnmp.c_str() );
-  writer->SetColumnHeaders(ColumnHeaders);
-  writer->SetInput( &projections );
-  try
+  if( filename[0] == '0' && filename[1] == 'x' )
     {
-    writer->Write();
+      std::stringstream strstream ;
+      strstream << filename ;
+      void* ptr ;
+      strstream >> ptr ;
+      ( static_cast< std::pair< std::vector<std::string> , vnl_matrix<double> >* >( ptr ) )->first = ColumnHeaders ;
+      ( static_cast< std::pair< std::vector<std::string> , vnl_matrix<double> >* >( ptr ) )->second = projections ;
     }
-  catch( itk::ExceptionObject& exp )
+  else
     {
-    antscout << "Exception caught!" << std::endl;
-    antscout << exp << std::endl;
-    return;
+      std::string::size_type pos = filename.rfind( "." );
+      filepre = std::string( filename, 0, pos );
+      std::string            extension;
+      if( pos != std::string::npos )
+	{
+	  extension = std::string( filename, pos, filename.length() - 1);
+	  if( extension == std::string(".gz") )
+	    {
+	      pos = filepre.rfind( "." );
+	      extension = std::string( filepre, pos, filepre.length() - 1 ) + extension;
+	      filepre = std::string( filepre, 0, pos );
+	    }
+	}
+      std::ofstream            myfile;
+      std::string              fnmp = filepre + std::string("projections") + post + std::string(".csv");
+      writer->SetFileName( fnmp.c_str() );
+      writer->SetColumnHeaders(ColumnHeaders);
+      writer->SetInput( &projections );
+      try
+	{
+	  writer->Write();
+	}
+      catch( itk::ExceptionObject& exp )
+	{
+	  antscout << "Exception caught!" << std::endl;
+	  antscout << exp << std::endl;
+	  return;
+	}
     }
   if( have_mask )
     {
+      std::string fn = filename ;
+      if( listname.length() != 0 && listname[0] == '0' && listname[1] == 'x' )
+	{
+	  fn = listname ;
+	}
     antscout << " have_mask " << have_mask << std::endl;
     for( unsigned int vars = 0; vars < varmat.columns(); vars++  )
       {
-      post2 = post + sccan_to_string<unsigned int>(vars);
+            std::string post2 = post + sccan_to_string<unsigned int>(vars);
       vnl_vector<TComp> temp = varmat.get_column(vars);
-      WriteVectorToSpatialImage<TImage, TComp>( filename, post2, temp, mask);
+      WriteVectorToSpatialImage<TImage, TComp>( fn, post2, temp, mask );
       }
     }
   else
     {
     ColumnHeaders.clear();
     // write out the array2D object
-    fnmp = filepre + std::string("ViewVecs") + std::string(".csv");
+    std::string fnmp = filepre + std::string("ViewVecs") + std::string(".csv");
     for( unsigned int nv = 0; nv < varmat.cols(); nv++ )
       {
       std::string colname = std::string("Variate") + sccan_to_string<unsigned int>(nv);
@@ -408,7 +427,15 @@ ReadMatrixFromCSVorImageSet( std::string matname, vnl_matrix<PixelType> & p )
   typedef itk::Image<PixelType, 2>              MatrixImageType;
   typedef itk::ImageFileReader<MatrixImageType> matReaderType;
   std::string ext = itksys::SystemTools::GetFilenameExtension( matname );
-  if( strcmp(ext.c_str(), ".csv") == 0 )
+  if( matname[0] == '0' && matname[1] == 'x' )
+    {
+      std::stringstream strstream ;
+      strstream << matname ;
+      void* ptr ;
+      strstream >> ptr ;
+      p = ( static_cast< std::pair< std::vector<std::string> , vnl_matrix<double> >* >( ptr ) )->second ;
+    }
+  else if( strcmp(ext.c_str(), ".csv") == 0 )
     {
     typedef itk::CSVArray2DFileReader<double> ReaderType;
     typename ReaderType::Pointer reader = ReaderType::New();
@@ -1134,7 +1161,7 @@ int SVD_One_View( itk::ants::CommandLineParser *parser, unsigned int permct, uns
     }
   itk::ants::CommandLineParser::OptionType::Pointer outputOption =
     parser->GetOption( "output" );
-  if( !outputOption || outputOption->GetNumberOfValues() == 0 )
+  if( !outputOption || outputOption->GetNumberOfParameters() == 0 )
     {
     antscout << "Warning:  no output option set." << std::endl;
     }
@@ -1254,31 +1281,22 @@ int SVD_One_View( itk::ants::CommandLineParser *parser, unsigned int permct, uns
 
   if( outputOption )
     {
-    std::string filename =  outputOption->GetValue( 0 );
+    std::string filename = outputOption->GetParameter( 0 ) ;
     antscout << " write " << filename << std::endl;
-    std::string::size_type pos = filename.rfind( "." );
-    std::string            filepre = std::string( filename, 0, pos );
-    std::string            extension = std::string( filename, pos, filename.length() - 1);
-    if( extension == std::string(".gz") )
-      {
-      pos = filepre.rfind( "." );
-      extension = std::string( filepre, pos, filepre.length() - 1 ) + extension;
-      filepre = std::string( filepre, 0, pos );
-      }
     std::string post = std::string("View1vec");
-    WriteVariatesToSpatialImage<ImageType, Scalar>( filename, post,
+    std::string  listname ;
+    if( outputOption->GetNumberOfParameters() == 3 )
+      {
+	listname = outputOption->GetParameter( 1 ) ;
+      }
+    WriteVariatesToSpatialImage<ImageType, Scalar>( filename , post,
                                                     sccanobj->GetVariatesP(), mask1,
-                                                    sccanobj->GetMatrixP(), have_p_mask );
+                                                    sccanobj->GetMatrixP(), have_p_mask , listname );
 
     /** write the eigevalues to the csv file */
-    std::string              fnmp = filepre + std::string("_eigenvalues.csv");
     std::vector<std::string> ColumnHeaders;
     std::string              colname = std::string("Eigenvalue");
     ColumnHeaders.push_back( colname );
-    typedef itk::CSVNumericObjectFileWriter<double,1,1> CWriterType;
-    CWriterType::Pointer cwriter = CWriterType::New();
-    cwriter->SetFileName( fnmp.c_str() );
-    cwriter->SetColumnHeaders(ColumnHeaders);
     vnl_matrix<double> evals;
     evals.set_size(sccanobj->GetCanonicalCorrelations().size(), 1);
     for( unsigned int i = 0; i < sccanobj->GetCanonicalCorrelations().size(); i++ )
@@ -1286,33 +1304,63 @@ int SVD_One_View( itk::ants::CommandLineParser *parser, unsigned int permct, uns
       double evil = sccanobj->GetCanonicalCorrelations() (i);
       evals(i, 0) = evil;
       }
-    cwriter->SetInput( &evals );
-    cwriter->Write();
+    if( outputOption->GetNumberOfParameters() == 3 )
+      {
+	std::string str = outputOption->GetParameter( 2 ) ;
+	if( str[0] == '0' && str[1] == 'x' )
+	  {
+	    std::stringstream strstream ;
+	    strstream << str ;
+	    void* ptr ;
+	    strstream >> ptr ;
+	    ( static_cast< std::pair< std::vector<std::string> , vnl_matrix<double> >* >( ptr ) )->first = ColumnHeaders ;
+	    ( static_cast< std::pair< std::vector<std::string> , vnl_matrix<double> >* >( ptr ) )->second = evals ;
+	  }
+      }
+    else
+      {
+	std::string::size_type pos = filename.rfind( "." );
+	std::string            filepre = std::string( filename, 0, pos );
+	std::string            extension = std::string( filename, pos, filename.length() - 1);
+	if( extension == std::string(".gz") )
+	  {
+	    pos = filepre.rfind( "." );
+	    extension = std::string( filepre, pos, filepre.length() - 1 ) + extension;
+	    filepre = std::string( filepre, 0, pos );
+	  }
+	std::string              fnmp = filepre + std::string("_eigenvalues.csv");
+	typedef itk::CSVNumericObjectFileWriter<double,1,1> CWriterType;
+	CWriterType::Pointer cwriter = CWriterType::New();
+	cwriter->SetFileName( fnmp.c_str() );
+	cwriter->SetColumnHeaders(ColumnHeaders);
+	cwriter->SetInput( &evals );
+	cwriter->Write();
+      }
     }
   // permutation test
   if(  ( svd_option == 4 || svd_option == 5 ) && permct > 0 )
     {
-    antscout << "Begin" << permct << " permutations " << std::endl;
-    unsigned long perm_exceed_ct = 0;
-    for( unsigned long pct = 0; pct <= permct; pct++ )
-      {
-      // 0. compute permutation for q ( switch around rows )
-      vMatrix p_perm = PermuteMatrix<Scalar>( sccanobj->GetOriginalMatrixP() );
-      vMatrix r_perm = PermuteMatrix<Scalar>( sccanobj->GetOriginalMatrixR() );
-      sccanobj->SetMatrixP( p_perm );
-      sccanobj->SetMatrixR( r_perm );
-      double permcorr = 1.e9;
-      // if ( pct > 76 && pct < 79 ) 
-      if ( svd_option == 4 ) permcorr = sccanobj->NetworkDecomposition(n_evec); // cgsparse
-      if ( svd_option == 5 ) permcorr = sccanobj->LASSO(n_evec); // cgsparse
-      if( permcorr < truecorr )
-        {
-        perm_exceed_ct++;
-        }
-      // end solve cca permutation
-      antscout << permcorr << " p-value " <<  (double)perm_exceed_ct
-      / (pct + 1) << " ct " << pct << " true " << truecorr << " vs " << permcorr << std::endl;
-      }
+      antscout << "Begin" << permct << " permutations " << std::endl;
+      unsigned long perm_exceed_ct = 0;
+      for( unsigned long pct = 0; pct <= permct; pct++ )
+	{
+	  // 0. compute permutation for q ( switch around rows )
+	  vMatrix p_perm = PermuteMatrix<Scalar>( sccanobj->GetOriginalMatrixP() );
+	  vMatrix r_perm = PermuteMatrix<Scalar>( sccanobj->GetOriginalMatrixR() );
+	  sccanobj->SetMatrixP( p_perm );
+	  sccanobj->SetMatrixR( r_perm );
+	  double permcorr = 1.e9;
+	  // if ( pct > 76 && pct < 79 ) 
+	  if ( svd_option == 4 ) permcorr = sccanobj->NetworkDecomposition(n_evec); // cgsparse
+	  if ( svd_option == 5 ) permcorr = sccanobj->LASSO(n_evec); // cgsparse
+	  if( permcorr < truecorr )
+	    {
+	      perm_exceed_ct++;
+	    }
+	  // end solve cca permutation
+	  antscout << permcorr << " p-value " <<  (double)perm_exceed_ct
+	    / (pct + 1) << " ct " << pct << " true " << truecorr << " vs " << permcorr << std::endl;
+	}
     }
   return EXIT_SUCCESS;
 }
