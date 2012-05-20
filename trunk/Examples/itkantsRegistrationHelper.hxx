@@ -221,7 +221,7 @@ RegistrationHelper<VImageDimension>
   m_ShrinkFactors(),
   m_UseHistogramMatching(true),
   m_WinsorizeImageIntensities(false),
-  m_DoEstimateLearningRateOnce(false),
+  m_DoEstimateLearningRateAtEachIteration(true),
   m_LowerQuantile(0.0),
   m_UpperQuantile(1.0),
   m_LogStream(&::ants::antscout)
@@ -1014,7 +1014,7 @@ RegistrationHelper<VImageDimension>
         ::ants::antscout << "ERROR: Unrecognized image metric: " << std::endl;
       }
     /** Can really impact performance */
-    bool gaussian = true;
+    bool gaussian = false;
     metric->SetUseMovingImageGradientFilter( gaussian );
     metric->SetUseFixedImageGradientFilter( gaussian );
     if( this->m_FixedImageMask.IsNotNull() )
@@ -1043,8 +1043,8 @@ RegistrationHelper<VImageDimension>
     optimizer->SetScalesEstimator( scalesEstimator );
     optimizer->SetMinimumConvergenceValue( convergenceThreshold );
     optimizer->SetConvergenceWindowSize( convergenceWindowSize );
-    optimizer->SetDoEstimateLearningRateOnce( this->m_DoEstimateLearningRateOnce );
-
+    optimizer->SetDoEstimateLearningRateAtEachIteration( this->m_DoEstimateLearningRateAtEachIteration );
+    optimizer->SetDoEstimateLearningRateOnce( !this->m_DoEstimateLearningRateAtEachIteration );
     typedef antsRegistrationOptimizerCommandIterationUpdate<GradientDescentOptimizerType> OptimizerCommandType;
     typename OptimizerCommandType::Pointer optimizerObserver = OptimizerCommandType::New();
     optimizerObserver->SetLogStream( *this->m_LogStream );
@@ -2084,7 +2084,7 @@ RegistrationHelper<VImageDimension>
         RealType varianceForUpdateField = this->m_TransformMethods[currentStage].m_UpdateFieldVarianceInVarianceSpace;
         RealType varianceForTotalField = this->m_TransformMethods[currentStage].m_TotalFieldVarianceInVarianceSpace;
 
-        displacementFieldRegistration->SetDownsampleImagesForMetricDerivatives( false );
+        displacementFieldRegistration->SetDownsampleImagesForMetricDerivatives( true );
         displacementFieldRegistration->SetAverageMidPointGradients( false );
         displacementFieldRegistration->SetFixedImage( preprocessFixedImage );
         displacementFieldRegistration->SetMovingImage( preprocessMovingImage );
@@ -2242,7 +2242,7 @@ RegistrationHelper<VImageDimension>
           numberOfIterationsPerLevel[d] = currentStageIterations[d];
           }
 
-        displacementFieldRegistration->SetDownsampleImagesForMetricDerivatives( false );
+        displacementFieldRegistration->SetDownsampleImagesForMetricDerivatives( true );
         displacementFieldRegistration->SetAverageMidPointGradients( false );
         displacementFieldRegistration->SetFixedImage( preprocessFixedImage );
         displacementFieldRegistration->SetMovingImage( preprocessMovingImage );
