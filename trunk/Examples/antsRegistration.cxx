@@ -585,7 +585,7 @@ DoRegistration(typename ParserType::Pointer & parser)
       }
     regHelper->SetUseHistogramMatching(doHistogramMatch);
 
-    bool                doEstimateLearningRateAtEachIteration = false;
+    bool                doEstimateLearningRateAtEachIteration = true;
     OptionType::Pointer rateOption = parser->GetOption( "use-estimate-learning-rate-once" );
     if( rateOption && rateOption->GetNumberOfValues() > 0 )
       {
