@@ -1143,12 +1143,16 @@ int SVD_One_View( itk::ants::CommandLineParser *parser, unsigned int permct, uns
     {
     truecorr = sccanobj->CGSPCA(n_evec);                         // cgspca
     }
+  else if( svd_option == 6 )
+    {
+    truecorr = sccanobj->SparseRecon(n_evec);  // sparse (default)
+    }
   else
     {
     truecorr = sccanobj->SparseArnoldiSVDGreedy(n_evec);  // sparse (default)
     }
   vVector w_p = sccanobj->GetVariateP(0);
-  antscout << " true-corr " << sccanobj->GetCanonicalCorrelations() << std::endl;
+  antscout << " true-corr " << sccanobj->GetCanonicalCorrelations()  << std::endl;
 
   if( outputOption )
     {
@@ -2006,11 +2010,6 @@ int sccan( itk::ants::CommandLineParser *parser )
       SVD_One_View<ImageDimension, double>(  parser, permct, evec_ct, robustify, p_cluster_thresh, iterct, 2);
       return EXIT_SUCCESS;
       }
-    if(  !initializationStrategy.compare( std::string( "cgspca" ) )  )
-      {
-      SVD_One_View<ImageDimension, double>(  parser, permct, evec_ct, robustify, p_cluster_thresh, iterct, 2);
-      return EXIT_SUCCESS;
-      }
     if(  !initializationStrategy.compare( std::string( "network" ) )  )
       {
       SVD_One_View<ImageDimension, double>(  parser, permct, evec_ct, robustify, p_cluster_thresh, iterct, 4);
@@ -2019,6 +2018,11 @@ int sccan( itk::ants::CommandLineParser *parser )
     if(  !initializationStrategy.compare( std::string( "lasso" ) )  )
       {
       SVD_One_View<ImageDimension, double>(  parser, permct, evec_ct, robustify, p_cluster_thresh, iterct, 5);
+      return EXIT_SUCCESS;
+      }
+    if(  !initializationStrategy.compare( std::string( "recon" ) )  )
+      {
+      SVD_One_View<ImageDimension, double>(  parser, permct, evec_ct, robustify, p_cluster_thresh, iterct , 6 );
       return EXIT_SUCCESS;
       }
     if(  !initializationStrategy.compare( std::string( "prior" ) )  )
