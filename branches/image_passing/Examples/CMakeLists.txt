@@ -67,33 +67,33 @@ add_library(antsUtilities STATIC antsUtilities.cxx )
 target_link_libraries(antsUtilities ${ITK_LIBRARIES} )
 
 
-add_library(l_ANTS ANTS.cxx ${UI_SOURCES})
-target_link_libraries(l_ANTS antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME ANTS )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ANTS ANTS.cxx ${UI_SOURCES})
+#target_link_libraries(l_ANTS antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME ANTS )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ANTSJacobian ANTSJacobian.cxx ${UI_SOURCES})
-target_link_libraries(l_ANTSJacobian antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME ANTSJacobian )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ANTSJacobian ANTSJacobian.cxx ${UI_SOURCES})
+#target_link_libraries(l_ANTSJacobian antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME ANTSJacobian )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_PrintHeader PrintHeader.cxx ${UI_SOURCES})
-target_link_libraries(l_PrintHeader antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME PrintHeader )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_PrintHeader PrintHeader.cxx ${UI_SOURCES})
+#target_link_libraries(l_PrintHeader antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME PrintHeader )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ResetDirection ResetDirection.cxx ${UI_SOURCES})
-target_link_libraries(l_ResetDirection antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME ResetDirection )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ResetDirection ResetDirection.cxx ${UI_SOURCES})
+#target_link_libraries(l_ResetDirection antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME ResetDirection )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
 # add_library(l_ResetDirection2 ResetDirection2.cxx ${UI_SOURCES})
 # target_link_libraries(l_ResetDirection2 antsUtilities ${ITK_LIBRARIES} )
@@ -116,26 +116,26 @@ target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtiliti
 # add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
 # target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ANTSUseLandmarkImagesToGetAffineTransform ANTSUseLandmarkImagesToGetAffineTransform.cxx ${UI_SOURCES})
-target_link_libraries(l_ANTSUseLandmarkImagesToGetAffineTransform antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME ANTSUseLandmarkImagesToGetAffineTransform )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ANTSUseLandmarkImagesToGetAffineTransform ANTSUseLandmarkImagesToGetAffineTransform.cxx ${UI_SOURCES})
+#target_link_libraries(l_ANTSUseLandmarkImagesToGetAffineTransform antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME ANTSUseLandmarkImagesToGetAffineTransform )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ANTSUseLandmarkImagesToGetBSplineDisplacementField ANTSUseLandmarkImagesToGetBSplineDisplacementField.cxx ${UI_SOURCES})
-target_link_libraries(l_ANTSUseLandmarkImagesToGetBSplineDisplacementField antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME ANTSUseLandmarkImagesToGetBSplineDisplacementField )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ANTSUseLandmarkImagesToGetBSplineDisplacementField ANTSUseLandmarkImagesToGetBSplineDisplacementField.cxx ${UI_SOURCES})
+#target_link_libraries(l_ANTSUseLandmarkImagesToGetBSplineDisplacementField antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME ANTSUseLandmarkImagesToGetBSplineDisplacementField )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ANTSUseDeformationFieldToGetAffineTransform ANTSUseDeformationFieldToGetAffineTransform ${UI_SOURCES})
-target_link_libraries(l_ANTSUseDeformationFieldToGetAffineTransform antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME ANTSUseDeformationFieldToGetAffineTransform )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ANTSUseDeformationFieldToGetAffineTransform ANTSUseDeformationFieldToGetAffineTransform ${UI_SOURCES})
+#target_link_libraries(l_ANTSUseDeformationFieldToGetAffineTransform antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME ANTSUseDeformationFieldToGetAffineTransform )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
 # add_library(l_FDR FDR.cxx ${UI_SOURCES})
 # target_link_libraries(l_FDR antsUtilities ${ITK_LIBRARIES} )
@@ -151,19 +151,19 @@ configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
 add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
 target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_SurfaceCurvature SurfaceCurvature.cxx ${UI_SOURCES})
-target_link_libraries(l_SurfaceCurvature antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME SurfaceCurvature )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_SurfaceCurvature SurfaceCurvature.cxx ${UI_SOURCES})
+#target_link_libraries(l_SurfaceCurvature antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME SurfaceCurvature )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_SurfaceBasedSmoothing SurfaceBasedSmoothing.cxx ${UI_SOURCES})
-target_link_libraries(l_SurfaceBasedSmoothing antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME SurfaceBasedSmoothing )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_SurfaceBasedSmoothing SurfaceBasedSmoothing.cxx ${UI_SOURCES})
+#target_link_libraries(l_SurfaceBasedSmoothing antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME SurfaceBasedSmoothing )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
 
 # add_library(l_test test.cxx)
@@ -180,33 +180,33 @@ target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtiliti
 # add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
 # target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_LaplacianThickness LaplacianThickness.cxx ${UI_SOURCES})
-target_link_libraries(l_LaplacianThickness antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME LaplacianThickness )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_LaplacianThickness LaplacianThickness.cxx ${UI_SOURCES})
+#target_link_libraries(l_LaplacianThickness antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME LaplacianThickness )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_SetOrigin SetOrigin.cxx ${UI_SOURCES})
-target_link_libraries(l_SetOrigin antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME SetOrigin )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_SetOrigin SetOrigin.cxx ${UI_SOURCES})
+#target_link_libraries(l_SetOrigin antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME SetOrigin )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_SetSpacing SetSpacing.cxx ${UI_SOURCES})
-target_link_libraries(l_SetSpacing antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME SetSpacing )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_SetSpacing SetSpacing.cxx ${UI_SOURCES})
+#target_link_libraries(l_SetSpacing antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME SetSpacing )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_SetDirectionByMatrix SetDirectionByMatrix.cxx ${UI_SOURCES})
-target_link_libraries(l_SetDirectionByMatrix antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME SetDirectionByMatrix )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_SetDirectionByMatrix SetDirectionByMatrix.cxx ${UI_SOURCES})
+#target_link_libraries(l_SetDirectionByMatrix antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME SetDirectionByMatrix )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
 # add_library(l_WarpFunctionalImage WarpFunctionalImage.cxx ${UI_SOURCES})
 # target_link_libraries(l_WarpFunctionalImage antsUtilities ${ITK_LIBRARIES} )
@@ -215,19 +215,19 @@ target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtiliti
 # add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
 # target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ConvertScalarImageToRGB ConvertScalarImageToRGB.cxx)
-target_link_libraries(l_ConvertScalarImageToRGB antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME ConvertScalarImageToRGB )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ConvertScalarImageToRGB ConvertScalarImageToRGB.cxx)
+#target_link_libraries(l_ConvertScalarImageToRGB antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME ConvertScalarImageToRGB )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_CreateWarpedGridImage CreateWarpedGridImage.cxx)
-target_link_libraries(l_CreateWarpedGridImage antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME CreateWarpedGridImage )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_CreateWarpedGridImage CreateWarpedGridImage.cxx)
+#target_link_libraries(l_CreateWarpedGridImage antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME CreateWarpedGridImage )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
 # add_library(l_CreateJacobianDeterminantImage CreateJacobianDeterminantImage.cxx)
 # target_link_libraries(l_CreateJacobianDeterminantImage antsUtilities ${ITK_LIBRARIES})
@@ -236,47 +236,47 @@ target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtiliti
 # add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
 # target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_MeasureImageSimilarity MeasureImageSimilarity.cxx)
-target_link_libraries(l_MeasureImageSimilarity antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME MeasureImageSimilarity )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_MeasureImageSimilarity MeasureImageSimilarity.cxx)
+#target_link_libraries(l_MeasureImageSimilarity antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME MeasureImageSimilarity )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ConvertToJpg ConvertToJpg.cxx)
-target_link_libraries(l_ConvertToJpg antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME ConvertToJpg )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ConvertToJpg ConvertToJpg.cxx)
+#target_link_libraries(l_ConvertToJpg antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME ConvertToJpg )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ConvertImagePixelType ConvertImagePixelType.cxx ${UI_SOURCES})
-target_link_libraries(l_ConvertImagePixelType antsUtilities ${ITK_LIBRARIES}    )
-set( ANTS_FUNCTION_NAME ConvertImagePixelType )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ConvertImagePixelType ConvertImagePixelType.cxx ${UI_SOURCES})
+#target_link_libraries(l_ConvertImagePixelType antsUtilities ${ITK_LIBRARIES}    )
+#set( ANTS_FUNCTION_NAME ConvertImagePixelType )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_AverageImages AverageImages.cxx ${UI_SOURCES})
-target_link_libraries(l_AverageImages antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME AverageImages )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_AverageImages AverageImages.cxx ${UI_SOURCES})
+#target_link_libraries(l_AverageImages antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME AverageImages )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_AverageTensorImages AverageTensorImages.cxx ${UI_SOURCES})
-target_link_libraries(l_AverageTensorImages antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME AverageTensorImages )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_AverageTensorImages AverageTensorImages.cxx ${UI_SOURCES})
+#target_link_libraries(l_AverageTensorImages antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME AverageTensorImages )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ImageSetStatistics ImageSetStatistics.cxx ${UI_SOURCES})
-target_link_libraries(l_ImageSetStatistics antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME ImageSetStatistics )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ImageSetStatistics ImageSetStatistics.cxx ${UI_SOURCES})
+#target_link_libraries(l_ImageSetStatistics antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME ImageSetStatistics )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
 add_library(l_ThresholdImage ThresholdImage.cxx ${UI_SOURCES})
 target_link_libraries(l_ThresholdImage antsUtilities ${ITK_LIBRARIES} )
@@ -285,33 +285,33 @@ configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
 add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
 target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_MultiplyImages MultiplyImages.cxx ${UI_SOURCES})
-target_link_libraries(l_MultiplyImages antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME MultiplyImages )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_MultiplyImages MultiplyImages.cxx ${UI_SOURCES})
+#target_link_libraries(l_MultiplyImages antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME MultiplyImages )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_SmoothImage SmoothImage.cxx ${UI_SOURCES})
-target_link_libraries(l_SmoothImage antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME SmoothImage )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_SmoothImage SmoothImage.cxx ${UI_SOURCES})
+#target_link_libraries(l_SmoothImage antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME SmoothImage )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ClusterImageStatistics ClusterImageStatistics.cxx ${UI_SOURCES})
-target_link_libraries(l_ClusterImageStatistics antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME ClusterImageStatistics )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ClusterImageStatistics ClusterImageStatistics.cxx ${UI_SOURCES})
+#target_link_libraries(l_ClusterImageStatistics antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME ClusterImageStatistics )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_LabelClustersUniquely LabelClustersUniquely.cxx ${UI_SOURCES})
-target_link_libraries(l_LabelClustersUniquely antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME LabelClustersUniquely )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_LabelClustersUniquely LabelClustersUniquely.cxx ${UI_SOURCES})
+#target_link_libraries(l_LabelClustersUniquely antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME LabelClustersUniquely )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
 # add_library(l_StudentsTestOnImages StudentsTestOnImages.cxx ${UI_SOURCES})
 # target_link_libraries(l_StudentsTestOnImages antsUtilities ${ITK_LIBRARIES} )
@@ -320,47 +320,47 @@ target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtiliti
 # add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
 # target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_LabelOverlapMeasures LabelOverlapMeasures.cxx )
-target_link_libraries(l_LabelOverlapMeasures antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME LabelOverlapMeasures )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_LabelOverlapMeasures LabelOverlapMeasures.cxx )
+#target_link_libraries(l_LabelOverlapMeasures antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME LabelOverlapMeasures )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_MeasureMinMaxMean MeasureMinMaxMean.cxx ${UI_SOURCES})
-target_link_libraries(l_MeasureMinMaxMean antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME MeasureMinMaxMean )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities )
+#add_library(l_MeasureMinMaxMean MeasureMinMaxMean.cxx ${UI_SOURCES})
+#target_link_libraries(l_MeasureMinMaxMean antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME MeasureMinMaxMean )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities )
 
-add_library(l_WarpImageMultiTransform WarpImageMultiTransform ${UI_SOURCES})
-target_link_libraries(l_WarpImageMultiTransform antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME WarpImageMultiTransform )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_WarpImageMultiTransform WarpImageMultiTransform ${UI_SOURCES})
+#target_link_libraries(l_WarpImageMultiTransform antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME WarpImageMultiTransform )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ComposeMultiTransform ComposeMultiTransform ${UI_SOURCES})
-target_link_libraries(l_ComposeMultiTransform antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME ComposeMultiTransform )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ComposeMultiTransform ComposeMultiTransform ${UI_SOURCES})
+#target_link_libraries(l_ComposeMultiTransform antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME ComposeMultiTransform )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_StackSlices StackSlices.cxx ${UI_SOURCES})
-target_link_libraries(l_StackSlices antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME StackSlices )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_StackSlices StackSlices.cxx ${UI_SOURCES})
+#target_link_libraries(l_StackSlices antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME StackSlices )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_MemoryTest MemoryTest.cxx ${UI_SOURCES})
-target_link_libraries(l_MemoryTest antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME MemoryTest )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_MemoryTest MemoryTest.cxx ${UI_SOURCES})
+#target_link_libraries(l_MemoryTest antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME MemoryTest )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
 # add_library(l_ANTSOrientImage ANTSOrientImage.cxx ${UI_SOURCES})
 # target_link_libraries(l_ANTSOrientImage antsUtilities ${ITK_LIBRARIES} )
@@ -369,26 +369,26 @@ target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtiliti
 # add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
 # target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_PermuteFlipImageOrientationAxes PermuteFlipImageOrientationAxes.cxx ${UI_SOURCES})
-target_link_libraries(l_PermuteFlipImageOrientationAxes antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME PermuteFlipImageOrientationAxes )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_PermuteFlipImageOrientationAxes PermuteFlipImageOrientationAxes.cxx ${UI_SOURCES})
+#target_link_libraries(l_PermuteFlipImageOrientationAxes antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME PermuteFlipImageOrientationAxes )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ImageCompare ImageCompare.cxx)
-target_link_libraries(l_ImageCompare antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME ImageCompare )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ImageCompare ImageCompare.cxx)
+#target_link_libraries(l_ImageCompare antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME ImageCompare )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ResampleImageBySpacing ResampleImageBySpacing.cxx)
-target_link_libraries(l_ResampleImageBySpacing antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME ResampleImageBySpacing )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ResampleImageBySpacing ResampleImageBySpacing.cxx)
+#target_link_libraries(l_ResampleImageBySpacing antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME ResampleImageBySpacing )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
 # add_library(l_ResampleImageByOtherImage ResampleImageByOtherImage.cxx)
 # target_link_libraries(l_ResampleImageByOtherImage antsUtilities ${ITK_LIBRARIES})
@@ -397,96 +397,96 @@ target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtiliti
 # add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
 # target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_CopyImageHeaderInformation CopyImageHeaderInformation.cxx)
-target_link_libraries(l_CopyImageHeaderInformation antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME CopyImageHeaderInformation )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_CopyImageHeaderInformation CopyImageHeaderInformation.cxx)
+#target_link_libraries(l_CopyImageHeaderInformation antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME CopyImageHeaderInformation )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_WarpTimeSeriesImageMultiTransform WarpTimeSeriesImageMultiTransform.cxx)
-target_link_libraries(l_WarpTimeSeriesImageMultiTransform antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME WarpTimeSeriesImageMultiTransform )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_WarpTimeSeriesImageMultiTransform WarpTimeSeriesImageMultiTransform.cxx)
+#target_link_libraries(l_WarpTimeSeriesImageMultiTransform antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME WarpTimeSeriesImageMultiTransform )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ResampleImage ResampleImage.cxx )
-target_link_libraries(l_ResampleImage antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME ResampleImage )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ResampleImage ResampleImage.cxx )
+#target_link_libraries(l_ResampleImage antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME ResampleImage )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ExtractSliceFromImage ExtractSliceFromImage.cxx )
-target_link_libraries(l_ExtractSliceFromImage antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME ExtractSliceFromImage )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ExtractSliceFromImage ExtractSliceFromImage.cxx )
+#target_link_libraries(l_ExtractSliceFromImage antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME ExtractSliceFromImage )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ExtractRegionFromImage ExtractRegionFromImage.cxx )
-target_link_libraries(l_ExtractRegionFromImage antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME ExtractRegionFromImage )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ExtractRegionFromImage ExtractRegionFromImage.cxx )
+#target_link_libraries(l_ExtractRegionFromImage antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME ExtractRegionFromImage )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ExtractRegionFromImageByMask ExtractRegionFromImageByMask.cxx )
-target_link_libraries(l_ExtractRegionFromImageByMask antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME ExtractRegionFromImageByMask )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ExtractRegionFromImageByMask ExtractRegionFromImageByMask.cxx )
+#target_link_libraries(l_ExtractRegionFromImageByMask antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME ExtractRegionFromImageByMask )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_LabelGeometryMeasures LabelGeometryMeasures.cxx )
-target_link_libraries(l_LabelGeometryMeasures antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME LabelGeometryMeasures )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_LabelGeometryMeasures LabelGeometryMeasures.cxx )
+#target_link_libraries(l_LabelGeometryMeasures antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME LabelGeometryMeasures )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_PasteImageIntoImage PasteImageIntoImage.cxx )
-target_link_libraries(l_PasteImageIntoImage antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME PasteImageIntoImage )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_PasteImageIntoImage PasteImageIntoImage.cxx )
+#target_link_libraries(l_PasteImageIntoImage antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME PasteImageIntoImage )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_TileImages TileImages.cxx )
-target_link_libraries(l_TileImages antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME TileImages )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_TileImages TileImages.cxx )
+#target_link_libraries(l_TileImages antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME TileImages )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_CreateImage CreateImage.cxx )
-target_link_libraries(l_CreateImage antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME CreateImage )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_CreateImage CreateImage.cxx )
+#target_link_libraries(l_CreateImage antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME CreateImage )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_WarpTensorImageMultiTransform WarpTensorImageMultiTransform.cxx)
-target_link_libraries(l_WarpTensorImageMultiTransform antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME WarpTensorImageMultiTransform )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_WarpTensorImageMultiTransform WarpTensorImageMultiTransform.cxx)
+#target_link_libraries(l_WarpTensorImageMultiTransform antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME WarpTensorImageMultiTransform )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ReorientTensorImage ReorientTensorImage.cxx)
-target_link_libraries(l_ReorientTensorImage antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME ReorientTensorImage )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities )
+#add_library(l_ReorientTensorImage ReorientTensorImage.cxx)
+#target_link_libraries(l_ReorientTensorImage antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME ReorientTensorImage )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities )
 
-add_library(l_RebaseTensorImage RebaseTensorImage.cxx)
-target_link_libraries(l_RebaseTensorImage antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME RebaseTensorImage )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_RebaseTensorImage RebaseTensorImage.cxx)
+#target_link_libraries(l_RebaseTensorImage antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME RebaseTensorImage )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
 add_library(l_N3BiasFieldCorrection N3BiasFieldCorrection.cxx)
 target_link_libraries(l_N3BiasFieldCorrection antsUtilities ${ITK_LIBRARIES})
@@ -495,40 +495,40 @@ configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
 add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
 target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_N4BiasFieldCorrection N4BiasFieldCorrection.cxx  ${UI_SOURCES})
-target_link_libraries(l_N4BiasFieldCorrection antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME N4BiasFieldCorrection )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_N4BiasFieldCorrection N4BiasFieldCorrection.cxx  ${UI_SOURCES})
+#target_link_libraries(l_N4BiasFieldCorrection antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME N4BiasFieldCorrection )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_KellySlater KellySlater.cxx)
-target_link_libraries(l_KellySlater antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME KellySlater )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_KellySlater KellySlater.cxx)
+#target_link_libraries(l_KellySlater antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME KellySlater )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_KellyKapowski KellyKapowski.cxx  ${UI_SOURCES})
-target_link_libraries(l_KellyKapowski antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME KellyKapowski )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_KellyKapowski KellyKapowski.cxx  ${UI_SOURCES})
+#target_link_libraries(l_KellyKapowski antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME KellyKapowski )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_CreateDTICohort CreateDTICohort.cxx  ${UI_SOURCES})
-target_link_libraries(l_CreateDTICohort antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME CreateDTICohort )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_CreateDTICohort CreateDTICohort.cxx  ${UI_SOURCES})
+#target_link_libraries(l_CreateDTICohort antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME CreateDTICohort )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_AverageAffineTransform AverageAffineTransform.cxx)
-target_link_libraries(l_AverageAffineTransform antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME AverageAffineTransform )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_AverageAffineTransform AverageAffineTransform.cxx)
+#target_link_libraries(l_AverageAffineTransform antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME AverageAffineTransform )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
 #add_library(l_antsRegistration antsRegistration.cxx ${UI_SOURCES})
 #target_link_libraries(l_antsRegistration antsUtilities ${ITK_LIBRARIES})
@@ -537,19 +537,19 @@ target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtiliti
 #add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
 #target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_antsApplyTransforms antsApplyTransforms.cxx ${UI_SOURCES})
-target_link_libraries(l_antsApplyTransforms antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME antsApplyTransforms )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_antsApplyTransforms antsApplyTransforms.cxx ${UI_SOURCES})
+#target_link_libraries(l_antsApplyTransforms antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME antsApplyTransforms )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_CompositeTransformUtil CompositeTransformUtil.cxx)
-target_link_libraries(l_CompositeTransformUtil antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME CompositeTransformUtil )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_CompositeTransformUtil CompositeTransformUtil.cxx)
+#target_link_libraries(l_CompositeTransformUtil antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME CompositeTransformUtil )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
 add_library(l_antsMotionCorr antsMotionCorr.cxx ${UI_SOURCES})
 target_link_libraries(l_antsMotionCorr antsUtilities ${ITK_LIBRARIES})
@@ -565,44 +565,44 @@ configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
 add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
 target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_CreateDisplacementField CreateDisplacementField.cxx ${UI_SOURCES})
-target_link_libraries(l_CreateDisplacementField antsUtilities ${ITK_LIBRARIES} )
-set( ANTS_FUNCTION_NAME CreateDisplacementField )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_CreateDisplacementField CreateDisplacementField.cxx ${UI_SOURCES})
+#target_link_libraries(l_CreateDisplacementField antsUtilities ${ITK_LIBRARIES} )
+#set( ANTS_FUNCTION_NAME CreateDisplacementField )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
 if(USE_VTK)
 include(${CMAKE_ROOT}/Modules/FindVTK.cmake)
 if(USE_VTK_FILE)
   include(${USE_VTK_FILE})
-  add_library(l_ConvertVectorFieldToVTK ConvertVectorFieldToVTK.cxx )
-  target_link_libraries(l_ConvertVectorFieldToVTK antsUtilities ${ITK_LIBRARIES} vtkIO)
-  set( ANTS_FUNCTION_NAME ConvertVectorFieldToVTK )
-  configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-  add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-  target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#  add_library(l_ConvertVectorFieldToVTK ConvertVectorFieldToVTK.cxx )
+#  target_link_libraries(l_ConvertVectorFieldToVTK antsUtilities ${ITK_LIBRARIES} vtkIO)
+#  set( ANTS_FUNCTION_NAME ConvertVectorFieldToVTK )
+#  configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#  add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#  target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-  add_library(l_GetMeshAndTopology GetMeshAndTopology.cxx)
-  target_link_libraries(l_GetMeshAndTopology antsUtilities ${ITK_LIBRARIES} ITKMetaIO  vtkRendering vtksys vtkIO)
-  set( ANTS_FUNCTION_NAME GetMeshAndTopology )
-  configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-  add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-  target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#  add_library(l_GetMeshAndTopology GetMeshAndTopology.cxx)
+#  target_link_libraries(l_GetMeshAndTopology antsUtilities ${ITK_LIBRARIES} ITKMetaIO  vtkRendering vtksys vtkIO)
+#  set( ANTS_FUNCTION_NAME GetMeshAndTopology )
+#  configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#  add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#  target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-  add_library(l_CheckTopology CheckTopology.cxx)
-  target_link_libraries(l_CheckTopology antsUtilities ${ITK_LIBRARIES} ITKMetaIO  vtkRendering vtksys vtkIO)
-  set( ANTS_FUNCTION_NAME CheckTopology )
-  configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-  add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-  target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#  add_library(l_CheckTopology CheckTopology.cxx)
+#  target_link_libraries(l_CheckTopology antsUtilities ${ITK_LIBRARIES} ITKMetaIO  vtkRendering vtksys vtkIO)
+#  set( ANTS_FUNCTION_NAME CheckTopology )
+#  configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#  add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#  target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-  add_library(l_WarpVTKPolyDataMultiTransform WarpVTKPolyDataMultiTransform)
-  target_link_libraries(l_WarpVTKPolyDataMultiTransform antsUtilities ${ITK_LIBRARIES} vtksys vtkIO )
-  set( ANTS_FUNCTION_NAME WarpVTKPolyDataMultiTransform )
-  configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-  add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-  target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#  add_library(l_WarpVTKPolyDataMultiTransform WarpVTKPolyDataMultiTransform)
+#  target_link_libraries(l_WarpVTKPolyDataMultiTransform antsUtilities ${ITK_LIBRARIES} vtksys vtkIO )
+#  set( ANTS_FUNCTION_NAME WarpVTKPolyDataMultiTransform )
+#  configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#  add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#  target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
 #   set(FLAT_SRC
 #     ../Temporary/itkFEMElement3DC0LinearTriangular.cxx
@@ -637,26 +637,26 @@ if(USE_VTK_FILE)
 endif(USE_VTK_FILE)
 endif(USE_VTK)
 
-add_library(l_ANTSIntegrateVectorField ANTSIntegrateVectorField.cxx)
-target_link_libraries(l_ANTSIntegrateVectorField antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME ANTSIntegrateVectorField )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ANTSIntegrateVectorField ANTSIntegrateVectorField.cxx)
+#target_link_libraries(l_ANTSIntegrateVectorField antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME ANTSIntegrateVectorField )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_ANTSIntegrateVelocityField ANTSIntegrateVelocityField.cxx)
-target_link_libraries(l_ANTSIntegrateVelocityField antsUtilities ${ITK_LIBRARIES})
-set( ANTS_FUNCTION_NAME ANTSIntegrateVelocityField )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_ANTSIntegrateVelocityField ANTSIntegrateVelocityField.cxx)
+#target_link_libraries(l_ANTSIntegrateVelocityField antsUtilities ${ITK_LIBRARIES})
+#set( ANTS_FUNCTION_NAME ANTSIntegrateVelocityField )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
-add_library(l_AtroposMin AtroposMin.cxx ${UI_SOURCES})
-target_link_libraries(l_AtroposMin antsUtilities ${ITK_LIBRARIES}   )
-set( ANTS_FUNCTION_NAME AtroposMin )
-configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
-add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
-target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
+#add_library(l_AtroposMin AtroposMin.cxx ${UI_SOURCES})
+#target_link_libraries(l_AtroposMin antsUtilities ${ITK_LIBRARIES}   )
+#set( ANTS_FUNCTION_NAME AtroposMin )
+#configure_file( template_for_executables.cxx.in cli_${ANTS_FUNCTION_NAME}.cxx )
+#add_executable( ${ANTS_FUNCTION_NAME} cli_${ANTS_FUNCTION_NAME}.cxx )
+#target_link_libraries( ${ANTS_FUNCTION_NAME} l_${ANTS_FUNCTION_NAME} antsUtilities)
 
 add_library(l_Atropos Atropos.cxx ${UI_SOURCES})
 target_link_libraries(l_Atropos antsUtilities ${ITK_LIBRARIES}   )
@@ -670,140 +670,140 @@ install( DIRECTORY
   DESTINATION .
   )
 install(TARGETS 
-  ANTS
-  l_ANTS
-  AverageAffineTransform
-  l_AverageAffineTransform
-  ANTSJacobian
-  l_ANTSJacobian
-  PasteImageIntoImage
-  l_PasteImageIntoImage
-  PrintHeader
-  l_PrintHeader
-  ResetDirection
-  l_ResetDirection
-  ANTSUseLandmarkImagesToGetAffineTransform
-  l_ANTSUseLandmarkImagesToGetAffineTransform
-  ANTSUseLandmarkImagesToGetBSplineDisplacementField
-  l_ANTSUseLandmarkImagesToGetBSplineDisplacementField
-  ANTSUseDeformationFieldToGetAffineTransform
-  l_ANTSUseDeformationFieldToGetAffineTransform
-  AverageAffineTransform
-  l_AverageAffineTransform
+#  ANTS
+#  l_ANTS
+#  AverageAffineTransform
+#  l_AverageAffineTransform
+#  ANTSJacobian
+#  l_ANTSJacobian
+#  PasteImageIntoImage
+#  l_PasteImageIntoImage
+#  PrintHeader
+#  l_PrintHeader
+#  ResetDirection
+#  l_ResetDirection
+#  ANTSUseLandmarkImagesToGetAffineTransform
+#  l_ANTSUseLandmarkImagesToGetAffineTransform
+#  ANTSUseLandmarkImagesToGetBSplineDisplacementField
+#  l_ANTSUseLandmarkImagesToGetBSplineDisplacementField
+#  ANTSUseDeformationFieldToGetAffineTransform
+#  l_ANTSUseDeformationFieldToGetAffineTransform
+#  AverageAffineTransform
+#  l_AverageAffineTransform
   ImageMath
   l_ImageMath
-  SurfaceCurvature
-  l_SurfaceCurvature
-  SurfaceBasedSmoothing
-  l_SurfaceBasedSmoothing
-  LaplacianThickness
-  l_LaplacianThickness
-  SetOrigin
-  l_SetOrigin
-  SetSpacing
-  l_SetSpacing
-  SetDirectionByMatrix
-  l_SetDirectionByMatrix
-  ConvertScalarImageToRGB
-  l_ConvertScalarImageToRGB
-  CreateWarpedGridImage
-  l_CreateWarpedGridImage
-  MeasureImageSimilarity
-  l_MeasureImageSimilarity
-  ConvertToJpg
-  l_ConvertToJpg
-  ConvertImagePixelType
-  l_ConvertImagePixelType
-  AverageImages
-  l_AverageImages
-  AverageTensorImages
-  l_AverageTensorImages
-  ImageSetStatistics
-  l_ImageSetStatistics
+#  SurfaceCurvature
+#  l_SurfaceCurvature
+#  SurfaceBasedSmoothing
+#  l_SurfaceBasedSmoothing
+#  LaplacianThickness
+#  l_LaplacianThickness
+#  SetOrigin
+#  l_SetOrigin
+#  SetSpacing
+#  l_SetSpacing
+#  SetDirectionByMatrix
+#  l_SetDirectionByMatrix
+#  ConvertScalarImageToRGB
+#  l_ConvertScalarImageToRGB
+#  CreateWarpedGridImage
+#  l_CreateWarpedGridImage
+#  MeasureImageSimilarity
+#  l_MeasureImageSimilarity
+#  ConvertToJpg
+#  l_ConvertToJpg
+#  ConvertImagePixelType
+#  l_ConvertImagePixelType
+#  AverageImages
+#  l_AverageImages
+#  AverageTensorImages
+#  l_AverageTensorImages
+#  ImageSetStatistics
+#  l_ImageSetStatistics
   ThresholdImage
   l_ThresholdImage
-  MultiplyImages
-  l_MultiplyImages
-  SmoothImage
-  l_SmoothImage
-  ClusterImageStatistics
-  l_ClusterImageStatistics
-  LabelClustersUniquely
-  l_LabelClustersUniquely
-  LabelOverlapMeasures
-  l_LabelOverlapMeasures
-  MeasureMinMaxMean
-  l_MeasureMinMaxMean
-  WarpImageMultiTransform
-  l_WarpImageMultiTransform
-  ComposeMultiTransform
-  l_ComposeMultiTransform
-  StackSlices
-  l_StackSlices
-  PermuteFlipImageOrientationAxes
-  l_PermuteFlipImageOrientationAxes
-  ImageCompare
-  l_ImageCompare
-  ResampleImageBySpacing
-  l_ResampleImageBySpacing
-  CopyImageHeaderInformation
-  l_CopyImageHeaderInformation
-  WarpTimeSeriesImageMultiTransform
-  l_WarpTimeSeriesImageMultiTransform
-  ResampleImage
-  l_ResampleImage
-  ExtractSliceFromImage
-  l_ExtractSliceFromImage
-  ExtractRegionFromImage
-  l_ExtractRegionFromImage
-  ExtractRegionFromImageByMask
-  l_ExtractRegionFromImageByMask
-  LabelGeometryMeasures
-  l_LabelGeometryMeasures
-  TileImages
-  l_TileImages
-  CreateImage
-  l_CreateImage
-  WarpTensorImageMultiTransform
-  l_WarpTensorImageMultiTransform
-  ReorientTensorImage
-  l_ReorientTensorImage
-  RebaseTensorImage
-  l_RebaseTensorImage
+#  MultiplyImages
+#  l_MultiplyImages
+#  SmoothImage
+#  l_SmoothImage
+#  ClusterImageStatistics
+#  l_ClusterImageStatistics
+#  LabelClustersUniquely
+#  l_LabelClustersUniquely
+#  LabelOverlapMeasures
+#  l_LabelOverlapMeasures
+#  MeasureMinMaxMean
+#  l_MeasureMinMaxMean
+#  WarpImageMultiTransform
+#  l_WarpImageMultiTransform
+#  ComposeMultiTransform
+#  l_ComposeMultiTransform
+#  StackSlices
+#  l_StackSlices
+#  PermuteFlipImageOrientationAxes
+#  l_PermuteFlipImageOrientationAxes
+#  ImageCompare
+#  l_ImageCompare
+#  ResampleImageBySpacing
+#  l_ResampleImageBySpacing
+#  CopyImageHeaderInformation
+#  l_CopyImageHeaderInformation
+#  WarpTimeSeriesImageMultiTransform
+#  l_WarpTimeSeriesImageMultiTransform
+#  ResampleImage
+#  l_ResampleImage
+#  ExtractSliceFromImage
+#  l_ExtractSliceFromImage
+#  ExtractRegionFromImage
+#  l_ExtractRegionFromImage
+#  ExtractRegionFromImageByMask
+#  l_ExtractRegionFromImageByMask
+#  LabelGeometryMeasures
+#  l_LabelGeometryMeasures
+#  TileImages
+#  l_TileImages
+#  CreateImage
+#  l_CreateImage
+#  WarpTensorImageMultiTransform
+#  l_WarpTensorImageMultiTransform
+#  ReorientTensorImage
+#  l_ReorientTensorImage
+#  RebaseTensorImage
+#  l_RebaseTensorImage
   N3BiasFieldCorrection
   l_N3BiasFieldCorrection
-  N4BiasFieldCorrection
-  l_N4BiasFieldCorrection
-  KellySlater
-  l_KellySlater
-  KellyKapowski
-  l_KellyKapowski
+#  N4BiasFieldCorrection
+#  l_N4BiasFieldCorrection
+#  KellySlater
+#  l_KellySlater
+#  KellyKapowski
+#  l_KellyKapowski
   antsMotionCorr
   l_antsMotionCorr
 #  antsRegistration
 #  l_antsRegistration
-  antsApplyTransforms
-  l_antsApplyTransforms
+#  antsApplyTransforms
+#  l_antsApplyTransforms
   sccan
   l_sccan
-  #  ConvertVectorFieldToVTK
-  #  l_ConvertVectorFieldToVTK
-  #  GetMeshAndTopology
-  #  l_GetMeshAndTopology
-  #  CheckTopology
-  #  l_CheckTopology
-  #  WarpVTKPolyDataMultiTransform
-  #  l_WarpVTKPolyDataMultiTransform
-  #  ANTSConformalMapping
-  #  l_ANTSConformalMapping
-  ANTSIntegrateVectorField
-  l_ANTSIntegrateVectorField
-  ANTSIntegrateVelocityField
-  l_ANTSIntegrateVelocityField
+#  ConvertVectorFieldToVTK
+#  l_ConvertVectorFieldToVTK
+#  GetMeshAndTopology
+#  l_GetMeshAndTopology
+#  CheckTopology
+#  l_CheckTopology
+#  WarpVTKPolyDataMultiTransform
+#  l_WarpVTKPolyDataMultiTransform
+#  ANTSConformalMapping
+#  l_ANTSConformalMapping
+#  ANTSIntegrateVectorField
+#  l_ANTSIntegrateVectorField
+#  ANTSIntegrateVelocityField
+#  l_ANTSIntegrateVelocityField
   Atropos
   l_Atropos
-  CreateDisplacementField
-  l_CreateDisplacementField
+#  CreateDisplacementField
+#  l_CreateDisplacementField
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
