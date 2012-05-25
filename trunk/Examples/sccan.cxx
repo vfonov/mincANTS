@@ -1137,7 +1137,7 @@ int SVD_One_View( itk::ants::CommandLineParser *parser, unsigned int permct, uns
     }
   else if( svd_option == 5  )
     {
-    truecorr = sccanobj->LASSO_Cross(  );                        
+    truecorr = sccanobj->LASSO( n_evec );                        
     }
   else if( svd_option == 2 )
     {
@@ -1206,7 +1206,7 @@ int SVD_One_View( itk::ants::CommandLineParser *parser, unsigned int permct, uns
       double permcorr = 1.e9;
       // if ( pct > 76 && pct < 79 ) 
       if ( svd_option == 4 ) permcorr = sccanobj->NetworkDecomposition(n_evec); // cgsparse
-      if ( svd_option == 5 ) permcorr = sccanobj->LASSO_Cross(); // cgsparse
+      if ( svd_option == 5 ) permcorr = sccanobj->LASSO( n_evec ); // cgsparse
       if( permcorr < truecorr )
         {
         perm_exceed_ct++;
@@ -2289,6 +2289,7 @@ void InitializeCommandLineOptions( itk::ants::CommandLineParser *parser )
     option->SetUsageOption( 3, "prior[....]" );
     option->SetUsageOption( 4, "network[matrix-view1.mhd,mask1,FracNonZero1,guidance-matrix]" );
     option->SetUsageOption( 5, "lasso[matrix-view1.mhd,mask1,Lambda,guidance-matrix]" );
+    option->SetUsageOption( 6, "recon[matrix-view1.mhd,mask1,FracNonZero1,nuisance-matrix]" );
     option->SetDescription( description );
     parser->AddOption( option );
     }
