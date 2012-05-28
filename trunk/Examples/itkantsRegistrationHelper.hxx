@@ -1,5 +1,8 @@
 #ifndef __itkantsRegistrationHelper_hxx
 #define __itkantsRegistrationHelper_hxx
+#include "itkRegistrationParameterScalesFromShift.h"
+#include "itkDemonsImageToImageMetricv4.h"
+#include "itkConjugateGradientLineSearchOptimizerv4.h"
 namespace ants
 {
 
@@ -44,7 +47,7 @@ public:
       this->Logger() << "    smoothing sigmas = " << smoothingSigmas[currentLevel] << std::endl;
       this->Logger() << "    required fixed parameters = " << adaptors[currentLevel]->GetRequiredFixedParameters() << std::endl;
 
-      typedef itk::GradientDescentOptimizerv4 GradientDescentOptimizerType;
+      typedef itk::ConjugateGradientLineSearchOptimizerv4 GradientDescentOptimizerType;
       GradientDescentOptimizerType * optimizer = reinterpret_cast<GradientDescentOptimizerType *>(
           const_cast<typename TFilter::OptimizerType *>( const_cast< TFilter *>( filter )->GetOptimizer() ) );
 
@@ -52,9 +55,9 @@ public:
       }
     else if( typeid( event ) == typeid( itk::IterationEvent ) )
       {
-      this->Logger() << "      Iteration " << filter->GetCurrentIteration() << ": "
-                     << "metric value = " << filter->GetCurrentMetricValue() << ", "
-                     << "convergence value = " << filter->GetCurrentConvergenceValue() << std::endl;
+	this->Logger() << "      Iteration " << filter->GetCurrentIteration() << ": "
+	   << "metric value = " << filter->GetCurrentMetricValue() << ", "
+	   << "convergence value = " << filter->GetCurrentConvergenceValue() << std::endl;
       }
     }
 
@@ -102,8 +105,8 @@ public:
   if( typeid( event ) == typeid( itk::IterationEvent ) )
     {
     this->Logger() << "      Iteration " << this->m_Optimizer->GetCurrentIteration()+1 << ": "
-                   << "metric value = " << this->m_Optimizer->GetValue() << ", "
-                   << "convergence value = " << this->m_Optimizer->GetConvergenceValue() << std::endl;
+       << "metric value = " << this->m_Optimizer->GetValue() << ", "
+       << "convergence value = " << this->m_Optimizer->GetConvergenceValue() << std::endl;
     }
   }
 
@@ -1035,8 +1038,11 @@ RegistrationHelper<VImageDimension>
     scalesEstimator->SetMetric( metric );
     scalesEstimator->SetTransformForward( true );
 
-    typedef itk::GradientDescentOptimizerv4 GradientDescentOptimizerType;
+    typedef itk::ConjugateGradientLineSearchOptimizerv4 GradientDescentOptimizerType;
     typename GradientDescentOptimizerType::Pointer optimizer = GradientDescentOptimizerType::New();
+    optimizer->SetLowerLimit( 0 );
+    optimizer->SetUpperLimit( 5 );
+    optimizer->SetEpsilon( 0.2 );
     optimizer->SetLearningRate( learningRate );
     optimizer->SetMaximumStepSizeInPhysicalUnits( learningRate );
     optimizer->SetNumberOfIterations( currentStageIterations[0] );
