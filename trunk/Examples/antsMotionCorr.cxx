@@ -55,7 +55,7 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkMacro.h"
-#include "itkRegistrationParameterScalesFromShift.h"
+#include "itkRegistrationParameterScalesFromPhysicalShift.h"
 #include "itkResampleImageFilter.h"
 #include "itkShrinkImageFilter.h"
 #include "itkTimeProbe.h"
@@ -726,8 +726,8 @@ int ants_motion( itk::ants::CommandLineParser *parser )
         for ( unsigned int j = 0 ; j < ImageDimension; j++ )
 	  if ( fabs( moving_time_slice->GetDirection()[i][j] - fixed_time_slice->GetDirection()[i][j] ) > 1.e-6 )
 	    directionmatricesok = false;
-      
-      if ( ! directionmatricesok ) 
+
+      if ( ! directionmatricesok )
 	{
 	antscout << " WARNING!" << std::endl;
         antscout << " fixed and moving DirectionMatrices not the same "<< std::endl;
@@ -828,12 +828,12 @@ int ants_motion( itk::ants::CommandLineParser *parser )
         {
         std::cerr << "ERROR: Unrecognized image metric: " << whichMetric << std::endl;
         }
-      metric->SetVirtualDomainImage(  fixed_time_slice );
+      metric->SetVirtualDomainFromImage(  fixed_time_slice );
       // Set up the optimizer.  To change the iteration number for each level we rely
       // on the command observer.
       //    typedef itk::JointHistogramMutualInformationImageToImageMetricv4<FixedImageType, FixedImageType>
       // MutualInformationMetricType;
-      typedef itk::RegistrationParameterScalesFromShift<MetricType> ScalesEstimatorType;
+      typedef itk::RegistrationParameterScalesFromPhysicalShift<MetricType> ScalesEstimatorType;
       typename ScalesEstimatorType::Pointer scalesEstimator = ScalesEstimatorType::New();
       scalesEstimator->SetMetric( metric );
       scalesEstimator->SetTransformForward( true );
@@ -889,7 +889,7 @@ int ants_motion( itk::ants::CommandLineParser *parser )
         nparams = affineTransform->GetNumberOfParameters() + 2;
         typename ScalesEstimatorType::ScalesType scales(affineTransform->GetNumberOfParameters() );
         metric->SetFixedImage( preprocessFixedImage );
-        metric->SetVirtualDomainImage( preprocessFixedImage );
+        metric->SetVirtualDomainFromImage( preprocessFixedImage );
         metric->SetMovingImage( preprocessMovingImage );
         scalesEstimator->SetMetric(metric);
         scalesEstimator->EstimateScales(scales);
@@ -1184,7 +1184,7 @@ int ants_motion( itk::ants::CommandLineParser *parser )
         displacementFieldRegistration->SetAverageMidPointGradients( false );
         displacementFieldRegistration->SetFixedImage( preprocessFixedImage );
         displacementFieldRegistration->SetMovingImage( preprocessMovingImage );
-	
+
         if ( compositeTransform->GetNumberOfTransforms() > 0 )
           {
 	  displacementFieldRegistration->SetMovingInitialTransform( compositeTransform );
@@ -1248,7 +1248,7 @@ int ants_motion( itk::ants::CommandLineParser *parser )
       resampler->SetTransform( compositeTransform );
       resampler->SetInput( moving_time_slice );
       resampler->SetOutputParametersFromImage( fixed_time_slice );
-      resampler->SetDefaultPixelValue( 0 ); 
+      resampler->SetDefaultPixelValue( 0 );
       resampler->Update();
       antscout << " done resampling timepoint : " << timedim << std::endl;
 
@@ -1636,7 +1636,7 @@ int antsMotionCorr( std::vector<std::string> args , std::ostream* out_stream = N
       typename WriterType::Pointer writer = WriterType::New();
       writer->SetFileName( "tempf.nii.gz" );
       writer->SetInput(  fixed_time_slice  );
-      writer->Update(); }	
+      writer->Update(); }
       { typedef itk::ImageFileWriter<FixedImageType> WriterType;
       typename WriterType::Pointer writer = WriterType::New();
       writer->SetFileName( "tempm.nii.gz" );
@@ -1646,6 +1646,6 @@ int antsMotionCorr( std::vector<std::string> args , std::ostream* out_stream = N
       typename WriterType::Pointer writer = WriterType::New();
       writer->SetFileName( "tempr.nii.gz" );
       writer->SetInput(   resampler->GetOutput()  );
-      writer->Update(); }	
+      writer->Update(); }
 
 */
