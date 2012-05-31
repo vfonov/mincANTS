@@ -2285,7 +2285,10 @@ TRealType antsSCCANObject<TInputImage, TRealType>
   // sort and reindex the values
   sort( post.begin(), post.end(), my_sccan_sort_object);
   RealType thresh = 0;  
-  for(  j = 0; ( j < beta_lasso.size() & j < n_vecs ); ++j ) thresh = post[j];
+  for(  j = 0; ( ( j < beta_lasso.size() ) && ( j < n_vecs ) ); ++j )
+    {
+    thresh = post[j];
+    }
   unsigned int added = 0;
   if ( thresh > 0 )
     {
