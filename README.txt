@@ -1,3 +1,9 @@
+Release 1.9.1 --- mincANTS 
+Based on Release 1.9.1 of ANTS from http://www.picsl.upenn.edu/ANTS/  see below for description.
+The input and output files can be now in minc1 and minc2 format, output transformation will be stored
+in minc xfm file if the file extension is .xfm 
+
+
 Release 1.9.1 --- svn release 601
  
 Homepage: http://www.picsl.upenn.edu/ANTS/ 
