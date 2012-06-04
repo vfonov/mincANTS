@@ -1,0 +1,172 @@
+#! /usr/bin/env perl
+
+use strict;
+use warnings "all";
+use Getopt::Tabular;
+use File::Basename;
+use File::Temp qw/ tempdir /;
+
+# default minctracc parameters
+my %parameters = (
+   'grad_blur' => 1,
+   'def_blur'  => 0,
+   'reg'       => 'Syn[0.25]',
+   );
+
+
+my($Help, $Usage, $me);
+my(@opt_table, %opt, $source, $target, $outxfm, $outfile, @args, $tmpdir);
+
+$me = &basename($0);
+%opt = (
+   'verbose'   => 0,
+   'clobber'   => 0,
+   'fake'      => 0,
+   'normalize' => 0,
+   'init_xfm'  =>   undef,
+   'source_mask' => undef,
+   'target_mask' => undef,
+   'level'       => 2,
+   'mi'          => 0,
+   'cc'          => 0
+   );
+
+$Help = <<HELP;
+| $me does non-linear fitting between two files
+|    using mincANTS
+| 
+| Problems or comments should be sent to: vfonov\@bic.mni.mcgill.ca
+HELP
+
+$Usage = "Usage: $me [options] source.mnc target.mnc output.xfm [output.mnc]\n".
+         "       $me -help to list options\n\n";
+
+@opt_table = (
+   ["-verbose", "boolean", 0, \$opt{verbose},
+      "be verbose" ],
+   ["-clobber", "boolean", 0, \$opt{clobber},
+      "clobber existing check files" ],
+   ["-fake", "boolean", 0, \$opt{fake},
+      "do a dry run, (echo cmds only)" ],
+   ["-init_xfm", "string", 1, \$opt{init_xfm},
+      "initial transformation (default identity)" ],
+   ["-source_mask", "string", 1, \$opt{source_mask},
+      "source mask to use during fitting" ],
+   ["-target_mask", "string", 1, \$opt{target_mask},
+      "target mask to use during fitting" ],
+   ["-level", "float", 1, \$opt{level},
+      "Perform fitting down to step 2/4/8 " ],
+ 
+   ["-mi","boolean",0,\$opt{mi},
+      "Use Mutual information" ],
+
+   ["-cc","boolean",0,\$opt{cc},
+      "Use Cross-Correlation" ]
+  );
+
+delete $ENV{MINC_COMPRESS} if $ENV{MINC_COMPRESS};
+
+# Check arguments
+&Getopt::Tabular::SetHelp($Help, $Usage);
+&GetOptions (\@opt_table, \@ARGV) || exit 1;
+die $Usage if(! ($#ARGV == 2 || $#ARGV == 3));
+$source = shift(@ARGV);
+$target = shift(@ARGV);
+$outxfm = shift(@ARGV);
+$outfile = (defined($ARGV[0])) ? shift(@ARGV) : undef;
+
+my $original_source=$source;
+# check for files
+die "$me: Couldn't find input file: $source\n\n" if (!-e $source);
+die "$me: Couldn't find input file: $target\n\n" if (!-e $target);
+if(-e $outxfm && !$opt{clobber}){
+   die "$me: $outxfm exists, -clobber to overwrite\n\n";
+   }
+if(defined($outfile) && -e $outfile && !$opt{clobber}){
+   die "$me: $outfile exists, -clobber to overwrite\n\n";
+   }
+
+# make tmpdir
+$tmpdir = &tempdir( "$me-XXXXXXXX", TMPDIR => 1, CLEANUP => 1 );
+$opt{work_dir}=$tmpdir unless $opt{work_dir};
+
+# set up filename base
+my($i, $s_base, $t_base, $tmp_xfm, $tmp_source, $tmp_target, $prev_xfm);
+
+$s_base = &basename($source);
+$s_base =~ s/\.mnc(.gz)?$//;
+$s_base = 's_'.$s_base;
+
+$t_base = &basename($target);
+$t_base =~ s/\.mnc(.gz)?$//;
+$t_base = 't_'.$t_base;
+
+# a fitting we shall go...
+#if($opt{source_mask})
+#{
+#  do_cmd('minccalc','-express','A[1]>0.5?A[0]:0',
+#         $source,$opt{source_mask},"$tmpdir/${s_base}_masked.mnc");
+#  $source="$tmpdir/${s_base}_masked.mnc";
+#}
+
+#if($opt{target_mask})
+#{
+#  do_cmd('minccalc','-express','A[1]>0.5?A[0]:0',
+#         $target,$opt{target_mask},
+#         "$tmpdir/${t_base}_masked.mnc");
+#
+#  $target="$tmpdir/${t_base}_masked.mnc";
+#}
+
+if($opt{source_mask} && $opt{target_mask})
+{
+  do_cmd('minccalc', '-express', 'A[0]>0.5&&A[1]>0.5?1:0', $opt{source_mask}, $opt{target_mask}, "$tmpdir/mask.mnc" );
+  do_cmd('itk_morph','--exp','D[5] D[5]',"$tmpdir/mask.mnc","$tmpdir/mask_.mnc");
+}
+
+my $iter="20x20x20";
+if($opt{level}>2) {
+ $iter="20x20x0";
+}
+
+if($opt{level}>4) {
+ $iter="20x0x0";
+}
+
+@args=("mincANTS",3,'--number-of-affine-iterations','0x0x0','-i',$iter,
+          '-r',"Gauss[${parameters{grad_blur}},${parameters{def_blur}}]",
+          '-t',$parameters{reg});
+
+push @args,'--mask-image',"$tmpdir/mask_.mnc" if $opt{source_mask} && $opt{target_mask};
+
+if($opt{mi})
+{
+  push @args,'-m',"MI\[$source,$target,1,32\]";
+} else {
+  $opt{level}=$opt{level}*2;
+  push @args,'-m',"CC[$source,$target,1,$opt{level}]";
+}
+
+push @args,"-o",$outxfm;
+
+do_cmd(@args);
+
+# a hack to copy the xfm file and all the internals
+#do_cmd('param2xfm',"$tmpdir/identity.xfm");
+#do_cmd('xfmconcat','-clobber',"$tmpdir/identity.xfm",$tmp_xfm,$outxfm );
+
+# resample if required
+if(defined($outfile)){
+   print STDOUT "-+- creating $outfile using $outxfm\n".
+   &do_cmd('mincresample', '-clobber', '-like', $target,
+           '-transformation',$outxfm, $original_source, $outfile);
+}
+
+
+sub do_cmd { 
+   print STDOUT "@_\n" if $opt{verbose};
+   if(!$opt{fake}){
+      system(@_) == 0 or die;
+   }
+}
+       
