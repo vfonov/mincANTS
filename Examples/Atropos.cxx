@@ -22,6 +22,11 @@
 #include <algorithm>
 #include <vector>
 
+#ifdef USE_EZMINC
+#include "itkMincImageIOFactory.h"
+#include "itkMincImageIO.h"
+#endif //USE_EZMINC
+
 template<class TFilter>
 class CommandIterationUpdate : public itk::Command
 {

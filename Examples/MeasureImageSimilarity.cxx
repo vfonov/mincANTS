@@ -22,7 +22,12 @@
 #include "itkProbabilisticRegistrationFunction.h" 
 #include "itkCrossCorrelationRegistrationFunction.h" 
 // #include "itkLandmarkCrossCorrelationRegistrationFunction.h"
- 
+
+#ifdef USE_EZMINC
+#include "itkMincImageIOFactory.h"
+#include "itkMincImageIO.h"
+#endif //USE_EZMINC
+
 
 template <unsigned int ImageDimension>
 int MeasureImageSimilarity(unsigned int argc, char *argv[])         
@@ -238,7 +243,10 @@ int main(int argc, char *argv[])
     std::cout << "  Metric 0 - MeanSquareDifference, 1 - Cross-Correlation, 2-Mutual Information , 3-SMI " << std::endl;
     return 1;
   }           
-
+  
+#ifdef USE_EZMINC 
+  itk::ObjectFactoryBase::RegisterFactory(itk::MincImageIOFactory::New());
+#endif //USE_EZMINC
   int metricsuccess=EXIT_FAILURE;
    // Get the image dimension
   switch( atoi(argv[1]))

@@ -20,12 +20,10 @@
 #include "itkANTSImageTransformation.h"
 #include "itkANTSImageRegistrationOptimizer.h"
 
-#include <string>
-
-#ifdef USE_EZMINC
 #include "itkMincImageIOFactory.h"
 #include "itkMincImageIO.h"
-#endif //USE_EZMINC
+
+#include <string>
 
 template <unsigned int ImageDimension>
 int ANTSex(int argc, char *argv[])
@@ -36,12 +34,22 @@ int ANTSex(int argc, char *argv[])
     std::cout << " Run Reg " << std::endl;
     try
       {
-      registration->RunRegistration();
+        registration->RunRegistration();
       }
-    catch(...)
+      catch (const minc::generic_error & err) {
+        std::cerr << "Got minc error at:" << err.file () << ":" << err.line () << std::endl;
+        return EXIT_FAILURE;
+      }
+      catch( itk::ExceptionObject & err )
       {
-      std::cerr << "Exception thrown: ANTS" << std::endl;
-      return EXIT_FAILURE;
+        std::cerr << "Exception thrown: ANTS" << std::endl;
+        std::cerr << err << std::endl;
+        return EXIT_FAILURE;
+      }      
+      catch(...)
+      {
+        std::cerr << "Exception thrown: ANTS" << std::endl;
+        return EXIT_FAILURE;
       }
     registration->GetTransformationModel()->SetWriteComponentImages(true);
     registration->GetTransformationModel()->Write();
@@ -55,7 +63,7 @@ int main(int argc, char *argv[] )
 {
   int  dim = 2;
 //  while(argc--) printf("%s\n", *argv++);
-  if ( argc < 2 || ((argc == 2) && strcmp(argv[1], "--help") == 0))
+    if ( argc < 2 || ((argc == 2) && strcmp(argv[1], "--help") == 0))
     {
     std::cout <<  " \n " << std::endl;
     std::cout <<  "Example usage: \n " << std::endl;
@@ -106,10 +114,8 @@ int main(int argc, char *argv[] )
     /**
      * Try the simple case of the call "ANTS fixedImage movingImage"
      */
-#ifdef USE_EZMINC 
-    itk::ObjectFactoryBase::RegisterFactory(itk::MincImageIOFactory::New());
-#endif //USE_EZMINC
     
+    itk::ObjectFactoryBase::RegisterFactory(itk::MincImageIOFactory::New());
     if( argc == 3 && ( atoi( argv[1] ) != 2 || atoi( argv[1] ) != 3 ) )
       {
       itk::ImageIOBase::Pointer fixedImageIO

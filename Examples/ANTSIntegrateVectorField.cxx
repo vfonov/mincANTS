@@ -25,6 +25,11 @@
 
 #include "itkGradientRecursiveGaussianImageFilter.h"
 
+#ifdef USE_EZMINC
+#include "itkMincImageIOFactory.h"
+#include "itkMincImageIO.h"
+#endif //USE_EZMINC
+
 template <class TImage>
 typename TImage::Pointer BinaryThreshold(
 										 typename TImage::PixelType low, 
@@ -390,7 +395,10 @@ int main(int argc, char *argv[])
       std::cout << " for the integration will start in the region labeled 2 and be constrained to the region labeled 1. "  << std::endl;
       return 1;
     }       
-
+#ifdef USE_EZMINC 
+    itk::ObjectFactoryBase::RegisterFactory(itk::MincImageIOFactory::New());
+#endif //USE_EZMINC
+    
   std::string ifn = std::string(argv[1]);
    itk::ImageIOBase::Pointer imageIO =
       itk::ImageIOFactory::CreateImageIO(ifn.c_str(), itk::ImageIOFactory::ReadMode);

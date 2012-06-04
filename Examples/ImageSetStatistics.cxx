@@ -43,6 +43,11 @@
 //http://people.revoledu.com/kardi/tutorial/RecursiveStatistic/Time-Variance.htm
 #include "itkDiscreteGaussianImageFilter.h"
 
+#ifdef USE_EZMINC
+#include "itkMincImageIOFactory.h"
+#include "itkMincImageIO.h"
+#endif //USE_EZMINC
+
 
 template <class TImageType> 
 void ReadImage(itk::SmartPointer<TImageType> &target, const char *file, bool copy)
@@ -842,6 +847,9 @@ int main( int argc, char * argv[] )
     return 1;
   }           
 
+#ifdef USE_EZMINC 
+  itk::ObjectFactoryBase::RegisterFactory(itk::MincImageIOFactory::New());
+#endif //USE_EZMINC
 
    // Get the image dimension
  

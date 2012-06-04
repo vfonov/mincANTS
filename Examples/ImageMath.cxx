@@ -115,7 +115,6 @@
 #include "TensorFunctions.h"
 
 
-
 std::string ANTSGetFilePrefix(const char *str){
 
     std::string filename = str;
@@ -6062,6 +6061,10 @@ int CorrelationUpdate(      int argc, char *argv[])
 }
 
 
+#ifdef USE_EZMINC
+#include "itkMincImageIOFactory.h"
+#include "itkMincImageIO.h"
+#endif //USE_EZMINC
 
 
 
@@ -6127,7 +6130,10 @@ int main(int argc, char *argv[])
   }
 
   std::string operation=std::string(argv[3]);
-
+#ifdef USE_EZMINC 
+  itk::ObjectFactoryBase::RegisterFactory(itk::MincImageIOFactory::New());
+#endif //USE_EZMINC
+  
   switch ( atoi(argv[1]) )
    {
 

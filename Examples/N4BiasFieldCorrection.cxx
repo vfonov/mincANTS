@@ -17,6 +17,11 @@
 #include <algorithm>
 #include <vector>
 
+#ifdef USE_EZMINC
+#include "itkMincImageIOFactory.h"
+#include "itkMincImageIO.h"
+#endif //USE_EZMINC
+
 template<class TFilter>
 class CommandIterationUpdate : public itk::Command
 {
@@ -588,7 +593,12 @@ int main( int argc, char *argv[] )
       << " imageDimension args" << std::endl;
     exit( 1 );
     }
-
+#ifdef USE_EZMINC
+    itk::ObjectFactoryBase::RegisterFactory(itk::MincImageIOFactory::New());
+    
+#endif //USE_EZMINC
+    
+    
   itk::ants::CommandLineParser::Pointer parser = itk::ants::CommandLineParser::New();
   parser->SetCommand( argv[0] );
 

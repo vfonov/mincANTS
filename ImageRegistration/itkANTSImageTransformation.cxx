@@ -36,6 +36,10 @@
 
 #include "vnl/vnl_math.h"
 
+#ifdef USE_EZMINC
+#include <minc_helpers.h>
+#endif //USE_EZMINC
+
 namespace itk
 {
 
@@ -94,14 +98,64 @@ ANTSImageTransformation<TDimension, TReal>
 
     //Added by songgang
     if (this->m_AffineTransform) {
+#ifdef USE_EZMINC
+      if( extension == std::string( ".xfm" ) )
+      {
+        if(! this->m_DeformationField )
+        {
+          minc::write_linear_xfm(this->m_NamingConvention.c_str(), 
+                                this->m_AffineTransform->GetMatrix(),
+                                this->m_AffineTransform->GetOffset());
+          // let's create an inverse to be consistent
+          
+          std::string inv_xfm = filePrefix + std::string( "_inverse.xfm" );
+          
+          AffineTransformPointer tmp=AffineTransformType::New();
+          //tmp->SetCenter(this->m_AffineTransform->GetCenter());
+          this->m_AffineTransform->GetInverse(tmp);
+          minc::write_linear_xfm(inv_xfm.c_str(), 
+                                 tmp->GetMatrix(),
+                                 tmp->GetOffset());
+          
+          //delete tmp;
+        }
+      } else  
+#endif //USE_EZMINC
+      {        
         std::cout << " writing " << filePrefix << " affine " << std::endl;
         std::string filename = filePrefix + std::string( "Affine.txt" );
         WriteAffineTransformFile(this->m_AffineTransform, filename);
+      }
     }
     
     if ( this->m_DeformationField )
     {  
         std::cout <<" writing " << filePrefix << " def " <<  std::endl;
+#ifdef USE_EZMINC 
+        if ( extension == std::string( ".xfm" ) )
+        {
+          std::string filename = filePrefix + std::string( "_grid_0.mnc" );
+          typedef ImageFileWriter<DeformationFieldType> WriterType;
+          typename WriterType::Pointer writer = WriterType::New();
+          writer->SetFileName( filename );
+          writer->SetInput( this->m_DeformationField );
+          writer->Update();
+          
+          std::string::size_type pos = filename.rfind( "/" );
+          if(pos==std::string::npos) pos=0;
+          else pos++;
+          std::string basename(filename,pos,filename.length());
+          
+          if(this->m_AffineTransform)
+            minc::write_combined_xfm(this->m_NamingConvention.c_str(),
+                                     basename.c_str(),
+                                     this->m_AffineTransform->GetMatrix(),
+                                     this->m_AffineTransform->GetOffset());
+          else
+            minc::write_nonlinear_xfm(this->m_NamingConvention.c_str(),basename.c_str());
+          
+        } else    
+#endif //USE_EZMINC
         if ( extension != std::string( ".mha" ) )
         {
             std::string filename = filePrefix + std::string( "Warp" )
@@ -124,10 +178,44 @@ ANTSImageTransformation<TDimension, TReal>
             writer->SetInput( this->m_DeformationField );
             writer->Update();
         }
-    }         
+    }
 
     if ( this->m_InverseDeformationField )
     {  
+      
+#ifdef USE_EZMINC 
+      if ( extension == std::string( ".xfm" ) )
+      {
+        std::string filename = filePrefix + std::string( "_inverse_grid_0.mnc" );
+        std::cout<<"Writing:"<<filename<<std::endl;
+        typedef ImageFileWriter<DeformationFieldType> WriterType;
+        typename WriterType::Pointer writer = WriterType::New();
+        writer->SetFileName( filename );
+        writer->SetInput( this->m_InverseDeformationField );
+        writer->Update();
+        
+        std::string inv_xfm = filePrefix + std::string( "_inverse.xfm" );
+        
+        std::string::size_type pos = filename.rfind( "/" );
+        if(pos==std::string::npos) pos=0;
+        else pos++;
+        std::string basename(filename,pos,filename.length());
+          
+        if(this->m_AffineTransform)
+        {
+          AffineTransformPointer tmp=AffineTransformType::New();
+          this->m_AffineTransform->GetInverse(tmp);
+          
+          minc::write_combined_xfm(inv_xfm.c_str(),
+                                   tmp->GetMatrix(),
+                                   tmp->GetOffset(),
+                                    basename.c_str());
+        } else {
+          minc::write_nonlinear_xfm(inv_xfm.c_str(),basename.c_str());
+        } 
+        
+      } else
+#endif //USE_EZMINC 
         if ( extension != std::string( ".mha" ) )
         {
             std::string filename = filePrefix + std::string( "InverseWarp" )
@@ -149,9 +237,7 @@ ANTSImageTransformation<TDimension, TReal>
             writer->SetInput( this->m_InverseDeformationField );
             writer->Update();
         }
-    }         
-
-
+    }
 }
 
 /**

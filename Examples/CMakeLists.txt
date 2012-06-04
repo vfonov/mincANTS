@@ -31,6 +31,35 @@ IF(USE_VTK)
   ENDIF(VTK_FOUND)
 ENDIF(USE_VTK)
 
+OPTION(USE_EZMINC "Use MINC1/2 interface" ON)
+
+IF(USE_EZMINC)
+
+SET(EZMINC_ROOT "/usr/local/bic" CACHE PATH "EZMinc library base")
+OPTION(USE_MINC2  "Use MINC2" ON)
+ADD_DEFINITIONS( -DUSE_EZMINC )
+
+LINK_DIRECTORIES(
+"${EZMINC_ROOT}/lib"
+)
+
+INCLUDE_DIRECTORIES(
+  "${EZMINC_ROOT}/include"
+)
+
+
+LINK_LIBRARIES(minc4itk minc_io)
+
+IF(USE_MINC2)
+  ADD_DEFINITIONS( -DMINC2 )
+  LINK_LIBRARIES(volume_io2 minc2 netcdf hdf5 z)
+ELSE(USE_MINC2)
+  LINK_LIBRARIES(volume_io minc netcdf)
+ENDIF(USE_MINC2)
+ENDIF(USE_EZMINC)
+
+
+
 #The following lines are required to use Dart
 INCLUDE(CTest)
 ENABLE_TESTING()
@@ -262,6 +291,14 @@ TARGET_LINK_LIBRARIES(WarpVTKPolyDataMultiTransform ITKIO vtksys vtkIO )
  
 ENDIF (USE_VTK_FILE)
 ENDIF(USE_VTK)
+
+
+IF(USE_EZMINC)
+
+  ADD_EXECUTABLE(mincANTS mincANTS.cxx ${UI_SOURCES})
+  
+  TARGET_LINK_LIBRARIES(mincANTS ITKCommon  ITKBasicFilters ITKIO   ITKNumerics  ITKStatistics  ITKFEM  )
+ENDIF(USE_EZMINC)
 
 
 
@@ -545,3 +582,13 @@ SET(R16_PRIORS ${DATA_DIR}/r16priors.nii.gz)
 #ADD_TEST(APOC_PRIORLABELIMAGE_INIT Apocrita 2 -i priorlabelimage[${R16_IMAGE},5,${R16_PRIORS},0.5] -x ${R16_MASK} -n 10 -m [0.3,1x1,0.2,0.1] -o [${OUTPUT_PREFIX}.nii.gz,${OUTPUT_PREFIX}_posteriors%d.nii.gz] -l 1[1,0.75] -l 2[1,1.0] -l 3[0.5,0.5] -l 4[1,1])
 
 
+###
+# Installing binary targets
+###
+IF(USE_EZMINC)
+
+ INSTALL(TARGETS 
+          mincANTS
+          RUNTIME DESTINATION bin )
+        
+ENDIF(USE_EZMINC)

@@ -1,6 +1,9 @@
 #ifndef ANTS_AFFINE_REGISTRATION2_H_
 #define ANTS_AFFINE_REGISTRATION2_H_
 
+#ifdef USE_EZMINC
+#include <minc_helpers.h>
+#endif //USE_EZMINC
 
 #include <vector>
 #include <stdlib.h>
@@ -142,23 +145,39 @@ std::ostream& operator<< (std::ostream& os, const OptAffine<TAffineTransformPoin
 
 template<class TransformPointerType, class StringType>
 void WriteAffineTransformFile(TransformPointerType &transform, StringType filename){
+  
+    typename StringType::size_type pos = filename.rfind( "." );
+    StringType extension;
+    if ( pos != std::string::npos 
+        && StringType( filename, pos, pos+2 ) != StringType( "./" ) )
+      extension = StringType( filename, pos, filename.length()-1 );
 
-
-    itk::TransformFileWriter::Pointer transform_writer;
-    transform_writer = itk::TransformFileWriter::New();
-    transform_writer->SetFileName(filename);
-    transform_writer->SetInput(transform);
-
-    try{
-        transform_writer->Update();
+#ifdef USE_EZMINC      
+    if( extension == std::string( ".xfm" ) )
+    {
+      std::cout<<"Writing xfm:"<<filename.c_str()<<std::endl;
+      
+      minc::write_linear_xfm(filename.c_str(), 
+                             transform->GetMatrix(),
+                            transform->GetOffset());
+    } else  
+#endif //USE_EZMINC
+    {
+      itk::TransformFileWriter::Pointer transform_writer;
+      transform_writer = itk::TransformFileWriter::New();
+      transform_writer->SetFileName(filename);
+      transform_writer->SetInput(transform);
+  
+      try{
+          transform_writer->Update();
+      }
+      catch( itk::ExceptionObject &err){
+          std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
+          <<"Exception in writing tranform file: " << std::endl
+          << filename << std::endl;
+          return;
+      }
     }
-    catch( itk::ExceptionObject &err){
-        std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl
-        <<"Exception in writing tranform file: " << std::endl
-        << filename << std::endl;
-        return;
-    }
-
 
     return;
 }
@@ -166,29 +185,49 @@ void WriteAffineTransformFile(TransformPointerType &transform, StringType filena
 template<class StringType, class CastTransformPointerType>
 void ReadAffineTransformFile(StringType filename, CastTransformPointerType &transform){
 
+  typename StringType::size_type pos = filename.rfind( "." );
+  StringType extension;
+  if ( pos != std::string::npos 
+       && StringType( filename, pos, pos+2 ) != StringType( "./" ) )
+    extension = StringType( filename, pos, filename.length()-1 );
+
+  
     typedef typename CastTransformPointerType::ObjectType CastTransformType;
 //    const unsigned int InputSpaceDimension = CastTransformType::InputSpaceDimension;
 //    const unsigned int OutputSpaceDimension = CastTransformType::OutputSpaceDimension;
 
-    itk::TransformFactory<CastTransformType>::RegisterTransform();
-    itk::TransformFactory<itk::ANTSAffine3DTransform<double> >::RegisterTransform();
-
-    typedef typename itk::TransformFileReader TranReaderType;
-    TranReaderType::Pointer tran_reader = TranReaderType::New();
-    tran_reader->SetFileName(filename);
-
-    try{
-        tran_reader->Update();
+#ifdef USE_EZMINC
+    if(extension==StringType( ".xfm" ))
+    {
+      std::cout<<"Reading xfm:"<<filename.c_str()<<std::endl;
+      typename CastTransformType::MatrixType rot;
+      typename CastTransformType::OutputVectorType tran;
+      minc::read_linear_xfm(filename.c_str(),rot,tran);
+      
+      transform->SetTranslation(tran);
+      transform->SetMatrix(rot);
+    } else 
+#endif //USE_EZMINC
+    {
+      itk::TransformFactory<CastTransformType>::RegisterTransform();
+      itk::TransformFactory<itk::ANTSAffine3DTransform<double> >::RegisterTransform();
+  
+      typedef typename itk::TransformFileReader TranReaderType;
+      TranReaderType::Pointer tran_reader = TranReaderType::New();
+      tran_reader->SetFileName(filename);
+  
+      try{
+          tran_reader->Update();
+      }
+      catch( itk::ExceptionObject &err) {
+          std::cerr << err << std::endl;
+          std::cerr << "Exception caught in reading tran para file: "
+          << filename << std::endl;
+          return;
+      }
+  
+      transform = dynamic_cast< CastTransformType* >((tran_reader->GetTransformList())->front().GetPointer());
     }
-    catch( itk::ExceptionObject &err) {
-        std::cerr << err << std::endl;
-        std::cerr << "Exception caught in reading tran para file: "
-        << filename << std::endl;
-        return;
-    }
-
-    transform = dynamic_cast< CastTransformType* >((tran_reader->GetTransformList())->front().GetPointer());
-
     return;
 }
 
