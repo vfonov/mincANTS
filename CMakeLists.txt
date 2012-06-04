@@ -80,7 +80,7 @@ SET(UI_SOURCES "Utilities/antsCommandLineParser" "Utilities/antsCommandLineOptio
 
 # duplicate of ANTS binary
 IF(USE_MINC4ITK)
-  ADD_EXECUTABLE(mincANTS ANTS.cxx ${UI_SOURCES})
+  ADD_EXECUTABLE(mincANTS Examples/ANTS.cxx ${UI_SOURCES})
   TARGET_LINK_LIBRARIES(mincANTS ITKCommon  ITKBasicFilters ITKIO   ITKNumerics  ITKStatistics  ITKFEM )
 
   INSTALL(TARGETS 
