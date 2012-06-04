@@ -87,6 +87,8 @@ IF(USE_MINC4ITK)
            mincANTS
            RUNTIME DESTINATION bin )
   
+  INSTALL(PROGRAMS nlfit_ants DESTINATION bin )
+
 ELSE(USE_MINC4ITK)
   # TODO transfer this to minc?
 
