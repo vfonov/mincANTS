@@ -21,7 +21,6 @@
 #include "itkANTSImageRegistrationOptimizer.h"
 
 #include "itkMincImageIOFactory.h"
-#include "itkMincImageIO.h"
 
 #include <string>
 
@@ -115,7 +114,10 @@ int main(int argc, char *argv[] )
      * Try the simple case of the call "ANTS fixedImage movingImage"
      */
     
-    itk::ObjectFactoryBase::RegisterFactory(itk::MincImageIOFactory::New());
+    
+    itk::RegisterMincIO();
+    
+
     if( argc == 3 && ( atoi( argv[1] ) != 2 || atoi( argv[1] ) != 3 ) )
       {
       itk::ImageIOBase::Pointer fixedImageIO

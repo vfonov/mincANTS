@@ -23,10 +23,9 @@
 #include "vnl/vnl_math.h"
 #include "vnl/vnl_erf.h"
 
-#ifdef USE_EZMINC
+#ifdef HAVE_MINC4ITK
 #include "itkMincImageIOFactory.h"
-#include "itkMincImageIO.h"
-#endif //USE_EZMINC
+#endif //HAVE_MINC4ITK
 
 // for computing F distribution 
 extern "C" double dbetai_(double *x, double *pin, double *qin);
@@ -536,9 +535,9 @@ if ( argc < 6 )
   std::cout << argv[0] << "  2  TEST.nii.gz 4 8 FawtJandADCcon/*SUB.nii  FawtJandADCsub/*SUB.nii  \n ";
   return 1;
   }           
-#ifdef USE_EZMINC 
-  itk::ObjectFactoryBase::RegisterFactory(itk::MincImageIOFactory::New());
-#endif //USE_EZMINC
+#ifdef HAVE_MINC4ITK 
+    itk::RegisterMincIO();
+#endif //HAVE_MINC4ITK
   
   switch ( atoi(argv[1]) )
    {

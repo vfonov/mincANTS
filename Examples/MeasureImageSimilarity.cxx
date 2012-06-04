@@ -23,10 +23,9 @@
 #include "itkCrossCorrelationRegistrationFunction.h" 
 // #include "itkLandmarkCrossCorrelationRegistrationFunction.h"
 
-#ifdef USE_EZMINC
+#ifdef HAVE_MINC4ITK
 #include "itkMincImageIOFactory.h"
-#include "itkMincImageIO.h"
-#endif //USE_EZMINC
+#endif //HAVE_MINC4ITK
 
 
 template <unsigned int ImageDimension>
@@ -244,9 +243,10 @@ int main(int argc, char *argv[])
     return 1;
   }           
   
-#ifdef USE_EZMINC 
-  itk::ObjectFactoryBase::RegisterFactory(itk::MincImageIOFactory::New());
-#endif //USE_EZMINC
+#ifdef HAVE_MINC4ITK 
+    itk::RegisterMincIO();
+#endif //HAVE_MINC4ITK
+    
   int metricsuccess=EXIT_FAILURE;
    // Get the image dimension
   switch( atoi(argv[1]))

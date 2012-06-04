@@ -6061,11 +6061,9 @@ int CorrelationUpdate(      int argc, char *argv[])
 }
 
 
-#ifdef USE_EZMINC
+#ifdef HAVE_MINC4ITK
 #include "itkMincImageIOFactory.h"
-#include "itkMincImageIO.h"
-#endif //USE_EZMINC
-
+#endif //HAVE_MINC4ITK
 
 
 int main(int argc, char *argv[])
@@ -6130,10 +6128,10 @@ int main(int argc, char *argv[])
   }
 
   std::string operation=std::string(argv[3]);
-#ifdef USE_EZMINC 
-  itk::ObjectFactoryBase::RegisterFactory(itk::MincImageIOFactory::New());
-#endif //USE_EZMINC
-  
+#ifdef HAVE_MINC4ITK 
+    itk::RegisterMincIO();
+#endif //HAVE_MINC4ITK
+    
   switch ( atoi(argv[1]) )
    {
 

@@ -7,10 +7,9 @@
 #include "itkOtsuThresholdImageFilter.h"
 #include "itkShrinkImageFilter.h"
 
-#ifdef USE_EZMINC
+#ifdef HAVE_MINC4ITK
 #include "itkMincImageIOFactory.h"
-#include "itkMincImageIO.h"
-#endif //USE_EZMINC
+#endif //HAVE_MINC4ITK
 
 template<class TFilter>
 class CommandIterationUpdate : public itk::Command
@@ -216,10 +215,10 @@ int main( int argc, char *argv[] )
     exit( EXIT_FAILURE );
     }
     
-#ifdef USE_EZMINC 
-    itk::ObjectFactoryBase::RegisterFactory(itk::MincImageIOFactory::New());
-#endif //USE_EZMINC
-
+#ifdef HAVE_MINC4ITK 
+    itk::RegisterMincIO();
+#endif //HAVE_MINC4ITK
+    
   switch( atoi( argv[1] ) )
    {
    case 2:

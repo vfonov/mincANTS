@@ -43,10 +43,9 @@
 //http://people.revoledu.com/kardi/tutorial/RecursiveStatistic/Time-Variance.htm
 #include "itkDiscreteGaussianImageFilter.h"
 
-#ifdef USE_EZMINC
+#ifdef HAVE_MINC4ITK
 #include "itkMincImageIOFactory.h"
-#include "itkMincImageIO.h"
-#endif //USE_EZMINC
+#endif //HAVE_MINC4ITK
 
 
 template <class TImageType> 

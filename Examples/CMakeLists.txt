@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.4)
 #Change PROJECT_NAME to the name of your project
-PROJECT(ANTS)
+PROJECT(mincANTS)
 
 
 OPTION(USE_ITK "Use ITK Libraries" ON)
@@ -31,32 +31,16 @@ IF(USE_VTK)
   ENDIF(VTK_FOUND)
 ENDIF(USE_VTK)
 
-OPTION(USE_EZMINC "Use MINC1/2 interface" ON)
+OPTION(USE_MINC4ITK "Use ITK MINC1/2 interface" ON)
 
-IF(USE_EZMINC)
-
-SET(EZMINC_ROOT "/usr/local/bic" CACHE PATH "EZMinc library base")
-OPTION(USE_MINC2  "Use MINC2" ON)
-ADD_DEFINITIONS( -DUSE_EZMINC )
-
-LINK_DIRECTORIES(
-"${EZMINC_ROOT}/lib"
-)
-
-INCLUDE_DIRECTORIES(
-  "${EZMINC_ROOT}/include"
-)
-
-
-LINK_LIBRARIES(minc4itk minc_io)
-
-IF(USE_MINC2)
-  ADD_DEFINITIONS( -DMINC2 )
-  LINK_LIBRARIES(volume_io2 minc2 netcdf hdf5 z)
-ELSE(USE_MINC2)
-  LINK_LIBRARIES(volume_io minc netcdf)
-ENDIF(USE_MINC2)
-ENDIF(USE_EZMINC)
+IF(USE_MINC4ITK)
+  FIND_PACKAGE(MINC4ITK REQUIRED)
+  FIND_PACKAGE(MINC2 REQUIRED)
+  LINK_DIRECTORIES(${MINC2_LIBRARY_DIRS} ${MINC4ITK_LIBRARY_DIRS})
+  INCLUDE_DIRECTORIES(${MINC2_INCLUDE_DIRS} ${MINC4ITK_INCLUDE_DIRS})
+  LINK_LIBRARIES(${MINC4ITK_LIBRARIES} ${EZMINC_LIBRARIES} ${VOLUME_IO_LIBRARIES} ${MINC2_LIBRARIES})
+  ADD_DEFINITIONS(-DHAVE_MINC4ITK)
+ENDIF(USE_MINC4ITK)
 
 
 
@@ -86,6 +70,19 @@ LINK_DIRECTORIES( ${ITK_LIBRARY_PATH} )
 
 # non-templated class -- this should be stored in a library and linked in...
 SET(UI_SOURCES "../Utilities/antsCommandLineParser" "../Utilities/antsCommandLineOption" )
+
+
+# duplicate of ANTS binary
+IF(USE_MINC4ITK)
+  ADD_EXECUTABLE(mincANTS ANTS.cxx ${UI_SOURCES})
+  TARGET_LINK_LIBRARIES(mincANTS ITKCommon  ITKBasicFilters ITKIO   ITKNumerics  ITKStatistics  ITKFEM )
+
+  INSTALL(TARGETS 
+           mincANTS
+           RUNTIME DESTINATION bin )
+  
+ENDIF(USE_MINC4ITK)
+
 
 ADD_EXECUTABLE(ANTS ANTS.cxx ${UI_SOURCES})
 TARGET_LINK_LIBRARIES(ANTS ITKCommon  ITKBasicFilters ITKIO   ITKNumerics  ITKStatistics  ITKFEM )
@@ -285,21 +282,12 @@ TARGET_LINK_LIBRARIES(WarpVTKPolyDataMultiTransform ITKIO vtksys vtkIO )
 
   ADD_EXECUTABLE(ConformalMapping ConformalMapping.cxx)
   TARGET_LINK_LIBRARIES(ConformalMapping ITKCommon ITKNumerics ITKFEM FLATFEM ITKIO ITKMetaIO  vtkRendering vtkIO)
- 
- ADD_EXECUTABLE(ANTSConformalMapping ANTSConformalMapping.cxx ${UI_SOURCES})
+
+ADD_EXECUTABLE(ANTSConformalMapping ANTSConformalMapping.cxx ${UI_SOURCES})
   TARGET_LINK_LIBRARIES(ANTSConformalMapping ITKCommon ITKNumerics ITKFEM FLATFEM ITKIO ITKMetaIO  vtkRendering vtkIO)
- 
+
 ENDIF (USE_VTK_FILE)
 ENDIF(USE_VTK)
-
-
-IF(USE_EZMINC)
-
-  ADD_EXECUTABLE(mincANTS mincANTS.cxx ${UI_SOURCES})
-  
-  TARGET_LINK_LIBRARIES(mincANTS ITKCommon  ITKBasicFilters ITKIO   ITKNumerics  ITKStatistics  ITKFEM  )
-ENDIF(USE_EZMINC)
-
 
 
 ADD_EXECUTABLE(ANTSIntegrateVectorField ANTSIntegrateVectorField.cxx)
@@ -339,6 +327,8 @@ IF( COPY_SCRIPT_FILES_TO_BIN_DIR )
       COMMAND ${CMAKE_COMMAND} -E copy ${SCRIPT_FILE} ${CMAKE_BINARY_DIR} )
   ENDFOREACH( SCRIPT_FILE )
 ENDIF( COPY_SCRIPT_FILES_TO_BIN_DIR )
+
+
 
 ###
 #  Perform testing
@@ -585,10 +575,10 @@ SET(R16_PRIORS ${DATA_DIR}/r16priors.nii.gz)
 ###
 # Installing binary targets
 ###
-IF(USE_EZMINC)
-
- INSTALL(TARGETS 
-          mincANTS
-          RUNTIME DESTINATION bin )
-        
-ENDIF(USE_EZMINC)
+# IF(USE_EZMINC)
+# 
+#  INSTALL(TARGETS 
+#           mincANTS
+#           RUNTIME DESTINATION bin )
+#         
+# ENDIF(USE_EZMINC)

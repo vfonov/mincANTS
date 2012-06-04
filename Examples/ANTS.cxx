@@ -22,10 +22,9 @@
 
 #include <string>
 
-#ifdef USE_EZMINC
+#ifdef HAVE_MINC4ITK
 #include "itkMincImageIOFactory.h"
-#include "itkMincImageIO.h"
-#endif //USE_EZMINC
+#endif //HAVE_MINC4ITK
 
 template <unsigned int ImageDimension>
 int ANTSex(int argc, char *argv[])
@@ -106,9 +105,9 @@ int main(int argc, char *argv[] )
     /**
      * Try the simple case of the call "ANTS fixedImage movingImage"
      */
-#ifdef USE_EZMINC 
-    itk::ObjectFactoryBase::RegisterFactory(itk::MincImageIOFactory::New());
-#endif //USE_EZMINC
+#ifdef HAVE_MINC4ITK 
+    itk::RegisterMincIO();
+#endif //HAVE_MINC4ITK
     
     if( argc == 3 && ( atoi( argv[1] ) != 2 || atoi( argv[1] ) != 3 ) )
       {

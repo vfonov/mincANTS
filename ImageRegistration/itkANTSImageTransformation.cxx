@@ -36,9 +36,9 @@
 
 #include "vnl/vnl_math.h"
 
-#ifdef USE_EZMINC
-#include <minc_helpers.h>
-#endif //USE_EZMINC
+#ifdef HAVE_MINC4ITK
+#include <itkMincHelpers.h>
+#endif //HAVE_MINC4ITK
 
 namespace itk
 {
@@ -98,7 +98,7 @@ ANTSImageTransformation<TDimension, TReal>
 
     //Added by songgang
     if (this->m_AffineTransform) {
-#ifdef USE_EZMINC
+#ifdef HAVE_MINC4ITK
       if( extension == std::string( ".xfm" ) )
       {
         if(! this->m_DeformationField )
@@ -120,7 +120,7 @@ ANTSImageTransformation<TDimension, TReal>
           //delete tmp;
         }
       } else  
-#endif //USE_EZMINC
+#endif //HAVE_MINC4ITK
       {        
         std::cout << " writing " << filePrefix << " affine " << std::endl;
         std::string filename = filePrefix + std::string( "Affine.txt" );
@@ -131,7 +131,7 @@ ANTSImageTransformation<TDimension, TReal>
     if ( this->m_DeformationField )
     {  
         std::cout <<" writing " << filePrefix << " def " <<  std::endl;
-#ifdef USE_EZMINC 
+#ifdef HAVE_MINC4ITK 
         if ( extension == std::string( ".xfm" ) )
         {
           std::string filename = filePrefix + std::string( "_grid_0.mnc" );
@@ -155,7 +155,7 @@ ANTSImageTransformation<TDimension, TReal>
             minc::write_nonlinear_xfm(this->m_NamingConvention.c_str(),basename.c_str());
           
         } else    
-#endif //USE_EZMINC
+#endif //HAVE_MINC4ITK
         if ( extension != std::string( ".mha" ) )
         {
             std::string filename = filePrefix + std::string( "Warp" )
@@ -183,7 +183,7 @@ ANTSImageTransformation<TDimension, TReal>
     if ( this->m_InverseDeformationField )
     {  
       
-#ifdef USE_EZMINC 
+#ifdef HAVE_MINC4ITK 
       if ( extension == std::string( ".xfm" ) )
       {
         std::string filename = filePrefix + std::string( "_inverse_grid_0.mnc" );
@@ -215,7 +215,7 @@ ANTSImageTransformation<TDimension, TReal>
         } 
         
       } else
-#endif //USE_EZMINC 
+#endif //HAVE_MINC4ITK 
         if ( extension != std::string( ".mha" ) )
         {
             std::string filename = filePrefix + std::string( "InverseWarp" )

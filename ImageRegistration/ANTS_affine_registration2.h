@@ -1,9 +1,9 @@
 #ifndef ANTS_AFFINE_REGISTRATION2_H_
 #define ANTS_AFFINE_REGISTRATION2_H_
 
-#ifdef USE_EZMINC
-#include <minc_helpers.h>
-#endif //USE_EZMINC
+#ifdef HAVE_MINC4ITK
+#include <itkMincHelpers.h>
+#endif //HAVE_MINC4ITK
 
 #include <vector>
 #include <stdlib.h>
@@ -152,7 +152,7 @@ void WriteAffineTransformFile(TransformPointerType &transform, StringType filena
         && StringType( filename, pos, pos+2 ) != StringType( "./" ) )
       extension = StringType( filename, pos, filename.length()-1 );
 
-#ifdef USE_EZMINC      
+#ifdef HAVE_MINC4ITK      
     if( extension == std::string( ".xfm" ) )
     {
       std::cout<<"Writing xfm:"<<filename.c_str()<<std::endl;
@@ -161,7 +161,7 @@ void WriteAffineTransformFile(TransformPointerType &transform, StringType filena
                              transform->GetMatrix(),
                             transform->GetOffset());
     } else  
-#endif //USE_EZMINC
+#endif //HAVE_MINC4ITK
     {
       itk::TransformFileWriter::Pointer transform_writer;
       transform_writer = itk::TransformFileWriter::New();
@@ -196,7 +196,7 @@ void ReadAffineTransformFile(StringType filename, CastTransformPointerType &tran
 //    const unsigned int InputSpaceDimension = CastTransformType::InputSpaceDimension;
 //    const unsigned int OutputSpaceDimension = CastTransformType::OutputSpaceDimension;
 
-#ifdef USE_EZMINC
+#ifdef HAVE_MINC4ITK
     if(extension==StringType( ".xfm" ))
     {
       std::cout<<"Reading xfm:"<<filename.c_str()<<std::endl;
@@ -207,7 +207,7 @@ void ReadAffineTransformFile(StringType filename, CastTransformPointerType &tran
       transform->SetTranslation(tran);
       transform->SetMatrix(rot);
     } else 
-#endif //USE_EZMINC
+#endif //HAVE_MINC4ITK
     {
       itk::TransformFactory<CastTransformType>::RegisterTransform();
       itk::TransformFactory<itk::ANTSAffine3DTransform<double> >::RegisterTransform();

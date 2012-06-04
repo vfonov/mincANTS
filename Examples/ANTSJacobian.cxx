@@ -17,10 +17,9 @@
 #include "itkMatrixOffsetTransformBase.h"
 #include "itkWarpImageMultiTransformFilter.h"
 
-#ifdef USE_EZMINC
+#ifdef HAVE_MINC4ITK
 #include "itkMincImageIOFactory.h"
-#include "itkMincImageIO.h"
-#endif //USE_EZMINC
+#endif //HAVE_MINC4ITK
 
 template <class TImage>
 typename TImage::Pointer VectorAniDiff(typename TImage::Pointer img, unsigned int iters)
@@ -453,10 +452,11 @@ int main(int argc, char *argv[])
     std::cout << " the last 1 normalizes the jacobian by the total in the mask.  use this to adjust for head size.  " << std::endl;
     return 1;
   }       
-#ifdef USE_EZMINC 
-  itk::ObjectFactoryBase::RegisterFactory(itk::MincImageIOFactory::New());
-#endif //USE_EZMINC
-  switch( atoi( argv[1] ) ) 
+#ifdef HAVE_MINC4ITK 
+    itk::RegisterMincIO();
+#endif //HAVE_MINC4ITK
+    
+   switch( atoi( argv[1] ) ) 
    {
    case 2:
      Jacobian<2>(argc-1,argv+1);
