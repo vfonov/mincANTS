@@ -19,6 +19,8 @@
 
 #ifdef HAVE_MINC4ITK
 #include "itkMincImageIOFactory.h"
+#include "itkMincHelpers.h"
+#include <time_stamp.h>    // for creating minc style history entry
 #endif //HAVE_MINC4ITK
 
 
@@ -63,7 +65,7 @@ public:
 };
 
 template <unsigned int ImageDimension>
-int InhomogeneityCorrectImage( itk::ants::CommandLineParser *parser )
+int InhomogeneityCorrectImage( itk::ants::CommandLineParser *parser,const char* history )
 {
   typedef float RealType;
 
@@ -455,6 +457,15 @@ int InhomogeneityCorrectImage( itk::ants::CommandLineParser *parser )
 				biasFieldCropper->SetExtractionRegion( inputRegion );
 				biasFieldCropper->Update();
 
+        
+#ifdef HAVE_MINC4ITK        
+    minc::copy_metadata(cropper->GetOutput(),inputImage);
+    minc::append_history(cropper->GetOutput(),history);
+    
+    minc::copy_metadata(biasFieldCropper->GetOutput(),inputImage);
+    minc::append_history(biasFieldCropper->GetOutput(),history);
+#endif //HAVE_MINC4ITK    
+    
     if( outputOption->GetNumberOfParameters() == 0 )
       {
       typedef  itk::ImageFileWriter<ImageType> WriterType;
@@ -593,10 +604,12 @@ int main( int argc, char *argv[] )
       << " imageDimension args" << std::endl;
     exit( 1 );
     }
+    char *history=NULL;
 #ifdef HAVE_MINC4ITK 
     itk::RegisterMincIO();
+    history = time_stamp(argc, argv); 
 #endif //HAVE_MINC4ITK
-    
+      
     
   itk::ants::CommandLineParser::Pointer parser = itk::ants::CommandLineParser::New();
   parser->SetCommand( argv[0] );
@@ -616,14 +629,18 @@ int main( int argc, char *argv[] )
   switch( atoi( argv[1] ) )
    {
    case 2:
-     InhomogeneityCorrectImage<2>( parser );
+     InhomogeneityCorrectImage<2>( parser,history );
      break;
    case 3:
-     InhomogeneityCorrectImage<3>( parser );
+     InhomogeneityCorrectImage<3>( parser,history );
      break;
    default:
       std::cerr << "Unsupported dimension" << std::endl;
-      exit( EXIT_FAILURE );
+      return EXIT_FAILURE;
    }
+   
+   if(history) free((void*)history);
+
+   return 0;
 }
 

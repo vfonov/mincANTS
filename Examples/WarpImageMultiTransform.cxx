@@ -12,6 +12,12 @@
 #include "itkBSplineInterpolateImageFunction.h"
 #include "itkLinearInterpolateImageFunction.h"
 
+#ifdef HAVE_MINC4ITK
+#include "itkMincImageIOFactory.h"
+#include "itkMincHelpers.h"
+#include <time_stamp.h>    // for creating minc style history entry
+#endif //HAVE_MINC4ITK
+
 
 typedef enum{INVALID_FILE=1, AFFINE_FILE, DEFORMATION_FILE, IMAGE_AFFINE_HEADER, IDENTITY_TRANSFORM} TRAN_FILE_TYPE;
 typedef struct{
@@ -485,7 +491,7 @@ void GetLaregstSizeAfterWarp(WarperPointerType &warper, ImagePointerType &img, S
 
 template<int ImageDimension>
 void WarpImageMultiTransform(char *moving_image_filename, char *output_image_filename,
-        TRAN_OPT_QUEUE &opt_queue, MISC_OPT &misc_opt){
+        TRAN_OPT_QUEUE &opt_queue, MISC_OPT &misc_opt,const char *history){
 
     typedef itk::Image<float, ImageDimension> ImageType;
     typedef itk::Vector<float, ImageDimension>         VectorType;
@@ -802,11 +808,16 @@ int main(int argc, char **argv){
 
         std::cout << " Important Notes: " << std::endl;
         std::cout << " Prefixname \"abcd\" without any extension will use \".nii.gz\" by default" << std::endl;
-	std::cout << " The abcdWarp and abcdInverseWarp do not exist. They are formed on the basis of abcd(Inverse)Warpxvec/yvec/zvec.nii.gz when calling " << argv[0] <<", yet you have to use them as if they exist." << std::endl;
+        std::cout << " The abcdWarp and abcdInverseWarp do not exist. They are formed on the basis of abcd(Inverse)Warpxvec/yvec/zvec.nii.gz when calling " << argv[0] <<", yet you have to use them as if they exist." << std::endl;
         exit(0);
     }
 
-
+    char *history=NULL;
+#ifdef HAVE_MINC4ITK 
+    itk::RegisterMincIO();
+    history = time_stamp(argc, argv); 
+#endif //HAVE_MINC4ITK
+    
     TRAN_OPT_QUEUE opt_queue;
     char *moving_image_filename = NULL;
     char *output_image_filename = NULL;
@@ -830,11 +841,11 @@ int main(int argc, char **argv){
 
         switch (kImageDim){
         case 2:{
-            WarpImageMultiTransform<2>(moving_image_filename, output_image_filename, opt_queue, misc_opt);
+            WarpImageMultiTransform<2>(moving_image_filename, output_image_filename, opt_queue, misc_opt,history);
             break;
         }
         case 3:{
-            WarpImageMultiTransform<3>(moving_image_filename, output_image_filename, opt_queue, misc_opt);
+            WarpImageMultiTransform<3>(moving_image_filename, output_image_filename, opt_queue, misc_opt,history);
             break;
         }
         }
@@ -845,8 +856,6 @@ int main(int argc, char **argv){
     else{
         std::cout << "Input error!" << std::endl;
     }
-
-    exit(0);
-
-
+    if(history) free((void*)history);
+    return 0;
 }
