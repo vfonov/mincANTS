@@ -1,19 +1,19 @@
 /*=========================================================================
-   
+  
   Program:   Advanced Normalization Tools 
   Module:    $RCSfile: MeasureImageSimilarity.cxx,v $ 
   Language:  C++       
   Date:      $Date: 2009/01/05 20:09:47 $ 
   Version:   $Revision: 1.19 $ 
- 
+
   Copyright (c) ConsortiumOfANTS. All rights reserved. 
   See accompanying COPYING.txt or 
- http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for 
- 
-     This software is distributed WITHOUT ANY WARRANTY; without even  
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  
-     PURPOSE.  See the above copyright notices for more information. 
-   
+http://sourceforge.net/projects/advants/files/ANTS/ANTSCopyright.txt for 
+
+    This software is distributed WITHOUT ANY WARRANTY; without even  
+    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR  
+    PURPOSE.  See the above copyright notices for more information. 
+  
 =========================================================================*/ 
 #include "ReadWriteImage.h" 
 #include "itkDiscreteGaussianImageFilter.h"  
@@ -42,11 +42,11 @@ int MeasureImageSimilarity(unsigned int argc, char *argv[])
   typedef itk::AffineTransform<double,ImageDimension>   AffineTransformType; 
   typedef itk::LinearInterpolateImageFunction<ImageType,double>  InterpolatorType1; 
   typedef itk::ImageRegionIteratorWithIndex<ImageType> Iterator; 
- 
- 
+
+
   typedef itk::Image<float,2> JointHistType; 
   typedef itk::ImageFileWriter<JointHistType> jhwritertype; 
- 
+
 // get command line params 
   unsigned int argct=2;
   unsigned int whichmetric = atoi(argv[argct]); argct++;
@@ -60,12 +60,12 @@ int MeasureImageSimilarity(unsigned int argc, char *argv[])
   if (argc > argct) targetvalue = atof(argv[argct]); argct++; 
   double epsilontolerance=1.e20;
   if (argc > argct) epsilontolerance = atof(argv[argct]); argct++; 
- 
+
   typename ImageType::Pointer image1 = NULL;
   ReadImage<ImageType>(image1, fn1.c_str());  
   typename ImageType::Pointer image2 = NULL;  
   ReadImage<ImageType>(image2, fn2.c_str());  
- 
+
 /*
   typedef itk::ImageRegionIteratorWithIndex<FieldType> VIterator; 
   typename FieldType::Pointer field=FieldType::New(); 
@@ -92,7 +92,7 @@ int MeasureImageSimilarity(unsigned int argc, char *argv[])
   metricimg->SetDirection(image1->GetDirection()); 
   Iterator iter( metricimg,  metricimg->GetLargestPossibleRegion() );   
   for(  iter.GoToBegin(); !iter.IsAtEnd(); ++iter ) iter.Set(0); 
- 
+
   typedef ImageType FixedImageType; 
   typedef ImageType MovingImageType; 
   typedef FieldType DeformationFieldType; 
@@ -106,15 +106,15 @@ int MeasureImageSimilarity(unsigned int argc, char *argv[])
   typename MIMetricType::Pointer mimet=MIMetricType::New(); 
   typename SMIMetricType::Pointer smimet=SMIMetricType::New(); 
   typename CCMetricType::Pointer ccmet=CCMetricType::New(); 
-   
+  
 //  int nbins=32; 
- 
+
   typename CCMetricType::RadiusType hradius; 
   typename CCMetricType::RadiusType ccradius; 
   ccradius.Fill(4); 
   typename MIMetricType::RadiusType miradius; 
   miradius.Fill(0); 
- 
+
 //  mimet->SetDeformationField(field); 
   mimet->SetFixedImage(image1); 
   mimet->SetMovingImage(image2); 
@@ -142,7 +142,7 @@ int MeasureImageSimilarity(unsigned int argc, char *argv[])
       double mval=image2->GetPixel(index); 
       metricvalue+=fabs(fval-mval);
       metricimg->SetPixel(index,fabs(fval-mval));
-     ct++; 
+    ct++; 
       } 
     metricvalue/=(float)ct;
     metricname="MSQ ";
@@ -162,14 +162,14 @@ int MeasureImageSimilarity(unsigned int argc, char *argv[])
     mimet->InitializeIteration();
     metricvalue=mimet->ComputeMutualInformation();
     metricname="MI ";
-     }
+    }
   else if (whichmetric == 3 )
     {
     hradius=miradius;
     smimet->InitializeIteration();
     metricvalue=smimet->ComputeSpatialMutualInformation();
     metricname="SMI ";
-     }
+    }
   std::cout << fn1 << " : " << fn2 << " => " <<  metricname << metricvalue << std::endl;
   if (logfilename.length() > 3 ){ 
   std::ofstream logfile;
@@ -213,10 +213,10 @@ int MeasureImageSimilarity(unsigned int argc, char *argv[])
     
   std::cout << " AvantsMI : " << totval/(double)ct << " E " <<  met->GetEnergy() <<  std::endl; 
   std::cout << " write begin " << std::endl; 
-   
+  
   std::cout << " write end " << std::endl; 
 */  
- }
+}
 
   double diff = ((double)metricvalue - (double) targetvalue);
   std::cout << " targetvalue " << targetvalue << " metricvalue " << metricvalue << " diff " << diff << " toler " << epsilontolerance << std::endl;
@@ -226,14 +226,14 @@ int MeasureImageSimilarity(unsigned int argc, char *argv[])
   else return EXIT_FAILURE;
   
   
- }      
- 
+}      
+
 
 
 int main(int argc, char *argv[])        
 {
 
-   
+  
   if ( argc < 3 )     
     { std::cout << "Basic useage ex: " << std::endl;
     std::cout << argv[0] << " ImageDimension whichmetric image1.ext image2.ext {logfile} {outimage.ext}  {target-value}   {epsilon-tolerance}" << std::endl;
@@ -248,19 +248,19 @@ int main(int argc, char *argv[])
 #endif //HAVE_MINC4ITK
     
   int metricsuccess=EXIT_FAILURE;
-   // Get the image dimension
+  // Get the image dimension
   switch( atoi(argv[1]))
-   {
-   case 2:
-     metricsuccess=MeasureImageSimilarity<2>(argc,argv);
-     break;
-   case 3:
-     metricsuccess=MeasureImageSimilarity<3>(argc,argv);
-     break;
-   default:
-     std::cerr << "Unsupported dimension" << std::endl;
-     exit( EXIT_FAILURE );
-   }
+  {
+  case 2:
+    metricsuccess=MeasureImageSimilarity<2>(argc,argv);
+    break;
+  case 3:
+    metricsuccess=MeasureImageSimilarity<3>(argc,argv);
+    break;
+  default:
+    std::cerr << "Unsupported dimension" << std::endl;
+    exit( EXIT_FAILURE );
+  }
 
   std::cout << " Failure? " << metricsuccess << std::endl;
 

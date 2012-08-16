@@ -566,7 +566,7 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
                 typename AffineTransformType::Pointer aff_inv = AffineTransformType::New();
                 aff->GetInverse(aff_inv);
                 aff = aff_inv;
-		takeaffinv=true;
+    takeaffinv=true;
             }
             // std::cout <<" aff " << transcount <<  std::endl;
             warper->PushBackAffineTransform(aff);
@@ -604,7 +604,7 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
                 typename AffineTransformType::Pointer aff_inv = AffineTransformType::New();
                 aff->GetInverse(aff_inv);
                 aff = aff_inv;
-		takeaffinv=true;
+    takeaffinv=true;
             }
 
             // std::cout <<" aff from image header " << transcount <<  std::endl;
@@ -647,29 +647,29 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
       const TRAN_OPT &opt1 = opt_queue[0];
         const TRAN_OPT &opt2 = opt_queue[1];
 
-	if ( opt1.file_type == AFFINE_FILE  && opt2.file_type == DEFORMATION_FILE   ) {
-	  bool defisinv=IsInverseDeformation(opt2.filename.c_str()); 
-	  if ( ! takeaffinv ) {
-	    std::cout << " Your 1st parameter should be an inverse affine map and the 2nd an InverseWarp  --- exiting without applying warp.  Check that , if using an inverse affine map, you pass the -i option before the Affine.txt." << std::endl;
-	    return ; 
-	  }
-	  if ( ! defisinv ) {
-	    std::cout << " Your 2nd  parameter should be an InverseWarp when your 1st parameter is an inverse affine map  --- exiting without applying warp.  " << std::endl;
-	    return ; 
-	  }
-	}
-	if ( opt2.file_type == AFFINE_FILE  && opt1.file_type == DEFORMATION_FILE   ) {
-	  bool defisinv=IsInverseDeformation(opt1.filename.c_str()); 
-	  if (  defisinv ) {
-	    std::cout << " Your 1st parameter should be a Warp (not Inverse) when your 2nd parameter is an affine map --- exiting without applying warp.  " << std::endl;
-	    return ; 
-	  }
-	  if (  takeaffinv ) {
-	    std::cout << " Your 2nd parameter should be a regular affine map (not inverted) if the 1st is a Warp --- exiting without applying warp. " << std::endl;
-	    return ; 
-	  }
-	}
-	std::cout <<" syntax probably ok. " << std::endl;
+  if ( opt1.file_type == AFFINE_FILE  && opt2.file_type == DEFORMATION_FILE   ) {
+    bool defisinv=IsInverseDeformation(opt2.filename.c_str()); 
+    if ( ! takeaffinv ) {
+      std::cout << " Your 1st parameter should be an inverse affine map and the 2nd an InverseWarp  --- exiting without applying warp.  Check that , if using an inverse affine map, you pass the -i option before the Affine.txt." << std::endl;
+      return ; 
+    }
+    if ( ! defisinv ) {
+      std::cout << " Your 2nd  parameter should be an InverseWarp when your 1st parameter is an inverse affine map  --- exiting without applying warp.  " << std::endl;
+      return ; 
+    }
+  }
+  if ( opt2.file_type == AFFINE_FILE  && opt1.file_type == DEFORMATION_FILE   ) {
+    bool defisinv=IsInverseDeformation(opt1.filename.c_str()); 
+    if (  defisinv ) {
+      std::cout << " Your 1st parameter should be a Warp (not Inverse) when your 2nd parameter is an affine map --- exiting without applying warp.  " << std::endl;
+      return ; 
+    }
+    if (  takeaffinv ) {
+      std::cout << " Your 2nd parameter should be a regular affine map (not inverted) if the 1st is a Warp --- exiting without applying warp. " << std::endl;
+      return ; 
+    }
+  }
+  std::cout <<" syntax probably ok. " << std::endl;
     } else {
       std::cout << " You are doing something more complex -- we wont check syntax in this case " << std::endl;
     }
@@ -745,19 +745,19 @@ void WarpImageMultiTransform(char *moving_image_filename, char *output_image_fil
 
 int main(int argc, char **argv){
 
-    if (argc<=3)
-	{
+  if (argc<=3)
+  {   
         std::cout <<  " \n " << std::endl;
-	std::cout <<  "Usage: \n " << std::endl;
+        std::cout <<  "Usage: \n " << std::endl;
 
-	//	std::cout << argv[0] <<  " ImageDimension moving_image output_image [-R reference_image | --tightest-bounding-box] (--reslice-by-header) [--use-NN]"
+  //	std::cout << argv[0] <<  " ImageDimension moving_image output_image [-R reference_image | --tightest-bounding-box] (--reslice-by-header) [--use-NN]"
         //<< "[--ANTS-prefix prefix-name | --ANTS-prefix-invert prefix-name] {[deformation_field | [-i] InverseAffineTransform.txt | --Id | [-i] --moving-image-header / -mh  | [-i] --reference-image-header / -rh]} \n" << std::endl;
-	std::cout << argv[0] <<  " ImageDimension moving_image output_image  -R reference_image --use-NN   SeriesOfTransformations--(See Below) " << std::endl;
-	std::cout <<" SeriesOfTransformations --- " << argv[0] <<  " can apply, via concatenation, an unlimited number of transformations to your data ." << std::endl; 
-	std::cout << " Thus, SeriesOfTransformations may be  an Affine transform followed by a warp  another affine and then another warp. " << std::endl;
-	std::cout << "  Inverse affine transformations are invoked by calling   -i MyAffine.txt " << std::endl;
-	std::cout << " InverseWarps are invoked by passing the InverseWarp.nii.gz  filename (see below for a note about this).  " << std::endl; 
-	std::cout << std::endl;
+  std::cout << argv[0] <<  " ImageDimension moving_image output_image  -R reference_image --use-NN   SeriesOfTransformations--(See Below) " << std::endl;
+  std::cout <<" SeriesOfTransformations --- " << argv[0] <<  " can apply, via concatenation, an unlimited number of transformations to your data ." << std::endl; 
+  std::cout << " Thus, SeriesOfTransformations may be  an Affine transform followed by a warp  another affine and then another warp. " << std::endl;
+  std::cout << "  Inverse affine transformations are invoked by calling   -i MyAffine.txt " << std::endl;
+  std::cout << " InverseWarps are invoked by passing the InverseWarp.nii.gz  filename (see below for a note about this).  " << std::endl; 
+  std::cout << std::endl;
         std::cout << " Example 1: Mapping a warped image into the reference_image domain by applying abcdWarpxvec.nii.gz/abcdWarpyvec.nii.gz/abcdWarpzvec.nii.gz and then abcdAffine.txt\n" << std::endl;
 
         std::cout << argv[0] <<  " 3 moving_image output_image -R reference_image abcdWarp.nii.gz abcdAffine.txt\n" << std::endl;
@@ -765,41 +765,41 @@ int main(int argc, char **argv){
         std::cout << " Example 2: To map the fixed/reference_image warped into the moving_image domain by applying the inversion of abcdAffine.txt and then abcdInverseWarpxvec.nii.gz/abcdInverseWarpyvec.nii.gz/abcdInverseWarpzvec.nii.gz .\n" << std::endl;
 
         std::cout << argv[0] << " 3 reference_image output_image -R moving_image -i  abcdAffine.txt abcdInverseWarp.nii.gz \n \n" << std::endl;
-	std::cout <<"  Note that the inverse maps (Ex. 2) are passed to this program in the reverse order of the forward maps (Ex. 1). " << std::endl;
-	std::cout <<" This makes sense, geometrically ... see ANTS.pdf for visualization of this syntax." << std::endl;
-	std::cout << std::endl;
-	std::cout << " Compulsory arguments:\n " << std::endl;
+  std::cout <<"  Note that the inverse maps (Ex. 2) are passed to this program in the reverse order of the forward maps (Ex. 1). " << std::endl;
+  std::cout <<" This makes sense, geometrically ... see ANTS.pdf for visualization of this syntax." << std::endl;
+  std::cout << std::endl;
+  std::cout << " Compulsory arguments:\n " << std::endl;
 
-	std::cout << " ImageDimension: 2 or 3 (for 2 or 3 Dimensional registration)\n " << std::endl;
+  std::cout << " ImageDimension: 2 or 3 (for 2 or 3 Dimensional registration)\n " << std::endl;
 
-	std::cout << " moving_image: the image to apply the transformation to\n " << std::endl;
+  std::cout << " moving_image: the image to apply the transformation to\n " << std::endl;
 
-	std::cout << " output_image: the resulting image\n \n " << std::endl;
+  std::cout << " output_image: the resulting image\n \n " << std::endl;
 
-	std::cout << " Optional arguments:\n " << std::endl;
+  std::cout << " Optional arguments:\n " << std::endl;
 
-	std::cout << " -R: reference_image space that you wish to warp INTO." << std::endl;
-	std::cout << "	   --tightest-bounding-box: Computes the tightest bounding box using all the affine transformations. It will be overrided by -R reference_image if given." << std::endl;
-	std::cout << "	   --reslice-by-header: equivalient to -i -mh, or -fh -i -mh if used together with -R. It uses the orientation matrix and origin encoded in the image file header. " << std::endl; 
-	std::cout << "	   It can be used together with -R. This is typically not used together with any other transforms.\n " << std::endl;
+  std::cout << " -R: reference_image space that you wish to warp INTO." << std::endl;
+  std::cout << "	   --tightest-bounding-box: Computes the tightest bounding box using all the affine transformations. It will be overrided by -R reference_image if given." << std::endl;
+  std::cout << "	   --reslice-by-header: equivalient to -i -mh, or -fh -i -mh if used together with -R. It uses the orientation matrix and origin encoded in the image file header. " << std::endl; 
+  std::cout << "	   It can be used together with -R. This is typically not used together with any other transforms.\n " << std::endl;
 
-	std::cout << " --use-NN: Use Nearest Neighbor Interpolation. \n " << std::endl;
-	std::cout << " --use-BSpline: Use 3rd order B-Spline Interpolation. \n " << std::endl;
+  std::cout << " --use-NN: Use Nearest Neighbor Interpolation. \n " << std::endl;
+  std::cout << " --use-BSpline: Use 3rd order B-Spline Interpolation. \n " << std::endl;
 
-	//	std::cout << " --ANTS-prefix prefix-name: followed by a deformation field filename. \n " << std::endl;
+  //	std::cout << " --ANTS-prefix prefix-name: followed by a deformation field filename. \n " << std::endl;
 
-	//	std::cout << " --ANTS-prefix-invert: . \n" << std::endl;
+  //	std::cout << " --ANTS-prefix-invert: . \n" << std::endl;
 
-	std::cout << " -i: will use the inversion of the following affine transform. \n " << std::endl;
+  std::cout << " -i: will use the inversion of the following affine transform. \n " << std::endl;
 
-	//	std::cout << " --Id: use an identity transform. \n " << std::endl;
+  //	std::cout << " --Id: use an identity transform. \n " << std::endl;
 
-	// std::cout << " --moving-image-header or -mh: will use the orientation header of the moving image file. This is typically not used with --reslice-by-header.\n " << std::endl;
+  // std::cout << " --moving-image-header or -mh: will use the orientation header of the moving image file. This is typically not used with --reslice-by-header.\n " << std::endl;
 
-	//	std::cout << " --reference-image-header or -rh: use the orientation matrix and origin encoded in the image file header. It can be used together with -R.\n " << std::endl;
+  //	std::cout << " --reference-image-header or -rh: use the orientation matrix and origin encoded in the image file header. It can be used together with -R.\n " << std::endl;
         std::cout <<  " \n " << std::endl;
 
-	//        std::cout << " For ANTS users:" << std::endl;
+  //        std::cout << " For ANTS users:" << std::endl;
 
 
         std::cout << " Other Example Usages:" << std::endl;

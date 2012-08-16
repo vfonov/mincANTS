@@ -24,6 +24,10 @@
 #include "itkCastImageFilter.h"
 #include "itkRescaleIntensityImageFilter.h"
 
+#ifdef HAVE_MINC4ITK
+#include "itkMincImageIOFactory.h"
+#endif //HAVE_MINC4ITK
+
 
 template <unsigned int ImageDimension>
 int ConvertType(int argc, char *argv[])        
@@ -88,14 +92,18 @@ int main(int argc, char *argv[])
   { std::cout << "Usage:   ConvertToJpg infile.nii out.jpg " << std::endl;
     return 1;
   }           
-                 
+  
+  #ifdef HAVE_MINC4ITK 
+    itk::RegisterMincIO();
+  #endif //HAVE_MINC4ITK
+               
    // Get the image dimension
   std::string fn = std::string(argv[1]);
-   itk::ImageIOBase::Pointer imageIO =
-      itk::ImageIOFactory::CreateImageIO(
-         fn.c_str(), itk::ImageIOFactory::ReadMode);
-   imageIO->SetFileName(fn.c_str());
-   imageIO->ReadImageInformation();
+  itk::ImageIOBase::Pointer imageIO =
+  itk::ImageIOFactory::CreateImageIO(
+    fn.c_str(), itk::ImageIOFactory::ReadMode);
+  imageIO->SetFileName(fn.c_str());
+  imageIO->ReadImageInformation();
 
    switch ( imageIO->GetNumberOfDimensions() )
    {

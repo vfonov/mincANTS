@@ -12,6 +12,11 @@
 #include "itkTransformFileReader.h"
 #include "itkTransformFileWriter.h"
 
+#ifdef HAVE_MINC4ITK
+#include "itkMincImageIOFactory.h"
+#endif //HAVE_MINC4ITK
+
+
 typedef enum {
     INVALID_FILE = 1, AFFINE_FILE, DEFORMATION_FILE
 } TRAN_FILE_TYPE;
@@ -352,16 +357,16 @@ int main(int argc, char **argv) {
         << "ComposeMultiTransform ImageDimension output_field [-R reference_image] "
         << "{[deformation_field | [-i] affine_transform_txt ]}"
         << std::endl;
-	  std::cout <<"  Usage has the same form as WarpImageMultiTransform " << std::endl;
-	std::cout <<" For Example: " << std::endl;
-	std::cout << std::endl;
-	std::cout <<   argv[0]  << " Dimension  outwarp.nii   -R template.nii   ExistingWarp.nii  ExistingAffine.nii " << std::endl;
-	std::cout << " or for an inverse mapping : " << std::endl;
-	std::cout << argv[0]  << " Dimension  outwarp.nii   -R template.nii   -i ExistingAffine.nii ExistingInverseWarp.nii " << std::endl;
-	std::cout <<" recalling that the -i option takes the inverse of the affine mapping " << std::endl;
-	std::cout << std::endl;
-	std::cout << "Or: to compose multiple affine text file into one: "        << std::endl;
- std::cout 	 << "ComposeMultiTransform ImageDimension output_affine_txt [-R reference_affine_txt] "
+        std::cout <<"  Usage has the same form as WarpImageMultiTransform " << std::endl;
+        std::cout <<" For Example: " << std::endl;
+        std::cout << std::endl;
+        std::cout <<   argv[0]  << " Dimension  outwarp.nii   -R template.nii   ExistingWarp.nii  ExistingAffine.nii " << std::endl;
+        std::cout << " or for an inverse mapping : " << std::endl;
+        std::cout << argv[0]  << " Dimension  outwarp.nii   -R template.nii   -i ExistingAffine.nii ExistingInverseWarp.nii " << std::endl;
+        std::cout <<" recalling that the -i option takes the inverse of the affine mapping " << std::endl;
+        std::cout << std::endl;
+        std::cout << "Or: to compose multiple affine text file into one: "        << std::endl;
+        std::cout 	 << "ComposeMultiTransform ImageDimension output_affine_txt [-R reference_affine_txt] "
         << "{[-i] affine_transform_txt}" << std::endl
         << "This will be evoked if a text file is given as the second parameter. In this case "
         << "reference_affine_txt is used to define the center of the output affine.  "
@@ -370,6 +375,10 @@ int main(int argc, char **argv) {
         << std::endl;
         exit(0);
     }
+    
+#ifdef HAVE_MINC4ITK 
+    itk::RegisterMincIO();
+#endif //HAVE_MINC4ITK
 
     TRAN_OPT_QUEUE opt_queue;
     //    char *moving_image_filename = NULL;
