@@ -40,6 +40,13 @@
 
 typedef enum{AffineWithMutualInformation=1, AffineWithMeanSquareDifference , AffineWithHistogramCorrelation, AffineWithNormalizedCorrelation , AffineWithGradientDifference } AffineMetricType;
 
+template<class ImagePointerType, class ImagePyramidType>
+void BuildImagePyramid(const ImagePointerType &image, int number_of_levels, ImagePyramidType &image_pyramid);
+
+template<class ImageTypePointer, class AffineTransformPointer>
+void GetAffineTransformFromImage(const ImageTypePointer& img, AffineTransformPointer &aff);
+
+
 template<class TAffineTransformPointer, class TMaskImagePointer>
 class OptAffine{
 public:
